@@ -724,8 +724,8 @@ NoExtFunction:
 	}
 	else if (!Q_stricmp(vendor, "GenuineIntel"))
 	{
+		int intModel = model + (extModel << 4);
 		strncpy(cpuString, "Intel", maxSize);
-
 		switch (family)
 		{
 		case 5: // Pentium family
@@ -744,7 +744,7 @@ NoExtFunction:
 			}
 			break;
 		case 6:
-			if (extFamily == 6)	// newer CPUs
+			if ((family + extFamily) == 6)	// newer CPUs
 			{
 				switch (model)
 				{
@@ -752,40 +752,59 @@ NoExtFunction:
 					Q_strncatz(cpuString, " Core i5 6xx / Core i3 5xx", maxSize);
 					break;
 				case 7:		
-					if (extModel == 0x17)	// Wolfdale / Yorkfield
+					if (intModel == 0x17)	// Wolfdale / Yorkfield
 						Q_strncatz(cpuString, " Core 2", maxSize);
+					else // Katmai
+						Q_strncatz(cpuString, " Pentium III", maxSize);
 					break;
+				case 8:		// Coppermine
+					Q_strncatz(cpuString, " Pentium III", maxSize);
+					break;
+
 				case 10:	
-					if (extModel == 0x2A)	// Sandy Bridge
+					if (intModel == 0x2A)	// Sandy Bridge
 						Q_strncatz(cpuString, "  Core i7 /i5 2xxx", maxSize);
-					else if (extModel == 0x3A)	// Ivy Bridge
+					else if (intModel == 0x3A)	// Ivy Bridge
 						Q_strncatz(cpuString, "  Core i7 /i5 3xxx", maxSize);
-					else if (extModel == 0x1A)	// Bloomfield
+					else if (intModel == 0x1A)	// Bloomfield
 						Q_strncatz(cpuString, " Core i7 9xx", maxSize);
+					else if (intModel == 0x45)
+						Q_strncatz(cpuString, " Core i7 /i5 4xxx", maxSize);
+					else // Coppermine
+						Q_strncatz(cpuString, " Pentium III", maxSize);
+					break;
+
+				case 11:	// Tualatin
+					Q_strncatz(cpuString, " Pentium III", maxSize);
 					break;
 				case 12:
-					if (extModel == 0x2C)	// Gulftown
+					if (intModel == 0x2C)	// Gulftown
 						Q_strncatz(cpuString, " Core i7 9xx", maxSize);
 					else	// Silverthorne
 						Q_strncatz(cpuString, " Atom", maxSize);
 					break;
 				case 13:	
-					if (extModel == 0x2D)	// Sandy Bridge-E
+					if (intModel == 0x2D)	// Sandy Bridge-E
 						Q_strncatz(cpuString, " Core i7 39xx / 38xx", maxSize);
+					else // Dothan
+						Q_strncatz(cpuString, " Pentium M", maxSize);
 					break;
 				case 14:
-					if (extModel == 0x1E)	// Lynnfield
+					if (intModel == 0x1E)	// Lynnfield
 						Q_strncatz(cpuString, " Core i7 8xx / Core i5 7xx", maxSize);
+					else
+						// Yonah
+						Q_strncatz(cpuString, " Core", maxSize);
+
 					break;
-				case 15:	
-					if (extModel == 15)	// Conroe / Kentsfield
-						Q_strncatz(cpuString, " Core 2", maxSize);
+				case 15: // Conroe / Kentsfield / Wolfdale / Yorkfield	
+					Q_strncatz(cpuString, " Core 2", maxSize);
 					break;
 				default:
 					break;
 				}
 			}
-			else // P6 family
+			else if (extFamily != 6) // P6 family
 			{
 				switch (model)
 				{
@@ -802,25 +821,7 @@ NoExtFunction:
 					Q_strncatz(cpuString, " Celeron", maxSize);
 					break;
 				// Actual differentiation depends on cache settings
-				case 7:		// Katmai
-				case 8:		// Coppermine
-				case 10:	// Coppermine
-				case 11:	// Tualatin
-					Q_strncatz(cpuString, " Pentium III", maxSize);
-					break;
-				case 12:	// Silverthorne
-					Q_strncatz(cpuString, " Atom", maxSize);
-					break;
-				case 9:		// Banias
-				case 13:	// Dothan
-					Q_strncatz(cpuString, " Pentium M", maxSize);
-					break;
-				case 14:	// Yonah
-					Q_strncatz(cpuString, " Core", maxSize);
-					break;
-				case 15:	// Conroe / Kentsfield / Wolfdale / Yorkfield
-					Q_strncatz(cpuString, " Core 2", maxSize);
-					break;
+
 				default:
 					Q_strncatz(cpuString, " P6", maxSize);
 					break;

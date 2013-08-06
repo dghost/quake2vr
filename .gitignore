@@ -217,3 +217,5 @@ pip-log.txt
 *.lib
 *.dll
 *.exe
+
+LibOVR/
