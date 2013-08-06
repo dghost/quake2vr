@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2", "quake2.vcxproj", "{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lazarus", "game\lazarus.vcxproj", "{09E58C1F-353D-58C5-DE43-60F70BB966AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Debug|Win32.Build.0 = Debug|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.ActiveCfg = Release|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.Build.0 = Release|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Debug|Win32.Build.0 = Debug|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release|Win32.ActiveCfg = Release|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
