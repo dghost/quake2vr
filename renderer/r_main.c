@@ -1606,6 +1606,46 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	R_Compile_ARB_Programs ();
 
+	glConfig.arb_framebuffer_object = false;
+	if ( glConfig.arb_vertex_program && glConfig.arb_fragment_program){
+		
+		if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
+		{
+			qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebuffer" );
+			qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbuffer" );
+			qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
+			qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatus" );
+			qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffers" );
+			qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffers" );
+			qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbuffer" );
+			qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1D" );
+			qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2D" );
+			qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3D" );
+			qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
+			qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffers" );
+			qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffers" );
+			qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmap" );
+			qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameteriv" );
+			qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameteriv" );
+			qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebuffer" );
+			qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbuffer" );
+			qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorage" );
+			qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisample" );
+
+			if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglBlitFramebuffer || !qglCheckFramebufferStatus ||
+				!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
+				!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglFramebufferTextureLayer || !qglGenFramebuffers ||
+				!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
+				!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage || !qglRenderbufferStorageMultisample)
+				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_framebuffer_object not properly supported!\n");
+			else {
+				VID_Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
+				glConfig.arb_framebuffer_object = true;
+			}
+		} else {
+			VID_Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+		}
+	}
 	// GL_NV_texture_shader - MrG
 	if ( strstr( glConfig.extensions_string, "GL_NV_texture_shader" ) )
 	{
@@ -1682,6 +1722,8 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	}
 	else
 		VID_Printf (PRINT_ALL, "...WGL_3DFX_gamma_control not found\n" );
+
+
 
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );

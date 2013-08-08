@@ -800,6 +800,8 @@ typedef struct
 	qboolean	arb_vertex_program;
 	qboolean	NV_texshaders;
 
+	qboolean	arb_framebuffer_object;
+
 	// anisotropic filtering
 	qboolean	anisotropic;
 	float		max_anisotropy;
