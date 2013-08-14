@@ -800,6 +800,7 @@ typedef struct
 	qboolean	arb_vertex_program;
 	qboolean	NV_texshaders;
 
+	qboolean	arb_shader_objects;
 	qboolean	arb_framebuffer_object;
 
 	// anisotropic filtering
@@ -875,6 +876,7 @@ typedef struct
 	unsigned char	originalRedGammaTable[256];
 	unsigned char	originalGreenGammaTable[256];
 	unsigned char	originalBlueGammaTable[256];
+
 } glstate_t;
 
 extern glconfig_t  glConfig;
@@ -967,3 +969,22 @@ void		GLimp_AppActivate( qboolean active );
 void		GLimp_EnableLogging( qboolean enable );
 void		GLimp_LogNewFrame( void );
 
+/*
+====================================================================
+
+VR Stuff
+
+====================================================================
+*/
+
+void R_VR_Init();
+void R_VR_Teardown();
+void R_VR_Enable();
+void R_VR_Disable();
+void R_VR_StartFrame();
+void R_VR_BindHud();
+void R_VR_BindLeft();
+void R_VR_BindRight();
+void R_VR_Present();
+void R_VR_EndFrame();
+void R_VR_DrawHud();

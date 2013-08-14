@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 #include "../ui/ui_local.h"
+#include "../vr/vr.h"
 
 float		scr_con_current;	// aproaches scr_conlines at scr_conspeed
 float		scr_conlines;		// 0.0 to 1.0 lines of console to display
@@ -2042,6 +2043,146 @@ void DrawDemoMessage (void)
 	}
 }
 
+
+/*
+==================
+VR_UpdateScreen
+
+This is called every frame, and can also be called explicitly to flush
+text to the screen.
+==================
+*/
+void VR_UpdateScreen (void)
+{
+	R_VR_StartFrame();
+
+	viddef.width = vrState.hudWidth;
+	viddef.height = vrState.hudHeight;
+	scr_vrect.width = vrState.hudWidth;
+	scr_vrect.height = vrState.hudHeight;
+
+	R_BeginFrame(0.0f );
+	if (scr_draw_loading == 2)
+	{	//  loading plaque over black screen
+		//R_SetPalette(NULL);
+		// Knightmare- refresh loading screen
+		SCR_DrawLoading ();
+
+		// Knightmare- set back for loading screen
+		if (cls.disable_screen)
+			scr_draw_loading = 2;
+
+		if (cls.consoleActive)
+			Con_DrawConsole (0.5, false);
+
+		// explicitly force a swap/present
+		R_VR_Present();
+		GLimp_EndFrame();
+
+		return;
+	} 
+	// if a cinematic is supposed to be running, handle menus
+	// and console specially
+	else if (cl.cinematictime > 0)
+	{
+		if (cls.key_dest == key_menu)
+		{
+			/*if (cl.cinematicpalette_active)
+			{
+			R_SetPalette(NULL);
+			cl.cinematicpalette_active = false;
+			}*/
+			UI_Draw ();
+		}
+		else
+			SCR_DrawCinematic();
+
+
+		SCR_DrawConsole ();	
+
+	}
+	else 
+	{
+		// Knightmare added- disconnected menu
+		if (cls.state == ca_disconnected && cls.key_dest != key_menu && !scr_draw_loading) 
+		{
+			SCR_EndLoadingPlaque ();	// get rid of loading plaque
+			cls.consoleActive = true; // show error in console
+			M_Menu_Main_f();
+		}
+
+		// make sure the game palette is active
+		/*if (cl.cinematicpalette_active)
+		{
+		R_SetPalette(NULL);
+		cl.cinematicpalette_active = false;
+		}*/
+
+		// do 3D refresh drawing, and then update the screen
+
+		// clear background around sized down view
+		//	SCR_TileClear ();
+
+
+		// don't draw crosshair while in menu
+//		if (cls.key_dest != key_menu) 
+//		     SCR_DrawCrosshair ();
+
+		if (!scr_hidehud)
+		{
+			SCR_DrawStats ();
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 1)
+				SCR_DrawLayout ();
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 2)
+				CL_DrawInventory ();
+		}
+
+		SCR_DrawLetterbox ();
+
+		SCR_DrawNet ();
+		SCR_CheckDrawCenterString ();
+
+		if (scr_timegraph->value)
+			SCR_DebugGraph (cls.frametime*300, 0);
+
+		if (scr_debuggraph->value || scr_timegraph->value || scr_netgraph->value)
+			SCR_DrawDebugGraph ();
+
+		SCR_DrawPause ();
+
+		if (cl_demomessage->value)
+			DrawDemoMessage();
+
+		//if ((cl_drawfps->value) && (cls.state == ca_active))
+		SCR_ShowFPS ();
+
+		UI_Draw ();
+
+		SCR_DrawLoading ();
+
+		SCR_DrawConsole ();	
+
+		viddef.width = vrState.vrHalfWidth;
+		viddef.height = vrState.vrHeight;
+		scr_vrect.width = vrState.vrHalfWidth;
+		scr_vrect.height = vrState.vrHeight;
+
+		scr_vrect.x = 0;
+		scr_vrect.y = 0;
+
+		VR_RenderView();
+
+		viddef.width = vrState.viewWidth;
+		viddef.height = vrState.viewHeight;
+		scr_vrect.width = vrState.viewWidth;
+		scr_vrect.height = vrState.viewHeight;
+
+	}
+	R_VR_Present();
+	GLimp_EndFrame();
+}
+
+
 /*
 ==================
 SCR_UpdateScreen
@@ -2075,6 +2216,10 @@ void SCR_UpdateScreen (void)
 	if (!scr_initialized || !con.initialized)
 		return;				// not initialized yet
 
+	if (vrState.enabled) {
+		VR_UpdateScreen();
+		return;
+	}
 	//
 	// range check cl_camera_separation so we don't inadvertently fry someone's
 	// brain
@@ -2157,7 +2302,6 @@ void SCR_UpdateScreen (void)
 			SCR_TileClear ();
 
 			V_RenderView ( separation[i] );
-
 			// don't draw crosshair while in menu
 			if (cls.key_dest != key_menu) 
 				SCR_DrawCrosshair ();
@@ -2194,7 +2338,7 @@ void SCR_UpdateScreen (void)
 
 			SCR_DrawLoading ();
 		}
-		SCR_DrawConsole ();
+		SCR_DrawConsole ();	
 	}
 	GLimp_EndFrame();
 }

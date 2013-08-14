@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "resource.h"
 #include "glw_win.h"
 #include "winquake.h"
+#include "../vr/vr.h"
 
 static qboolean GLimp_SwitchFullscreen( int width, int height );
 qboolean GLimp_InitGL (void);
@@ -728,7 +729,11 @@ void GLimp_BeginFrame( float camera_separation )
 		r_bitdepth->modified = false;
 	}
 
-	if ( camera_separation < 0 && glState.stereo_enabled )
+	if ( vrState.enabled )
+	{
+		qglDrawBuffer( GL_COLOR_ATTACHMENT0 );
+	} 
+	else if ( camera_separation < 0 && glState.stereo_enabled )
 	{
 		qglDrawBuffer( GL_BACK_LEFT );
 	}
@@ -752,13 +757,12 @@ void GLimp_BeginFrame( float camera_separation )
 void GLimp_EndFrame (void)
 {
 	int		err;
-
 	err = qglGetError();
 //	assert( err == GL_NO_ERROR );
 	if (err != GL_NO_ERROR)	// Output error code instead
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
-	if ( stricmp( r_drawbuffer->string, "GL_BACK" ) == 0 )
+	if ( stricmp( r_drawbuffer->string, "GL_BACK" ) == 0 || vrState.enabled)
 	{
 		if ( !qwglSwapBuffers( glw_state.hDC ) )
 			VID_Error (ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n");

@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "r_local.h"
 #include "vlights.h"
+#include "../vr/vr.h"
 
 void R_Clear (void);
 
@@ -283,7 +284,15 @@ int SignbitsForPlane (cplane_t *out)
 void R_SetFrustum (void)
 {
 	int		i;
+	float	fov_x = r_newrefdef.fov_x;
+	float	fov_y = r_newrefdef.fov_y;
 
+	// hack to keep objects from disappearing at the edges
+	if (vrState.enabled)
+	{
+		fov_y += 20;
+		fov_x += 20;
+	}
 #if 0
 	//
 	// this code is wrong, since it presume a 90 degree FOV both in the
@@ -303,13 +312,13 @@ void R_SetFrustum (void)
 	VectorNormalize( frustum[3].normal );
 #else
 	// rotate VPN right by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[0].normal, vup, vpn, -(90-r_newrefdef.fov_x / 2 ) );
+	RotatePointAroundVector( frustum[0].normal, vup, vpn, -(90-fov_x / 2 ) );
 	// rotate VPN left by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[1].normal, vup, vpn, 90-r_newrefdef.fov_x / 2 );
+	RotatePointAroundVector( frustum[1].normal, vup, vpn, 90-fov_x / 2 );
 	// rotate VPN up by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[2].normal, vright, vpn, 90-r_newrefdef.fov_y / 2 );
+	RotatePointAroundVector( frustum[2].normal, vright, vpn, 90-fov_y / 2 );
 	// rotate VPN down by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[3].normal, vright, vpn, -( 90 - r_newrefdef.fov_y / 2 ) );
+	RotatePointAroundVector( frustum[3].normal, vright, vpn, -( 90 - fov_y / 2 ) );
 #endif
 
 	for (i=0 ; i<4 ; i++)
@@ -476,15 +485,43 @@ void R_SetupGL (void)
 	//
 	// set up projection matrix
 	//
-    screenaspect = (float)r_newrefdef.width/r_newrefdef.height;
 //	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 	qglMatrixMode(GL_PROJECTION);
     qglLoadIdentity ();
 
-	//Knightmare- 12/26/2001- increase back clipping plane distance
-    MYgluPerspective (r_newrefdef.fov_y,  screenaspect,  4, farz); //was 4096
-	//end Knightmare
 
+	if (vrState.enabled)
+	{
+		GLfloat aspect = r_newrefdef.fov_x/r_newrefdef.fov_y;
+		float f = 1.0f / tanf((r_newrefdef.fov_y / 2.0f) * M_PI / 180);
+		float nf = 1.0f / (4 - farz);
+		float out[16];
+		out[0] = f / aspect;
+		out[1] = 0;
+		out[2] = 0;
+		out[3] = 0;
+		out[4] = 0;
+		out[5] = f;
+		out[6] = 0;
+		out[7] = 0;
+		out[8] = vrState.eye * vrState.projOffset;
+		out[9] = 0;
+		out[10] = (farz + 4) * nf;
+		out[11] = -1;
+		out[12] = 0;
+		out[13] = 0;
+		out[14] = (2.0f * farz * 4) * nf;
+		out[15] = 0;
+		qglLoadMatrixf(out);
+		screenaspect = aspect;
+
+	} else {
+	    screenaspect = (float)r_newrefdef.width/r_newrefdef.height;
+
+		//Knightmare- 12/26/2001- increase back clipping plane distance
+		MYgluPerspective (r_newrefdef.fov_y,  screenaspect,  4, farz); //was 4096
+		//end Knightmare
+	}
 	GL_CullFace(GL_FRONT);
 
 	qglMatrixMode(GL_MODELVIEW);
@@ -705,7 +742,6 @@ void R_RenderView (refdef_t *fd)
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
 
 		R_BloomBlend (fd);	// BLOOMS
-
 		R_Flash();
 	}
 	R_SetFog();
@@ -1607,46 +1643,108 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	R_Compile_ARB_Programs ();
 
 	glConfig.arb_framebuffer_object = false;
-	if ( glConfig.arb_vertex_program && glConfig.arb_fragment_program){
-		
-		if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
-		{
-			qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebuffer" );
-			qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbuffer" );
-			qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
-			qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatus" );
-			qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffers" );
-			qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffers" );
-			qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbuffer" );
-			qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1D" );
-			qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2D" );
-			qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3D" );
-			qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
-			qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffers" );
-			qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffers" );
-			qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmap" );
-			qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameteriv" );
-			qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameteriv" );
-			qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebuffer" );
-			qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbuffer" );
-			qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorage" );
-			qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisample" );
 
-			if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglBlitFramebuffer || !qglCheckFramebufferStatus ||
-				!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
-				!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglFramebufferTextureLayer || !qglGenFramebuffers ||
-				!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
-				!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage || !qglRenderbufferStorageMultisample)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_framebuffer_object not properly supported!\n");
+	if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
+	{
+		qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebuffer" );
+		qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbuffer" );
+		qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
+		qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatus" );
+		qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffers" );
+		qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffers" );
+		qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbuffer" );
+		qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1D" );
+		qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2D" );
+		qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3D" );
+		qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
+		qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffers" );
+		qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffers" );
+		qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmap" );
+		qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameteriv" );
+		qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameteriv" );
+		qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebuffer" );
+		qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbuffer" );
+		qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorage" );
+		qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisample" );
+
+		if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglBlitFramebuffer || !qglCheckFramebufferStatus ||
+			!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
+			!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglFramebufferTextureLayer || !qglGenFramebuffers ||
+			!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
+			!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage || !qglRenderbufferStorageMultisample)
+			VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_framebuffer_object not properly supported!\n");
+		else {
+			VID_Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
+			glConfig.arb_framebuffer_object = true;
+		}
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+	}
+	glConfig.arb_shader_objects = false;
+	if (glConfig.arb_framebuffer_object) {
+		if ( strstr(glConfig.extensions_string, "GL_ARB_shader_objects") )
+		{
+
+			qglAttachObjectARB = (void *) qwglGetProcAddress( "glAttachObjectARB" );
+			qglCompileShaderARB = (void *) qwglGetProcAddress( "glCompileShaderARB" );
+			qglCreateProgramObjectARB = (void *) qwglGetProcAddress( "glCreateProgramObjectARB" );
+			qglCreateShaderObjectARB = (void *) qwglGetProcAddress( "glCreateShaderObjectARB" );
+			qglDeleteObjectARB = (void *) qwglGetProcAddress( "glDeleteObjectARB" );
+			qglDetachObjectARB = (void *) qwglGetProcAddress( "glDetachObjectARB" );
+			qglGetActiveUniformARB = (void *) qwglGetProcAddress( "glGetActiveUniformARB" );
+			qglGetAttachedObjectsARB = (void *) qwglGetProcAddress( "glGetAttachedObjectsARB" );
+			qglGetHandleARB = (void *) qwglGetProcAddress( "glGetHandleARB" );
+			qglGetInfoLogARB = (void *) qwglGetProcAddress( "glGetInfoLogARB" );
+			qglGetObjectParameterfvARB = (void *) qwglGetProcAddress( "glGetObjectParameterfvARB" );
+			qglGetObjectParameterivARB = (void *) qwglGetProcAddress( "glGetObjectParameterivARB" );
+			qglGetShaderSourceARB = (void *) qwglGetProcAddress( "glGetShaderSourceARB" );
+			qglGetUniformLocationARB = (void *) qwglGetProcAddress( "glGetUniformLocationARB" );
+			qglGetUniformfvARB = (void *) qwglGetProcAddress( "glGetUniformfvARB" );
+			qglGetUniformivARB = (void *) qwglGetProcAddress( "glGetUniformivARB" );
+			qglLinkProgramARB = (void *) qwglGetProcAddress( "glLinkProgramARB" );
+			qglShaderSourceARB = (void *) qwglGetProcAddress( "glShaderSourceARB" );
+			qglUniform1fARB = (void *) qwglGetProcAddress( "glUniform1fARB" );
+			qglUniform1fvARB = (void *) qwglGetProcAddress( "glUniform1fvARB" );
+			qglUniform1iARB = (void *) qwglGetProcAddress( "glUniform1iARB" );
+			qglUniform1ivARB = (void *) qwglGetProcAddress( "glUniform1ivARB" );
+			qglUniform2fARB = (void *) qwglGetProcAddress( "glUniform2fARB" );
+			qglUniform2fvARB = (void *) qwglGetProcAddress( "glUniform2fvARB" );
+			qglUniform2iARB = (void *) qwglGetProcAddress( "glUniform2iARB" );
+			qglUniform2ivARB = (void *) qwglGetProcAddress( "glUniform2ivARB" );
+			qglUniform3fARB = (void *) qwglGetProcAddress( "glUniform3fARB" );
+			qglUniform3fvARB = (void *) qwglGetProcAddress( "glUniform3fvARB" );
+			qglUniform3iARB = (void *) qwglGetProcAddress( "glUniform3iARB" );
+			qglUniform3ivARB = (void *) qwglGetProcAddress( "glUniform3ivARB" );
+			qglUniform4fARB = (void *) qwglGetProcAddress( "glUniform4fARB" );
+			qglUniform4fvARB = (void *) qwglGetProcAddress( "glUniform4fvARB" );
+			qglUniform4iARB = (void *) qwglGetProcAddress( "glUniform4iARB" );
+			qglUniform4ivARB = (void *) qwglGetProcAddress( "glUniform4ivARB" );
+			qglUniformMatrix2fvARB = (void *) qwglGetProcAddress( "glUniformMatrix2fvARB" );
+			qglUniformMatrix3fvARB = (void *) qwglGetProcAddress( "glUniformMatrix3fvARB" );
+			qglUniformMatrix4fvARB = (void *) qwglGetProcAddress( "glUniformMatrix4fvARB" );
+			qglUseProgramObjectARB = (void *) qwglGetProcAddress( "glUseProgramObjectARB" );
+			qglValidateProgramARB = (void *) qwglGetProcAddress( "glValidateProgramARB" );
+
+			if ( !qglAttachObjectARB || !qglCompileShaderARB || !qglCreateProgramObjectARB || !qglCreateShaderObjectARB
+				|| !qglDeleteObjectARB || !qglDetachObjectARB || !qglGetActiveUniformARB || !qglGetAttachedObjectsARB 
+				|| !qglGetHandleARB || !qglGetInfoLogARB || !qglGetObjectParameterfvARB || !qglGetObjectParameterivARB
+				|| !qglGetShaderSourceARB || !qglGetUniformLocationARB || !qglGetUniformfvARB || !qglGetUniformivARB
+				|| !qglLinkProgramARB || !qglShaderSourceARB || !qglUniform1fARB || !qglUniform1fvARB || !qglUniform1iARB
+				|| !qglUniform1ivARB || !qglUniform2fARB || !qglUniform2fvARB || !qglUniform2iARB || !qglUniform2ivARB
+				|| !qglUniform3fARB || !qglUniform3fvARB || !qglUniform3iARB || !qglUniform3ivARB || !qglUniform4fARB
+				|| !qglUniform4fvARB || !qglUniform4iARB || !qglUniform4ivARB || !qglUniformMatrix2fvARB || !qglUniformMatrix3fvARB
+				|| !qglUniformMatrix4fvARB || !qglUseProgramObjectARB || !qglValidateProgramARB)
+				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_shader_objects not properly supported!\n");
 			else {
-				VID_Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
-				glConfig.arb_framebuffer_object = true;
+				VID_Printf (PRINT_ALL, "...using GL_ARB_shader_objects\n");
+				glConfig.arb_shader_objects = true;
 			}
 		} else {
-			VID_Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+			VID_Printf (PRINT_ALL, "...GL_ARB_shader_objects not found\n");
 		}
 	}
-	// GL_NV_texture_shader - MrG
+
+		// GL_NV_texture_shader - MrG
 	if ( strstr( glConfig.extensions_string, "GL_NV_texture_shader" ) )
 	{
 		VID_Printf (PRINT_ALL, "...using GL_NV_texture_shader\n" );
@@ -1734,6 +1832,8 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	GL_SetDefaultState();
 
+	R_VR_Init();
+
 	// draw our stereo patterns
 #if 0 // commented out until H3D pays us the money they owe us
 	GL_DrawStereoPattern();
@@ -1751,6 +1851,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
+
 
 	return true;
 }
@@ -1825,6 +1926,7 @@ void R_Shutdown (void)
 	Mod_FreeAll ();
 
 	R_ShutdownImages ();
+	R_VR_Teardown();
 
 	//
 	// shut down OS specific OpenGL stuff like contexts, etc.
@@ -1935,12 +2037,15 @@ void R_BeginFrame( float camera_separation )
 	{
 		r_drawbuffer->modified = false;
 
-		if ( glState.camera_separation == 0 || !glState.stereo_enabled )
+		if (!vrState.enabled)
 		{
-			if ( Q_stricmp( r_drawbuffer->string, "GL_FRONT" ) == 0 )
-				qglDrawBuffer( GL_FRONT );
-			else
-				qglDrawBuffer( GL_BACK );
+			if ( glState.camera_separation == 0 || !glState.stereo_enabled )
+			{
+				if ( Q_stricmp( r_drawbuffer->string, "GL_FRONT" ) == 0 )
+					qglDrawBuffer( GL_FRONT );
+				else
+					qglDrawBuffer( GL_BACK );
+			}
 		}
 	}
 
@@ -1970,7 +2075,6 @@ void R_BeginFrame( float camera_separation )
 	//
 	GL_UpdateSwapInterval();
 
-	//
 	// clear screen if desired
 	//
 	R_Clear ();

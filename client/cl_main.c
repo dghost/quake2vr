@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 #include "../ui/ui_local.h"
+#include "../vr/vr.h"
 
 #ifdef _WIN32
 #include "../win32/winquake.h"
@@ -1788,6 +1789,8 @@ void CL_Init (void)
 	// all archived variables will now be loaded
 
 	Con_Init ();	
+	VR_Init ();
+
 #if defined __linux__ || defined __sgi
 	S_Init ();	
 	VID_Init ();
@@ -1795,7 +1798,6 @@ void CL_Init (void)
 	VID_Init ();
 	S_Init ();	// sound must be initialized after window is created
 #endif
-	
 	V_Init ();
 	
 	net_message.data = net_message_buffer;
@@ -1857,4 +1859,5 @@ void CL_Shutdown (void)
 
 	IN_Shutdown ();
 	VID_Shutdown();
+	VR_Shutdown();
 }

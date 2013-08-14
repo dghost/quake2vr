@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_view.c -- player rendering positioning
 
 #include "client.h"
-
+#include "../vr/vr.h"
 //=============
 //
 // development tools for weapons
@@ -643,6 +643,164 @@ void V_Gun_Model_f (void)
 }
 
 //============================================================================
+
+/*
+==================
+VR_RenderView
+==================
+*/
+
+extern void R_RenderView (refdef_t *fd);
+extern void	R_SetLightLevel ();
+extern void	R_SetGL2D ();
+void VR_RenderView ()
+{
+	extern int entitycmpfnc( const entity_t *, const entity_t * );
+	float f; // Barnes added
+	vec3_t view,tmp;
+
+	if (cls.state != ca_active)
+		return;
+
+	if (!cl.refresh_prepped)
+		return;			// still loading
+
+	if (cl_timedemo->value)
+	{
+		if (!cl.timedemo_start)
+			cl.timedemo_start = Sys_Milliseconds ();
+		cl.timedemo_frames++;
+	}
+
+	// an invalid frame will just use the exact previous refdef
+	// we can't use the old frame if the video mode has changed, though...
+	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) )
+	{
+		cl.force_refdef = false;
+
+		V_ClearScene ();
+
+		// build a refresh entity list and calc cl.sim*
+		// this also calls CL_CalcViewValues which loads
+		// v_forward, etc.
+		CL_AddEntities ();
+
+		if (cl_testparticles->value)
+			V_TestParticles ();
+		if (cl_testentities->value)
+			V_TestEntities ();
+		if (cl_testlights->value)
+			V_TestLights ();
+		if (cl_testblend->value)
+		{
+			cl.refdef.blend[0] = 1;
+			cl.refdef.blend[1] = 0.5;
+			cl.refdef.blend[2] = 0.25;
+			cl.refdef.blend[3] = 0.5;
+		}
+
+		// offset vieworg appropriately if we're doing stereo separation
+
+		// never let it sit exactly on a node line, because a water plane can
+		// dissapear when viewed with the eye exactly on it.
+		// the server protocol only specifies to 1/8 pixel, so add 1/16 in each axis
+		cl.refdef.vieworg[0] += 1.0/16;
+		cl.refdef.vieworg[1] += 1.0/16;
+		cl.refdef.vieworg[2] += 1.0/16;
+
+		cl.refdef.x = scr_vrect.x;
+		cl.refdef.y = scr_vrect.y;
+		cl.refdef.width = scr_vrect.width;
+		cl.refdef.height = scr_vrect.height;
+
+		// FOV init
+		cl.refdef.fov_x = vrState.viewFovX;
+		cl.refdef.fov_y = vrState.viewFovY;
+
+		cl.refdef.time = cl.time*0.001;
+
+		// Barnes- Warp if underwater ala q3a :-)
+		if (cl.refdef.rdflags & RDF_UNDERWATER) {
+			f = sin(cl.time * 0.001 * 0.4 * (M_PI*2.7));
+			cl.refdef.fov_x += f * (cl.refdef.fov_x/90.0); // Knightmare- scale to fov
+			cl.refdef.fov_y -= f * (cl.refdef.fov_y/90.0); // Knightmare- scale to fov
+		} // end Barnes
+
+		cl.refdef.areabits = cl.frame.areabits;
+
+		if (!cl_add_entities->value)
+			r_numentities = 0;
+		if (!cl_add_particles->value)
+			r_numparticles = 0;
+		if (!cl_add_lights->value)
+			r_numdlights = 0;
+		if (!cl_add_blend->value)
+		{
+			VectorClear (cl.refdef.blend);
+		}
+
+		cl.refdef.num_entities = r_numentities;
+		cl.refdef.entities = r_entities;
+		cl.refdef.num_particles = r_numparticles;
+		cl.refdef.particles = r_particles;
+
+		cl.refdef.num_decals = r_numdecalfrags;
+		cl.refdef.decals = r_decalfrags;
+
+		cl.refdef.num_dlights = r_numdlights;
+		cl.refdef.dlights = r_dlights;
+		cl.refdef.lightstyles = r_lightstyles;
+
+		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
+        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int (*)(const void *, const void *))entitycmpfnc );
+	}
+
+	// save view origin
+	VectorCopy(cl.refdef.vieworg,view);
+
+	// draw for left eye
+	R_VR_BindLeft();
+
+	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset * 0.125 , tmp );
+	VectorAdd( view, tmp, cl.refdef.vieworg );
+
+	R_RenderView(&cl.refdef );
+
+	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
+		R_DrawCameraEffect ();
+
+	//	if (cls.key_dest != key_menu) 
+	//		SCR_DrawCrosshair ();
+
+	// draw for right eye
+	R_VR_BindRight();
+
+	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset * 0.125 , tmp );
+	VectorAdd( view, tmp, cl.refdef.vieworg );
+
+	R_RenderView(&cl.refdef );
+
+	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
+		R_DrawCameraEffect ();
+
+//	if (cls.key_dest != key_menu) 
+//      SCR_DrawCrosshair ();
+	
+	// restore state
+	VectorCopy(view,cl.refdef.vieworg);	
+	
+	R_VR_BindHud();
+
+	// finish house keeping tasks
+	R_SetLightLevel ();
+	R_SetGL2D ();
+
+	if (cl_stats->value)
+		Com_Printf ("ent:%i  lt:%i  part:%i\n", r_numentities, r_numdlights, r_numparticles);
+	if ( log_stats->value && ( log_stats_file != 0 ) )
+		fprintf( log_stats_file, "%i,%i,%i,",r_numentities, r_numdlights, r_numparticles);
+}
+
 
 
 /*

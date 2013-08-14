@@ -981,4 +981,12 @@ void x86_TimerStop( void );
 void x86_TimerInit( unsigned long smallest, unsigned longest );
 unsigned long *x86_TimerGetHistogram( void );
 
+
+//
+// vr related
+// 
+
+void VR_UpdateScreen();
+void VR_RenderView();
+
 #endif

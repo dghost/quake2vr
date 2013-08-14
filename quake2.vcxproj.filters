@@ -34,6 +34,9 @@
       <UniqueIdentifier>{9bdf8475-1b42-4fd3-beaf-308c81a6e9f2}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Source Files\vr">
+      <UniqueIdentifier>{a304e156-0b99-4b6f-946f-36e8309f91f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32\cd_win.c">
@@ -342,6 +345,15 @@
     <ClCompile Include="ui\ui_video_advanced.c">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="vr\vr_main.c">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="vr\vr_ovr.cpp">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\r_vr.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
@@ -447,6 +459,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="win32\winquake.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vr\vr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vr\vr_ovr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

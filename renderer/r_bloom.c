@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_bloom.c: 2D lighting post process effect
 
 #include "r_local.h"
-
+#include "../vr/vr.h"
 
 /* 
 ============================================================================== 
@@ -160,7 +160,7 @@ R_Bloom_InitBackUpTexture
 void R_Bloom_InitBackUpTexture (int width, int height)
 {
 	byte	*data;
-	
+
 	data = malloc( width * height * 4 );
 	memset( data, 0, width * height * 4 );
 
@@ -222,10 +222,16 @@ void R_Bloom_InitTextures (void)
 {
 	byte	*data;
 	int		size;
-
-	//find closer power of 2 to screen size 
-	for (screen_texture_width = 1; screen_texture_width < vid.width; screen_texture_width *= 2);
-	for (screen_texture_height = 1; screen_texture_height < vid.height; screen_texture_height *= 2);
+	if (vrState.enabled)
+	{
+		// use screen size
+		screen_texture_width = vrState.vrHalfWidth;
+		screen_texture_height = vrState.vrHeight;
+	} else {
+		//find closer power of 2 to screen size 
+		for (screen_texture_width = 1; screen_texture_width < vid.width; screen_texture_width *= 2);
+		for (screen_texture_height = 1; screen_texture_height < vid.height; screen_texture_height *= 2);
+	}
 
 	//disable blooms if we can't handle a texture of that size
 /*	if( screen_texture_width > glConfig.maxTextureSize ||
