@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/client.h"
 #include "winquake.h"
-
+#include "../vr/vr.h"
 extern	unsigned	sys_msg_time;
 
 // joystick defines and variables
@@ -398,11 +398,11 @@ void IN_MouseMove (usercmd_t *cmd)
 		if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
 			cmd->sidemove += m_side->value * mouse_x;
 		else
-			cl.viewangles[YAW] -= m_yaw->value * mouse_x;
+			cl.bodyangles[YAW] -= m_yaw->value * mouse_x;
 
 		if ( (mlooking || freelook->value) && !(in_strafe.state & 1))
 		{
-			cl.viewangles[PITCH] += m_pitch->value * mouse_y;
+			cl.bodyangles[PITCH] += m_pitch->value * mouse_y;
 		}
 		else
 		{
@@ -415,6 +415,13 @@ void IN_MouseMove (usercmd_t *cmd)
 		SetCursorPos (window_center_x, window_center_y);
 }
 
+
+void IN_VR_Move (usercmd_t *cmd)
+{
+//	VectorSet(cl.bodyangles,0,0,0);
+	VR_GetSensorOrientation(cl.viewangles);
+
+}
 /*
 =========================================================================
 
@@ -547,6 +554,7 @@ void IN_Move (usercmd_t *cmd)
 	if (!ActiveApp)
 		return;
 
+
 	IN_MouseMove (cmd);
 
 	// Knightmare- added Psychospaz's mouse support
@@ -555,6 +563,7 @@ void IN_Move (usercmd_t *cmd)
 
 	//if (ActiveApp)
 		IN_JoyMove (cmd);
+	IN_VR_Move(cmd);
 }
 
 
@@ -908,16 +917,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if (m_pitch->value < 0.0)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.viewangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 				}
 			}
@@ -962,16 +971,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
+							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
 						else
-							cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
+							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
+							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
 					}
 
 				}
@@ -987,16 +996,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
+							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
 					}
 				}
 			}

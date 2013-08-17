@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 #include "../vr/vr.h"
+
+
 //=============
 //
 // development tools for weapons
@@ -588,6 +590,9 @@ void CL_PrepRefresh (void)
 	// Knightmare- don't start map with game paused
 	if (cls.key_dest != key_menu)
 		Cvar_Set ("paused", "0");
+
+	// dghost - reset HMD home position before starting new map
+	VR_ResetOrientation();
 }
 
 /*
@@ -649,7 +654,9 @@ void V_Gun_Model_f (void)
 VR_RenderView
 ==================
 */
-
+extern void R_VR_BindLeft();
+extern void R_VR_BindRight();
+extern void R_VR_BindHud();
 extern void R_RenderView (refdef_t *fd);
 extern void	R_SetLightLevel ();
 extern void	R_SetGL2D ();

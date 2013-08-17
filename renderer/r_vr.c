@@ -39,6 +39,7 @@ cvar_t *vr_ipd;
 cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_chromatic;
 cvar_t *vr_hud_fov;
+cvar_t *vr_hud_depth;
 cvar_t *vr_hud_transparency;
 
 GLint defaultFBO;
@@ -269,7 +270,7 @@ void R_VR_Enable()
 {
 	if (vrState.enabled)
 	{
-		Com_Printf("VR: Initializing...\n");
+		Com_Printf("VR: Initializing renderer...\n");
 
 		vrState.vrWidth = vrState.scale * vrState.viewWidth;
 		vrState.vrHalfWidth = vrState.scale * vrState.viewWidth / 2.0;
@@ -310,9 +311,19 @@ void R_VR_StartFrame()
 		vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
 		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);
 		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
-		VR_Set_OVR_Distortion_Scale(vr_ovr_scale->value);
+		VR_Set_OVRDistortion_Scale(vr_ovr_scale->value);
 		vr_ovr_scale->modified = false;
 
+	}
+
+	if (vr_hud_depth->modified)
+	{
+		if (vr_hud_depth->value < 0.25f)
+			Cvar_SetValue("vr_hud_depth",0.25);
+		else if (vr_hud_depth->value > 250)
+			Cvar_SetValue("vr_hud_depth",250);
+
+		vr_hud_depth->modified = false;
 	}
 
 	if (vr_ovr_chromatic->value)
@@ -411,9 +422,9 @@ void R_VR_DrawHud()
 {
 	float fov = vr_hud_fov->value;
 	float y,x;
-	float depth = 2;
-	float farz = 5;
-	float nearz = 1;
+	float depth = vr_hud_depth->value;
+	float farz = 300.0;
+	float nearz = 0.01;
 	GLfloat aspect = vrState.viewFovX/vrState.viewFovY;
 	float f = 1.0f / tanf((vrState.viewFovY / 2.0f) * M_PI / 180);
 	float nf = 1.0f / (nearz - farz);
@@ -439,10 +450,10 @@ void R_VR_DrawHud()
 	qglLoadMatrixf(out);
 	qglMatrixMode(GL_MODELVIEW);
 	qglLoadIdentity();
-
+	qglTranslatef(vrState.eye * -vrState.ipd / 2.0,0,0);
 	// calculate coordinates for hud
-	y = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
-	x = y * ((float) hud.width / hud.height);
+	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
+	y = x / ((float) hud.width / hud.height);
 
 	if (vr_hud_transparency->value)
 	{
@@ -465,11 +476,6 @@ void R_VR_DrawHud()
 
 	GL_Bind(0);
 	GL_Disable(GL_BLEND);
-}
-
-void R_VR_ScreenToEye(r_fbo_t *eye)
-{
-
 }
 
 void R_VR_Present()
@@ -565,6 +571,7 @@ void R_VR_Init()
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 
 	vr_hud_fov = Cvar_Get("vr_hud_fov","60",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","1",CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
 
 	vrState.viewHeight = vid.height;
@@ -586,7 +593,6 @@ void R_VR_Init()
 		R_VR_Enable();
 
 }
-
 
 void R_VR_Teardown()
 {

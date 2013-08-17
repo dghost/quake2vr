@@ -255,20 +255,20 @@ void CL_AdjustAngles (void)
 
 	if (!(in_strafe.state & 1))
 	{
-		cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-		cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		cl.bodyangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
+		cl.bodyangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
 	}
 	if (in_klook.state & 1)
 	{
-		cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_forward);
-		cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_back);
+		cl.bodyangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_forward);
+		cl.bodyangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_back);
 	}
 	
 	up = CL_KeyState (&in_lookup);
 	down = CL_KeyState(&in_lookdown);
 	
-	cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * up;
-	cl.viewangles[PITCH] += speed*cl_pitchspeed->value * down;
+	cl.bodyangles[PITCH] -= speed*cl_pitchspeed->value * up;
+	cl.bodyangles[PITCH] += speed*cl_pitchspeed->value * down;
 }
 
 /*
@@ -284,7 +284,7 @@ void CL_BaseMove (usercmd_t *cmd)
 	
 	memset (cmd, 0, sizeof(*cmd));
 	
-	VectorCopy (cl.viewangles, cmd->angles);
+	VectorCopy (cl.bodyangles, cmd->angles);
 	if (in_strafe.state & 1)
 	{
 		cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
@@ -322,15 +322,15 @@ void CL_ClampPitch (void)
 	if (pitch > 180)
 		pitch -= 360;
 
-	if (cl.viewangles[PITCH] + pitch < -360)
-		cl.viewangles[PITCH] += 360; // wrapped
-	if (cl.viewangles[PITCH] + pitch > 360)
-		cl.viewangles[PITCH] -= 360; // wrapped
+	if (cl.bodyangles[PITCH] + pitch < -360)
+		cl.bodyangles[PITCH] += 360; // wrapped
+	if (cl.bodyangles[PITCH] + pitch > 360)
+		cl.bodyangles[PITCH] -= 360; // wrapped
 
-	if (cl.viewangles[PITCH] + pitch > 89)
-		cl.viewangles[PITCH] = 89 - pitch;
-	if (cl.viewangles[PITCH] + pitch < -89)
-		cl.viewangles[PITCH] = -89 - pitch;
+	if (cl.bodyangles[PITCH] + pitch > 89)
+		cl.bodyangles[PITCH] = 89 - pitch;
+	if (cl.bodyangles[PITCH] + pitch < -89)
+		cl.bodyangles[PITCH] = -89 - pitch;
 }
 
 /*
@@ -342,7 +342,7 @@ void CL_FinishMove (usercmd_t *cmd)
 {
 	int		ms;
 	int		i;
-
+	vec3_t  temp;	
 //
 // figure button bits
 //	
@@ -370,8 +370,9 @@ void CL_FinishMove (usercmd_t *cmd)
 	cmd->msec = ms;
 
 	CL_ClampPitch ();
+	VectorAdd(cl.aimangles,cl.bodyangles,temp);
 	for (i=0 ; i<3 ; i++)
-		cmd->angles[i] = ANGLE2SHORT(cl.viewangles[i]);
+		cmd->angles[i] = ANGLE2SHORT(temp[i]);
 
 	cmd->impulse = in_impulse;
 	in_impulse = 0;
@@ -413,7 +414,7 @@ usercmd_t CL_CreateCmd (void)
 
 void IN_CenterView (void)
 {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+	cl.bodyangles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
 }
 
 /*

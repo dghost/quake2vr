@@ -455,7 +455,7 @@ void CL_PredictMovement (void)
 	{	// just set angles
 		for (i=0 ; i<3 ; i++)
 		{
-			cl.predicted_angles[i] = cl.viewangles[i] + SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[i]);
+			cl.predicted_angles[i] = cl.bodyangles[i] + SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[i]);
 		}
 		return;
 	}

@@ -24,7 +24,10 @@ extern "C" {
 	void VR_OVR_Shutdown(void);
 	int VR_OVR_GetOrientation(float euler[3]);
 	int VR_OVR_GetSettings(vr_ovr_settings_t *settings);
-	
+	int VR_OVR_SetPredictionTime(float time);
+	int VR_OVR_EnableMagneticCorrection();
+	void VR_OVR_DisableMagneticCorrection();
+	void VR_OVR_ResetHMDOrientation();
 #ifdef __cplusplus
 }
 #endif

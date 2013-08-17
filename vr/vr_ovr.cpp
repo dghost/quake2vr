@@ -34,8 +34,8 @@ int VR_OVR_Init() {
 	}
 	sensFus = new OVR::SensorFusion();
 	sensFus->AttachToSensor(sensDev);
-	sensFus->SetYawCorrectionEnabled(true);
-
+	sensFus->SetYawCorrectionEnabled(false);
+	sensFus->SetPrediction(0.0,false);
 	return 1;
 }
 
@@ -66,6 +66,17 @@ void VR_OVR_Shutdown() {
 	}
 }
 
+void VR_OVR_ResetHMDOrientation()
+{
+	if (!sensFus)
+		return;
+
+	sensFus->Reset();
+
+	if(magCal && magCal->IsCalibrated())
+		magCal->BeginAutoCalibration(*sensFus);
+}
+
 int VR_OVR_GetOrientation(float euler[3])
 {
 	if (!sensFus)
@@ -84,7 +95,6 @@ int VR_OVR_GetOrientation(float euler[3])
 	euler[1] = (euler[1] * 180.0f) / M_PI;
 	euler[2] = (-euler[2] * 180.0f) / M_PI;
 	return 1;
-
 }
 
 int VR_OVR_GetSettings(vr_ovr_settings_t *settings) {
@@ -104,4 +114,44 @@ int VR_OVR_GetSettings(vr_ovr_settings_t *settings) {
 	memcpy(settings->chrom_abr, hmdInfo.ChromaAbCorrection, sizeof(float) * 4);
 	strncpy(settings->devName, hmdInfo.ProductName,31);
 	return 1;
+}
+
+int VR_OVR_SetPredictionTime(float time) {
+	if (!sensFus)
+		return 0;
+
+	if (time > 0.0f)
+		sensFus->SetPrediction(time, true);
+	else
+		sensFus->SetPrediction(0.0,false);
+	return 1;
+}
+
+int VR_OVR_EnableMagneticCorrection() {
+	if (!sensFus)
+		return 0;
+	
+	sensFus->SetYawCorrectionEnabled(true);
+	if (!sensFus->HasMagCalibration())
+	{
+		if (!magCal)
+			magCal = new OVR::Util::MagCalibration();
+
+		magCal->BeginAutoCalibration(*sensFus);
+	}
+
+
+	return 1;
+}
+
+void VR_OVR_DisableMagneticCorrection() {
+	if (!sensFus)
+		return;
+
+	sensFus->SetYawCorrectionEnabled(false);
+	if (magCal)
+	{
+		delete magCal;
+		magCal = NULL;
+	}
 }

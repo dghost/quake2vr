@@ -684,6 +684,8 @@ void CL_ClearState (void)
 
 	SZ_Clear (&cls.netchan.message);
 
+	if (vrState.enabled)
+		VR_ResetOrientation();
 }
 
 /*
@@ -1659,6 +1661,8 @@ void CL_Frame (int msec)
 	if (dedicated->value)
 		return;
 
+
+
 	extratime += msec;
 
 	// don't allow setting maxfps too low (or game could stop responding)
@@ -1686,6 +1690,7 @@ void CL_Frame (int msec)
 	// let the mouse activate or deactivate
 	IN_Frame ();
 
+	VR_Frame();
 	// decide the simulation time
 	cls.frametime = extratime/1000.0;
 	cl.time += extratime;

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_ents.c -- entity parsing and management
 
 #include "client.h"
-
+#include "../vr/vr.h"
 
 
 /*
@@ -1881,7 +1881,7 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		{
 			gun.origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
 				+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
-			gun.angles[i] = cl.refdef.viewangles[i] + LerpAngle (ops->gunangles[i],
+				gun.angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
 				ps->gunangles[i], cl.lerpfrac);
 		}
 
@@ -1976,7 +1976,7 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		{
 			gun2.origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
 				+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
-			gun2.angles[i] = cl.refdef.viewangles[i] + LerpAngle (ops->gunangles[i],
+				gun2.angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
 				ps->gunangles[i], cl.lerpfrac);
 		}
 
@@ -2235,17 +2235,42 @@ void CL_CalcViewValues (void)
 	// if not running a demo or on a locked frame, add the local angle movement
 	if ( cl.frame.playerstate.pmove.pm_type < PM_DEAD )
 	{	// use predicted values
-		for (i=0 ; i<3 ; i++)
-			cl.refdef.viewangles[i] = cl.predicted_angles[i];
+		if (vrState.enabled)
+		{
+			for (i=0 ; i<3 ; i++)
+			{
+				cl.refdef.viewangles[i] = cl.viewangles[i] + cl.predicted_angles[i];
+				cl.refdef.aimangles[i] = cl.aimangles[i] + cl.predicted_angles[i];
+				cl.refdef.aimangles[i] += LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
+			}
+		} else {
+			for (i=0 ; i<3 ; i++)
+			{
+				cl.refdef.aimangles[i] = cl.refdef.viewangles[i] = 
+					cl.predicted_angles[i] + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
+			}
+		}
 	}
 	else
 	{	// just use interpolated values
-		for (i=0 ; i<3 ; i++)
-			cl.refdef.viewangles[i] = LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp);
+		vec3_t temp;
+		VectorSet(temp,0,0,0);
+		if (vrState.enabled)
+		{
+			VR_GetSensorOrientation(temp);
+			for (i=0 ; i<3 ; i++)
+			{
+				cl.refdef.aimangles[i] = cl.refdef.viewangles[i] = LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp);
+				cl.refdef.aimangles[i] += LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
+				cl.refdef.viewangles[i] += temp[i];
+			}
+		} else {
+			for (i = 0 ; i<3 ; i++) {
+				cl.refdef.aimangles[i] = cl.refdef.viewangles[i] = 
+					LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp) + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
+			}
+		}
 	}
-
-	for (i=0 ; i<3 ; i++)
-		cl.refdef.viewangles[i] += LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
 
 	AngleVectors (cl.refdef.viewangles, cl.v_forward, cl.v_right, cl.v_up);
 

@@ -33,7 +33,11 @@ extern vr_param_t vrState;
 
 void VR_Init();
 void VR_Shutdown();
-void VR_Set_OVR_Distortion_Scale(float dist_scale);
+void VR_Frame();
+void VR_Set_OVRDistortion_Scale(float dist_scale);
 void VR_GetRenderParam(vr_param_t *settings);
+void VR_GetSensorOrientation(vec3_t angle);
+void VR_GetSensorOrientationDelta(vec3_t angle);
+void VR_ResetOrientation();
 
 #endif
