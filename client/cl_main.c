@@ -684,7 +684,7 @@ void CL_ClearState (void)
 
 	SZ_Clear (&cls.netchan.message);
 
-	if (vrState.enabled)
+	if (vr_enabled->value)
 		VR_ResetOrientation();
 }
 

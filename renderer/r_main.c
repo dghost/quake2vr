@@ -288,7 +288,7 @@ void R_SetFrustum (void)
 	float	fov_y = r_newrefdef.fov_y;
 
 	// hack to keep objects from disappearing at the edges
-	if (vrState.enabled)
+	if (vr_enabled->value)
 	{
 		fov_y += 20;
 		fov_x += 20;
@@ -490,7 +490,7 @@ void R_SetupGL (void)
     qglLoadIdentity ();
 
 
-	if (vrState.enabled)
+	if (vr_enabled->value)
 	{
 		GLfloat aspect = r_newrefdef.fov_x/r_newrefdef.fov_y;
 		float f = 1.0f / tanf((r_newrefdef.fov_y / 2.0f) * M_PI / 180);
@@ -645,7 +645,40 @@ void R_DrawLastElements (void)
 }
 //============================================
 
+void VR_DrawCrosshair()
+{
 
+	if (!vr_enabled->value)
+		return;
+
+	GL_Disable(GL_DEPTH_TEST);
+	GL_Disable(GL_ALPHA_TEST);
+	GL_Enable(GL_BLEND);
+	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	GL_Bind(0);
+	qglColor4f(1.0,0.0,0.0,0.5);
+	if (vr_crosshair->value == 1.0)
+	{
+		qglEnable(GL_POINT_SMOOTH);
+
+		qglPointSize(vr_crosshair_size->value * vrState.pixelScale);
+		qglBegin(GL_POINTS);
+		qglVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
+		qglEnd();
+		qglDisable(GL_POINT_SMOOTH);
+	} else if (vr_crosshair->value == 2.0)
+	{
+
+		qglLineWidth( vr_crosshair_size->value * vrState.pixelScale );
+		qglBegin (GL_LINES);
+		qglVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
+		qglVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
+		qglEnd ();
+	}
+
+	GL_Enable(GL_DEPTH_TEST);
+	GL_Disable(GL_BLEND);
+}
 /*
 ================
 R_RenderView
@@ -686,7 +719,7 @@ void R_RenderView (refdef_t *fd)
 	R_MarkLeaves ();	// done here so we know if we're in water
 
 	R_DrawWorld ();
-
+	
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
 	{
 		qboolean fog_on = false;
@@ -727,6 +760,8 @@ void R_RenderView (refdef_t *fd)
 
 		R_DrawAllParticles ();
 
+		VR_DrawCrosshair();
+		
 		R_DrawEntitiesOnList(ents_viewweaps);
 
 		R_ParticleStencil (1);
@@ -740,7 +775,7 @@ void R_RenderView (refdef_t *fd)
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
-
+		
 		R_BloomBlend (fd);	// BLOOMS
 		R_Flash();
 	}
@@ -2037,7 +2072,7 @@ void R_BeginFrame( float camera_separation )
 	{
 		r_drawbuffer->modified = false;
 
-		if (!vrState.enabled)
+		if (!vr_enabled->value)
 		{
 			if ( glState.camera_separation == 0 || !glState.stereo_enabled )
 			{

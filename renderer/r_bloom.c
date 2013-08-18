@@ -222,7 +222,7 @@ void R_Bloom_InitTextures (void)
 {
 	byte	*data;
 	int		size;
-	if (vrState.enabled)
+	if (vr_enabled->value)
 	{
 		// use screen size
 		screen_texture_width = vrState.vrHalfWidth;

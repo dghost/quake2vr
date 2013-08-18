@@ -729,7 +729,7 @@ void GLimp_BeginFrame( float camera_separation )
 		r_bitdepth->modified = false;
 	}
 
-	if ( vrState.enabled )
+	if ( vr_enabled->value )
 	{
 		qglDrawBuffer( GL_COLOR_ATTACHMENT0 );
 	} 
@@ -762,7 +762,7 @@ void GLimp_EndFrame (void)
 	if (err != GL_NO_ERROR)	// Output error code instead
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
-	if ( stricmp( r_drawbuffer->string, "GL_BACK" ) == 0 || vrState.enabled)
+	if ( stricmp( r_drawbuffer->string, "GL_BACK" ) == 0 || vr_enabled->value)
 	{
 		if ( !qwglSwapBuffers( glw_state.hDC ) )
 			VID_Error (ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n");

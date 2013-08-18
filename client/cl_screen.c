@@ -2052,6 +2052,8 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
+extern void R_VR_StartFrame();
+extern void R_VR_Present();
 void VR_UpdateScreen (void)
 {
 	R_VR_StartFrame();
@@ -2216,7 +2218,7 @@ void SCR_UpdateScreen (void)
 	if (!scr_initialized || !con.initialized)
 		return;				// not initialized yet
 
-	if (vrState.enabled) {
+	if (vr_enabled->value) {
 		VR_UpdateScreen();
 		return;
 	}

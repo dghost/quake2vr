@@ -1829,6 +1829,12 @@ void CL_AddPacketEntities (frame_t *frame)
 	} //end for
 }
 
+void CL_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
+{
+	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1];
+	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
+	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] + distance[2];
+}
 
 /*
 ==============
@@ -1876,15 +1882,15 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 
 	if (gun.model)
 	{
+		vec3_t forward, right,distance;
 		// set up gun position
 		for (i=0 ; i<3 ; i++)
 		{
 			gun.origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
 				+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
-				gun.angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
+			gun.angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
 				ps->gunangles[i], cl.lerpfrac);
 		}
-
 		if (gun_frame)
 		{
 			gun.frame = gun_frame;	// development tool
@@ -1907,6 +1913,10 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		gun.flags = RF_MINLIGHT | RF_DEPTHHACK | RF_WEAPONMODEL;
 		gun.backlerp = 1.0 - cl.lerpfrac;
 		VectorCopy (gun.origin, gun.oldorigin);	// don't lerp at all
+		AngleVectors(cl.refdef.aimangles,forward,right,NULL);
+		VectorSet(distance,8,8,-8);
+		CL_ProjectSource(gun.origin,distance,forward,right,cl.refdef.aimstart);
+
 		V_AddEntity (&gun);
 
 		//add shells for viewweaps (all of em!)
@@ -2235,7 +2245,7 @@ void CL_CalcViewValues (void)
 	// if not running a demo or on a locked frame, add the local angle movement
 	if ( cl.frame.playerstate.pmove.pm_type < PM_DEAD )
 	{	// use predicted values
-		if (vrState.enabled)
+		if (vr_enabled->value)
 		{
 			for (i=0 ; i<3 ; i++)
 			{
@@ -2255,7 +2265,7 @@ void CL_CalcViewValues (void)
 	{	// just use interpolated values
 		vec3_t temp;
 		VectorSet(temp,0,0,0);
-		if (vrState.enabled)
+		if (vr_enabled->value)
 		{
 			VR_GetSensorOrientation(temp);
 			for (i=0 ; i<3 ; i++)

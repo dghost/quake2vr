@@ -665,7 +665,9 @@ void VR_RenderView ()
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,tmp;
-
+	vec3_t aim,forward;
+	trace_t trace;
+	
 	if (cls.state != ca_active)
 		return;
 
@@ -678,6 +680,14 @@ void VR_RenderView ()
 			cl.timedemo_start = Sys_Milliseconds ();
 		cl.timedemo_frames++;
 	}
+
+//	VectorCopy(cl.refdef.vieworg,cl.refdef.aimstart);
+	AngleVectors (cl.refdef.aimangles,forward,NULL,NULL);
+	VectorMA(cl.refdef.aimstart,8192,forward,aim);
+	//trace = CL_BrushTrace(cl.refdef.aimstart,aim,0,MASK_ALL);
+	trace = CL_Trace(cl.refdef.aimstart,aim,0,MASK_SHOT);
+//	trace = CL_PMSurfaceTrace(cl.playernum + 1, cl.refdef.aimstart,NULL,NULL,aim,MASK_SHOT);
+	VectorCopy(trace.endpos,cl.refdef.aimend);
 
 	// an invalid frame will just use the exact previous refdef
 	// we can't use the old frame if the video mode has changed, though...
@@ -714,6 +724,7 @@ void VR_RenderView ()
 		cl.refdef.vieworg[0] += 1.0/16;
 		cl.refdef.vieworg[1] += 1.0/16;
 		cl.refdef.vieworg[2] += 1.0/16;
+
 
 		cl.refdef.x = scr_vrect.x;
 		cl.refdef.y = scr_vrect.y;
