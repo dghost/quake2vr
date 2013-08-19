@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "winquake.h"
 #include "../vr/vr.h"
+
 extern	unsigned	sys_msg_time;
 
 // joystick defines and variables
@@ -173,25 +174,29 @@ void IN_ActivateMouse (void)
 	height = GetSystemMetrics (SM_CYSCREEN);
 
 	GetWindowRect ( cl_hwnd, &window_rect);
-	if (window_rect.left < 0)
-		window_rect.left = 0;
-	if (window_rect.top < 0)
-		window_rect.top = 0;
-	if (window_rect.right >= width)
-		window_rect.right = width-1;
-	if (window_rect.bottom >= height-1)
-		window_rect.bottom = height-1;
-
+	if (!vr_enabled->value)
+	{
+		if (window_rect.left < 0)
+			window_rect.left = 0;
+		if (window_rect.top < 0)
+			window_rect.top = 0;
+		if (window_rect.right >= width)
+			window_rect.right = width-1;
+		if (window_rect.bottom >= height-1)
+			window_rect.bottom = height-1;
+	}
 	window_center_x = (window_rect.right + window_rect.left)/2;
 	window_center_y = (window_rect.top + window_rect.bottom)/2;
+
+	
+	SetCapture ( cl_hwnd );
+	ClipCursor (&window_rect);
 
 	SetCursorPos (window_center_x, window_center_y);
 
 	old_x = window_center_x;
 	old_y = window_center_y;
 
-	SetCapture ( cl_hwnd );
-	ClipCursor (&window_rect);
 	while (ShowCursor (FALSE) >= 0)
 		;
 }
@@ -398,11 +403,11 @@ void IN_MouseMove (usercmd_t *cmd)
 		if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
 			cmd->sidemove += m_side->value * mouse_x;
 		else
-			cl.bodyangles[YAW] -= m_yaw->value * mouse_x;
+			cl.aimangles[YAW] -= m_yaw->value * mouse_x;
 
 		if ( (mlooking || freelook->value) && !(in_strafe.state & 1))
 		{
-			cl.bodyangles[PITCH] += m_pitch->value * mouse_y;
+			cl.aimangles[PITCH] += m_pitch->value * mouse_y;
 		}
 		else
 		{
@@ -416,12 +421,6 @@ void IN_MouseMove (usercmd_t *cmd)
 }
 
 
-void IN_VR_Move (usercmd_t *cmd)
-{
-//	VectorSet(cl.bodyangles,0,0,0);
-	VR_GetSensorOrientation(cl.viewangles);
-
-}
 /*
 =========================================================================
 
@@ -563,7 +562,7 @@ void IN_Move (usercmd_t *cmd)
 
 	//if (ActiveApp)
 		IN_JoyMove (cmd);
-	IN_VR_Move(cmd);
+
 }
 
 
@@ -917,16 +916,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if (m_pitch->value < 0.0)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.bodyangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 				}
 			}
@@ -971,16 +970,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
+							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
 						else
-							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
+							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.bodyangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
+							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
 					}
 
 				}
@@ -996,16 +995,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.bodyangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
+							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
 					}
 				}
 			}

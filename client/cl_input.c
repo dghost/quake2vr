@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl.input.c  -- builds an intended movement command to send to the server
 
 #include "client.h"
+#include "../vr/vr.h"
 
 cvar_t	*cl_nodelta;
 
@@ -255,20 +256,20 @@ void CL_AdjustAngles (void)
 
 	if (!(in_strafe.state & 1))
 	{
-		cl.bodyangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-		cl.bodyangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		cl.aimangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
+		cl.aimangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
 	}
 	if (in_klook.state & 1)
 	{
-		cl.bodyangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_forward);
-		cl.bodyangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_back);
+		cl.aimangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_forward);
+		cl.aimangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_back);
 	}
 	
 	up = CL_KeyState (&in_lookup);
 	down = CL_KeyState(&in_lookdown);
 	
-	cl.bodyangles[PITCH] -= speed*cl_pitchspeed->value * up;
-	cl.bodyangles[PITCH] += speed*cl_pitchspeed->value * down;
+	cl.aimangles[PITCH] -= speed*cl_pitchspeed->value * up;
+	cl.aimangles[PITCH] += speed*cl_pitchspeed->value * down;
 }
 
 /*
@@ -284,7 +285,7 @@ void CL_BaseMove (usercmd_t *cmd)
 	
 	memset (cmd, 0, sizeof(*cmd));
 	
-	VectorCopy (cl.bodyangles, cmd->angles);
+	VectorCopy (cl.aimangles, cmd->angles);
 	if (in_strafe.state & 1)
 	{
 		cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
@@ -322,15 +323,15 @@ void CL_ClampPitch (void)
 	if (pitch > 180)
 		pitch -= 360;
 
-	if (cl.bodyangles[PITCH] + pitch < -360)
-		cl.bodyangles[PITCH] += 360; // wrapped
-	if (cl.bodyangles[PITCH] + pitch > 360)
-		cl.bodyangles[PITCH] -= 360; // wrapped
+	if (cl.aimangles[PITCH] + pitch < -360)
+		cl.aimangles[PITCH] += 360; // wrapped
+	if (cl.aimangles[PITCH] + pitch > 360)
+		cl.aimangles[PITCH] -= 360; // wrapped
 
-	if (cl.bodyangles[PITCH] + pitch > 89)
-		cl.bodyangles[PITCH] = 89 - pitch;
-	if (cl.bodyangles[PITCH] + pitch < -89)
-		cl.bodyangles[PITCH] = -89 - pitch;
+	if (cl.aimangles[PITCH] + pitch > 89)
+		cl.aimangles[PITCH] = 89 - pitch;
+	if (cl.aimangles[PITCH] + pitch < -89)
+		cl.aimangles[PITCH] = -89 - pitch;
 }
 
 /*
@@ -370,15 +371,126 @@ void CL_FinishMove (usercmd_t *cmd)
 	cmd->msec = ms;
 
 	CL_ClampPitch ();
-	VectorAdd(cl.aimangles,cl.bodyangles,temp);
+	
 	for (i=0 ; i<3 ; i++)
-		cmd->angles[i] = ANGLE2SHORT(temp[i]);
+		cmd->angles[i] = ANGLE2SHORT(cl.aimangles[i]);
 
 	cmd->impulse = in_impulse;
 	in_impulse = 0;
 
 // send the ambient light level at the player's current position
 	cmd->lightlevel = (byte)cl_lightlevel->value;
+}
+
+void VR_Move (usercmd_t *cmd, vec3_t indelta)
+{
+	vec3_t orientation, orientationDelta;
+	vec3_t temp;
+
+	if (!vr_enabled->value)
+	{
+		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		return;
+	}
+
+	VR_GetSensorOrientation(orientation);
+	VR_GetSensorOrientationDelta(orientationDelta);
+
+	switch((int) vr_aimmode->value)
+	{
+	case VR_AIMMODE_DISABLE:
+		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		VectorCopy(cl.aimangles,cl.viewangles);
+	case VR_AIMMODE_HEAD_MYAW:
+
+		cl.aimangles[PITCH] = cl.viewangles[PITCH] = orientation[PITCH];
+		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + indelta[YAW] + orientationDelta[YAW];
+		cl.aimangles[ROLL] += indelta[ROLL];
+		cl.viewangles[ROLL] = orientation[ROLL];
+		break;
+	case VR_AIMMODE_HEAD_MYAW_MPITCH:
+		cl.aimangles[PITCH] = cl.viewangles[PITCH] = cl.aimangles[PITCH] + indelta[PITCH] + orientationDelta[PITCH];
+		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + indelta[YAW] + orientationDelta[YAW];
+		cl.aimangles[ROLL] += indelta[ROLL];
+		cl.viewangles[ROLL] = orientation[ROLL];
+		break;
+	case VR_AIMMODE_MOUSE_MYAW:
+		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		cl.viewangles[ROLL] = orientation[ROLL];
+		cl.viewangles[PITCH] = orientation[PITCH];
+		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
+		break;
+	case VR_AIMMODE_MOUSE_MYAW_MPITCH:
+		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		cl.viewangles[ROLL] = orientation[ROLL];
+		cl.viewangles[PITCH] = cl.aimangles[PITCH] + orientation[PITCH];
+		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
+		break;
+	case VR_AIMMODE_BLENDED_FIXPITCH:
+		{
+			float diffYaw;
+			VectorAdd(indelta,cl.aimangles,cl.aimangles);
+
+			cl.viewangles[YAW] += orientationDelta[YAW];
+			
+			diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
+
+			if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
+			{
+				cl.aimangles[YAW] += orientationDelta[YAW];
+				cl.viewangles[YAW] += indelta[YAW];
+				diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
+				
+				if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
+				{
+					if (diffYaw > 0.0)
+						cl.aimangles[YAW] = cl.viewangles[YAW] - vr_aimmode_deadzone->value / 2.0;
+					else
+						cl.aimangles[YAW] = cl.viewangles[YAW] + vr_aimmode_deadzone->value / 2.0;
+				}
+			}
+
+			cl.aimangles[PITCH] += orientationDelta[PITCH];
+			cl.viewangles[PITCH] = orientation[PITCH];
+			cl.viewangles[ROLL] = orientation[ROLL];
+		}
+		break;
+	case VR_AIMMODE_BLENDED:
+		{
+			float diffYaw;
+			VectorAdd(indelta,cl.aimangles,cl.aimangles);
+
+			cl.viewangles[YAW] += orientationDelta[YAW];
+			
+			diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
+
+			if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
+			{
+				cl.aimangles[YAW] += orientationDelta[YAW];
+				cl.viewangles[YAW] += indelta[YAW];
+				diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
+				
+				if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
+				{
+					if (diffYaw > 0.0)
+						cl.aimangles[YAW] = cl.viewangles[YAW] - vr_aimmode_deadzone->value / 2.0;
+					else
+						cl.aimangles[YAW] = cl.viewangles[YAW] + vr_aimmode_deadzone->value / 2.0;
+				}
+			}
+
+			cl.viewangles[PITCH] = orientation[PITCH];
+			cl.viewangles[ROLL] = orientation[ROLL];
+		}
+		break;
+	default:
+		cl.aimangles[YAW] += indelta[YAW];
+
+	}
+//	VectorSet(cl.aimangles,0,0,0);
+
+
+//	VectorAdd(indelta,cl.aimangles,cl.aimangles);
 }
 
 /*
@@ -389,19 +501,22 @@ CL_CreateCmd
 usercmd_t CL_CreateCmd (void)
 {
 	usercmd_t	cmd;
-
+	vec3_t base,delta;
 	frame_msec = sys_frame_time - old_sys_frame_time;
 	if (frame_msec < 1)
 		frame_msec = 1;
 	if (frame_msec > 200)
 		frame_msec = 200;
 	
+
 	// get basic movement from keyboard
 	CL_BaseMove (&cmd);
-
+	VectorCopy(cl.aimangles,base);
 	// allow mice or other external controllers to add to the move
 	IN_Move (&cmd);
-
+	VectorSubtract(cl.aimangles,base,delta);
+	VectorCopy(base,cl.aimangles);
+	VR_Move(&cmd,delta);
 	CL_FinishMove (&cmd);
 
 	old_sys_frame_time = sys_frame_time;
@@ -414,7 +529,7 @@ usercmd_t CL_CreateCmd (void)
 
 void IN_CenterView (void)
 {
-	cl.bodyangles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+	cl.aimangles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
 }
 
 /*

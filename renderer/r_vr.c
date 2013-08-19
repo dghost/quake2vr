@@ -37,7 +37,6 @@ r_fbo_t left, right, hud;
 
 GLint defaultFBO;
 
-
 // Default Lens Warp Shader
 static r_shaderobject_t lens_warp_shader_norm = {
 	0, 0, 0,
@@ -259,13 +258,33 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 	return (qglGetError() == GL_NO_ERROR);
 }
 
+void R_DelShaderProgram(r_shaderobject_t *shader)
+{
+	if (shader->program)
+	{
+		qglDeleteObjectARB(shader->program);
+		shader->program = 0;
+	}
+	if (shader->frag_shader)
+	{
+		qglDeleteObjectARB(shader->frag_shader);
+		shader->frag_shader = 0;
+	}
+
+	if (shader->vert_shader)
+	{
+		qglDeleteObjectARB(shader->vert_shader);
+		shader->vert_shader = 0;
+	}
+}
+
 
 void R_VR_StartFrame()
 {
 	vrState.viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 	
 	
-	if (vr_ovr_scale->modified)
+	if (vr_ovr_scale->value != vrState.scale)
 	{
 		if (vr_ovr_scale->value < 1.0)
 			Cvar_Set("vr_ovr_scale","1.0");
@@ -274,6 +293,8 @@ void R_VR_StartFrame()
 
 		R_DelFBO(&left);
 		R_DelFBO(&right);
+
+		vrState.scale = vr_ovr_scale->value;
 		vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
 		vrState.vrHalfWidth = vr_ovr_scale->value  * vrState.viewWidth / 2.0;
 		vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
@@ -281,7 +302,8 @@ void R_VR_StartFrame()
 		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
 		VR_Set_OVRDistortion_Scale(vr_ovr_scale->value);
 		vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;
-
+		Com_Printf("VR: Calculated %.2f FOV\n",vrState.viewFovY);
+		Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
 		vr_ovr_scale->modified = false;
 
 	}
@@ -363,7 +385,7 @@ void R_VR_EndFrame()
 {
 	if (vr_enabled->value)
 	{
-		qglBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+		qglBindFramebuffer(GL_FRAMEBUFFER,defaultFBO);
 		qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
 		vid.height = vrState.viewHeight;
@@ -496,7 +518,9 @@ void R_VR_Present()
 void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 {
 
-	R_CompileShaderProgram(object);
+	if (!object->program)
+		R_CompileShaderProgram(object);
+
 	shader->shader = object;
 	qglUseProgramObjectARB(shader->shader->program);
 
@@ -511,8 +535,16 @@ void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 
 void R_VR_Enable()
 {
-	if (!vr_enabled->value)
-		VR_Enable();
+	qboolean success = false;
+//	if (!vr_enabled->value)
+//		VR_Enable();
+
+	vrState.viewHeight = vid.height;
+	vrState.viewWidth = vid.width;
+	vrState.vrHalfWidth = vid.width;
+	vrState.vrWidth = vid.width;
+	vrState.vrHeight = vid.height;
+
 
 	if (left.valid)
 		R_DelFBO(&left);
@@ -521,21 +553,35 @@ void R_VR_Enable()
 	if (hud.valid)
 		R_DelFBO(&hud);
 
-	Com_Printf("VR: Initializing renderer...\n");
-
+	Com_Printf("VR: Initializing renderer:");
+	vrState.scale = vr_ovr_scale->value;
 	vrState.vrWidth = vrState.scale * vrState.viewWidth;
 	vrState.vrHalfWidth = vrState.scale * vrState.viewWidth / 2.0;
 	vrState.vrHeight = vrState.scale * vrState.viewHeight;
-	vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;	
-	R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
-	R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);
-	R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
+	vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;	 
+	success = R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
+	success = success && R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);
+	success = success && R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
 
+	if (!success)
+	{
+		Com_Printf(" failed!\n");
+		Cmd_ExecuteString("vr_disable");
+	} else {
+		Com_Printf(" ok!\n");
+	}
+	Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
 }
 
 void R_VR_Disable()
 {
-	qglBindFramebuffer(GL_FRAMEBUFFER,0);
+	qglBindFramebuffer(GL_FRAMEBUFFER,defaultFBO);
+
+	qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
+
+	vid.width = vrState.viewWidth;
+	vid.height = vrState.viewHeight;
+
 	vrState.vrWidth = vrState.viewWidth;
 	vrState.vrHalfWidth = vrState.viewWidth;
 	vrState.vrHeight = vrState.viewHeight;
@@ -546,47 +592,47 @@ void R_VR_Disable()
 		R_DelFBO(&right);
 	if (hud.valid)
 		R_DelFBO(&hud);
-	VR_Disable();
 }
+
+
 
 void R_VR_Init()
 {
-	if (!vrState.available)
-		return;
+	if (glConfig.arb_framebuffer_object && glConfig.arb_shader_objects)
+	{
+		vrState.hudHeight = 480;
+		vrState.hudWidth = 640;
 
-	qglGetIntegerv(GL_FRAMEBUFFER_BINDING,&defaultFBO);
-	R_InitFBO(&left);
-	R_InitFBO(&right);
-	R_InitFBO(&hud);
+		qglGetIntegerv(GL_FRAMEBUFFER_BINDING,&defaultFBO);
+		R_InitFBO(&left);
+		R_InitFBO(&right);
+		R_InitFBO(&hud);
 
+		R_VR_InitShader(&lens_warp_shaders[0],&lens_warp_shader_norm);
+		R_VR_InitShader(&lens_warp_shaders[1],&lens_warp_shader_chrm);
 
-	vrState.viewHeight = vid.height;
-	vrState.viewWidth = vid.width;
-	vrState.vrHalfWidth = vid.width;
-	vrState.vrWidth = vid.width;
-	vrState.vrHeight = vid.height;
+		lens_warp = &lens_warp_shaders[0];
 
+		vrState.eye = EYE_NONE;
 
-	vrState.hudHeight = 480;
-	vrState.hudWidth = 640;
-	R_VR_InitShader(&lens_warp_shaders[0],&lens_warp_shader_norm);
-	R_VR_InitShader(&lens_warp_shaders[1],&lens_warp_shader_chrm);
-
-	lens_warp = &lens_warp_shaders[0];
-	
-	Cmd_AddCommand("vr_enable",R_VR_Enable);
-	Cmd_AddCommand("vr_disable",R_VR_Disable);
-
-	vrState.eye = EYE_NONE;
-	if (vr_autoenable->value)
-		R_VR_Enable();
-
+		if (vr_enabled->value)
+			R_VR_Enable();
+	} else {
+		if (vr_enabled->value)
+		{
+			VR_Disable();
+			Cvar_ForceSet("vr_enabled","0");
+		}
+	}
 }
-
 void R_VR_Teardown()
 {
 	if (vr_enabled->value)
 		R_VR_Disable();
+
+	R_DelShaderProgram(&lens_warp_shader_norm);
+	R_DelShaderProgram(&lens_warp_shader_chrm);
+
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)

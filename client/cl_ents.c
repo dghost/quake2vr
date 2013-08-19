@@ -2247,11 +2247,12 @@ void CL_CalcViewValues (void)
 	{	// use predicted values
 		if (vr_enabled->value)
 		{
+			vec3_t predDelta;
+			VectorSubtract(cl.predicted_angles,cl.aimangles,predDelta);
+			VectorAdd(cl.viewangles,predDelta,cl.refdef.viewangles);
 			for (i=0 ; i<3 ; i++)
 			{
-				cl.refdef.viewangles[i] = cl.viewangles[i] + cl.predicted_angles[i];
-				cl.refdef.aimangles[i] = cl.aimangles[i] + cl.predicted_angles[i];
-				cl.refdef.aimangles[i] += LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
+				cl.refdef.aimangles[i] = cl.predicted_angles[i] + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
 			}
 		} else {
 			for (i=0 ; i<3 ; i++)
@@ -2267,13 +2268,14 @@ void CL_CalcViewValues (void)
 		VectorSet(temp,0,0,0);
 		if (vr_enabled->value)
 		{
-			VR_GetSensorOrientation(temp);
+	
+			VR_GetSensorOrientation(cl.refdef.viewangles);
 			for (i=0 ; i<3 ; i++)
 			{
-				cl.refdef.aimangles[i] = cl.refdef.viewangles[i] = LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp);
+				cl.refdef.aimangles[i] = temp[i] = LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp);
 				cl.refdef.aimangles[i] += LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
-				cl.refdef.viewangles[i] += temp[i];
 			}
+			cl.refdef.viewangles[YAW] += temp[YAW];
 		} else {
 			for (i = 0 ; i<3 ; i++) {
 				cl.refdef.aimangles[i] = cl.refdef.viewangles[i] = 

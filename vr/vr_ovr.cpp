@@ -2,92 +2,99 @@
 #include "OVR.h"
 #include <math.h>
 
-static OVR::DeviceManager *devMgr = NULL;
-static OVR::HMDDevice *hmdDev = NULL;
-static OVR::SensorDevice *sensDev = NULL;
-static OVR::SensorFusion *sensFus = NULL;
-static OVR::Util::MagCalibration *magCal = NULL;
+static bool device_available;
+static OVR::DeviceManager *manager = NULL;
+static OVR::HMDDevice *hmd = NULL;
+static OVR::SensorDevice *sensor = NULL;
+static OVR::SensorFusion *fusion = NULL;
+static OVR::Util::MagCalibration *magnet = NULL;
 static OVR::HMDInfo hmdInfo;
-static float lastOrientation[3];
+
+static bool initialized = false;
 
 #define M_PI 3.14159265358979323846f
 
 int VR_OVR_Init() {
-	OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-	devMgr = OVR::DeviceManager::Create();
-	hmdDev = devMgr->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-	if (!hmdDev)
+	if (!initialized)
 	{
-		devMgr->Release();
-		devMgr = NULL;
-		return 0;
+		OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+
+		initialized = true;
 	}
+
+	if (!manager)
+		manager = OVR::DeviceManager::Create();
 	
-	sensDev = hmdDev->GetSensor();
-	if (!sensDev)
+	if (manager && !hmd)
+		hmd = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+	
+
+	if (hmd && !sensor)
+		sensor = hmd->GetSensor();
+
+	if (!sensor)
 	{
-		devMgr->Release();
-		devMgr = NULL;
-		hmdDev->Release();
-		hmdDev = NULL;
+		VR_OVR_Shutdown();
 		return 0;
 	}
-	sensFus = new OVR::SensorFusion();
-	sensFus->AttachToSensor(sensDev);
-	sensFus->SetYawCorrectionEnabled(false);
-	sensFus->SetPrediction(0.0,false);
+
+	fusion = new OVR::SensorFusion();
+	fusion->AttachToSensor(sensor);
+	fusion->SetYawCorrectionEnabled(false);
+	fusion->SetPrediction(0.0,false);
 	return 1;
 }
 
 void VR_OVR_Shutdown() {
-	if (devMgr) {
-		devMgr->Release();
-		devMgr = NULL;
+	initialized = false;
+	if (manager) {
+		manager->Release();
+		manager = NULL;
 	}
 
-	if (hmdDev) {
-		hmdDev->Release();
-		hmdDev = NULL;
+	if (hmd) {
+		hmd->Release();
+		hmd = NULL;
 	}
 
-	if (sensDev) {
-		sensDev->Release();
-		sensDev = NULL;
+	if (sensor) {
+		sensor->Release();
+		sensor = NULL;
 	}
 
-	if (sensFus) {
-		delete sensFus;
-		sensFus = NULL;
+	if (fusion) {
+		delete fusion;
+		fusion = NULL;
 	}
 	
-	if (magCal) {
-		delete magCal;
-		magCal = NULL;
+	if (magnet) {
+		delete magnet;
+		magnet = NULL;
 	}
 }
 
 void VR_OVR_ResetHMDOrientation()
 {
-	if (!sensFus)
+	if (!fusion)
 		return;
 
-	sensFus->Reset();
+	fusion->Reset();
 
-	if(magCal && magCal->IsCalibrated())
-		magCal->BeginAutoCalibration(*sensFus);
+	if(magnet && magnet->IsCalibrated())
+		magnet->BeginAutoCalibration(*fusion);
 }
 
 int VR_OVR_GetOrientation(float euler[3])
 {
-	if (!sensFus)
+	if (!fusion)
 		return 0;
 
-	if (magCal && magCal->IsAutoCalibrating()) {
-		magCal->UpdateAutoCalibration(*sensFus);
+	if (magnet && magnet->IsAutoCalibrating()) {
+		magnet->UpdateAutoCalibration(*fusion);
 	}
 
 	// GetPredictedOrientation() works even if prediction is disabled
-	OVR::Quatf q = sensFus->GetPredictedOrientation();
+	OVR::Quatf q = fusion->GetPredictedOrientation();
 	
 	q.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&euler[1], &euler[0], &euler[2]);
 
@@ -98,46 +105,47 @@ int VR_OVR_GetOrientation(float euler[3])
 }
 
 int VR_OVR_GetSettings(vr_ovr_settings_t *settings) {
-	if (!hmdDev || !hmdDev->GetDeviceInfo(&hmdInfo))
+	if (!hmd || !hmd->GetDeviceInfo(&hmdInfo))
 		return 0;
 	settings->initialized = 1;
 	settings->h_resolution = hmdInfo.HResolution;
 	settings->v_resolution = hmdInfo.VResolution;
 	settings->h_screen_size = hmdInfo.HScreenSize;
 	settings->v_screen_size = hmdInfo.VScreenSize;
-
+	settings->xPos = hmdInfo.DesktopX;
+	settings->yPos = hmdInfo.DesktopY;
 	settings->interpupillary_distance = hmdInfo.InterpupillaryDistance;
 	settings->lens_separation_distance = hmdInfo.LensSeparationDistance;
 	settings->eye_to_screen_distance = hmdInfo.EyeToScreenDistance;
-
 	memcpy(settings->distortion_k, hmdInfo.DistortionK, sizeof(float) * 4);
 	memcpy(settings->chrom_abr, hmdInfo.ChromaAbCorrection, sizeof(float) * 4);
-	strncpy(settings->devName, hmdInfo.ProductName,31);
+	strncpy(settings->deviceString, hmdInfo.ProductName,31);
+	strncpy(settings->deviceName,hmdInfo.DisplayDeviceName,31);
 	return 1;
 }
 
 int VR_OVR_SetPredictionTime(float time) {
-	if (!sensFus)
+	if (!fusion)
 		return 0;
 
 	if (time > 0.0f)
-		sensFus->SetPrediction(time, true);
+		fusion->SetPrediction(time, true);
 	else
-		sensFus->SetPrediction(0.0,false);
+		fusion->SetPrediction(0.0,false);
 	return 1;
 }
 
 int VR_OVR_EnableMagneticCorrection() {
-	if (!sensFus)
+	if (!fusion)
 		return 0;
 	
-	sensFus->SetYawCorrectionEnabled(true);
-	if (!sensFus->HasMagCalibration())
+	fusion->SetYawCorrectionEnabled(true);
+	if (!fusion->HasMagCalibration())
 	{
-		if (!magCal)
-			magCal = new OVR::Util::MagCalibration();
+		if (!magnet)
+			magnet = new OVR::Util::MagCalibration();
 
-		magCal->BeginAutoCalibration(*sensFus);
+		magnet->BeginAutoCalibration(*fusion);
 	}
 
 
@@ -145,13 +153,13 @@ int VR_OVR_EnableMagneticCorrection() {
 }
 
 void VR_OVR_DisableMagneticCorrection() {
-	if (!sensFus)
+	if (!fusion)
 		return;
 
-	sensFus->SetYawCorrectionEnabled(false);
-	if (magCal)
+	fusion->SetYawCorrectionEnabled(false);
+	if (magnet)
 	{
-		delete magCal;
-		magCal = NULL;
+		delete magnet;
+		magnet = NULL;
 	}
 }

@@ -146,7 +146,7 @@ typedef struct
 	// dghost - 08/16/13
 	vec3_t		aimangles;
 	vec3_t		viewangles;
-	vec3_t		bodyangles;
+//	vec3_t		bodyangles;
 
 	int			time;			// this is the time value that the client
 								// is rendering at.  always <= cls.realtime

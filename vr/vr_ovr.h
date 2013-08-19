@@ -10,6 +10,8 @@ extern "C" {
 		unsigned int initialized;
 		unsigned int h_resolution;
 		unsigned int v_resolution;
+		unsigned int xPos;
+		unsigned int yPos;
 		float h_screen_size;
 		float v_screen_size;
 		float interpupillary_distance;
@@ -17,7 +19,8 @@ extern "C" {
 		float eye_to_screen_distance;
 		float distortion_k[4];
 		float chrom_abr[4];
-		char devName[32];
+		char deviceString[32];
+		char deviceName[32];
 	} vr_ovr_settings_t;
 
 	int VR_OVR_Init(void);

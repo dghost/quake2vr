@@ -656,7 +656,7 @@ void VR_DrawCrosshair()
 	GL_Enable(GL_BLEND);
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	GL_Bind(0);
-	qglColor4f(1.0,0.0,0.0,0.5);
+	qglColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
 	if (vr_crosshair->value == 1.0)
 	{
 		qglEnable(GL_POINT_SMOOTH);

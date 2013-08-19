@@ -173,6 +173,95 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 }
 
 
+qboolean VR_CreateWindow(int xPos, int yPos, int width, int height)
+{
+	WNDCLASS		wc;
+	RECT			r;
+	int				stylebits;
+	int				x, y, w, h;
+	int				exstyle;
+
+	/* Register the frame class */
+    wc.style         = 0;
+    wc.lpfnWndProc   = (WNDPROC)glw_state.wndproc;
+    wc.cbClsExtra    = 0;
+    wc.cbWndExtra    = 0;
+    wc.hInstance     = glw_state.hInstance;
+
+	if (modType("xatrix")) { // q2mp1
+		wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON2));
+		//wc.lpszClassName = WINDOW_CLASS_NAME2;
+	}
+	else if (modType("rogue"))  { // q2mp2
+		wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON3));
+		//wc.lpszClassName = WINDOW_CLASS_NAME3;
+	}
+	else {
+		wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	}
+
+    wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
+	wc.hbrBackground = (void *)COLOR_GRAYTEXT;
+	wc.lpszMenuName  = 0;
+	wc.lpszClassName = WINDOW_CLASS_NAME;
+
+	if (!RegisterClass (&wc) )
+		VID_Error (ERR_FATAL, "Couldn't register window class");
+
+	exstyle = WS_EX_TOPMOST;
+	//stylebits = WS_POPUP|WS_VISIBLE;
+	stylebits = WS_POPUP|WS_SYSMENU|WS_VISIBLE;
+
+	r.left = xPos;
+	r.top = yPos;
+	r.right  = xPos + width;
+	r.bottom = yPos + height;
+
+	AdjustWindowRect (&r, stylebits, FALSE);
+
+	w = r.right - r.left;
+	h = r.bottom - r.top;
+
+	x = r.left;
+	y = r.top;
+
+	Cvar_SetInteger("vid_xpos",x);
+	Cvar_SetInteger("vid_ypos",y);
+
+
+	glw_state.hWnd = CreateWindowEx (
+		exstyle, 
+		WINDOW_CLASS_NAME,
+		"KMQuake2",		//Knightmare changed
+		stylebits,
+		x, y, w, h,
+		NULL,
+		NULL,
+		glw_state.hInstance,
+		NULL);
+
+	if (!glw_state.hWnd)
+		VID_Error (ERR_FATAL, "Couldn't create window");
+
+	ShowWindow( glw_state.hWnd, SW_SHOW );
+	UpdateWindow( glw_state.hWnd );
+
+	// init all the gl stuff for the window
+	if (!GLimp_InitGL ())
+	{
+		VID_Printf( PRINT_ALL, "VID_CreateWindow() - GLimp_InitGL failed\n");
+		return false;
+	}
+
+	SetForegroundWindow( glw_state.hWnd );
+	SetFocus( glw_state.hWnd );
+
+	// let the sound and input subsystems know about the new window
+	VID_NewWindow (width, height);
+
+	return true;
+}
+
 /*
 ** GLimp_SetMode
 */
@@ -203,13 +292,16 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, int mode, qboolean fullscreen
 	if ( fullscreen )
 	{
 		DEVMODE dm;
+		DISPLAY_DEVICE  targetMonitor;
+		ZeroMemory(&targetMonitor, sizeof(targetMonitor));
+		targetMonitor.cb = sizeof(targetMonitor);
+
 
 		VID_Printf( PRINT_ALL, "...attempting fullscreen\n" );
 
 		memset( &dm, 0, sizeof( dm ) );
 
 		dm.dmSize = sizeof( dm );
-
 		dm.dmPelsWidth  = width;
 		dm.dmPelsHeight = height;
 		dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
@@ -238,8 +330,75 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, int mode, qboolean fullscreen
 			ReleaseDC( 0, hdc );
 		}
 
+		if (vr_enabled->value)
+		{
+			qboolean found = false;
+			qboolean isPrimaryDisplay = false;
+			UINT i;
+			DISPLAY_DEVICE displayDevice , primaryDisplay;
+			ZeroMemory(&displayDevice, sizeof(displayDevice));
+			displayDevice.cb = sizeof(displayDevice);
+			ZeroMemory(&primaryDisplay, sizeof(primaryDisplay));
+			primaryDisplay.cb = sizeof(primaryDisplay);
+			VID_Printf(PRINT_ALL, "...looking for HMD\n");
+			for (i = 0; EnumDisplayDevices(NULL, i, &displayDevice, 0); i++) {
+
+				if (displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE || displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
+				{
+					size_t length = strlen(displayDevice.DeviceName);
+					VID_Printf( PRINT_ALL,"...found display device: %s - %s\n",displayDevice.DeviceName,displayDevice.DeviceString);
+					if (displayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+						primaryDisplay = displayDevice;
+					if (!strncmp(vrConfig.deviceName,displayDevice.DeviceName,length))
+					{
+						found = true;
+						targetMonitor = displayDevice;
+						if (displayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+							isPrimaryDisplay = true;
+
+					}
+
+
+				}
+			}
+			if (found)
+			{
+				VID_Printf( PRINT_ALL,"...found HMD on %s display '%s'\n",isPrimaryDisplay?"primary":"secondary",targetMonitor.DeviceName);
+			} else
+			{
+				targetMonitor = primaryDisplay;
+				VID_Printf( PRINT_ALL,"...unable to locate HMD, using primary display %s\n",targetMonitor.DeviceName);
+			}
+		}	
+		
 		VID_Printf( PRINT_ALL, "...calling CDS: " );
-		if ( ChangeDisplaySettings( &dm, CDS_FULLSCREEN ) == DISP_CHANGE_SUCCESSFUL )
+
+		if (vr_enabled->value && ChangeDisplaySettingsEx(targetMonitor.DeviceName, &dm, NULL, CDS_FULLSCREEN,NULL ) == DISP_CHANGE_SUCCESSFUL)
+		{
+			DEVMODE settings;
+			ZeroMemory(&settings, sizeof(settings));
+			settings.dmSize = sizeof(settings);
+
+			*pwidth = width;
+			*pheight = height;
+
+			glState.fullscreen = true;
+
+			VID_Printf( PRINT_ALL, "%s ok!\n" ,targetMonitor.DeviceName);
+			if (!EnumDisplaySettingsEx(targetMonitor.DeviceName,
+				ENUM_CURRENT_SETTINGS,
+				&settings,
+				EDS_ROTATEDMODE))
+			{
+				VID_Printf( PRINT_ALL,"Error enumerating display settings!\n");
+			}
+			if ( !VR_CreateWindow (settings.dmPosition.x,settings.dmPosition.y,width, height) )
+				return rserr_invalid_mode;
+
+			return rserr_ok;
+
+		}
+		else if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL  )
 		{
 			*pwidth = width;
 			*pheight = height;
