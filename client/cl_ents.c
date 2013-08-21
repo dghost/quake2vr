@@ -1882,7 +1882,6 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 
 	if (gun.model)
 	{
-		vec3_t forward, right,distance;
 		// set up gun position
 		for (i=0 ; i<3 ; i++)
 		{
@@ -1913,9 +1912,7 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		gun.flags = RF_MINLIGHT | RF_DEPTHHACK | RF_WEAPONMODEL;
 		gun.backlerp = 1.0 - cl.lerpfrac;
 		VectorCopy (gun.origin, gun.oldorigin);	// don't lerp at all
-		AngleVectors(cl.refdef.aimangles,forward,right,NULL);
-		VectorSet(distance,8,8,-8);
-		CL_ProjectSource(gun.origin,distance,forward,right,cl.refdef.aimstart);
+
 
 		V_AddEntity (&gun);
 
@@ -2188,6 +2185,7 @@ void CL_CalcViewValues (void)
 	frame_t		*oldframe;
 	player_state_t	*ps, *ops;
 
+
 	// find the previous frame to interpolate from
 	ps = &cl.frame.playerstate;
 	i = (cl.frame.serverframe - 1) & UPDATE_MASK;
@@ -2295,7 +2293,37 @@ void CL_CalcViewValues (void)
 
 	// add the weapon
 	CL_AddViewWeapon (ps, ops);
+	
+	if (vr_crosshair->value)
+	{
+		vec3_t forward, right,distance;
+		vec3_t gun_origin, gun_angles;
+		trace_t trace;
+		int i;
 
+		for (i = 0; i < 3; i++)
+		{
+			gun_origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
+			+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
+			gun_angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
+				ps->gunangles[i], cl.lerpfrac);	
+		}
+
+
+		AngleVectors(cl.refdef.aimangles,forward,right,NULL);
+	
+//		AngleVectors(gun_angles,forward,right,NULL);
+		VectorSet(distance,8,8,-8);
+		CL_ProjectSource(gun_origin,distance,forward,right,cl.refdef.aimstart);
+
+		//	VectorCopy(cl.refdef.vieworg,cl.refdef.aimstart);
+		VectorMA(cl.refdef.aimstart,8192,forward,distance);
+		//trace = CL_BrushTrace(cl.refdef.aimstart,aim,0,MASK_ALL);
+		trace = CL_Trace(cl.refdef.aimstart,distance,0,MASK_SHOT);
+		//	trace = CL_PMSurfaceTrace(cl.playernum + 1, cl.refdef.aimstart,NULL,NULL,aim,MASK_SHOT);
+		VectorCopy(trace.endpos,cl.refdef.aimend);
+
+	}
 	// set up chase cam
 	SetUpCamera();
 }

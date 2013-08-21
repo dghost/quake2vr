@@ -131,6 +131,10 @@ static r_shaderobject_t lens_warp_shader_chrm = {
 #define PLAYER_HEIGHT_UNITS 56.0f
 #define PLAYER_HEIGHT_M 1.75f
 
+//
+// Utility Functions
+//
+
 int R_GenFBO(int width, int height, r_fbo_t *FBO)
 {
 
@@ -278,7 +282,11 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 	}
 }
 
+//
+// Rendering related functions
+//
 
+// executed once per frame
 void R_VR_StartFrame()
 {
 	vrState.viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
@@ -329,6 +337,7 @@ void R_VR_StartFrame()
 	qglClearColor (1,0, 0.5, 0.5);
 
 }
+
 void R_VR_BindHud()
 {
 	if (vr_enabled->value)
@@ -451,6 +460,7 @@ void R_VR_DrawHud()
 	GL_Disable(GL_BLEND);
 }
 
+// takes the various FBO's and renders them to the framebuffer
 void R_VR_Present()
 {
 	if (vr_enabled->value)
@@ -533,6 +543,7 @@ void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 	qglUseProgramObjectARB(0);
 }
 
+// enables renderer support for the Rift
 void R_VR_Enable()
 {
 	qboolean success = false;
@@ -573,6 +584,7 @@ void R_VR_Enable()
 	Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
 }
 
+// disables renderer support for the Rift
 void R_VR_Disable()
 {
 	qglBindFramebuffer(GL_FRAMEBUFFER,defaultFBO);
@@ -596,6 +608,7 @@ void R_VR_Disable()
 
 
 
+// launch-time initialization for Rift support
 void R_VR_Init()
 {
 	if (glConfig.arb_framebuffer_object && glConfig.arb_shader_objects)
@@ -625,7 +638,9 @@ void R_VR_Init()
 		}
 	}
 }
-void R_VR_Teardown()
+
+// called when the renderer is shutdown
+void R_VR_Shutdown()
 {
 	if (vr_enabled->value)
 		R_VR_Disable();

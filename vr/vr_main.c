@@ -21,11 +21,17 @@ cvar_t *vr_aimmode_deadzone;
 vr_param_t vrState;
 vr_attrib_t vrConfig;
 
-vr_ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 vr_param_t vr_render_param;
 
 vec3_t vr_lastOrientation;
 vec3_t vr_orientation;
+
+//
+// Oculus Rift specific functions
+//
+
+vr_ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
+
 
 void VR_Set_OVRDistortion_Scale(float dist_scale)
 {
@@ -62,35 +68,6 @@ void VR_Calculate_OVR_RenderParam()
 
 		VR_Set_OVRDistortion_Scale(dist_scale);
 	}
-}
-
-
-void VR_GetSensorOrientation(vec3_t angle)
-{
-	if (!vr_enabled->value)
-		return;
-
-	VectorCopy(vr_orientation,angle);
-}
-
-void VR_GetSensorOrientationDelta(vec3_t angle)
-{
-	if (!vr_enabled->value)
-		return;
-
-	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
-}
-
-// takes time in ms, sets appropriate prediction values
-int VR_SetMotionPrediction(float time)
-{
-	float timeInSecs = time /1000.0;
-	if (!VR_OVR_SetPredictionTime(timeInSecs))
-	{
-		Com_Printf("VR_OVR: Error setting HMD prediction time!\n");
-		return 0;
-	}
-	return 1;
 }
 
 
@@ -137,11 +114,45 @@ void VR_OVR_Frame()
 	}
 }
 
+//
+// General functions
+//
+
+void VR_GetSensorOrientation(vec3_t angle)
+{
+	if (!vr_enabled->value)
+		return;
+
+	VectorCopy(vr_orientation,angle);
+}
+
+void VR_GetSensorOrientationDelta(vec3_t angle)
+{
+	if (!vr_enabled->value)
+		return;
+
+	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
+}
+
+// takes time in ms, sets appropriate prediction values
+int VR_SetMotionPrediction(float time)
+{
+	float timeInSecs = time /1000.0;
+	if (!VR_OVR_SetPredictionTime(timeInSecs))
+	{
+		Com_Printf("VR_OVR: Error setting HMD prediction time!\n");
+		return 0;
+	}
+	return 1;
+}
+
 void VR_Frame()
 {
 	if (!vr_enabled->value)
 		return;
 
+
+	// check and clamp cvars
 	if (vr_motionprediction->modified)
 	{
 		if (vr_motionprediction->value < 0.0)
@@ -201,6 +212,8 @@ void VR_Frame()
 		else if (vr_crosshair_size->value > 5)
 			Cvar_SetInteger("vr_crosshair_size",5);
 	}
+
+	// pull an update from the motion tracker
 	VR_OVR_Frame();
 }
 
@@ -212,6 +225,9 @@ void VR_ResetOrientation()
 	VectorCopy(vr_orientation,vr_lastOrientation);
 }
 
+// this is a little overkill on the abstraction, but the point of it was to try to make it
+// possible to support other HMD's in the future without having to rewrite other portions of the engine.
+// -dghost 08/17/13
 
 int VR_Enable()
 {
@@ -219,6 +235,7 @@ int VR_Enable()
 
 	Com_Printf("VR: Initializing HMD:");
 
+	// try to initialize LibOVR
 	if (VR_OVR_Init())
 	{
 		Com_Printf(" ok!\n");
@@ -229,11 +246,10 @@ int VR_Enable()
 
 	Com_Printf("VR: Getting HMD settings:");
 	
+	// get info from LibOVR
 	if (VR_OVR_GetSettings(&vr_ovr_settings))
 	{
 		
-		cvar_t *vid_xpos, *vid_ypos;
-
 		Com_Printf(" ok!\n");
 
 
@@ -264,15 +280,15 @@ int VR_Enable()
 		if (vr_ovr_settings.v_resolution > 800)
 			Cvar_SetInteger("vr_hud_transparency",1);
 
-		vid_xpos = Cvar_Get ("vid_xpos", "0", 0);
-		vid_ypos = Cvar_Get ("vid_ypos", "0", 0);
-		vrState.viewXPos = vid_xpos->value;
-		vrState.viewYPos = vid_ypos->value;
+
+		vrState.viewXPos = Cvar_VariableInteger ("vid_xpos");
+		vrState.viewYPos = Cvar_VariableInteger ("vid_xpos");
 	} else 
 	{
 		Com_Printf(" failed!\n");
 		return 0;
 	}
+
 	if (VR_SetMotionPrediction(vr_motionprediction->value))
 		Com_Printf("...set HMD Prediction time to %.1fms\n",vr_motionprediction->value);
 	vr_motionprediction->modified = false;
@@ -295,6 +311,7 @@ void VR_Shutdown()
 		VR_Disable();
 }
 
+// console command to enable Rift support
 void VR_Enable_f()
 {
 	if (vr_enabled->value)
@@ -307,6 +324,7 @@ void VR_Enable_f()
 	}
 }
 
+// console command to disable Rift support
 void VR_Disable_f()
 {
 	if (!vr_enabled->value)
@@ -317,32 +335,31 @@ void VR_Disable_f()
 	Cmd_ExecuteString("vid_restart");
 }
 
+// launch-time initialization for Rift support
 void VR_Init()
 {
-	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
-	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
-	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_ARCHIVE);
-	vr_aimmode_deadzone = Cvar_Get("vr_aimmode_deadzone","30",CVAR_ARCHIVE);
-	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
+
+	vr_ovr_scale = Cvar_Get("vr_ovr_scale","-1",CVAR_ARCHIVE);
+	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
+	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	vr_motionprediction = Cvar_Get("vr_motionprediction","40",CVAR_ARCHIVE);
-	vr_hud_fov = Cvar_Get("vr_hud_fov","60",CVAR_ARCHIVE);
-	vr_hud_depth = Cvar_Get("vr_hud_depth","5",CVAR_ARCHIVE);
+	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
-	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
+	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","3",CVAR_ARCHIVE);
+	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","3", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","-1",CVAR_ARCHIVE);
-	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
-	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
+	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
+	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
+	vr_aimmode_deadzone = Cvar_Get("vr_aimmode_deadzone","30",CVAR_ARCHIVE);
+	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_ARCHIVE);
+
 	Cmd_AddCommand("vr_reset_home",VR_ResetOrientation);
 	Cmd_AddCommand("vr_disable",VR_Disable_f);
 	Cmd_AddCommand("vr_enable",VR_Enable_f);
 
-
-
-	// this is a little overkill on the abstraction, but the point of it was to try to make it
-	// flexible enough to handle other HMD's if possible
-	// -dghost 08/17/13
+	Com_Printf("RiftQuake II```` Version %4.2f\n",RIFTQUAKE2_VERSION);
 
 	if (vr_autoenable->value)
 		if (VR_Enable())

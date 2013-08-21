@@ -978,7 +978,7 @@ VR Stuff
 */
 
 void R_VR_Init();
-void R_VR_Teardown();
+void R_VR_Shutdown();
 void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();

@@ -1961,7 +1961,7 @@ void R_Shutdown (void)
 	Mod_FreeAll ();
 
 	R_ShutdownImages ();
-	R_VR_Teardown();
+	R_VR_Shutdown();
 
 	//
 	// shut down OS specific OpenGL stuff like contexts, etc.
