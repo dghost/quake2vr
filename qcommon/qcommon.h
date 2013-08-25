@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../game/q_shared.h"
 
 #define	VERSION		0.20 //was 3.21
-#define RIFTQUAKE2_VERSION 1.0
+#define RIFTQUAKE2_VERSION 1.1
 
 #define	BASEDIRNAME	"baseq2"
 
