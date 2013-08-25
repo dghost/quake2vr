@@ -709,8 +709,6 @@ void VR_RenderView ()
 			cl.refdef.blend[3] = 0.5;
 		}
 
-		// offset vieworg appropriately if we're doing stereo separation
-
 		// never let it sit exactly on a node line, because a water plane can
 		// dissapear when viewed with the eye exactly on it.
 		// the server protocol only specifies to 1/8 pixel, so add 1/16 in each axis
@@ -772,7 +770,7 @@ void VR_RenderView ()
 	// draw for left eye
 	R_VR_BindLeft();
 
-	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset * 0.125 , tmp );
+	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
 	R_RenderView(&cl.refdef );
@@ -786,7 +784,7 @@ void VR_RenderView ()
 	// draw for right eye
 	R_VR_BindRight();
 
-	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset * 0.125 , tmp );
+	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
 	R_RenderView(&cl.refdef );
@@ -1056,4 +1054,5 @@ void V_Init (void)
 	cl_testlights = Cvar_Get ("cl_testlights", "0", CVAR_CHEAT);
 
 	cl_stats = Cvar_Get ("cl_stats", "0", 0);
+
 }

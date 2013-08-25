@@ -361,7 +361,7 @@ void VR_Init()
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
-	vr_hud_depth = Cvar_Get("vr_hud_depth","3",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","3", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
