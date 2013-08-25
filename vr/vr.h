@@ -15,10 +15,9 @@ typedef struct {
 	float viewFovX;
 	float scale;
 	float pixelScale;
+	unsigned int stale;
 	unsigned int viewHeight;
 	unsigned int viewWidth;
-	unsigned int viewXPos;
-	unsigned int viewYPos;
 	unsigned int vrWidth;
 	unsigned int vrHalfWidth;
 	unsigned int vrHeight;
@@ -58,7 +57,7 @@ extern cvar_t *vr_crosshair_size;
 extern cvar_t *vr_crosshair_brightness;
 extern cvar_t *vr_aimmode;
 extern cvar_t *vr_aimmode_deadzone;
-
+extern cvar_t *vr_viewmove;
 enum {
 	VR_AIMMODE_DISABLE,
 	VR_AIMMODE_HEAD_MYAW,
@@ -79,8 +78,8 @@ void VR_Disable();
 void VR_Frame();
 void VR_Set_OVRDistortion_Scale(float dist_scale);
 void VR_GetRenderParam(vr_param_t *settings);
-void VR_GetSensorOrientation(vec3_t angle);
-void VR_GetSensorOrientationDelta(vec3_t angle);
+void VR_GetOrientation(vec3_t angle);
+void VR_GetOrientationDelta(vec3_t angle);
 void VR_ResetOrientation();
 
 #endif

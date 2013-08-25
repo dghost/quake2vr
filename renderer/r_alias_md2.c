@@ -894,8 +894,7 @@ void R_DrawAliasMD2Model (entity_t *e)
 			GL_DepthRange (gldepthmin, gldepthmin + 0.3*(gldepthmax-gldepthmin));
 	}
 
-	if (mirrormodel)
-		R_FlipModel(true);
+
 
     qglPushMatrix ();
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();	// roll is backwards
@@ -939,7 +938,8 @@ void R_DrawAliasMD2Model (entity_t *e)
 
 	if ( !r_lerpmodels->value )
 		e->backlerp = 0;
-
+	if (mirrormodel)
+		R_FlipModel(true);
 	R_SetBlendModeOn (skin); // Q2max add
 
 	R_DrawAliasMD2FrameLerp (paliashdr, e->backlerp);
@@ -947,10 +947,11 @@ void R_DrawAliasMD2Model (entity_t *e)
 	GL_TexEnv (GL_REPLACE);
 	GL_ShadeModel (GL_FLAT);
 
-	qglPopMatrix ();
-
 	if (mirrormodel)
 		R_FlipModel(false);
+	qglPopMatrix ();
+
+
 
 	// show model bounding box
 	R_DrawAliasModelBBox (bbox, e);

@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_alias_misc.c: shared model rendering functions
 
 #include "r_local.h"
-
+#include "../vr/vr.h"
 
 float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "anorms.h"
@@ -320,21 +320,16 @@ void R_FlipModel (qboolean on)
 
 	if (on)
 	{
-		qglMatrixMode( GL_PROJECTION );
 		qglPushMatrix();
-		qglLoadIdentity();
-		qglScalef( -1, 1, 1 );
-		MYgluPerspective( r_newrefdef.fov_y, ( float ) r_newrefdef.width / r_newrefdef.height,  4,  4096);
-		qglMatrixMode( GL_MODELVIEW );
-
+		qglScalef(1,-1,1);
 		GL_CullFace( GL_BACK );
+
 	}
 	else
 	{
-		qglMatrixMode( GL_PROJECTION );
 		qglPopMatrix();
-		qglMatrixMode( GL_MODELVIEW );
 		GL_CullFace( GL_FRONT );
+
 	}
 }
 

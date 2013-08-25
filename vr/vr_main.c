@@ -17,6 +17,7 @@ cvar_t *vr_crosshair_size;
 cvar_t *vr_crosshair_brightness;
 cvar_t *vr_aimmode;
 cvar_t *vr_aimmode_deadzone;
+cvar_t *vr_viewmove;
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
@@ -73,10 +74,6 @@ void VR_Calculate_OVR_RenderParam()
 
 void VR_OVR_Frame()
 {
-	float euler[3];
-	VectorCopy(vr_orientation,vr_lastOrientation);
-	VR_OVR_GetOrientation(euler);
-	VectorSet(vr_orientation,euler[0],euler[1],euler[2]);
 
 	if (vr_ovr_driftcorrection->modified)
 	{
@@ -118,18 +115,37 @@ void VR_OVR_Frame()
 // General functions
 //
 
-void VR_GetSensorOrientation(vec3_t angle)
+void VR_GetSensorOrientation()
+{
+		float euler[3];
+		VectorCopy(vr_orientation,vr_lastOrientation);
+		VR_OVR_GetOrientation(euler);
+		VectorSet(vr_orientation,euler[0],euler[1],euler[2]);
+}
+
+void VR_GetOrientation(vec3_t angle)
 {
 	if (!vr_enabled->value)
 		return;
+	if (vrState.stale)
+	{
+		VR_GetSensorOrientation();
+		vrState.stale = 0;
+	}
 
 	VectorCopy(vr_orientation,angle);
 }
 
-void VR_GetSensorOrientationDelta(vec3_t angle)
+void VR_GetOrientationDelta(vec3_t angle)
 {
 	if (!vr_enabled->value)
 		return;
+
+	if (vrState.stale)
+	{
+		VR_GetSensorOrientation();
+		vrState.stale = 0;
+	}
 
 	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
 }
@@ -213,6 +229,7 @@ void VR_Frame()
 			Cvar_SetInteger("vr_crosshair_size",5);
 	}
 
+	vrState.stale = 1;
 	// pull an update from the motion tracker
 	VR_OVR_Frame();
 }
@@ -273,6 +290,9 @@ int VR_Enable()
 		{
 			Cvar_Set("vr_ovr_scale",string);
 		}
+
+		VR_Set_OVRDistortion_Scale(vr_ovr_scale->value);
+
 		if (vr_ovr_driftcorrection->value > 0.0)
 			VR_OVR_EnableMagneticCorrection();
 
@@ -280,9 +300,6 @@ int VR_Enable()
 		if (vr_ovr_settings.v_resolution > 800)
 			Cvar_SetInteger("vr_hud_transparency",1);
 
-
-		vrState.viewXPos = Cvar_VariableInteger ("vid_xpos");
-		vrState.viewYPos = Cvar_VariableInteger ("vid_xpos");
 	} else 
 	{
 		Com_Printf(" failed!\n");
@@ -293,15 +310,13 @@ int VR_Enable()
 		Com_Printf("...set HMD Prediction time to %.1fms\n",vr_motionprediction->value);
 	vr_motionprediction->modified = false;
 	VR_ResetOrientation();
+	vrState.stale = 1;
 	return 1;
 }
 
 void VR_Disable()
 {
 	VR_OVR_Shutdown();
-
-	Cvar_SetInteger("vid_xpos",vrState.viewXPos);
-	Cvar_SetInteger("vid_ypos",vrState.viewYPos);
 
 }
 
@@ -338,7 +353,7 @@ void VR_Disable_f()
 // launch-time initialization for Rift support
 void VR_Init()
 {
-
+	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","-1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
@@ -359,7 +374,7 @@ void VR_Init()
 	Cmd_AddCommand("vr_disable",VR_Disable_f);
 	Cmd_AddCommand("vr_enable",VR_Enable_f);
 
-	Com_Printf("RiftQuake II```` Version %4.2f\n",RIFTQUAKE2_VERSION);
+	Com_Printf("RiftQuake II Version %4.2f\n",RIFTQUAKE2_VERSION);
 
 	if (vr_autoenable->value)
 		if (VR_Enable())

@@ -1001,9 +1001,6 @@ void R_DrawAliasModel (entity_t *e)
 			GL_DepthRange (gldepthmin, gldepthmin + 0.3*(gldepthmax-gldepthmin));
 	}
 
-	// mirroring support
-	if (mirrormodel)
-		R_FlipModel(true);
 
 	for (i=0; i < paliashdr->num_meshes; i++)
 		c_alias_polys += paliashdr->meshes[i].num_tris;
@@ -1030,14 +1027,18 @@ void R_DrawAliasModel (entity_t *e)
 
 	if (!r_lerpmodels->value)
 		e->backlerp = 0;
+	// mirroring support
+	if (mirrormodel)
+		R_FlipModel(true);
 
 	R_DrawAliasMeshes (paliashdr, e);
-
-	qglPopMatrix ();
 
 	// mirroring support
 	if (mirrormodel)
 		R_FlipModel(false);
+
+	qglPopMatrix ();
+
 
 	// show model bounding box
 	R_DrawAliasModelBBox (bbox, e);

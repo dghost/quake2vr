@@ -2267,7 +2267,7 @@ void CL_CalcViewValues (void)
 		if (vr_enabled->value)
 		{
 	
-			VR_GetSensorOrientation(cl.refdef.viewangles);
+			VR_GetOrientation(cl.refdef.viewangles);
 			for (i=0 ; i<3 ; i++)
 			{
 				cl.refdef.aimangles[i] = temp[i] = LerpAngle (ops->viewangles[i], ps->viewangles[i], lerp);
@@ -2305,24 +2305,35 @@ void CL_CalcViewValues (void)
 		{
 			gun_origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
 			+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
-			gun_angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
-				ps->gunangles[i], cl.lerpfrac);	
+//			gun_angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
+//				ps->gunangles[i], cl.lerpfrac);	
 		}
 
 
 		AngleVectors(cl.refdef.aimangles,forward,right,NULL);
 	
 //		AngleVectors(gun_angles,forward,right,NULL);
-		VectorSet(distance,8,8,-8);
+	
+		// right handed
+		if ((int) hand->value == 0)
+			VectorSet(distance,8,8,-8);
+		// left handed
+		else if ((int) hand->value == 1)
+			VectorSet(distance,8,-8,-8);
+		// center
+		else if ((int) hand->value == 2)
+			VectorSet(distance,8,0,-8);
+			
 		CL_ProjectSource(gun_origin,distance,forward,right,cl.refdef.aimstart);
+		
 
+		//VectorCopy(gun_origin,cl.refdef.aimstart);
 		//	VectorCopy(cl.refdef.vieworg,cl.refdef.aimstart);
 		VectorMA(cl.refdef.aimstart,8192,forward,distance);
 		//trace = CL_BrushTrace(cl.refdef.aimstart,aim,0,MASK_ALL);
-		trace = CL_Trace(cl.refdef.aimstart,distance,0,MASK_SHOT);
-		//	trace = CL_PMSurfaceTrace(cl.playernum + 1, cl.refdef.aimstart,NULL,NULL,aim,MASK_SHOT);
+		//trace = CL_Trace(cl.refdef.aimstart,distance,0,MASK_SHOT);
+		trace = CL_PMSurfaceTrace(cl.playernum + 1, cl.refdef.aimstart,NULL,NULL,distance,MASK_SHOT | MASK_OPAQUE);
 		VectorCopy(trace.endpos,cl.refdef.aimend);
-
 	}
 	// set up chase cam
 	SetUpCamera();

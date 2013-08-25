@@ -343,7 +343,7 @@ void CL_FinishMove (usercmd_t *cmd)
 {
 	int		ms;
 	int		i;
-	vec3_t  temp;	
+	vec3_t  temp,forward,right;	
 //
 // figure button bits
 //	
@@ -385,16 +385,17 @@ void CL_FinishMove (usercmd_t *cmd)
 void VR_Move (usercmd_t *cmd, vec3_t indelta)
 {
 	vec3_t orientation, orientationDelta;
-	vec3_t temp;
+
 
 	if (!vr_enabled->value)
 	{
 		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		VectorCopy(cl.aimangles,cl.viewangles);
 		return;
 	}
 
-	VR_GetSensorOrientation(orientation);
-	VR_GetSensorOrientationDelta(orientationDelta);
+	VR_GetOrientation(orientation);
+	VR_GetOrientationDelta(orientationDelta);
 
 	switch((int) vr_aimmode->value)
 	{
@@ -402,7 +403,6 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 		VectorAdd(indelta,cl.aimangles,cl.aimangles);
 		VectorCopy(cl.aimangles,cl.viewangles);
 	case VR_AIMMODE_HEAD_MYAW:
-
 		cl.aimangles[PITCH] = cl.viewangles[PITCH] = orientation[PITCH];
 		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + indelta[YAW] + orientationDelta[YAW];
 		cl.aimangles[ROLL] += indelta[ROLL];
@@ -483,14 +483,26 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 			cl.viewangles[ROLL] = orientation[ROLL];
 		}
 		break;
-	default:
-		cl.aimangles[YAW] += indelta[YAW];
+
 
 	}
 //	VectorSet(cl.aimangles,0,0,0);
 
 
-//	VectorAdd(indelta,cl.aimangles,cl.aimangles);
+	if (vr_viewmove->value)
+	{
+		float forward, sideways;
+		vec3_t diff;
+
+		VectorSubtract(cl.aimangles,cl.viewangles,diff);
+
+		forward = cmd->forwardmove * cosf(DEG2RAD(diff[YAW])) - cmd->sidemove * sinf(DEG2RAD(diff[YAW]));
+		sideways = cmd->sidemove * cosf(DEG2RAD(diff[YAW])) + cmd->forwardmove * sinf(DEG2RAD(diff[YAW]));
+
+		cmd->forwardmove = forward;
+		cmd->sidemove = sideways;
+	}
+
 }
 
 /*
