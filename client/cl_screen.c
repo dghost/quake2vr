@@ -2126,10 +2126,6 @@ void VR_UpdateScreen (void)
 		//	SCR_TileClear ();
 
 
-		// don't draw crosshair while in menu
-//		if (cls.key_dest != key_menu) 
-//		     SCR_DrawCrosshair ();
-
 		if (!scr_hidehud)
 		{
 			SCR_DrawStats ();

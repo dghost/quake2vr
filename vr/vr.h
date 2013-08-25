@@ -38,6 +38,7 @@ typedef struct {
 	float dk[4];
 	float chrm[4];
 	float aspect;
+	float dist_scale;
 	char deviceName[32];
 } vr_attrib_t;
 
@@ -58,6 +59,9 @@ extern cvar_t *vr_crosshair_brightness;
 extern cvar_t *vr_aimmode;
 extern cvar_t *vr_aimmode_deadzone;
 extern cvar_t *vr_viewmove;
+extern cvar_t *vr_hud_bounce;
+extern cvar_t *vr_hud_bounce_falloff;
+
 enum {
 	VR_AIMMODE_DISABLE,
 	VR_AIMMODE_HEAD_MYAW,
@@ -76,10 +80,11 @@ void VR_Shutdown();
 int VR_Enable();
 void VR_Disable();
 void VR_Frame();
-void VR_Set_OVRDistortion_Scale(float dist_scale);
+void VR_OVR_SetFOV();
 void VR_GetRenderParam(vr_param_t *settings);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
+void VR_GetOrientationEMA(vec3_t angle);
 void VR_ResetOrientation();
 
 #endif

@@ -292,7 +292,7 @@ void R_VR_StartFrame()
 	vrState.viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 	
 	
-	if (vr_ovr_scale->value != vrState.scale)
+	if (vr_ovr_scale->modified)
 	{
 		if (vr_ovr_scale->value < 1.0)
 			Cvar_Set("vr_ovr_scale","1.0");
@@ -302,13 +302,12 @@ void R_VR_StartFrame()
 		R_DelFBO(&left);
 		R_DelFBO(&right);
 
-		vrState.scale = vr_ovr_scale->value;
 		vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
 		vrState.vrHalfWidth = vr_ovr_scale->value  * vrState.viewWidth / 2.0;
 		vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
 		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);
 		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
-		VR_Set_OVRDistortion_Scale(vr_ovr_scale->value);
+		VR_OVR_SetFOV();
 		vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;
 		Com_Printf("VR: Calculated %.2f FOV\n",vrState.viewFovY);
 		Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
@@ -411,6 +410,9 @@ void R_VR_DrawHud()
 	float f = 1.0f / tanf((vrState.viewFovY / 2.0f) * M_PI / 180);
 	float nf = 1.0f / (nearz - farz);
 	float out[16];
+	float bounce = vr_hud_bounce->value;
+	vec3_t orientation;
+	extern int scr_draw_loading;
 	out[0] = f / vrConfig.aspect;
 	out[1] = 0;
 	out[2] = 0;
@@ -432,6 +434,15 @@ void R_VR_DrawHud()
 	qglLoadMatrixf(out);
 	qglMatrixMode(GL_MODELVIEW);
 	qglLoadIdentity();
+
+	// disable this for the loading screens since they are not at 60fps
+	if (vr_hud_bounce->value && !scr_draw_loading)
+	{
+		VR_GetOrientationEMA(orientation);
+		qglRotatef (orientation[0] * bounce,  1, 0, 0);
+		qglRotatef (orientation[1] * bounce,  0, -1, 0);
+		qglRotatef (orientation[2] * bounce,  0, 0, 1);
+	}
 	qglTranslatef(vrState.eye * -vr_ipd->value / 2000.0,0,0);
 	// calculate coordinates for hud
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
@@ -565,10 +576,10 @@ void R_VR_Enable()
 		R_DelFBO(&hud);
 
 	Com_Printf("VR: Initializing renderer:");
-	vrState.scale = vr_ovr_scale->value;
-	vrState.vrWidth = vrState.scale * vrState.viewWidth;
-	vrState.vrHalfWidth = vrState.scale * vrState.viewWidth / 2.0;
-	vrState.vrHeight = vrState.scale * vrState.viewHeight;
+	
+	vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
+	vrState.vrHalfWidth = vr_ovr_scale->value * vrState.viewWidth / 2.0;
+	vrState.vrHeight = vr_ovr_scale->value * vrState.viewHeight;
 	vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;	 
 	success = R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
 	success = success && R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);

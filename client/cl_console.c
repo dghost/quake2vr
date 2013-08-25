@@ -73,6 +73,7 @@ void Key_ClearTyping (void)
 Con_ToggleConsole_f
 ================
 */
+extern cvar_t *vr_enabled;
 void Con_ToggleConsole_f (void)
 {
 //	SCR_EndLoadingPlaque ();	// get rid of loading plaque
@@ -95,7 +96,7 @@ void Con_ToggleConsole_f (void)
 		//UI_ForceMenuOff ();
 		//if (cls.key_dest != key_menu)
 		if (Cvar_VariableValue ("maxclients") == 1 
-			&& Com_ServerState () && cls.key_dest != key_menu)
+			&& Com_ServerState () && cls.key_dest != key_menu && !vr_enabled->value)
 				Cvar_Set ("paused", "0");
 	}
 	else
@@ -105,7 +106,7 @@ void Con_ToggleConsole_f (void)
 		//cls.key_dest = key_console;	
 
 		if (Cvar_VariableValue ("maxclients") == 1 
-			&& Com_ServerState () && cls.key_dest != key_menu)
+			&& Com_ServerState () && cls.key_dest != key_menu && !vr_enabled->value)
 			Cvar_Set ("paused", "1");
 	}
 }

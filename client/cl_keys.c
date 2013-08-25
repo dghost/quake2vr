@@ -976,9 +976,11 @@ void Key_Event (int key, qboolean down, unsigned time)
 		}
 
 		// Knightmare- skip cinematic
-		if (cl.cinematictime > 0 && !cl.attractloop && cls.realtime - cl.cinematictime > 1000)
+		// dghost - don't bring up menu when showing a cinematic
+		if (cl.cinematictime > 0 && !cl.attractloop)
 		{	// skip the rest of the cinematic
 			SCR_FinishCinematic ();
+			return;
 		}
 
 		if (cl.frame.playerstate.stats[STAT_LAYOUTS] && cls.key_dest == key_game)

@@ -2297,7 +2297,8 @@ void CL_CalcViewValues (void)
 	if (vr_crosshair->value)
 	{
 		vec3_t forward, right,distance;
-		vec3_t gun_origin, gun_angles;
+		vec3_t gun_origin;
+//		vec3_t gun_angles;
 		trace_t trace;
 		int i;
 

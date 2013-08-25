@@ -343,7 +343,6 @@ void CL_FinishMove (usercmd_t *cmd)
 {
 	int		ms;
 	int		i;
-	vec3_t  temp,forward,right;	
 //
 // figure button bits
 //	

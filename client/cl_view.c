@@ -665,8 +665,6 @@ void VR_RenderView ()
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,tmp;
-	vec3_t aim,forward;
-	trace_t trace;
 	
 	if (cls.state != ca_active)
 		return;

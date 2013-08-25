@@ -5,7 +5,6 @@ cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
 cvar_t *vr_motionprediction;
 cvar_t *vr_ovr_driftcorrection;
-cvar_t *vr_enabled;
 cvar_t *vr_ipd;
 cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_chromatic;
@@ -18,14 +17,17 @@ cvar_t *vr_crosshair_brightness;
 cvar_t *vr_aimmode;
 cvar_t *vr_aimmode_deadzone;
 cvar_t *vr_viewmove;
+cvar_t *vr_hud_bounce;
+cvar_t *vr_hud_bounce_falloff;
+cvar_t *vr_fov_scale;
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
 
-vr_param_t vr_render_param;
-
-vec3_t vr_lastOrientation;
-vec3_t vr_orientation;
+static vec3_t vr_lastOrientation;
+static vec3_t vr_orientation;
+static vec3_t vr_emaOrientation;
+static float vr_emaWeight = 0.25;
 
 //
 // Oculus Rift specific functions
@@ -34,16 +36,15 @@ vec3_t vr_orientation;
 vr_ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
 
-void VR_Set_OVRDistortion_Scale(float dist_scale)
+void VR_OVR_SetFOV()
 {
 	if (vr_ovr_settings.initialized)
 	{
-		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * dist_scale, 2 * vr_ovr_settings.eye_to_screen_distance);
-		float viewport_fov_y = fovy * 180 / M_PI;
+		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * vr_ovr_scale->value, 2 * vr_ovr_settings.eye_to_screen_distance);
+		float viewport_fov_y = fovy * 180 / M_PI * vr_fov_scale->value;
 		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
 		vrState.viewFovY = viewport_fov_y;
 		vrState.viewFovX = viewport_fov_x;
-		vrState.scale = dist_scale;
 	}
 }
 
@@ -54,7 +55,8 @@ void VR_Calculate_OVR_RenderParam()
 		float *dk = vr_ovr_settings.distortion_k;
 		float h = 1.0f - (2.0f * vr_ovr_settings.lens_separation_distance) / vr_ovr_settings.h_screen_size;
 		float r = -1.0f - h;
-		float dist_scale = (dk[0] + dk[1] * pow(r,2) + dk[2] * pow(r,4) + dk[3] * pow(r,6));
+
+		vrConfig.dist_scale = (dk[0] + dk[1] * pow(r,2) + dk[2] * pow(r,4) + dk[3] * pow(r,6));
 		vrConfig.ipd = vr_ovr_settings.interpupillary_distance;
 		vrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
 		vrConfig.hmdWidth = vr_ovr_settings.h_resolution;
@@ -62,12 +64,10 @@ void VR_Calculate_OVR_RenderParam()
 		vrConfig.xPos = vr_ovr_settings.xPos;
 		vrConfig.yPos = vr_ovr_settings.yPos;
 		strncpy(vrConfig.deviceName,vr_ovr_settings.deviceName,31);
-
 		memcpy(vrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
 		memcpy(vrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
 		vrState.projOffset = h;
 
-		VR_Set_OVRDistortion_Scale(dist_scale);
 	}
 }
 
@@ -90,25 +90,6 @@ void VR_OVR_Frame()
 		vr_ovr_driftcorrection->modified = false;
 	}
 
-	if (vr_hud_depth->modified)
-	{
-		if (vr_hud_depth->value < 0.25f)
-			Cvar_SetValue("vr_hud_depth",0.25);
-		else if (vr_hud_depth->value > 250)
-			Cvar_SetValue("vr_hud_depth",250);
-
-		vr_hud_depth->modified = false;
-	}
-
-	if (vr_hud_fov->modified)
-	{
-		// clamp value from 30-90 degrees
-		if (vr_hud_fov->value < 30)
-			Cvar_SetValue("vr_hud_fov",30.0f);
-		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
-			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
-		vr_hud_fov->modified = false;
-	}
 }
 
 //
@@ -118,9 +99,15 @@ void VR_OVR_Frame()
 void VR_GetSensorOrientation()
 {
 		float euler[3];
+		vec3_t temp;
+		float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
 		VectorCopy(vr_orientation,vr_lastOrientation);
 		VR_OVR_GetOrientation(euler);
 		VectorSet(vr_orientation,euler[0],euler[1],euler[2]);
+		VectorSubtract(vr_orientation,vr_lastOrientation,temp);
+		VectorScale(temp,emaWeight,temp);
+		VectorMA(temp,(1-emaWeight),vr_emaOrientation,vr_emaOrientation);
+
 }
 
 void VR_GetOrientation(vec3_t angle)
@@ -148,6 +135,21 @@ void VR_GetOrientationDelta(vec3_t angle)
 	}
 
 	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
+}
+
+void VR_GetOrientationEMA(vec3_t angle) 
+{
+
+	if (!vr_enabled->value)
+		return;
+
+	if (vrState.stale)
+	{
+		VR_GetSensorOrientation();
+		vrState.stale = 0;
+	}
+
+	VectorCopy(vr_emaOrientation,angle);
 }
 
 // takes time in ms, sets appropriate prediction values
@@ -189,6 +191,7 @@ void VR_Frame()
 			Cvar_SetInteger("vr_aimmode",NUM_VR_AIMMODE - 1);
 		else
 			Cvar_SetInteger("vr_aimmode",(int) vr_aimmode->value);
+		vr_aimmode->modified = false;
 	}
 
 	if (vr_aimmode_deadzone->modified)
@@ -199,6 +202,7 @@ void VR_Frame()
 			Cvar_SetInteger("vr_aimmode_deadzone",70);
 		else
 			Cvar_SetInteger("vr_aimmode_deadzone",(int) vr_aimmode_deadzone->value);
+		vr_aimmode_deadzone->modified = false;
 	}
 
 	if (vr_crosshair->modified)
@@ -209,6 +213,7 @@ void VR_Frame()
 			Cvar_SetInteger("vr_crosshair",2);
 		else
 			Cvar_SetInteger("vr_crosshair",(int) vr_crosshair->value);
+		vr_crosshair->modified = false;
 	}
 
 	if (vr_crosshair_brightness->modified)
@@ -219,6 +224,7 @@ void VR_Frame()
 			Cvar_SetInteger("vr_crosshair_brightness",100);
 		else
 			Cvar_SetInteger("vr_crosshair_brightness",(int) vr_crosshair_brightness->value);
+		vr_crosshair_brightness->modified = false;
 	}
 
 	if (vr_crosshair_size->modified)
@@ -227,8 +233,56 @@ void VR_Frame()
 			Cvar_SetInteger("vr_crosshair_size",0);
 		else if (vr_crosshair_size->value > 5)
 			Cvar_SetInteger("vr_crosshair_size",5);
+		vr_crosshair_size->modified = false;
+	}
+	if (vr_hud_depth->modified)
+	{
+		if (vr_hud_depth->value < 0.25f)
+			Cvar_SetValue("vr_hud_depth",0.25);
+		else if (vr_hud_depth->value > 250)
+			Cvar_SetValue("vr_hud_depth",250);
+
+		vr_hud_depth->modified = false;
 	}
 
+	if (vr_hud_fov->modified)
+	{
+		// clamp value from 30-90 degrees
+		if (vr_hud_fov->value < 30)
+			Cvar_SetValue("vr_hud_fov",30.0f);
+		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
+			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
+		vr_hud_fov->modified = false;
+	}
+
+	if (vr_hud_bounce->modified)
+	{
+		if (vr_hud_bounce->value < 0.0)
+			Cvar_SetInteger("vr_hud_bounce",0);
+		else if (vr_hud_bounce->value > 3)
+			Cvar_SetInteger("vr_hud_bounce",3);
+		vr_hud_bounce->modified = false;
+	}
+	
+	if (vr_hud_bounce_falloff->modified)
+	{
+		if (vr_hud_bounce_falloff->value < 0.0)
+			Cvar_SetInteger("vr_hud_bounce_falloff",0);
+		else if (vr_hud_bounce_falloff->value > 60)
+			Cvar_SetInteger("vr_hud_bounce_falloff", 60);
+		vr_hud_bounce_falloff->modified = false;
+	}
+
+	if (vr_fov_scale->modified)
+	{
+		if (vr_fov_scale->value > 2.0)
+			Cvar_Set("vr_fov_scale","2.0");
+		if (vr_fov_scale->value < 0.5)
+			Cvar_Set("vr_fov_scale","0.5");
+		vr_fov_scale->modified = false;
+		VR_OVR_SetFOV();
+		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovX);
+	}
 	vrState.stale = 1;
 	// pull an update from the motion tracker
 	VR_OVR_Frame();
@@ -240,6 +294,7 @@ void VR_ResetOrientation()
 	VR_OVR_ResetHMDOrientation();
 	VR_Frame();
 	VectorCopy(vr_orientation,vr_lastOrientation);
+	VectorSet(vr_emaOrientation,0,0,0);
 }
 
 // this is a little overkill on the abstraction, but the point of it was to try to make it
@@ -275,23 +330,20 @@ int VR_Enable()
 
 		VR_Calculate_OVR_RenderParam();
 
-		Com_Printf("...calculated %.2f FOV\n",vrState.viewFovY);
-		Com_Printf("...calculated %.2f distortion scale\n", vrState.scale);
-
 		strncpy(string, va("%.2f",vrConfig.ipd * 1000), sizeof(string));
 		vr_ipd = Cvar_Get("vr_ipd",string, CVAR_ARCHIVE);
 
 
 		if (vr_ipd->value < 0)
 			Cvar_SetValue("vr_ipd",vrConfig.ipd * 1000);
-		strncpy(string, va("%.2f",vrState.scale), sizeof(string));
+		strncpy(string, va("%.2f",vrConfig.dist_scale), sizeof(string));
 		vr_ovr_scale = Cvar_Get("vr_ovr_scale",string,CVAR_ARCHIVE);
 		if (vr_ovr_scale->value < 0)
 		{
 			Cvar_Set("vr_ovr_scale",string);
 		}
 
-		VR_Set_OVRDistortion_Scale(vr_ovr_scale->value);
+		VR_OVR_SetFOV();
 
 		if (vr_ovr_driftcorrection->value > 0.0)
 			VR_OVR_EnableMagneticCorrection();
@@ -300,6 +352,8 @@ int VR_Enable()
 		if (vr_ovr_settings.v_resolution > 800)
 			Cvar_SetInteger("vr_hud_transparency",1);
 
+		Com_Printf("...calculated %.2f FOV\n",vrState.viewFovY);
+		Com_Printf("...calculated %.2f distortion scale\n", vr_ovr_scale->value);
 	} else 
 	{
 		Com_Printf(" failed!\n");
@@ -361,11 +415,14 @@ void VR_Init()
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
-	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","0.5",CVAR_ARCHIVE);
+	vr_fov_scale = Cvar_Get("vr_fov_scale","1.0",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","3", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
 	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
+	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);
+	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
 	vr_aimmode_deadzone = Cvar_Get("vr_aimmode_deadzone","30",CVAR_ARCHIVE);
 	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_ARCHIVE);
