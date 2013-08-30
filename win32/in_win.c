@@ -403,11 +403,11 @@ void IN_MouseMove (usercmd_t *cmd)
 		if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
 			cmd->sidemove += m_side->value * mouse_x;
 		else
-			cl.aimangles[YAW] -= m_yaw->value * mouse_x;
+			cl.in_delta[YAW] -= m_yaw->value * mouse_x;
 
 		if ( (mlooking || freelook->value) && !(in_strafe.state & 1))
 		{
-			cl.aimangles[PITCH] += m_pitch->value * mouse_y;
+			cl.in_delta[PITCH] += m_pitch->value * mouse_y;
 		}
 		else
 		{
@@ -916,16 +916,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if (m_pitch->value < 0.0)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] -= (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.aimangles[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] -= (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 				}
 			}
@@ -970,16 +970,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
+							cl.in_delta[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_yawspeed->value;
 						else
-							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
+							cl.in_delta[YAW] += (fAxisValue * joy_yawsensitivity->value) * aspeed * cl_yawspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.in_delta[YAW] += (fAxisValue * joy_yawsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.aimangles[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
+							cl.in_delta[YAW] += (fAxisValue * joy_yawsensitivity->value) * speed * 180.0;
 					}
 
 				}
@@ -995,16 +995,16 @@ void IN_JoyMove (usercmd_t *cmd)
 					if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * aspeed * cl_pitchspeed->value;
 						else
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * aspeed * cl_pitchspeed->value;
 					}
 					else
 					{
 						if (autosensitivity->value) // Knightmare added
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value * (cl.refdef.fov_x/90.0)) * speed * 180.0;
 						else
-							cl.aimangles[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
+							cl.in_delta[PITCH] += (fAxisValue * joy_pitchsensitivity->value) * speed * 180.0;
 					}
 				}
 			}

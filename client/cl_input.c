@@ -381,17 +381,9 @@ void CL_FinishMove (usercmd_t *cmd)
 	cmd->lightlevel = (byte)cl_lightlevel->value;
 }
 
-void VR_Move (usercmd_t *cmd, vec3_t indelta)
+void VR_Move (usercmd_t *cmd)
 {
 	vec3_t orientation, orientationDelta;
-
-
-	if (!vr_enabled->value)
-	{
-		VectorAdd(indelta,cl.aimangles,cl.aimangles);
-		VectorCopy(cl.aimangles,cl.viewangles);
-		return;
-	}
 
 	VR_GetOrientation(orientation);
 	VR_GetOrientationDelta(orientationDelta);
@@ -399,28 +391,28 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 	switch((int) vr_aimmode->value)
 	{
 	case VR_AIMMODE_DISABLE:
-		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		VectorCopy(cl.aimangles,cl.viewangles);
 	case VR_AIMMODE_HEAD_MYAW:
 		cl.aimangles[PITCH] = cl.viewangles[PITCH] = orientation[PITCH];
-		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + indelta[YAW] + orientationDelta[YAW];
-		cl.aimangles[ROLL] += indelta[ROLL];
+		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + cl.in_delta[YAW] + orientationDelta[YAW];
+		cl.aimangles[ROLL] += cl.in_delta[ROLL];
 		cl.viewangles[ROLL] = orientation[ROLL];
 		break;
 	case VR_AIMMODE_HEAD_MYAW_MPITCH:
-		cl.aimangles[PITCH] = cl.viewangles[PITCH] = cl.aimangles[PITCH] + indelta[PITCH] + orientationDelta[PITCH];
-		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + indelta[YAW] + orientationDelta[YAW];
-		cl.aimangles[ROLL] += indelta[ROLL];
+		cl.aimangles[PITCH] = cl.viewangles[PITCH] = cl.aimangles[PITCH] + cl.in_delta[PITCH] + orientationDelta[PITCH];
+		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + cl.in_delta[YAW] + orientationDelta[YAW];
+		cl.aimangles[ROLL] += cl.in_delta[ROLL];
 		cl.viewangles[ROLL] = orientation[ROLL];
 		break;
 	case VR_AIMMODE_MOUSE_MYAW:
-		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		cl.viewangles[ROLL] = orientation[ROLL];
 		cl.viewangles[PITCH] = orientation[PITCH];
 		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
 		break;
 	case VR_AIMMODE_MOUSE_MYAW_MPITCH:
-		VectorAdd(indelta,cl.aimangles,cl.aimangles);
+		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		cl.viewangles[ROLL] = orientation[ROLL];
 		cl.viewangles[PITCH] = cl.aimangles[PITCH] + orientation[PITCH];
 		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
@@ -428,7 +420,7 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 	case VR_AIMMODE_BLENDED_FIXPITCH:
 		{
 			float diffYaw;
-			VectorAdd(indelta,cl.aimangles,cl.aimangles);
+			VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 
 			cl.viewangles[YAW] += orientationDelta[YAW];
 			
@@ -437,7 +429,7 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 			if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
 			{
 				cl.aimangles[YAW] += orientationDelta[YAW];
-				cl.viewangles[YAW] += indelta[YAW];
+				cl.viewangles[YAW] += cl.in_delta[YAW];
 				diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
 				
 				if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
@@ -457,7 +449,7 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 	case VR_AIMMODE_BLENDED:
 		{
 			float diffYaw;
-			VectorAdd(indelta,cl.aimangles,cl.aimangles);
+			VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 
 			cl.viewangles[YAW] += orientationDelta[YAW];
 			
@@ -466,7 +458,7 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 			if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
 			{
 				cl.aimangles[YAW] += orientationDelta[YAW];
-				cl.viewangles[YAW] += indelta[YAW];
+				cl.viewangles[YAW] += cl.in_delta[YAW];
 				diffYaw = cl.viewangles[YAW] - cl.aimangles[YAW];
 				
 				if (abs(diffYaw) > vr_aimmode_deadzone->value / 2.0)
@@ -485,7 +477,7 @@ void VR_Move (usercmd_t *cmd, vec3_t indelta)
 
 
 	}
-//	VectorSet(cl.aimangles,0,0,0);
+
 
 
 	if (vr_viewmove->value)
@@ -512,22 +504,27 @@ CL_CreateCmd
 usercmd_t CL_CreateCmd (void)
 {
 	usercmd_t	cmd;
-	vec3_t base,delta;
+
 	frame_msec = sys_frame_time - old_sys_frame_time;
 	if (frame_msec < 1)
 		frame_msec = 1;
 	if (frame_msec > 200)
 		frame_msec = 200;
 	
-
+	VectorSet(cl.in_delta, 0, 0, 0);
 	// get basic movement from keyboard
 	CL_BaseMove (&cmd);
-	VectorCopy(cl.aimangles,base);
+
 	// allow mice or other external controllers to add to the move
 	IN_Move (&cmd);
-	VectorSubtract(cl.aimangles,base,delta);
-	VectorCopy(base,cl.aimangles);
-	VR_Move(&cmd,delta);
+	if (!vr_enabled->value)
+	{
+		VectorAdd(cl.in_delta, cl.aimangles, cl.aimangles);
+		VectorCopy(cl.aimangles, cl.viewangles);
+	}
+	else {
+		VR_Move(&cmd);
+	}
 	CL_FinishMove (&cmd);
 
 	old_sys_frame_time = sys_frame_time;

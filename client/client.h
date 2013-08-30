@@ -147,6 +147,8 @@ typedef struct
 	vec3_t		aimangles;
 	vec3_t		viewangles;
 
+	vec3_t		in_delta;
+
 	int			time;			// this is the time value that the client
 								// is rendering at.  always <= cls.realtime
 	float		lerpfrac;		// between oldframe and frame
