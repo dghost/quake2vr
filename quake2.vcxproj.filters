@@ -348,11 +348,17 @@
     <ClCompile Include="vr\vr_main.c">
       <Filter>Source Files\vr</Filter>
     </ClCompile>
-    <ClCompile Include="vr\vr_ovr.cpp">
-      <Filter>Source Files\vr</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\r_vr.c">
       <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\r_fbo.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="vr\vr_libovr.cpp">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="vr\vr_ovr.c">
+      <Filter>Source Files\vr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -462,6 +468,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vr\vr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vr\vr_libovr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vr\vr_ovr.h">

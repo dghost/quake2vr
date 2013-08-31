@@ -131,9 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_vr.c" />
     <ClCompile Include="vr\vr_main.c" />
-    <ClCompile Include="vr\vr_ovr.cpp" />
+    <ClCompile Include="vr\vr_libovr.cpp" />
+    <ClCompile Include="vr\vr_ovr.c" />
     <ClCompile Include="win32\cd_win.c" />
     <ClCompile Include="client\snd_dma.c" />
     <ClCompile Include="client\snd_mem.c" />
@@ -246,6 +248,7 @@
     <ClInclude Include="client\cinematic.h" />
     <ClInclude Include="client\client.h" />
     <ClInclude Include="vr\vr.h" />
+    <ClInclude Include="vr\vr_libovr.h" />
     <ClInclude Include="vr\vr_ovr.h" />
     <ClInclude Include="win32\conproc.h" />
     <ClInclude Include="client\console.h" />

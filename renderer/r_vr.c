@@ -1,13 +1,7 @@
 #include "r_local.h"
 #include "../vr/vr.h"
 
-typedef struct {
-	GLuint framebuffer;
-	GLuint texture;
-	GLuint depthbuffer;
-	int width, height;
-	int valid;
-} r_fbo_t;
+
 
 typedef struct {
 	GLhandleARB program;
@@ -29,16 +23,16 @@ typedef struct {
 
 } r_shader_t;
 
-r_shader_t lens_warp_shaders[2];
+r_shader_t ovr_shaders[2];
 
-r_shader_t *lens_warp;
+r_shader_t *current_shader;
 
-r_fbo_t left, right, hud; 
+fbo_t left, right, hud; 
 
 GLint defaultFBO;
 
 // Default Lens Warp Shader
-static r_shaderobject_t lens_warp_shader_norm = {
+static r_shaderobject_t ovr_shader_norm = {
 	0, 0, 0,
 	
 	// vertex shader (identity)
@@ -71,7 +65,7 @@ static r_shaderobject_t lens_warp_shader_norm = {
 };
 
 // Lens Warp Shader with Chromatic Aberration 
-static r_shaderobject_t lens_warp_shader_chrm = {
+static r_shaderobject_t ovr_shader_chrm = {
 	0, 0, 0,
 	
 	// vertex shader (identity)
@@ -134,87 +128,6 @@ static r_shaderobject_t lens_warp_shader_chrm = {
 //
 // Utility Functions
 //
-
-int R_GenFBO(int width, int height, r_fbo_t *FBO)
-{
-
-
-	GLuint fbo, tex, dep;
-
-	qglGenFramebuffers(1,&fbo);
-	qglGenTextures(1,&tex);
-	qglGenRenderbuffers(1,&dep);
-	GL_SelectTexture(0);
-	GL_Bind(tex);
-    qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	qglTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,0);
-	GL_Bind(0);
-
-	qglBindRenderbuffer(GL_RENDERBUFFER,dep);
-	qglRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH24_STENCIL8,width,height);
-	qglBindRenderbuffer(GL_RENDERBUFFER,0);
-	
-	qglBindFramebuffer(GL_FRAMEBUFFER,fbo);
-	qglFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,tex,0);
-	qglFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_STENCIL_ATTACHMENT,GL_RENDERBUFFER,dep);
-
-
-	if (qglCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		Com_Printf("ERROR: Creation of %i x %i FBO failed!\n", width, height);
-
-		qglDeleteTextures(1,&tex);
-		qglDeleteRenderbuffers(1,&dep);
-		
-		qglDeleteFramebuffers(1,&fbo);
-		return 0;
-	} else {
-		FBO->framebuffer = fbo;
-		FBO->texture = tex;
-		FBO->depthbuffer = dep;
-		FBO->width = width;
-		FBO->height = height;
-		FBO->valid = 1;
-		return 1;
-	}
-}
-
-
-void R_DelFBO(r_fbo_t *FBO)
-{
-	qglDeleteFramebuffers(1,&FBO->framebuffer);
-	qglDeleteTextures(1,&FBO->texture);
-	qglDeleteRenderbuffers(1,&FBO->depthbuffer);
-
-	FBO->height = 0;
-	FBO->width = 0;
-	FBO->valid = 0;
-
-}
-
-void R_InitFBO(r_fbo_t *FBO)
-{
-	FBO->framebuffer = 0;
-	FBO->texture = 0;
-	FBO->depthbuffer = 0;
-	FBO->height = 0;
-	FBO->width = 0;
-	FBO->valid = 0;
-
-}
-
-GLuint R_BindFBO(r_fbo_t *FBO)
-{
-	GLint currentFrameBuffer = 0;
-	qglGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFrameBuffer);
-	qglBindFramebuffer(GL_FRAMEBUFFER,FBO->framebuffer);
-	qglViewport(0,0,FBO->width,FBO->height);
-	return (GLuint) currentFrameBuffer;
-}
 
 qboolean R_CompileShader(GLhandleARB shader, const char *source)
 {
@@ -289,37 +202,41 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 // executed once per frame
 void R_VR_StartFrame()
 {
+	int hmd = (int) vr_enabled->value;
+
+	if (!hmd)
+		return;
+
 	vrState.viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 	
-	
-	if (vr_ovr_scale->modified)
+	if (hmd == HMD_RIFT)
 	{
-		if (vr_ovr_scale->value < 1.0)
-			Cvar_Set("vr_ovr_scale","1.0");
-		if (vr_ovr_scale->value > 2.0)
-			Cvar_Set("vr_ovr_scale","2.0");
+		if (vr_ovr_scale->modified)
+		{
+			if (vr_ovr_scale->value < 1.0)
+				Cvar_Set("vr_ovr_scale", "1.0");
+			if (vr_ovr_scale->value > 2.0)
+				Cvar_Set("vr_ovr_scale", "2.0");
 
-		R_DelFBO(&left);
-		R_DelFBO(&right);
+			R_DelFBO(&left);
+			R_DelFBO(&right);
 
-		vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
-		vrState.vrHalfWidth = vr_ovr_scale->value  * vrState.viewWidth / 2.0;
-		vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
-		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);
-		R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&right);
-		VR_OVR_SetFOV();
-		vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;
-		Com_Printf("VR: Calculated %.2f FOV\n",vrState.viewFovY);
-		Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
-		vr_ovr_scale->modified = false;
+			vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
+			vrState.vrHalfWidth = vr_ovr_scale->value  * vrState.viewWidth / 2.0;
+			vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
+			R_GenFBO(vrState.vrHalfWidth, vrState.vrHeight, &left);
+			R_GenFBO(vrState.vrHalfWidth, vrState.vrHeight, &right);
+			VR_OVR_SetFOV();
+			vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;
+			Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
+			Com_Printf("VR: Using %u x %u backbuffer\n", vrState.vrWidth, vrState.vrHeight);
+			vr_ovr_scale->modified = false;
+
+		}
+
+
 
 	}
-
-
-	if (vr_ovr_chromatic->value)
-		lens_warp = &lens_warp_shaders[1];
-	else
-		lens_warp = &lens_warp_shaders[0];
 
 
 	qglClearColor(0.0,0.0,0.0,0.0);
@@ -413,6 +330,10 @@ void R_VR_DrawHud()
 	float bounce = vr_hud_bounce->value;
 	vec3_t orientation;
 	extern int scr_draw_loading;
+
+	if (!vr_enabled->value)
+		return;
+
 	out[0] = f / vrConfig.aspect;
 	out[1] = 0;
 	out[2] = 0;
@@ -474,65 +395,85 @@ void R_VR_DrawHud()
 // takes the various FBO's and renders them to the framebuffer
 void R_VR_Present()
 {
-	if (vr_enabled->value)
+
+	int current_hmd = (int) vr_enabled->value;
+	if (!current_hmd)
+		return;
+
+	if (current_hmd == HMD_RIFT)
+	{
+		if (vr_ovr_chromatic->value)
+			current_shader = &ovr_shaders[1];
+		else
+			current_shader = &ovr_shaders[0];
+
+	}
+	GL_Disable(GL_DEPTH_TEST);
+	GL_SelectTexture(0);
+
+	R_VR_BindLeft();
+	R_VR_DrawHud();
+
+	R_VR_BindRight();
+	R_VR_DrawHud();
+
+	R_VR_EndFrame();
+
+	GL_Disable(GL_BLEND);
+	GL_Disable(GL_ALPHA_TEST);
+	GL_Disable(GL_DEPTH_TEST);
+
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadIdentity();
+
+	qglMatrixMode(GL_MODELVIEW);
+	qglLoadIdentity();
+
+
+	qglUseProgramObjectARB(current_shader->shader->program);
+
+
+	if (current_hmd == HMD_RIFT)
 	{
 		float scale = vr_ovr_scale->value;
-	
-		GL_Disable(GL_DEPTH_TEST);
-		GL_SelectTexture(0);
-
-		R_VR_BindLeft();
-		R_VR_DrawHud();
-
-		R_VR_BindRight();
-		R_VR_DrawHud();
-
-		R_VR_EndFrame();
-
-		GL_Disable(GL_BLEND);
-		GL_Disable(GL_ALPHA_TEST);
-		GL_Disable(GL_DEPTH_TEST);
-
-		qglMatrixMode(GL_PROJECTION);
-		qglLoadIdentity ();
-
-		qglMatrixMode(GL_MODELVIEW);
-		qglLoadIdentity ();
-
-		qglUseProgramObjectARB(lens_warp->shader->program);
-		qglUniform2fARB(lens_warp->uniform.lens_center, vrState.projOffset , 0);
-		qglUniform2fARB(lens_warp->uniform.scale, 1.0f/scale, 1.0f * vrConfig.aspect/scale);
-		qglUniform4fvARB(lens_warp->uniform.chrom_ab_param,1,vrConfig.chrm);
-		qglUniform4fvARB(lens_warp->uniform.hmd_warp_param,1,vrConfig.dk);
-		qglUniform2fARB(lens_warp->uniform.scale_in, 1.0f, 1.0f/vrConfig.aspect);
-
-		GL_Bind(left.texture);
-
-		qglBegin(GL_QUADS);			
-		qglTexCoord2f (0, 0); qglVertex2f (-1, -1);
-		qglTexCoord2f (1, 0); qglVertex2f (0, -1);
-		qglTexCoord2f (1, 1); qglVertex2f (0, 1);
-		qglTexCoord2f (0, 1); qglVertex2f (-1, 1);	
-		qglEnd();
-
-		qglUniform2fARB(lens_warp->uniform.lens_center, -vrState.projOffset , 0);
-		qglUniform2fARB(lens_warp->uniform.scale, 1.0f/scale, 1.0f * vrConfig.aspect/scale);
-		qglUniform4fvARB(lens_warp->uniform.chrom_ab_param,1,vrConfig.chrm);
-		qglUniform4fvARB(lens_warp->uniform.hmd_warp_param,1,vrConfig.dk);
-		qglUniform2fARB(lens_warp->uniform.scale_in, 1.0f, 1.0f/vrConfig.aspect);
-
-		GL_Bind(right.texture);
-
-		qglBegin(GL_QUADS);		
-		qglTexCoord2f (0, 0); qglVertex2f (0, -1);
-		qglTexCoord2f (1, 0); qglVertex2f (1, -1);
-		qglTexCoord2f (1, 1); qglVertex2f (1, 1);
-		qglTexCoord2f (0, 1); qglVertex2f (0, 1);		
-		qglEnd();
-	
-		GL_Bind(0);
-		qglUseProgramObjectARB(0);	
+		qglUniform2fARB(current_shader->uniform.lens_center, vrState.projOffset, 0);
+		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, 1.0f * vrConfig.aspect / scale);
+		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
+		qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
+		qglUniform2fARB(current_shader->uniform.scale_in, 1.0f, 1.0f / vrConfig.aspect);
 	}
+	GL_Bind(left.texture);
+
+	qglBegin(GL_QUADS);
+	qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
+	qglTexCoord2f(1, 0); qglVertex2f(0, -1);
+	qglTexCoord2f(1, 1); qglVertex2f(0, 1);
+	qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
+	qglEnd();
+
+	if (current_hmd == HMD_RIFT)
+	{
+		float scale = vr_ovr_scale->value;
+		qglUniform2fARB(current_shader->uniform.lens_center, -vrState.projOffset, 0);
+		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, 1.0f * vrConfig.aspect / scale);
+		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
+		qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
+		qglUniform2fARB(current_shader->uniform.scale_in, 1.0f, 1.0f / vrConfig.aspect);
+	}
+	GL_Bind(right.texture);
+
+	qglBegin(GL_QUADS);
+	qglTexCoord2f(0, 0); qglVertex2f(0, -1);
+	qglTexCoord2f(1, 0); qglVertex2f(1, -1);
+	qglTexCoord2f(1, 1); qglVertex2f(1, 1);
+	qglTexCoord2f(0, 1); qglVertex2f(0, 1);
+	qglEnd();
+
+	GL_Bind(0);
+	qglUseProgramObjectARB(0);
+
+	// flag HMD to refresh next frame
+	vrState.stale = 1;
 }
 
 
@@ -558,8 +499,6 @@ void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 void R_VR_Enable()
 {
 	qboolean success = false;
-//	if (!vr_enabled->value)
-//		VR_Enable();
 
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
@@ -632,10 +571,10 @@ void R_VR_Init()
 		R_InitFBO(&right);
 		R_InitFBO(&hud);
 
-		R_VR_InitShader(&lens_warp_shaders[0],&lens_warp_shader_norm);
-		R_VR_InitShader(&lens_warp_shaders[1],&lens_warp_shader_chrm);
+		R_VR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
+		R_VR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
 
-		lens_warp = &lens_warp_shaders[0];
+		current_shader = &ovr_shaders[0];
 
 		vrState.eye = EYE_NONE;
 
@@ -656,8 +595,8 @@ void R_VR_Shutdown()
 	if (vr_enabled->value)
 		R_VR_Disable();
 
-	R_DelShaderProgram(&lens_warp_shader_norm);
-	R_DelShaderProgram(&lens_warp_shader_chrm);
+	R_DelShaderProgram(&ovr_shader_norm);
+	R_DelShaderProgram(&ovr_shader_chrm);
 
 	if (left.valid)
 		R_DelFBO(&left);

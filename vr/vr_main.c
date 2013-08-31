@@ -1,13 +1,11 @@
 #include "vr.h"
 #include "vr_ovr.h"
+#include "vr_libovr.h"
 
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
 cvar_t *vr_motionprediction;
-cvar_t *vr_ovr_driftcorrection;
 cvar_t *vr_ipd;
-cvar_t *vr_ovr_scale;
-cvar_t *vr_ovr_chromatic;
 cvar_t *vr_hud_fov;
 cvar_t *vr_hud_depth;
 cvar_t *vr_hud_transparency;
@@ -29,110 +27,70 @@ static vec3_t vr_orientation;
 static vec3_t vr_emaOrientation;
 static float vr_emaWeight = 0.25;
 
+static hmd_interface_t *hmd;
+
+static hmd_interface_t hmd_none = {
+	HMD_NONE,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
 //
 // Oculus Rift specific functions
 //
 
-vr_ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
-
-
-void VR_OVR_SetFOV()
-{
-	if (vr_ovr_settings.initialized)
-	{
-		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * vr_ovr_scale->value, 2 * vr_ovr_settings.eye_to_screen_distance);
-		float viewport_fov_y = fovy * 180 / M_PI * vr_fov_scale->value;
-		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
-		vrState.viewFovY = viewport_fov_y;
-		vrState.viewFovX = viewport_fov_x;
-	}
-}
-
-void VR_Calculate_OVR_RenderParam()
-{
-	if (vr_ovr_settings.initialized)
-	{	
-		float *dk = vr_ovr_settings.distortion_k;
-		float h = 1.0f - (2.0f * vr_ovr_settings.lens_separation_distance) / vr_ovr_settings.h_screen_size;
-		float r = -1.0f - h;
-
-		vrConfig.dist_scale = (dk[0] + dk[1] * pow(r,2) + dk[2] * pow(r,4) + dk[3] * pow(r,6));
-		vrConfig.ipd = vr_ovr_settings.interpupillary_distance;
-		vrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
-		vrConfig.hmdWidth = vr_ovr_settings.h_resolution;
-		vrConfig.hmdHeight = vr_ovr_settings.v_resolution;
-		vrConfig.xPos = vr_ovr_settings.xPos;
-		vrConfig.yPos = vr_ovr_settings.yPos;
-		strncpy(vrConfig.deviceName,vr_ovr_settings.deviceName,31);
-		memcpy(vrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
-		memcpy(vrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
-		vrState.projOffset = h;
-
-	}
-}
-
-
-void VR_OVR_Frame()
-{
-
-	if (vr_ovr_driftcorrection->modified)
-	{
-		if (vr_ovr_driftcorrection->value)
-		{
-			Cvar_SetInteger("vr_ovr_driftcorrection",1);
-			VR_OVR_EnableMagneticCorrection();
-		}
-		else
-		{
-			Cvar_SetInteger("vr_ovr_driftcorrection",0);
-			VR_OVR_DisableMagneticCorrection();
-		}
-		vr_ovr_driftcorrection->modified = false;
-	}
-
-}
 
 //
 // General functions
 //
 
-void VR_GetSensorOrientation()
-{
-		float euler[3];
-		vec3_t temp;
-		float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
-		VectorCopy(vr_orientation,vr_lastOrientation);
-		VR_OVR_GetOrientation(euler);
-		VectorSet(vr_orientation,euler[0],euler[1],euler[2]);
-		VectorSubtract(vr_orientation,vr_lastOrientation,temp);
-		VectorScale(temp,emaWeight,temp);
-		VectorMA(temp,(1-emaWeight),vr_emaOrientation,vr_emaOrientation);
 
+extern ovr_settings_t vr_ovr_settings;
+
+int VR_GetSensorOrientation()
+{
+	float euler[3];
+	vec3_t temp;
+	float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
+
+	if (!hmd)
+		return 0;
+
+	VectorCopy(vr_orientation, vr_lastOrientation);
+	hmd->getOrientation(euler);
+	VectorSet(vr_orientation, euler[0], euler[1], euler[2]);
+	VectorSubtract(vr_orientation, vr_lastOrientation, temp);
+	VectorScale(temp, emaWeight, temp);
+	VectorMA(temp, (1 - emaWeight), vr_emaOrientation, vr_emaOrientation);
+
+	return 1;
 }
 
 void VR_GetOrientation(vec3_t angle)
 {
-	if (!vr_enabled->value)
+	if (!hmd)
 		return;
-	if (vrState.stale)
-	{
-		VR_GetSensorOrientation();
+
+	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;
-	}
 
 	VectorCopy(vr_orientation,angle);
 }
 
 void VR_GetOrientationDelta(vec3_t angle)
 {
-	if (!vr_enabled->value)
+	if (!hmd)
 		return;
 
-	if (vrState.stale)
-	{
-		VR_GetSensorOrientation();
+	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;
-	}
 
 	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
 }
@@ -140,14 +98,11 @@ void VR_GetOrientationDelta(vec3_t angle)
 void VR_GetOrientationEMA(vec3_t angle) 
 {
 
-	if (!vr_enabled->value)
+	if (!hmd)
 		return;
 
-	if (vrState.stale)
-	{
-		VR_GetSensorOrientation();
+	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;
-	}
 
 	VectorCopy(vr_emaOrientation,angle);
 }
@@ -155,10 +110,12 @@ void VR_GetOrientationEMA(vec3_t angle)
 // takes time in ms, sets appropriate prediction values
 int VR_SetMotionPrediction(float time)
 {
-	float timeInSecs = time /1000.0;
-	if (!VR_OVR_SetPredictionTime(timeInSecs))
+	if (!hmd)
+		return 0;
+
+	if (!hmd->setprediction(time))
 	{
-		Com_Printf("VR_OVR: Error setting HMD prediction time!\n");
+		Com_Printf("VR: Error setting HMD prediction time!\n");
 		return 0;
 	}
 	return 1;
@@ -166,7 +123,7 @@ int VR_SetMotionPrediction(float time)
 
 void VR_Frame()
 {
-	if (!vr_enabled->value)
+	if (!vr_enabled->value || !hmd)
 		return;
 
 
@@ -280,21 +237,31 @@ void VR_Frame()
 		if (vr_fov_scale->value < 0.5)
 			Cvar_Set("vr_fov_scale","0.5");
 		vr_fov_scale->modified = false;
-		VR_OVR_SetFOV();
+		hmd->setfov();
 		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovX);
 	}
-	vrState.stale = 1;
-	// pull an update from the motion tracker
-	VR_OVR_Frame();
+
+	hmd->frame();
+
+// 	only flag as stale after a frame is rendered
+//	vrState.stale = 1;
+
 }
 
 void VR_ResetOrientation()
 {
+	if (hmd)
+	{
+		hmd->resetOrientation();
+		VR_GetSensorOrientation();
+		VectorCopy(vr_orientation, vr_lastOrientation);
+		VectorSet(vr_emaOrientation, 0, 0, 0);
+	} else {
+		VectorSet(vr_emaOrientation, 0, 0, 0);
+		VectorSet(vr_orientation, 0, 0, 0);
+		VectorSet(vr_lastOrientation, 0, 0, 0);
+	}
 
-	VR_OVR_ResetHMDOrientation();
-	VR_Frame();
-	VectorCopy(vr_orientation,vr_lastOrientation);
-	VectorSet(vr_emaOrientation,0,0,0);
 }
 
 // this is a little overkill on the abstraction, but the point of it was to try to make it
@@ -303,81 +270,48 @@ void VR_ResetOrientation()
 
 int VR_Enable()
 {
-	char string[6];
+	char hmd_type[3];
+	hmd = &available_hmds[HMD_RIFT];
 
-	Com_Printf("VR: Initializing HMD:");
-
-	// try to initialize LibOVR
-	if (VR_OVR_Init())
+	if (!hmd->attached())
 	{
-		Com_Printf(" ok!\n");
-	}else {
-		Com_Printf(" failed!\n");
+		Com_Printf("VR: Error - no HMD attached.\n");
 		return 0;
 	}
 
-	Com_Printf("VR: Getting HMD settings:");
-	
-	// get info from LibOVR
-	if (VR_OVR_GetSettings(&vr_ovr_settings))
-	{
-		
-		Com_Printf(" ok!\n");
-
-
-		Com_Printf("...detected HMD %s\n",vr_ovr_settings.deviceString);
-		Com_Printf("...detected IPD %.1fmm\n",vr_ovr_settings.interpupillary_distance * 1000);
-
-		VR_Calculate_OVR_RenderParam();
-
-		strncpy(string, va("%.2f",vrConfig.ipd * 1000), sizeof(string));
-		vr_ipd = Cvar_Get("vr_ipd",string, CVAR_ARCHIVE);
-
-
-		if (vr_ipd->value < 0)
-			Cvar_SetValue("vr_ipd",vrConfig.ipd * 1000);
-		strncpy(string, va("%.2f",vrConfig.dist_scale), sizeof(string));
-		vr_ovr_scale = Cvar_Get("vr_ovr_scale",string,CVAR_ARCHIVE);
-		if (vr_ovr_scale->value < 0)
-		{
-			Cvar_Set("vr_ovr_scale",string);
-		}
-
-		VR_OVR_SetFOV();
-
-		if (vr_ovr_driftcorrection->value > 0.0)
-			VR_OVR_EnableMagneticCorrection();
-
-		// TODO: use pixel density instead
-		if (vr_ovr_settings.v_resolution > 800)
-			Cvar_SetInteger("vr_hud_transparency",1);
-
-		Com_Printf("...calculated %.2f FOV\n",vrState.viewFovY);
-		Com_Printf("...calculated %.2f distortion scale\n", vr_ovr_scale->value);
-	} else 
-	{
-		Com_Printf(" failed!\n");
+	if (!hmd->enable())
 		return 0;
-	}
+
 
 	if (VR_SetMotionPrediction(vr_motionprediction->value))
 		Com_Printf("...set HMD Prediction time to %.1fms\n",vr_motionprediction->value);
 	vr_motionprediction->modified = false;
 	VR_ResetOrientation();
+
+	strncpy(hmd_type, va("%i", hmd->type), sizeof(hmd_type));
+	Cvar_ForceSet("vr_enabled", hmd_type);
+
 	vrState.stale = 1;
 	return 1;
 }
 
 void VR_Disable()
 {
-	VR_OVR_Shutdown();
-
+	hmd->disable();
+	hmd = NULL;
 }
 
 void VR_Shutdown()
 {
+	int i = 0;
 	if (vr_enabled->value)
 		VR_Disable();
+
+	for (i = 1; i < NUM_HMD_TYPES; i++)
+	{
+		available_hmds[i].shutdown();
+	}
+
 }
 
 // console command to enable Rift support
@@ -407,10 +341,18 @@ void VR_Disable_f()
 // launch-time initialization for Rift support
 void VR_Init()
 {
+	int i = 0;
+	Com_Printf("RiftQuake II Version %4.1f\n",RIFTQUAKE2_VERSION);
+
+	available_hmds[HMD_NONE] = hmd_none;
+	available_hmds[HMD_RIFT] = hmd_rift;
+
+	for (i = 1; i < NUM_HMD_TYPES; i++)
+	{
+		available_hmds[i].init();
+	}
+
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","-1",CVAR_ARCHIVE);
-	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
-	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	vr_motionprediction = Cvar_Get("vr_motionprediction","40",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
@@ -431,10 +373,6 @@ void VR_Init()
 	Cmd_AddCommand("vr_disable",VR_Disable_f);
 	Cmd_AddCommand("vr_enable",VR_Enable_f);
 
-	Com_Printf("RiftQuake II Version %4.2f\n",RIFTQUAKE2_VERSION);
-
 	if (vr_autoenable->value)
-		if (VR_Enable())
-			Cvar_ForceSet("vr_enabled","1");
-
+		VR_Enable();
 }

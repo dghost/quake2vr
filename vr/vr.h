@@ -45,6 +45,28 @@ typedef struct {
 // struct for things that should never change after init
 extern vr_attrib_t vrConfig;
 
+typedef enum {
+	HMD_NONE,
+	HMD_RIFT,
+	NUM_HMD_TYPES
+} hmd_t;
+
+typedef struct {
+	hmd_t type;
+	int (*init)();
+	void (*shutdown)();
+	int (*attached)();
+	int (*enable)();
+	void (*disable)();
+	void (*setfov)();
+	void (*frame)();
+	int (*getOrientation)(float euler[3]);
+	void (*resetOrientation)();
+	int (*setprediction)(float time);
+} hmd_interface_t;
+
+hmd_interface_t available_hmds[NUM_HMD_TYPES];
+
 extern cvar_t *vr_enabled;
 extern cvar_t *vr_autoenable;
 extern cvar_t *vr_ipd;
@@ -61,6 +83,7 @@ extern cvar_t *vr_aimmode_deadzone;
 extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
+extern cvar_t *vr_fov_scale;
 
 enum {
 	VR_AIMMODE_DISABLE,

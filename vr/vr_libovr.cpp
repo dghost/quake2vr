@@ -1,4 +1,4 @@
-#include "vr_ovr.h"
+#include "vr_libovr.h"
 #include "OVR.h"
 #include <math.h>
 
@@ -14,44 +14,41 @@ static bool initialized = false;
 
 #define M_PI 3.14159265358979323846f
 
-int VR_OVR_Init() {
+int LibOVR_Init()
+{
 	if (!initialized)
 	{
 		OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-
+		manager = OVR::DeviceManager::Create();
+		if (!manager)
+			return 0;
 		initialized = true;
 	}
+	return 1;	
+}
 
+int LibOVR_IsDeviceAvailable()
+{
+	if (!initialized)
+		LibOVR_Init();
 	if (!manager)
-		manager = OVR::DeviceManager::Create();
-	
-	if (manager && !hmd)
-		hmd = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-	
-
-	if (hmd && !sensor)
-		sensor = hmd->GetSensor();
-
-	if (!sensor)
-	{
-		VR_OVR_Shutdown();
 		return 0;
-	}
 
-	fusion = new OVR::SensorFusion();
-	fusion->AttachToSensor(sensor);
-	fusion->SetYawCorrectionEnabled(false);
-	fusion->SetPrediction(0.0,false);
+	if (!hmd)
+	{
+		OVR::HMDDevice *test = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+		if (!test)
+			return 0;
+		test->Release();
+	}
 	return 1;
 }
 
-void VR_OVR_Shutdown() {
-	initialized = false;
-	if (manager) {
-		manager->Release();
-		manager = NULL;
-	}
+void LibOVR_DeviceRelease() {
+	if (!initialized)
+		return;
 
+	
 	if (hmd) {
 		hmd->Release();
 		hmd = NULL;
@@ -73,7 +70,42 @@ void VR_OVR_Shutdown() {
 	}
 }
 
-void VR_OVR_ResetHMDOrientation()
+int LibOVR_DeviceInit() {
+	if (!initialized)
+		return 0;
+
+	if (manager && !hmd)
+		hmd = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+	
+
+	if (hmd && !sensor)
+		sensor = hmd->GetSensor();
+
+	if (!sensor || !hmd)
+	{
+		LibOVR_DeviceRelease();
+		return 0;
+	}
+
+	fusion = new OVR::SensorFusion();
+	fusion->AttachToSensor(sensor);
+	fusion->SetYawCorrectionEnabled(false);
+	fusion->SetPrediction(0.0,false);
+	return 1;
+}
+
+void LibOVR_Shutdown() {
+
+	LibOVR_DeviceRelease();
+
+	initialized = false;
+	if (manager) {
+		manager->Release();
+		manager = NULL;
+	}
+}
+
+void LibOVR_ResetHMDOrientation()
 {
 	if (!fusion)
 		return;
@@ -84,7 +116,7 @@ void VR_OVR_ResetHMDOrientation()
 		magnet->BeginAutoCalibration(*fusion);
 }
 
-int VR_OVR_GetOrientation(float euler[3])
+int LibOVR_GetOrientation(float euler[3])
 {
 	if (!fusion)
 		return 0;
@@ -104,7 +136,7 @@ int VR_OVR_GetOrientation(float euler[3])
 	return 1;
 }
 
-int VR_OVR_GetSettings(vr_ovr_settings_t *settings) {
+int LibOVR_GetSettings(ovr_settings_t *settings) {
 	if (!hmd || !hmd->GetDeviceInfo(&hmdInfo))
 		return 0;
 	settings->initialized = 1;
@@ -124,18 +156,19 @@ int VR_OVR_GetSettings(vr_ovr_settings_t *settings) {
 	return 1;
 }
 
-int VR_OVR_SetPredictionTime(float time) {
+int LibOVR_SetPredictionTime(float time) {
+	float timeInSec = time / 1000.0f;
 	if (!fusion)
 		return 0;
 
 	if (time > 0.0f)
-		fusion->SetPrediction(time, true);
+		fusion->SetPrediction(timeInSec, true);
 	else
-		fusion->SetPrediction(0.0,false);
+		fusion->SetPrediction(0.0f,false);
 	return 1;
 }
 
-int VR_OVR_EnableMagneticCorrection() {
+int LibOVR_DeviceInitMagneticCorrection() {
 	if (!fusion)
 		return 0;
 	
@@ -152,7 +185,7 @@ int VR_OVR_EnableMagneticCorrection() {
 	return 1;
 }
 
-void VR_OVR_DisableMagneticCorrection() {
+void LibOVR_DisableMagneticCorrection() {
 	if (!fusion)
 		return;
 
