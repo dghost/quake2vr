@@ -10,19 +10,25 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Oculus Rift
 
 ##Downloads:
-- Base Quake2-Rift package (10MB): [Download 1](http://dgho.st/crI0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wdG1qWWpZdXR6MDg)
+- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/5NM2) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wY3lPNGp4bkEzS3M)
+- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/crI0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wdG1qWWpZdXR6MDg)
 - Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/FvNC) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
-- Combined package (441MB): [Download 1](http://dgho.st/HX8m) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wVHNUaEx4WnhTbGc)
 
-##Instructions:
-1. Download binary package and unzip it to your preferred directory.
+##Shareware Instructions:
+1. Download the shareware package and unzip it to your preferred directory.
+2. Optionally download the high resolution texture package and unzip it to the same folder.
+3. Run `kmquake2`.
+
+##Full Version Instructions:
+1. Download binary or shareware package and unzip it to your preferred directory.
 2. Optionally download the high resolution texture package and unzip it to the same folder.
 3. Copy the following files from your Quake II `baseq2` folder into the new `baseq2` folder:
-    - `pak0.pak`
+    - `pak0.pak` (overwrite it if you downloaded the shareware version)
     - `pak1.pak`
     - `pak2.pak`
     - `maps.lst`
     - `videos\` (optional - only if you want cinematics)
+	- `players\` (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)
 4. If you have the CD audio soundtrack in .ogg format you can optionally place these files in `baseq2\music\`. Music files need to be named `track02.ogg` to `track11.ogg`.
 5. Run `kmquake2`. 
 
