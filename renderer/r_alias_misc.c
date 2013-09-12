@@ -316,18 +316,14 @@ R_FlipModel
 */
 void R_FlipModel (qboolean on)
 {
-	extern void MYgluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar );
-
 	if (on)
 	{
-		qglPushMatrix();
 		qglScalef(1,-1,1);
 		GL_CullFace( GL_BACK );
 
 	}
 	else
 	{
-		qglPopMatrix();
 		GL_CullFace( GL_FRONT );
 
 	}

@@ -330,7 +330,7 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, int mode, qboolean fullscreen
 			ReleaseDC( 0, hdc );
 		}
 
-		if (vr_enabled->value)
+		if ((int) vr_enabled->value == HMD_RIFT)
 		{
 			qboolean found = false;
 			qboolean isPrimaryDisplay = false;

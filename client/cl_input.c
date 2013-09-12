@@ -393,29 +393,35 @@ void VR_Move (usercmd_t *cmd)
 	case VR_AIMMODE_DISABLE:
 		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		VectorCopy(cl.aimangles,cl.viewangles);
+		cl.relativePitch = true;
+		break;
 	case VR_AIMMODE_HEAD_MYAW:
 		cl.aimangles[PITCH] = cl.viewangles[PITCH] = orientation[PITCH];
 		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + cl.in_delta[YAW] + orientationDelta[YAW];
 		cl.aimangles[ROLL] += cl.in_delta[ROLL];
 		cl.viewangles[ROLL] = orientation[ROLL];
+		cl.relativePitch = true;
 		break;
 	case VR_AIMMODE_HEAD_MYAW_MPITCH:
 		cl.aimangles[PITCH] = cl.viewangles[PITCH] = cl.aimangles[PITCH] + cl.in_delta[PITCH] + orientationDelta[PITCH];
 		cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + cl.in_delta[YAW] + orientationDelta[YAW];
 		cl.aimangles[ROLL] += cl.in_delta[ROLL];
 		cl.viewangles[ROLL] = orientation[ROLL];
+		cl.relativePitch = true;
 		break;
 	case VR_AIMMODE_MOUSE_MYAW:
 		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		cl.viewangles[ROLL] = orientation[ROLL];
 		cl.viewangles[PITCH] = orientation[PITCH];
 		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
+		cl.relativePitch = false;
 		break;
 	case VR_AIMMODE_MOUSE_MYAW_MPITCH:
 		VectorAdd(cl.in_delta,cl.aimangles,cl.aimangles);
 		cl.viewangles[ROLL] = orientation[ROLL];
 		cl.viewangles[PITCH] = cl.aimangles[PITCH] + orientation[PITCH];
 		cl.viewangles[YAW]   = cl.aimangles[YAW] + orientation[YAW];
+		cl.relativePitch = true;
 		break;
 	case VR_AIMMODE_BLENDED_FIXPITCH:
 		{
@@ -444,6 +450,7 @@ void VR_Move (usercmd_t *cmd)
 			cl.aimangles[PITCH] += orientationDelta[PITCH];
 			cl.viewangles[PITCH] = orientation[PITCH];
 			cl.viewangles[ROLL] = orientation[ROLL];
+			cl.relativePitch = false;
 		}
 		break;
 	case VR_AIMMODE_BLENDED:
@@ -472,6 +479,7 @@ void VR_Move (usercmd_t *cmd)
 
 			cl.viewangles[PITCH] = orientation[PITCH];
 			cl.viewangles[ROLL] = orientation[ROLL];
+			cl.relativePitch = false;
 		}
 		break;
 

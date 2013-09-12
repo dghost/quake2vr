@@ -317,16 +317,13 @@ void R_VR_EndFrame()
 	}
 }
 
+extern void vrPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset);
+
 void R_VR_DrawHud()
 {
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
-	float farz = 300.0;
-	float nearz = 0.01;
-	float f = 1.0f / tanf((vrState.viewFovY / 2.0f) * M_PI / 180);
-	float nf = 1.0f / (nearz - farz);
-	float out[16];
 	float bounce = vr_hud_bounce->value;
 	vec3_t orientation;
 	extern int scr_draw_loading;
@@ -334,25 +331,10 @@ void R_VR_DrawHud()
 	if (!vr_enabled->value)
 		return;
 
-	out[0] = f / vrConfig.aspect;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-	out[4] = 0;
-	out[5] = f;
-	out[6] = 0;
-	out[7] = 0;
-	out[8] = vrState.eye * vrState.projOffset;
-	out[9] = 0;
-	out[10] = (farz + nearz) * nf;
-	out[11] = -1;
-	out[12] = 0;
-	out[13] = 0;
-	out[14] = (2.0f * farz * nearz) * nf;
-	out[15] = 0;
-
 	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf(out);
+	qglLoadIdentity();
+	vrPerspective(vrState.viewFovY, vrConfig.aspect, 0.24, 251.0, vrState.eye * vrState.projOffset);
+
 	qglMatrixMode(GL_MODELVIEW);
 	qglLoadIdentity();
 

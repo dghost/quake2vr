@@ -146,6 +146,7 @@ typedef struct
 	// dghost - 08/16/13
 	vec3_t		aimangles;
 	vec3_t		viewangles;
+	qboolean	relativePitch;
 
 	vec3_t		in_delta;
 

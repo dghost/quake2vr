@@ -402,52 +402,61 @@ void R_SetupFrame (void)
 	}*/
 }
 
-
-void MYgluPerspective( GLdouble fovy, GLdouble aspect,
-		     GLdouble zNear, GLdouble zFar )
+void vrPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset)
 {
-   GLdouble xmin, xmax, ymin, ymax;
 
-   ymax = zNear * tan( fovy * M_PI / 360.0 );
-   ymin = -ymax;
+	GLdouble f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
+	GLdouble nf = 1.0f / (zNear - zFar);
+	GLdouble out[16];
 
-   xmin = ymin * aspect;
-   xmax = ymax * aspect;
+	out[0] = f / aspect;
+	out[1] = 0;
+	out[2] = 0;
+	out[3] = 0;
+	out[4] = 0;
+	out[5] = f;
+	out[6] = 0;
+	out[7] = 0;
+	out[8] = offset;
+	out[9] = 0;
+	out[10] = (zFar + zNear) * nf;
+	out[11] = -1;
+	out[12] = 0;
+	out[13] = 0;
+	out[14] = (2.0f * zFar * zNear) * nf;
+	out[15] = 0;
 
-   xmin += -( 2 * glState.camera_separation ) / zNear;
-   xmax += -( 2 * glState.camera_separation ) / zNear;
-
-   qglFrustum( xmin, xmax, ymin, ymax, zNear, zFar );
+	qglMultMatrixd(out);
 }
-
 
 /*
 =============
 R_SetupGL
 =============
 */
-void R_SetupGL (void)
+void R_SetupGL(void)
 {
 	float	screenaspect;
-//	float	yfov;
+	float	offset;
+	//	float	yfov;
 	int		x, x2, y2, y, w, h;
 
 	//Knightmare- variable sky range
-	static GLdouble farz; 
+	static GLdouble farz;
 	GLdouble boxsize;
 	//end Knightmare
 
 	// Knightmare- update r_modulate in real time
-    if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
+	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
 	{
-		msurface_t *surf; 
+		msurface_t *surf;
 		int i;
-		
-        for (i=0,surf = r_worldmodel->surfaces; i<r_worldmodel->numsurfaces; i++,surf++)
-            surf->cached_light[0]=0; 
 
-        r_modulate->modified = 0; 
-	} 
+		for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
+			surf->cached_light[0] = 0;
+
+		r_modulate->modified = 0;
+	}
 
 	//
 	// set up viewport
@@ -460,7 +469,7 @@ void R_SetupGL (void)
 	w = x2 - x;
 	h = y - y2;
 
-	qglViewport (x, y2, w, h);
+	qglViewport(x, y2, w, h);
 
 	// Knightmare- variable sky range
 	// calc farz falue from skybox size
@@ -468,7 +477,7 @@ void R_SetupGL (void)
 	{
 		r_skydistance->modified = false;
 		boxsize = r_skydistance->value;
-		boxsize -= 252 * ceil (boxsize / 2300);
+		boxsize -= 252 * ceil(boxsize / 2300);
 		farz = 1.0;
 		while (farz < boxsize) //make this a power of 2
 		{
@@ -477,7 +486,7 @@ void R_SetupGL (void)
 				break;
 		}
 		farz *= 2.0; //double since boxsize is distance from camera to edge of skybox
-					//not total size of skybox
+		//not total size of skybox
 		VID_Printf(PRINT_DEVELOPER, "farz now set to %g\n", farz);
 	}
 	// end Knightmare
@@ -485,43 +494,26 @@ void R_SetupGL (void)
 	//
 	// set up projection matrix
 	//
-//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
+	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
+	qglLoadIdentity();
 
+	screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
 
 	if (vr_enabled->value)
 	{
-		GLfloat aspect = r_newrefdef.fov_x/r_newrefdef.fov_y;
-		float f = 1.0f / tanf((r_newrefdef.fov_y / 2.0f) * M_PI / 180);
-		float nf = 1.0f / (4 - farz);
-		float out[16];
-		out[0] = f / aspect;
-		out[1] = 0;
-		out[2] = 0;
-		out[3] = 0;
-		out[4] = 0;
-		out[5] = f;
-		out[6] = 0;
-		out[7] = 0;
-		out[8] = vrState.eye * vrState.projOffset;
-		out[9] = 0;
-		out[10] = (farz + 4) * nf;
-		out[11] = -1;
-		out[12] = 0;
-		out[13] = 0;
-		out[14] = (2.0f * farz * 4) * nf;
-		out[15] = 0;
-		qglLoadMatrixf(out);
-		screenaspect = aspect;
-
-	} else {
-	    screenaspect = (float)r_newrefdef.width/r_newrefdef.height;
-
-		//Knightmare- 12/26/2001- increase back clipping plane distance
-		MYgluPerspective (r_newrefdef.fov_y,  screenaspect,  4, farz); //was 4096
-		//end Knightmare
+		offset = vrState.eye * vrState.projOffset;
+		screenaspect = vrConfig.aspect;
 	}
+	else {
+		offset = 0;
+		screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
+	}
+
+	//Knightmare- 12/26/2001- increase back clipping plane distance
+	vrPerspective(r_newrefdef.fov_y, screenaspect, 1, farz, offset); //was 4096
+	//end Knightmare
+
 	GL_CullFace(GL_FRONT);
 
 	qglMatrixMode(GL_MODELVIEW);

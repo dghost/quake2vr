@@ -2245,9 +2245,18 @@ void CL_CalcViewValues (void)
 	{	// use predicted values
 		if (vr_enabled->value)
 		{
+
 			vec3_t predDelta;
-			VectorSubtract(cl.predicted_angles,cl.aimangles,predDelta);
+			//VectorSubtract(cl.predicted_angles,cl.aimangles,predDelta);
+			if (cl.relativePitch)
+			{
+				VectorSet(predDelta,cl.predicted_angles[PITCH] - cl.aimangles[PITCH],cl.predicted_angles[YAW] - cl.aimangles[YAW], 0);
+			} else {
+				VectorSet(predDelta,0,cl.predicted_angles[YAW] - cl.aimangles[YAW], 0);
+			}
 			VectorAdd(cl.viewangles,predDelta,cl.refdef.viewangles);
+
+
 			for (i=0 ; i<3 ; i++)
 			{
 				cl.refdef.aimangles[i] = cl.predicted_angles[i] + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
