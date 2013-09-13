@@ -18,6 +18,7 @@ cvar_t *vr_viewmove;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
 cvar_t *vr_fov_scale;
+cvar_t *vr_nosleep;
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
@@ -353,6 +354,7 @@ void VR_Init()
 	}
 
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
+	vr_nosleep = Cvar_Get("vr_nosleep", "1", CVAR_ARCHIVE);
 	vr_motionprediction = Cvar_Get("vr_motionprediction","40",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
@@ -368,7 +370,6 @@ void VR_Init()
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
 	vr_aimmode_deadzone = Cvar_Get("vr_aimmode_deadzone","30",CVAR_ARCHIVE);
 	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_ARCHIVE);
-
 	Cmd_AddCommand("vr_reset_home",VR_ResetOrientation);
 	Cmd_AddCommand("vr_disable",VR_Disable_f);
 	Cmd_AddCommand("vr_enable",VR_Enable_f);

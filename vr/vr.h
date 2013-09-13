@@ -84,6 +84,7 @@ extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
 extern cvar_t *vr_fov_scale;
+extern cvar_t *vr_nosleep;
 
 enum {
 	VR_AIMMODE_DISABLE,

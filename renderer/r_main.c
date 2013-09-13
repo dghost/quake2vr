@@ -61,7 +61,7 @@ vec3_t	vpn;
 vec3_t	vright;
 vec3_t	r_origin;
 
-float	r_world_matrix[16];
+//float	r_world_matrix[16];
 float	r_base_world_matrix[16];
 
 
@@ -529,7 +529,8 @@ void R_SetupGL(void)
 //	if ( glState.camera_separation != 0 && glState.stereo_enabled )
 //		qglTranslatef ( glState.camera_separation, 0, 0 );
 
-	qglGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
+	
+	//qglGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
 
 	//
 	// set drawing parms

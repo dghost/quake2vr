@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <io.h>
 #include <conio.h>
 #include "../win32/conproc.h"
+#include "../vr/vr.h"
 
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
@@ -1325,13 +1326,17 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		}
 
 		// DarkOne's CPU usage fix
+
+
 		while (1)
 		{
 			newtime = Sys_Milliseconds();
 			time = newtime - oldtime;
 			if (time > 0) break;
-			Sleep(0); // may also use Speep(1); to free more CPU, but it can lower your fps
+			if (!vr_enabled->value || !vr_nosleep->value)
+				Sleep(0); // may also use Speep(1); to free more CPU, but it can lower your fps
 		}
+
 		/*do
 		{
 			newtime = Sys_Milliseconds ();

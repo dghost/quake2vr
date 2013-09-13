@@ -1676,7 +1676,7 @@ void CL_Frame (int msec)
 		if (extratime < 1000/cl_maxfps->value)
 		{	
 #ifdef _WIN32 // Pooy's CPU usage fix
-			if (cl_sleep->value)
+			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )
 			{
 				int temptime = 1000/cl_maxfps->value-extratime;
 				if (temptime > 1)
