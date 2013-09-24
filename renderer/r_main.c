@@ -440,7 +440,7 @@ void R_SetupGL(void)
 	float	offset;
 	//	float	yfov;
 	int		x, x2, y2, y, w, h;
-
+	vec3_t vieworigin;
 	//Knightmare- variable sky range
 	static GLdouble farz;
 	GLdouble boxsize;
@@ -521,10 +521,30 @@ void R_SetupGL(void)
 
     qglRotatef (-90,  1, 0, 0);	    // put Z going up
     qglRotatef (90,  0, 0, 1);	    // put Z going up
-    qglRotatef (-r_newrefdef.viewangles[2],  1, 0, 0);
-    qglRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
-    qglRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
-    qglTranslatef (-r_newrefdef.vieworg[0],  -r_newrefdef.vieworg[1],  -r_newrefdef.vieworg[2]);
+
+	qglRotatef (-r_newrefdef.viewangles[2],  1, 0, 0);
+	qglRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
+	qglRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
+	
+	VectorCopy(r_newrefdef.vieworg,vieworigin);
+
+	// Neckmodel stuff
+	if (vr_enabled->value && vr_neckmodel->value)
+	{
+		vec3_t forward, up, out;
+		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		AngleVectors(r_newrefdef.viewangles,forward,NULL,up);
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorScale(forward, eyeDist ,forward);
+		VectorScale(up,neckLength,up);
+		VectorAdd(forward,up,out);
+		vieworigin[2] -= neckLength;
+		VectorAdd(vieworigin,out,vieworigin); 
+	}
+
+    qglTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
 
 //	if ( glState.camera_separation != 0 && glState.stereo_enabled )
 //		qglTranslatef ( glState.camera_separation, 0, 0 );

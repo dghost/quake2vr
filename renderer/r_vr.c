@@ -122,9 +122,6 @@ static r_shaderobject_t ovr_shader_chrm = {
 	"}\n"
 };
 
-#define PLAYER_HEIGHT_UNITS 56.0f
-#define PLAYER_HEIGHT_M 1.75f
-
 //
 // Utility Functions
 //
@@ -325,7 +322,7 @@ void R_VR_DrawHud()
 	float y,x;
 	float depth = vr_hud_depth->value;
 	float bounce = vr_hud_bounce->value;
-	vec3_t orientation;
+
 	extern int scr_draw_loading;
 
 	if (!vr_enabled->value)
@@ -341,6 +338,7 @@ void R_VR_DrawHud()
 	// disable this for the loading screens since they are not at 60fps
 	if (vr_hud_bounce->value && !scr_draw_loading)
 	{
+		vec3_t orientation;
 		VR_GetOrientationEMA(orientation);
 		qglRotatef (orientation[0] * bounce,  1, 0, 0);
 		qglRotatef (orientation[1] * bounce,  0, -1, 0);

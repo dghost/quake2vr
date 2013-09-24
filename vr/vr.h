@@ -2,6 +2,9 @@
 #define __R_VR_H
 #include "../qcommon/qcommon.h"
 
+#define PLAYER_HEIGHT_UNITS 56.0f
+#define PLAYER_HEIGHT_M 1.75f
+
 enum vr_eye_t {
 	EYE_LEFT = -1,
 	EYE_NONE = 0,
@@ -85,6 +88,9 @@ extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
 extern cvar_t *vr_fov_scale;
 extern cvar_t *vr_nosleep;
+extern cvar_t *vr_neckmodel;
+extern cvar_t *vr_neckmodel_up;
+extern cvar_t *vr_neckmodel_forward;
 
 enum {
 	VR_AIMMODE_DISABLE,
