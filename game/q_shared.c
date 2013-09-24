@@ -931,6 +931,197 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3])
 
 //====================================================================================
 
+void QuatNormalize(vec4_t quat, vec4_t out)
+{
+	float mag = QuatMagnitude(quat);
+	if (fabs(mag) > 0.00001f && fabs(mag - 1.0f) > 0.00001f) {
+		out[0] = quat[0] / mag;
+		out[1] = quat[1] / mag;
+		out[2] = quat[2] / mag;
+		out[3] = quat[3] / mag;
+	} else {
+		QuatCopy(quat, out);
+	}
+
+
+}
+
+void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out)
+{
+	vec_t temp;
+	vec3_t temp1, temp2;
+	vec4_t o;
+	temp = _DotProduct(&q1[1],&q2[1]);
+
+	o[0] = q1[0] * q2[0] - temp;
+	VectorScale(&q2[1], q1[0], temp1);
+	VectorScale(&q1[1], q2[0], temp2);
+
+	CrossProduct(&q1[1], &q2[1], &o[1]);
+	_VectorAdd(&o[1], temp1, &o[1]);
+	_VectorAdd(&o[1], temp2, &o[1]);
+	QuatCopy(o,out);
+
+}
+
+void QuatInverse(vec4_t q1, vec4_t out)
+{
+	vec_t mag = QuatMagnitude(q1);
+	out[0] = -q1[0] / mag;
+	out[1] = q1[1] / mag;
+	out[2] = q1[2] / mag;
+	out[3] = q1[3] / mag;
+}
+
+void QuatDifference(vec4_t q1, vec4_t q2, vec4_t out)
+{
+	vec4_t inv;
+	QuatInverse(q1, inv);
+	QuatMultiply(q2, inv, out);
+}
+
+
+void LerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
+{
+	float a = 1 - fraction;
+	out[0] = a * q1[0] + fraction * q2[0];
+	out[1] = a * q1[1] + fraction * q2[1];
+	out[2] = a * q1[2] + fraction * q2[2];
+	out[3] = a * q1[3] + fraction * q2[3];
+	QuatNormalize(out,out);
+}
+
+
+void SlerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
+{
+	vec4_t temp;
+	float cosOmega = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
+	float k0, k1;
+
+	QuatCopy(q2, temp);
+	if (cosOmega < 0.0f)
+	{
+		QuatNegate(temp, temp);
+		cosOmega = -cosOmega;
+	}
+
+	if (cosOmega > 0.9999f)
+	{
+		k0 = 1.0f - fraction;
+		k1 = fraction;
+	}
+	else {
+		float sinOmega = sqrt(1.0f - cosOmega * cosOmega);
+		float omega = atan2(sinOmega, cosOmega);
+		float oneOverSinOmega = 1.0f / sinOmega;
+		k0 = sin((1.0f - fraction) * omega) * oneOverSinOmega;
+		k1 = sin(fraction * omega) * oneOverSinOmega;
+	}
+
+	out[0] = q1[0] * k0 + temp[0] * k1;
+	out[1] = q1[1] * k0 + temp[1] * k1;
+	out[2] = q1[2] * k0 + temp[2] * k1;
+	out[3] = q1[3] * k0 + temp[3] * k1;
+}
+
+void QuatToEuler(vec4_t q, vec3_t e)
+{
+	
+	float sqw = q[0]*q[0];
+	float sqx = q[1]*q[1];
+	float sqy = q[2]*q[2];
+	float sqz = q[3]*q[3];
+
+	float unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+	float test = q[1]*q[2] + q[3]*q[0];
+
+	if (test > 0.4999f*unit) {
+		// singularity at north pole
+		e[YAW] = 2 * atan2(q[1], q[0]);
+		e[ROLL] = M_PI / 2;
+		e[PITCH] = 0;
+	} else if (test < -0.4999f*unit) {
+		// singularity at south pole
+		e[YAW] = -2 * atan2(q[1], q[0]);
+		e[ROLL] = -M_PI / 2;
+		e[PITCH] = 0;
+	} else {
+		e[YAW] = atan2(2 * q[2] * q[0] - 2 * q[1] * q[3], sqx - sqy - sqz + sqw);
+		e[ROLL] = asin(2 * test / unit);
+		e[PITCH] = atan2(2 * q[1] * q[0] - 2 * q[2] * q[3], -sqx + sqy - sqz + sqw);
+	}
+	/*
+	vec4_t temp;
+	QuatCopy(q,temp);
+	QuatNormalize(q,q);
+	e[ROLL] = atan2(2.0f * (temp[1] * temp[2] + temp[0] * temp[3]), temp[0] * temp[0] + temp[1] * temp[1] - temp[2] * temp[2] - temp[3] * temp[3]);
+	e[PITCH] = atan2(2.0f * (temp[2] * temp[3] + temp[0] * temp[1]), temp[0] * temp[0] - temp[1] * temp[1] - temp[2] * temp[2] + temp[3] * temp[3]);
+	e[YAW] = asin(-2.0f * (temp[1] * temp[3] - temp[0] * temp[2]));
+	*/
+
+	e[PITCH] = RAD2DEG(e[PITCH]);
+	e[YAW] = RAD2DEG(e[YAW]);
+	e[ROLL] = RAD2DEG(e[ROLL]);
+
+}
+
+void EulerToQuat(vec3_t in, vec4_t out)
+{
+	vec3_t s, c;
+
+
+	VectorSet(s, sin(DEG2RAD(in[0]) / 2.0f), sin(DEG2RAD(in[1])/2.0f), sin(DEG2RAD(in[2])/2.0f));
+	VectorSet(c, cos(DEG2RAD(in[0]) / 2.0f), cos(DEG2RAD(in[1]) / 2.0f), cos(DEG2RAD(in[2]) / 2.0f));
+
+	/*
+	out[0] = 2 * acos(cos(temp[ROLL] / 2)*cos(temp[PITCH] / 2)*cos(temp[YAW] / 2) + sin(temp[ROLL] / 2)*sin(temp[PITCH] / 2)*sin(temp[YAW] / 2));
+	out[1] = acos((sin(temp[ROLL] / 2)*cos(temp[PITCH] / 2)*cos(temp[YAW] / 2) - cos(temp[ROLL] / 2)*sin(temp[PITCH] / 2)*sin(temp[YAW] / 2)) / sin(out[0] / 2));
+	out[2] = acos((cos(temp[ROLL] / 2)*sin(temp[PITCH] / 2)*cos(temp[YAW] / 2) + sin(temp[ROLL] / 2)*cos(temp[PITCH] / 2)*sin(temp[YAW] / 2)) / sin(out[0] / 2));
+	out[3] = acos((cos(temp[ROLL] / 2)*cos(temp[PITCH] / 2)*sin(temp[YAW] / 2) - sin(temp[ROLL] / 2)*sin(temp[PITCH] / 2)*cos(temp[YAW] / 2)) / sin(out[0] / 2));
+	*/
+
+
+	out[0] = c[YAW] * c[PITCH] * c[ROLL] + s[YAW] * s[PITCH] * s[ROLL];
+	out[1] = c[YAW] * s[PITCH] * c[ROLL] + s[YAW] * c[PITCH] * s[ROLL];
+	out[2] = s[YAW] * c[PITCH] * c[ROLL] - c[YAW] * s[PITCH] * s[ROLL];
+	out[3] = c[YAW] * c[PITCH] * s[ROLL] - s[YAW] * s[PITCH] * c[ROLL];
+	QuatNormalize(out, out);
+}
+
+void QuatToRotation(vec4_t q, vec4_t out[4])
+{
+	vec_t xx = q[1] * q[1];
+	vec_t xy = q[1] * q[2];
+	vec_t xz = q[1] * q[3];
+	vec_t xw = q[1] * q[0];
+
+	vec_t yy = q[2] * q[2];
+	vec_t yz = q[2] * q[3];
+	vec_t yw = q[2] * q[0];
+
+	vec_t zz = q[3] * q[3];
+	vec_t zw = q[3] * q[0];
+
+	out[0][0] = 1 - 2 * (yy + zz);
+	out[1][0] = 2 * (xy - zw);
+	out[2][0] = 2 * (xz + yw);
+
+	out[0][1] = 2 * (xy + zw);
+	out[1][1] = 1 - 2 * (xx + zz);
+	out[2][1] = 2 * (yz - xw);
+
+	out[0][2] = 2 * (xz - yw);
+	out[1][2] = 2 * (yz + xw);
+	out[2][2] = 1 - 2 * (xx + yy);
+
+	out[3][0] = out[3][1] = out[3][2] = out[0][3] = out[1][3] = out[2][3] = 0;
+	out[3][3] = 1;
+
+
+}
+
+//====================================================================================
+
 /*
 ============
 COM_SkipPath

@@ -271,6 +271,24 @@ void AxisCopy (const vec3_t in[3], vec3_t out[3]);
 qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3]);
 
 
+#define QuatCopy(a,b)				(b[0]=a[0],b[1]=a[1],b[2]=a[2],b[3]=a[3])
+#define QuatClear(a)				(a[1]=a[2]=a[3]=0,a[0]=1)
+#define QuatNegate(a,b)				(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2],b[3]=-a[3])
+#define QuatSet(v, w, x, y, z)		(v[0] = (w), v[1]=(x), v[2]=(y), v[3]=(z))
+#define QuatMagnitude(a)			sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3])
+#define QuatScale(a,b,c)			(c[0]=a[0]*b,c[1]=a[1]*b,c[2]=a[2]*b,c[3]=a[3]*b)
+#define QuatConjugate(a,b)			(b[0] = a[0], b[1]=-a[1],b[2]=-a[2],b[3]=-a[3])
+
+void QuatNormalize(vec4_t quat, vec4_t out);
+void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out);
+void QuatInverse(vec4_t q1, vec4_t out);
+void QuatDifference(vec4_t q1, vec4_t q2, vec4_t out);
+void LerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out);
+void SlerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out);
+void QuatToEuler(vec4_t q, vec3_t e);
+void EulerToQuat(vec3_t in, vec4_t out);
+void QuatToRotation(vec4_t q, vec4_t out[4]);
+
 void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
 void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
 
