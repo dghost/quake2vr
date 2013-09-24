@@ -321,8 +321,7 @@ void R_VR_DrawHud()
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
-	float bounce = vr_hud_bounce->value;
-
+	
 	extern int scr_draw_loading;
 
 	if (!vr_enabled->value)
@@ -336,14 +335,28 @@ void R_VR_DrawHud()
 	qglLoadIdentity();
 
 	// disable this for the loading screens since they are not at 60fps
-	if (vr_hud_bounce->value && !scr_draw_loading)
+	if ((vr_hud_bounce->value > 0) && !scr_draw_loading)
 	{
+		// load the quaternion directly into a rotation matrix
+		vec4_t q;
+		vec4_t mat[4];
+		VR_GetOrientationEMAQuat(q);
+		q[2] = -q[2];
+		QuatToRotation(q,mat);
+		qglMultMatrixf((const GLfloat *) mat);
+		
+	
+		/* depriciated as of 9/30/2013 - consider removing later
+		// convert to euler angles and rotate
 		vec3_t orientation;
 		VR_GetOrientationEMA(orientation);
-		qglRotatef (orientation[0] * bounce,  1, 0, 0);
-		qglRotatef (orientation[1] * bounce,  0, -1, 0);
-		qglRotatef (orientation[2] * bounce,  0, 0, 1);
+		qglRotatef (orientation[0],  1, 0, 0);
+		// y axis is inverted between Quake II and OpenGL
+		qglRotatef (-orientation[1],  0, 1, 0);
+		qglRotatef (orientation[2],  0, 0, 1);
+		*/
 	}
+
 	qglTranslatef(vrState.eye * -vr_ipd->value / 2000.0,0,0);
 	// calculate coordinates for hud
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
@@ -435,7 +448,7 @@ void R_VR_Present()
 	{
 		float scale = vr_ovr_scale->value;
 		qglUniform2fARB(current_shader->uniform.lens_center, -vrState.projOffset, 0);
-		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, 1.0f * vrConfig.aspect / scale);
+		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, vrConfig.aspect / scale);
 		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
 		qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
 		qglUniform2fARB(current_shader->uniform.scale_in, 1.0f, 1.0f / vrConfig.aspect);

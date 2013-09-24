@@ -115,6 +115,7 @@ void VR_GetRenderParam(vr_param_t *settings);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);
+void VR_GetOrientationEMAQuat(vec3_t quat);
 void VR_ResetOrientation();
 
 #endif

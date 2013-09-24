@@ -28,8 +28,7 @@ vr_attrib_t vrConfig;
 
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
-static vec3_t vr_emaOrientation;
-static float vr_emaWeight = 0.25;
+static vec4_t vr_emaOrientation;
 
 static hmd_interface_t *hmd;
 
@@ -46,10 +45,6 @@ static hmd_interface_t hmd_none = {
 	NULL,
 	NULL
 };
-//
-// Oculus Rift specific functions
-//
-
 
 //
 // General functions
@@ -60,20 +55,24 @@ extern ovr_settings_t vr_ovr_settings;
 
 int VR_GetSensorOrientation()
 {
-	float euler[3];
-	vec3_t temp;
+	vec3_t euler;
+	vec4_t quat;
 	float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
 
 	if (!hmd)
 		return 0;
+	if (!hmd->getOrientation(euler))
+		return 0;
 
 	VectorCopy(vr_orientation, vr_lastOrientation);
-	hmd->getOrientation(euler);
-	VectorSet(vr_orientation, euler[0], euler[1], euler[2]);
-	VectorSubtract(vr_orientation, vr_lastOrientation, temp);
-	VectorScale(temp, emaWeight, temp);
-	VectorMA(temp, (1 - emaWeight), vr_emaOrientation, vr_emaOrientation);
+	VectorCopy(euler,vr_orientation);
 
+	// convert last position to quaternions for SLERP
+	EulerToQuat(vr_lastOrientation,quat);
+
+	// SLERP between previous EMA orientation and new EMA orientation
+//	LerpQuat(vr_emaOrientation, quat, emaWeight, vr_emaOrientation);
+	SlerpQuat(vr_emaOrientation, quat, emaWeight, vr_emaOrientation);
 	return 1;
 }
 
@@ -99,16 +98,34 @@ void VR_GetOrientationDelta(vec3_t angle)
 	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
 }
 
+// unused as of 9/30/2013 - consider removing later
 void VR_GetOrientationEMA(vec3_t angle) 
 {
+	vec4_t quat;
+	if (!hmd)
+		return;
+	
+	VR_GetOrientationEMAQuat(quat);
+	QuatToEuler(quat,angle);
+}
 
+void VR_GetOrientationEMAQuat(vec3_t quat) 
+{
+	float bounce = vr_hud_bounce->value / vr_hud_bounce_falloff->value;
+	vec4_t t1, t2, zero = { 1, 0, 0, 0 };
 	if (!hmd)
 		return;
 
 	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;
 
-	VectorCopy(vr_emaOrientation,angle);
+	EulerToQuat(vr_orientation,t1);
+	QuatCopy(vr_emaOrientation,t2);
+	// fast conjugate
+	t2[0] = -t2[0];
+	QuatMultiply(t2, t1, t1);
+	SlerpQuat(zero, t1, bounce, quat);
+
 }
 
 // takes time in ms, sets appropriate prediction values
@@ -219,16 +236,16 @@ void VR_Frame()
 	if (vr_hud_bounce->modified)
 	{
 		if (vr_hud_bounce->value < 0.0)
-			Cvar_SetInteger("vr_hud_bounce",0);
-		else if (vr_hud_bounce->value > 3)
-			Cvar_SetInteger("vr_hud_bounce",3);
+			Cvar_SetInteger("vr_hud_bounce", 0);
+		else if (vr_hud_bounce->value > 2)
+			Cvar_SetInteger("vr_hud_bounce", 2);
 		vr_hud_bounce->modified = false;
 	}
-	
+
 	if (vr_hud_bounce_falloff->modified)
 	{
-		if (vr_hud_bounce_falloff->value < 0.0)
-			Cvar_SetInteger("vr_hud_bounce_falloff",0);
+		if (vr_hud_bounce_falloff->value < 1.0)
+			Cvar_SetInteger("vr_hud_bounce_falloff",1);
 		else if (vr_hud_bounce_falloff->value > 60)
 			Cvar_SetInteger("vr_hud_bounce_falloff", 60);
 		vr_hud_bounce_falloff->modified = false;
@@ -259,9 +276,9 @@ void VR_ResetOrientation()
 		hmd->resetOrientation();
 		VR_GetSensorOrientation();
 		VectorCopy(vr_orientation, vr_lastOrientation);
-		VectorSet(vr_emaOrientation, 0, 0, 0);
+		QuatSet(vr_emaOrientation, 1, 0, 0, 0);
 	} else {
-		VectorSet(vr_emaOrientation, 0, 0, 0);
+		QuatSet(vr_emaOrientation, 1, 0, 0, 0);
 		VectorSet(vr_orientation, 0, 0, 0);
 		VectorSet(vr_lastOrientation, 0, 0, 0);
 	}
