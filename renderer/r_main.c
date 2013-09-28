@@ -670,7 +670,7 @@ void VR_DrawCrosshair()
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	GL_Bind(0);
 	qglColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
-	if (vr_crosshair->value == 1.0)
+	if ((int) vr_crosshair->value == VR_CROSSHAIR_DOT)
 	{
 		qglEnable(GL_POINT_SMOOTH);
 
@@ -679,7 +679,7 @@ void VR_DrawCrosshair()
 		qglVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
 		qglEnd();
 		qglDisable(GL_POINT_SMOOTH);
-	} else if (vr_crosshair->value == 2.0)
+	} else if ((int) vr_crosshair->value == VR_CROSSHAIR_LASER)
 	{
 
 		qglLineWidth( vr_crosshair_size->value * vrState.pixelScale );

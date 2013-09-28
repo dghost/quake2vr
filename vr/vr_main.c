@@ -13,7 +13,8 @@ cvar_t *vr_crosshair;
 cvar_t *vr_crosshair_size;
 cvar_t *vr_crosshair_brightness;
 cvar_t *vr_aimmode;
-cvar_t *vr_aimmode_deadzone;
+cvar_t *vr_aimmode_deadzone_yaw;
+cvar_t *vr_aimmode_deadzone_pitch;
 cvar_t *vr_viewmove;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
@@ -172,15 +173,26 @@ void VR_Frame()
 		vr_aimmode->modified = false;
 	}
 
-	if (vr_aimmode_deadzone->modified)
+	if (vr_aimmode_deadzone_pitch->modified)
 	{
-		if (vr_aimmode_deadzone->value < 0.0)
-			Cvar_SetInteger("vr_aimmode_deadzone",0);
-		else if (vr_aimmode_deadzone->value > 70)
-			Cvar_SetInteger("vr_aimmode_deadzone",70);
+		if (vr_aimmode_deadzone_pitch->value < 0.0)
+			Cvar_SetInteger("vr_aimmode_deadzone_pitch",0);
+		else if (vr_aimmode_deadzone_pitch->value > 360)
+			Cvar_SetInteger("vr_aimmode_deadzone_pitch",360);
 		else
-			Cvar_SetInteger("vr_aimmode_deadzone",(int) vr_aimmode_deadzone->value);
-		vr_aimmode_deadzone->modified = false;
+			Cvar_SetInteger("vr_aimmode_deadzone_pitch",(int) vr_aimmode_deadzone_pitch->value);
+		vr_aimmode_deadzone_pitch->modified = false;
+	}
+
+	if (vr_aimmode_deadzone_yaw->modified)
+	{
+		if (vr_aimmode_deadzone_yaw->value < 0.0)
+			Cvar_SetInteger("vr_aimmode_deadzone_yaw",0);
+		else if (vr_aimmode_deadzone_yaw->value > 360)
+			Cvar_SetInteger("vr_aimmode_deadzone_yaw",360);
+		else
+			Cvar_SetInteger("vr_aimmode_deadzone_yaw",(int) vr_aimmode_deadzone_yaw->value);
+		vr_aimmode_deadzone_yaw->modified = false;
 	}
 
 	if (vr_crosshair->modified)
@@ -391,7 +403,8 @@ void VR_Init()
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
-	vr_aimmode_deadzone = Cvar_Get("vr_aimmode_deadzone","30",CVAR_ARCHIVE);
+	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","30",CVAR_ARCHIVE);
+	vr_aimmode_deadzone_pitch = Cvar_Get("vr_aimmode_deadzone_pitch","60",CVAR_ARCHIVE);
 	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_ARCHIVE);
 	Cmd_AddCommand("vr_reset_home",VR_ResetOrientation);
 	Cmd_AddCommand("vr_disable",VR_Disable_f);

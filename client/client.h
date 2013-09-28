@@ -142,12 +142,15 @@ typedef struct
 	// tracked view angles to account for standing on rotating objects,
 	// and teleport direction changes
 	//
-	// changed to aim angles for look/aim decoupling
-	// dghost - 08/16/13
+	// changed to body angles for look/aim decoupling
+	// dghost - 09/24/13
+	vec3_t		bodyangles;
+	vec3_t		aimdelta;
+	
 	vec3_t		aimangles;
 	vec3_t		viewangles;
-	qboolean	relativePitch;
 
+	
 	vec3_t		in_delta;
 
 	int			time;			// this is the time value that the client

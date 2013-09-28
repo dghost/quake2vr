@@ -684,8 +684,8 @@ void CL_ClearState (void)
 
 	SZ_Clear (&cls.netchan.message);
 
-	if (vr_enabled->value)
-		VR_ResetOrientation();
+//	if (vr_enabled->value)
+//		VR_ResetOrientation();
 }
 
 /*

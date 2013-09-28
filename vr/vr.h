@@ -82,7 +82,8 @@ extern cvar_t *vr_crosshair;
 extern cvar_t *vr_crosshair_size;
 extern cvar_t *vr_crosshair_brightness;
 extern cvar_t *vr_aimmode;
-extern cvar_t *vr_aimmode_deadzone;
+extern cvar_t *vr_aimmode_deadzone_yaw;
+extern cvar_t *vr_aimmode_deadzone_pitch;
 extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
@@ -98,12 +99,19 @@ enum {
 	VR_AIMMODE_HEAD_MYAW_MPITCH,
 	VR_AIMMODE_MOUSE_MYAW,
 	VR_AIMMODE_MOUSE_MYAW_MPITCH,
-	VR_AIMMODE_BLENDED_FIXPITCH,
-	VR_AIMMODE_BLENDED,
+	VR_AIMMODE_TF2_MODE2,
+	VR_AIMMODE_TF2_MODE3,
+	VR_AIMMODE_TF2_MODE4,
+	VR_AIMMODE_TF2_MODE5,
 	NUM_VR_AIMMODE
 } vr_aimmode_t;
 
-
+enum {
+	VR_CROSSHAIR_NONE,
+	VR_CROSSHAIR_DOT,
+	VR_CROSSHAIR_LASER,
+	NUM_VR_CROSSHAIR
+} vr_crosshair_t;
 
 void VR_Init();
 void VR_Shutdown();

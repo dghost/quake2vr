@@ -2195,9 +2195,9 @@ void CL_CalcViewValues (void)
 	ops = &oldframe->playerstate;
 
 	// see if the player entity was teleported this frame
-	if ( fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256*8
-		|| abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256*8
-		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256*8)
+	if (fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8
+		|| abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8
+		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
 		ops = ps;		// don't interpolate
 
 	ent = &cl_entities[cl.playernum+1];
@@ -2245,7 +2245,7 @@ void CL_CalcViewValues (void)
 	{	// use predicted values
 		if (vr_enabled->value)
 		{
-
+			/*
 			vec3_t predDelta;
 			//VectorSubtract(cl.predicted_angles,cl.aimangles,predDelta);
 			if (cl.relativePitch)
@@ -2255,8 +2255,8 @@ void CL_CalcViewValues (void)
 				VectorSet(predDelta,0,cl.predicted_angles[YAW] - cl.aimangles[YAW], 0);
 			}
 			VectorAdd(cl.viewangles,predDelta,cl.refdef.viewangles);
-
-
+			*/
+			VectorCopy(cl.viewangles, cl.refdef.viewangles);
 			for (i=0 ; i<3 ; i++)
 			{
 				cl.refdef.aimangles[i] = cl.predicted_angles[i] + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
@@ -2307,7 +2307,7 @@ void CL_CalcViewValues (void)
 	{
 		vec3_t forward, right,distance;
 		vec3_t gun_origin;
-//		vec3_t gun_angles;
+		vec3_t gun_angles;
 		trace_t trace;
 		int i;
 
@@ -2315,14 +2315,21 @@ void CL_CalcViewValues (void)
 		{
 			gun_origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
 			+ cl.lerpfrac * (ps->gunoffset[i] - ops->gunoffset[i]);
-//			gun_angles[i] = cl.refdef.aimangles[i] + LerpAngle (ops->gunangles[i],
-//				ps->gunangles[i], cl.lerpfrac);	
 		}
 
+		VectorCopy(cl.refdef.aimangles, gun_angles);
 
-		AngleVectors(cl.refdef.aimangles,forward,right,NULL);
-	
-//		AngleVectors(gun_angles,forward,right,NULL);
+		/*
+		if ((int) vr_crosshair->value == VR_CROSSHAIR_LASER)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				gun_angles[i] += LerpAngle(ops->gunangles[i],ps->gunangles[i], cl.lerpfrac);
+			}
+		}
+		*/
+
+		AngleVectors(gun_angles,forward,right,NULL);
 	
 		// right handed
 		if ((int) hand->value == 0)
