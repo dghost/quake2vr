@@ -222,6 +222,7 @@ void R_Bloom_InitTextures (void)
 {
 	byte	*data;
 	int		size;
+
 	if (vr_enabled->value)
 	{
 		// use screen size
@@ -587,8 +588,12 @@ void R_BloomBlend ( refdef_t *fd )
 	if ( (fd->rdflags & RDF_NOWORLDMODEL) || !r_bloom->value || r_showtris->value )
 		return;
 
-	if ( !BLOOM_SIZE )
+	if (!BLOOM_SIZE || fd->height != curView_height || fd->width != curView_width)
+	{
+		if (developer->value)
+			Com_Printf("Initializing bloom textures...\n");
 		R_Bloom_InitTextures();
+	}
 
 	if ( screen_texture_width < BLOOM_SIZE ||
 		screen_texture_height < BLOOM_SIZE )
