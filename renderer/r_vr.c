@@ -210,17 +210,19 @@ void R_VR_StartFrame()
 	{
 		if (vr_ovr_scale->modified)
 		{
+			float scale;
 			if (vr_ovr_scale->value < 1.0)
-				Cvar_Set("vr_ovr_scale", "1.0");
+				Cvar_Set("vr_ovr_scale", "0");
 			if (vr_ovr_scale->value > 2.0)
 				Cvar_Set("vr_ovr_scale", "2.0");
-
+			scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale); vr_ovr_scale->value;
+			
 			R_DelFBO(&left);
 			R_DelFBO(&right);
 
-			vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
-			vrState.vrHalfWidth = vr_ovr_scale->value  * vrState.viewWidth / 2.0;
-			vrState.vrHeight = vr_ovr_scale->value  * vrState.viewHeight;
+			vrState.vrWidth = scale * vrState.viewWidth;
+			vrState.vrHalfWidth = scale  * vrState.viewWidth / 2.0;
+			vrState.vrHeight = scale  * vrState.viewHeight;
 			R_GenFBO(vrState.vrHalfWidth, vrState.vrHeight, &left);
 			R_GenFBO(vrState.vrHalfWidth, vrState.vrHeight, &right);
 			VR_OVR_SetFOV();
@@ -428,7 +430,7 @@ void R_VR_Present()
 
 	if (current_hmd == HMD_RIFT)
 	{
-		float scale = vr_ovr_scale->value;
+		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
 		qglUniform2fARB(current_shader->uniform.lens_center, vrState.projOffset, 0);
 		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, 1.0f * vrConfig.aspect / scale);
 		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
@@ -446,7 +448,7 @@ void R_VR_Present()
 
 	if (current_hmd == HMD_RIFT)
 	{
-		float scale = vr_ovr_scale->value;
+		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
 		qglUniform2fARB(current_shader->uniform.lens_center, -vrState.projOffset, 0);
 		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, vrConfig.aspect / scale);
 		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
@@ -492,7 +494,7 @@ void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 void R_VR_Enable()
 {
 	qboolean success = false;
-
+	float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;
@@ -509,9 +511,9 @@ void R_VR_Enable()
 
 	Com_Printf("VR: Initializing renderer:");
 	
-	vrState.vrWidth = vr_ovr_scale->value * vrState.viewWidth;
-	vrState.vrHalfWidth = vr_ovr_scale->value * vrState.viewWidth / 2.0;
-	vrState.vrHeight = vr_ovr_scale->value * vrState.viewHeight;
+	vrState.vrWidth = scale * vrState.viewWidth;
+	vrState.vrHalfWidth = scale * vrState.viewWidth / 2.0;
+	vrState.vrHeight = scale * vrState.viewHeight;
 	vrState.pixelScale = (vrState.vrWidth) / vrConfig.hmdWidth;	 
 	success = R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
 	success = success && R_GenFBO(vrState.vrHalfWidth,vrState.vrHeight,&left);

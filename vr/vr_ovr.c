@@ -29,7 +29,8 @@ void VR_OVR_SetFOV()
 {
 	if (vr_ovr_settings.initialized)
 	{
-		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * vr_ovr_scale->value, 2 * vr_ovr_settings.eye_to_screen_distance);
+		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
+		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * scale, 2 * vr_ovr_settings.eye_to_screen_distance);
 		float viewport_fov_y = fovy * 180 / M_PI * vr_fov_scale->value;
 		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
 		vrState.viewFovY = viewport_fov_y;
@@ -198,12 +199,6 @@ int VR_OVR_Enable()
 
 	if (vr_ipd->value < 0)
 		Cvar_SetValue("vr_ipd", vrConfig.ipd * 1000);
-	strncpy(string, va("%.2f", vrConfig.dist_scale), sizeof(string));
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale", string, CVAR_ARCHIVE);
-	if (vr_ovr_scale->value < 0)
-	{
-		Cvar_Set("vr_ovr_scale", string);
-	}
 
 	VR_OVR_SetFOV();
 
@@ -237,7 +232,7 @@ int VR_OVR_Init()
 		return 0;
 	}
 
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","-1",CVAR_ARCHIVE);
+	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
