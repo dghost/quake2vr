@@ -51,13 +51,21 @@ Additionally, any of these commands can be bound to a key if you desire using th
 In addition to the console commands, a variety of variables exist that can be used to adjust your experience. Where possible they are compatible with RiftQuake settings. These are the settings supported:
 
 - `vr_aimmode` - Sets the current aim mode. Default is mode 6. Supported aim modes are:
-    1. Head aiming .
-    2. Head aiming + mouse pitch. *Warning: this mode does not work with multiplayer.*
+    1. Head aiming.
+    2. Head aiming + mouse pitch. 
+
+       **Note**: this mode does not work with multiplayer.
     3. Mouse aiming.
-    4. Mouse aiming + mouse pitch. *Warning: this mode does not work with multiplayer.*
+    4. Mouse aiming + mouse pitch.
+    
+       **Note**: this mode does not work with multiplayer.
     5. Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 `vr_moveaim_mode 2`.
-    6. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 3`. Note: this is the same as mode 7 with `vr_viewmove 1` set.
-    7. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 4`. Note: setting `vr_viewmove 1` while in this aim mode is the same as aim mode 6.
+    6. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 3`.
+    
+       **Note**: this is the same as mode 7 with `vr_viewmove 1` set.
+    7. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 4`.
+    
+        **Note**:  setting `vr_viewmove 1` while in this aim mode is the same as aim mode 6.
     8. Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.
 - `vr_aimmode_deadzone_pitch` - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.
 - `vr_aimmode_deadzone_yaw` - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.
@@ -91,7 +99,7 @@ Other console variables of interest:
 ##Errata:
 
 Currently unresolved errata:
-- Aim modes 2 and 4 currently have problems in multiplayer. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.
+- Aim modes 2 and 4 currently have problems with improper orientation/rotations after dying/teleporting in multiplayer, or loading a save game in single player. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.
 - View models appear large. This is due to them using the original meshes, and unfortunately there doesn't appear to be an easy way to scale the meshes programmatically.
 - Linux is unsupported at this time, although it might be in the future. The changes necessary to support the Oculus Rift guarantee that it is currently broken. If I have time I'll tidy it up for a future release, or if someone wants to submit a patch for it I would gladly merge it. 
 - OS X is unsupported and will likely never be supported. The official source code for Quake 2 never included proper OS X support, and the KMQuake II source doesn't support it either.
