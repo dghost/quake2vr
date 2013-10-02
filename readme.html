@@ -1,4 +1,4 @@
-<h1>Quake II for Oculus Rift v1.1</h1>
+<h1>Quake II for Oculus Rift v1.2</h1>
 
 <p>This is a Quake II engine mod to add full support for the Oculus Rift. </p>
 
@@ -60,13 +60,16 @@
 
 <ul>
 <li><code>vr_aimmode</code> - Sets the current aim mode. Default is mode 6. Supported aim modes are:
-<ol><li>Head aiming </li>
-<li>Head aiming + mouse pitch</li>
-<li>Mouse aiming</li>
-<li>Mouse aiming + mouse pitch</li>
-<li>Decoupled aiming within a deadzone. Aim pitch is relative to head.</li>
-<li>Decoupled aiming within a deadzone. Aim pitch is absolute.  </li></ol></li>
-<li><code>vr_aimmode_deadzone</code> - Sets the horizontal area of the mode 5/6 deadzone in degrees. Default is 30 degrees.</li>
+<ol><li>Head aiming .</li>
+<li>Head aiming + mouse pitch. <br> <strong>Note</strong>: this mode does not work with multiplayer.</li>
+<li>Mouse aiming.</li>
+<li>Mouse aiming + mouse pitch. <br> <strong>Note</strong>: this mode does not work with multiplayer.</li>
+<li>Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 2</code>.</li>
+<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 3</code>. <br> <strong>Note</strong>: this mode is the same as mode 7 with <code>vr_viewmove 1</code> set.</li>
+<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 4</code>. <br> <strong>Note</strong>: setting <code>vr_viewmove 1</code> while in this aim mode is the same as aim mode 6.</li>
+<li>Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.</li></ol></li>
+<li><code>vr_aimmode_deadzone_pitch</code> - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.</li>
+<li><code>vr_aimmode_deadzone_yaw</code> - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.</li>
 <li><code>vr_autoenable</code> - Automatically enable the Rift when possible.</li>
 <li><code>vr_crosshair</code> - Enables or disables the crosshair. Default is on, set to 0 to disable.</li>
 <li><code>vr_crosshair_brightness</code> - Sets the brightness of the crosshair. Default is 75%.</li>
@@ -79,10 +82,15 @@
 <li><code>vr_hud_transparency</code> - Enables or disables transparency on the 2D UI elements. Default is disabled, set to 1 to enable.</li>
 <li><code>vr_ipd</code> - Set the prefered inter-pupillary distance in millimeters. Default is the value set in your user profile, or 64mm if not set.</li>
 <li><code>vr_motionprediction</code> - Sets the amount of time used for motion prediction. Set to zero to disable, maximum time is 75ms. Default is 40ms.</li>
-<li><code>vr_ovr_chromatic</code> - Enables or disables chromatic aberration correction. Default is on, set to 0 to disable.</li>
-<li><code>vr_ovr_driftcorrection</code> - Enables or disables magnetic drift correction. If available it will use the calibration information set in your user profile, otherwise it will perform an automatic calibration. Default is off, set to 1 to enable.</li>
-<li><code>vr_ovr_scale</code> - Sets the distortion compensation scaling factor. Minimum is 1.0, maximum is 2.0. Default is the value necessary to achieve a full-width image.</li>
-<li><code>vr_viewmove</code> - Sets player movement to follow the view direction instead of the aim direction. Default is off, set to 1 to enable.</li>
+<li><code>vr_nosleep</code> - Prevents yielding while waiting to improve performance. Default is enabled, set to 0 to disable.</li>
+<li><code>vr_neckmodel</code> - Enables or disables the head/neck model. Default is enabled, set to 0 to disable.</li>
+<li><code>vr_neckmodel_forward</code> - Sets the forward distance from the spine to the eyes in meters. Default is 0.09 meters.</li>
+<li><code>vr_neckmodel_up</code> - Sets the vertical length of the neck in meters. Default is 0.232 meters.</li>
+<li><code>vr_ovr_chromatic</code> - Enables or disables chromatic aberration correction. Default is enabled, set to 0 to disable.</li>
+<li><code>vr_ovr_debug</code> - Enables a debug mode that force enables Oculus Rift support even if the device fails. Default is disabled, and to enable it you must launch the game with <code>+set vr_ovr_debug 1</code> added to the command line.</li>
+<li><code>vr_ovr_driftcorrection</code> - Enables or disables magnetic drift correction. If available it will use the calibration information set in your user profile, otherwise it will perform an automatic calibration. Default is enabled, set to 1 to enable.</li>
+<li><code>vr_ovr_scale</code> - Sets the distortion compensation scaling factor. Values between 1.0 and 2.0 inclusive are valid, and values below 1.0 sets it to scale to the edge of the screen.</li>
+<li><code>vr_viewmove</code> - Sets player movement to follow the view direction instead of the aim direction. Default is disabled, set to 1 to enable.</li>
 </ul>
 
 <p>Other console variables of interest:</p>
@@ -94,12 +102,20 @@
 
 <h2>Errata:</h2>
 
+<p>Currently unresolved errata:</p>
+
 <ul>
-<li>KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. </li>
-<li>KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.</li>
+<li>Aim modes 2 and 4 currently have problems in multiplayer. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.</li>
 <li>View models appear large. This is due to them using the original meshes, and unfortunately there doesn't appear to be an easy way to scale the meshes programmatically.</li>
 <li>Linux is unsupported at this time, although it might be in the future. The changes necessary to support the Oculus Rift guarantee that it is currently broken. If I have time I'll tidy it up for a future release, or if someone wants to submit a patch for it I would gladly merge it. </li>
 <li>OS X is unsupported and will likely never be supported. The official source code for Quake 2 never included proper OS X support, and the KMQuake II source doesn't support it either.</li>
+</ul>
+
+<p>The following errata should be fixed in current builds. If you experience them, please contact me:</p>
+
+<ul>
+<li>KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. </li>
+<li>KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.</li>
 </ul>
 
 <h1>Build Instructions:</h1>

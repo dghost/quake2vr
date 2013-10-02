@@ -1,4 +1,4 @@
-# Quake II for Oculus Rift v1.1
+# Quake II for Oculus Rift v1.2
 
 This is a Quake II engine mod to add full support for the Oculus Rift. 
 
@@ -10,8 +10,8 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Oculus Rift
 
 ##Downloads:
-- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/5NM2) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wY3lPNGp4bkEzS3M)
-- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/crI0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wdG1qWWpZdXR6MDg)
+- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/MAbQ) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wY085anZvQW16QUU)
+- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/vuA) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUEJBNWp1WFNHbzg)
 - Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/FvNC) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
 
 ##Shareware Instructions:
@@ -28,7 +28,7 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
     - `pak2.pak`
     - `maps.lst`
     - `videos\` (optional - only if you want cinematics)
-	- `players\` (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)
+    - `players\` (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)
 4. If you have the CD audio soundtrack in .ogg format you can optionally place these files in `baseq2\music\`. Music files need to be named `track02.ogg` to `track11.ogg`.
 5. Run `kmquake2`. 
 
@@ -51,13 +51,16 @@ Additionally, any of these commands can be bound to a key if you desire using th
 In addition to the console commands, a variety of variables exist that can be used to adjust your experience. Where possible they are compatible with RiftQuake settings. These are the settings supported:
 
 - `vr_aimmode` - Sets the current aim mode. Default is mode 6. Supported aim modes are:
-    1. Head aiming 
-    2. Head aiming + mouse pitch
-    3. Mouse aiming
-    4. Mouse aiming + mouse pitch
-    5. Decoupled aiming within a deadzone. Aim pitch is relative to head.
-    6. Decoupled aiming within a deadzone. Aim pitch is absolute.  
-- `vr_aimmode_deadzone` - Sets the horizontal area of the mode 5/6 deadzone in degrees. Default is 30 degrees.
+    1. Head aiming .
+    2. Head aiming + mouse pitch. *Warning: this mode does not work with multiplayer.*
+    3. Mouse aiming.
+    4. Mouse aiming + mouse pitch. *Warning: this mode does not work with multiplayer.*
+    5. Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 `vr_moveaim_mode 2`.
+    6. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 3`. Note: this is the same as mode 7 with `vr_viewmove 1` set.
+    7. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 4`. Note: setting `vr_viewmove 1` while in this aim mode is the same as aim mode 6.
+    8. Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.
+- `vr_aimmode_deadzone_pitch` - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.
+- `vr_aimmode_deadzone_yaw` - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.
 - `vr_autoenable` - Automatically enable the Rift when possible.
 - `vr_crosshair` - Enables or disables the crosshair. Default is on, set to 0 to disable.
 - `vr_crosshair_brightness` - Sets the brightness of the crosshair. Default is 75%.
@@ -70,10 +73,15 @@ In addition to the console commands, a variety of variables exist that can be us
 - `vr_hud_transparency` - Enables or disables transparency on the 2D UI elements. Default is disabled, set to 1 to enable.
 - `vr_ipd` - Set the prefered inter-pupillary distance in millimeters. Default is the value set in your user profile, or 64mm if not set.
 - `vr_motionprediction` - Sets the amount of time used for motion prediction. Set to zero to disable, maximum time is 75ms. Default is 40ms.
-- `vr_ovr_chromatic` - Enables or disables chromatic aberration correction. Default is on, set to 0 to disable.
-- `vr_ovr_driftcorrection` - Enables or disables magnetic drift correction. If available it will use the calibration information set in your user profile, otherwise it will perform an automatic calibration. Default is off, set to 1 to enable.
-- `vr_ovr_scale` - Sets the distortion compensation scaling factor. Minimum is 1.0, maximum is 2.0. Default is the value necessary to achieve a full-width image.
-- `vr_viewmove` - Sets player movement to follow the view direction instead of the aim direction. Default is off, set to 1 to enable.
+- `vr_nosleep` - Prevents yielding while waiting to improve performance. Default is enabled, set to 0 to disable.
+- `vr_neckmodel` - Enables or disables the head/neck model. Default is enabled, set to 0 to disable.
+- `vr_neckmodel_forward` - Sets the forward distance from the spine to the eyes in meters. Default is 0.09 meters.
+- `vr_neckmodel_up` - Sets the vertical length of the neck in meters. Default is 0.232 meters.
+- `vr_ovr_chromatic` - Enables or disables chromatic aberration correction. Default is enabled, set to 0 to disable.
+- `vr_ovr_debug` - Enables a debug mode that force enables Oculus Rift support even if the device fails. Default is disabled, and to enable it you must launch the game with `+set vr_ovr_debug 1` added to the command line.
+- `vr_ovr_driftcorrection` - Enables or disables magnetic drift correction. If available it will use the calibration information set in your user profile, otherwise it will perform an automatic calibration. Default is enabled, set to 1 to enable.
+- `vr_ovr_scale` - Sets the distortion compensation scaling factor. Values between 1.0 and 2.0 inclusive are valid, and values below 1.0 sets it to scale to the edge of the screen.
+- `vr_viewmove` - Sets player movement to follow the view direction instead of the aim direction. Default is disabled, set to 1 to enable.
 
 Other console variables of interest:
 
@@ -82,11 +90,15 @@ Other console variables of interest:
 
 ##Errata:
 
-- KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. 
-- KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.
+Currently unresolved errata:
+- Aim modes 2 and 4 currently have problems in multiplayer. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.
 - View models appear large. This is due to them using the original meshes, and unfortunately there doesn't appear to be an easy way to scale the meshes programmatically.
 - Linux is unsupported at this time, although it might be in the future. The changes necessary to support the Oculus Rift guarantee that it is currently broken. If I have time I'll tidy it up for a future release, or if someone wants to submit a patch for it I would gladly merge it. 
 - OS X is unsupported and will likely never be supported. The official source code for Quake 2 never included proper OS X support, and the KMQuake II source doesn't support it either.
+
+The following errata should be fixed in current builds. If you experience them, please file a bug report:
+- KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. 
+- KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.
 
 #Build Instructions:
 
