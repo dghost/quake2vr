@@ -681,15 +681,15 @@ void Con_DrawConsole (float frac, qboolean trans)
 	// changed to "KMQuake2 vx.xx"
 #ifdef ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake2 v%4.1f (Eraser net server)", RIFTQUAKE2_VERSION);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%3.1f (Eraser net server)", RIFTQUAKE2_VERSION);
 #else // NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake2 v%4.1f (Eraser compatible)", RIFTQUAKE2_VERSION);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%3.1f (Eraser compatible)", RIFTQUAKE2_VERSION);
 #endif // NET_SERVER_BUILD
 #else // ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake2 v%4.1f (net server)", RIFTQUAKE2_VERSION);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%3.1f (net server)", RIFTQUAKE2_VERSION);
 #else
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake2 v%4.1f", RIFTQUAKE2_VERSION);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%3.1f", RIFTQUAKE2_VERSION);
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
 
