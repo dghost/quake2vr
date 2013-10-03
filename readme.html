@@ -61,12 +61,12 @@
 <ul>
 <li><code>vr_aimmode</code> - Sets the current aim mode. Default is mode 6. Supported aim modes are:
 <ol><li>Head aiming .</li>
-<li>Head aiming + mouse pitch. <br> <strong>Note</strong>: this mode does not work with multiplayer.</li>
+<li>Head aiming + mouse pitch. <br> <strong>Note</strong>: this mode is not recommended for use, and does not work with multiplayer.</li>
 <li>Mouse aiming.</li>
-<li>Mouse aiming + mouse pitch. <br> <strong>Note</strong>: this mode does not work with multiplayer.</li>
+<li>Mouse aiming + mouse pitch. <br> <strong>Note</strong>: this mode is not recommended for use, and does not work with multiplayer.</li>
 <li>Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 2</code>.</li>
-<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 3</code>. <br> <strong>Note</strong>: this mode is the same as mode 7 with <code>vr_viewmove 1</code> set.</li>
-<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 4</code>. <br> <strong>Note</strong>: setting <code>vr_viewmove 1</code> while in this aim mode is the same as aim mode 6.</li>
+<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of view and overrides <code>vr_viewmode</code>. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 3</code>.</li>
+<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of aim and overrides <code>vr_viewmode</code>. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 4</code>.</li>
 <li>Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.</li></ol></li>
 <li><code>vr_aimmode_deadzone_pitch</code> - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.</li>
 <li><code>vr_aimmode_deadzone_yaw</code> - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.</li>

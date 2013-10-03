@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define RIFTQUAKE2_MAJOR 1
 #define RIFTQUAKE2_MINOR 2
-#define RIFTQUAKE2_MAINT 0
+#define RIFTQUAKE2_MAINT 1
 
 #define	BASEDIRNAME	"baseq2"
 

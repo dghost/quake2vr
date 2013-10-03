@@ -10,8 +10,8 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Oculus Rift
 
 ##Downloads:
-- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/MAbQ) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wY085anZvQW16QUU)
-- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/vuA) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUEJBNWp1WFNHbzg)
+- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/aK2e) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ1BSTnltb0lnZVU)
+- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/eXN0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUmkwdHp2eFl6cUk)
 - Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/FvNC) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
 
 ##Shareware Instructions:
@@ -54,18 +54,14 @@ In addition to the console commands, a variety of variables exist that can be us
     1. Head aiming.
     2. Head aiming + mouse pitch. 
 
-       **Note**: this mode does not work with multiplayer.
+       **Note**: this mode is not recommended for use, and does not work with multiplayer.
     3. Mouse aiming.
     4. Mouse aiming + mouse pitch.
     
-       **Note**: this mode does not work with multiplayer.
+       **Note**: this mode is not recommended for use, and does not work with multiplayer.
     5. Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 `vr_moveaim_mode 2`.
-    6. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 3`.
-    
-       **Note**: this is the same as mode 7 with `vr_viewmove 1` set.
-    7. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the view direction. This is equivalent to TF2/HL2 `vr_moveaim_mode 4`.
-    
-        **Note**:  setting `vr_viewmove 1` while in this aim mode is the same as aim mode 6.
+    6. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of view and overrides `vr_viewmode`. This is equivalent to TF2/HL2 `vr_moveaim_mode 3`.
+    7. Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of aim and overrides `vr_viewmode`. This is equivalent to TF2/HL2 `vr_moveaim_mode 4`.
     8. Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.
 - `vr_aimmode_deadzone_pitch` - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.
 - `vr_aimmode_deadzone_yaw` - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.
