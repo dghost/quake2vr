@@ -126,20 +126,20 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 		float distk[4] = { 1.0f, 0.18f, 0.115f, 0.0f };
 		float chrm[4] = { 0.996f, -0.004f, 1.014f, 0.0f };
 		Com_Printf("VR_OVR: Falling back to debug parameters...\n");
-		vr_ovr_settings.initialized = 1;
-		vr_ovr_settings.h_resolution = 1920;
-		vr_ovr_settings.v_resolution = 1080;
-		vr_ovr_settings.h_screen_size = 0.12096f;
-		vr_ovr_settings.v_screen_size = 0.0756f;
-		vr_ovr_settings.xPos = 0;
-		vr_ovr_settings.yPos = 0;
-		vr_ovr_settings.interpupillary_distance = 0.064f;
-		vr_ovr_settings.lens_separation_distance = 0.0635f;
-		vr_ovr_settings.eye_to_screen_distance = 0.040f;
-		memcpy(vr_ovr_settings.distortion_k, distk, sizeof(float) * 4);
-		memcpy(vr_ovr_settings.chrom_abr, chrm, sizeof(float) * 4);
-		strncpy(vr_ovr_settings.deviceString, "Oculus Rift DK HD Emulator", 31);
-		strncpy(vr_ovr_settings.deviceName, "", 31);
+		settings->initialized = 1;
+		settings->h_resolution = 1920;
+		settings->v_resolution = 1080;
+		settings->h_screen_size = 0.12096f;
+		settings->v_screen_size = 0.0756f;
+		settings->xPos = 0;
+		settings->yPos = 0;
+		settings->interpupillary_distance = 0.064f;
+		settings->lens_separation_distance = 0.0635f;
+		settings->eye_to_screen_distance = 0.040f;
+		memcpy(settings->distortion_k, distk, sizeof(float) * 4);
+		memcpy(settings->chrom_abr, chrm, sizeof(float) * 4);
+		strncpy(settings->deviceString, "Oculus Rift DK HD Emulator", 31);
+		strncpy(settings->deviceName, "", 31);
 		return 1;
 	}
 
@@ -211,7 +211,7 @@ int VR_OVR_Enable()
 		Cvar_SetInteger("vr_hud_transparency", 1);
 	*/
 	Com_Printf("...calculated %.2f FOV\n", vrState.viewFovY);
-	Com_Printf("...calculated %.2f distortion scale\n", vr_ovr_scale->value);
+	Com_Printf("...calculated %.2f distortion scale\n", vrConfig.dist_scale);
 
 	return 1;
 }

@@ -271,7 +271,7 @@ void VR_Frame()
 			Cvar_Set("vr_fov_scale","0.5");
 		vr_fov_scale->modified = false;
 		hmd->setfov();
-		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovX);
+		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovY);
 	}
 
 	hmd->frame();
