@@ -526,8 +526,9 @@ void R_SetupGL(void)
 	qglRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
 	qglRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
 	
-	VectorCopy(r_newrefdef.vieworg,vieworigin);
 
+	VectorCopy(r_newrefdef.vieworg,vieworigin);
+	/*
 	// Neckmodel stuff
 	if (vr_enabled->value && vr_neckmodel->value)
 	{
@@ -543,7 +544,7 @@ void R_SetupGL(void)
 		vieworigin[2] -= neckLength;
 		VectorAdd(vieworigin,out,vieworigin); 
 	}
-
+	*/
     qglTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
 
 //	if ( glState.camera_separation != 0 && glState.stereo_enabled )

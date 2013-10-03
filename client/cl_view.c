@@ -762,8 +762,24 @@ void VR_RenderView ()
         qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int (*)(const void *, const void *))entitycmpfnc );
 	}
 
-	// save view origin
+		// Neckmodel stuff
+
 	VectorCopy(cl.refdef.vieworg,view);
+	if (vr_enabled->value && vr_neckmodel->value)
+	{
+		vec3_t forward, up, out;
+		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		VectorCopy(cl.v_forward,forward);
+		VectorCopy(cl.v_up,up);
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorScale(forward, eyeDist ,forward);
+		VectorScale(up,neckLength,up);
+		VectorAdd(forward,up,out);
+		out[2] -= neckLength;
+		VectorAdd(view,out,view); 
+	}
 
 	// draw for left eye
 	R_VR_BindLeft();
