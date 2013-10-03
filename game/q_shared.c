@@ -931,6 +931,14 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3])
 
 //====================================================================================
 
+
+void VectorClamp(vec3_t angles)
+{
+	AngleClamp(angles[0]);
+	AngleClamp(angles[1]);
+	AngleClamp(angles[2]);
+
+}
 void QuatNormalize(vec4_t quat, vec4_t out)
 {
 	float mag = QuatMagnitude(quat);

@@ -270,7 +270,7 @@ void AxisClear (vec3_t axis[3]);
 void AxisCopy (const vec3_t in[3], vec3_t out[3]);
 qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3]);
 
-
+#define AngleClamp(a)				while(a > 180) a-=360; while(a < -180) a += 360;
 #define QuatCopy(a,b)				(b[0]=a[0],b[1]=a[1],b[2]=a[2],b[3]=a[3])
 #define QuatClear(a)				(a[1]=a[2]=a[3]=0,a[0]=1)
 #define QuatNegate(a,b)				(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2],b[3]=-a[3])
@@ -278,6 +278,8 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3]);
 #define QuatMagnitude(a)			sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3])
 #define QuatScale(a,b,c)			(c[0]=a[0]*b,c[1]=a[1]*b,c[2]=a[2]*b,c[3]=a[3]*b)
 #define QuatConjugate(a,b)			(b[0] = a[0], b[1]=-a[1],b[2]=-a[2],b[3]=-a[3])
+
+void VectorClamp(vec3_t angles);
 
 void QuatNormalize(vec4_t quat, vec4_t out);
 void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out);

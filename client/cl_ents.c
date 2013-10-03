@@ -2199,7 +2199,6 @@ void CL_CalcViewValues (void)
 		|| abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8
 		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
 		ops = ps;		// don't interpolate
-
 	ent = &cl_entities[cl.playernum+1];
 	lerp = cl.lerpfrac;
 
@@ -2245,18 +2244,9 @@ void CL_CalcViewValues (void)
 	{	// use predicted values
 		if (vr_enabled->value)
 		{
-			/*
-			vec3_t predDelta;
-			//VectorSubtract(cl.predicted_angles,cl.aimangles,predDelta);
-			if (cl.relativePitch)
-			{
-				VectorSet(predDelta,cl.predicted_angles[PITCH] - cl.aimangles[PITCH],cl.predicted_angles[YAW] - cl.aimangles[YAW], 0);
-			} else {
-				VectorSet(predDelta,0,cl.predicted_angles[YAW] - cl.aimangles[YAW], 0);
-			}
-			VectorAdd(cl.viewangles,predDelta,cl.refdef.viewangles);
-			*/
-			VectorCopy(cl.viewangles, cl.refdef.viewangles);
+
+			VectorAdd(cl.viewangles, cl.bodyangles, cl.refdef.viewangles);
+			cl.refdef.viewangles[YAW] += cl.predicted_angles[YAW] - cl.aimangles[YAW];
 			for (i=0 ; i<3 ; i++)
 			{
 				cl.refdef.aimangles[i] = cl.predicted_angles[i] + LerpAngle (ops->kick_angles[i], ps->kick_angles[i], lerp);
@@ -2273,6 +2263,10 @@ void CL_CalcViewValues (void)
 	{	// just use interpolated values
 		vec3_t temp;
 		VectorSet(temp,0,0,0);
+		cl.bodyangles[PITCH] = 0;
+		VectorCopy(cl.bodyangles,cl.aimangles);
+		VectorSet(cl.aimdelta,0,0,0);
+		VectorSet(cl.viewangles,0,0,0);
 		if (vr_enabled->value)
 		{
 	

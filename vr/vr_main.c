@@ -1,6 +1,7 @@
 #include "vr.h"
 #include "vr_ovr.h"
 #include "vr_libovr.h"
+#include "../client/client.h"
 
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
@@ -170,6 +171,9 @@ void VR_Frame()
 			Cvar_SetInteger("vr_aimmode",NUM_VR_AIMMODE - 1);
 		else
 			Cvar_SetInteger("vr_aimmode",(int) vr_aimmode->value);
+		VectorAdd(cl.bodyangles,cl.viewangles,cl.bodyangles);
+		VectorSet(cl.aimdelta,0,0,0);
+		VectorSet(cl.viewangles,0,0,0);
 		vr_aimmode->modified = false;
 	}
 

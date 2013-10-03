@@ -383,11 +383,13 @@ void CL_FinishMove (usercmd_t *cmd)
 
 void VR_Move (usercmd_t *cmd)
 {
-	vec3_t predAngles, predDelta;
+	vec3_t predAngles, predDelta, view;
 	vec3_t orientation, orientationDelta;
 	qboolean viewmove;
 	int i;
 	int mode = (int) vr_aimmode->value;
+	float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
+	float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
 
 	if (mode == 6)
 		viewmove = true;
@@ -401,159 +403,192 @@ void VR_Move (usercmd_t *cmd)
 
 	// dghost - UGLY HACK
 	// todo: fix this shit
+	// 10/02/2013: In making this behave properly I have managed to make it even worse.
+
 	for (i = 0; i < 3; i++)
 	{
 		predDelta[i] =  SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[i]);
 	}
 
 	VectorAdd(cl.bodyangles, predDelta, predAngles);
+	VectorAdd(cl.bodyangles,cl.viewangles,view);
+	view[YAW] += predDelta[YAW];
+
 	switch (mode)
 	{
 	case VR_AIMMODE_DISABLE:
 		VectorAdd(cl.in_delta,predAngles,predAngles);
-		VectorCopy(predAngles,cl.viewangles);
-		VectorSet(cl.aimdelta,0,0,0);
-		break;
-	case VR_AIMMODE_HEAD_MYAW:
-		predAngles[PITCH] = cl.viewangles[PITCH] = orientation[PITCH];
-		predAngles[YAW] = cl.viewangles[YAW] = predAngles[YAW] + cl.in_delta[YAW] + orientationDelta[YAW];
-		cl.viewangles[ROLL] = orientation[ROLL];
-		VectorSet(cl.aimdelta,0,0,0);
+		VectorCopy(predAngles,view);
 		break;
 	case VR_AIMMODE_HEAD_MYAW_MPITCH:
 		VectorAdd(cl.in_delta, predAngles, predAngles);
-		cl.viewangles[PITCH] = predAngles[PITCH] += orientationDelta[PITCH];
-		predAngles[YAW] = cl.viewangles[YAW] = predAngles[YAW] + orientationDelta[YAW];
-		cl.viewangles[ROLL] = orientation[ROLL];
-		VectorSet(cl.aimdelta,0,0,0);
-		break;
-	case VR_AIMMODE_MOUSE_MYAW:
-		VectorAdd(cl.in_delta,predAngles,predAngles);
-		cl.viewangles[ROLL] = orientation[ROLL];
-		cl.viewangles[PITCH] = orientation[PITCH];
-		cl.viewangles[YAW]   = predAngles[YAW] + orientation[YAW];
-		VectorSet(cl.aimdelta,0,0,0);
+		view[PITCH] = predAngles[PITCH] += orientationDelta[PITCH];
+		predAngles[YAW] = view[YAW] = predAngles[YAW] + orientationDelta[YAW];
+		view[ROLL] = orientation[ROLL];
 		break;
 	case VR_AIMMODE_MOUSE_MYAW_MPITCH:
 		VectorAdd(cl.in_delta,predAngles,predAngles);
-		cl.viewangles[ROLL] = orientation[ROLL];
-		cl.viewangles[PITCH] = predAngles[PITCH] + orientation[PITCH];
-		cl.viewangles[YAW]   = predAngles[YAW] + orientation[YAW];
-		VectorSet(cl.aimdelta,0,0,0);
+		view[ROLL] = orientation[ROLL];
+		view[PITCH] = predAngles[PITCH] + orientation[PITCH];
+		view[YAW]   = predAngles[YAW] + orientation[YAW];
 		break;
-	case VR_AIMMODE_TF2_MODE2:
-		{
-			float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
-			float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
-			float pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH] - orientationDelta[PITCH];
-			float diffYaw;
 
-			predAngles[YAW] += cl.in_delta[YAW];
-			cl.viewangles[YAW] += orientationDelta[YAW];
-			cl.viewangles[PITCH] = predAngles[PITCH] = orientation[PITCH];
-			cl.viewangles[ROLL] = orientation[ROLL];
-
-
-			diffYaw = cl.viewangles[YAW] - predAngles[YAW];
-
-			if (abs(diffYaw) > deadzoneYaw)
-			{
-				predAngles[YAW] += orientationDelta[YAW];
-				cl.viewangles[YAW] += cl.in_delta[YAW];
-				diffYaw = cl.viewangles[YAW] - predAngles[YAW];
-				
-				if (abs(diffYaw) > deadzoneYaw)
-				{
-					if (diffYaw > 0.0)
-						predAngles[YAW] = cl.viewangles[YAW] - deadzoneYaw;
-					else
-						predAngles[YAW] = cl.viewangles[YAW] + deadzoneYaw;
-				}
-			}
-
-			
-
-			if (fabs(pitch) <= deadzonePitch)
-				cl.aimdelta[PITCH] = pitch;
-
-		}
-		break;
 	default:
+	case VR_AIMMODE_HEAD_MYAW:
+	case VR_AIMMODE_MOUSE_MYAW:
+	case VR_AIMMODE_TF2_MODE2:
 	case VR_AIMMODE_TF2_MODE3:
 	case VR_AIMMODE_TF2_MODE4:
+
 		{
-			float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
-			float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
-			float pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH] - orientationDelta[PITCH];
-			float yaw = 0;
-
-			cl.viewangles[PITCH] = predAngles[PITCH] = orientation[PITCH];
-			cl.viewangles[YAW] = predAngles[YAW] + orientation[YAW];
-			cl.viewangles[ROLL] = orientation[ROLL];
-
-			if (cl.in_delta[YAW] > 0)
+			float pitch;
+			qboolean relativeView, relativeAimPitch,restrictDirection;
+			relativeAimPitch = true;
+			restrictDirection = true;
+			switch (mode)
 			{
-				float delta;
-				float d = (predAngles[YAW] + cl.aimdelta[YAW]) - cl.viewangles[YAW] - deadzoneYaw;
+			case VR_AIMMODE_HEAD_MYAW:
+				deadzoneYaw = 0;
+				deadzonePitch = 0;
+			case VR_AIMMODE_TF2_MODE2:
+				relativeView = false;
+				break;
+			case VR_AIMMODE_MOUSE_MYAW:
+				deadzoneYaw = 0;
+				deadzonePitch = 180;
+				restrictDirection = false;
+				relativeAimPitch = false;
+			default:
+			case VR_AIMMODE_TF2_MODE3:
+			case VR_AIMMODE_TF2_MODE4:
+				relativeView = true;
+				break;
+			}
 
-				if (d  > 0)
+			if (relativeView)
+			{
+				float yawDelta = (view[YAW] + orientationDelta[YAW]) - (predAngles[YAW] + cl.aimdelta[YAW]);
+				float yawOffset = 0;
+
+				AngleClamp(yawDelta);
+				view[PITCH] = orientation[PITCH];
+				view[ROLL] = orientation[ROLL];
+				if (cl.in_delta[YAW] < 0)
 				{
-					cl.viewangles[YAW] += cl.in_delta[YAW];
-					predAngles[YAW] += cl.in_delta[YAW];
-				} else {
-					cl.aimdelta[YAW] += cl.in_delta[YAW];
+					if (yawDelta >= deadzoneYaw)
+					{
+						predAngles[YAW] += cl.in_delta[YAW];
+						yawOffset = cl.in_delta[YAW];
+					} else {
+						cl.aimdelta[YAW] += cl.in_delta[YAW];
+					}
+
+
+				} else if (cl.in_delta[YAW] > 0) {
+					if (yawDelta <= -deadzoneYaw)
+					{
+						predAngles[YAW] += cl.in_delta[YAW];
+						yawOffset = cl.in_delta[YAW];
+					} else {
+						cl.aimdelta[YAW] += cl.in_delta[YAW];
+					}
+
+				} else if (restrictDirection)
+				{
+					if (fabs(yawDelta) >= deadzoneYaw)
+					{
+						predAngles[YAW] += cl.in_delta[YAW];
+						yawOffset = cl.in_delta[YAW];
+					} else {
+						cl.aimdelta[YAW] += cl.in_delta[YAW];
+					}
 				}
 
-				delta = cl.aimdelta[YAW] - deadzoneYaw;
-				if (delta > 0)
+
+				if (cl.aimdelta[YAW] > deadzoneYaw)
 				{
+					float delta = cl.aimdelta[YAW] - deadzoneYaw;
+					//				yawOffset -= delta;
 					predAngles[YAW] += delta;
 					cl.aimdelta[YAW] -= delta;
-				}
-
-			} else if (cl.in_delta[YAW] < 0) {
-				float delta;
-				float d = (predAngles[YAW] + cl.aimdelta[YAW]) - cl.viewangles[YAW] + deadzoneYaw;
-
-				if (d  < 0)
+				} else if (cl.aimdelta[YAW] < -deadzoneYaw)
 				{
-					cl.viewangles[YAW] += cl.in_delta[YAW];
-					predAngles[YAW] += cl.in_delta[YAW];
-
-				} else {
-					cl.aimdelta[YAW] += cl.in_delta[YAW];
-				}
-
-				delta = cl.aimdelta[YAW] + deadzoneYaw;
-				if (delta < 0)
-				{
+					float delta = cl.aimdelta[YAW] + deadzoneYaw;
+					//				yawOffset -= delta;
 					predAngles[YAW] += delta;
 					cl.aimdelta[YAW] -= delta;
 
+				}
+
+
+				view[YAW] += yawOffset + orientationDelta[YAW];
+
+			} else {
+				float diffYaw;
+
+				predAngles[YAW] += cl.in_delta[YAW];
+				view[YAW] += orientationDelta[YAW];
+				view[PITCH] = orientation[PITCH];
+				view[ROLL] = orientation[ROLL];
+
+
+				diffYaw = view[YAW] - predAngles[YAW];
+
+				if (abs(diffYaw) > deadzoneYaw)
+				{
+					predAngles[YAW] += orientationDelta[YAW];
+					view[YAW] += cl.in_delta[YAW];
+					diffYaw = view[YAW] - predAngles[YAW];
+
+					if (abs(diffYaw) > deadzoneYaw)
+					{
+						if (diffYaw > 0.0)
+							predAngles[YAW] = view[YAW] - deadzoneYaw;
+						else
+							predAngles[YAW] = view[YAW] + deadzoneYaw;
+					}
 				}
 
 			}
 
+			if (relativeAimPitch)
+			{
+				predAngles[PITCH] = view[PITCH];				
+				pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH] - orientationDelta[PITCH];
+
+			}
+			else 
+			{
+				predAngles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+				pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH];
+			}
+			AngleClamp(pitch);
 			if (fabs(pitch) <= deadzonePitch)
 				cl.aimdelta[PITCH] = pitch;
+			AngleClamp(cl.aimdelta[PITCH]);
 		}
 		break;
 	case VR_AIMMODE_TF2_MODE5:
 		VectorAdd(predAngles,cl.in_delta,predAngles);
-		VectorCopy(orientation, cl.viewangles);
-		cl.viewangles[YAW] += predDelta[YAW];
-		VectorSet(cl.aimdelta,0,0,0);
+		VectorCopy(orientation, view);
+		view[YAW] += predDelta[YAW];
 		break;
 	}
 
 	VectorSubtract(predAngles, predDelta, cl.bodyangles);
+	VectorSubtract(view,cl.bodyangles,cl.viewangles);
+	cl.viewangles[YAW] -= predDelta[YAW];
+	VectorClamp(cl.viewangles);
+	VectorClamp(cl.bodyangles);
 	VectorAdd(cl.bodyangles,cl.aimdelta,cl.aimangles);
+
+//	VectorClamp(cl.aimangles);
 	if (viewmove)
 	{
 		float forward, sideways;
 		vec3_t diff;
 		VectorAdd(predAngles, cl.aimdelta, predAngles);
-		VectorSubtract(predAngles, cl.viewangles, diff);
+		VectorSubtract(predAngles, view, diff);
 		forward = cmd->forwardmove * cosf(DEG2RAD(diff[YAW])) - cmd->sidemove * sinf(DEG2RAD(diff[YAW]));
 		sideways = cmd->sidemove * cosf(DEG2RAD(diff[YAW])) + cmd->forwardmove * sinf(DEG2RAD(diff[YAW]));
 
