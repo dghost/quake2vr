@@ -375,7 +375,7 @@ void VR_Disable_f()
 void VR_Init()
 {
 	int i = 0;
-	Com_Printf("RiftQuake II Version %3.1f\n",RIFTQUAKE2_VERSION);
+	Com_Printf("RiftQuake II Version v%1i.%1i.%1i\n", RIFTQUAKE2_MAJOR, RIFTQUAKE2_MINOR, RIFTQUAKE2_MAINT);
 
 	available_hmds[HMD_NONE] = hmd_none;
 	available_hmds[HMD_RIFT] = hmd_rift;
