@@ -226,16 +226,18 @@ int VR_OVR_Init()
 {
 	qboolean init = LibOVR_Init();
 	debug_init = false;
+
+	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
+	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
+	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
+	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
+
 	if (!init)
 	{
 		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
 		return 0;
 	}
 
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
-	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
-	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
-	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	if (vr_ovr_debug->value)
 	{
 		debug_init = true;
