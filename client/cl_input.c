@@ -385,8 +385,17 @@ void VR_Move (usercmd_t *cmd)
 {
 	vec3_t predAngles, predDelta;
 	vec3_t orientation, orientationDelta;
-	qboolean viewmove = (qboolean) vr_viewmove->value;
+	qboolean viewmove;
 	int i;
+	int mode = (int) vr_aimmode->value;
+
+	if (mode == 6)
+		viewmove = true;
+	else if (mode == 7)
+		viewmove = false;
+	else
+		viewmove = (qboolean) vr_viewmove->value;
+
 	VR_GetOrientation(orientation);
 	VR_GetOrientationDelta(orientationDelta);
 
@@ -398,7 +407,7 @@ void VR_Move (usercmd_t *cmd)
 	}
 
 	VectorAdd(cl.bodyangles, predDelta, predAngles);
-	switch((int) vr_aimmode->value)
+	switch (mode)
 	{
 	case VR_AIMMODE_DISABLE:
 		VectorAdd(cl.in_delta,predAngles,predAngles);
@@ -471,7 +480,6 @@ void VR_Move (usercmd_t *cmd)
 		break;
 	default:
 	case VR_AIMMODE_TF2_MODE3:
-		viewmove = true;
 	case VR_AIMMODE_TF2_MODE4:
 		{
 			float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
