@@ -120,3 +120,4 @@ Thanks go out to:
 - [Dominic Szablewski](https://github.com/phoboslab) and [John Marshall](https://github.com/swax) for their work on RiftQuake. It served as the basis for this project, and in some places their code remains.
 - Jim Waurzyniak for taking the time and effort to host a collection of [high-resolution assets for Quake II](http://www-personal.umich.edu/~jimw/q2/).
 - [Isla S.](http://islaes.com/) for the idea of applying counter-rotation to the HUD to help reduce nausea.
+- Karl B. for reporting bugs in multiplayer.
