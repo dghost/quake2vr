@@ -123,27 +123,54 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 	Com_Printf(" failed!\n");
 	if (debug_init)
 	{
-		float distk[4] = { 1.0f, 0.18f, 0.115f, 0.0f };
-		float chrm[4] = { 0.996f, -0.004f, 1.014f, 0.0f };
+		int riftType = (int) vr_ovr_debug->value;
 		Com_Printf("VR_OVR: Falling back to debug parameters...\n");
-		settings->initialized = 1;
-		settings->h_resolution = 1920;
-		settings->v_resolution = 1080;
-		settings->h_screen_size = 0.12096f;
-		settings->v_screen_size = 0.0756f;
-		settings->xPos = 0;
-		settings->yPos = 0;
-		settings->interpupillary_distance = 0.064f;
-		settings->lens_separation_distance = 0.0635f;
-		settings->eye_to_screen_distance = 0.040f;
-		memcpy(settings->distortion_k, distk, sizeof(float) * 4);
-		memcpy(settings->chrom_abr, chrm, sizeof(float) * 4);
-		strncpy(settings->deviceString, "Oculus Rift DK HD Emulator", 31);
-		strncpy(settings->deviceName, "", 31);
+
+		switch (riftType)
+		{
+		case RIFT_DK1:
+			{
+				float distk[4] = { 1.0f, 0.22f, 0.24f, 0.0f };
+				float chrm[4] = { 0.996f, -0.004f, 1.014f, 0.0f };
+				settings->initialized = 1;
+				settings->xPos = 0;
+				settings->yPos = 0;
+				settings->h_resolution = 1280;
+				settings->v_resolution = 800;
+				settings->h_screen_size = 0.14976f;
+				settings->v_screen_size = 0.0936f;
+				settings->interpupillary_distance = 0.064f;
+				settings->lens_separation_distance = 0.0635f;
+				settings->eye_to_screen_distance = 0.041f;
+				memcpy(settings->distortion_k, distk, sizeof(float) * 4);
+				memcpy(settings->chrom_abr, chrm, sizeof(float) * 4);
+				strncpy(settings->deviceString, "Oculus Rift DK1 Emulator", 31);
+			}
+			break;
+		default:
+		case RIFT_DKHD:
+			{
+				float distk[4] = { 1.0f, 0.18f, 0.115f, 0.0f };
+				float chrm[4] = { 0.996f, -0.004f, 1.014f, 0.0f };
+				settings->initialized = 1;
+				settings->xPos = 0;
+				settings->yPos = 0;
+				settings->h_resolution = 1920;
+				settings->v_resolution = 1080;
+				settings->h_screen_size = 0.12096f;
+				settings->v_screen_size = 0.0756f;
+				settings->interpupillary_distance = 0.064f;
+				settings->lens_separation_distance = 0.0635f;
+				settings->eye_to_screen_distance = 0.040f;
+				memcpy(settings->distortion_k, distk, sizeof(float) * 4);
+				memcpy(settings->chrom_abr, chrm, sizeof(float) * 4);
+				strncpy(settings->deviceString, "Oculus Rift DK HD Emulator", 31);
+			}
+			break;
+		}
 		return 1;
 	}
-
-		return 0;
+	return 0;
 }
 
 
