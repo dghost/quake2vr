@@ -470,7 +470,7 @@ void VR_Move (usercmd_t *cmd)
 				float yawDelta = (view[YAW] + orientationDelta[YAW]) - (predAngles[YAW] + cl.aimdelta[YAW]);
 				float yawOffset = 0;
 
-				AngleClamp(yawDelta);
+				AngleClamp(&yawDelta);
 				view[PITCH] = orientation[PITCH];
 				view[ROLL] = orientation[ROLL];
 				if (cl.in_delta[YAW] < 0)
@@ -562,10 +562,10 @@ void VR_Move (usercmd_t *cmd)
 				predAngles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
 				pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH];
 			}
-			AngleClamp(pitch);
+			AngleClamp(&pitch);
 			if (fabs(pitch) <= deadzonePitch)
 				cl.aimdelta[PITCH] = pitch;
-			AngleClamp(cl.aimdelta[PITCH]);
+			AngleClamp(&cl.aimdelta[PITCH]);
 		}
 		break;
 	case VR_AIMMODE_TF2_MODE5:

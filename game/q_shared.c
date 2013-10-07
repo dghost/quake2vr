@@ -931,14 +931,43 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3])
 
 //====================================================================================
 
+void AngleClamp(vec_t *angle)
+{
+	vec_t temp1;
+
+	temp1 = floor((*angle + 180.0f) * (1.0f / 360.0f)) * 360.0f;
+	
+	temp1 = *angle - temp1;
+
+	if (temp1 > 180.0f)
+		temp1 -= 360.0f;
+
+	*angle = temp1;
+}
 
 void VectorClamp(vec3_t angles)
 {
-	AngleClamp(angles[0]);
-	AngleClamp(angles[1]);
-	AngleClamp(angles[2]);
 
+	vec3_t temp1;
+
+	temp1[0] = floor((angles[0] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
+	temp1[1] = floor((angles[1] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
+	temp1[2] = floor((angles[2] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
+
+	VectorSubtract(angles, temp1, temp1);
+
+	if (temp1[0] > 180.0f)
+		temp1[0] -= 360.0f;
+
+	if (temp1[1] > 180.0f)
+		temp1[1] -= 360.0f;
+
+	if (temp1[2] > 180.0f)
+		temp1[2] -= 360.0f;
+
+	VectorCopy(temp1,angles);
 }
+
 void QuatNormalize(vec4_t quat, vec4_t out)
 {
 	float mag = QuatMagnitude(quat);
