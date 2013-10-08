@@ -1,6 +1,6 @@
 #include "r_local.h"
 #include "../vr/vr.h"
-
+#include "../vr/vr_ovr.h"
 
 
 typedef struct {

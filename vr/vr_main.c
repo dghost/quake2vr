@@ -5,7 +5,6 @@
 
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
-cvar_t *vr_motionprediction;
 cvar_t *vr_ipd;
 cvar_t *vr_hud_fov;
 cvar_t *vr_hud_depth;
@@ -36,7 +35,6 @@ static hmd_interface_t *hmd;
 
 static hmd_interface_t hmd_none = {
 	HMD_NONE,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -130,20 +128,6 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 
 }
 
-// takes time in ms, sets appropriate prediction values
-int VR_SetMotionPrediction(float time)
-{
-	if (!hmd)
-		return 0;
-
-	if (!hmd->setprediction(time))
-	{
-		Com_Printf("VR: Error setting HMD prediction time!\n");
-		return 0;
-	}
-	return 1;
-}
-
 void VR_Frame()
 {
 	if (!vr_enabled->value || !hmd)
@@ -151,18 +135,6 @@ void VR_Frame()
 
 
 	// check and clamp cvars
-	if (vr_motionprediction->modified)
-	{
-		if (vr_motionprediction->value < 0.0)
-			Cvar_Set("vr_motionprediction","0.0");
-		else if (vr_motionprediction->value > 75.0f)
-			Cvar_Set("vr_motionprediction","75.0");
-		vr_motionprediction->modified = false;
-		if (VR_SetMotionPrediction(vr_motionprediction->value))
-			Com_Printf("VR: Set HMD Prediction time to %.1fms\n",vr_motionprediction->value);
-
-	}
-
 	if (vr_aimmode->modified)
 	{
 		if (vr_aimmode->value < 0.0)
@@ -320,9 +292,6 @@ int VR_Enable()
 		return 0;
 
 
-	if (VR_SetMotionPrediction(vr_motionprediction->value))
-		Com_Printf("...set HMD Prediction time to %.1fms\n",vr_motionprediction->value);
-	vr_motionprediction->modified = false;
 	VR_ResetOrientation();
 
 	strncpy(hmd_type, va("%i", hmd->type), sizeof(hmd_type));
@@ -394,7 +363,6 @@ void VR_Init()
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_ARCHIVE);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_ARCHIVE);
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_ARCHIVE);
-	vr_motionprediction = Cvar_Get("vr_motionprediction","40",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);

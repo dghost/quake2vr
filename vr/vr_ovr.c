@@ -6,6 +6,7 @@ cvar_t *vr_ovr_driftcorrection;
 cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_chromatic;
 cvar_t *vr_ovr_debug;
+cvar_t *vr_ovr_prediction;
 
 static qboolean debug_init = false;
 
@@ -21,8 +22,7 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_SetFOV,
 	VR_OVR_Frame,
 	VR_OVR_getOrientation,
-	VR_OVR_ResetHMDOrientation,
-	VR_OVR_SetPredictionTime
+	VR_OVR_ResetHMDOrientation
 };
 
 void VR_OVR_SetFOV()
@@ -38,14 +38,6 @@ void VR_OVR_SetFOV()
 	}
 }
 
-int VR_OVR_SetPredictionTime(float time)
-{
-	int result = LibOVR_SetPredictionTime(time);
-	if (!debug_init)
-		return result;
-	else
-		return 1;
-}
 
 int VR_OVR_getOrientation(float euler[3])
 {
@@ -92,8 +84,6 @@ void VR_OVR_CalcRenderParam()
 
 void VR_OVR_Frame()
 {
-	if (debug_init)
-		return;
 	if (vr_ovr_driftcorrection->modified)
 	{
 		if (vr_ovr_driftcorrection->value)
@@ -107,6 +97,18 @@ void VR_OVR_Frame()
 			LibOVR_DisableMagneticCorrection();
 		}
 		vr_ovr_driftcorrection->modified = false;
+	}
+
+	if (vr_ovr_prediction->modified)
+	{
+		if (vr_ovr_prediction->value < 0.0)
+			Cvar_Set("vr_ovr_prediction", "0.0");
+		else if (vr_ovr_prediction->value > 75.0f)
+			Cvar_Set("vr_ovr_prediction", "75.0");
+		vr_ovr_prediction->modified = false;
+		if (LibOVR_SetPredictionTime(vr_ovr_prediction->value))
+			Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
+
 	}
 
 }
@@ -217,6 +219,9 @@ int VR_OVR_Enable()
 
 	Com_Printf("...detected HMD %s\n", vr_ovr_settings.deviceString);
 	Com_Printf("...detected IPD %.1fmm\n", vr_ovr_settings.interpupillary_distance * 1000);
+	if (LibOVR_SetPredictionTime(vr_ovr_prediction->value))
+		Com_Printf("...set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
+	vr_ovr_prediction->modified = false;
 
 	VR_OVR_CalcRenderParam();
 
@@ -258,6 +263,7 @@ int VR_OVR_Init()
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
+	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 
 	if (!init)
 	{

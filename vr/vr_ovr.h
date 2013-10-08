@@ -13,6 +13,7 @@ typedef enum {
 extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
 extern cvar_t *vr_ovr_chromatic;
+extern cvar_t *vr_ovr_prediction;
 
 void VR_OVR_SetFOV();
 void VR_OVR_CalcRenderParam();
@@ -21,7 +22,6 @@ int VR_OVR_Enable();
 void VR_OVR_Disable();
 int VR_OVR_Init();
 void VR_OVR_Shutdown();
-int VR_OVR_SetPredictionTime(float time);
 int VR_OVR_isDeviceAvailable();
 int VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
