@@ -1,4 +1,4 @@
-# Quake II for Oculus Rift v1.2
+# Quake II VR v1.2
 
 This is a Quake II engine mod to add full support for the Oculus Rift. 
 
@@ -10,8 +10,8 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Oculus Rift
 
 ##Downloads:
-- Playable shareware Quake2-Rift package (43MB): [Download 1](http://dgho.st/aK2e) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ1BSTnltb0lnZVU)
-- Quake2-Rift Binaries package (10MB): [Download 1](http://dgho.st/eXN0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUmkwdHp2eFl6cUk)
+- Playable shareware Quake II VR package (43MB): [Download 1](http://dgho.st/aK2e) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ1BSTnltb0lnZVU)
+- Quake II VR Binaries package (10MB): [Download 1](http://dgho.st/eXN0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUmkwdHp2eFl6cUk)
 - Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/FvNC) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
 
 ##Shareware Instructions:
