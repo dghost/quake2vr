@@ -681,15 +681,15 @@ void Con_DrawConsole (float frac, qboolean trans)
 	// changed to "KMQuake2 vx.xx"
 #ifdef ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%1i.%1i.%1i (Eraser net server)", RIFTQUAKE2_MAJOR,RIFTQUAKE2_MINOR,RIFTQUAKE2_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (Eraser net server)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
 #else // NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%1i.%1i.%1i (Eraser compatible)", RIFTQUAKE2_MAJOR,RIFTQUAKE2_MINOR,RIFTQUAKE2_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (Eraser compatible)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
 #endif // NET_SERVER_BUILD
 #else // ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%1i.%1i.%1i (net server)", RIFTQUAKE2_MAJOR,RIFTQUAKE2_MINOR,RIFTQUAKE2_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (net server)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
 #else
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"RiftQuake II v%1i.%1i.%1i", RIFTQUAKE2_MAJOR,RIFTQUAKE2_MINOR,RIFTQUAKE2_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
 
