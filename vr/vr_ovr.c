@@ -29,7 +29,7 @@ void VR_OVR_SetFOV()
 {
 	if (vr_ovr_settings.initialized)
 	{
-		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
+		float scale = VR_OVR_GetDistortionScale();
 		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * scale, 2 * vr_ovr_settings.eye_to_screen_distance);
 		float viewport_fov_y = fovy * 180 / M_PI * vr_fov_scale->value;
 		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
@@ -64,9 +64,19 @@ void VR_OVR_CalcRenderParam()
 	{	
 		float *dk = vr_ovr_settings.distortion_k;
 		float h = 1.0f - (2.0f * vr_ovr_settings.lens_separation_distance) / vr_ovr_settings.h_screen_size;
-		float r = -1.0f - h;
-		float rsq = r * r;
-		vrConfig.dist_scale = (dk[0] + dk[1] * rsq + dk[2] * rsq * rsq + dk[3] * rsq * rsq * rsq);
+		float le = (-1.0f - h) * (-1.0f - h);
+		float re = (-1.0f + h) * (-1.0f + h);
+
+		if (le > re)
+		{
+			vrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+			vrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+		} else 
+		{
+			vrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+			vrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+		}
+
 		vrConfig.ipd = vr_ovr_settings.interpupillary_distance;
 		vrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
 		vrConfig.hmdWidth = vr_ovr_settings.h_resolution;
@@ -81,6 +91,20 @@ void VR_OVR_CalcRenderParam()
 	}
 }
 
+
+float VR_OVR_GetDistortionScale()
+{
+
+	switch ((int) vr_ovr_scale->value)
+	{
+	case -1:
+		return vrConfig.maxScale;
+	case 0:
+		return vrConfig.minScale;
+	default:
+		return vr_ovr_scale->value;
+	}
+}
 
 void VR_OVR_Frame()
 {
@@ -243,7 +267,8 @@ int VR_OVR_Enable()
 		Cvar_SetInteger("vr_hud_transparency", 1);
 	*/
 	Com_Printf("...calculated %.2f FOV\n", vrState.viewFovY);
-	Com_Printf("...calculated %.2f distortion scale\n", vrConfig.dist_scale);
+	Com_Printf("...calculated %.2f minimum distortion scale\n", vrConfig.minScale);
+	Com_Printf("...calculated %.2f maximum distortion scale\n", vrConfig.maxScale);
 
 	return 1;
 }

@@ -23,36 +23,36 @@ typedef struct {
 
 } r_shader_t;
 
-r_shader_t ovr_shaders[2];
+static r_shader_t ovr_shaders[2];
 
-r_shader_t *current_shader;
+static r_shader_t *current_shader;
 
-fbo_t left, right, hud; 
+static fbo_t left, right, hud; 
 
-GLint defaultFBO;
+static GLint defaultFBO;
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
 	0, 0, 0,
 	
 	// vertex shader (identity)
-	"varying vec2 vUv;\n"
+	"varying vec2 theta;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scaleIn;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"vUv = vec2(gl_MultiTexCoord0);\n"
+		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
 	"}\n",
 
 	// fragment shader
-	"varying vec2 vUv;\n"
+	"varying vec2 theta;\n"
 	"uniform vec2 scale;\n"
-	"uniform vec2 scaleIn;\n"
+
 	"uniform vec2 lensCenter;\n"
 	"uniform vec4 hmdWarpParam;\n"
 	"uniform sampler2D texture;\n"
 	"void main()\n"
 	"{\n"
-		"vec2 uv = (vUv*2.0)-1.0;\n" // range from [0,1] to [-1,1]
-		"vec2 theta = (uv-lensCenter)*scaleIn;\n"
 		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
 		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
 		"vec2 tc = (lensCenter + scale * rvector);\n"
@@ -69,14 +69,16 @@ static r_shaderobject_t ovr_shader_chrm = {
 	0, 0, 0,
 	
 	// vertex shader (identity)
-	"varying vec2 vUv;\n"
+	"varying vec2 theta;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scaleIn;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"vUv = vec2(gl_MultiTexCoord0);\n"
+		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
 	"}\n",
 
 	// fragment shader
-	"varying vec2 vUv;\n"
+	"varying vec2 theta;\n"
 	"uniform vec2 lensCenter;\n"
 	"uniform vec2 scale;\n"
 	"uniform vec2 scaleIn;\n"
@@ -89,8 +91,6 @@ static r_shaderobject_t ovr_shader_chrm = {
 	// larger due to aspect ratio.
 	"void main()\n"
 	"{\n"
-		"vec2 uv = (vUv*2.0)-1.0;\n" // range from [0,1] to [-1,1]
-		"vec2 theta = (uv-lensCenter)*scaleIn;\n"
 		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
 		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
 
@@ -98,7 +98,7 @@ static r_shaderobject_t ovr_shader_chrm = {
 		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
 		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
 		"tcBlue = (tcBlue+1.0)/2.0;\n" // range from [-1,1] to [0,1]
-		"if (any(bvec2(clamp(tcBlue, vec2(0.0,0.0), vec2(1.0,1.0))-tcBlue)))\n"
+		"if (!all(equal(clamp(tcBlue, vec2(0.0,0.0), vec2(1.0,1.0)),tcBlue)))\n"
 		"{\n"
 			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
 			"return;\n"
@@ -110,7 +110,7 @@ static r_shaderobject_t ovr_shader_chrm = {
 		// Do green lookup (no scaling).
 		"vec2  tcGreen = lensCenter + scale * theta1;\n"
 		"tcGreen = (tcGreen+1.0)/2.0;\n" // range from [-1,1] to [0,1]
-		"vec4  center = texture2D(texture, tcGreen);\n"
+		"float green = texture2D(texture, tcGreen).g;\n"
 
 		// Do red scale and lookup.
 		"vec2  thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
@@ -118,7 +118,7 @@ static r_shaderobject_t ovr_shader_chrm = {
 		"tcRed = (tcRed+1.0)/2.0;\n" // range from [-1,1] to [0,1]
 		"float red = texture2D(texture, tcRed).r;\n"
 
-		"gl_FragColor = vec4(red, center.g, blue, center.a);\n"
+		"gl_FragColor = vec4(red, green, blue, 1.0);\n"
 	"}\n"
 };
 
@@ -211,11 +211,13 @@ void R_VR_StartFrame()
 		if (vr_ovr_scale->modified)
 		{
 			float scale;
-			if (vr_ovr_scale->value < 1.0)
-				Cvar_Set("vr_ovr_scale", "0");
-			if (vr_ovr_scale->value > 2.0)
+			if (vr_ovr_scale->value < -1.0)
+				Cvar_SetInteger("vr_ovr_scale", -1);
+			else if (vr_ovr_scale->value < 1.0)
+				Cvar_SetInteger("vr_ovr_scale", (int) vr_ovr_scale->value);
+			else if (vr_ovr_scale->value > 2.0)
 				Cvar_Set("vr_ovr_scale", "2.0");
-			scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale); vr_ovr_scale->value;
+			scale = VR_OVR_GetDistortionScale();
 			
 			R_DelFBO(&left);
 			R_DelFBO(&right);
@@ -376,11 +378,11 @@ void R_VR_DrawHud()
 
 	GL_Bind(hud.texture);
 
-	qglBegin(GL_QUADS);
+	qglBegin(GL_TRIANGLE_STRIP);
 	qglTexCoord2f (0, 0); qglVertex3f (-x, -y,-depth);
+	qglTexCoord2f (0, 1); qglVertex3f (-x, y,-depth);		
 	qglTexCoord2f (1, 0); qglVertex3f (x, -y,-depth);
 	qglTexCoord2f (1, 1); qglVertex3f (x, y,-depth);
-	qglTexCoord2f (0, 1); qglVertex3f (-x, y,-depth);		
 	qglEnd();
 
 	GL_Bind(0);
@@ -430,25 +432,25 @@ void R_VR_Present()
 
 	if (current_hmd == HMD_RIFT)
 	{
-		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
+		float scale = VR_OVR_GetDistortionScale();
 		qglUniform2fARB(current_shader->uniform.lens_center, vrState.projOffset, 0);
-		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, 1.0f * vrConfig.aspect / scale);
+		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, vrConfig.aspect / scale);
 		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
 		qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
 		qglUniform2fARB(current_shader->uniform.scale_in, 1.0f, 1.0f / vrConfig.aspect);
 	}
 	GL_Bind(left.texture);
 
-	qglBegin(GL_QUADS);
-	qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-	qglTexCoord2f(1, 0); qglVertex2f(0, -1);
+	qglBegin(GL_TRIANGLE_STRIP);
+	qglTexCoord2f(-1, -1); qglVertex2f(-1, -1);
+	qglTexCoord2f(-1, 1); qglVertex2f(-1, 1);
+	qglTexCoord2f(1, -1); qglVertex2f(0, -1);
 	qglTexCoord2f(1, 1); qglVertex2f(0, 1);
-	qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
 	qglEnd();
 
 	if (current_hmd == HMD_RIFT)
 	{
-		float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
+		float scale = VR_OVR_GetDistortionScale();
 		qglUniform2fARB(current_shader->uniform.lens_center, -vrState.projOffset, 0);
 		qglUniform2fARB(current_shader->uniform.scale, 1.0f / scale, vrConfig.aspect / scale);
 		qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
@@ -457,11 +459,11 @@ void R_VR_Present()
 	}
 	GL_Bind(right.texture);
 
-	qglBegin(GL_QUADS);
-	qglTexCoord2f(0, 0); qglVertex2f(0, -1);
-	qglTexCoord2f(1, 0); qglVertex2f(1, -1);
-	qglTexCoord2f(1, 1); qglVertex2f(1, 1);
-	qglTexCoord2f(0, 1); qglVertex2f(0, 1);
+	qglBegin(GL_TRIANGLE_STRIP);
+	qglTexCoord2f(-1, -1); qglVertex4f(0, -1,0,1);
+	qglTexCoord2f(-1, 1); qglVertex4f(0, 1,0,1);
+	qglTexCoord2f(1, -1); qglVertex4f(1, -1,0,1);
+	qglTexCoord2f(1, 1); qglVertex4f(1, 1,0,1);
 	qglEnd();
 
 	GL_Bind(0);
@@ -494,7 +496,7 @@ void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
 void R_VR_Enable()
 {
 	qboolean success = false;
-	float scale = (vr_ovr_scale->value ? vr_ovr_scale->value : vrConfig.dist_scale);
+	float scale = VR_OVR_GetDistortionScale();
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;

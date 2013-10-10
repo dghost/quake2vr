@@ -41,7 +41,8 @@ typedef struct {
 	float dk[4];
 	float chrm[4];
 	float aspect;
-	float dist_scale;
+	float minScale;
+	float maxScale;
 	char deviceName[32];
 } vr_attrib_t;
 
