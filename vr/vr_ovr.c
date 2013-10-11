@@ -113,7 +113,11 @@ void VR_OVR_Frame()
 		if (vr_ovr_driftcorrection->value)
 		{
 			Cvar_SetInteger("vr_ovr_driftcorrection",1);
-			LibOVR_DeviceInitMagneticCorrection();
+			if (!LibOVR_DeviceInitMagneticCorrection())
+			{
+				Cvar_SetInteger("vr_ovr_driftcorrection",0);
+				Com_Printf("VR_OVR: Cannot enable magnetic drift correction - device is not calibrated\n");
+			}
 		}
 		else
 		{
@@ -259,7 +263,8 @@ int VR_OVR_Enable()
 	VR_OVR_SetFOV();
 
 	if (vr_ovr_driftcorrection->value > 0.0)
-		LibOVR_DeviceInitMagneticCorrection();
+		if (!LibOVR_DeviceInitMagneticCorrection())
+				Com_Printf("VR_OVR: Cannot enable magnetic drift correction - device is not calibrated\n");
 
 	/* 8/30/2013 - never auto enable this.
 	// TODO: use pixel density instead
@@ -285,7 +290,7 @@ int VR_OVR_Init()
 	debug_init = false;
 
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
-	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","0",CVAR_ARCHIVE);
+	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);

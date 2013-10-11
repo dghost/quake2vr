@@ -7,7 +7,6 @@ static OVR::DeviceManager *manager = NULL;
 static OVR::HMDDevice *hmd = NULL;
 static OVR::SensorDevice *sensor = NULL;
 static OVR::SensorFusion *fusion = NULL;
-static OVR::Util::MagCalibration *magnet = NULL;
 static OVR::HMDInfo hmdInfo;
 
 static bool initialized = false;
@@ -64,10 +63,6 @@ void LibOVR_DeviceRelease() {
 		fusion = NULL;
 	}
 	
-	if (magnet) {
-		delete magnet;
-		magnet = NULL;
-	}
 }
 
 int LibOVR_DeviceInit() {
@@ -111,19 +106,12 @@ void LibOVR_ResetHMDOrientation()
 		return;
 
 	fusion->Reset();
-
-	if(magnet && magnet->IsCalibrated())
-		magnet->BeginAutoCalibration(*fusion);
 }
 
 int LibOVR_GetOrientation(float euler[3])
 {
 	if (!fusion)
 		return 0;
-
-	if (magnet && magnet->IsAutoCalibrating()) {
-		magnet->UpdateAutoCalibration(*fusion);
-	}
 
 	// GetPredictedOrientation() works even if prediction is disabled
 	OVR::Quatf q = fusion->GetPredictedOrientation();
@@ -172,16 +160,10 @@ int LibOVR_DeviceInitMagneticCorrection() {
 	if (!fusion)
 		return 0;
 	
-	fusion->SetYawCorrectionEnabled(true);
 	if (!fusion->HasMagCalibration())
-	{
-		if (!magnet)
-			magnet = new OVR::Util::MagCalibration();
+		return 0;
 
-		magnet->BeginAutoCalibration(*fusion);
-	}
-
-
+	fusion->SetYawCorrectionEnabled(true);
 	return 1;
 }
 
@@ -190,9 +172,4 @@ void LibOVR_DisableMagneticCorrection() {
 		return;
 
 	fusion->SetYawCorrectionEnabled(false);
-	if (magnet)
-	{
-		delete magnet;
-		magnet = NULL;
-	}
 }
