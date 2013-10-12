@@ -31,8 +31,9 @@ extern "C" {
 	int LibOVR_GetOrientation(float euler[3]);
 	int LibOVR_GetSettings(ovr_settings_t *settings);
 	int LibOVR_SetPredictionTime(float time);
-	int LibOVR_DeviceInitMagneticCorrection();
-	void LibOVR_DisableMagneticCorrection();
+	int LibOVR_EnableDriftCorrection();
+	void LibOVR_DisableDriftCorrection();
+	int LibOVR_IsDriftCorrectionEnabled();
 	void LibOVR_ResetHMDOrientation();
 #ifdef __cplusplus
 }

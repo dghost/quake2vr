@@ -28,9 +28,7 @@ int LibOVR_Init()
 
 int LibOVR_IsDeviceAvailable()
 {
-	if (!initialized)
-		LibOVR_Init();
-	if (!manager)
+	if (!LibOVR_Init)
 		return 0;
 
 	if (!hmd)
@@ -38,7 +36,15 @@ int LibOVR_IsDeviceAvailable()
 		OVR::HMDDevice *test = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
 		if (!test)
 			return 0;
+		OVR::SensorDevice *fusion = test->GetSensor();
+		if (!fusion)
+		{
+			test->Release();
+			return 0;
+		}
+		fusion->Release();
 		test->Release();
+		return 1;
 	}
 	return 1;
 }
@@ -156,7 +162,13 @@ int LibOVR_SetPredictionTime(float time) {
 	return 1;
 }
 
-int LibOVR_DeviceInitMagneticCorrection() {
+int LibOVR_IsDriftCorrectionEnabled() {
+	
+	return (fusion && fusion->IsYawCorrectionEnabled()) ? 1 : 0;
+}
+
+
+int LibOVR_EnableDriftCorrection() {
 	if (!fusion)
 		return 0;
 	
@@ -167,7 +179,7 @@ int LibOVR_DeviceInitMagneticCorrection() {
 	return 1;
 }
 
-void LibOVR_DisableMagneticCorrection() {
+void LibOVR_DisableDriftCorrection() {
 	if (!fusion)
 		return;
 

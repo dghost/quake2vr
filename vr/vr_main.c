@@ -68,7 +68,7 @@ int VR_GetSensorOrientation()
 	VectorCopy(euler,vr_orientation);
 
 	// convert last position to quaternions for SLERP
-	EulerToQuat(vr_lastOrientation,quat);
+	EulerToQuat(vr_orientation,quat);
 
 	// SLERP between previous EMA orientation and new EMA orientation
 //	LerpQuat(vr_emaOrientation, quat, emaWeight, vr_emaOrientation);

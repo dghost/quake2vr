@@ -113,16 +113,15 @@ void VR_OVR_Frame()
 		if (vr_ovr_driftcorrection->value)
 		{
 			Cvar_SetInteger("vr_ovr_driftcorrection",1);
-			if (!LibOVR_DeviceInitMagneticCorrection())
+			if (!LibOVR_EnableDriftCorrection())
 			{
-				Cvar_SetInteger("vr_ovr_driftcorrection",0);
 				Com_Printf("VR_OVR: Cannot enable magnetic drift correction - device is not calibrated\n");
 			}
 		}
 		else
 		{
 			Cvar_SetInteger("vr_ovr_driftcorrection",0);
-			LibOVR_DisableMagneticCorrection();
+			LibOVR_DisableDriftCorrection();
 		}
 		vr_ovr_driftcorrection->modified = false;
 	}
@@ -245,7 +244,7 @@ int VR_OVR_Enable()
 	if (!VR_OVR_GetSettings(&vr_ovr_settings))
 		return 0;
 
-	Com_Printf("...detected HMD %s\n", vr_ovr_settings.deviceString);
+	Com_Printf("...detected HMD %s with %ux%u resolution\n", vr_ovr_settings.deviceString, vr_ovr_settings.h_resolution, vr_ovr_settings.v_resolution);
 	Com_Printf("...detected IPD %.1fmm\n", vr_ovr_settings.interpupillary_distance * 1000);
 	if (LibOVR_SetPredictionTime(vr_ovr_prediction->value))
 		Com_Printf("...set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
@@ -263,7 +262,7 @@ int VR_OVR_Enable()
 	VR_OVR_SetFOV();
 
 	if (vr_ovr_driftcorrection->value > 0.0)
-		if (!LibOVR_DeviceInitMagneticCorrection())
+		if (!LibOVR_EnableDriftCorrection())
 				Com_Printf("VR_OVR: Cannot enable magnetic drift correction - device is not calibrated\n");
 
 	/* 8/30/2013 - never auto enable this.
