@@ -693,6 +693,121 @@ void VR_DrawCrosshair()
 	GL_Enable(GL_DEPTH_TEST);
 	GL_Disable(GL_BLEND);
 }
+
+/*
+================
+VR_RenderView
+
+r_newrefdef must be set before the first call
+================
+*/
+void VR_RenderView (refdef_t *fd)
+{
+	if (r_norefresh->value)
+		return;
+
+	r_newrefdef = *fd;
+
+	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
+		VID_Error (ERR_DROP, "R_RenderView: NULL worldmodel");
+
+	if (r_speeds->value)
+	{
+		c_brush_calls = 0;
+		c_brush_surfs = 0;
+		c_brush_polys = 0;
+		c_alias_polys = 0;
+		c_part_polys = 0;
+	}
+
+	R_PushDlights ();
+
+	if (r_finish->value)
+		qglFinish ();
+
+	R_SetupFrame ();
+
+	R_SetFrustum ();
+
+	R_SetupGL ();
+
+	R_MarkLeaves ();	// done here so we know if we're in water
+
+	R_DrawWorld ();
+	
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
+	{
+		qboolean fog_on = false;
+		//Knightmare- no fogging on menu/hud models
+		if (qglIsEnabled(GL_FOG)) //check if fog is enabled
+		{
+			fog_on = true;
+			qglDisable(GL_FOG); //if so, disable it
+		}
+
+		//R_DrawAllDecals();
+		R_DrawAllEntities(false);
+		R_DrawAllParticles();
+
+		//re-enable fog if it was on
+		if (fog_on)
+			qglEnable(GL_FOG);
+	}
+	else
+	{
+		GL_Disable (GL_ALPHA_TEST);
+
+		R_RenderDlights();
+
+		if (r_transrendersort->value) {
+			//R_BuildParticleList();
+			R_SortParticlesOnList();
+			R_DrawAllDecals();
+			//R_DrawAllEntityShadows();
+			R_DrawSolidEntities();
+			R_DrawEntitiesOnList(ents_trans);
+		}
+		else {
+			R_DrawAllDecals();
+			//R_DrawAllEntityShadows();
+			R_DrawAllEntities(true);
+		}
+
+		R_DrawAllParticles ();
+
+		VR_DrawCrosshair();
+		
+		R_DrawEntitiesOnList(ents_viewweaps);
+
+		R_ParticleStencil (1);
+		R_DrawAlphaSurfaces ();
+		R_ParticleStencil (2);
+
+		R_ParticleStencil (3);
+		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
+			R_DrawAllParticles ();
+		R_ParticleStencil (4);
+
+		// always draw vwep last...
+		R_DrawEntitiesOnList(ents_viewweaps_trans);
+	}
+	R_SetFog();
+}
+
+/*
+================
+VR_RenderScreenEffects
+
+r_newrefdef must be set before the first call
+================
+*/
+void VR_RenderScreenEffects (refdef_t *fd)
+{
+		r_newrefdef = *fd;
+		R_BloomBlend (fd);	// BLOOMS
+		R_PolyBlend ();
+}
+
 /*
 ================
 R_RenderView

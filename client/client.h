@@ -997,6 +997,6 @@ unsigned long *x86_TimerGetHistogram( void );
 // 
 
 void VR_UpdateScreen();
-void VR_RenderView();
+void VR_RenderStereo();
 
 #endif

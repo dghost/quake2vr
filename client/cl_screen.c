@@ -2168,7 +2168,7 @@ void VR_UpdateScreen (void)
 		scr_vrect.x = 0;
 		scr_vrect.y = 0;
 
-		VR_RenderView();
+		VR_RenderStereo();
 
 		viddef.width = vrState.viewWidth;
 		viddef.height = vrState.viewHeight;

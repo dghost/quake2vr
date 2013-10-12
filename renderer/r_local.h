@@ -465,6 +465,9 @@ void R_BeginFrame( float camera_separation );
 void R_SwapBuffers( int );
 void R_SetPalette ( const unsigned char *palette);
 
+void VR_RenderView (refdef_t *fd);
+void VR_RenderScreenEffects (refdef_t *fd);
+
 //
 // r_misc.c
 //
@@ -1006,6 +1009,7 @@ void R_VR_StartFrame();
 void R_VR_BindHud();
 void R_VR_BindLeft();
 void R_VR_BindRight();
+void R_VR_BindWorld();
 void R_VR_Present();
 void R_VR_EndFrame();
 void R_VR_DrawHud();

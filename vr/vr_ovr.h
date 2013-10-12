@@ -14,6 +14,7 @@ extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
 extern cvar_t *vr_ovr_chromatic;
 extern cvar_t *vr_ovr_prediction;
+extern cvar_t *vr_ovr_distortion;
 
 void VR_OVR_SetFOV();
 void VR_OVR_CalcRenderParam();

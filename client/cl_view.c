@@ -651,16 +651,18 @@ void V_Gun_Model_f (void)
 
 /*
 ==================
-VR_RenderView
+VR_RenderStereo
 ==================
 */
 extern void R_VR_BindLeft();
 extern void R_VR_BindRight();
 extern void R_VR_BindHud();
-extern void R_RenderView (refdef_t *fd);
+extern void R_VR_BindWorld();
+extern void VR_RenderView (refdef_t *fd);
+extern void VR_RenderScreenEffects (refdef_t *fd);
 extern void	R_SetLightLevel ();
 extern void	R_SetGL2D ();
-void VR_RenderView ()
+void VR_RenderStereo ()
 {
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
@@ -713,12 +715,6 @@ void VR_RenderView ()
 		cl.refdef.vieworg[0] += 1.0/16;
 		cl.refdef.vieworg[1] += 1.0/16;
 		cl.refdef.vieworg[2] += 1.0/16;
-
-
-		cl.refdef.x = scr_vrect.x;
-		cl.refdef.y = scr_vrect.y;
-		cl.refdef.width = scr_vrect.width;
-		cl.refdef.height = scr_vrect.height;
 
 		// FOV init
 		cl.refdef.fov_x = vrState.viewFovX;
@@ -787,7 +783,12 @@ void VR_RenderView ()
 	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
-	R_RenderView(&cl.refdef );
+	cl.refdef.x = 0;
+	cl.refdef.y = 0;
+	cl.refdef.width = vrState.vrHalfWidth;
+	cl.refdef.height = vrState.vrHeight;
+
+	VR_RenderView(&cl.refdef );
 
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
@@ -796,22 +797,34 @@ void VR_RenderView ()
 	//		SCR_DrawCrosshair ();
 
 	// draw for right eye
-	R_VR_BindRight();
 
+	// shift view to the right half of the frame buffer
+	//	R_VR_BindRight();
+	vrState.eye = EYE_RIGHT;
+	cl.refdef.x = vrState.vrHalfWidth;
+		
 	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
-	R_RenderView(&cl.refdef );
+	VR_RenderView(&cl.refdef );
 
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 
-//	if (cls.key_dest != key_menu) 
-//      SCR_DrawCrosshair ();
-	
-	// restore state
 	VectorCopy(view,cl.refdef.vieworg);	
-	
+
+	// reset for fullscreen rendering
+	R_VR_BindWorld();
+
+	vrState.eye = EYE_NONE;
+	cl.refdef.x = 0;
+	cl.refdef.y = 0;
+	cl.refdef.width = vrState.vrWidth;
+	cl.refdef.height = vrState.vrHeight;
+
+	// render full screen effects
+	VR_RenderScreenEffects(&cl.refdef);
+
 	R_VR_BindHud();
 
 	// finish house keeping tasks

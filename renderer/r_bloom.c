@@ -226,7 +226,7 @@ void R_Bloom_InitTextures (void)
 	if (vr_enabled->value)
 	{
 		// use screen size
-		screen_texture_width = vrState.vrHalfWidth;
+		screen_texture_width = vrState.vrWidth;
 		screen_texture_height = vrState.vrHeight;
 	} else {
 		//find closer power of 2 to screen size 

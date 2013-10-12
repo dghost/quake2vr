@@ -7,7 +7,7 @@ cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_chromatic;
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_prediction;
-
+cvar_t *vr_ovr_distortion;
 static qboolean debug_init = false;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
@@ -290,10 +290,11 @@ int VR_OVR_Init()
 	debug_init = false;
 
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
+	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
+	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
-	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 
 	if (!init)
 	{
