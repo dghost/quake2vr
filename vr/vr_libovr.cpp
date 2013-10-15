@@ -7,7 +7,8 @@ static OVR::DeviceManager *manager = NULL;
 static OVR::HMDDevice *hmd = NULL;
 static OVR::SensorDevice *sensor = NULL;
 static OVR::SensorFusion *fusion = NULL;
-static OVR::HMDInfo hmdInfo;
+static OVR::LatencyTestDevice *latencyTester = NULL;
+static OVR::Util::LatencyTest *latencyUtil = NULL;
 
 static bool initialized = false;
 
@@ -23,36 +24,83 @@ int LibOVR_Init()
 			return 0;
 		initialized = true;
 	}
-	return 1;	
+	return (manager != NULL);	
 }
 
-int LibOVR_IsDeviceAvailable()
+int LibOVR_InitHMD()
 {
-	if (!LibOVR_Init)
+	if (hmd)
+		return 1;
+
+	if (!LibOVR_Init())
 		return 0;
 
-	if (!hmd)
-	{
-		OVR::HMDDevice *test = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-		if (!test)
-			return 0;
-		OVR::SensorDevice *fusion = test->GetSensor();
-		if (!fusion)
-		{
-			test->Release();
-			return 0;
-		}
-		fusion->Release();
-		test->Release();
+	if (manager)
+		hmd = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+	
+	return (hmd != NULL);
+}
+
+int LibOVR_InitSensor() {
+	if (fusion)
 		return 1;
+
+	if (!LibOVR_InitHMD())
+		return 0;
+
+
+	if (!sensor)
+		sensor = hmd->GetSensor();
+
+	if (sensor)
+	{
+		fusion = new OVR::SensorFusion();
+		fusion->AttachToSensor(sensor);
+		fusion->SetYawCorrectionEnabled(false);
+		fusion->SetPrediction(0.0,false);
 	}
-	return 1;
+	return (sensor != NULL && fusion != NULL);
+}
+
+int LibOVR_InitLatencyTest() {
+	if (latencyUtil)
+		return 1;
+
+	if (!LibOVR_Init())
+		return 0;
+	
+	
+	if (!latencyTester)
+		latencyTester = manager->EnumerateDevices<OVR::LatencyTestDevice>().CreateDevice();
+
+	if (latencyTester)
+	{
+		latencyUtil = new OVR::Util::LatencyTest;
+		latencyUtil->SetDevice(latencyTester);
+	}
+
+	return (latencyTester != NULL && latencyUtil != NULL);
+}
+int LibOVR_IsDeviceAvailable()
+{
+	return (LibOVR_InitHMD());
 }
 
 void LibOVR_DeviceRelease() {
 	if (!initialized)
 		return;
 
+	if (latencyUtil)
+	{
+		delete latencyUtil;
+		latencyUtil = NULL;
+	}
+
+	if (latencyTester)
+	{
+		latencyTester->Release();
+		latencyTester=NULL;
+	}
 	
 	if (hmd) {
 		hmd->Release();
@@ -72,27 +120,7 @@ void LibOVR_DeviceRelease() {
 }
 
 int LibOVR_DeviceInit() {
-	if (!initialized)
-		return 0;
-
-	if (manager && !hmd)
-		hmd = manager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-	
-
-	if (hmd && !sensor)
-		sensor = hmd->GetSensor();
-
-	if (!sensor || !hmd)
-	{
-		LibOVR_DeviceRelease();
-		return 0;
-	}
-
-	fusion = new OVR::SensorFusion();
-	fusion->AttachToSensor(sensor);
-	fusion->SetYawCorrectionEnabled(false);
-	fusion->SetPrediction(0.0,false);
-	return 1;
+	return (LibOVR_InitHMD());
 }
 
 void LibOVR_Shutdown() {
@@ -108,7 +136,7 @@ void LibOVR_Shutdown() {
 
 void LibOVR_ResetHMDOrientation()
 {
-	if (!fusion)
+	if (!LibOVR_InitSensor())
 		return;
 
 	fusion->Reset();
@@ -116,8 +144,9 @@ void LibOVR_ResetHMDOrientation()
 
 int LibOVR_GetOrientation(float euler[3])
 {
-	if (!fusion)
+	if (!LibOVR_InitSensor())
 		return 0;
+
 
 	// GetPredictedOrientation() works even if prediction is disabled
 	OVR::Quatf q = fusion->GetPredictedOrientation();
@@ -130,8 +159,34 @@ int LibOVR_GetOrientation(float euler[3])
 	return 1;
 }
 
+int LibOVR_GetLatencyTestColor(float color[4])
+{
+	OVR::Color colorOVR;
+	if (latencyUtil && latencyUtil->DisplayScreenColor(colorOVR))
+	{
+		colorOVR.GetRGBA(&color[0],&color[1],&color[2],&color[3]);
+		return 1;
+	}
+	return 0;
+}
+
+void LibOVR_ProcessLatencyInputs()
+{
+	if (LibOVR_InitLatencyTest())
+		latencyUtil->ProcessInputs();
+
+}
+
+const char* LibOVR_ProcessLatencyResults()
+{
+	if (!latencyUtil)
+		return 0;
+	return latencyUtil->GetResultsString();
+}
+
 int LibOVR_GetSettings(ovr_settings_t *settings) {
-	if (!hmd || !hmd->GetDeviceInfo(&hmdInfo))
+	OVR::HMDInfo hmdInfo;
+	if (!LibOVR_InitHMD() || !hmd->GetDeviceInfo(&hmdInfo))
 		return 0;
 	settings->initialized = 1;
 	settings->h_resolution = hmdInfo.HResolution;
@@ -152,7 +207,7 @@ int LibOVR_GetSettings(ovr_settings_t *settings) {
 
 int LibOVR_SetPredictionTime(float time) {
 	float timeInSec = time / 1000.0f;
-	if (!fusion)
+	if (!LibOVR_InitSensor())
 		return 0;
 
 	if (time > 0.0f)
@@ -169,7 +224,7 @@ int LibOVR_IsDriftCorrectionEnabled() {
 
 
 int LibOVR_EnableDriftCorrection() {
-	if (!fusion)
+	if (!LibOVR_InitSensor())
 		return 0;
 	
 	if (!fusion->HasMagCalibration())
@@ -180,7 +235,7 @@ int LibOVR_EnableDriftCorrection() {
 }
 
 void LibOVR_DisableDriftCorrection() {
-	if (!fusion)
+	if (!LibOVR_InitSensor())
 		return;
 
 	fusion->SetYawCorrectionEnabled(false);

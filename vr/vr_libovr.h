@@ -35,6 +35,10 @@ extern "C" {
 	void LibOVR_DisableDriftCorrection();
 	int LibOVR_IsDriftCorrectionEnabled();
 	void LibOVR_ResetHMDOrientation();
+	void LibOVR_ProcessLatencyInputs();
+	int LibOVR_GetLatencyTestColor(float color[4]);
+	const char* LibOVR_ProcessLatencyResults();
+
 #ifdef __cplusplus
 }
 #endif

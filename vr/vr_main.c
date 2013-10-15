@@ -62,7 +62,7 @@ int VR_GetSensorOrientation()
 	if (!hmd)
 		return 0;
 	if (!hmd->getOrientation(euler))
-		return 0;
+		VectorSet(euler,0,0,0);
 
 	VectorCopy(vr_orientation, vr_lastOrientation);
 	VectorCopy(euler,vr_orientation);
@@ -132,7 +132,6 @@ void VR_Frame()
 {
 	if (!vr_enabled->value || !hmd)
 		return;
-
 
 	// check and clamp cvars
 	if (vr_aimmode->modified)

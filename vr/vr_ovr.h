@@ -27,6 +27,7 @@ int VR_OVR_isDeviceAvailable();
 int VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
 float VR_OVR_GetDistortionScale();
+int VR_OVR_RenderLatencyTest(vec4_t color);
 
 extern hmd_interface_t hmd_rift;
 

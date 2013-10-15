@@ -41,21 +41,19 @@ void VR_OVR_SetFOV()
 
 int VR_OVR_getOrientation(float euler[3])
 {
-	int result = LibOVR_GetOrientation(euler);
-	if (result)
-		return 1;
-	else if (debug_init)
-	{
-		VectorSet(euler, 0, 0, 0);
-		return 1;
-	}
-	else
-		return 0;
+	if (vr_ovr_debug->value)
+		LibOVR_ProcessLatencyInputs();
+	return LibOVR_GetOrientation(euler);
 }
 
 void VR_OVR_ResetHMDOrientation()
 {
 	LibOVR_ResetHMDOrientation();
+}
+
+int VR_OVR_RenderLatencyTest(vec4_t color) 
+{
+	return (vr_ovr_debug->value && LibOVR_GetLatencyTestColor(color));
 }
 
 void VR_OVR_CalcRenderParam()
@@ -108,6 +106,7 @@ float VR_OVR_GetDistortionScale()
 
 void VR_OVR_Frame()
 {
+
 	if (vr_ovr_driftcorrection->modified)
 	{
 		if (vr_ovr_driftcorrection->value)
@@ -137,7 +136,12 @@ void VR_OVR_Frame()
 			Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
 
 	}
-
+	if (vr_ovr_debug->value)
+	{
+		const char *results = LibOVR_ProcessLatencyResults();
+		if (results)
+			Com_Printf("VR_OVR: %s\n",results);		
+	}
 }
 int VR_OVR_GetSettings(ovr_settings_t *settings)
 {
