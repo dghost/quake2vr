@@ -333,7 +333,7 @@ void R_VR_DrawHud()
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
-	
+	vec4_t debugColor;
 	extern int scr_draw_loading;
 
 	if (!vr_enabled->value)
@@ -374,17 +374,24 @@ void R_VR_DrawHud()
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
 	y = x / ((float) hud.width / hud.height);
 
-	if (vr_hud_transparency->value)
+
+	if ((int) vr_enabled->value != HMD_RIFT || !VR_OVR_RenderLatencyTest(debugColor))
 	{
-		GL_Enable(GL_BLEND);
-		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		if (vr_hud_transparency->value)
+		{
+			GL_Enable(GL_BLEND);
+			GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		} else {
+			GL_Enable (GL_ALPHA_TEST);
+			GL_AlphaFunc(GL_GREATER,0.0f);
+		}
+		GL_Bind(hud.texture);
 
 	} else {
-		GL_Enable (GL_ALPHA_TEST);
-		GL_AlphaFunc(GL_GREATER,0.0f);
+		 qglColor4fv(debugColor);
 	}
-
-	GL_Bind(hud.texture);
+	
 
 	qglBegin(GL_TRIANGLE_STRIP);
 	qglTexCoord2f (0, 0); qglVertex3f (-x, -y,-depth);
@@ -411,6 +418,7 @@ void R_VR_Present()
 	}
 	GL_Disable(GL_DEPTH_TEST);
 	GL_SelectTexture(0);
+	GL_Bind(0);
 
 	R_BindFBO(&world);
 	qglViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
@@ -445,53 +453,31 @@ void R_VR_Present()
 
 			float scale = VR_OVR_GetDistortionScale();
 			r_shader_t *current_shader;
-			vec4_t debugColor;
 
 			current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
 			
 		
 
-			if (!VR_OVR_RenderLatencyTest(debugColor))
-			{
-				GL_Bind(world.texture);
+			GL_Bind(world.texture);
 
-				qglUseProgramObjectARB(current_shader->shader->program);
+			qglUseProgramObjectARB(current_shader->shader->program);
 
-				qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
-				qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
-				qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
-				qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
-
-		
-				qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
-				qglUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);
-
-				qglBegin(GL_TRIANGLE_STRIP);
-				qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-				qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
-				qglTexCoord2f(0.5, 0); qglVertex2f(0, -1);
-				qglTexCoord2f(0.5, 1); qglVertex2f(0, 1);
-				qglEnd();
-
-			} else {
-				qglColor4fv(debugColor);
-				qglBegin(GL_TRIANGLE_STRIP);
-				qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-				qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
-				qglTexCoord2f(0.5, 0); qglVertex2f(0, -1);
-				qglTexCoord2f(0.5, 1); qglVertex2f(0, 1);
-				qglEnd();
-
-				GL_Bind(world.texture);
-				qglUseProgramObjectARB(current_shader->shader->program);
-
-				qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
-				qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
-				qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
-				qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
+			qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
+			qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
+			qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
+			qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
 
 
-			}
+			qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
+			qglUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);
+
+			qglBegin(GL_TRIANGLE_STRIP);
+			qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
+			qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
+			qglTexCoord2f(0.5, 0); qglVertex2f(0, -1);
+			qglTexCoord2f(0.5, 1); qglVertex2f(0, 1);
+			qglEnd();
+
 			qglUniform2fARB(current_shader->uniform.lens_center, 0.75 -vrState.projOffset * 0.25, 0.5 );
 			qglUniform2fARB(current_shader->uniform.screen_center, 0.75 , 0.5);
 
