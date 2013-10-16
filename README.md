@@ -12,7 +12,7 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 ##Downloads:
 - Playable shareware Quake II VR package (43MB): [Download 1](http://dgho.st/aK2e) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ1BSTnltb0lnZVU)
 - Quake II VR Binaries package (10MB): [Download 1](http://dgho.st/eXN0) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wUmkwdHp2eFl6cUk)
-- Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/FvNC) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
+- Optional extras - HD textures, mission pack support (431MB): [Download 1](http://dgho.st/aVgl) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wQ3BaQTNkUmhIYU0)
 
 ##Shareware Instructions:
 1. Download the shareware package and unzip it to your preferred directory.
