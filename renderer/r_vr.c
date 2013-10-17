@@ -333,7 +333,7 @@ void R_VR_DrawHud()
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
-	vec4_t debugColor;
+
 	extern int scr_draw_loading;
 
 	if (!vr_enabled->value)
@@ -347,7 +347,7 @@ void R_VR_DrawHud()
 	qglLoadIdentity();
 
 	// disable this for the loading screens since they are not at 60fps
-	if ((vr_hud_bounce->value > 0) && !scr_draw_loading)
+	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int) vr_aimmode->value > 0))
 	{
 		// load the quaternion directly into a rotation matrix
 		vec4_t q;
@@ -375,23 +375,18 @@ void R_VR_DrawHud()
 	y = x / ((float) hud.width / hud.height);
 
 
-	if ((int) vr_enabled->value != HMD_RIFT || !VR_OVR_RenderLatencyTest(debugColor))
-	{
-		if (vr_hud_transparency->value)
-		{
-			GL_Enable(GL_BLEND);
-			GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		} else {
-			GL_Enable (GL_ALPHA_TEST);
-			GL_AlphaFunc(GL_GREATER,0.0f);
-		}
-		GL_Bind(hud.texture);
+	if (vr_hud_transparency->value)
+	{
+		GL_Enable(GL_BLEND);
+		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	} else {
-		 qglColor4fv(debugColor);
+		GL_Enable (GL_ALPHA_TEST);
+		GL_AlphaFunc(GL_GREATER,0.0f);
 	}
-	
+	GL_Bind(hud.texture);
+
 
 	qglBegin(GL_TRIANGLE_STRIP);
 	qglTexCoord2f (0, 0); qglVertex3f (-x, -y,-depth);
@@ -400,8 +395,7 @@ void R_VR_DrawHud()
 	qglTexCoord2f (1, 1); qglVertex3f (x, y,-depth);
 	qglEnd();
 
-	GL_Bind(0);
-	GL_Disable(GL_BLEND);
+//	GL_Disable(GL_BLEND);
 }
 
 // takes the various FBO's and renders them to the framebuffer
@@ -417,9 +411,9 @@ void R_VR_Present()
 
 	}
 	GL_Disable(GL_DEPTH_TEST);
-	GL_SelectTexture(0);
-	GL_Bind(0);
 
+	GL_SelectTexture(0);
+	GL_Bind(hud.texture);
 	R_BindFBO(&world);
 	qglViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
 	vid.height = vrState.vrHeight;
@@ -431,7 +425,7 @@ void R_VR_Present()
 	vrState.eye = EYE_RIGHT;
 
 	R_VR_DrawHud();
-
+	GL_Bind(0);
 	R_VR_EndFrame();
 
 	GL_Disable(GL_BLEND);
@@ -453,7 +447,7 @@ void R_VR_Present()
 
 			float scale = VR_OVR_GetDistortionScale();
 			r_shader_t *current_shader;
-
+			vec4_t debugColor;
 			current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
 			
 		
@@ -488,6 +482,27 @@ void R_VR_Present()
 			qglTexCoord2f(1, 1); qglVertex2f(1, 1);
 			qglEnd();
 			qglUseProgramObjectARB(0);
+
+
+			if (VR_OVR_RenderLatencyTest(debugColor))
+			{
+				qglColor4fv(debugColor);
+				GL_Bind(0);
+				qglBegin(GL_TRIANGLE_STRIP);
+				qglVertex2f(0.3, -0.4);
+				qglVertex2f(0.3, 0.4);
+				qglVertex2f(0.7, -0.4);
+				qglVertex2f(0.7, 0.4); 
+				qglEnd();
+
+				qglBegin(GL_TRIANGLE_STRIP);
+				qglVertex2f(-0.3, -0.4);
+				qglVertex2f(-0.3, 0.4);
+				qglVertex2f(-0.7, -0.4);
+				qglVertex2f(-0.7, 0.4); 
+				qglEnd();
+			}
+
 		} else {
 			qglBegin(GL_TRIANGLE_STRIP);
 			qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
