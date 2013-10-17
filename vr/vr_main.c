@@ -125,7 +125,6 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 	t2[0] = -t2[0];
 	QuatMultiply(t2, t1, t1);
 	SlerpQuat(zero, t1, bounce, quat);
-
 }
 
 void VR_Frame()
@@ -363,12 +362,12 @@ void VR_Init()
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_ARCHIVE);
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
-	vr_hud_transparency = Cvar_Get("vr_hud_transparency","0", CVAR_ARCHIVE);
-	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
-	vr_hud_depth = Cvar_Get("vr_hud_depth","0.5",CVAR_ARCHIVE);
+	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
+	vr_hud_fov = Cvar_Get("vr_hud_fov","80",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
 	vr_fov_scale = Cvar_Get("vr_fov_scale","1.0",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
-	vr_crosshair_size = Cvar_Get("vr_crosshair_size","3", CVAR_ARCHIVE);
+	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
 	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);

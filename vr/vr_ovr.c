@@ -8,7 +8,7 @@ cvar_t *vr_ovr_chromatic;
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_prediction;
 cvar_t *vr_ovr_distortion;
-static qboolean debug_init = false;
+cvar_t *vr_ovr_lensdistance;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -61,7 +61,8 @@ void VR_OVR_CalcRenderParam()
 	if (vr_ovr_settings.initialized)
 	{	
 		float *dk = vr_ovr_settings.distortion_k;
-		float h = 1.0f - (2.0f * vr_ovr_settings.lens_separation_distance) / vr_ovr_settings.h_screen_size;
+		float lsd = vr_ovr_lensdistance->value == -1 ? vr_ovr_settings.lens_separation_distance : vr_ovr_lensdistance->value / 1000.0;
+		float h = 1.0f - (2.0f * lsd) / vr_ovr_settings.h_screen_size;
 		float le = (-1.0f - h) * (-1.0f - h);
 		float re = (-1.0f + h) * (-1.0f + h);
 
@@ -85,7 +86,6 @@ void VR_OVR_CalcRenderParam()
 		memcpy(vrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
 		memcpy(vrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
 		vrState.projOffset = h;
-
 	}
 }
 
@@ -96,9 +96,9 @@ float VR_OVR_GetDistortionScale()
 	switch ((int) vr_ovr_scale->value)
 	{
 	case -1:
-		return vrConfig.maxScale;
-	case 0:
 		return vrConfig.minScale;
+	case 0:
+		return vrConfig.maxScale;
 	default:
 		return vr_ovr_scale->value;
 	}
@@ -154,7 +154,7 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 	}
 
 	Com_Printf(" failed!\n");
-	if (debug_init)
+	if (vr_ovr_debug->value)
 	{
 		int riftType = (int) vr_ovr_debug->value;
 		Com_Printf("VR_OVR: Falling back to debug parameters...\n");
@@ -209,7 +209,7 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 
 int VR_OVR_isDeviceAvailable()
 {
-	if (!debug_init)
+	if (!vr_ovr_debug->value)
 		return LibOVR_IsDeviceAvailable();
 	else
 		return 1;
@@ -239,7 +239,7 @@ int VR_OVR_Enable()
 		}
 	}
 
-	if (failure && !debug_init)
+	if (failure && !vr_ovr_debug->value)
 		return 0;
 
 
@@ -290,27 +290,21 @@ void VR_OVR_Disable()
 int VR_OVR_Init()
 {
 	qboolean init = LibOVR_Init();
-	debug_init = false;
 
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
+	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
-	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_NOSET);
+	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
-
+	vr_ovr_lensdistance->modified = false;
 	if (!init)
 	{
 		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
 		return 0;
 	}
 
-	if (vr_ovr_debug->value)
-	{
-		debug_init = true;
-		Com_Printf("VR_OVR: Enabling debug fallback...\n");
-
-	}
 	Com_Printf("VR_OVR: Oculus Rift support initialized...\n");
 
 	return 1;

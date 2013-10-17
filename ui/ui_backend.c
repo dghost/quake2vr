@@ -807,8 +807,8 @@ void Menu_DrawStatusBar (const char *string)
 		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+3), SCREEN_WIDTH, 1, ALIGN_BOTTOM_STRETCH, 0,0,0,255 );
 		SCR_DrawString( SCREEN_WIDTH/2-(l/2)*MENU_FONT_SIZE, SCREEN_HEIGHT-(MENU_FONT_SIZE+1), ALIGN_BOTTOM, string, 255 );
 	}
-	else
-		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+3), SCREEN_WIDTH, MENU_FONT_SIZE+3, ALIGN_BOTTOM_STRETCH, 0,0,0,255 );
+//	else
+//		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+3), SCREEN_WIDTH, MENU_FONT_SIZE+3, ALIGN_BOTTOM_STRETCH, 0,0,0,255 );
 }
 
 void Menu_DrawString (int x, int y, const char *string, int alpha)

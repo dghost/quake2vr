@@ -206,15 +206,36 @@ void R_VR_StartFrame()
 	
 	if (hmd == HMD_RIFT)
 	{
+		int changeBackBuffers = 0;
 		if (vr_ovr_scale->modified)
 		{
-			float scale;
+
 			if (vr_ovr_scale->value < -1.0)
 				Cvar_SetInteger("vr_ovr_scale", -1);
 			else if (vr_ovr_scale->value < 1.0)
 				Cvar_SetInteger("vr_ovr_scale", (int) vr_ovr_scale->value);
 			else if (vr_ovr_scale->value > 2.0)
 				Cvar_Set("vr_ovr_scale", "2.0");
+			changeBackBuffers = 1;
+			vr_ovr_scale->modified = false;
+
+		}
+
+
+		if (vr_ovr_lensdistance->modified)
+		{
+			if (vr_ovr_lensdistance->value < -1.0)
+				Cvar_SetInteger("vr_ovr_lensdistance", -1);
+			else if (vr_ovr_lensdistance->value > 100.0)
+				Cvar_Set("vr_ovr_lensdistance", "100.0");
+			changeBackBuffers = 1;
+			VR_OVR_CalcRenderParam();
+			vr_ovr_lensdistance->modified = false;
+		}
+
+		if (changeBackBuffers)
+		{
+			float scale;
 			scale = VR_OVR_GetDistortionScale();
 			
 			R_DelFBO(&world);
@@ -228,12 +249,9 @@ void R_VR_StartFrame()
 			vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
 			Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
 			Com_Printf("VR: Using %u x %u backbuffer\n", vrState.vrWidth, vrState.vrHeight);
-			vr_ovr_scale->modified = false;
+
 
 		}
-
-
-
 	}
 
 
@@ -381,10 +399,7 @@ void R_VR_DrawHud()
 		GL_Enable(GL_BLEND);
 		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	} else {
-		GL_Enable (GL_ALPHA_TEST);
-		GL_AlphaFunc(GL_GREATER,0.0f);
-	}
+	} 
 	GL_Bind(hud.texture);
 
 
@@ -395,7 +410,7 @@ void R_VR_DrawHud()
 	qglTexCoord2f (1, 1); qglVertex3f (x, y,-depth);
 	qglEnd();
 
-//	GL_Disable(GL_BLEND);
+	GL_Disable(GL_BLEND);
 }
 
 // takes the various FBO's and renders them to the framebuffer
@@ -411,7 +426,8 @@ void R_VR_Present()
 
 	}
 	GL_Disable(GL_DEPTH_TEST);
-
+		GL_Enable (GL_ALPHA_TEST);
+		GL_AlphaFunc(GL_GREATER,0.0f);
 	GL_SelectTexture(0);
 	GL_Bind(hud.texture);
 	R_BindFBO(&world);
@@ -428,9 +444,8 @@ void R_VR_Present()
 	GL_Bind(0);
 	R_VR_EndFrame();
 
-	GL_Disable(GL_BLEND);
+
 	GL_Disable(GL_ALPHA_TEST);
-	GL_Disable(GL_DEPTH_TEST);
 
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadIdentity();
@@ -504,6 +519,9 @@ void R_VR_Present()
 			}
 
 		} else {
+			
+			GL_Bind(world.texture);
+
 			qglBegin(GL_TRIANGLE_STRIP);
 			qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
 			qglTexCoord2f(0, 1); qglVertex2f(-1, 1);

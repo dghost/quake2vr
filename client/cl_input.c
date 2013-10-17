@@ -388,8 +388,6 @@ void VR_Move (usercmd_t *cmd)
 	qboolean viewmove;
 	int i;
 	int mode = (int) vr_aimmode->value;
-	float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
-	float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
 
 	if (mode == 6)
 		viewmove = true;
@@ -443,6 +441,8 @@ void VR_Move (usercmd_t *cmd)
 		{
 			float pitch;
 			qboolean relativeView, relativeAimPitch,restrictDirection;
+			float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
+			float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
 			relativeAimPitch = true;
 			restrictDirection = true;
 			switch (mode)
@@ -568,7 +568,7 @@ void VR_Move (usercmd_t *cmd)
 			AngleClamp(&cl.aimdelta[PITCH]);
 		}
 		break;
-	case VR_AIMMODE_TF2_MODE5:
+	case VR_AIMMODE_DECOUPLED:
 		VectorAdd(predAngles,cl.in_delta,predAngles);
 		VectorCopy(orientation, view);
 		view[YAW] += predDelta[YAW];
