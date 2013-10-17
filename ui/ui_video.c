@@ -60,7 +60,17 @@ static void BrightnessCallback( void *s )
 
 static void VsyncCallback ( void *unused )
 {
-	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue);
+	switch(s_vsync_box.curvalue)
+	{
+	default:
+	case 0:
+	case 1:
+		Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue);
+	break;
+	case 2:
+		Cvar_SetValue( "r_swapinterval", -1);
+	break;
+	}
 }
 
 static void AdjustFOVCallback ( void *unused )
@@ -127,7 +137,7 @@ static void ApplyChanges( void *unused )
 
 
 	temp = s_mode_list.curvalue;
-	Cvar_SetValue( "r_mode", (temp == 0) ? -1 : temp + 2 ); // offset for eliminating < 640x480 modes
+	Cvar_SetValue( "r_mode", (temp == 0) ? -1 : temp + 16 ); // offset for eliminating < 640x480 modes
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
 	// invert sense so greater = brighter, and scale to a range of 0.3 to 1.3
 	Cvar_SetValue( "vid_gamma", (1.3 - (s_brightness_slider.curvalue/20.0)) );
@@ -187,7 +197,8 @@ static void ApplyChanges( void *unused )
 	Cvar_SetValue( "r_nonpoweroftwo_mipmaps", s_npot_mipmap_box.curvalue );
 //	Cvar_SetValue( "r_ext_texture_compression", s_texcompress_box.curvalue );
 
-	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue );
+	VsyncCallback(NULL);
+//	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue );
 	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue );
 
 	prepareVideoRefresh ();
@@ -319,20 +330,6 @@ void Menu_Video_Init (void)
 	static const char *resolutions[] = 
 	{
 		"[custom   ]",
-		"[640x480  ]",
-		"[800x600  ]",
-		"[960x720  ]",
-		"[1024x768 ]",
-		"[1152x864 ]",
-		"[1280x960 ]",
-		"[1280x1024]", // Knightmare added
-		"[1400x1050]", // Knightmare added
-		"[1600x1200]",
-		"[1920x1440]", // Knightmare added
-		"[2048x1536]",
-		"[800x480  ]", // Knightmare added
-		"[856x480  ]", // Knightmare added
-		"[1024x600 ]", // Knightmare added
 		"[1280x720 ]", // Knightmare added
 		"[1280x768 ]", // Knightmare added
 		"[1280x800 ]", // Knightmare added
@@ -384,6 +381,14 @@ void Menu_Video_Init (void)
 		0
 	};
 
+	static const char *vsync_names[] =
+	{
+		"no",
+		"yes",
+		"adaptive",
+		0
+	};
+
 	int		y = 0;
 	float	temp;
 
@@ -401,7 +406,7 @@ void Menu_Video_Init (void)
 	s_mode_list.generic.y			= y;
 	s_mode_list.itemnames			= resolutions;
 	temp = Cvar_VariableValue("r_mode");
-	s_mode_list.curvalue			= (temp == -1) ? 0 : max(temp - 2, 1); // offset for getting rid of < 640x480 resolutions
+	s_mode_list.curvalue			= (temp == -1) ? 0 : max(temp - 16, 1); // offset for getting rid of < 640x480 resolutions
 	s_mode_list.generic.statusbar	= "changes screen resolution";
 
 	s_fs_box.generic.type			= MTYPE_SPINCONTROL;
@@ -467,8 +472,8 @@ void Menu_Video_Init (void)
 	s_vsync_box.generic.y				= y += 2*MENU_LINE_SIZE;
 	s_vsync_box.generic.name			= "video sync";
 	s_vsync_box.generic.callback		= VsyncCallback;
-	s_vsync_box.curvalue				= Cvar_VariableValue("r_swapinterval");
-	s_vsync_box.itemnames				= yesno_names;
+	s_vsync_box.curvalue				= Cvar_VariableValue("r_swapinterval") == -1 ? 2 : (int) Cvar_VariableValue("r_swapinterval");
+	s_vsync_box.itemnames				= vsync_names;
 	s_vsync_box.generic.statusbar		= "sync framerate with monitor refresh";
 
 	// Knightmare- refresh rate option

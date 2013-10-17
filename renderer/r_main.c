@@ -1134,7 +1134,7 @@ void R_Register (void)
 	r_modulate = Cvar_Get ("r_modulate", "1", CVAR_ARCHIVE );
 	r_log = Cvar_Get( "r_log", "0", 0 );
 	r_bitdepth = Cvar_Get( "r_bitdepth", "0", 0 );
-	r_mode = Cvar_Get( "r_mode", "3", CVAR_ARCHIVE );
+	r_mode = Cvar_Get( "r_mode", "17", CVAR_ARCHIVE );
 	r_lightmap = Cvar_Get ("r_lightmap", "0", 0);
 	r_shadows = Cvar_Get ("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadowalpha = Cvar_Get ("r_shadowalpha", "0.4", CVAR_ARCHIVE );
@@ -1262,8 +1262,8 @@ qboolean R_SetMode (void)
 	r_skydistance->modified = true; // skybox size variable
 
 	// don't allow modes 0, 1, or 2
-	/*if ((r_mode->value > -1) && (r_mode->value < 3))
-		Cvar_SetValue( "r_mode", 3);*/
+	/*if ((r_mode->value > -1) && (r_mode->value < 17))
+		Cvar_SetValue( "r_mode", 17);*/
 
 	vid_fullscreen->modified = false;
 	r_mode->modified = false;
