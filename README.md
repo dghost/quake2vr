@@ -92,25 +92,6 @@ Other console variables of interest:
 - `hand` - Sets the hand that the player holds the weapon in. Default is 0, which is right handed, but also supports 1 (left handed) and 2 (no view weapon).
 - `gun_z` - Adjusts the distance from the player that the view model is drawn at. Default is 0, negative values are closer, positive values are further.
 
-##Errata:
-
-Currently unresolved errata:
-- Aim modes 2 and 4 currently have problems with improper orientation/rotations after dying/teleporting in multiplayer, or loading a save game in single player. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.
-- View models appear large. This is due to them using the original meshes, and unfortunately there doesn't appear to be an easy way to scale the meshes programmatically.
-- Linux is unsupported at this time, although it might be in the future. The changes necessary to support the Oculus Rift guarantee that it is currently broken. If I have time I'll tidy it up for a future release, or if someone wants to submit a patch for it I would gladly merge it. 
-- OS X is unsupported and will likely never be supported. The official source code for Quake 2 never included proper OS X support, and the KMQuake II source doesn't support it either.
-
-The following errata should be fixed in current builds. If you experience them, please file a bug report:
-- KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. 
-- KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.
-
-#Build Instructions:
-
-1. Clone or copy the repository into a directory of your choice.
-2. Copy the `LibOVR` folder from the Oculus Rift SDK into the root directory of your repository.
-3. Open `quake2.sln` in Visual Studio. If you are using Visual Studio 2012 and you want to submit pull requests I would appreciate it if you do not upgrade the solution.
-4. Build it for your desired profile.
-
 #Acknowledgements:
 
 Thanks go out to:
