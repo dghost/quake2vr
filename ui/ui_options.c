@@ -41,6 +41,7 @@ static menuaction_s		s_options_controls_section;
 static menuaction_s		s_options_screen_section;
 static menuaction_s		s_options_effects_section;
 static menuaction_s		s_options_interface_section;
+static menuaction_s		s_options_vr_section;
 static menuaction_s		s_options_back_action;
 
 static void MenuSoundFunc ( void *unused )
@@ -68,6 +69,10 @@ static void MenuInterfaceFunc ( void *unused )
 	M_Menu_Options_Interface_f();
 }
 
+static void MenuVRFunc ( void *unused )
+{
+	M_Menu_Options_VR_f();
+}
 //=======================================================================
 
 void Options_MenuInit ( void )
@@ -116,11 +121,21 @@ void Options_MenuInit ( void )
 	s_options_interface_section.generic.callback = MenuInterfaceFunc;
 	//s_options_interface_section.generic.cursor_offset = -(MENU_FONT_SIZE*10);
 
+	
+	s_options_vr_section.generic.type	= MTYPE_ACTION;
+	s_options_vr_section.generic.flags  = QMF_LEFT_JUSTIFY;
+	s_options_vr_section.generic.name	= " virtual reality";
+	s_options_vr_section.generic.x		= 0;
+	s_options_vr_section.generic.y		= MENU_FONT_SIZE * 12;
+	s_options_vr_section.generic.callback = MenuVRFunc;
+	//s_options_interface_section.generic.cursor_offset = -(MENU_FONT_SIZE*10);
+
+
 	s_options_back_action.generic.type	= MTYPE_ACTION;
 	s_options_back_action.generic.flags  = QMF_LEFT_JUSTIFY;
 	s_options_back_action.generic.name	= " back to main";
 	s_options_back_action.generic.x		= 0;
-	s_options_back_action.generic.y		= MENU_FONT_SIZE * 13;
+	s_options_back_action.generic.y		= MENU_FONT_SIZE * 15;
 	s_options_back_action.generic.callback = UI_BackMenu;
 	//s_options_back_action.generic.cursor_offset = -(MENU_FONT_SIZE*10);
 
@@ -129,6 +144,7 @@ void Options_MenuInit ( void )
 	Menu_AddItem( &s_options_menu,	( void * ) &s_options_screen_section );
 	Menu_AddItem( &s_options_menu,	( void * ) &s_options_effects_section );
 	Menu_AddItem( &s_options_menu,	( void * ) &s_options_interface_section );
+	Menu_AddItem( &s_options_menu,  ( void * ) &s_options_vr_section );
 	Menu_AddItem( &s_options_menu,	( void * ) &s_options_back_action );
 }
 

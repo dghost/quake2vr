@@ -360,6 +360,15 @@
     <ClCompile Include="vr\vr_ovr.c">
       <Filter>Source Files\vr</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_options_vr.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_options_vr_advanced.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_options_vr_ovr.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
