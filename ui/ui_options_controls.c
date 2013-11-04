@@ -100,7 +100,7 @@ static void LookstrafeFunc( void *unused )
 
 static void JoystickFunc( void *unused )
 {
-	Cvar_SetValue( "in_joystick", s_options_controls_joystick_box.curvalue );
+	Cvar_SetValue( "in_controller", s_options_controls_joystick_box.curvalue );
 }
 
 static void CustomizeControlsFunc( void *unused )
@@ -130,8 +130,8 @@ static void ControlsSetMenuItemValues( void )
 	Cvar_SetValue( "freelook", ClampCvar( 0, 1, Cvar_VariableValue("freelook") ) );
 	s_options_controls_freelook_box.curvalue			= Cvar_VariableValue("freelook");
 
-	Cvar_SetValue( "in_joystick", ClampCvar( 0, 1, Cvar_VariableValue("in_joystick") ) );
-	s_options_controls_joystick_box.curvalue		= Cvar_VariableValue("in_joystick");
+	Cvar_SetValue( "in_controller", ClampCvar( 0, 2, Cvar_VariableValue("in_controller") ) );
+	s_options_controls_joystick_box.curvalue		= Cvar_VariableValue("in_controller");
 }
 
 static void ControlsResetDefaultsFunc ( void *unused )
@@ -145,7 +145,7 @@ static void ControlsResetDefaultsFunc ( void *unused )
 	//Cvar_SetToDefault ("lookspring");
 	//Cvar_SetToDefault ("lookstrafe");
 	//Cvar_SetToDefault ("freelook");
-	Cvar_SetToDefault ("in_joystick");
+	Cvar_SetToDefault ("in_controller");
 
 	Cbuf_AddText ("exec defaultbinds.cfg\n"); // reset default binds
 	Cbuf_Execute();
@@ -160,6 +160,13 @@ void Options_Controls_MenuInit ( void )
 		"no",
 		"yes",
 		0
+	};
+
+	static const char *controller_names[] =
+	{
+		"none",
+		"joystick",
+		"xbox 360",
 	};
 
 	int y = 3*MENU_LINE_SIZE;
@@ -249,10 +256,10 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_joystick_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_controls_joystick_box.generic.x			= 0;
 	s_options_controls_joystick_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_joystick_box.generic.name		= "use joystick";
+	s_options_controls_joystick_box.generic.name		= "controller support";
 	s_options_controls_joystick_box.generic.callback	= JoystickFunc;
-	s_options_controls_joystick_box.itemnames			= yesno_names;
-	s_options_controls_joystick_box.generic.statusbar	= "enables use of joystick";
+	s_options_controls_joystick_box.itemnames			= controller_names;
+	s_options_controls_joystick_box.generic.statusbar	= "enables use of external controllers";
 
 	s_options_controls_customize_keys_action.generic.type		= MTYPE_ACTION;
 	s_options_controls_customize_keys_action.generic.x			= MENU_FONT_SIZE;

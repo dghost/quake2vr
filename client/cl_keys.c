@@ -114,22 +114,23 @@ keyname_t keynames[] =
 	{"AUX14", K_AUX14},
 	{"AUX15", K_AUX15},
 	{"AUX16", K_AUX16},
-	{"AUX17", K_AUX17},
-	{"AUX18", K_AUX18},
-	{"AUX19", K_AUX19},
-	{"AUX20", K_AUX20},
-	{"AUX21", K_AUX21},
-	{"AUX22", K_AUX22},
-	{"AUX23", K_AUX23},
-	{"AUX24", K_AUX24},
-	{"AUX25", K_AUX25},
-	{"AUX26", K_AUX26},
-	{"AUX27", K_AUX27},
-	{"AUX28", K_AUX28},
-	{"AUX29", K_AUX29},
-	{"AUX30", K_AUX30},
-	{"AUX31", K_AUX31},
-	{"AUX32", K_AUX32},
+
+	{"XBOX_UP", K_XBOX_UP},
+	{"XBOX_DOWN", K_XBOX_DOWN},
+	{"XBOX_LEFT", K_XBOX_LEFT},
+	{"XBOX_RIGHT", K_XBOX_RIGHT},
+	{"XBOX_START", K_XBOX_START},
+	{"XBOX_BACK", K_XBOX_BACK},
+	{"XBOX_VIEW_STICK", K_XBOX_VIEW_STICK},
+	{"XBOX_MOVE_STICK", K_XBOX_MOVE_STICK},
+	{"XBOX_LB", K_XBOXLS},
+	{"XBOX_RB", K_XBOXRS},
+	{"XBOX_A", K_XBOXA},
+	{"XBOX_B", K_XBOXB},
+	{"XBOX_X", K_XBOXX},
+	{"XBOX_Y", K_XBOXY},
+	{"XBOX_LT", K_XBOXLT},
+	{"XBOX_RT", K_XBOXRT},
 
 	{"KP_HOME",			K_KP_HOME },
 	{"KP_UPARROW",		K_KP_UPARROW },
@@ -926,7 +927,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 			&& key_repeats[key] > 1)
 			return;	// ignore most autorepeats
 			
-		if (key >= 200 && !keybindings[key])
+		if (key >= 175 && key != K_XBOX_START && !keybindings[key])
 			Com_Printf ("%s is unbound, hit F4 to set.\n", Key_KeynumToString (key) );
 	}
 	else
@@ -958,7 +959,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 		key = K_ESCAPE;*/
 
 	// menu key is hardcoded, so the user can never unbind it
-	if (key == K_ESCAPE)
+	if (key == K_ESCAPE || key == K_XBOX_START)
 	{
 		if (!down)
 			return;

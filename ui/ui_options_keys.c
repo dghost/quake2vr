@@ -259,7 +259,11 @@ static const char *Keys_MenuKey( int key )
 	//pressing mouse1 to pick a new bind wont force bind/unbind itself - spaz
 	if ( bind_grab && !(cursor.buttonused[MOUSEBUTTON1]&&key==K_MOUSE1))
 	{	
-		if ( key != K_ESCAPE && key != '`' )
+		// don't allow binding escape, tilde, the xbox start button
+		// or the thumb stick events necessary for menu navigation
+		if ( key != K_ESCAPE && key != '`' && key != K_XBOX_START
+			&& key != K_XBOX_STICK_UP && key != K_XBOX_STICK_DOWN
+			&& key != K_XBOX_STICK_LEFT && key != K_XBOX_STICK_RIGHT)
 		{
 			char cmd[1024];
 
@@ -280,12 +284,14 @@ static const char *Keys_MenuKey( int key )
 
 	switch ( key )
 	{
+	case K_XBOXA:
 	case K_KP_ENTER:
 	case K_ENTER:
 		if (item == &s_keys_back_action) { // back action hack
 			UI_BackMenu(item); return NULL; }
 		KeyBindingFunc( item );
 		return menu_in_sound;
+	case K_XBOXX:
 	case K_BACKSPACE:		// delete bindings
 	case K_DEL:				// delete bindings
 	case K_KP_DEL:

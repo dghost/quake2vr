@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "winquake.h"
 #include "../vr/vr.h"
+#include <Xinput.h>
 
 extern	unsigned	sys_msg_time;
 
@@ -43,6 +44,16 @@ enum _ControlList
 	AxisNada = 0, AxisForward, AxisLook, AxisSide, AxisTurn, AxisUp
 };
 
+enum _ControllerType
+{
+	ControllerNone = 0, ControllerJoystick, ControllerXbox
+};
+
+enum _XboxStickModes
+{
+	Xbox_Righthanded = 0, Xbox_Lefthanded
+};
+
 DWORD	dwAxisFlags[JOY_MAX_AXES] =
 {
 	JOY_RETURNX, JOY_RETURNY, JOY_RETURNZ, JOY_RETURNR, JOY_RETURNU, JOY_RETURNV
@@ -54,8 +65,7 @@ PDWORD	pdwRawValue[JOY_MAX_AXES];
 
 cvar_t	*m_noaccel; //sul
 cvar_t	*in_mouse;
-cvar_t	*in_joystick;
-
+cvar_t	*in_controller;
 cvar_t	*autosensitivity;
 
 
@@ -99,7 +109,22 @@ qboolean	in_appactive;
 // forward-referenced functions
 void IN_StartupJoystick (void);
 void Joy_AdvancedUpdate_f (void);
+void Joy_Commands (void);
 void IN_JoyMove (usercmd_t *cmd);
+
+cvar_t	*xbox_usernum;
+cvar_t	*xbox_stick_mode;
+cvar_t	*xbox_trigger_threshold;
+cvar_t	*xbox_pitch_sensitivity;
+cvar_t	*xbox_yaw_sensitivity;
+cvar_t	*xbox_pitch_invert;
+
+// forward-referenced functions
+void IN_StartupXbox (void);
+void IN_XboxMove (usercmd_t *cmd);
+void Xbox_Commands (void);
+
+static XINPUT_GAMEPAD xbox_oldstate;
 
 /*
 ============================================================
@@ -240,7 +265,6 @@ void UI_RefreshCursorLink (void);
 void IN_StartupMouse (void)
 {
 	cvar_t		*cv;
-
 	cv = Cvar_Get ("in_initmouse", "1", CVAR_NOSET);
 	if ( !cv->value ) 
 		return; 
@@ -255,6 +279,9 @@ void IN_StartupMouse (void)
 	mouseparmsvalid = SystemParametersInfo (SPI_GETMOUSE, 0, originalmouseparms, 0);
 	//MW_Set_Hook(); 	// Logitech mouse support
 	mouse_buttons = 5; // was 3
+
+
+
 }
 
 /*
@@ -447,7 +474,8 @@ void IN_Init (void)
     in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
 
 	// joystick variables
-	in_joystick				= Cvar_Get ("in_joystick",				"0",		CVAR_ARCHIVE);
+	in_controller			= Cvar_Get ("in_controller",			"2",		CVAR_ARCHIVE);
+
 	joy_name				= Cvar_Get ("joy_name",					"joystick",	0);
 	joy_advanced			= Cvar_Get ("joy_advanced",				"0",		0);
 	joy_advaxisx			= Cvar_Get ("joy_advaxisx",				"0",		0);
@@ -467,6 +495,13 @@ void IN_Init (void)
 	joy_pitchsensitivity	= Cvar_Get ("joy_pitchsensitivity",		"1",		0);
 	joy_yawsensitivity		= Cvar_Get ("joy_yawsensitivity",		"-1",		0);
 
+	xbox_yaw_sensitivity	= Cvar_Get ("xbox_yaw_sensitivity",		"1.75",		CVAR_ARCHIVE);
+	xbox_pitch_sensitivity	= Cvar_Get ("xbox_pitch_sensitivity",	"1.75",		CVAR_ARCHIVE);
+	xbox_pitch_invert		= Cvar_Get ("xbox_pitch_invert",		"0",		CVAR_ARCHIVE);
+	xbox_trigger_threshold	= Cvar_Get ("xbox_trigger_threshold",	"0.12",		CVAR_ARCHIVE);
+	xbox_stick_mode			= Cvar_Get ("xbox_stick_mode",			"0",		CVAR_ARCHIVE);
+	xbox_usernum			= Cvar_Get ("xbox_usernum",				"0",		CVAR_ARCHIVE);
+
 	// centering
 	v_centermove			= Cvar_Get ("v_centermove",				"0.15",		0);
 	v_centerspeed			= Cvar_Get ("v_centerspeed",			"500",		0);
@@ -478,6 +513,7 @@ void IN_Init (void)
 
 	IN_StartupMouse ();
 	IN_StartupJoystick ();
+	IN_StartupXbox ();
 }
 
 /*
@@ -560,8 +596,18 @@ void IN_Move (usercmd_t *cmd)
 	if (cls.key_dest == key_menu && !cls.consoleActive) // Knightmare added
 		UI_Think_MouseCursor();
 
-	//if (ActiveApp)
+
+	switch(Cvar_VariableInteger("in_controller"))
+	{
+	case ControllerJoystick:
 		IN_JoyMove (cmd);
+		return;
+	case ControllerXbox:
+		IN_XboxMove (cmd);
+		return;
+	default:
+		return;
+	}
 
 }
 
@@ -756,7 +802,6 @@ void Joy_AdvancedUpdate_f (void)
 	}
 }
 
-
 /*
 ===========
 IN_Commands
@@ -764,7 +809,28 @@ IN_Commands
 */
 void IN_Commands (void)
 {
-	int		i, key_index;
+	switch(Cvar_VariableInteger("in_controller"))
+	{
+	case ControllerJoystick:
+		Joy_Commands();
+		return;
+	case ControllerXbox:
+		Xbox_Commands();
+		return;
+	default:
+		return;
+	}
+}
+
+/*
+===========
+Joy_Commands
+===========
+*/
+
+void Joy_Commands (void)
+{
+		int		i, key_index;
 	DWORD	buttonstate, povstate;
 
 	if (!joy_avail)
@@ -826,7 +892,6 @@ void IN_Commands (void)
 	}
 }
 
-
 /* 
 =============== 
 IN_ReadJoystick
@@ -875,7 +940,7 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 
 	// verify joystick is available and that the user wants to use it
-	if (!joy_avail || !in_joystick->value)
+	if (!joy_avail)
 	{
 		return; 
 	}
@@ -1016,3 +1081,247 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 }
 
+/*
+============================================================
+
+  XBOX 360 GAMEPAD CONTROL
+
+============================================================
+*/
+
+void IN_StartupXbox (void)
+{
+	DWORD i;
+	cvar_t		*cv;
+
+
+	// abort startup if user requests no xbox support
+	cv = Cvar_Get ("in_initxbox", "1", CVAR_NOSET);
+	if ( !cv->value ) 
+		return; 
+ 
+	for (i = 0; i < 4; i++)
+	{
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+		if (XInputGetState(i, &state) == ERROR_SUCCESS)
+			Com_Printf("Found Xbox 360 Controller at %i\n",i);
+	}
+	
+}
+
+void Xbox_ParseThumbStick(float LX, float LY, float deadzone, vec3_t out)
+{
+	//determine how far the controller is pushed
+	float mag = sqrt(LX*LX + LY*LY);
+
+	//determine the direction the controller is pushed
+	if (mag > 0)
+	{
+		out[0] = LX / mag;
+		out[1] = LY / mag;
+	} else 
+	{
+		out[0] = 0;
+		out[1] = 0;
+	}
+	//check if the controller is outside a circular dead zone
+	if (mag > deadzone)
+	{
+		//clip the magnitude at its expected maximum value
+		if (mag > 32767) 
+			mag = 32767;
+
+		//adjust magnitude relative to the end of the dead zone
+		mag -= deadzone;
+
+		//optionally normalize the magnitude with respect to its expected range
+		//giving a magnitude value of 0.0 to 1.0
+		out[2] = mag / (32767 - deadzone);
+	}
+	else //if the controller is in the deadzone zero out the magnitude
+	{
+		out[2] = 0.0;
+	}
+}
+typedef enum _XboxDirection {
+	Xbox_None,
+	Xbox_Up,
+	Xbox_Down,
+	Xbox_Left,
+	Xbox_Right
+} xboxdir_t;
+
+void Xbox_ParseDirection(vec3_t dir, xboxdir_t *out)
+{
+	float x = dir[0] * dir[2];
+	float y = dir[1] * dir[2];
+	const float sq1over2 = sqrt(0.5);
+	if (dir[2] == 0.0f)
+		*out = Xbox_None;
+	else if (x > sq1over2)
+		*out = Xbox_Right;
+	else if (x < -sq1over2)
+		*out = Xbox_Left;
+	else if (y > sq1over2)
+		*out = Xbox_Up;
+	else if (y < -sq1over2)
+		*out = Xbox_Down;
+	else
+		*out = Xbox_None;
+	return;
+}
+
+void Xbox_Commands (void)
+{
+	XINPUT_STATE newState;
+	XINPUT_GAMEPAD *n = &newState.Gamepad;
+	XINPUT_GAMEPAD *o = &xbox_oldstate;
+	unsigned int i = 0;
+	unsigned int j = 1;
+	unsigned int keybase = K_XBOX_UP;
+	unsigned int triggerThreshold = xbox_trigger_threshold->value * 255.0f;
+	unsigned short view, move;
+
+	if (XInputGetState(Cvar_VariableInteger("xbox_usernum"),&newState) != ERROR_SUCCESS)
+	{
+		memset(&newState,0,sizeof(newState));
+//		return;
+	}
+
+	while (i < 16)
+	{
+
+		if (n->wButtons & j && !(o->wButtons & j))
+			Key_Event (keybase + i, true, 0);
+
+		if (!(n->wButtons & j) && (o->wButtons & j))
+			Key_Event (keybase + i, false, 0);
+
+		if (keybase + i != K_XBOX_BACK && keybase + i != K_XBOXRS)
+		{
+			j = j << 1;
+			i++;
+		} else 
+		{
+			j = j << 3;
+			i += 3;
+		}
+	}
+
+	/* left trigger */
+	if (n->bLeftTrigger >= triggerThreshold && o->bLeftTrigger < triggerThreshold)
+		Key_Event (K_XBOXLT, true, 0);
+
+	if (n->bLeftTrigger < triggerThreshold && o->bLeftTrigger >= triggerThreshold)
+		Key_Event (K_XBOXLT, false, 0);
+
+	/* right trigger */
+	if (n->bRightTrigger >= triggerThreshold && o->bRightTrigger < triggerThreshold)
+		Key_Event (K_XBOXRT, true, 0);
+
+	if (n->bRightTrigger < triggerThreshold && o->bRightTrigger >= triggerThreshold)
+		Key_Event (K_XBOXRT, false, 0);
+
+
+		switch((int) xbox_stick_mode->value)
+		{
+		case Xbox_Lefthanded:
+			//		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
+			//		Xbox_ParseThumbStick(o->sThumbRX,o->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,oldStick);
+			move = XINPUT_GAMEPAD_RIGHT_THUMB;
+			view = XINPUT_GAMEPAD_LEFT_THUMB;
+			break;
+		case Xbox_Righthanded:
+		default:
+			//		Xbox_ParseThumbStick(n->sThumbLX,n->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,newStick);
+			//		Xbox_ParseThumbStick(o->sThumbLX,o->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,oldStick);
+			view = XINPUT_GAMEPAD_RIGHT_THUMB;
+			move = XINPUT_GAMEPAD_LEFT_THUMB;
+			break;
+		}
+
+		if (n->wButtons & move && !(o->wButtons & move))
+			Key_Event (K_XBOX_MOVE_STICK, true, 0);
+
+		if (!(n->wButtons & move) && (o->wButtons & move))
+			Key_Event (K_XBOX_MOVE_STICK, false, 0);
+
+		if (n->wButtons & view && !(o->wButtons & view))
+			Key_Event (K_XBOX_VIEW_STICK, true, 0);
+
+		if (!(n->wButtons & view) && (o->wButtons & view))
+			Key_Event (K_XBOX_VIEW_STICK, false, 0);
+
+
+	if (cls.key_dest == key_menu)
+	{
+		vec3_t oldStick, newStick;
+		xboxdir_t oldDir, newDir;
+		int i = 0;
+
+
+		Xbox_ParseThumbStick(n->sThumbLX,n->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,newStick);
+		Xbox_ParseThumbStick(o->sThumbLX,o->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,oldStick);
+
+		Xbox_ParseDirection(newStick,&newDir);
+		Xbox_ParseDirection(oldStick,&oldDir);
+
+		for (i = 0; i < 4; i++)
+		{
+			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
+				Key_Event (K_XBOX_STICK_UP + i, true, 0);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Key_Event (K_XBOX_STICK_UP + i, false, 0);
+		}
+	}
+
+
+
+	xbox_oldstate = newState.Gamepad;
+
+}
+
+void IN_XboxMove (usercmd_t *cmd)
+{
+	vec3_t leftPos,rightPos;
+	vec_t *view, *move;
+	float speed, aspeed;
+
+	float pitchInvert = xbox_pitch_invert->value ? -1 : 1;
+
+	if (cls.key_dest == key_menu)
+		return;
+
+	if ( (in_speed.state & 1) ^ (int)cl_run->value)
+		speed = 2;
+	else
+		speed = 1;
+	aspeed = cls.frametime;
+	if (autosensitivity->value)
+		aspeed *= (cl.refdef.fov_x/90.0);
+
+	switch((int) xbox_stick_mode->value)
+	{
+	case Xbox_Lefthanded:
+		view = leftPos;
+		move = rightPos;
+		break;
+	case Xbox_Righthanded:
+	default:
+		view = rightPos;
+		move = leftPos;
+		break;
+	}
+
+	Xbox_ParseThumbStick(xbox_oldstate.sThumbLX,xbox_oldstate.sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,leftPos);
+	Xbox_ParseThumbStick(xbox_oldstate.sThumbRX,xbox_oldstate.sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,rightPos);
+
+	cmd->forwardmove += move[1] * move[2] * speed * cl_forwardspeed->value;
+	cmd->sidemove += move[0] * move[2] * speed *  cl_sidespeed->value;
+
+	cl.in_delta[PITCH] -= (view[1] * view[2] * pitchInvert * xbox_pitch_sensitivity->value) * aspeed * cl_pitchspeed->value;
+
+	cl.in_delta[YAW] -= (view[0] * view[2] * xbox_yaw_sensitivity->value) * aspeed * cl_yawspeed->value;
+
+}
