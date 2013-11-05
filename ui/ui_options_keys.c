@@ -44,25 +44,20 @@ char *bindnames[][2] =
 {"weapnext", 		"next weapon"},
 {"+forward", 		"walk forward"},
 {"+back", 			"backpedal"},
-{"+left", 			"turn left"},
-{"+right", 			"turn right"},
-{"+speed", 			"run"},
 {"+moveleft", 		"step left"},
 {"+moveright", 		"step right"},
-{"+strafe", 		"sidestep"},
+{"+moveup",			"up / jump"},
+{"+movedown",		"down / crouch"},
+{"+speed", 			"run"},
 {"+lookup", 		"look up"},
 {"+lookdown", 		"look down"},
 {"centerview", 		"center view"},
-{"+mlook", 			"mouse look"},
-{"+klook", 			"keyboard look"},
-{"+moveup",			"up / jump"},
-{"+movedown",		"down / crouch"},
-{"inven",			"inventory"},
 {"invuse",			"use item"},
 {"invdrop",			"drop item"},
 {"invprev",			"prev item"},
 {"invnext",			"next item"},
 {"cmd help", 		"help computer" }, 
+{"inven",			"inventory"},
 { 0, 0 }
 };
 
@@ -262,8 +257,10 @@ static const char *Keys_MenuKey( int key )
 		// don't allow binding escape, tilde, the xbox start button
 		// or the thumb stick events necessary for menu navigation
 		if ( key != K_ESCAPE && key != '`' && key != K_XBOX_START
-			&& key != K_XBOX_STICK_UP && key != K_XBOX_STICK_DOWN
-			&& key != K_XBOX_STICK_LEFT && key != K_XBOX_STICK_RIGHT)
+			&& key != K_XBOX_LSTICK_UP && key != K_XBOX_LSTICK_DOWN
+			&& key != K_XBOX_LSTICK_LEFT && key != K_XBOX_LSTICK_RIGHT
+			&& key != K_XBOX_RSTICK_UP && key != K_XBOX_RSTICK_DOWN
+			&& key != K_XBOX_RSTICK_LEFT && key != K_XBOX_RSTICK_RIGHT)
 		{
 			char cmd[1024];
 

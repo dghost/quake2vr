@@ -121,8 +121,8 @@ keyname_t keynames[] =
 	{"XBOX_RIGHT", K_XBOX_RIGHT},
 	{"XBOX_START", K_XBOX_START},
 	{"XBOX_BACK", K_XBOX_BACK},
-	{"XBOX_VIEW_STICK", K_XBOX_VIEW_STICK},
-	{"XBOX_MOVE_STICK", K_XBOX_MOVE_STICK},
+	{"XBOX_LSTICK", K_XBOX_LEFT_STICK},
+	{"XBOX_RSTICK", K_XBOX_RIGHT_STICK},
 	{"XBOX_LB", K_XBOXLS},
 	{"XBOX_RB", K_XBOXRS},
 	{"XBOX_A", K_XBOXA},
@@ -927,7 +927,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 			&& key_repeats[key] > 1)
 			return;	// ignore most autorepeats
 			
-		if (key >= 175 && key != K_XBOX_START && !keybindings[key])
+		if (key >= 200 && !keybindings[key])
 			Com_Printf ("%s is unbound, hit F4 to set.\n", Key_KeynumToString (key) );
 	}
 	else

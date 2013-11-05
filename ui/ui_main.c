@@ -273,14 +273,16 @@ const char *M_Main_Key (int key)
 #endif
 		break;
 	case K_XBOX_DOWN:
-	case K_XBOX_STICK_DOWN:
+	case K_XBOX_LSTICK_DOWN:
+	case K_XBOX_RSTICK_DOWN:
 	case K_KP_DOWNARROW:
 	case K_DOWNARROW:
 		if (++m_main_cursor >= MAIN_ITEMS)
 			m_main_cursor = 0;
 		return sound;
 	case K_XBOX_UP:
-	case K_XBOX_STICK_UP:
+	case K_XBOX_LSTICK_UP:
+	case K_XBOX_RSTICK_UP:
 	case K_KP_UPARROW:
 	case K_UPARROW:
 		if (--m_main_cursor < 0)

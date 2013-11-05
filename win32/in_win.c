@@ -46,12 +46,12 @@ enum _ControlList
 
 enum _ControllerType
 {
-	ControllerNone = 0, ControllerJoystick, ControllerXbox
+	ControllerNone = 0, ControllerXbox, ControllerJoystick
 };
 
 enum _XboxStickModes
 {
-	Xbox_Righthanded = 0, Xbox_Lefthanded
+	Xbox_StickDefault = 0, Xbox_StickSwap
 };
 
 DWORD	dwAxisFlags[JOY_MAX_AXES] =
@@ -117,7 +117,6 @@ cvar_t	*xbox_stick_mode;
 cvar_t	*xbox_trigger_threshold;
 cvar_t	*xbox_pitch_sensitivity;
 cvar_t	*xbox_yaw_sensitivity;
-cvar_t	*xbox_pitch_invert;
 
 // forward-referenced functions
 void IN_StartupXbox (void);
@@ -474,7 +473,7 @@ void IN_Init (void)
     in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
 
 	// joystick variables
-	in_controller			= Cvar_Get ("in_controller",			"2",		CVAR_ARCHIVE);
+	in_controller			= Cvar_Get ("in_controller",			"1",		CVAR_ARCHIVE);
 
 	joy_name				= Cvar_Get ("joy_name",					"joystick",	0);
 	joy_advanced			= Cvar_Get ("joy_advanced",				"0",		0);
@@ -497,7 +496,6 @@ void IN_Init (void)
 
 	xbox_yaw_sensitivity	= Cvar_Get ("xbox_yaw_sensitivity",		"1.75",		CVAR_ARCHIVE);
 	xbox_pitch_sensitivity	= Cvar_Get ("xbox_pitch_sensitivity",	"1.75",		CVAR_ARCHIVE);
-	xbox_pitch_invert		= Cvar_Get ("xbox_pitch_invert",		"0",		CVAR_ARCHIVE);
 	xbox_trigger_threshold	= Cvar_Get ("xbox_trigger_threshold",	"0.12",		CVAR_ARCHIVE);
 	xbox_stick_mode			= Cvar_Get ("xbox_stick_mode",			"0",		CVAR_ARCHIVE);
 	xbox_usernum			= Cvar_Get ("xbox_usernum",				"0",		CVAR_ARCHIVE);
@@ -1180,8 +1178,7 @@ void Xbox_Commands (void)
 	unsigned int i = 0;
 	unsigned int j = 1;
 	unsigned int keybase = K_XBOX_UP;
-	unsigned int triggerThreshold = xbox_trigger_threshold->value * 255.0f;
-	unsigned short view, move;
+	unsigned int triggerThreshold = ClampCvar(0.04,0.96,xbox_trigger_threshold->value) * 255.0f;
 
 	if (XInputGetState(Cvar_VariableInteger("xbox_usernum"),&newState) != ERROR_SUCCESS)
 	{
@@ -1198,15 +1195,12 @@ void Xbox_Commands (void)
 		if (!(n->wButtons & j) && (o->wButtons & j))
 			Key_Event (keybase + i, false, 0);
 
-		if (keybase + i != K_XBOX_BACK && keybase + i != K_XBOXRS)
-		{
+		if (keybase + i != K_XBOXRS)
 			j = j << 1;
-			i++;
-		} else 
-		{
+		else 
 			j = j << 3;
-			i += 3;
-		}
+		
+		i++;
 	}
 
 	/* left trigger */
@@ -1223,38 +1217,7 @@ void Xbox_Commands (void)
 	if (n->bRightTrigger < triggerThreshold && o->bRightTrigger >= triggerThreshold)
 		Key_Event (K_XBOXRT, false, 0);
 
-
-		switch((int) xbox_stick_mode->value)
-		{
-		case Xbox_Lefthanded:
-			//		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
-			//		Xbox_ParseThumbStick(o->sThumbRX,o->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,oldStick);
-			move = XINPUT_GAMEPAD_RIGHT_THUMB;
-			view = XINPUT_GAMEPAD_LEFT_THUMB;
-			break;
-		case Xbox_Righthanded:
-		default:
-			//		Xbox_ParseThumbStick(n->sThumbLX,n->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,newStick);
-			//		Xbox_ParseThumbStick(o->sThumbLX,o->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,oldStick);
-			view = XINPUT_GAMEPAD_RIGHT_THUMB;
-			move = XINPUT_GAMEPAD_LEFT_THUMB;
-			break;
-		}
-
-		if (n->wButtons & move && !(o->wButtons & move))
-			Key_Event (K_XBOX_MOVE_STICK, true, 0);
-
-		if (!(n->wButtons & move) && (o->wButtons & move))
-			Key_Event (K_XBOX_MOVE_STICK, false, 0);
-
-		if (n->wButtons & view && !(o->wButtons & view))
-			Key_Event (K_XBOX_VIEW_STICK, true, 0);
-
-		if (!(n->wButtons & view) && (o->wButtons & view))
-			Key_Event (K_XBOX_VIEW_STICK, false, 0);
-
-
-	if (cls.key_dest == key_menu)
+		if (cls.key_dest == key_menu)
 	{
 		vec3_t oldStick, newStick;
 		xboxdir_t oldDir, newDir;
@@ -1270,9 +1233,23 @@ void Xbox_Commands (void)
 		for (i = 0; i < 4; i++)
 		{
 			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
-				Key_Event (K_XBOX_STICK_UP + i, true, 0);
+				Key_Event (K_XBOX_LSTICK_UP + i, true, 0);
 			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
-				Key_Event (K_XBOX_STICK_UP + i, false, 0);
+				Key_Event (K_XBOX_LSTICK_UP + i, false, 0);
+		}
+
+		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
+		Xbox_ParseThumbStick(o->sThumbRX,o->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,oldStick);
+
+		Xbox_ParseDirection(newStick,&newDir);
+		Xbox_ParseDirection(oldStick,&oldDir);
+
+		for (i = 0; i < 4; i++)
+		{
+			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
+				Key_Event (K_XBOX_RSTICK_UP + i, true, 0);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Key_Event (K_XBOX_RSTICK_UP + i, false, 0);
 		}
 	}
 
@@ -1288,11 +1265,11 @@ void IN_XboxMove (usercmd_t *cmd)
 	vec_t *view, *move;
 	float speed, aspeed;
 
-	float pitchInvert = xbox_pitch_invert->value ? -1 : 1;
+	float pitchInvert = (m_pitch->value < 0.0) ? -1 : 1;
 
 	if (cls.key_dest == key_menu)
 		return;
-
+	 
 	if ( (in_speed.state & 1) ^ (int)cl_run->value)
 		speed = 2;
 	else
@@ -1303,11 +1280,11 @@ void IN_XboxMove (usercmd_t *cmd)
 
 	switch((int) xbox_stick_mode->value)
 	{
-	case Xbox_Lefthanded:
+	case Xbox_StickSwap:
 		view = leftPos;
 		move = rightPos;
 		break;
-	case Xbox_Righthanded:
+	case Xbox_StickDefault:
 	default:
 		view = rightPos;
 		move = leftPos;

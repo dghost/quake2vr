@@ -320,7 +320,8 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 		UI_PopMenu();
 		return menu_out_sound;
 	case K_XBOX_UP:
-	case K_XBOX_STICK_UP:
+	case K_XBOX_LSTICK_UP:
+	case K_XBOX_RSTICK_UP:
 	case K_KP_UPARROW:
 	case K_UPARROW:
 		if ( m )
@@ -335,7 +336,8 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 		break;
 	case K_TAB:
 	case K_XBOX_DOWN:
-	case K_XBOX_STICK_DOWN:
+	case K_XBOX_LSTICK_DOWN:
+	case K_XBOX_RSTICK_DOWN:
 	case K_KP_DOWNARROW:
 	case K_DOWNARROW:
 		if ( m )
@@ -349,7 +351,8 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 		}
 		break;
 	case K_XBOX_LEFT:
-	case K_XBOX_STICK_LEFT:
+	case K_XBOX_LSTICK_LEFT:
+	case K_XBOX_RSTICK_LEFT:
 	case K_KP_LEFTARROW:
 	case K_LEFTARROW:
 		if ( m )
@@ -359,7 +362,8 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 		}
 		break;
 	case K_XBOX_RIGHT:
-	case K_XBOX_STICK_RIGHT:
+	case K_XBOX_LSTICK_RIGHT:
+	case K_XBOX_RSTICK_RIGHT:
 	case K_KP_RIGHTARROW:
 	case K_RIGHTARROW:
 		if ( m )

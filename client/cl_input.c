@@ -332,6 +332,16 @@ void CL_ClampPitch (void)
 		cl.aimangles[PITCH] = 89 - pitch;
 	if (cl.aimangles[PITCH] + pitch < -89)
 		cl.aimangles[PITCH] = -89 - pitch;
+
+	if (cl.bodyangles[PITCH] + pitch < -360)
+		cl.bodyangles[PITCH] += 360; // wrapped
+	if (cl.bodyangles[PITCH] + pitch > 360)
+		cl.bodyangles[PITCH] -= 360; // wrapped
+
+	if (cl.bodyangles[PITCH] + pitch > 89)
+		cl.bodyangles[PITCH] = 89 - pitch;
+	if (cl.bodyangles[PITCH] + pitch < -89)
+		cl.bodyangles[PITCH] = -89 - pitch;
 }
 
 /*
@@ -575,6 +585,11 @@ void VR_Move (usercmd_t *cmd)
 		break;
 	}
 
+	if (cl.aimdelta[PITCH] + predDelta[PITCH]  > 89)
+		cl.aimdelta[PITCH] = 89 - predDelta[PITCH] ;
+	if (cl.aimdelta[PITCH] + predDelta[PITCH]  < -89)
+		cl.aimdelta[PITCH] = -89 - predDelta[PITCH] ;
+
 	VectorSubtract(predAngles, predDelta, cl.bodyangles);
 	VectorSubtract(view,cl.bodyangles,cl.viewangles);
 	cl.viewangles[YAW] -= predDelta[YAW];
@@ -628,6 +643,7 @@ usercmd_t CL_CreateCmd (void)
 	else {
 		VR_Move(&cmd);
 	}
+//	Com_Printf("%f %f %f\n",cl.aimangles[0],cl.aimangles[1],cl.aimangles[2]);
 	CL_FinishMove (&cmd);
 
 	old_sys_frame_time = sys_frame_time;

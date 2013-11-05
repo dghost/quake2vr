@@ -255,7 +255,7 @@ void VR_Frame()
 
 }
 
-void VR_ResetOrientation()
+void VR_ResetOrientation( void )
 {
 	if (hmd)
 	{
@@ -319,7 +319,7 @@ void VR_Shutdown()
 }
 
 // console command to enable Rift support
-void VR_Enable_f()
+void VR_Enable_f(void)
 {
 	if (vr_enabled->value)
 		return;
@@ -332,7 +332,7 @@ void VR_Enable_f()
 }
 
 // console command to disable Rift support
-void VR_Disable_f()
+void VR_Disable_f(void)
 {
 	if (!vr_enabled->value)
 		return;
