@@ -779,13 +779,13 @@ void Menu_Draw (menuframework_s *menu)
 		if (item->flags & QMF_LEFT_JUSTIFY)
 		{
 			SCR_DrawChar (menu->x+item->x+item->cursor_offset-24, menu->y+item->y,
-						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/250)&1),
+						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/320)&1),
 						255,255,255,255, false, true);
 		}
 		else
 		{
 			SCR_DrawChar (menu->x+item->cursor_offset, menu->y+item->y,
-						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/250)&1),
+						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/320)&1),
 						255,255,255,255, false, true);
 		}
 	}

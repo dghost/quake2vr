@@ -138,6 +138,9 @@ static struct {
 	int lastSendTime;
 }  xbox_repeatstatus[16];
 
+#define XBOX_INITIAL_REPEAT_DELAY 220
+#define XBOX_REPEAT_DELAY 160
+
 /*
 ============================================================
 
@@ -1175,9 +1178,6 @@ void Xbox_ParseDirection(vec3_t dir, xboxdir_t *out)
 		*out = Xbox_None;
 	return;
 }
-
-#define XBOX_INITIAL_REPEAT_DELAY 220
-#define XBOX_REPEAT_DELAY 160
 
 void Xbox_HandleRepeat(unsigned char key)
 {
