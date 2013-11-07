@@ -133,6 +133,10 @@ void Xbox_Commands (void);
 
 static XINPUT_GAMEPAD xbox_oldstate;
 static int xbox_lastDevice = -1;
+static struct {
+	int repeatCount;
+	int lastSendTime;
+}  xbox_repeatstatus[16];
 
 /*
 ============================================================
@@ -1172,6 +1176,47 @@ void Xbox_ParseDirection(vec3_t dir, xboxdir_t *out)
 	return;
 }
 
+#define XBOX_INITIAL_REPEAT_DELAY 220
+#define XBOX_REPEAT_DELAY 160
+
+void Xbox_HandleRepeat(unsigned char key)
+{
+	int index = key - K_XBOX_LSTICK_UP;
+	qboolean send = false;
+
+	if (index < 0 || index > 16)
+		return;
+	if (xbox_repeatstatus[index].repeatCount == 0)
+	{
+		if (cl.time > (xbox_repeatstatus[index].lastSendTime + XBOX_INITIAL_REPEAT_DELAY))
+			send = true;
+	} else {
+		if (cl.time > (xbox_repeatstatus[index].lastSendTime + XBOX_REPEAT_DELAY))
+			send = true;
+	}
+
+	if (send)
+	{
+		xbox_repeatstatus[index].lastSendTime = cl.time;
+		xbox_repeatstatus[index].repeatCount++;
+		Key_Event (key, true, 0);
+	}
+
+}
+
+
+void Xbox_SendKeyup(unsigned char key)
+{
+	int index = key - K_XBOX_LSTICK_UP;
+
+	if (index < 0 || index > 16)
+		return;
+	xbox_repeatstatus[index].lastSendTime = 0;
+	xbox_repeatstatus[index].repeatCount = 0;
+
+	Key_Event (key, false, 0);
+}
+
 void Xbox_Commands (void)
 {
 	XINPUT_STATE newState;
@@ -1215,6 +1260,33 @@ void Xbox_Commands (void)
 			xbox_lastDevice = -1;
 		}
 
+	}
+
+	while (i < 4)
+	{
+
+		if (cls.key_dest == key_menu)
+		{
+
+			if (n->wButtons & j)
+				Xbox_HandleRepeat(keybase + i);
+
+			if (!(n->wButtons & j) && (o->wButtons & j))
+				Xbox_SendKeyup(keybase + i);
+		} else {
+			if (n->wButtons & j && !(o->wButtons & j))
+				Key_Event (keybase + i, true, 0);
+
+			if (!(n->wButtons & j) && (o->wButtons & j))
+				Key_Event (keybase + i, false, 0);
+		}
+
+		if (keybase + i != K_XBOXRS)
+			j = j << 1;
+		else 
+			j = j << 3;
+		
+		i++;
 	}
 
 	while (i < 16)
@@ -1263,10 +1335,17 @@ void Xbox_Commands (void)
 
 		for (i = 0; i < 4; i++)
 		{
+			if (newDir == Xbox_Up + i)
+				Xbox_HandleRepeat(K_XBOX_LSTICK_UP + i);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Xbox_SendKeyup(K_XBOX_LSTICK_UP + i);
+
+			/*
 			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
 				Key_Event (K_XBOX_LSTICK_UP + i, true, 0);
 			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
 				Key_Event (K_XBOX_LSTICK_UP + i, false, 0);
+				*/
 		}
 
 		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
@@ -1277,10 +1356,16 @@ void Xbox_Commands (void)
 
 		for (i = 0; i < 4; i++)
 		{
+			if (newDir == Xbox_Up + i)
+				Xbox_HandleRepeat(K_XBOX_RSTICK_UP + i);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Xbox_SendKeyup(K_XBOX_RSTICK_UP + i);
+/*
 			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
 				Key_Event (K_XBOX_RSTICK_UP + i, true, 0);
 			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
 				Key_Event (K_XBOX_RSTICK_UP + i, false, 0);
+				*/
 		}
 	}
 

@@ -141,8 +141,6 @@ typedef enum {
 	K_XBOX_RSTICK_DOWN,
 	K_XBOX_RSTICK_LEFT,
 	K_XBOX_RSTICK_RIGHT,
-	K_XBOXLT,
-	K_XBOXRT,
 
 	K_XBOX_UP,
 	K_XBOX_DOWN,
@@ -158,6 +156,9 @@ typedef enum {
 	K_XBOXB,
 	K_XBOXX,
 	K_XBOXY,
+
+	K_XBOXLT,
+	K_XBOXRT,
 } keynum_t;
 
 /*

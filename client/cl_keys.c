@@ -924,6 +924,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 			&& key != K_KP_PGDN
 			&& key != K_DEL
 			&& !(key>='a' && key<='z')
+			&& !(key>= K_XBOX_LSTICK_UP && key <= K_XBOX_RIGHT)
 			&& key_repeats[key] > 1)
 			return;	// ignore most autorepeats
 			
