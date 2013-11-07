@@ -266,6 +266,8 @@ qboolean Field_Key (menufield_s *f, int key)
 		{
 		case K_DEL:
 		default:
+			if (f->generic.callback)
+				f->generic.callback(f);
 			return false;
 		}
 	}
@@ -536,8 +538,8 @@ slot.
 */
 void Menu_AdjustCursor (menuframework_s *m, int dir)
 {
-	menucommon_s *citem;
-
+	menucommon_s *citem = Menu_ItemAtCursor(m);
+	
 	//
 	// see if it's in a valid spot
 	//
@@ -550,6 +552,8 @@ void Menu_AdjustCursor (menuframework_s *m, int dir)
 		}
 	}
 
+
+
 	//
 	// it's not in a valid spot, so crawl in the direction indicated until we
 	// find a valid spot
@@ -560,8 +564,10 @@ void Menu_AdjustCursor (menuframework_s *m, int dir)
 		{
 			citem = Menu_ItemAtCursor(m);
 			if ( citem )
+			{
 				if ( citem->type != MTYPE_SEPARATOR )
 					break;
+			}
 			m->cursor += dir;
 			if ( m->cursor >= m->nitems )
 				m->cursor = 0;

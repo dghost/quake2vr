@@ -72,6 +72,7 @@ hmd_interface_t available_hmds[NUM_HMD_TYPES];
 
 extern cvar_t *vr_enabled;
 extern cvar_t *vr_autoenable;
+extern cvar_t *vr_autoipd;
 extern cvar_t *vr_ipd;
 extern cvar_t *vr_hud_fov;
 extern cvar_t *vr_hud_depth;

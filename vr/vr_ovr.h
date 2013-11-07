@@ -16,6 +16,8 @@ extern cvar_t *vr_ovr_chromatic;
 extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_distortion;
 extern cvar_t *vr_ovr_lensdistance;
+extern cvar_t *vr_ovr_autoscale;
+extern cvar_t *vr_ovr_autolensdistance;
 
 void VR_OVR_SetFOV();
 void VR_OVR_CalcRenderParam();

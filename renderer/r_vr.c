@@ -198,39 +198,54 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 void R_VR_StartFrame()
 {
 	int hmd = (int) vr_enabled->value;
-
+	float ipd = vr_autoipd->value ? vrConfig.ipd / 2.0 : (vr_ipd->value / 2000.0);
 	if (!hmd)
 		return;
 
-	vrState.viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+	vrState.viewOffset = ipd * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 	
 	if (hmd == HMD_RIFT)
 	{
 		int changeBackBuffers = 0;
 		if (vr_ovr_scale->modified)
 		{
-
-			if (vr_ovr_scale->value < -1.0)
-				Cvar_SetInteger("vr_ovr_scale", -1);
-			else if (vr_ovr_scale->value < 1.0)
-				Cvar_SetInteger("vr_ovr_scale", (int) vr_ovr_scale->value);
+			if (vr_ovr_scale->value < 1.0)
+				Cvar_Set("vr_ovr_scale", "1.0");
 			else if (vr_ovr_scale->value > 2.0)
 				Cvar_Set("vr_ovr_scale", "2.0");
 			changeBackBuffers = 1;
 			vr_ovr_scale->modified = false;
-
 		}
 
+		if (vr_ovr_autoscale->modified)
+		{
+			if (vr_ovr_autoscale->value < 0.0)
+				Cvar_SetInteger("vr_ovr_autoscale", 0);
+			else if (vr_ovr_autoscale->value > 2.0)
+				Cvar_SetInteger("vr_ovr_autoscale",2);
+			else
+				Cvar_SetInteger("vr_ovr_autoscale", (int) vr_ovr_autoscale->value);
+			changeBackBuffers = 1;
+			vr_ovr_autoscale->modified = false;
+		}
 
 		if (vr_ovr_lensdistance->modified)
 		{
-			if (vr_ovr_lensdistance->value < -1.0)
+			if (vr_ovr_lensdistance->value < 0.0)
 				Cvar_SetInteger("vr_ovr_lensdistance", -1);
 			else if (vr_ovr_lensdistance->value > 100.0)
 				Cvar_Set("vr_ovr_lensdistance", "100.0");
 			changeBackBuffers = 1;
 			VR_OVR_CalcRenderParam();
 			vr_ovr_lensdistance->modified = false;
+		}
+
+		if (vr_ovr_autolensdistance->modified)
+		{
+			Cvar_SetValue("vr_ovr_autolensdistance",!!vr_ovr_autolensdistance->value);
+			changeBackBuffers = 1;
+			VR_OVR_CalcRenderParam();
+			vr_ovr_autolensdistance->modified = false;
 		}
 
 		if (changeBackBuffers)
@@ -249,8 +264,6 @@ void R_VR_StartFrame()
 			vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
 			Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
 			Com_Printf("VR: Using %u x %u backbuffer\n", vrState.vrWidth, vrState.vrHeight);
-
-
 		}
 	}
 
@@ -351,6 +364,7 @@ void R_VR_DrawHud()
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
+	float ipd = vr_autoipd->value ? vrConfig.ipd / 2.0 : (vr_ipd->value / 2000.0);
 
 	extern int scr_draw_loading;
 
@@ -387,7 +401,7 @@ void R_VR_DrawHud()
 		*/
 	}
 
-	qglTranslatef(vrState.eye * -vr_ipd->value / 2000.0,0,0);
+	qglTranslatef(vrState.eye * -ipd,0,0);
 	// calculate coordinates for hud
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
 	y = x / ((float) hud.width / hud.height);

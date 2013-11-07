@@ -38,24 +38,33 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_menu;
 static menuseparator_s	s_options_vr_header;
 static menulist_s		s_options_vr_aimmode_box;
+static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
+static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
+static menulist_s		s_options_vr_viewmove_box;
 static menulist_s		s_options_vr_crosshair_box;
 static menuslider_s		s_options_vr_crosshair_bright_slider;
 static menuslider_s		s_options_vr_crosshair_size_slider;
-static menuslider_s		s_options_vr_hud_depth_slider;
-static menuslider_s		s_options_vr_hud_fov_slider;
-static menulist_s		s_options_vr_neckmodel_box;
+static menulist_s		s_options_vr_autoipd_box;
+static menufield_s		s_options_vr_ipd_field;
 static menuaction_s		s_options_vr_enable_action;
 static menuaction_s		s_options_vr_advanced_action;
 static menuaction_s		s_options_vr_ovr_action;
 static menuaction_s		s_options_vr_defaults_action;
 static menuaction_s		s_options_vr_back_action;
 
+extern cvar_t *vr_aimmode_deadzone_yaw;
+extern cvar_t *vr_aimmode_deadzone_pitch;
+extern cvar_t *vr_ipd;
 
 static void AimmodeFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_aimmode", s_options_vr_aimmode_box.curvalue);
 }
 
+static void ViewmodeFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_viewmove", s_options_vr_viewmove_box.curvalue);
+}
 
 static void EnableDisableFunc( void *unused )
 {
@@ -72,38 +81,92 @@ static void CrosshairFunc( void *unused )
 	Cvar_SetValue( "vr_crosshair_size", s_options_vr_crosshair_size_slider.curvalue / 4.0f);
 }
 
-static void HUDFunc( void *unused )
+static void AutoIPDFunc ( void *unused )
 {
-	Cvar_SetValue( "vr_hud_depth", s_options_vr_hud_depth_slider.curvalue / 20.0f);
-	Cvar_SetInteger( "vr_hud_fov", s_options_vr_hud_fov_slider.curvalue);
-}
-
-static void NeckFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_neckmodel", s_options_vr_neckmodel_box.curvalue );
+	Cvar_SetInteger( "vr_autoipd", s_options_vr_autoipd_box.curvalue);
 }
 
 static void VRSetMenuItemValues( void )
 {
 	s_options_vr_aimmode_box.curvalue = ( Cvar_VariableValue("vr_aimmode") );
+	s_options_vr_viewmove_box.curvalue = ( Cvar_VariableValue("vr_viewmove") );
 	s_options_vr_crosshair_box.curvalue = ( Cvar_VariableValue("vr_crosshair") );
 	s_options_vr_crosshair_bright_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_brightness") );
 	s_options_vr_crosshair_size_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_size") * 4.0 );
-	s_options_vr_hud_depth_slider.curvalue = ( Cvar_VariableValue("vr_hud_depth") * 20.0f);
-	s_options_vr_hud_fov_slider.curvalue = ( Cvar_VariableValue("vr_hud_fov") );
-	s_options_vr_neckmodel_box.curvalue = ( Cvar_VariableValue("vr_neckmodel") );
+	s_options_vr_autoipd_box.curvalue = ( Cvar_VariableValue("vr_autoipd") );
+	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
+	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
+	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
+	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
+	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
+	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 }
 
 static void VRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_aimmode");
+	Cvar_SetToDefault ("vr_viewmove");
+	Cvar_SetToDefault ("vr_aimmode_deadzone_pitch");
+	Cvar_SetToDefault ("vr_aimmode_deadzone_yaw");
 	Cvar_SetToDefault ("vr_crosshair");
 	Cvar_SetToDefault ("vr_crosshair_brightness");
 	Cvar_SetToDefault ("vr_crosshair_size");
-	Cvar_SetToDefault ("vr_hud_depth");
-	Cvar_SetToDefault ("vr_hud_fov");
-	Cvar_SetToDefault ("vr_neckmodel");
+	Cvar_SetToDefault ("vr_autoipd");
+	Cvar_SetToDefault ("vr_ipd");
 	VRSetMenuItemValues();
+}
+
+static void DeadzoneFunc ( void *unused )
+{
+	float temp;
+
+	temp = ClampCvar(0,360,atof(s_options_vr_aimmode_deadzone_pitch_field.buffer));
+	Cvar_SetInteger("vr_aimmode_deadzone_pitch",temp);
+
+	temp = ClampCvar(0,360,atof(s_options_vr_aimmode_deadzone_yaw_field.buffer));
+	Cvar_SetInteger("vr_aimmode_deadzone_yaw",temp);
+
+	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
+	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
+	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
+	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
+}
+
+static void IPDFunc( void *unused )
+{
+	float temp;
+	char string[6];
+
+	temp = ClampCvar(0,100,atof(s_options_vr_ipd_field.buffer));
+	strncpy(string, va("%.2f",temp), sizeof(string));
+	Cvar_Set("vr_ipd", string);
+	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
+	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
+}
+
+void VRConfigAccept (void)
+{
+	DeadzoneFunc(NULL);
+	IPDFunc(NULL);
+}
+
+static void AdvancedFunc ( void *unused )
+{
+	VRConfigAccept();
+	M_Menu_Options_VR_Advanced_f();
+}
+
+static void OVRFunc ( void *unused )
+{
+	VRConfigAccept();
+	M_Menu_Options_VR_OVR_f();
+}
+
+
+void BackFunc ( void *unused )
+{
+	VRConfigAccept();
+	UI_BackMenu(NULL);
 }
 
 void Options_VR_MenuInit ( void )
@@ -136,6 +199,13 @@ void Options_VR_MenuInit ( void )
 		0
 	};
 
+	static const char *auto_names[] =
+	{
+		"custom",
+		"auto",
+		0
+	};
+
 	int y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_menu.x = SCREEN_WIDTH*0.5;
@@ -154,6 +224,39 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_box.generic.callback		= AimmodeFunc;
 	s_options_vr_aimmode_box.itemnames			= aimmode_names;
 	s_options_vr_aimmode_box.generic.statusbar	= "select which aim mode to use";
+
+	s_options_vr_viewmove_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_viewmove_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_viewmove_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_viewmove_box.generic.name			= "force view move";
+	s_options_vr_viewmove_box.generic.callback		= ViewmodeFunc;
+	s_options_vr_viewmove_box.itemnames			= yesno_names;
+	s_options_vr_viewmove_box.generic.statusbar	= "force movement in direction of view";
+
+
+	s_options_vr_aimmode_deadzone_pitch_field.generic.type = MTYPE_FIELD;
+	s_options_vr_aimmode_deadzone_pitch_field.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_aimmode_deadzone_pitch_field.generic.name = "vertical deadzone";
+	s_options_vr_aimmode_deadzone_pitch_field.generic.statusbar	= "sets the vertical aiming deadzone";
+	s_options_vr_aimmode_deadzone_pitch_field.generic.callback = DeadzoneFunc;
+	s_options_vr_aimmode_deadzone_pitch_field.generic.x		= MENU_FONT_SIZE;
+	s_options_vr_aimmode_deadzone_pitch_field.generic.y		= y+=2*MENU_LINE_SIZE;
+	s_options_vr_aimmode_deadzone_pitch_field.length	= 5;
+	s_options_vr_aimmode_deadzone_pitch_field.visible_length = 5;
+	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
+	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
+
+	s_options_vr_aimmode_deadzone_yaw_field.generic.type = MTYPE_FIELD;
+	s_options_vr_aimmode_deadzone_yaw_field.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_aimmode_deadzone_yaw_field.generic.name = "horizontal deadzone";
+	s_options_vr_aimmode_deadzone_pitch_field.generic.statusbar	= "sets the horizontal aiming deadzone";
+	s_options_vr_aimmode_deadzone_yaw_field.generic.callback = DeadzoneFunc;
+	s_options_vr_aimmode_deadzone_yaw_field.generic.x		= MENU_FONT_SIZE;
+	s_options_vr_aimmode_deadzone_yaw_field.generic.y		= y+=2*MENU_LINE_SIZE;
+	s_options_vr_aimmode_deadzone_yaw_field.length	= 5;
+	s_options_vr_aimmode_deadzone_yaw_field.visible_length = 5;
+	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
+	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 
 	s_options_vr_crosshair_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_crosshair_box.generic.x			= MENU_FONT_SIZE;
@@ -181,44 +284,38 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_crosshair_size_slider.maxvalue			= 20;
 	s_options_vr_crosshair_size_slider.generic.statusbar	= "changes size of crosshair";
 
-	s_options_vr_neckmodel_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_neckmodel_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_neckmodel_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_neckmodel_box.generic.name			= "enable head/neck model";
-	s_options_vr_neckmodel_box.generic.callback		= NeckFunc;
-	s_options_vr_neckmodel_box.itemnames			= yesno_names;
-	s_options_vr_neckmodel_box.generic.statusbar	= "enable or disable the head/neck model";
+	s_options_vr_autoipd_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_autoipd_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_autoipd_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_autoipd_box.generic.name			= "interpupillary distance mode";
+	s_options_vr_autoipd_box.generic.callback		= AutoIPDFunc;
+	s_options_vr_autoipd_box.itemnames			= auto_names;
+	s_options_vr_autoipd_box.generic.statusbar	= "choose whether to use auto or custom interpupillary distance";
 
-	s_options_vr_hud_depth_slider.generic.type		= MTYPE_SLIDER;
-	s_options_vr_hud_depth_slider.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_hud_depth_slider.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_hud_depth_slider.generic.name		= "hud depth";
-	s_options_vr_hud_depth_slider.generic.callback	= HUDFunc;
-	s_options_vr_hud_depth_slider.minvalue			= 5;
-	s_options_vr_hud_depth_slider.maxvalue			= 100;
-	s_options_vr_hud_depth_slider.generic.statusbar	= "changes HUD depth";
-
-	s_options_vr_hud_fov_slider.generic.type		= MTYPE_SLIDER;
-	s_options_vr_hud_fov_slider.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_hud_fov_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_hud_fov_slider.generic.name		= "hud fov";
-	s_options_vr_hud_fov_slider.generic.callback	= HUDFunc;
-	s_options_vr_hud_fov_slider.minvalue			= 30;
-	s_options_vr_hud_fov_slider.maxvalue			= 90;
-	s_options_vr_hud_fov_slider.generic.statusbar	= "changes size of the HUD";
+	s_options_vr_ipd_field.generic.type = MTYPE_FIELD;
+	s_options_vr_ipd_field.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_ipd_field.generic.name = "custom interpupillary distance";
+	s_options_vr_ipd_field.generic.statusbar = "sets a custom interpupillary distance";
+	s_options_vr_ipd_field.generic.callback = IPDFunc;
+	s_options_vr_ipd_field.generic.x		= MENU_FONT_SIZE;
+	s_options_vr_ipd_field.generic.y		= y+=2*MENU_LINE_SIZE;
+	s_options_vr_ipd_field.length	= 5;
+	s_options_vr_ipd_field.visible_length = 5;
+	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
+	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 
 	s_options_vr_advanced_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_advanced_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_advanced_action.generic.name		= "advanced options";
-	s_options_vr_advanced_action.generic.callback	= M_Menu_Options_VR_Advanced_f;
+	s_options_vr_advanced_action.generic.callback	= AdvancedFunc;
 	s_options_vr_advanced_action.generic.statusbar	= "advanced configuration options";
 
 	s_options_vr_ovr_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_ovr_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_action.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_action.generic.name		= "oculus rift options";
-	s_options_vr_ovr_action.generic.callback	= M_Menu_Options_VR_OVR_f;
+	s_options_vr_ovr_action.generic.callback	= OVRFunc;
 	s_options_vr_ovr_action.generic.statusbar	= "oculus rift configuration";
 
 
@@ -240,17 +337,19 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_back_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_back_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_back_action.generic.name		= "back to options";
-	s_options_vr_back_action.generic.callback	= UI_BackMenu;
+	s_options_vr_back_action.generic.callback	= BackFunc;
 
-	
+
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_header );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_bright_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_size_slider );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_neckmodel_box );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_hud_depth_slider );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_hud_fov_slider );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ovr_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_enable_action );
@@ -269,8 +368,14 @@ void Options_VR_MenuDraw (void)
 
 const char *Options_VR_MenuKey( int key )
 {
+	if ( key == K_ESCAPE		|| key == K_XBOXB
+		|| key == K_XBOX_BACK	|| key == K_XBOX_START
+		)
+		VRConfigAccept();
+
 	return Default_MenuKey( &s_options_vr_menu, key );
 }
+
 
 void M_Menu_Options_VR_f (void)
 {

@@ -9,6 +9,8 @@ cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_prediction;
 cvar_t *vr_ovr_distortion;
 cvar_t *vr_ovr_lensdistance;
+cvar_t *vr_ovr_autoscale;
+cvar_t *vr_ovr_autolensdistance;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -61,7 +63,7 @@ void VR_OVR_CalcRenderParam()
 	if (vr_ovr_settings.initialized)
 	{	
 		float *dk = vr_ovr_settings.distortion_k;
-		float lsd = vr_ovr_lensdistance->value == -1 ? vr_ovr_settings.lens_separation_distance : vr_ovr_lensdistance->value / 1000.0;
+		float lsd = vr_ovr_autolensdistance->value ? vr_ovr_settings.lens_separation_distance : vr_ovr_lensdistance->value / 1000.0;
 		float h = 1.0f - (2.0f * lsd) / vr_ovr_settings.h_screen_size;
 		float le = (-1.0f - h) * (-1.0f - h);
 		float re = (-1.0f + h) * (-1.0f + h);
@@ -93,11 +95,11 @@ void VR_OVR_CalcRenderParam()
 float VR_OVR_GetDistortionScale()
 {
 
-	switch ((int) vr_ovr_scale->value)
+	switch ((int) vr_ovr_autoscale->value)
 	{
-	case -1:
+	case 1:
 		return vrConfig.minScale;
-	case 0:
+	case 2:
 		return vrConfig.maxScale;
 	default:
 		return vr_ovr_scale->value;
@@ -143,6 +145,7 @@ void VR_OVR_Frame()
 			Com_Printf("VR_OVR: %s\n",results);		
 	}
 }
+
 int VR_OVR_GetSettings(ovr_settings_t *settings)
 {
 	int result = LibOVR_GetSettings(settings);
@@ -254,11 +257,16 @@ int VR_OVR_Enable()
 		Com_Printf("...set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
 	vr_ovr_prediction->modified = false;
 
+	strncpy(string, va("%.2f", vr_ovr_settings.lens_separation_distance * 1000), sizeof(string));
+	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance", string, CVAR_ARCHIVE);
+
+	if (vr_ovr_scale->value < 1)
+		Cvar_SetValue("vr_ovr_scale", 1.0);
+
 	VR_OVR_CalcRenderParam();
 
 	strncpy(string, va("%.2f", vrConfig.ipd * 1000), sizeof(string));
 	vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
-
 
 	if (vr_ipd->value < 0)
 		Cvar_SetValue("vr_ipd", vrConfig.ipd * 1000);
@@ -291,14 +299,16 @@ int VR_OVR_Init()
 {
 	qboolean init = LibOVR_Init();
 
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","0",CVAR_ARCHIVE);
+	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
-	vr_ovr_lensdistance->modified = false;
+	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","2",CVAR_ARCHIVE);
+	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
+
 	if (!init)
 	{
 		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");

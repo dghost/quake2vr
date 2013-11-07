@@ -5,6 +5,7 @@
 
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
+cvar_t *vr_autoipd;
 cvar_t *vr_ipd;
 cvar_t *vr_hud_fov;
 cvar_t *vr_hud_depth;
@@ -365,13 +366,14 @@ void VR_Init()
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","80",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
+	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);
+	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
 	vr_fov_scale = Cvar_Get("vr_fov_scale","1.0",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
 	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
-	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);
-	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
+	vr_autoipd = Cvar_Get("vr_autoipd","1",CVAR_ARCHIVE);
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
 	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","30",CVAR_ARCHIVE);
 	vr_aimmode_deadzone_pitch = Cvar_Get("vr_aimmode_deadzone_pitch","60",CVAR_ARCHIVE);
