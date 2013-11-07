@@ -54,6 +54,14 @@ enum _XboxStickModes
 	Xbox_StickDefault = 0, Xbox_StickSwap
 };
 
+typedef enum _XboxDirection {
+	Xbox_None,
+	Xbox_Up,
+	Xbox_Down,
+	Xbox_Left,
+	Xbox_Right
+} xboxdir_t;
+
 DWORD	dwAxisFlags[JOY_MAX_AXES] =
 {
 	JOY_RETURNX, JOY_RETURNY, JOY_RETURNZ, JOY_RETURNR, JOY_RETURNU, JOY_RETURNV
@@ -124,6 +132,7 @@ void IN_XboxMove (usercmd_t *cmd);
 void Xbox_Commands (void);
 
 static XINPUT_GAMEPAD xbox_oldstate;
+static int xbox_lastDevice = -1;
 
 /*
 ============================================================
@@ -595,7 +604,7 @@ void IN_Move (usercmd_t *cmd)
 		UI_Think_MouseCursor();
 
 
-	switch(Cvar_VariableInteger("in_controller"))
+	switch((int) in_controller->value)
 	{
 	case ControllerJoystick:
 		IN_JoyMove (cmd);
@@ -807,7 +816,7 @@ IN_Commands
 */
 void IN_Commands (void)
 {
-	switch(Cvar_VariableInteger("in_controller"))
+	switch((int) in_controller->value)
 	{
 	case ControllerJoystick:
 		Joy_Commands();
@@ -1142,13 +1151,6 @@ void Xbox_ParseThumbStick(float LX, float LY, float deadzone, vec3_t out)
 		out[2] = 0.0;
 	}
 }
-typedef enum _XboxDirection {
-	Xbox_None,
-	Xbox_Up,
-	Xbox_Down,
-	Xbox_Left,
-	Xbox_Right
-} xboxdir_t;
 
 void Xbox_ParseDirection(vec3_t dir, xboxdir_t *out)
 {
@@ -1180,10 +1182,39 @@ void Xbox_Commands (void)
 	unsigned int keybase = K_XBOX_UP;
 	unsigned int triggerThreshold = ClampCvar(0.04,0.96,xbox_trigger_threshold->value) * 255.0f;
 
-	if (XInputGetState(Cvar_VariableInteger("xbox_usernum"),&newState) != ERROR_SUCCESS)
+
+	int device = (int) xbox_usernum->value - 1;
+
+	if (device < 0)
 	{
-		memset(&newState,0,sizeof(newState));
-//		return;
+		if (xbox_lastDevice >= 0 && XInputGetState(xbox_lastDevice,&newState) != ERROR_SUCCESS)
+		{
+			Com_Printf("Xbox 360 Controller %i disconnected.\n",xbox_lastDevice + 1);
+			xbox_lastDevice = -1;
+		} 
+		
+		if (xbox_lastDevice < 0)
+		{
+			memset(&newState,0,sizeof(newState));
+			for (device = 0; device < 4 ; device++)
+			{
+				if (XInputGetState(device,&newState) == ERROR_SUCCESS)
+				{
+					xbox_lastDevice = device;
+					Com_Printf("Using Xbox 360 Controller %i.\n",xbox_lastDevice + 1);
+					break;
+				}
+			}
+		}	
+	} else 
+	{
+		xbox_lastDevice = device;
+		if (XInputGetState(device,&newState) != ERROR_SUCCESS)
+		{
+			memset(&newState,0,sizeof(newState));
+			xbox_lastDevice = -1;
+		}
+
 	}
 
 	while (i < 16)
@@ -1267,7 +1298,7 @@ void IN_XboxMove (usercmd_t *cmd)
 
 	float pitchInvert = (m_pitch->value < 0.0) ? -1 : 1;
 
-	if (cls.key_dest == key_menu)
+	if (cls.key_dest == key_menu || xbox_lastDevice < 0)
 		return;
 	 
 	if ( (in_speed.state & 1) ^ (int)cl_run->value)

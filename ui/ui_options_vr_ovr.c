@@ -225,7 +225,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_prediction_field.generic.type = MTYPE_FIELD;
 	s_options_vr_ovr_prediction_field.generic.flags = QMF_LEFT_JUSTIFY;
 	s_options_vr_ovr_prediction_field.generic.name = "motion prediction";
-	s_options_vr_ovr_prediction_field.generic.statusbar	= "sets the amount of motion prediction to apply";
+	s_options_vr_ovr_prediction_field.generic.statusbar	= "sets the amount of motion prediction to apply in milliseconds";
 	s_options_vr_ovr_prediction_field.generic.callback = CustomPredictionFunc;
 	s_options_vr_ovr_prediction_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_ovr_prediction_field.generic.y		= y+=2*MENU_LINE_SIZE;
@@ -267,15 +267,15 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_autolensdistance_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_autolensdistance_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_autolensdistance_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_autolensdistance_box.generic.name			= "lens separation distance mode";
+	s_options_vr_ovr_autolensdistance_box.generic.name			= "lens separation distance";
 	s_options_vr_ovr_autolensdistance_box.generic.callback		= AutoFunc;
 	s_options_vr_ovr_autolensdistance_box.itemnames			= auto_names;
 	s_options_vr_ovr_autolensdistance_box.generic.statusbar	= "sets whether to use the automatic or custom lens separation distance";
 
 	s_options_vr_ovr_lensdistance_field.generic.type = MTYPE_FIELD;
 	s_options_vr_ovr_lensdistance_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_ovr_lensdistance_field.generic.name = "custom lens distance";
-	s_options_vr_ovr_lensdistance_field.generic.statusbar	= "sets a custom lens distance";
+	s_options_vr_ovr_lensdistance_field.generic.name = "custom lens separation distance";
+	s_options_vr_ovr_lensdistance_field.generic.statusbar	= "sets a custom lens seperation distance";
 	s_options_vr_ovr_lensdistance_field.generic.callback = CustomLensFunc;
 	s_options_vr_ovr_lensdistance_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_ovr_lensdistance_field.generic.y		= y+=2*MENU_LINE_SIZE;
@@ -297,7 +297,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_defaults_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_ovr_defaults_action.generic.name		= "reset defaults";
 	s_options_vr_ovr_defaults_action.generic.callback	= VROVRResetDefaultsFunc;
-	s_options_vr_ovr_defaults_action.generic.statusbar	= "resets all interface settings to internal defaults";
+	s_options_vr_ovr_defaults_action.generic.statusbar	= "resets all oculus rift settings to internal defaults";
 
 	s_options_vr_ovr_back_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_ovr_back_action.generic.x			= MENU_FONT_SIZE;

@@ -40,8 +40,6 @@ static menuseparator_s	s_options_controls_header;
 static menuslider_s		s_options_controls_sensitivity_slider;
 static menulist_s		s_options_controls_alwaysrun_box;
 static menulist_s		s_options_controls_invertmouse_box;
-static menulist_s		s_options_controls_joystick_box;
-static menulist_s		s_options_controls_xbox_user_box;
 static menulist_s		s_options_controls_xbox_stickmode_box;
 static menuslider_s		s_options_controls_xbox_trigger_threshold_slider;
 static menuslider_s		s_options_controls_xbox_pitch_sensitivity_slider;
@@ -68,19 +66,9 @@ static void InvertMouseFunc( void *unused )
 	Cvar_SetValue( "m_pitch", -m_pitch->value );
 }
 
-static void JoystickFunc( void *unused )
-{
-	Cvar_SetValue( "in_controller", s_options_controls_joystick_box.curvalue );
-}
-
 static void CustomizeControlsFunc( void *unused )
 {
 	M_Menu_Keys_f();
-}
-
-static void XboxUserNumFunc( void *unused )
-{
-	Cvar_SetValue( "xbox_usernum", s_options_controls_xbox_user_box.curvalue );
 }
 
 static void XboxStickFunc( void *unused )
@@ -107,12 +95,6 @@ static void ControlsSetMenuItemValues( void )
 
 	Cvar_SetValue( "cl_run", ClampCvar( 0, 1, Cvar_VariableValue("cl_run") ) );
 	s_options_controls_alwaysrun_box.curvalue		= Cvar_VariableValue("cl_run");
-
-	Cvar_SetValue( "in_controller", ClampCvar( 0, 2, Cvar_VariableValue("in_controller") ) );
-	s_options_controls_joystick_box.curvalue		= Cvar_VariableValue("in_controller");
-
-	Cvar_SetValue( "xbox_usernum", ClampCvar( 0, 3, Cvar_VariableValue("xbox_usernum") ) );
-	s_options_controls_xbox_user_box.curvalue		= Cvar_VariableValue("xbox_usernum");
 
 	Cvar_SetValue( "xbox_stick_mode", ClampCvar( 0, 1, Cvar_VariableValue("xbox_stick_mode") ) );
 	s_options_controls_xbox_stickmode_box.curvalue		= Cvar_VariableValue("xbox_stick_mode");
@@ -164,23 +146,6 @@ void Options_Controls_MenuInit ( void )
 		0
 	};
 
-	static const char *controller_names[] =
-	{
-		"none",
-		"xbox 360",
-		"joystick",
-		0
-	};
-
-	static const char *xbox_nums[] =
-	{
-		"1",
-		"2",
-		"3",
-		"4",
-		0
-	};
-
 	static const char *xbox_stick_names[] =
 	{
 		"move / view",
@@ -215,14 +180,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_invertmouse_box.itemnames			= yesno_names;
 	s_options_controls_invertmouse_box.generic.statusbar	= "inverts controller y-axis movement";
 
-	s_options_controls_joystick_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_controls_joystick_box.generic.x			= 0;
-	s_options_controls_joystick_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_joystick_box.generic.name		= "controller support";
-	s_options_controls_joystick_box.generic.callback	= JoystickFunc;
-	s_options_controls_joystick_box.itemnames			= controller_names;
-	s_options_controls_joystick_box.generic.statusbar	= "enables use of external controllers";
-	
+
 	s_options_controls_sensitivity_slider.generic.type		= MTYPE_SLIDER;
 	s_options_controls_sensitivity_slider.generic.x			= 0;
 	s_options_controls_sensitivity_slider.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -232,17 +190,10 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_sensitivity_slider.maxvalue			= 22;
 	s_options_controls_sensitivity_slider.generic.statusbar	= "changes sensitivity of mouse for head movement";
 	
-	s_options_controls_xbox_user_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_controls_xbox_user_box.generic.x			= 0;
-	s_options_controls_xbox_user_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_controls_xbox_user_box.generic.name		= "xbox controller number";
-	s_options_controls_xbox_user_box.generic.callback	= XboxUserNumFunc;
-	s_options_controls_xbox_user_box.itemnames			= xbox_nums;
-	s_options_controls_xbox_user_box.generic.statusbar	= "selects the profile number of the xbox 360 controller to use";
 
 	s_options_controls_xbox_stickmode_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_controls_xbox_stickmode_box.generic.x			= 0;
-	s_options_controls_xbox_stickmode_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_xbox_stickmode_box.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_controls_xbox_stickmode_box.generic.name		= "xbox stick mode";
 	s_options_controls_xbox_stickmode_box.generic.callback	= XboxStickFunc;
 	s_options_controls_xbox_stickmode_box.itemnames			= xbox_stick_names;
@@ -297,9 +248,7 @@ void Options_Controls_MenuInit ( void )
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_header );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_alwaysrun_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_invertmouse_box );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_joystick_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_sensitivity_slider );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_user_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_stickmode_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_trigger_threshold_slider );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_pitch_sensitivity_slider );

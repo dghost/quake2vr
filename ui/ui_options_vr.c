@@ -237,7 +237,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_deadzone_pitch_field.generic.type = MTYPE_FIELD;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.flags = QMF_LEFT_JUSTIFY;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.name = "vertical deadzone";
-	s_options_vr_aimmode_deadzone_pitch_field.generic.statusbar	= "sets the vertical aiming deadzone";
+	s_options_vr_aimmode_deadzone_pitch_field.generic.statusbar	= "sets the vertical aiming deadzone in degrees";
 	s_options_vr_aimmode_deadzone_pitch_field.generic.callback = DeadzoneFunc;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.y		= y+=2*MENU_LINE_SIZE;
@@ -249,7 +249,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_deadzone_yaw_field.generic.type = MTYPE_FIELD;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.flags = QMF_LEFT_JUSTIFY;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.name = "horizontal deadzone";
-	s_options_vr_aimmode_deadzone_pitch_field.generic.statusbar	= "sets the horizontal aiming deadzone";
+	s_options_vr_aimmode_deadzone_yaw_field.generic.statusbar	= "sets the horizontal aiming deadzone in degrees";
 	s_options_vr_aimmode_deadzone_yaw_field.generic.callback = DeadzoneFunc;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.y		= y+=2*MENU_LINE_SIZE;
@@ -287,7 +287,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_autoipd_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_autoipd_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_autoipd_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_autoipd_box.generic.name			= "interpupillary distance mode";
+	s_options_vr_autoipd_box.generic.name			= "interpupillary distance";
 	s_options_vr_autoipd_box.generic.callback		= AutoIPDFunc;
 	s_options_vr_autoipd_box.itemnames			= auto_names;
 	s_options_vr_autoipd_box.generic.statusbar	= "choose whether to use auto or custom interpupillary distance";
@@ -295,7 +295,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_ipd_field.generic.type = MTYPE_FIELD;
 	s_options_vr_ipd_field.generic.flags = QMF_LEFT_JUSTIFY;
 	s_options_vr_ipd_field.generic.name = "custom interpupillary distance";
-	s_options_vr_ipd_field.generic.statusbar = "sets a custom interpupillary distance";
+	s_options_vr_ipd_field.generic.statusbar = "sets a custom interpupillary distance in millimeters";
 	s_options_vr_ipd_field.generic.callback = IPDFunc;
 	s_options_vr_ipd_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_ipd_field.generic.y		= y+=2*MENU_LINE_SIZE;
@@ -331,7 +331,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_defaults_action.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_defaults_action.generic.name		= "reset defaults";
 	s_options_vr_defaults_action.generic.callback	= VRResetDefaultsFunc;
-	s_options_vr_defaults_action.generic.statusbar	= "resets all interface settings to internal defaults";
+	s_options_vr_defaults_action.generic.statusbar	= "resets virtual reality settings to internal defaults";
 
 	s_options_vr_back_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_back_action.generic.x			= MENU_FONT_SIZE;

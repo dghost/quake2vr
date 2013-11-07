@@ -206,7 +206,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hud_depth_slider.generic.callback	= HUDFunc;
 	s_options_vr_advanced_hud_depth_slider.minvalue			= 5;
 	s_options_vr_advanced_hud_depth_slider.maxvalue			= 100;
-	s_options_vr_advanced_hud_depth_slider.generic.statusbar	= "changes HUD depth";
+	s_options_vr_advanced_hud_depth_slider.generic.statusbar	= "changes hud depth";
 
 	s_options_vr_advanced_hud_fov_slider.generic.type		= MTYPE_SLIDER;
 	s_options_vr_advanced_hud_fov_slider.generic.x			= MENU_FONT_SIZE;
@@ -215,7 +215,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hud_fov_slider.generic.callback	= HUDFunc;
 	s_options_vr_advanced_hud_fov_slider.minvalue			= 30;
 	s_options_vr_advanced_hud_fov_slider.maxvalue			= 90;
-	s_options_vr_advanced_hud_fov_slider.generic.statusbar	= "changes size of the HUD";
+	s_options_vr_advanced_hud_fov_slider.generic.statusbar	= "changes size of the hud";
 
 	s_options_vr_advanced_hudtrans_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_hudtrans_box.generic.x			= MENU_FONT_SIZE;
@@ -231,7 +231,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hudbounce_box.generic.name			= "hud bouncing";
 	s_options_vr_advanced_hudbounce_box.generic.callback		= BounceFunc;
 	s_options_vr_advanced_hudbounce_box.itemnames			= yesno_names;
-	s_options_vr_advanced_hudbounce_box.generic.statusbar	= "enables or disables the hud responding to head tracking";
+	s_options_vr_advanced_hudbounce_box.generic.statusbar	= "enables or disables hud counter rotation";
 
 	s_options_vr_advanced_hudfalloff_field.generic.type = MTYPE_FIELD;
 	s_options_vr_advanced_hudfalloff_field.generic.flags = QMF_LEFT_JUSTIFY;
@@ -268,7 +268,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	
 	s_options_vr_advanced_neckmodel_forward_field.generic.type = MTYPE_FIELD;
 	s_options_vr_advanced_neckmodel_forward_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_advanced_neckmodel_forward_field.generic.name = "eye distance";
+	s_options_vr_advanced_neckmodel_forward_field.generic.name = "forward eye distance";
 	s_options_vr_advanced_neckmodel_forward_field.generic.statusbar	= "sets the forward distance for the eyes in meters";
 	s_options_vr_advanced_neckmodel_forward_field.generic.callback = NeckmodelFunc;
 	s_options_vr_advanced_neckmodel_forward_field.generic.x		= MENU_FONT_SIZE;
@@ -285,7 +285,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_defaults_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_advanced_defaults_action.generic.name		= "reset defaults";
 	s_options_vr_advanced_defaults_action.generic.callback	= VRAdvResetDefaultsFunc;
-	s_options_vr_advanced_defaults_action.generic.statusbar	= "resets all interface settings to internal defaults";
+	s_options_vr_advanced_defaults_action.generic.statusbar	= "resets all advanced virtual reality settings to internal defaults";
 
 	s_options_vr_advanced_back_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_advanced_back_action.generic.x			= MENU_FONT_SIZE;
