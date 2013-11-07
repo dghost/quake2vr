@@ -82,7 +82,6 @@ static void HandednessCallback (void *unused)
 	Cvar_SetValue ("hand", s_player_handedness_box.curvalue);
 }
 
-
 static void RateCallback (void *unused)
 {
 	if (s_player_rate_box.curvalue != sizeof(rate_tbl) / sizeof(*rate_tbl) - 1)
@@ -128,7 +127,6 @@ static void SkinCallback (void *unused)
 	Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", s_pmi[s_player_model_box.curvalue].directory, s_pmi[s_player_model_box.curvalue].skindisplaynames[s_player_skin_box.curvalue]);
 	playerskin = R_RegisterSkin(scratch);
 }
-
 
 static qboolean IconOfSkinExists (char *skin, char **files, int nfiles, char *suffix)
 {
@@ -343,6 +341,41 @@ static int pmicmpfnc (const void *_a, const void *_b)
 	return strcmp(a->directory, b->directory);
 }
 
+void PConfigAccept (void)
+{
+	int i;
+	char scratch[1024];
+
+	Cvar_Set( "name", s_player_name_field.buffer );
+
+	Com_sprintf( scratch, sizeof( scratch ), "%s/%s", 
+		s_pmi[s_player_model_box.curvalue].directory, 
+		s_pmi[s_player_model_box.curvalue].skindisplaynames[s_player_skin_box.curvalue] );
+
+	Cvar_Set( "skin", scratch );
+
+	for ( i = 0; i < s_numplayermodels; i++ )
+	{
+		int j;
+
+		for ( j = 0; j < s_pmi[i].nskins; j++ )
+		{
+			if ( s_pmi[i].skindisplaynames[j] )
+				free( s_pmi[i].skindisplaynames[j] );
+			s_pmi[i].skindisplaynames[j] = 0;
+		}
+		free( s_pmi[i].skindisplaynames );
+		s_pmi[i].skindisplaynames = 0;
+		s_pmi[i].nskins = 0;
+	}
+}
+
+static void BackCallback (void *unused)
+{
+	PConfigAccept();
+	UI_BackMenu(NULL);
+}
+
 
 qboolean PlayerConfig_MenuInit (void)
 {
@@ -496,7 +529,7 @@ qboolean PlayerConfig_MenuInit (void)
 	s_player_back_action.generic.x	= -5*MENU_FONT_SIZE;
 	s_player_back_action.generic.y	= y += 2*MENU_LINE_SIZE;
 	s_player_back_action.generic.statusbar = NULL;
-	s_player_back_action.generic.callback = UI_BackMenu;
+	s_player_back_action.generic.callback = BackCallback;
 
 	// only register model and skin on starup or when changed
 	Com_sprintf( scratch, sizeof( scratch ), "players/%s/tris.md2", s_pmi[s_player_model_box.curvalue].directory );
@@ -812,38 +845,11 @@ void PlayerConfig_MenuDraw (void)
 }
 
 
-void PConfigAccept (void)
-{
-	int i;
-	char scratch[1024];
-
-	Cvar_Set( "name", s_player_name_field.buffer );
-
-	Com_sprintf( scratch, sizeof( scratch ), "%s/%s", 
-		s_pmi[s_player_model_box.curvalue].directory, 
-		s_pmi[s_player_model_box.curvalue].skindisplaynames[s_player_skin_box.curvalue] );
-
-	Cvar_Set( "skin", scratch );
-
-	for ( i = 0; i < s_numplayermodels; i++ )
-	{
-		int j;
-
-		for ( j = 0; j < s_pmi[i].nskins; j++ )
-		{
-			if ( s_pmi[i].skindisplaynames[j] )
-				free( s_pmi[i].skindisplaynames[j] );
-			s_pmi[i].skindisplaynames[j] = 0;
-		}
-		free( s_pmi[i].skindisplaynames );
-		s_pmi[i].skindisplaynames = 0;
-		s_pmi[i].nskins = 0;
-	}
-}
-
 const char *PlayerConfig_MenuKey (int key)
 {
-	if ( key == K_ESCAPE )
+	if ( key == K_ESCAPE		|| key == K_XBOXB
+		|| key == K_XBOX_BACK	|| key == K_XBOX_START
+		)
 		PConfigAccept();
 
 	return Default_MenuKey( &s_player_config_menu, key );
