@@ -35,8 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
-qboolean s_win95;
-
 int			starttime;
 int			ActiveApp;
 qboolean	Minimized;
@@ -985,52 +983,20 @@ void Sys_Init (void)
 	if (!GetVersionEx (&osInfo))
 		Sys_Error ("Couldn't get OS info");
 
-	if (osInfo.dwMajorVersion < 4)
-		Sys_Error ("KMQuake2 requires windows version 4 or greater");
-	if (osInfo.dwPlatformId == VER_PLATFORM_WIN32s)
-		Sys_Error ("KMQuake2 doesn't run on Win32s");
-	else if ( osInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
-		s_win95 = true;
+	if ((osInfo.dwMajorVersion < 6) || (osInfo.dwPlatformId != VER_PLATFORM_WIN32_NT))
+		Sys_Error ("Quake II VR requires Windows Vista or higher");
 
 // from Q2E - OS & CPU detection
-	if (osInfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-		if (osInfo.dwMajorVersion == 4)
-			strncpy(string, "Windows NT", sizeof(string));
-		else if (osInfo.dwMajorVersion == 5 && osInfo.dwMinorVersion == 0)
-			strncpy(string, "Windows 2000", sizeof(string));
-		else if (osInfo.dwMajorVersion == 5 && osInfo.dwMinorVersion == 1)
-			strncpy(string, "Windows XP", sizeof(string));
-		else if (osInfo.dwMajorVersion == 5 && osInfo.dwMinorVersion == 2)
-			strncpy(string, "Windows XP x64 / Server 2003", sizeof(string));
-		else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 0)
-			strncpy(string, "Windows Vista", sizeof(string));
-		else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 1)
-			strncpy(string, "Windows 7", sizeof(string));
-		else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 2)
-			strncpy(string, "Windows 8", sizeof(string));
-		else
-			strncpy(string, va("Windows %i.%i", osInfo.dwMajorVersion, osInfo.dwMinorVersion), sizeof(string));
-	}
-	else if (osInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) {
-		if (osInfo.dwMajorVersion == 4 && osInfo.dwMinorVersion == 0) {
-			if (osInfo.szCSDVersion[1] == 'C' || osInfo.szCSDVersion[1] == 'B')
-				strncpy(string, "Windows 95 OSR2", sizeof(string));
-			else
-				strncpy(string, "Windows 95", sizeof(string));
-		}
-		else if (osInfo.dwMajorVersion == 4 && osInfo.dwMinorVersion == 10) {
-			if (osInfo.szCSDVersion[1] == 'A')
-				strncpy(string, "Windows 98 SE", sizeof(string));
-			else
-				strncpy(string, "Windows 98", sizeof(string));
-		}
-		else if (osInfo.dwMajorVersion == 4 && osInfo.dwMinorVersion == 90)
-			strncpy(string, "Windows ME", sizeof(string));
-		else
-			strncpy(string, va("Windows %i.%i", osInfo.dwMajorVersion, osInfo.dwMinorVersion), sizeof(string));
-	}
+	if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 0)
+		strncpy(string, "Windows Vista", sizeof(string));
+	else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 1)
+		strncpy(string, "Windows 7", sizeof(string));
+	else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 2)
+		strncpy(string, "Windows 8", sizeof(string));
 	else
 		strncpy(string, va("Windows %i.%i", osInfo.dwMajorVersion, osInfo.dwMinorVersion), sizeof(string));
+
+
 	Com_Printf("OS: %s\n", string);
 	Cvar_Get("sys_osVersion", string, CVAR_NOSET|CVAR_LATCH);
 
@@ -1273,7 +1239,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 #ifdef NEW_DED_CONSOLE // init debug console
 	Sys_InitDedConsole ();
-	Com_Printf("KMQ2 %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
+	Com_Printf("Quake II VR %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
 #endif
 
 	// Knightmare- scan for cd command line option

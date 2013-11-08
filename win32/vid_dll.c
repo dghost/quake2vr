@@ -85,24 +85,16 @@ extern	unsigned	sys_msg_time;
 /*
 ** WIN32 helper functions
 */
-extern qboolean s_win95;
 
 static void WIN_DisableAltTab( void )
 {
 	if ( s_alttab_disabled )
 		return;
 
-	if ( s_win95 )
-	{
-		BOOL old;
 
-		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
-	}
-	else
-	{
-		RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
-		RegisterHotKey( 0, 1, MOD_ALT, VK_RETURN );
-	}
+	RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
+	RegisterHotKey( 0, 1, MOD_ALT, VK_RETURN );
+
 	s_alttab_disabled = true;
 }
 
@@ -110,17 +102,9 @@ static void WIN_EnableAltTab( void )
 {
 	if ( s_alttab_disabled )
 	{
-		if ( s_win95 )
-		{
-			BOOL old;
 
-			SystemParametersInfo( SPI_SCREENSAVERRUNNING, 0, &old, 0 );
-		}
-		else
-		{
-			UnregisterHotKey( 0, 0 );
-			UnregisterHotKey( 0, 1 );
-		}
+		UnregisterHotKey( 0, 0 );
+		UnregisterHotKey( 0, 1 );
 
 		s_alttab_disabled = false;
 	}

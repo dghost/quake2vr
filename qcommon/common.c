@@ -1693,9 +1693,9 @@ void Qcommon_Init (int argc, char **argv)
 
 	// Knightmare- for the game DLL to tell what engine it's running under
 #ifdef NEW_ENTITY_STATE_MEMBERS
-	sv_engine = Cvar_Get ("sv_engine", "KMQuake2", CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
+	sv_engine = Cvar_Get ("sv_engine", "Quake II VR", CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
 #else
-	sv_engine = Cvar_Get ("sv_engine", "KMQuake2_eraser", CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
+	sv_engine = Cvar_Get ("sv_engine", "Quake II VR - eraser", CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
 #endif
 	sv_engine_version = Cvar_Get ("sv_engine_version", va("%f",VERSION), CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
 	// end Knightmare
@@ -1738,7 +1738,7 @@ void Qcommon_Init (int argc, char **argv)
 		SCR_EndLoadingPlaque ();
 	}
 
-	Com_Printf ("====== KMQuake2 Initialized ======\n\n");
+	Com_Printf ("====== Quake II VR Initialized ======\n\n");
 	
 	// testing crap
 	/*{
