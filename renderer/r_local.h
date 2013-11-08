@@ -804,7 +804,9 @@ typedef struct
 	qboolean	NV_texshaders;
 
 	qboolean	arb_shader_objects;
-	qboolean	arb_framebuffer_object;
+	qboolean	ext_packed_depth_stencil;
+	qboolean	ext_framebuffer_object;
+
 
 	// anisotropic filtering
 	qboolean	anisotropic;

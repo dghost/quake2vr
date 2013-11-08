@@ -500,7 +500,6 @@ void (APIENTRY * qglValidateProgramARB) (GLhandleARB programObj);
 
 void (APIENTRY * qglBindFramebuffer) (GLenum target, GLuint framebuffer);
 void (APIENTRY * qglBindRenderbuffer) (GLenum target, GLuint renderbuffer);
-void (APIENTRY * qglBlitFramebuffer) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 GLenum (APIENTRY * qglCheckFramebufferStatus) (GLenum target);
 void (APIENTRY * qglDeleteFramebuffers) (GLsizei n, const GLuint* framebuffers);
 void (APIENTRY * qglDeleteRenderbuffers) (GLsizei n, const GLuint* renderbuffers);
@@ -508,7 +507,6 @@ void (APIENTRY * qglFramebufferRenderbuffer) (GLenum target, GLenum attachment, 
 void (APIENTRY * qglFramebufferTexture1D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 void (APIENTRY * qglFramebufferTexture2D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 void (APIENTRY * qglFramebufferTexture3D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer);
-void (APIENTRY * qglFramebufferTextureLayer) (GLenum target,GLenum attachment, GLuint texture,GLint level,GLint layer);
 void (APIENTRY * qglGenFramebuffers) (GLsizei n, GLuint* framebuffers);
 void (APIENTRY * qglGenRenderbuffers) (GLsizei n, GLuint* renderbuffers);
 void (APIENTRY * qglGenerateMipmap) (GLenum target);
@@ -517,7 +515,6 @@ void (APIENTRY * qglGetRenderbufferParameteriv) (GLenum target, GLenum pname, GL
 GLboolean (APIENTRY * qglIsFramebuffer) (GLuint framebuffer);
 GLboolean (APIENTRY * qglIsRenderbuffer) (GLuint renderbuffer);
 void (APIENTRY * qglRenderbufferStorage) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-void (APIENTRY * qglRenderbufferStorageMultisample) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
 
 
 static void ( APIENTRY * dllAccum )(GLenum op, GLfloat value);
@@ -3183,7 +3180,6 @@ void QGL_Shutdown( void )
 
 	qglBindFramebuffer						= NULL;
 	qglBindRenderbuffer						= NULL;
-	qglBlitFramebuffer						= NULL;
 	qglCheckFramebufferStatus				= NULL;
 	qglDeleteFramebuffers					= NULL;
 	qglDeleteRenderbuffers					= NULL;
@@ -3191,7 +3187,6 @@ void QGL_Shutdown( void )
 	qglFramebufferTexture1D					= NULL;
 	qglFramebufferTexture2D 				= NULL;
 	qglFramebufferTexture3D 				= NULL;
-	qglFramebufferTextureLayer 				= NULL;
 	qglGenFramebuffers  					= NULL;
 	qglGenRenderbuffers 					= NULL;
 	qglGenerateMipmap 						= NULL;
@@ -3200,7 +3195,6 @@ void QGL_Shutdown( void )
 	qglIsFramebuffer						= NULL;
 	qglIsRenderbuffer						= NULL;
 	qglRenderbufferStorage					= NULL;
-	qglRenderbufferStorageMultisample		= NULL;
 
 
 	qwglCopyContext              = NULL;

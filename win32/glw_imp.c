@@ -563,40 +563,13 @@ void GLimp_Shutdown( void )
 */
 qboolean GLimp_Init( void *hinstance, void *wndproc )
 {
-#define OSR2_BUILD_NUMBER 1111
+
 
 	OSVERSIONINFO	vinfo;
 
 	vinfo.dwOSVersionInfoSize = sizeof(vinfo);
 
-	glw_state.allowdisplaydepthchange = false;
-
-	if ( GetVersionEx( &vinfo) )
-	{
-		if ( vinfo.dwMajorVersion > 4 )
-		{
-			glw_state.allowdisplaydepthchange = true;
-		}
-		else if ( vinfo.dwMajorVersion == 4 )
-		{
-			if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT )
-			{
-				glw_state.allowdisplaydepthchange = true;
-			}
-			else if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
-			{
-				if ( LOWORD( vinfo.dwBuildNumber ) >= OSR2_BUILD_NUMBER )
-				{
-					glw_state.allowdisplaydepthchange = true;
-				}
-			}
-		}
-	}
-	else
-	{
-		VID_Printf( PRINT_ALL, "GLimp_Init() - GetVersionEx failed\n" );
-		return false;
-	}
+	glw_state.allowdisplaydepthchange = true;
 
 	glw_state.hInstance = ( HINSTANCE ) hinstance;
 	glw_state.wndproc = wndproc;
@@ -890,7 +863,7 @@ void GLimp_BeginFrame( float camera_separation )
 
 	if ( vr_enabled->value )
 	{
-		qglDrawBuffer( GL_COLOR_ATTACHMENT0 );
+		qglDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
 	} 
 	else if ( camera_separation < 0 && glState.stereo_enabled )
 	{

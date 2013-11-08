@@ -19,16 +19,16 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 	qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	GL_Bind(0);
 
-	qglBindRenderbuffer(GL_RENDERBUFFER, dep);
-	qglRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	qglBindRenderbuffer(GL_RENDERBUFFER, 0);
+	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, dep);
+	qglRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
+	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, 0);
 
-	qglBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-	qglFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dep);
+	qglBindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
+	qglFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
+	qglFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
 
 
-	if (qglCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (qglCheckFramebufferStatus(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
 		Com_Printf("ERROR: Creation of %i x %i FBO failed!\n", width, height);
 
@@ -76,8 +76,8 @@ void R_InitFBO(fbo_t *FBO)
 GLuint R_BindFBO(fbo_t *FBO)
 {
 	GLint currentFrameBuffer = 0;
-	qglGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFrameBuffer);
-	qglBindFramebuffer(GL_FRAMEBUFFER, FBO->framebuffer);
+	qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
+	qglBindFramebuffer(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
 	qglViewport(0, 0, FBO->width, FBO->height);
 	return (GLuint) currentFrameBuffer;
 }

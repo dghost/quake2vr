@@ -983,10 +983,12 @@ void Sys_Init (void)
 	if (!GetVersionEx (&osInfo))
 		Sys_Error ("Couldn't get OS info");
 
-	if ((osInfo.dwMajorVersion < 6) || (osInfo.dwPlatformId != VER_PLATFORM_WIN32_NT))
-		Sys_Error ("Quake II VR requires Windows Vista or higher");
+	if ((osInfo.dwMajorVersion < 5 && osInfo.dwMinorVersion < 1) || (osInfo.dwPlatformId != VER_PLATFORM_WIN32_NT))
+		Sys_Error ("Quake II VR requires Windows XP or higher");
 
 // from Q2E - OS & CPU detection
+	if (osInfo.dwMajorVersion == 5 && osInfo.dwMinorVersion == 1)
+		strncpy(string, "Windows XP", sizeof(string));
 	if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 0)
 		strncpy(string, "Windows Vista", sizeof(string));
 	else if (osInfo.dwMajorVersion == 6 && osInfo.dwMinorVersion == 1)

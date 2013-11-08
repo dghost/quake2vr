@@ -476,7 +476,6 @@ extern void (APIENTRY * qglValidateProgramARB) (GLhandleARB programObj);
 
 extern void (APIENTRY * qglBindFramebuffer) (GLenum target, GLuint framebuffer);
 extern void (APIENTRY * qglBindRenderbuffer) (GLenum target, GLuint renderbuffer);
-extern void (APIENTRY * qglBlitFramebuffer) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 extern GLenum (APIENTRY * qglCheckFramebufferStatus) (GLenum target);
 extern void (APIENTRY * qglDeleteFramebuffers) (GLsizei n, const GLuint* framebuffers);
 extern void (APIENTRY * qglDeleteRenderbuffers) (GLsizei n, const GLuint* renderbuffers);
@@ -484,7 +483,6 @@ extern void (APIENTRY * qglFramebufferRenderbuffer) (GLenum target, GLenum attac
 extern void (APIENTRY * qglFramebufferTexture1D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 extern void (APIENTRY * qglFramebufferTexture2D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 extern void (APIENTRY * qglFramebufferTexture3D) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer);
-extern void (APIENTRY * qglFramebufferTextureLayer) (GLenum target,GLenum attachment, GLuint texture,GLint level,GLint layer);
 extern void (APIENTRY * qglGenFramebuffers) (GLsizei n, GLuint* framebuffers);
 extern void (APIENTRY * qglGenRenderbuffers) (GLsizei n, GLuint* renderbuffers);
 extern void (APIENTRY * qglGenerateMipmap) (GLenum target);
@@ -493,7 +491,6 @@ extern void (APIENTRY * qglGetRenderbufferParameteriv) (GLenum target, GLenum pn
 extern GLboolean (APIENTRY * qglIsFramebuffer) (GLuint framebuffer);
 extern GLboolean (APIENTRY * qglIsRenderbuffer) (GLuint renderbuffer);
 extern void (APIENTRY * qglRenderbufferStorage) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-extern void (APIENTRY * qglRenderbufferStorageMultisample) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
 
 
 #ifdef _WIN32

@@ -350,7 +350,7 @@ void R_VR_EndFrame()
 {
 	if (vr_enabled->value)
 	{
-		qglBindFramebuffer(GL_FRAMEBUFFER,defaultFBO);
+		qglBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
 		qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
 		vid.height = vrState.viewHeight;
@@ -611,7 +611,7 @@ void R_VR_Enable()
 // disables renderer support for the Rift
 void R_VR_Disable()
 {
-	qglBindFramebuffer(GL_FRAMEBUFFER,defaultFBO);
+	qglBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
 
 	qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 
@@ -634,12 +634,12 @@ void R_VR_Disable()
 // launch-time initialization for Rift support
 void R_VR_Init()
 {
-	if (glConfig.arb_framebuffer_object && glConfig.arb_shader_objects)
+	if (glConfig.ext_framebuffer_object && glConfig.arb_shader_objects)
 	{
 		vrState.hudHeight = 480;
 		vrState.hudWidth = 640;
 
-		qglGetIntegerv(GL_FRAMEBUFFER_BINDING,&defaultFBO);
+		qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
 		R_InitFBO(&world);
 		R_InitFBO(&hud);
 

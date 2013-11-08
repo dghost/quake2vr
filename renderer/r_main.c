@@ -1806,46 +1806,58 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	R_Compile_ARB_Programs ();
 
-	glConfig.arb_framebuffer_object = false;
-
-	if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
+	glConfig.ext_packed_depth_stencil = false;
+	if ( strstr(glConfig.extensions_string,"GL_EXT_packed_depth_stencil") )
 	{
-		qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebuffer" );
-		qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbuffer" );
-		qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
-		qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatus" );
-		qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffers" );
-		qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffers" );
-		qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbuffer" );
-		qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1D" );
-		qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2D" );
-		qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3D" );
-		qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
-		qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffers" );
-		qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffers" );
-		qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmap" );
-		qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameteriv" );
-		qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameteriv" );
-		qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebuffer" );
-		qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbuffer" );
-		qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorage" );
-		qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisample" );
+		VID_Printf (PRINT_ALL, "...using GL_EXT_packed_depth_stencil\n");
+		glConfig.ext_packed_depth_stencil = true;
 
-		if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglBlitFramebuffer || !qglCheckFramebufferStatus ||
-			!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
-			!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglFramebufferTextureLayer || !qglGenFramebuffers ||
-			!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
-			!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage || !qglRenderbufferStorageMultisample)
-			VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_framebuffer_object not properly supported!\n");
-		else {
-			VID_Printf (PRINT_ALL, "...using GL_ARB_framebuffer_object\n");
-			glConfig.arb_framebuffer_object = true;
-		}
 	} else {
-		VID_Printf (PRINT_ALL, "...GL_ARB_framebuffer_object not found\n");
+		VID_Printf (PRINT_ALL, "...GL_EXT_packed_depth_stencil not found\n");
+	}
+
+	glConfig.ext_framebuffer_object = false;
+	if ( glConfig.ext_packed_depth_stencil )
+	{
+		if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
+		{
+			qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebufferEXT" );
+			qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbufferEXT" );
+			//		qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
+			qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatusEXT" );
+			qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffersEXT" );
+			qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffersEXT" );
+			qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbufferEXT" );
+			qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1DEXT" );
+			qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2DEXT" );
+			qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3DEXT" );
+			//		qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
+			qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffersEXT" );
+			qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffersEXT" );
+			qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmapEXT" );
+			qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameterivEXT" );
+			qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameterivEXT" );
+			qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebufferEXT" );
+			qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbufferEXT" );
+			qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorageEXT" );
+			//	qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisampleEXT" );
+
+			if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglCheckFramebufferStatus ||
+				!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
+				!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglGenFramebuffers ||
+				!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
+				!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage)
+				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_framebuffer_object not properly supported!\n");
+			else {
+				VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
+				glConfig.ext_framebuffer_object = true;
+			}
+		} else {
+			VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
+		}
 	}
 	glConfig.arb_shader_objects = false;
-	if (glConfig.arb_framebuffer_object) {
+	if (glConfig.ext_framebuffer_object) {
 		if ( strstr(glConfig.extensions_string, "GL_ARB_shader_objects") )
 		{
 
