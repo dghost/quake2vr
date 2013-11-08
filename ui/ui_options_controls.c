@@ -41,6 +41,7 @@ static menuslider_s		s_options_controls_sensitivity_slider;
 static menulist_s		s_options_controls_alwaysrun_box;
 static menulist_s		s_options_controls_invertmouse_box;
 static menulist_s		s_options_controls_xbox_stickmode_box;
+static menulist_s		s_options_controls_xbox_sticktoggle_box;
 static menuslider_s		s_options_controls_xbox_trigger_threshold_slider;
 static menuslider_s		s_options_controls_xbox_pitch_sensitivity_slider;
 static menuslider_s		s_options_controls_xbox_yaw_sensitivity_slider;
@@ -76,6 +77,10 @@ static void XboxStickFunc( void *unused )
 	Cvar_SetValue( "xbox_stick_mode", s_options_controls_xbox_stickmode_box.curvalue );
 }
 
+static void XboxStickToggleFunc( void *unused )
+{
+	Cvar_SetValue( "xbox_stick_toggle", s_options_controls_xbox_sticktoggle_box.curvalue );
+}
 static void XboxTriggerFunc ( void *unused )
 {
 	Cvar_SetValue( "xbox_trigger_threshold", s_options_controls_xbox_trigger_threshold_slider.curvalue / 25.0f);
@@ -98,6 +103,9 @@ static void ControlsSetMenuItemValues( void )
 
 	Cvar_SetValue( "xbox_stick_mode", ClampCvar( 0, 1, Cvar_VariableValue("xbox_stick_mode") ) );
 	s_options_controls_xbox_stickmode_box.curvalue		= Cvar_VariableValue("xbox_stick_mode");
+
+	Cvar_SetValue( "xbox_stick_toggle", ClampCvar( 0, 1, Cvar_VariableValue("xbox_stick_toggle") ) );
+	s_options_controls_xbox_sticktoggle_box.curvalue		= Cvar_VariableValue("xbox_stick_toggle");
 
 	Cvar_SetValue( "xbox_trigger_threshold", ClampCvar( 0.04, 0.96, Cvar_VariableValue("xbox_trigger_threshold") ) );
 	s_options_controls_xbox_trigger_threshold_slider.curvalue = Cvar_VariableValue("xbox_trigger_threshold") * 25.0f;
@@ -130,6 +138,7 @@ static void ControlsResetDefaultsFunc ( void *unused )
 
 	Cvar_SetToDefault ("xbox_usernum");
 	Cvar_SetToDefault ("xbox_stick_mode");
+	Cvar_SetToDefault ("xbox_stick_toggle");
 	Cvar_SetToDefault ("xbox_trigger_threshold");
 	Cvar_SetToDefault ("xbox_pitch_sensitivity");
 	Cvar_SetToDefault ("xbox_yaw_sensitivity");
@@ -194,10 +203,19 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_xbox_stickmode_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_controls_xbox_stickmode_box.generic.x			= 0;
 	s_options_controls_xbox_stickmode_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_controls_xbox_stickmode_box.generic.name		= "xbox stick mode";
+	s_options_controls_xbox_stickmode_box.generic.name		= "xbox thumb stick mode";
 	s_options_controls_xbox_stickmode_box.generic.callback	= XboxStickFunc;
 	s_options_controls_xbox_stickmode_box.itemnames			= xbox_stick_names;
 	s_options_controls_xbox_stickmode_box.generic.statusbar	= "sets mode for the xbox 360 controller thumb sticks";
+
+	
+	s_options_controls_xbox_sticktoggle_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_controls_xbox_sticktoggle_box.generic.x			= 0;
+	s_options_controls_xbox_sticktoggle_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_xbox_sticktoggle_box.generic.name		= "toggle xbox thumb sticks";
+	s_options_controls_xbox_sticktoggle_box.generic.callback	= XboxStickToggleFunc;
+	s_options_controls_xbox_sticktoggle_box.itemnames			= yesno_names;
+	s_options_controls_xbox_sticktoggle_box.generic.statusbar	= "enables thumb stick toggling instead of click-and-hold";
 
 	s_options_controls_xbox_trigger_threshold_slider.generic.type		= MTYPE_SLIDER;
 	s_options_controls_xbox_trigger_threshold_slider.generic.x			= 0;
@@ -234,14 +252,14 @@ void Options_Controls_MenuInit ( void )
 
 	s_options_controls_defaults_action.generic.type			= MTYPE_ACTION;
 	s_options_controls_defaults_action.generic.x			= MENU_FONT_SIZE;
-	s_options_controls_defaults_action.generic.y			= 18*MENU_LINE_SIZE;
+	s_options_controls_defaults_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_controls_defaults_action.generic.name			= "reset defaults";
 	s_options_controls_defaults_action.generic.callback		= ControlsResetDefaultsFunc;
 	s_options_controls_defaults_action.generic.statusbar	= "resets all control settings to internal defaults";
 
 	s_options_controls_back_action.generic.type		= MTYPE_ACTION;
 	s_options_controls_back_action.generic.x		= MENU_FONT_SIZE;
-	s_options_controls_back_action.generic.y		= 20*MENU_LINE_SIZE;
+	s_options_controls_back_action.generic.y		= y+=2*MENU_LINE_SIZE;
 	s_options_controls_back_action.generic.name		= "back to options";
 	s_options_controls_back_action.generic.callback	= UI_BackMenu;
 
@@ -250,6 +268,8 @@ void Options_Controls_MenuInit ( void )
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_invertmouse_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_sensitivity_slider );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_stickmode_box );
+	
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_sticktoggle_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_trigger_threshold_slider );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_pitch_sensitivity_slider );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_yaw_sensitivity_slider );

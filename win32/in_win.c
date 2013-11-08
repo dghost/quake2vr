@@ -125,6 +125,7 @@ cvar_t	*xbox_stick_mode;
 cvar_t	*xbox_trigger_threshold;
 cvar_t	*xbox_pitch_sensitivity;
 cvar_t	*xbox_yaw_sensitivity;
+cvar_t  *xbox_stick_toggle;
 
 // forward-referenced functions
 void IN_StartupXbox (void);
@@ -138,13 +139,15 @@ static struct {
 	int lastSendTime;
 }  xbox_repeatstatus[16];
 
+static qboolean xbox_sticktoggle[2];
+
 #define XBOX_INITIAL_REPEAT_DELAY 220
 #define XBOX_REPEAT_DELAY 160
 
 /*
 ============================================================
 
-  MOUSE CONTROL
+MOUSE CONTROL
 
 ============================================================
 */
@@ -156,8 +159,8 @@ qboolean	mlooking;
 
 void IN_MLookDown (void) { mlooking = true; }
 void IN_MLookUp (void) {
-mlooking = false;
-if (!freelook->value && lookspring->value)
+	mlooking = false;
+	if (!freelook->value && lookspring->value)
 		IN_CenterView ();
 }
 
@@ -228,7 +231,7 @@ void IN_ActivateMouse (void)
 	window_center_x = (window_rect.right + window_rect.left)/2;
 	window_center_y = (window_rect.top + window_rect.bottom)/2;
 
-	
+
 	SetCapture ( cl_hwnd );
 	ClipCursor (&window_rect);
 
@@ -312,7 +315,7 @@ void IN_MouseEvent (int mstate)
 	if (!mouseinitialized)
 		return;
 
-// perform button actions
+	// perform button actions
 	for (i=0 ; i<mouse_buttons ; i++)
 	{
 		if ( (mstate & (1<<i)) &&
@@ -441,7 +444,7 @@ void IN_MouseMove (usercmd_t *cmd)
 			mouse_y *= sensitivity->value;
 		}
 
-	// add mouse X/Y movement to cmd
+		// add mouse X/Y movement to cmd
 		if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
 			cmd->sidemove += m_side->value * mouse_x;
 		else
@@ -486,7 +489,7 @@ void IN_Init (void)
 	autosensitivity			= Cvar_Get ("autosensitivity",			"1",		CVAR_ARCHIVE);
 	m_noaccel				= Cvar_Get ("m_noaccel",				"0",		CVAR_ARCHIVE); //sul  enables mouse acceleration XP fix?
 	m_filter				= Cvar_Get ("m_filter",					"0",		0);
-    in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
+	in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
 
 	// joystick variables
 	in_controller			= Cvar_Get ("in_controller",			"1",		CVAR_ARCHIVE);
@@ -513,6 +516,7 @@ void IN_Init (void)
 	xbox_yaw_sensitivity	= Cvar_Get ("xbox_yaw_sensitivity",		"1.75",		CVAR_ARCHIVE);
 	xbox_pitch_sensitivity	= Cvar_Get ("xbox_pitch_sensitivity",	"1.75",		CVAR_ARCHIVE);
 	xbox_trigger_threshold	= Cvar_Get ("xbox_trigger_threshold",	"0.12",		CVAR_ARCHIVE);
+	xbox_stick_toggle		= Cvar_Get ("xbox_stick_toggle",		"0",		CVAR_ARCHIVE);
 	xbox_stick_mode			= Cvar_Get ("xbox_stick_mode",			"0",		CVAR_ARCHIVE);
 	xbox_usernum			= Cvar_Get ("xbox_usernum",				"0",		CVAR_ARCHIVE);
 
@@ -576,9 +580,9 @@ void IN_Frame (void)
 		return;
 	}
 
-//	if ( !cl.refresh_prepped
-//		|| cls.key_dest == key_console
-//		|| cls.key_dest == key_menu)
+	//	if ( !cl.refresh_prepped
+	//		|| cls.key_dest == key_console
+	//		|| cls.key_dest == key_menu)
 	//Knightmare- added Psychospaz's mouse menu support
 	if ( (!cl.refresh_prepped && cls.key_dest != key_menu) || cls.consoleActive) //mouse used in menus...
 	{
@@ -659,18 +663,18 @@ void IN_StartupJoystick (void)
 	MMRESULT	mmr;
 	cvar_t		*cv;
 
- 	// assume no joystick
+	// assume no joystick
 	joy_avail = false; 
 
 	// abort startup if user requests no joystick
 	cv = Cvar_Get ("in_initjoy", "1", CVAR_NOSET);
 	if ( !cv->value ) 
 		return; 
- 
+
 	// verify joystick driver is present
 	if ((numdevs = joyGetNumDevs ()) == 0)
 	{
-//		Com_Printf ("\njoystick not found -- driver not present\n\n");
+		//		Com_Printf ("\njoystick not found -- driver not present\n\n");
 		return;
 	}
 
@@ -844,7 +848,7 @@ Joy_Commands
 
 void Joy_Commands (void)
 {
-		int		i, key_index;
+	int		i, key_index;
 	DWORD	buttonstate, povstate;
 
 	if (!joy_avail)
@@ -852,7 +856,7 @@ void Joy_Commands (void)
 		return;
 	}
 
-	
+
 	// loop through the joystick buttons
 	// key a joystick event or auxillary event for higher number buttons for each state change
 	buttonstate = ji.dwButtons;
@@ -958,7 +962,7 @@ void IN_JoyMove (usercmd_t *cmd)
 	{
 		return; 
 	}
- 
+
 	// collect the joystick data, if possible
 	if (IN_ReadJoystick () != true)
 	{
@@ -1098,7 +1102,7 @@ void IN_JoyMove (usercmd_t *cmd)
 /*
 ============================================================
 
-  XBOX 360 GAMEPAD CONTROL
+XBOX 360 GAMEPAD CONTROL
 
 ============================================================
 */
@@ -1113,7 +1117,7 @@ void IN_StartupXbox (void)
 	cv = Cvar_Get ("in_initxbox", "1", CVAR_NOSET);
 	if ( !cv->value ) 
 		return; 
- 
+
 	for (i = 0; i < 4; i++)
 	{
 		XINPUT_STATE state;
@@ -1121,7 +1125,7 @@ void IN_StartupXbox (void)
 		if (XInputGetState(i, &state) == ERROR_SUCCESS)
 			Com_Printf("Found Xbox 360 Controller at %i\n",i);
 	}
-	
+
 }
 
 void Xbox_ParseThumbStick(float LX, float LY, float deadzone, vec3_t out)
@@ -1224,7 +1228,6 @@ void Xbox_Commands (void)
 	XINPUT_GAMEPAD *o = &xbox_oldstate;
 	unsigned int i = 0;
 	unsigned int j = 1;
-	unsigned int keybase = K_XBOX_UP;
 	unsigned int triggerThreshold = ClampCvar(0.04,0.96,xbox_trigger_threshold->value) * 255.0f;
 
 
@@ -1237,7 +1240,7 @@ void Xbox_Commands (void)
 			Com_Printf("Xbox 360 Controller %i disconnected.\n",xbox_lastDevice + 1);
 			xbox_lastDevice = -1;
 		} 
-		
+
 		if (xbox_lastDevice < 0)
 		{
 			memset(&newState,0,sizeof(newState));
@@ -1262,48 +1265,112 @@ void Xbox_Commands (void)
 
 	}
 
-	while (i < 4)
+	if (cls.key_dest == key_menu)
 	{
+		vec3_t oldStick, newStick;
+		xboxdir_t oldDir, newDir;
+	
 
-		if (cls.key_dest == key_menu)
+
+		Xbox_ParseThumbStick(n->sThumbLX,n->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,newStick);
+		Xbox_ParseThumbStick(o->sThumbLX,o->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,oldStick);
+
+		Xbox_ParseDirection(newStick,&newDir);
+		Xbox_ParseDirection(oldStick,&oldDir);
+
+		for (i = 0; i < 4; i++)
+		{
+			if (newDir == Xbox_Up + i)
+				Xbox_HandleRepeat(K_XBOX_LSTICK_UP + i);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Xbox_SendKeyup(K_XBOX_LSTICK_UP + i);
+		}
+
+		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
+		Xbox_ParseThumbStick(o->sThumbRX,o->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,oldStick);
+
+		Xbox_ParseDirection(newStick,&newDir);
+		Xbox_ParseDirection(oldStick,&oldDir);
+
+		for (i = 0; i < 4; i++)
+		{
+			if (newDir == Xbox_Up + i)
+				Xbox_HandleRepeat(K_XBOX_RSTICK_UP + i);
+			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
+				Xbox_SendKeyup(K_XBOX_RSTICK_UP + i);
+		}
+
+		for (i = 0; i < 4; i++)
 		{
 
 			if (n->wButtons & j)
-				Xbox_HandleRepeat(keybase + i);
+				Xbox_HandleRepeat(K_XBOX_UP + i);
 
 			if (!(n->wButtons & j) && (o->wButtons & j))
-				Xbox_SendKeyup(keybase + i);
-		} else {
-			if (n->wButtons & j && !(o->wButtons & j))
-				Key_Event (keybase + i, true, 0);
-
-			if (!(n->wButtons & j) && (o->wButtons & j))
-				Key_Event (keybase + i, false, 0);
-		}
-
-		if (keybase + i != K_XBOXRS)
+				Xbox_SendKeyup(K_XBOX_UP + i);
+			
+			
 			j = j << 1;
-		else 
-			j = j << 3;
-		
-		i++;
-	}
+		}
+	} 
 
-	while (i < 16)
+
+	for ( ; i< 6 ; i++)
 	{
 
 		if (n->wButtons & j && !(o->wButtons & j))
-			Key_Event (keybase + i, true, 0);
+			Key_Event (K_XBOX_UP + i, true, 0);
 
 		if (!(n->wButtons & j) && (o->wButtons & j))
-			Key_Event (keybase + i, false, 0);
+			Key_Event (K_XBOX_UP + i, false, 0);
 
-		if (keybase + i != K_XBOXRS)
+		j = j << 1;
+
+	}
+
+	if (!xbox_stick_toggle->value || cls.key_dest == key_menu)
+	{
+		memset(xbox_sticktoggle,0,sizeof(xbox_sticktoggle));
+		j = XINPUT_GAMEPAD_LEFT_THUMB;
+		for (i = 0 ; i< 2 ; i++)
+		{
+
+			if (n->wButtons & j && !(o->wButtons & j))
+				Key_Event (K_XBOX_LEFT_STICK + i, true, 0);
+
+			if (!(n->wButtons & j) && (o->wButtons & j))
+				Key_Event (K_XBOX_LEFT_STICK + i, false, 0);
+
+
 			j = j << 1;
-		else 
+		}
+	} else {
+		j = XINPUT_GAMEPAD_LEFT_THUMB;
+		for (i = 0 ; i< 2 ; i++)
+		{
+			if (n->wButtons & j && !(o->wButtons & j))
+			{
+				xbox_sticktoggle[i] = !xbox_sticktoggle[i];
+				Key_Event (K_XBOX_LEFT_STICK + i, xbox_sticktoggle[i], 0);
+			}
+			j = j << 1;
+		}
+	}
+
+	j = XINPUT_GAMEPAD_LEFT_SHOULDER;
+	for (i = 0 ; i< 8 ; i++)
+	{
+
+		if (n->wButtons & j && !(o->wButtons & j))
+			Key_Event (K_XBOXLS + i, true, 0);
+
+		if (!(n->wButtons & j) && (o->wButtons & j))
+			Key_Event (K_XBOXLS + i, false, 0);
+
+		if (K_XBOXLS + i != K_XBOXRS)
+			j = j << 1;
+		else
 			j = j << 3;
-		
-		i++;
 	}
 
 	/* left trigger */
@@ -1320,57 +1387,6 @@ void Xbox_Commands (void)
 	if (n->bRightTrigger < triggerThreshold && o->bRightTrigger >= triggerThreshold)
 		Key_Event (K_XBOXRT, false, 0);
 
-		if (cls.key_dest == key_menu)
-	{
-		vec3_t oldStick, newStick;
-		xboxdir_t oldDir, newDir;
-		int i = 0;
-
-
-		Xbox_ParseThumbStick(n->sThumbLX,n->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,newStick);
-		Xbox_ParseThumbStick(o->sThumbLX,o->sThumbLY,XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,oldStick);
-
-		Xbox_ParseDirection(newStick,&newDir);
-		Xbox_ParseDirection(oldStick,&oldDir);
-
-		for (i = 0; i < 4; i++)
-		{
-			if (newDir == Xbox_Up + i)
-				Xbox_HandleRepeat(K_XBOX_LSTICK_UP + i);
-			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
-				Xbox_SendKeyup(K_XBOX_LSTICK_UP + i);
-
-			/*
-			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
-				Key_Event (K_XBOX_LSTICK_UP + i, true, 0);
-			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
-				Key_Event (K_XBOX_LSTICK_UP + i, false, 0);
-				*/
-		}
-
-		Xbox_ParseThumbStick(n->sThumbRX,n->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,newStick);
-		Xbox_ParseThumbStick(o->sThumbRX,o->sThumbRY,XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,oldStick);
-
-		Xbox_ParseDirection(newStick,&newDir);
-		Xbox_ParseDirection(oldStick,&oldDir);
-
-		for (i = 0; i < 4; i++)
-		{
-			if (newDir == Xbox_Up + i)
-				Xbox_HandleRepeat(K_XBOX_RSTICK_UP + i);
-			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
-				Xbox_SendKeyup(K_XBOX_RSTICK_UP + i);
-/*
-			if (newDir == Xbox_Up + i && oldDir != Xbox_Up + i)
-				Key_Event (K_XBOX_RSTICK_UP + i, true, 0);
-			if (newDir != Xbox_Up + i && oldDir == Xbox_Up + i)
-				Key_Event (K_XBOX_RSTICK_UP + i, false, 0);
-				*/
-		}
-	}
-
-
-
 	xbox_oldstate = newState.Gamepad;
 
 }
@@ -1385,7 +1401,7 @@ void IN_XboxMove (usercmd_t *cmd)
 
 	if (cls.key_dest == key_menu || xbox_lastDevice < 0)
 		return;
-	 
+
 	if ( (in_speed.state & 1) ^ (int)cl_run->value)
 		speed = 2;
 	else
