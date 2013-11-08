@@ -137,7 +137,7 @@ static int xbox_lastDevice = -1;
 static struct {
 	int repeatCount;
 	int lastSendTime;
-}  xbox_repeatstatus[16];
+}  xbox_repeatstatus[12];
 
 static qboolean xbox_sticktoggle[2];
 
@@ -1186,19 +1186,20 @@ void Xbox_ParseDirection(vec3_t dir, xboxdir_t *out)
 void Xbox_HandleRepeat(unsigned char key)
 {
 	int index = key - K_XBOX_LSTICK_UP;
+	int delay = 0;
 	qboolean send = false;
 
-	if (index < 0 || index > 16)
+	if (index < 0 || index > 12)
 		return;
+	
 	if (xbox_repeatstatus[index].repeatCount == 0)
-	{
-		if (cl.time > (xbox_repeatstatus[index].lastSendTime + XBOX_INITIAL_REPEAT_DELAY))
-			send = true;
-	} else {
-		if (cl.time > (xbox_repeatstatus[index].lastSendTime + XBOX_REPEAT_DELAY))
-			send = true;
-	}
-
+		delay = XBOX_INITIAL_REPEAT_DELAY;
+	else
+		delay = XBOX_REPEAT_DELAY;
+	
+	if (cl.time > xbox_repeatstatus[index].lastSendTime + delay || cl.time < xbox_repeatstatus[index].lastSendTime)
+		send = true;
+	
 	if (send)
 	{
 		xbox_repeatstatus[index].lastSendTime = cl.time;
@@ -1213,7 +1214,7 @@ void Xbox_SendKeyup(unsigned char key)
 {
 	int index = key - K_XBOX_LSTICK_UP;
 
-	if (index < 0 || index > 16)
+	if (index < 0 || index > 12)
 		return;
 	xbox_repeatstatus[index].lastSendTime = 0;
 	xbox_repeatstatus[index].repeatCount = 0;
