@@ -39,6 +39,7 @@ static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_drift_box;
 static menulist_s		s_options_vr_ovr_chroma_box;
+static menulist_s		s_options_vr_ovr_bicubic_box;
 static menufield_s		s_options_vr_ovr_prediction_field;
 static menulist_s		s_options_vr_ovr_distortion_box;
 static menulist_s		s_options_vr_ovr_autoscale_box;
@@ -60,6 +61,11 @@ static void DriftFunc( void *unused )
 static void ChromaFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_ovr_chromatic", s_options_vr_ovr_chroma_box.curvalue);
+}
+
+static void BicubicFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_ovr_bicubic", s_options_vr_ovr_bicubic_box.curvalue);
 }
 
 static void DistortionFunc( void *unused )
@@ -86,6 +92,7 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
 	s_options_vr_ovr_chroma_box.curvalue = ( Cvar_VariableInteger("vr_ovr_chromatic") );
+	s_options_vr_ovr_bicubic_box.curvalue = ( Cvar_VariableInteger("vr_ovr_bicubic") );
 	s_options_vr_ovr_distortion_box.curvalue = ( Cvar_VariableInteger("vr_ovr_distortion") );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
@@ -105,6 +112,7 @@ static void VROVRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_ovr_driftcorrection");
 	Cvar_SetToDefault ("vr_ovr_chromatic");
+	Cvar_SetToDefault ("vr_ovr_bicubic");
 	Cvar_SetToDefault ("vr_ovr_distortion");
 	Cvar_SetToDefault ("vr_ovr_autoscale");
 	Cvar_SetToDefault ("vr_ovr_scale");
@@ -222,6 +230,14 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_chroma_box.itemnames			= yesno_names;
 	s_options_vr_ovr_chroma_box.generic.statusbar	= "applies chromatic aberration correction to the distortion shader";
 
+	s_options_vr_ovr_bicubic_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_bicubic_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_bicubic_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_bicubic_box.generic.name		= "bicubic filtering";
+	s_options_vr_ovr_bicubic_box.generic.callback	= BicubicFunc;
+	s_options_vr_ovr_bicubic_box.itemnames			= yesno_names;
+	s_options_vr_ovr_bicubic_box.generic.statusbar	= "applies the distortion shader using bicubic filtering";
+
 	s_options_vr_ovr_prediction_field.generic.type = MTYPE_FIELD;
 	s_options_vr_ovr_prediction_field.generic.flags = QMF_LEFT_JUSTIFY;
 	s_options_vr_ovr_prediction_field.generic.name = "motion prediction";
@@ -309,6 +325,7 @@ void Options_VR_OVR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_chroma_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_bicubic_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_field );
 	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_distortion_box );

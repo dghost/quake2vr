@@ -84,7 +84,7 @@ void R_VR_StartFrame()
 			R_DelFBO(&world);
 		
 			vrState.vrWidth = scale * vrState.viewWidth;
-			vrState.vrHalfWidth = scale  * vrState.viewWidth / 2.0;
+			vrState.vrHalfWidth = vrState.vrWidth / 2.0;
 			vrState.vrHeight = scale  * vrState.viewHeight;
 			R_GenFBO(vrState.vrWidth, vrState.vrHeight, &world);
 
@@ -321,6 +321,7 @@ void R_VR_Present()
 			qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
 			qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
 			qglUniform2fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale);
+			//qglUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
 
 			qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
 			qglUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);

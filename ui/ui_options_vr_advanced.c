@@ -38,6 +38,7 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_advanced_menu;
 static menuseparator_s	s_options_vr_advanced_header;
 static menulist_s		s_options_vr_advanced_autoenable_box;
+static menulist_s		s_options_vr_advanced_supersample_box;
 static menulist_s		s_options_vr_advanced_nosleep_box;
 static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
@@ -58,6 +59,11 @@ extern cvar_t *vr_neckmodel_forward;
 static void AutoFunc( void *unused )
 {
 	Cvar_SetInteger("vr_autoenable",s_options_vr_advanced_autoenable_box.curvalue);
+}
+
+static void SupersampleFunc( void *unused )
+{
+	Cvar_SetInteger("vr_supersample",s_options_vr_advanced_supersample_box.curvalue);
 }
 
 static void SleepFunc( void *unused )
@@ -89,7 +95,6 @@ static void NeckFunc( void *unused )
 static void FalloffFunc( void *unused )
 {
 	float temp;
-	char string[6];
 
 	temp = ClampCvar(1,60,atof(s_options_vr_advanced_hudfalloff_field.buffer));
 	Cvar_SetInteger("vr_hud_bounce_falloff",temp);
@@ -120,6 +125,7 @@ static void NeckmodelFunc ( void *unused )
 static void VRAdvSetMenuItemValues( void )
 {
 	s_options_vr_advanced_autoenable_box.curvalue = ( Cvar_VariableInteger("vr_autoenable") );
+	s_options_vr_advanced_supersample_box.curvalue = ( Cvar_VariableInteger("vr_supersample") );
 	s_options_vr_advanced_nosleep_box.curvalue = ( Cvar_VariableInteger("vr_nosleep") );
 	s_options_vr_advanced_hud_depth_slider.curvalue = ( Cvar_VariableValue("vr_hud_depth") * 20.0f);
 	s_options_vr_advanced_hud_fov_slider.curvalue = ( Cvar_VariableValue("vr_hud_fov") );
@@ -138,6 +144,7 @@ static void VRAdvSetMenuItemValues( void )
 static void VRAdvResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault("vr_autoenable");
+	Cvar_SetToDefault("vr_supersample");
 	Cvar_SetToDefault("vr_nosleep");
 	Cvar_SetToDefault("vr_hud_depth");
 	Cvar_SetToDefault("vr_hud_fov");
@@ -182,21 +189,29 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_header.generic.x		= MENU_FONT_SIZE/2 * strlen(s_options_vr_advanced_header.generic.name);
 	s_options_vr_advanced_header.generic.y		= 0;
 
-	s_options_vr_advanced_autoenable_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_autoenable_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_autoenable_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_autoenable_box.generic.y			= y;
-	s_options_vr_advanced_autoenable_box.generic.name			= "auto-enable vr mode";
-	s_options_vr_advanced_autoenable_box.generic.callback		= AutoFunc;
+	s_options_vr_advanced_autoenable_box.generic.name		= "auto-enable vr mode";
+	s_options_vr_advanced_autoenable_box.generic.callback	= AutoFunc;
 	s_options_vr_advanced_autoenable_box.itemnames			= yesno_names;
 	s_options_vr_advanced_autoenable_box.generic.statusbar	= "automatically enable VR support what starting Quake II VR";
 
+	s_options_vr_advanced_supersample_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_supersample_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_advanced_supersample_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_supersample_box.generic.name		= "supersampling";
+	s_options_vr_advanced_supersample_box.generic.callback	= SupersampleFunc;
+	s_options_vr_advanced_supersample_box.itemnames			= yesno_names;
+	s_options_vr_advanced_supersample_box.generic.statusbar	= "renders using 2x supersampling";
+
 	s_options_vr_advanced_nosleep_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_advanced_nosleep_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_advanced_nosleep_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_nosleep_box.generic.x				= MENU_FONT_SIZE;
+	s_options_vr_advanced_nosleep_box.generic.y				= y+=MENU_LINE_SIZE;
 	s_options_vr_advanced_nosleep_box.generic.name			= "disable idle thread yielding";
 	s_options_vr_advanced_nosleep_box.generic.callback		= SleepFunc;
-	s_options_vr_advanced_nosleep_box.itemnames			= yesno_names;
-	s_options_vr_advanced_nosleep_box.generic.statusbar	= "prevents stuttering but increases cpu utilization";
+	s_options_vr_advanced_nosleep_box.itemnames				= yesno_names;
+	s_options_vr_advanced_nosleep_box.generic.statusbar		= "prevents stuttering but increases cpu utilization";
 
 
 	s_options_vr_advanced_hud_depth_slider.generic.type		= MTYPE_SLIDER;
@@ -296,6 +311,9 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_header );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autoenable_box );
+
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_supersample_box );
+	
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_nosleep_box );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_depth_slider );
