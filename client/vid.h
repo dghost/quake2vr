@@ -24,11 +24,13 @@ typedef struct vrect_s
 	int				x,y,width,height;
 } vrect_t;
 
+#ifndef __VIDDEF_T
+#define __VIDDEF_T
 typedef struct
 {
 	unsigned		width, height;			// coordinates from main game
 } viddef_t;
-
+#endif
 extern	viddef_t	viddef;				// global video state
 
 // Video module initialisation etc

@@ -107,15 +107,17 @@ void LibOVR_DeviceRelease() {
 		hmd = NULL;
 	}
 
+	if (fusion) {
+		delete fusion;
+		fusion = NULL;
+	}
+
 	if (sensor) {
 		sensor->Release();
 		sensor = NULL;
 	}
 
-	if (fusion) {
-		delete fusion;
-		fusion = NULL;
-	}
+
 	
 }
 

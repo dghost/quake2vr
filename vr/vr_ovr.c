@@ -11,6 +11,7 @@ cvar_t *vr_ovr_distortion;
 cvar_t *vr_ovr_lensdistance;
 cvar_t *vr_ovr_autoscale;
 cvar_t *vr_ovr_autolensdistance;
+cvar_t *vr_ovr_bicubic;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -218,6 +219,26 @@ int VR_OVR_isDeviceAvailable()
 		return 1;
 }
 
+
+void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
+{
+
+	if (!object->program)
+		R_CompileShaderProgram(object);
+
+	shader->shader = object;
+	qglUseProgramObjectARB(shader->shader->program);
+
+	shader->uniform.scale = qglGetUniformLocationARB(shader->shader->program, "scale");
+	shader->uniform.scale_in = qglGetUniformLocationARB(shader->shader->program, "scaleIn");
+	shader->uniform.lens_center = qglGetUniformLocationARB(shader->shader->program, "lensCenter");
+	shader->uniform.screen_center = qglGetUniformLocationARB(shader->shader->program, "screenCenter");
+	shader->uniform.hmd_warp_param = qglGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
+	shader->uniform.chrom_ab_param = qglGetUniformLocationARB(shader->shader->program, "chromAbParam");
+	shader->uniform.texture_size = qglGetUniformLocationARB(shader->shader->program,"textureSize");
+	qglUseProgramObjectARB(0);
+}
+
 int VR_OVR_Enable()
 {
 	char string[6];
@@ -306,6 +327,7 @@ int VR_OVR_Init()
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
+	vr_ovr_bicubic = Cvar_Get("vr_ovr_bicubic","1",CVAR_ARCHIVE);
 	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","2",CVAR_ARCHIVE);
 	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
 
@@ -324,3 +346,5 @@ void VR_OVR_Shutdown()
 {
 	LibOVR_Shutdown();
 }
+
+

@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#ifndef __R_LOCAL_H
+#define __R_LOCAL_H
+
 #ifdef _WIN32
 #  include <windows.h>
 #endif
@@ -977,7 +980,7 @@ void		GLimp_LogNewFrame( void );
 /*
 ====================================================================
 
-FBO Stuff
+r_fbo.c
 
 ====================================================================
 */
@@ -998,7 +1001,27 @@ GLuint R_BindFBO(fbo_t *FBO);
 /*
 ====================================================================
 
-VR Stuff
+r_shaderobjects.c
+
+====================================================================
+*/
+
+typedef struct {
+	GLhandleARB program;
+	GLhandleARB vert_shader;
+	GLhandleARB frag_shader;
+	const char *vert_source;
+	const char *frag_source;
+} r_shaderobject_t;
+
+qboolean R_CompileShader(GLhandleARB shader, const char *source);
+qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
+void R_DelShaderProgram(r_shaderobject_t *shader);
+
+/*
+====================================================================
+
+r_vr.c
 
 ====================================================================
 */
@@ -1015,3 +1038,5 @@ void R_VR_BindWorld();
 void R_VR_Present();
 void R_VR_EndFrame();
 void R_VR_DrawHud();
+
+#endif

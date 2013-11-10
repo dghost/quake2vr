@@ -2,193 +2,14 @@
 #include "../vr/vr.h"
 #include "../vr/vr_ovr.h"
 
-
-typedef struct {
-	GLhandleARB program;
-	GLhandleARB vert_shader;
-	GLhandleARB frag_shader;
-	const char *vert_source;
-	const char *frag_source;
-} r_shaderobject_t;
-
-typedef struct {
-	r_shaderobject_t *shader;
-	struct {
-		GLuint scale;
-		GLuint scale_in;
-		GLuint lens_center;
-		GLuint screen_center;
-		GLuint hmd_warp_param;
-		GLuint chrom_ab_param;
-	} uniform;
-
-} r_shader_t;
-
-static r_shader_t ovr_shaders[2];
+static r_ovr_shader_t ovr_shaders[2];
+static r_ovr_shader_t ovr_bicubic_shaders[2];
 
 static fbo_t world, hud; 
 
 static GLint defaultFBO;
 
-// Default Lens Warp Shader
-static r_shaderobject_t ovr_shader_norm = {
-	0, 0, 0,
-	
-	// vertex shader (identity)
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
-	"}\n",
 
-	// fragment shader
-	"varying vec2 theta;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform sampler2D texture;\n"
-	"void main()\n"
-	"{\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"vec2 tc = (lensCenter + scale * rvector);\n"
-		"if (any(bvec2(clamp(tc, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5))-tc)))\n"
-			"gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
-		"else\n"
-			"gl_FragColor = texture2D(texture, tc);\n"
-	"}\n"
-};
-
-// Lens Warp Shader with Chromatic Aberration 
-static r_shaderobject_t ovr_shader_chrm = {
-	0, 0, 0,
-	
-	// vertex shader (identity)
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
-	"}\n",
-
-	// fragment shader
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform vec4 chromAbParam;\n"
-	"uniform sampler2D texture;\n"
-
-	// Scales input texture coordinates for distortion.
-	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
-	// larger due to aspect ratio.
-	"void main()\n"
-	"{\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-
-		// Detect whether blue texture coordinates are out of range since these will scaled out the furthest.
-		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
-		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
-
-		"if (!all(equal(clamp(tcBlue, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5)),tcBlue)))\n"
-		"{\n"
-			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-			"return;\n"
-		"}\n"
-
-		// Now do blue texture lookup.
-		"float blue = texture2D(texture, tcBlue).b;\n"
-
-		// Do green lookup (no scaling).
-		"vec2  tcGreen = lensCenter + scale * theta1;\n"
-
-		"float green = texture2D(texture, tcGreen).g;\n"
-
-		// Do red scale and lookup.
-		"vec2  thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
-		"vec2  tcRed = lensCenter + scale * thetaRed;\n"
-
-		"float red = texture2D(texture, tcRed).r;\n"
-
-		"gl_FragColor = vec4(red, green, blue, 1.0);\n"
-	"}\n"
-};
-
-//
-// Utility Functions
-//
-
-qboolean R_CompileShader(GLhandleARB shader, const char *source)
-{
-	GLint status;
-
-	qglShaderSourceARB(shader, 1, &source, NULL);
-	qglCompileShaderARB(shader);
-	qglGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &status);
-	if (status == 0)
-	{
-		GLint length;
-		char *info;
-
-		qglGetObjectParameterivARB(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
-		info = (char *) malloc(sizeof(char) * length+1);
-		qglGetInfoLogARB(shader, length, NULL, info);
-		VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to compile shader:\n%s\n%s", source, info);
-		free(info);
-	}
-
-	return !!status;
-}
-
-qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
-{
-	qglGetError();
-	if (shader)
-	{
-		shader->program = qglCreateProgramObjectARB();
-
-		shader->vert_shader = qglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-		if (!R_CompileShader(shader->vert_shader, shader->vert_source)) {
-			return false;
-		}
-
-		shader->frag_shader = qglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-		if (!R_CompileShader(shader->frag_shader, shader->frag_source)) {
-			return false;
-		}
-
-		qglAttachObjectARB(shader->program, shader->vert_shader);
-		qglAttachObjectARB(shader->program, shader->frag_shader);
-		qglLinkProgramARB(shader->program); 
-	}
-	return (qglGetError() == GL_NO_ERROR);
-}
-
-void R_DelShaderProgram(r_shaderobject_t *shader)
-{
-	if (shader->program)
-	{
-		qglDeleteObjectARB(shader->program);
-		shader->program = 0;
-	}
-	if (shader->frag_shader)
-	{
-		qglDeleteObjectARB(shader->frag_shader);
-		shader->frag_shader = 0;
-	}
-
-	if (shader->vert_shader)
-	{
-		qglDeleteObjectARB(shader->vert_shader);
-		shader->vert_shader = 0;
-	}
-}
 
 //
 // Rendering related functions
@@ -207,6 +28,13 @@ void R_VR_StartFrame()
 	if (hmd == HMD_RIFT)
 	{
 		int changeBackBuffers = 0;
+		if (vr_supersample->modified)
+		{
+			Cvar_SetInteger("vr_supersample", !!(int) vr_supersample->value);
+			changeBackBuffers = 1;
+			vr_supersample->modified = false;
+		}
+
 		if (vr_ovr_scale->modified)
 		{
 			if (vr_ovr_scale->value < 1.0)
@@ -251,7 +79,7 @@ void R_VR_StartFrame()
 		if (changeBackBuffers)
 		{
 			float scale;
-			scale = VR_OVR_GetDistortionScale();
+			scale = VR_OVR_GetDistortionScale() * (vr_supersample->value ? 2.0f : 1.0f);
 			
 			R_DelFBO(&world);
 		
@@ -440,8 +268,8 @@ void R_VR_Present()
 
 	}
 	GL_Disable(GL_DEPTH_TEST);
-		GL_Enable (GL_ALPHA_TEST);
-		GL_AlphaFunc(GL_GREATER,0.0f);
+	GL_Enable (GL_ALPHA_TEST);
+	GL_AlphaFunc(GL_GREATER,0.0f);
 	GL_SelectTexture(0);
 	GL_Bind(hud.texture);
 	R_BindFBO(&world);
@@ -475,11 +303,14 @@ void R_VR_Present()
 		{
 
 			float scale = VR_OVR_GetDistortionScale();
-			r_shader_t *current_shader;
+			float superscale = (vr_supersample->value ? 2.0f : 1.0f);
+			r_ovr_shader_t *current_shader;
 			vec4_t debugColor;
-			current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
-			
-		
+			if (vr_ovr_bicubic->value)
+				current_shader = &ovr_bicubic_shaders[!!(int) vr_ovr_chromatic->value];
+			else
+				current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
+
 
 			GL_Bind(world.texture);
 
@@ -489,7 +320,7 @@ void R_VR_Present()
 			qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
 			qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
 			qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
-
+			qglUniform2fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale);
 
 			qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
 			qglUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);
@@ -553,30 +384,12 @@ void R_VR_Present()
 }
 
 
-void R_VR_InitShader(r_shader_t *shader, r_shaderobject_t *object)
-{
-
-	if (!object->program)
-		R_CompileShaderProgram(object);
-
-	shader->shader = object;
-	qglUseProgramObjectARB(shader->shader->program);
-
-	shader->uniform.scale = qglGetUniformLocationARB(shader->shader->program, "scale");
-	shader->uniform.scale_in = qglGetUniformLocationARB(shader->shader->program, "scaleIn");
-	shader->uniform.lens_center = qglGetUniformLocationARB(shader->shader->program, "lensCenter");
-	shader->uniform.screen_center = qglGetUniformLocationARB(shader->shader->program, "screenCenter");
-	shader->uniform.hmd_warp_param = qglGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
-	shader->uniform.chrom_ab_param = qglGetUniformLocationARB(shader->shader->program, "chromAbParam");
-
-	qglUseProgramObjectARB(0);
-}
 
 // enables renderer support for the Rift
 void R_VR_Enable()
 {
 	qboolean success = false;
-	float scale = VR_OVR_GetDistortionScale();
+	float scale = VR_OVR_GetDistortionScale() * (vr_supersample->value ? 2.0f : 1.0f);
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;
@@ -643,10 +456,10 @@ void R_VR_Init()
 		R_InitFBO(&world);
 		R_InitFBO(&hud);
 
-		R_VR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
-		R_VR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
-
-
+		VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
+		VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
+		VR_OVR_InitShader(&ovr_bicubic_shaders[0],&ovr_shader_bicubic_norm);
+		VR_OVR_InitShader(&ovr_bicubic_shaders[1],&ovr_shader_bicubic_chrm);
 		vrState.eye = EYE_NONE;
 
 		if (vr_enabled->value)
@@ -668,6 +481,8 @@ void R_VR_Shutdown()
 
 	R_DelShaderProgram(&ovr_shader_norm);
 	R_DelShaderProgram(&ovr_shader_chrm);
+	R_DelShaderProgram(&ovr_shader_bicubic_norm);
+	R_DelShaderProgram(&ovr_shader_bicubic_chrm);
 
 	if (world.valid)
 		R_DelFBO(&world);

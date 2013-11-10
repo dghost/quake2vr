@@ -137,6 +137,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="renderer\r_fbo.c" />
+    <ClCompile Include="renderer\r_shaderobjects.c" />
     <ClCompile Include="renderer\r_vr.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
     <ClCompile Include="ui\ui_options_vr_advanced.c" />

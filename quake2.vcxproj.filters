@@ -369,6 +369,9 @@
     <ClCompile Include="ui\ui_options_vr_ovr.c">
       <Filter>Source Files\ui</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\r_shaderobjects.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
