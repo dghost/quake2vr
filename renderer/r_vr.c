@@ -28,11 +28,11 @@ void R_VR_StartFrame()
 	if (hmd == HMD_RIFT)
 	{
 		int changeBackBuffers = 0;
-		if (vr_supersample->modified)
+		if (vr_antialias->modified)
 		{
-			Cvar_SetInteger("vr_supersample", !!(int) vr_supersample->value);
+			Cvar_SetInteger("vr_antialias", !!(int) vr_antialias->value);
 			changeBackBuffers = 1;
-			vr_supersample->modified = false;
+			vr_antialias->modified = false;
 		}
 
 		if (vr_ovr_scale->modified)
@@ -79,7 +79,7 @@ void R_VR_StartFrame()
 		if (changeBackBuffers)
 		{
 			float scale;
-			scale = VR_OVR_GetDistortionScale() * (vr_supersample->value ? 2.0f : 1.0f);
+			scale = VR_OVR_GetDistortionScale() * (vr_antialias->value == VR_ANTIALIAS_SSAA ? 2.0f : 1.0f);
 			
 			R_DelFBO(&world);
 		
@@ -303,7 +303,7 @@ void R_VR_Present()
 		{
 
 			float scale = VR_OVR_GetDistortionScale();
-			float superscale = (vr_supersample->value ? 2.0f : 1.0f);
+			float superscale = (vr_antialias->value == VR_ANTIALIAS_SSAA ? 2.0f : 1.0f);
 			r_ovr_shader_t *current_shader;
 			vec4_t debugColor;
 			if (vr_ovr_bicubic->value)
@@ -390,7 +390,7 @@ void R_VR_Present()
 void R_VR_Enable()
 {
 	qboolean success = false;
-	float scale = VR_OVR_GetDistortionScale() * (vr_supersample->value ? 2.0f : 1.0f);
+	float scale = VR_OVR_GetDistortionScale() * (vr_antialias->value == VR_ANTIALIAS_SSAA? 2.0f : 1.0f);
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;

@@ -25,7 +25,7 @@ cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
-cvar_t *vr_supersample;
+cvar_t *vr_antialias;
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
@@ -360,7 +360,7 @@ void VR_Init()
 	}
 
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
-	vr_supersample = Cvar_Get("vr_supersample","1",CVAR_ARCHIVE);
+	vr_antialias = Cvar_Get("vr_antialias","1",CVAR_ARCHIVE);
 	vr_nosleep = Cvar_Get("vr_nosleep", "1", CVAR_ARCHIVE);
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_ARCHIVE);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_ARCHIVE);
