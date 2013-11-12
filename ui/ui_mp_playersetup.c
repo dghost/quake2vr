@@ -779,8 +779,8 @@ void PlayerConfig_MenuDraw (void)
 		ent->skin = playerskin;
 
 		ent->flags = RF_FULLBRIGHT|RF_NOSHADOW|RF_DEPTHHACK;
-		if (hand->value == 1)
-			ent->flags |= RF_MIRRORMODEL;
+//		if (hand->value == 1)
+//			ent->flags |= RF_MIRRORMODEL;
 
 		ent->origin[0] = modelOrg[0];
 		ent->origin[1] = modelOrg[1];
@@ -812,8 +812,8 @@ void PlayerConfig_MenuDraw (void)
 			ent->skinnum = 0;
 
 			ent->flags = RF_FULLBRIGHT|RF_NOSHADOW|RF_DEPTHHACK;
-			if (hand->value == 1)
-				ent->flags |= RF_MIRRORMODEL;
+//			if (hand->value == 1)
+//				ent->flags |= RF_MIRRORMODEL;
 
 			ent->origin[0] = modelOrg[0];
 			ent->origin[1] = modelOrg[1];

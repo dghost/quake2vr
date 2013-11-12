@@ -95,6 +95,8 @@ void VR_OVR_CalcRenderParam()
 
 float VR_OVR_GetDistortionScale()
 {
+	if (!vr_ovr_distortion->value)
+		return 1.0f;
 
 	switch ((int) vr_ovr_autoscale->value)
 	{

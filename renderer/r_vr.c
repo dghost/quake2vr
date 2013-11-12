@@ -35,6 +35,13 @@ void R_VR_StartFrame()
 			vr_antialias->modified = false;
 		}
 
+		if (vr_ovr_distortion->modified)
+		{
+			Cvar_SetInteger("vr_ovr_distortion", !!(int) vr_ovr_distortion->value);
+			changeBackBuffers = 1;
+			vr_ovr_distortion->modified = false;
+		}
+
 		if (vr_ovr_scale->modified)
 		{
 			if (vr_ovr_scale->value < 1.0)
