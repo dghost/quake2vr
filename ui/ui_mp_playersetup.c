@@ -767,7 +767,8 @@ void PlayerConfig_MenuDraw (void)
 
 		yaw = anglemod(cl.time/10);
 
-		VectorSet (modelOrg, 150, (hand->value==1)?25:-25, 0); // was 80, 0, 0
+		//VectorSet (modelOrg, 150, (hand->value==1)?25:-25, 0); // was 80, 0, 0
+		VectorSet (modelOrg, 150, -25, 0);
 
 		// Setup player model
 		ent = &entity[0];
@@ -793,8 +794,8 @@ void PlayerConfig_MenuDraw (void)
 		//if ( ++yaw > 360 )
 		//	yaw -= 360;
 		
-		if (hand->value == 1)
-			ent->angles[1] = 360 - ent->angles[1];
+//		if (hand->value == 1)
+//			ent->angles[1] = 360 - ent->angles[1];
 
 		refdef.num_entities++;
 
@@ -824,8 +825,8 @@ void PlayerConfig_MenuDraw (void)
 			ent->backlerp = 0.0;
 			ent->angles[1] = yaw;
 			
-			if (hand->value == 1)
-				ent->angles[1] = 360 - ent->angles[1];
+//			if (hand->value == 1)
+//				ent->angles[1] = 360 - ent->angles[1];
 
 			refdef.num_entities++;
 		}

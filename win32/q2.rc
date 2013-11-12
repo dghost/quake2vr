@@ -73,14 +73,14 @@ BEGIN
         BEGIN
             VALUE "Comments", "Licensed under the GPL.  Source available at kmq2.quakedev.com\0"
             VALUE "CompanyName", " \0"
-            VALUE "FileDescription", "Quake II VR engine mod\0"
+            VALUE "FileDescription", "KMQuake2 engine mod\0"
             VALUE "FileVersion", "0, 2, 0, 5\0"
             VALUE "InternalName", "kmquake2\0"
             VALUE "LegalCopyright", "\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "kmquake2.exe\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Quake II VR\0"
+            VALUE "ProductName", "KMQuake2\0"
             VALUE "ProductVersion", "0, 2, 0, 5\0"
             VALUE "SpecialBuild", "\0"
         END

@@ -984,7 +984,7 @@ void Sys_Init (void)
 		Sys_Error ("Couldn't get OS info");
 
 	if ((osInfo.dwMajorVersion < 5 && osInfo.dwMinorVersion < 1) || (osInfo.dwPlatformId != VER_PLATFORM_WIN32_NT))
-		Sys_Error ("Quake II VR requires Windows XP or higher");
+		Sys_Error ("KMQuake2 requires Windows XP or higher");
 
 // from Q2E - OS & CPU detection
 	if (osInfo.dwMajorVersion == 5 && osInfo.dwMinorVersion == 1)
@@ -1080,7 +1080,7 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
-#if defined _M_IX86
+
 	//Knightmare- changed DLL name for better cohabitation
 	const char *gamename = "kmq2gamex86.dll"; 
 
@@ -1088,17 +1088,6 @@ void *Sys_GetGameAPI (void *parms)
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
-#endif
-
-#elif defined _M_ALPHA
-	const char *gamename = "kmq2gameaxp.dll";
-
-#ifdef NDEBUG
-	const char *debugdir = "releaseaxp";
-#else
-	const char *debugdir = "debugaxp";
-#endif
-
 #endif
 
 	if (game_library)
@@ -1241,7 +1230,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 #ifdef NEW_DED_CONSOLE // init debug console
 	Sys_InitDedConsole ();
-	Com_Printf("Quake II VR %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
+	Com_Printf("KMQuake2 %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
 #endif
 
 	// Knightmare- scan for cd command line option

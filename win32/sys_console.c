@@ -28,19 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef NEW_DED_CONSOLE
 
 #define CONSOLE_WINDOW_STYLE		(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_CLIPCHILDREN|WS_GROUP)
-#define CONSOLE_WINDOW_CLASS_NAME	"Quake II VR Console"
+#define CONSOLE_WINDOW_CLASS_NAME	"KMQuake2 Console"
 
 #ifdef ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-#define CONSOLE_WINDOW_NAME			"Quake II VR Console (Eraser net server)"
+#define CONSOLE_WINDOW_NAME			"KMQuake2 Console (Eraser net server)"
 #else // NET_SERVER_BUILD
-#define CONSOLE_WINDOW_NAME			"Quake II VR Console (Eraser Compatible)"
+#define CONSOLE_WINDOW_NAME			"KMQuake2 Console (Eraser Compatible)"
 #endif // NET_SERVER_BUILD
 #else // ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-#define CONSOLE_WINDOW_NAME			"Quake II VR Console (net server)"
+#define CONSOLE_WINDOW_NAME			"KMQuake2 Console (net server)"
 #else
-#define CONSOLE_WINDOW_NAME			"Quake II VR Console"
+#define CONSOLE_WINDOW_NAME			"KMQuake2 Console"
 #endif // NET_SERVER_BUILD
 #endif // ERASER_COMPAT_BUILD
 

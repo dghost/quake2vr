@@ -678,7 +678,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 	else
 		R_DrawStretchPic (0, lines-viddef.height-(int)barheight, viddef.width, viddef.height, "conback", alpha);
 
-	// changed to "KMQuake2 vx.xx"
+	// changed to "Quake II VR vx.x.x"
 #ifdef ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
 	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (Eraser net server)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);

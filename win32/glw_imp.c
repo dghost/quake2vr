@@ -142,7 +142,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	glw_state.hWnd = CreateWindowEx (
 		 exstyle, 
 		 WINDOW_CLASS_NAME,
-		 "Quake II VR",		//Knightmare changed
+		 "Quake II VR",		//dghost changed
 		 stylebits,
 		 x, y, w, h,
 		 NULL,
@@ -232,7 +232,7 @@ qboolean VR_CreateWindow(int xPos, int yPos, int width, int height)
 	glw_state.hWnd = CreateWindowEx (
 		exstyle, 
 		WINDOW_CLASS_NAME,
-		"Quake II VR",		//Knightmare changed
+		"Quake II VR",		//dghost changed
 		stylebits,
 		x, y, w, h,
 		NULL,

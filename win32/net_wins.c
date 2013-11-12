@@ -107,8 +107,23 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 	if (a.type != b.type)
 		return false;
 
+	switch(a.type)
+	{
+	case NA_LOOPBACK:
+		return true;
+	case NA_IP:
+		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port)
+			return true;
+		break;
+	case NA_IPX:
+		if ((memcmp(a.ipx, b.ipx, 10) == 0) && a.port == b.port)
+			return true;
+	}
+	return false;
+
+	/*
 	if (a.type == NA_LOOPBACK)
-		return TRUE;
+		return true;
 
 	if (a.type == NA_IP)
 	{
@@ -123,6 +138,8 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 			return true;
 		return false;
 	}
+	return false;
+	*/
 }
 
 /*
@@ -137,8 +154,23 @@ qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 	if (a.type != b.type)
 		return false;
 
+	switch(a.type)
+	{
+	case NA_LOOPBACK:
+		return true;
+	case NA_IP:
+		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
+			return true;
+		break;
+	case NA_IPX:
+		if ((memcmp(a.ipx, b.ipx, 10) == 0))
+			return true;
+	}
+	return false;
+
+	/*
 	if (a.type == NA_LOOPBACK)
-		return TRUE;
+		return true;
 
 	if (a.type == NA_IP)
 	{
@@ -153,6 +185,9 @@ qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 			return true;
 		return false;
 	}
+	return false;
+
+	*/
 }
 
 /*
@@ -502,7 +537,7 @@ int NET_IPSocket (char *net_interface, int port)
 {
 	int					newsocket;
 	struct sockaddr_in	address;
-	qboolean			_true = true;
+	u_long				_true = true;
 	int					i = 1;
 	int					err;
 

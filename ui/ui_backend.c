@@ -498,6 +498,7 @@ void SpinControl_Draw (menulist_s *s)
 Menu_AddItem
 ==========================
 */
+#pragma warning ( disable : 4789 ) // disable false positive detection
 void Menu_AddItem (menuframework_s *menu, void *item)
 {
 	int			i;
@@ -525,7 +526,7 @@ void Menu_AddItem (menuframework_s *menu, void *item)
 	}
 
 }
-
+#pragma warning ( default : 4789 )
 
 /*
 ==========================

@@ -46,8 +46,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef _M_IX86
 #define	CPUSTRING	"x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"AXP"
+#else
+#define CPUSTRING "Unknown"
 #endif
 
 #elif defined __linux__
@@ -56,20 +56,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef __i386__
 #define CPUSTRING "i386"
-#elif defined __alpha__
-#define CPUSTRING "axp"
 #else
 #define CPUSTRING "Unknown"
-#endif
-
-#elif defined __sun__
-
-#define BUILDSTRING "Solaris"
-
-#ifdef __i386__
-#define CPUSTRING "i386"
-#else
-#define CPUSTRING "sparc"
 #endif
 
 #else	// !WIN32

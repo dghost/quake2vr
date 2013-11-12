@@ -360,7 +360,7 @@ void VR_Init()
 	}
 
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
-	vr_antialias = Cvar_Get("vr_antialias","1",CVAR_ARCHIVE);
+	vr_antialias = Cvar_Get("vr_antialias","0",CVAR_ARCHIVE);
 	vr_nosleep = Cvar_Get("vr_nosleep", "1", CVAR_ARCHIVE);
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_ARCHIVE);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_ARCHIVE);
