@@ -265,22 +265,17 @@ qboolean VR_CreateWindow(int xPos, int yPos, int width, int height)
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode ( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
 {
 	int width, height;
 	const char *win_fs[] = { "W", "FS" };
 
+	width = Cvar_VariableInteger("r_width");
+	height = Cvar_VariableInteger("r_height");
+
 	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	VID_Printf (PRINT_ALL, "...setting mode %d:", mode );
-
-	if ( !VID_GetModeInfo( &width, &height, mode ) )
-	{
-		VID_Printf( PRINT_ALL, " invalid mode\n" );
-		return rserr_invalid_mode;
-	}
-
-	VID_Printf( PRINT_ALL, " %dx%d %s\n", width, height, win_fs[fullscreen] );
+	VID_Printf (PRINT_ALL, "...setting mode %dx%d %s\n", width, height, win_fs[fullscreen] );
 
 	// destroy the existing window
 	if (glw_state.hWnd)

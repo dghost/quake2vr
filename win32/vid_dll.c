@@ -64,17 +64,12 @@ cvar_t		*vid_ref;			// Name of Refresh DLL loaded
 cvar_t		*vid_xpos;			// X coordinate of window position
 cvar_t		*vid_ypos;			// Y coordinate of window position
 cvar_t		*vid_fullscreen;
-cvar_t		*r_customwidth;
-cvar_t		*r_customheight;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
 qboolean	kmgl_active = 0;
 
 HWND        cl_hwnd;            // Main window handle for life of program
-
-#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
-
 
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -511,6 +506,8 @@ void VID_Front_f( void )
 /*
 ** VID_GetModeInfo
 */
+
+/*
 typedef struct vidmode_s
 {
 	const char *description;
@@ -524,24 +521,7 @@ vidmode_t vid_modes[] =
 #include "../qcommon/vid_modes.h"
 };
 
-qboolean VID_GetModeInfo (int *width, int *height, int mode)
-{
-	if (mode == -1) // custom mode
-	{
-		*width  = r_customwidth->value;
-		*height = r_customheight->value;
-		return true;
-	}
-
-	if ( mode < 0 || mode >= VID_NUM_MODES )
-		return false;
-
-
-	*width  = vid_modes[mode].width;
-	*height = vid_modes[mode].height;
-
-	return true;
-}
+*/
 
 /*
 ==============
@@ -712,8 +692,7 @@ void VID_Init (void)
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "1", CVAR_ARCHIVE);
 	vid_gamma = Cvar_Get( "vid_gamma", "0.8", CVAR_ARCHIVE ); // was 1.0
 	win_noalttab = Cvar_Get( "win_noalttab", "0", CVAR_ARCHIVE );
-	r_customwidth = Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE );
-	r_customheight = Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE );
+
 	// Knightmare- just here to enable command line option without error
 	scanforcd = Cvar_Get( "scanforcd", "0", 0 );
 

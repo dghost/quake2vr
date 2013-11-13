@@ -230,6 +230,8 @@ extern	cvar_t	*r_nocull;
 extern	cvar_t	*r_lerpmodels;
 extern	cvar_t	*r_ignorehwgamma; // Knightmare- hardware gamma
 extern	cvar_t	*r_displayrefresh; // Knightmare- refresh rate control
+extern  cvar_t  *r_width;
+extern  cvar_t  *r_height;
 
 extern	cvar_t	*r_waterwave;	// Knightmare- water waves
 extern	cvar_t  *r_caustics;	// Barnes water caustics
@@ -281,7 +283,6 @@ extern	cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 
 extern	cvar_t	*r_nosubimage;
 extern	cvar_t	*r_bitdepth;
-extern	cvar_t	*r_mode;
 extern	cvar_t	*r_log;
 extern	cvar_t	*r_lightmap;
 extern	cvar_t	*r_shadows;
@@ -825,8 +826,6 @@ typedef struct
 	float			inverse_intensity;
 	qboolean		fullscreen;
 
-	int				prev_mode;
-
 	unsigned char	*d_16to8table;
 
 	int				lightmap_textures;
@@ -972,7 +971,7 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen );
+int     	GLimp_SetMode( int *pwidth, int *pheight, qboolean fullscreen );
 void		GLimp_AppActivate( qboolean active );
 void		GLimp_EnableLogging( qboolean enable );
 void		GLimp_LogNewFrame( void );

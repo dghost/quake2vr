@@ -97,6 +97,8 @@ cvar_t  *r_caustics;	// Barnes water caustics
 cvar_t  *r_glows;		// texture glows
 cvar_t	*r_saveshotsize;//  save shot size option
 
+cvar_t	*r_width;
+cvar_t	*r_height;
 cvar_t	*r_dlights_normal; // lerped dlights on models
 cvar_t	*r_model_shading;
 cvar_t	*r_model_dlights;
@@ -153,7 +155,6 @@ cvar_t	*r_particle_max;
 cvar_t	*r_particledistance;
 cvar_t	*r_particle_overdraw;
 
-cvar_t	*r_mode;
 cvar_t	*r_dynamic;
 cvar_t  *r_monolightmap;
 
@@ -1108,6 +1109,9 @@ void R_Register (void)
 	r_displayrefresh = Cvar_Get ("r_displayrefresh", "0", CVAR_ARCHIVE); // refresh rate control
 	AssertCvarRange (r_displayrefresh, 0, 150, true);
 
+	r_width = Cvar_Get( "r_width", "1280", CVAR_ARCHIVE );
+	r_height = Cvar_Get( "r_height", "800", CVAR_ARCHIVE );
+
 	// lerped dlights on models
 	r_dlights_normal = Cvar_Get("r_dlights_normal", "1", CVAR_ARCHIVE);
 	r_model_shading = Cvar_Get( "r_model_shading", "2", CVAR_ARCHIVE );
@@ -1134,7 +1138,6 @@ void R_Register (void)
 	r_modulate = Cvar_Get ("r_modulate", "1", CVAR_ARCHIVE );
 	r_log = Cvar_Get( "r_log", "0", 0 );
 	r_bitdepth = Cvar_Get( "r_bitdepth", "0", 0 );
-	r_mode = Cvar_Get( "r_mode", "17", CVAR_ARCHIVE );
 	r_lightmap = Cvar_Get ("r_lightmap", "0", 0);
 	r_shadows = Cvar_Get ("r_shadows", "0", CVAR_ARCHIVE );
 	r_shadowalpha = Cvar_Get ("r_shadowalpha", "0.4", CVAR_ARCHIVE );
@@ -1261,36 +1264,29 @@ qboolean R_SetMode (void)
 	fullscreen = vid_fullscreen->value;
 	r_skydistance->modified = true; // skybox size variable
 
-	// don't allow modes 0, 1, or 2
-	/*if ((r_mode->value > -1) && (r_mode->value < 17))
-		Cvar_SetValue( "r_mode", 17);*/
 
 	vid_fullscreen->modified = false;
-	r_mode->modified = false;
 
-	if ( ( err = GLimp_SetMode( &vid.width, &vid.height, r_mode->value, fullscreen ) ) == rserr_ok )
-	{
-		glState.prev_mode = r_mode->value;
-	}
-	else
+
+	if ( ( err = GLimp_SetMode( &vid.width, &vid.height, fullscreen ) ) != rserr_ok )
 	{
 		if ( err == rserr_invalid_fullscreen )
 		{
 			Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - fullscreen unavailable in this mode\n" );
-			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, r_mode->value, false ) ) == rserr_ok )
+			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, false ) ) == rserr_ok )
 				return true;
 		}
 		else if ( err == rserr_invalid_mode )
 		{
-			Cvar_SetValue( "r_mode", glState.prev_mode );
-			r_mode->modified = false;
+			Cvar_SetValue("r_width",640);
+			Cvar_SetValue("r_height",480);
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - invalid mode\n" );
 		}
 
 		// try setting it back to something safe
-		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, glState.prev_mode, false ) ) != rserr_ok )
+		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, false ) ) != rserr_ok )
 		{
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n" );
 			return false;
@@ -1348,8 +1344,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		return false;
 	}
 
-	// set our "safe" modes
-	glState.prev_mode = 3;
 
 	// create the window and set up the context
 	if ( !R_SetMode () )
@@ -2147,10 +2141,9 @@ void R_BeginFrame( float camera_separation )
 	//
 	// change modes if necessary
 	//
-	if ( r_mode->modified || vid_fullscreen->modified )
+	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
 		cvar_t	*ref;
-
 		ref = Cvar_Get ("vid_ref", "gl", 0);
 		ref->modified = true;
 	}

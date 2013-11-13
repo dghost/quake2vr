@@ -27,6 +27,12 @@ extern cvar_t *vid_ref;
 
 void Menu_Video_Init (void);
 
+typedef struct vidmode_s
+{
+	const char *description;
+	int         width, height;
+} vidmode_t;
+
 /*
 =======================================================================
 
@@ -51,6 +57,31 @@ static menuaction_s		s_advanced_action;
 static menuaction_s		s_defaults_action;
 static menuaction_s		s_apply_action;
 static menuaction_s		s_backmain_action;
+
+
+static vidmode_t vid_modes[] =
+{
+	{ "640x480",	640, 480},
+	{ "800x600",	800, 600},
+	{ "1024x768",	1024, 768},
+	{ "1280x960",	1280, 960},
+	{ "1280x1024",	1280, 1024},
+	{ "1600x1200", 1600, 1200},
+	{ "1280x720",	1280, 720},
+	{ "1280x768",	1280, 768},
+	{ "1280x800",	1280, 800},
+	{ "1360x768",	1360, 768},
+	{ "1366x768",	1366, 768},
+	{ "1440x900",	1440, 900},
+	{ "1600x900",	1600, 900},
+	{ "1680x1050",	1680, 1050},
+	{ "1920x1080",	1920, 1080},
+	{ "1920x1200",	1920, 1200},
+	{ "2560x1440",	2560, 1440},
+	{ "2560x1600",	2560, 1600}
+};
+
+#define NUM_VIDEO_MODES (sizeof(vid_modes) / sizeof(vid_modes[0]))
 
 static void BrightnessCallback( void *s )
 {
@@ -87,7 +118,8 @@ static void ResetVideoDefaults ( void *unused )
 {
 	Cvar_SetToDefault ("vid_fullscreen");
 	Cvar_SetToDefault ("vid_gamma");
-	Cvar_SetToDefault ("r_mode");
+	Cvar_SetToDefault ("r_width");
+	Cvar_SetToDefault ("r_height");
 	Cvar_SetToDefault ("r_texturemode");
 	Cvar_SetToDefault ("r_anisotropic");
 	Cvar_SetToDefault ("r_picmip");
@@ -135,9 +167,14 @@ static void ApplyChanges( void *unused )
 {
 	int		temp;
 
+	temp = ClampCvar(0,NUM_VIDEO_MODES,s_mode_list.curvalue);
+	if (temp != NUM_VIDEO_MODES)
+	{
 
-	temp = s_mode_list.curvalue;
-	Cvar_SetValue( "r_mode", (temp == 0) ? -1 : temp + 16 ); // offset for eliminating < 640x480 modes
+		Cvar_SetValue( "r_width", vid_modes[temp].width ); // offset for eliminating < 640x480 modes
+		Cvar_SetValue( "r_height", vid_modes[temp].height ); // offset for eliminating < 640x480 modes
+	}
+
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
 	// invert sense so greater = brighter, and scale to a range of 0.3 to 1.3
 	Cvar_SetValue( "vid_gamma", (1.3 - (s_brightness_slider.curvalue/20.0)) );
@@ -319,6 +356,7 @@ float GetAnisoCurValue ()
 }
 
 
+
 /*
 ================
 Menu_Video_Init
@@ -329,7 +367,12 @@ void Menu_Video_Init (void)
 	// Knightmare- added 1280x1024, 1400x1050, 856x480, 1024x480 modes, removed 320x240, 400x300, 512x384 modes
 	static const char *resolutions[] = 
 	{
-		"[custom   ]",
+		"[640x480  ]",
+		"[800x600  ]",
+		"[1024x768 ]",
+		"[1280x960 ]",
+		"[1280x1024]", // Knightmare added
+		"[1600x1200]",
 		"[1280x720 ]", // Knightmare added
 		"[1280x768 ]", // Knightmare added
 		"[1280x800 ]", // Knightmare added
@@ -337,15 +380,15 @@ void Menu_Video_Init (void)
 		"[1366x768 ]", // Knightmare added
 		"[1440x900 ]", // Knightmare added
 		"[1600x900 ]", // Knightmare added
-		"[1600x1024]", // Knightmare added
 		"[1680x1050]", // Knightmare added
 		"[1920x1080]", // Knightmare added
 		"[1920x1200]", // Knightmare added
-		"[2560x1080]", // Knightmare added
 		"[2560x1440]", // Knightmare added
 		"[2560x1600]", // Knightmare added
+		"[custom   ]",
 		0
 	};
+
 	static const char *refreshrate_names[] = 
 	{
 		"[default]",
@@ -392,6 +435,16 @@ void Menu_Video_Init (void)
 	int		y = 0;
 	float	temp;
 
+	int i;
+	int j = sizeof(vid_modes) / sizeof(vidmode_t);
+	for (i = 0; i < NUM_VIDEO_MODES; i++)
+	{
+		if (vid_modes[i].width == Cvar_VariableInteger("r_width") 
+			&& vid_modes[i].height == Cvar_VariableInteger("r_height") )
+			break;
+	}
+	temp = i;
+
 	if ( !con_font_size )
 		con_font_size = Cvar_Get ("con_font_size", "8", CVAR_ARCHIVE);
 
@@ -405,8 +458,11 @@ void Menu_Video_Init (void)
 	s_mode_list.generic.x			= 0;
 	s_mode_list.generic.y			= y;
 	s_mode_list.itemnames			= resolutions;
-	temp = Cvar_VariableValue("r_mode");
-	s_mode_list.curvalue			= (temp == -1) ? 0 : max(temp - 16, 1); // offset for getting rid of < 640x480 resolutions
+
+
+
+
+	s_mode_list.curvalue			= temp; // offset for getting rid of < 640x480 resolutions
 	s_mode_list.generic.statusbar	= "changes screen resolution";
 
 	s_fs_box.generic.type			= MTYPE_SPINCONTROL;
