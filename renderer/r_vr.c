@@ -88,12 +88,12 @@ void R_VR_StartFrame()
 			float scale;
 			scale = VR_OVR_GetDistortionScale() * (vr_antialias->value == VR_ANTIALIAS_SSAA ? 2.0f : 1.0f);
 			
-			R_DelFBO(&world);
+			//R_DelFBO(&world);
 		
 			vrState.vrWidth = scale * vrState.viewWidth;
 			vrState.vrHalfWidth = vrState.vrWidth / 2.0;
 			vrState.vrHeight = scale  * vrState.viewHeight;
-			R_GenFBO(vrState.vrWidth, vrState.vrHeight, &world);
+			R_ResizeFBO(vrState.vrWidth, vrState.vrHeight, &world);
 
 			VR_OVR_SetFOV();
 			vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;

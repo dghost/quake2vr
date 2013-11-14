@@ -33,7 +33,7 @@ static r_shaderobject_t ovr_shader_norm = {
 	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
 	// fragment shader
 	"varying vec2 texCoords;\n"
@@ -69,7 +69,7 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
 
 	// fragment shader
@@ -198,7 +198,7 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
 
 	// fragment shader

@@ -993,6 +993,7 @@ typedef struct {
 } fbo_t;
 
 int R_GenFBO(int width, int height, fbo_t *FBO);
+int R_ResizeFBO(int width, int height, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);
 void R_InitFBO(fbo_t *FBO);
 GLuint R_BindFBO(fbo_t *FBO);
