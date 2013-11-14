@@ -60,8 +60,14 @@ int R_RollMult (void)
 R_DrawNullModel
 =================
 */
+extern cvar_t *r_drawnullmodel;
+
 void R_DrawNullModel (void)
 {
+
+	if (!r_drawnullmodel->value)
+		return;
+
     qglPushMatrix ();
 	R_RotateForEntity (currententity, true);
 	GL_DisableTexture (0);
