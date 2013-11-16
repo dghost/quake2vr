@@ -64,12 +64,12 @@ static r_shaderobject_t ovr_shader_norm = {
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_bicubic_norm = {
 	0, 0, 0,
-	
+
 	// vertex shader (identity)
 	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
+	"gl_Position = gl_Vertex;\n"
+	"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
 
 	// fragment shader
@@ -82,6 +82,14 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 	"uniform vec2 textureSize;\n"
 	"uniform vec4 hmdWarpParam;\n"
 	"uniform sampler2D texture;\n"
+	// hack to fix artifacting with AMD cards
+	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
+	"{\n"
+		"if (any(lessThan(uv,vec2(0.0)))||any(greaterThan(uv,vec2(1.0))))\n"
+			"return vec3(0.0);\n"
+		"else\n"
+		"return texture2D(tex,uv).rgb;\n"
+	"}\n"
 	"vec2 warp(vec2 uv)\n"
 	"{\n"
 		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
@@ -89,7 +97,7 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
 		"return (lensCenter + scale * rvector);\n"
 	"}\n"
-	"vec4 filter(sampler2D texture, vec2 texCoord)\n"
+	"vec3 filter(sampler2D texture, vec2 texCoord)\n"
 	"{\n"
 		"//--------------------------------------------------------------------------------------\n"
 		"// Calculate the center of the texel to avoid any filtering\n"
@@ -117,18 +125,18 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 		"texCoord1 *= texelSize;\n"
 		"//--------------------------------------------------------------------------------------\n"
 		"// Sample the texture\n"
-		"return texture2D( texture, warp(vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
+		"return sampleClamp( texture, warp(vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, warp(vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, warp(vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
+			   "sampleClamp( texture, warp(vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
 	"}\n"
 	"void main()\n"
 	"{\n"
 		"vec2 tc = warp(texCoords);\n"
-		"if (any(bvec2(clamp(tc, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5))-tc)))\n"
-			"gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
+		"if (!all(equal(clamp(tc, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5)),tc)))\n"
+			"gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n"
 		"else\n"
-			"gl_FragColor = filter(texture, texCoords);\n"
+			"gl_FragColor = vec4(filter(texture, texCoords),1.0);\n"
 	"}\n"
 };
 
@@ -211,7 +219,15 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 	"uniform vec4 hmdWarpParam;\n"
 	"uniform vec4 chromAbParam;\n"
 	"uniform sampler2D texture;\n"
-		"vec2 warp(vec2 uv, vec2 chromAdjust)\n"
+	// hack to fix artifacting with AMD cards
+	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
+	"{\n"
+		"if (any(lessThan(uv,vec2(0.0)))||any(greaterThan(uv,vec2(1.0))))\n"
+			"return vec3(0.0);\n"
+		"else\n"
+			"return texture2D(tex,uv).rgb;\n"
+	"}\n"
+	"vec2 warpChroma(vec2 uv, vec2 chromAdjust)\n"
 	"{\n"
 		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
 		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
@@ -219,7 +235,7 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 		"rvector *= (chromAdjust.x + chromAdjust.y * rSq);\n"
 		"return (lensCenter + scale * rvector);\n"
 	"}\n"
-	"vec4 filter(sampler2D texture, vec2 texCoord, vec2 warpAdjust)\n"
+	"vec3 filter(sampler2D texture, vec2 texCoord, vec2 warpAdjust)\n"
 	"{\n"
 		"//--------------------------------------------------------------------------------------\n"
 		"// Calculate the center of the texel to avoid any filtering\n"
@@ -247,17 +263,17 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 		"texCoord1 *= texelSize;\n"
 		"//--------------------------------------------------------------------------------------\n"
 		"// Sample the texture\n"
-		"return texture2D( texture, warp(vec2( texCoord0.x, texCoord0.y ), warpAdjust) ) * scalingFactor0.x * scalingFactor0.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord1.x, texCoord0.y ), warpAdjust) ) * scalingFactor1.x * scalingFactor0.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord0.x, texCoord1.y ), warpAdjust) ) * scalingFactor0.x * scalingFactor1.y +\n"
-			   "texture2D( texture, warp(vec2( texCoord1.x, texCoord1.y ), warpAdjust) ) * scalingFactor1.x * scalingFactor1.y;\n"
+		"return sampleClamp( texture, warpChroma(vec2( texCoord0.x, texCoord0.y ), warpAdjust) ) * scalingFactor0.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, warpChroma(vec2( texCoord1.x, texCoord0.y ), warpAdjust) ) * scalingFactor1.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, warpChroma(vec2( texCoord0.x, texCoord1.y ), warpAdjust) ) * scalingFactor0.x * scalingFactor1.y +\n"
+			   "sampleClamp( texture, warpChroma(vec2( texCoord1.x, texCoord1.y ), warpAdjust) ) * scalingFactor1.x * scalingFactor1.y;\n"
 	"}\n"
 	// Scales input texture coordinates for distortion.
 	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
 	// larger due to aspect ratio.
 	"void main()\n"
 	"{\n"
-	"vec2 tcBlue = warp(texCoords,vec2(chromAbParam.z,chromAbParam.w));\n"
+	"vec2 tcBlue = warpChroma(texCoords,vec2(chromAbParam.z,chromAbParam.w));\n"
 
 		"if (!all(equal(clamp(tcBlue, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5)),tcBlue)))\n"
 		"{\n"
