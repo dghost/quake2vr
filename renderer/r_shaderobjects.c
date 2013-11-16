@@ -28,7 +28,9 @@ qboolean R_CompileShader(GLhandleARB shader, const char *source)
 
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 {
+	int		err;
 	qglGetError();
+
 	if (shader)
 	{
 		shader->program = qglCreateProgramObjectARB();
@@ -47,7 +49,12 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 		qglAttachObjectARB(shader->program, shader->frag_shader);
 		qglLinkProgramARB(shader->program); 
 	}
-	return (qglGetError() == GL_NO_ERROR);
+	err = qglGetError();
+	if (err != GL_NO_ERROR)
+		VID_Printf(PRINT_ALL, "R_CompileShaderProgram: glGetError() = 0x%x\n", err);
+
+
+	return true;
 }
 
 void R_DelShaderProgram(r_shaderobject_t *shader)

@@ -3,6 +3,8 @@
 int R_GenFBO(int width, int height, fbo_t *FBO)
 {
 	GLuint fbo, tex, dep;
+	int err;
+	qglGetError();
 
 	qglGenFramebuffers(1, &fbo);
 	qglGenTextures(1, &tex);
@@ -16,7 +18,9 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	GL_Bind(0);
-
+	err = qglGetError();
+	if (err != GL_NO_ERROR)
+		VID_Printf(PRINT_ALL, "R_GenFBO: Texture creation: glGetError() = 0x%x\n", err);
 	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, dep);
 	qglRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
 	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, 0);
@@ -25,7 +29,9 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 	qglFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
 	qglFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
 	qglFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
-
+	err = qglGetError();
+	if (err != GL_NO_ERROR)
+		VID_Printf(PRINT_ALL, "R_GenFBO: Depth buffer creation: glGetError() = 0x%x\n", err);
 	if (qglCheckFramebufferStatus(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
 		Com_Printf("ERROR: Creation of %i x %i FBO failed!\n", width, height);
@@ -36,6 +42,11 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 		return 0;
 	}
 	else {
+		int err;
+		err = qglGetError();
+		if (err != GL_NO_ERROR)
+			VID_Printf(PRINT_ALL, "R_GenFBO: glGetError() = 0x%x\n", err);
+
 		FBO->framebuffer = fbo;
 		FBO->texture = tex;
 		FBO->depthbuffer = dep;
@@ -48,6 +59,8 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 
 int R_ResizeFBO(int width, int height, fbo_t *FBO)
 {
+	int err;
+	qglGetError();
 
 	GL_SelectTexture(0);
 	GL_Bind(FBO->texture);
@@ -58,11 +71,18 @@ int R_ResizeFBO(int width, int height, fbo_t *FBO)
 	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	GL_Bind(0);
+	err = qglGetError();
+	if (err != GL_NO_ERROR)
+		VID_Printf(PRINT_ALL, "R_ResizeFBO: Texture resize: glGetError() = 0x%x\n", err);
 
 	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, FBO->depthbuffer);
 	qglRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
 	qglBindRenderbuffer(GL_RENDERBUFFER_EXT, 0);
-
+	err = qglGetError();
+	if (err != GL_NO_ERROR)
+		VID_Printf(PRINT_ALL, "R_ResizeFBO: Depth buffer resize: glGetError() = 0x%x\n", err);
+	FBO->width = width;
+	FBO->height = height;
 	/*
 	qglBindFramebuffer(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
 	qglFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
@@ -88,6 +108,8 @@ int R_ResizeFBO(int width, int height, fbo_t *FBO)
 		return 1;
 	}
 	*/
+
+	return 1;
 }
 
 void R_DelFBO(fbo_t *FBO)
@@ -120,7 +142,7 @@ void R_InitFBO(fbo_t *FBO)
 GLuint R_BindFBO(fbo_t *FBO)
 {
 	GLint currentFrameBuffer = 0;
-	qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
+	//qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
 	qglBindFramebuffer(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
 	qglViewport(0, 0, FBO->width, FBO->height);
 	return (GLuint) currentFrameBuffer;

@@ -2030,7 +2030,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
-		VID_Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
+		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
 
 
 	return true;
