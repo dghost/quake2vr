@@ -27,8 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	VERSION		0.20 //was 3.21
 
 #define Q2VR_MAJOR 1
-#define Q2VR_MINOR 2
-#define Q2VR_MAINT 1
+#define Q2VR_MINOR 3
+#define Q2VR_MAINT 0
 
 #define	BASEDIRNAME	"baseq2"
 

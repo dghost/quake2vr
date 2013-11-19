@@ -1,18 +1,21 @@
-<h1>Quake II VR v1.2</h1>
+<h1>Quake II VR v1.3</h1>
 
-<p>This is a Quake II engine mod to add full support for the Oculus Rift. </p>
+<p>This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.</p>
 
-<p>This mod is based on <a href="http://www.markshan.com/knightmare/">KMQuake II</a> and incorporates work from <a href="https://github.com/phoboslab/Quakespasm-Rift/">RiftQuake</a>. A detailed change log can be found on <a href="https://github.com/dghost/Quake2-Rift/releases">the releases page</a>.</p>
+<p>This mod is based on <a href="http://www.markshan.com/knightmare/">KMQuake II</a> and incorporates work from <a href="https://github.com/phoboslab/Quakespasm-Rift/">RiftQuake</a>.</p>
 
-<h2>Requirements:</h2>
+<h2>Requirements</h2>
 
 <ul>
 <li>Full version of <a href="http://store.steampowered.com/app/2320/">Quake II</a></li>
-<li>Windows</li>
+<li>Windows XP or higher</li>
 <li>Oculus Rift</li>
+<li>Pretty much any video card that supports DirectX 9 or higher</li>
 </ul>
 
-<h2>Shareware Instructions:</h2>
+<h2>Instructions</h2>
+
+<h4>Shareware Version</h4>
 
 <ol>
 <li>Download the shareware package and unzip it to your preferred directory.</li>
@@ -20,114 +23,42 @@
 <li>Run <code>kmquake2</code>.</li>
 </ol>
 
-<h2>Full Version Instructions:</h2>
+<h4>Full Version Instructions</h4>
 
 <ol>
 <li>Download binary or shareware package and unzip it to your preferred directory.</li>
-<li>Optionally download the high resolution texture package and unzip it to the same folder.</li>
+<li>Optionally download the extra's package and unzip it to the same folder.</li>
 <li>Copy the following files from your Quake II <code>baseq2</code> folder into the new <code>baseq2</code> folder:
 <ul><li><code>pak0.pak</code> (overwrite it if you downloaded the shareware version)</li>
-<li><code>pak1.pak</code></li>
-<li><code>pak2.pak</code></li>
-<li><code>maps.lst</code></li>
-<li><code>videos\</code> (optional - only if you want cinematics)</li>
-<li><code>players\</code> (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)</li></ul></li>
+<li><code>players\</code> (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)</li>
+<li><code>videos\</code> (optional - only if you want cinematics)</li></ul></li>
 <li>If you have the CD audio soundtrack in .ogg format you can optionally place these files in <code>baseq2\music\</code>. Music files need to be named <code>track02.ogg</code> to <code>track11.ogg</code>.</li>
-<li>Run <code>kmquake2</code>. </li>
+<li>Run <code>kmquake2</code> or choose one of the links provided in the extras pack. </li>
 </ol>
 
 <p>You can alternately just copy the contents of the extracted <code>Quake2-Rift</code> directory on top of an existing Quake II installation, however there is always the risk that this breaks the original installation.</p>
 
 <p>If your Oculus Rift is connected and powered on it will enable support automatically at launch, but you can also enable Rift support by accessing the console using ~ and entering <code>vr_enable</code>. When it initializes it will attempt to locate the display that the Rift is configured as and use it, but if that fails it will default to the primary monitor.</p>
 
-<p>As this is based on KMQuake II, it supports a large selection of advanced graphical settings and add-on's. I am mirroring a package with <a href="http://www-personal.umich.edu/~jimw/q2/">Jim Waurzyniak's high resolution texture pack</a> and I highly recommend turning on some of the advanced video options, but if you want a relatively pure experience the defaults settings work very well.</p>
+<h4>Aim mode warnings</h4>
 
-<h2>Console Commands:</h2>
+<p>Aim modes that allow the mouse to adjust the view pitch are currently broken in multiplayer. These are denoted with an * in the VR settings menu, and are aim modes 2 and 4 if you set them through the cvar's.</p>
 
-<p>You can access the console at any time using the ~ key and use the following commands:</p>
+<h4>Modifications and Add-On's</h4>
 
-<ul>
-<li><code>vr_enable</code> - Enable Oculus Rift support</li>
-<li><code>vr_disable</code> - Disable Oculus Rift support</li>
-<li><code>vr_reset_home</code> - Resets the "home" position for the Rift in case it drifts.</li>
-</ul>
+<p>As this is based on KMQuake II, it supports any modification or add-on that is compatible with KMQuake II. The extra's package includes both high resolution model and world textures, and and I highly recommend turning on some of the advanced video options. That said, if you want a relatively pure experience the defaults settings will come pretty close to it.</p>
 
-<p>Additionally, any of these commands can be bound to a key if you desire using the <code>bind</code> command.</p>
-
-<h2>Additional variables:</h2>
-
-<p>In addition to the console commands, a variety of variables exist that can be used to adjust your experience. Where possible they are compatible with RiftQuake settings. These are the settings supported:</p>
+<h2>More Info</h2>
 
 <ul>
-<li><code>vr_aimmode</code> - Sets the current aim mode. Default is mode 6. Supported aim modes are:
-<ol><li>Head aiming .</li>
-<li>Head aiming + mouse pitch. <br> <strong>Note</strong>: this mode is not recommended for use, and does not work with multiplayer.</li>
-<li>Mouse aiming.</li>
-<li>Mouse aiming + mouse pitch. <br> <strong>Note</strong>: this mode is not recommended for use, and does not work with multiplayer.</li>
-<li>Partially decoupled view. Aim confined to a deadzone on screen. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 2</code>.</li>
-<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of view and overrides <code>vr_viewmode</code>. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 3</code>.</li>
-<li>Decoupled view. Aim is confined to a deadzone relative to body direction with moving to the horizontal edges turning the body. Movement is in the direction of aim and overrides <code>vr_viewmode</code>. This is equivalent to TF2/HL2 <code>vr_moveaim_mode 4</code>.</li>
-<li>Fully decoupled view/aim. View is absolute in that you must physically turn all the way around to look behind you.</li></ol></li>
-<li><code>vr_aimmode_deadzone_pitch</code> - Sets the vertical area of the mode 5/6/7 deadzone in degrees. Default is 60 degrees.</li>
-<li><code>vr_aimmode_deadzone_yaw</code> - Sets the horizontal area of the mode 5/6/7 deadzone in degrees. Default is 30 degrees.</li>
-<li><code>vr_autoenable</code> - Automatically enable the Rift when possible.</li>
-<li><code>vr_crosshair</code> - Enables or disables the crosshair. Default is on, set to 0 to disable.</li>
-<li><code>vr_crosshair_brightness</code> - Sets the brightness of the crosshair. Default is 75%.</li>
-<li><code>vr_crosshair_size</code> - Sets the size of the crosshair. Minimum is 1 pixel, maximum is 5 pixels. Default is 3 pixels.</li>
-<li><code>vr_fov_scale</code> - Allows manual adjustment of the FOV. Default is 1.0 (no scaling), minimum is 0.5, maximum is 2.0. </li>
-<li><code>vr_hud_bounce</code> - Sets a scaling value for HUD counter-rotation. Default is 1, minimum is 0, maximum is 3.</li>
-<li><code>vr_hud_bounce_falloff</code> - Sets the approximate number of frames used to calculate the exponential moving average used for HUD counter-rotation. Default is 10, minimum is 0, maximum is 60.</li>
-<li><code>vr_hud_depth</code> - Sets the projected depth of the HUD and all 2D UI elements. Minimum is 0.25, maximum is 250. Default is 0.5. Units are approximately meters.</li>
-<li><code>vr_hud_fov</code> - Sets the horizontal field of view of the HUD. Default is 65 degrees.</li>
-<li><code>vr_hud_transparency</code> - Enables or disables transparency on the 2D UI elements. Default is disabled, set to 1 to enable.</li>
-<li><code>vr_ipd</code> - Set the prefered inter-pupillary distance in millimeters. Default is the value set in your user profile, or 64mm if not set.</li>
-<li><code>vr_motionprediction</code> - Sets the amount of time used for motion prediction. Set to zero to disable, maximum time is 75ms. Default is 40ms.</li>
-<li><code>vr_nosleep</code> - Prevents yielding while waiting to improve performance. Default is enabled, set to 0 to disable.</li>
-<li><code>vr_neckmodel</code> - Enables or disables the head/neck model. Default is enabled, set to 0 to disable.</li>
-<li><code>vr_neckmodel_forward</code> - Sets the forward distance from the spine to the eyes in meters. Default is 0.09 meters.</li>
-<li><code>vr_neckmodel_up</code> - Sets the vertical length of the neck in meters. Default is 0.232 meters.</li>
-<li><code>vr_ovr_chromatic</code> - Enables or disables chromatic aberration correction. Default is enabled, set to 0 to disable.</li>
-<li><code>vr_ovr_debug</code> - Enables a debug mode that force enables Oculus Rift support even if the device fails. Default is disabled, and to enable it you must launch the game with <code>+set vr_ovr_debug 1</code> added to the command line.</li>
-<li><code>vr_ovr_driftcorrection</code> - Enables or disables magnetic drift correction. If available it will use the calibration information set in your user profile, otherwise it will perform an automatic calibration. Default is enabled, set to 1 to enable.</li>
-<li><code>vr_ovr_scale</code> - Sets the distortion compensation scaling factor. Values between 1.0 and 2.0 inclusive are valid, and values below 1.0 sets it to scale to the edge of the screen.</li>
-<li><code>vr_viewmove</code> - Sets player movement to follow the view direction instead of the aim direction. Default is disabled, set to 1 to enable.</li>
+<li><a href="https://github.com/dghost/Quake2VR/">Project Homepage</a></li>
+<li><a href="https://github.com/dghost/Quake2VR/releases">Latest Releases</a></li>
+<li><a href="https://github.com/dghost/Quake2VR/wiki/Changelog">Release Notes</a></li>
+<li><a href="https://github.com/dghost/Quake2VR/wiki/FAQs">FAQs</a></li>
+<li><a href="https://github.com/dghost/Quake2VR/issues">Bug Tracker</a></li>
 </ul>
 
-<p>Other console variables of interest:</p>
-
-<ul>
-<li><code>hand</code> - Sets the hand that the player holds the weapon in. Default is 0, which is right handed, but also supports 1 (left handed) and 2 (no view weapon).</li>
-<li><code>gun_z</code> - Adjusts the distance from the player that the view model is drawn at. Default is 0, negative values are closer, positive values are further.</li>
-</ul>
-
-<h2>Errata:</h2>
-
-<p>Currently unresolved errata:</p>
-
-<ul>
-<li>Aim modes 2 and 4 currently have problems in multiplayer. Unfortunately, the way that the Quake II netcode works makes this nearly impossible to fix at this time.</li>
-<li>View models appear large. This is due to them using the original meshes, and unfortunately there doesn't appear to be an easy way to scale the meshes programmatically.</li>
-<li>Linux is unsupported at this time, although it might be in the future. The changes necessary to support the Oculus Rift guarantee that it is currently broken. If I have time I'll tidy it up for a future release, or if someone wants to submit a patch for it I would gladly merge it. </li>
-<li>OS X is unsupported and will likely never be supported. The official source code for Quake 2 never included proper OS X support, and the KMQuake II source doesn't support it either.</li>
-</ul>
-
-<p>The following errata should be fixed in current builds. If you experience them, please contact me:</p>
-
-<ul>
-<li>KMQuake II (and Quake II) was designed to work with older GPU's and as such significant number of the graphical effects are processed executed on the CPU instead of on the GPU. While this generally means it runs well on modest hardware, the downside is that a few of the enhanced graphics options can cause performance problems at high resolutions even on systems with high end GPU's. If you encounter performance problem, try adjusting the distortion scale (values above ~1.25 are nearly impossible to differentiate), turning the resolution down, or disabling the bloom effect. </li>
-<li>KMQuake II has an issue where messing around with the console during the loading screen either halts loading until you hit the escape key a couple times, or causes the program to crash due to something in the sound subsystem. I haven't been able to figure out the cause yet, so in the mean time try to avoid using the console during the loading screen.</li>
-</ul>
-
-<h1>Build Instructions:</h1>
-
-<ol>
-<li>Clone or copy the repository into a directory of your choice.</li>
-<li>Copy the <code>LibOVR</code> folder from the Oculus Rift SDK into the root directory of your repository.</li>
-<li>Open <code>quake2.sln</code> in Visual Studio. If you are using Visual Studio 2012 and you want to submit pull requests I would appreciate it if you do not upgrade the solution.</li>
-<li>Build it for your desired profile.</li>
-</ol>
-
-<h1>Acknowledgements:</h1>
+<h2>Acknowledgements</h2>
 
 <p>Thanks go out to:</p>
 
@@ -135,6 +66,8 @@
 <li>id Software, for releasing such an awesome game 16 years ago and then being generous enough to release the source code to the community.</li>
 <li>Knightmare and <a href="http://www.markshan.com/knightmare/">KMQuake II</a>. The general cleanliness of the code base and significant graphical upgrades responsible for this turning out as well as it did.</li>
 <li><a href="https://github.com/phoboslab">Dominic Szablewski</a> and <a href="https://github.com/swax">John Marshall</a> for their work on RiftQuake. It served as the basis for this project, and in some places their code remains.</li>
-<li>Jim Waurzyniak for taking the time and effort to host a collection of <a href="http://www-personal.umich.edu/~jimw/q2/">high-resolution assets for Quake II</a>.</li>
+<li>Jim Waurzyniak for taking the time and effort to host a collection of high-resolution assets for Quake II.</li>
 <li><a href="http://islaes.com/">Isla S.</a> for the idea of applying counter-rotation to the HUD to help reduce nausea.</li>
+<li>Karl B. for reporting bugs in multiplayer.</li>
+<li><a href="http://enpat.net">Nick Patrick</a> for a truly amazing job finding bugs in pre-release builds.</li>
 </ul>
