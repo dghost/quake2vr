@@ -181,13 +181,13 @@ void Options_VR_MenuInit ( void )
 	static const char *aimmode_names[] =
 	{
 		"no head tracking",
-		"head aiming + mouse steering",
-		"head aiming + mouse pitch/steering",
+		"head aiming",
+		"* head aiming + mouse pitch",
 		"mouse aiming",
-		"mouse aiming + mouse pitch",
+		"* mouse aiming + mouse pitch",
 		"TF2 Mode 2 (bounded deadzone)",
-		"TF2 Mode 3 (view move)",
-		"TF2 Mode 4 (aim move)",
+		"TF2 Mode 3 (deadzone w/ view move)",
+		"TF2 Mode 4 (deadzone w/ aim move)",
 		"fully decoupled view/aiming",
 		0
 	};
@@ -223,7 +223,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_box.generic.name			= "aim mode";
 	s_options_vr_aimmode_box.generic.callback		= AimmodeFunc;
 	s_options_vr_aimmode_box.itemnames			= aimmode_names;
-	s_options_vr_aimmode_box.generic.statusbar	= "select which aim mode to use";
+	s_options_vr_aimmode_box.generic.statusbar	= "WARNING: items marked with a * do not work well in multiplayer";
 
 	s_options_vr_viewmove_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_viewmove_box.generic.x			= MENU_FONT_SIZE;

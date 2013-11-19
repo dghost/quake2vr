@@ -181,7 +181,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	static const char *antialias_names[] =
 	{
 		"none",
-		"2x SSAA",
+		"backbuffer 4x SSAA",
 		0
 	};
 

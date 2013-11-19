@@ -182,8 +182,8 @@ void Options_VR_OVR_MenuInit ( void )
 	static const char *scale_names[] = 
 	{
 		"custom",
-		"inner edge",
-		"outer edge",
+		"nearest edge",
+		"furthest edge",
 		0
 	};
 

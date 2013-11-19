@@ -158,7 +158,7 @@ void R_VR_BindWorld()
 	if (vr_enabled->value)
 	{
 		R_BindFBO(&world);
-		qglViewport(0,0,vrState.vrWidth,vrState.vrHeight);
+//		qglViewport(0,0,vrState.vrWidth,vrState.vrHeight);
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrWidth;
 		vrState.eye = EYE_NONE;
@@ -327,7 +327,7 @@ void R_VR_Present()
 			qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
 			qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
 			qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
-			qglUniform2fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale);
+			qglUniform4fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale, superscale / vrState.vrWidth, superscale / vrState.vrHeight);
 			//qglUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
 
 			qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
