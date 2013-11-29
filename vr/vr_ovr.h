@@ -290,6 +290,8 @@ extern cvar_t *vr_ovr_lensdistance;
 extern cvar_t *vr_ovr_autoscale;
 extern cvar_t *vr_ovr_autolensdistance;
 extern cvar_t *vr_ovr_bicubic;
+extern cvar_t *vr_ovr_supersample;
+
 
 void VR_OVR_SetFOV();
 void VR_OVR_CalcRenderParam();

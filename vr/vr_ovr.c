@@ -12,6 +12,7 @@ cvar_t *vr_ovr_lensdistance;
 cvar_t *vr_ovr_autoscale;
 cvar_t *vr_ovr_autolensdistance;
 cvar_t *vr_ovr_bicubic;
+cvar_t *vr_ovr_supersample;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -322,6 +323,7 @@ int VR_OVR_Init()
 {
 	qboolean init = LibOVR_Init();
 
+	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);

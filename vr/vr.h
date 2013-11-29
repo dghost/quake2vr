@@ -115,7 +115,7 @@ enum {
 
 enum {
 	VR_ANTIALIAS_NONE,
-	VR_ANTIALIAS_SSAA,
+	VR_ANTIALIAS_FSAA,
 	NUM_VR_ANTIALIAS
 } vr_antialias_t;
 

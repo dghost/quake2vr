@@ -5,7 +5,7 @@
 static r_ovr_shader_t ovr_shaders[2];
 static r_ovr_shader_t ovr_bicubic_shaders[2];
 
-static fbo_t world, hud; 
+static fbo_t offscreen, world, hud; 
 
 static GLint defaultFBO;
 
@@ -83,17 +83,29 @@ void R_VR_StartFrame()
 			vr_ovr_autolensdistance->modified = false;
 		}
 
+		if (vr_ovr_supersample->modified)
+		{
+			if (vr_ovr_supersample->value < 1.0)
+				Cvar_Set("vr_ovr_supersample", "1.0");
+			else if (vr_ovr_supersample->value > 2.0)
+				Cvar_Set("vr_ovr_supersample", "2.0");
+			changeBackBuffers = 1;
+			vr_ovr_supersample->modified = false;
+		}
+
 		if (changeBackBuffers)
 		{
-			float scale;
-			scale = VR_OVR_GetDistortionScale() * (vr_antialias->value == VR_ANTIALIAS_SSAA ? 2.0f : 1.0f);
-			
+			float fsaaScale = vr_antialias->value == VR_ANTIALIAS_FSAA? 2.0f : 1.0f;
+			float worldScale = VR_OVR_GetDistortionScale() * fsaaScale * vr_ovr_supersample->value;
 			//R_DelFBO(&world);
 		
-			vrState.vrWidth = scale * vrState.viewWidth;
+			vrState.vrWidth = worldScale * vrState.viewWidth;
 			vrState.vrHalfWidth = vrState.vrWidth / 2.0;
-			vrState.vrHeight = scale  * vrState.viewHeight;
+			vrState.vrHeight = worldScale  * vrState.viewHeight;
 			R_ResizeFBO(vrState.vrWidth, vrState.vrHeight, &world);
+
+			if (vr_antialias->value)
+				R_ResizeFBO(vrState.viewWidth * fsaaScale, vrState.viewHeight * fsaaScale, &offscreen);
 
 			VR_OVR_SetFOV();
 			vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
@@ -302,7 +314,10 @@ void R_VR_Present()
 	qglMatrixMode(GL_MODELVIEW);
 	qglLoadIdentity();
 
-
+	if (vr_antialias->value)
+	{
+		R_BindFBO(&offscreen);
+	}
 
 	if (current_hmd == HMD_RIFT)
 	{
@@ -310,7 +325,8 @@ void R_VR_Present()
 		{
 
 			float scale = VR_OVR_GetDistortionScale();
-			float superscale = (vr_antialias->value == VR_ANTIALIAS_SSAA ? 2.0f : 1.0f);
+			//float superscale = (vr_antialias->value == VR_ANTIALIAS_FSAA ? 2.0f : 1.0f);
+			float superscale = vr_ovr_supersample->value;
 			r_ovr_shader_t *current_shader;
 			vec4_t debugColor;
 			if (vr_ovr_bicubic->value)
@@ -384,6 +400,19 @@ void R_VR_Present()
 		}
 	}
 
+	if (vr_antialias->value)
+	{
+		R_VR_EndFrame();
+		GL_Bind(offscreen.texture);
+
+		qglBegin(GL_TRIANGLE_STRIP);
+		qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
+		qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
+		qglTexCoord2f(1, 0); qglVertex2f(1, -1);
+		qglTexCoord2f(1, 1); qglVertex2f(1, 1);
+		qglEnd();
+
+	}
 	GL_Bind(0);
 
 	// flag HMD to refresh next frame
@@ -397,7 +426,8 @@ void R_VR_Present()
 void R_VR_Enable()
 {
 	qboolean success = false;
-	float scale = VR_OVR_GetDistortionScale() * (vr_antialias->value == VR_ANTIALIAS_SSAA? 2.0f : 1.0f);
+	float fsaaScale = vr_antialias->value == VR_ANTIALIAS_FSAA? 2.0f : 1.0f;
+	float worldScale = VR_OVR_GetDistortionScale() * fsaaScale * vr_ovr_supersample->value;
 	vrState.viewHeight = vid.height;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;
@@ -409,15 +439,20 @@ void R_VR_Enable()
 		R_DelFBO(&world);
 	if (hud.valid)
 		R_DelFBO(&hud);
+	if (offscreen.valid)
+		R_DelFBO(&offscreen);
 
 	Com_Printf("VR: Initializing renderer:");
 	
-	vrState.vrWidth = scale * vrState.viewWidth;
-	vrState.vrHalfWidth = scale * vrState.viewWidth / 2.0;
-	vrState.vrHeight = scale * vrState.viewHeight;
+	vrState.vrWidth = worldScale * vrState.viewWidth;
+	vrState.vrHalfWidth = worldScale * vrState.viewWidth / 2.0;
+	vrState.vrHeight = worldScale * vrState.viewHeight;
 	vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
-	success = R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
-	success = success && R_GenFBO(vrState.vrWidth,vrState.vrHeight,&world);
+	success = (qboolean) R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
+	success = success && (qboolean) R_GenFBO(vrState.vrWidth,vrState.vrHeight,&world);
+	
+	if (vr_antialias->value)
+		success = success && (qboolean) R_GenFBO(vrState.viewWidth * fsaaScale, vrState.viewHeight * fsaaScale, &offscreen);
 
 	if (!success)
 	{
@@ -433,7 +468,6 @@ void R_VR_Enable()
 void R_VR_Disable()
 {
 	qglBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
-
 	qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 
 	vid.width = vrState.viewWidth;
@@ -463,6 +497,7 @@ void R_VR_Init()
 		qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
 		R_InitFBO(&world);
 		R_InitFBO(&hud);
+		R_InitFBO(&offscreen);
 
 		VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
 		VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
