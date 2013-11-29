@@ -44,6 +44,7 @@ static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
 static menulist_s		s_options_vr_advanced_hudtrans_box;
 static menulist_s		s_options_vr_advanced_hudbounce_box;
+static menulist_s		s_options_vr_advanced_hudbounce_func_box;
 static menufield_s		s_options_vr_advanced_hudfalloff_field;
 static menulist_s		s_options_vr_advanced_neckmodel_box;
 static menufield_s		s_options_vr_advanced_neckmodel_up_field;
@@ -103,6 +104,11 @@ static void FalloffFunc( void *unused )
 	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
 }
 
+static void BounceModeFunc( void *unused )
+{
+	float temp;
+	Cvar_SetInteger("vr_hud_bounce_func",s_options_vr_advanced_hudbounce_func_box.curvalue );
+}
 static void NeckmodelFunc ( void *unused )
 {
 	float temp;
@@ -132,6 +138,7 @@ static void VRAdvSetMenuItemValues( void )
 	s_options_vr_advanced_hudtrans_box.curvalue = ( Cvar_VariableInteger("vr_hud_transparency") );
 	s_options_vr_advanced_hudbounce_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce") );
 	s_options_vr_advanced_neckmodel_box.curvalue = ( Cvar_VariableValue("vr_neckmodel") );
+	s_options_vr_advanced_hudbounce_func_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce_func") );
 	strcpy( s_options_vr_advanced_hudfalloff_field.buffer, vr_hud_bounce_falloff->string );
 	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
 	strcpy( s_options_vr_advanced_neckmodel_up_field.buffer, vr_neckmodel_up->string );
@@ -151,6 +158,7 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault("vr_hud_transparency");
 	Cvar_SetToDefault("vr_hud_bounce");
 	Cvar_SetToDefault("vr_hud_bounce_falloff");
+	Cvar_SetToDefault("vr_hud_bounce_func");
 	Cvar_SetToDefault("vr_neckmodel");
 	Cvar_SetToDefault("vr_neckmodel_up");
 	Cvar_SetToDefault("vr_neckmodel_forward");
@@ -185,6 +193,12 @@ void Options_VR_Advanced_MenuInit ( void )
 		0
 	};
 
+	static const char *smoothfunc_names[] =
+	{
+		"simple exponential",
+		"linear exponential",
+		0
+	};
 	int y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_advanced_menu.x = SCREEN_WIDTH*0.5;
@@ -254,6 +268,15 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hudbounce_box.generic.callback		= BounceFunc;
 	s_options_vr_advanced_hudbounce_box.itemnames			= yesno_names;
 	s_options_vr_advanced_hudbounce_box.generic.statusbar	= "enables or disables hud counter rotation";
+	
+	
+	s_options_vr_advanced_hudbounce_func_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_hudbounce_func_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_advanced_hudbounce_func_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_hudbounce_func_box.generic.name			= "hud bounce smoothing";
+	s_options_vr_advanced_hudbounce_func_box.generic.callback		= BounceModeFunc;
+	s_options_vr_advanced_hudbounce_func_box.itemnames			= smoothfunc_names;
+	s_options_vr_advanced_hudbounce_func_box.generic.statusbar	= "sets the smoothing function that is used for hud bouncing";
 
 	s_options_vr_advanced_hudfalloff_field.generic.type = MTYPE_FIELD;
 	s_options_vr_advanced_hudfalloff_field.generic.flags = QMF_LEFT_JUSTIFY;
@@ -327,6 +350,8 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_fov_slider );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudtrans_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudbounce_box );
+	
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudbounce_func_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudfalloff_field );
 	
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_box );

@@ -26,13 +26,16 @@ cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
 cvar_t *vr_antialias;
+cvar_t *vr_hud_bounce_func;
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
 
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
-static vec4_t vr_emaOrientation;
+static vec4_t vr_smoothSeries;
+static vec4_t vr_doubleSmoothSeries;
+static vec4_t vr_smoothOrientation;
 
 static hmd_interface_t *hmd;
 
@@ -59,7 +62,9 @@ extern ovr_settings_t vr_ovr_settings;
 int VR_GetSensorOrientation()
 {
 	vec3_t euler;
-	vec4_t quat;
+	vec4_t currentPos;
+
+
 	float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
 
 	if (!hmd)
@@ -67,15 +72,36 @@ int VR_GetSensorOrientation()
 	if (!hmd->getOrientation(euler))
 		VectorSet(euler,0,0,0);
 
+	EulerToQuat(vr_lastOrientation,currentPos);
 	VectorCopy(vr_orientation, vr_lastOrientation);
 	VectorCopy(euler,vr_orientation);
 
+
 	// convert last position to quaternions for SLERP
-	EulerToQuat(vr_orientation,quat);
+//	EulerToQuat(vr_orientation,currentPos);
 
 	// SLERP between previous EMA orientation and new EMA orientation
-//	LerpQuat(vr_emaOrientation, quat, emaWeight, vr_emaOrientation);
-	SlerpQuat(vr_emaOrientation, quat, emaWeight, vr_emaOrientation);
+//	LerpQuat(vr_smoothSeries, quat, emaWeight, vr_smoothSeries);
+	SlerpQuat(vr_smoothSeries, currentPos, emaWeight, vr_smoothSeries);
+	SlerpQuat(vr_doubleSmoothSeries, vr_smoothSeries, emaWeight, vr_doubleSmoothSeries);
+
+
+	if (vr_hud_bounce_func->value)
+	{
+		vec4_t level,trend, zero = { 1, 0, 0, 0 };
+		vec4_t negDouble;
+		// fast conjugate
+		QuatCopy(vr_doubleSmoothSeries,negDouble);
+		negDouble[0] = -negDouble[0];
+
+		QuatMultiply(vr_smoothSeries,negDouble,trend);
+		QuatMultiply(trend,vr_smoothSeries,level);
+
+		SlerpQuat(zero,trend, emaWeight / ( 1 - emaWeight), trend);
+		QuatMultiply(level,trend,vr_smoothOrientation);
+	} else {
+		QuatCopy(vr_smoothSeries,vr_smoothOrientation);
+	}
 	return 1;
 }
 
@@ -116,18 +142,22 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 {
 	float bounce = vr_hud_bounce->value / vr_hud_bounce_falloff->value;
 	vec4_t t1, t2, zero = { 1, 0, 0, 0 };
+	
 	if (!hmd)
 		return;
 
 	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;
 
+
 	EulerToQuat(vr_orientation,t1);
-	QuatCopy(vr_emaOrientation,t2);
+	QuatCopy(vr_smoothOrientation,t2);
 	// fast conjugate
 	t2[0] = -t2[0];
 	QuatMultiply(t2, t1, t1);
 	SlerpQuat(zero, t1, bounce, quat);
+
+
 }
 
 void VR_Frame()
@@ -265,9 +295,9 @@ void VR_ResetOrientation( void )
 		hmd->resetOrientation();
 		VR_GetSensorOrientation();
 		VectorCopy(vr_orientation, vr_lastOrientation);
-		QuatSet(vr_emaOrientation, 1, 0, 0, 0);
+		QuatSet(vr_smoothSeries, 1, 0, 0, 0);
 	} else {
-		QuatSet(vr_emaOrientation, 1, 0, 0, 0);
+		QuatSet(vr_smoothSeries, 1, 0, 0, 0);
 		VectorSet(vr_orientation, 0, 0, 0);
 		VectorSet(vr_lastOrientation, 0, 0, 0);
 	}
@@ -369,7 +399,8 @@ void VR_Init()
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","80",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
-	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","10",CVAR_ARCHIVE);
+	vr_hud_bounce_func = Cvar_Get("vr_hud_bounce_func","1",CVAR_ARCHIVE);
+	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
 	vr_fov_scale = Cvar_Get("vr_fov_scale","1.0",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
