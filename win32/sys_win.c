@@ -1206,9 +1206,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 #ifndef NEW_DED_CONSOLE
 	// Knightmare- startup logo, code from TomazQuake
 	//if (!(dedicated && dedicated->value))
+	if (false)
 	{
-		hwnd_dialog = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, NULL);
 		RECT			rect; // Knightmare added
+
+		hwnd_dialog = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, NULL);
 
 		if (hwnd_dialog)
 		{

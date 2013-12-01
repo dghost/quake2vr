@@ -46,7 +46,7 @@ extern RECT		window_rect;
 
 extern HWND		hwnd_dialog; // Knightmare added
 
-#define NEW_DED_CONSOLE // enable new dedicated console
+//#define NEW_DED_CONSOLE // enable new dedicated console
 
 #ifdef NEW_DED_CONSOLE
 void Sys_ShowConsole (qboolean show);
