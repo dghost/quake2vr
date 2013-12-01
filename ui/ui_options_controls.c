@@ -110,10 +110,10 @@ static void ControlsSetMenuItemValues( void )
 	Cvar_SetValue( "xbox_trigger_threshold", ClampCvar( 0.04, 0.96, Cvar_VariableValue("xbox_trigger_threshold") ) );
 	s_options_controls_xbox_trigger_threshold_slider.curvalue = Cvar_VariableValue("xbox_trigger_threshold") * 25.0f;
 	
-	Cvar_SetValue( "xbox_pitch_sensitivity", ClampCvar( 1.0, 4.0, Cvar_VariableValue("xbox_pitch_sensitivity") ) );
+	Cvar_SetValue( "xbox_pitch_sensitivity", ClampCvar( 0.25, 4.0, Cvar_VariableValue("xbox_pitch_sensitivity") ) );
 	s_options_controls_xbox_pitch_sensitivity_slider.curvalue = Cvar_VariableValue("xbox_pitch_sensitivity") * 4.0f;
 	
-	Cvar_SetValue( "xbox_yaw_sensitivity", ClampCvar( 1.0, 4.0, Cvar_VariableValue("xbox_yaw_sensitivity") ) );
+	Cvar_SetValue( "xbox_yaw_sensitivity", ClampCvar( 0.25, 4.0, Cvar_VariableValue("xbox_yaw_sensitivity") ) );
 	s_options_controls_xbox_yaw_sensitivity_slider.curvalue = Cvar_VariableValue("xbox_yaw_sensitivity") * 4.0f;
 }
 
@@ -231,7 +231,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.name		= "xbox pitch speed";
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_pitch_sensitivity_slider.minvalue			= 4;
+	s_options_controls_xbox_pitch_sensitivity_slider.minvalue			= 1;
 	s_options_controls_xbox_pitch_sensitivity_slider.maxvalue			= 16;
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view pitch speed";
 	
@@ -240,7 +240,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.name		= "xbox yaw speed";
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_yaw_sensitivity_slider.minvalue			= 4;
+	s_options_controls_xbox_yaw_sensitivity_slider.minvalue			= 1;
 	s_options_controls_xbox_yaw_sensitivity_slider.maxvalue			= 16;
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view yaw speed";
 
