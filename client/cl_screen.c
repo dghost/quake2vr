@@ -1013,13 +1013,20 @@ SCR_DrawLoading
 */
 void SCR_DrawLoading (void)
 {
-	char		mapfile[32];
-	qboolean	isMap = false, widescreen;
+//	char		mapfile[32];
+//	qboolean	isMap = false, widescreen;
 
 	if (!scr_draw_loading)
 		return;
 
-	scr_draw_loading = 0;
+	scr_draw_loading = 0;	
+
+	//SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
+	SCR_DrawAlertMessagePicture("loading", true, 0);
+
+	/* KMQuake II enhanced loading screen */
+
+	/*
 	widescreen = (((float)viddef.width / (float)viddef.height) > STANDARD_ASPECT_RATIO);
 
 	// loading a map...
@@ -1085,6 +1092,7 @@ void SCR_DrawLoading (void)
 	}
 	else // just a plain old loading plaque
 		SCR_DrawAlertMessagePicture("loading", true, 0);
+		*/
 }
 
 //=============================================================================
