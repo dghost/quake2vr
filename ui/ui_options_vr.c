@@ -46,6 +46,8 @@ static menuslider_s		s_options_vr_crosshair_bright_slider;
 static menuslider_s		s_options_vr_crosshair_size_slider;
 static menulist_s		s_options_vr_autoipd_box;
 static menufield_s		s_options_vr_ipd_field;
+static menulist_s		s_options_vr_autofov_box;
+
 static menuaction_s		s_options_vr_enable_action;
 static menuaction_s		s_options_vr_advanced_action;
 static menuaction_s		s_options_vr_ovr_action;
@@ -86,6 +88,11 @@ static void AutoIPDFunc ( void *unused )
 	Cvar_SetInteger( "vr_autoipd", s_options_vr_autoipd_box.curvalue);
 }
 
+static void AutoFOVFunc(void *unused)
+{
+	Cvar_SetInteger("vr_autofov", s_options_vr_autofov_box.curvalue);
+}
+
 static void VRSetMenuItemValues( void )
 {
 	s_options_vr_aimmode_box.curvalue = ( Cvar_VariableValue("vr_aimmode") );
@@ -94,6 +101,8 @@ static void VRSetMenuItemValues( void )
 	s_options_vr_crosshair_bright_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_brightness") );
 	s_options_vr_crosshair_size_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_size") * 4.0 );
 	s_options_vr_autoipd_box.curvalue = ( Cvar_VariableValue("vr_autoipd") );
+	s_options_vr_autofov_box.curvalue = (Cvar_VariableValue("vr_autofov"));
+
 	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
 	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
@@ -112,6 +121,7 @@ static void VRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_crosshair_brightness");
 	Cvar_SetToDefault ("vr_crosshair_size");
 	Cvar_SetToDefault ("vr_autoipd");
+	Cvar_SetToDefault ("vr_autofov");
 	Cvar_SetToDefault ("vr_ipd");
 	VRSetMenuItemValues();
 }
@@ -304,6 +314,14 @@ void Options_VR_MenuInit ( void )
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 
+	s_options_vr_autofov_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_vr_autofov_box.generic.x = MENU_FONT_SIZE;
+	s_options_vr_autofov_box.generic.y = y += 2 * MENU_LINE_SIZE;
+	s_options_vr_autofov_box.generic.name = "field of view";
+	s_options_vr_autofov_box.generic.callback = AutoFOVFunc;
+	s_options_vr_autofov_box.itemnames = auto_names;
+	s_options_vr_autofov_box.generic.statusbar = "choose whether to use auto or custom field of view";
+
 	s_options_vr_advanced_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_advanced_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_action.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -350,6 +368,7 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_size_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autofov_box);
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ovr_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_enable_action );

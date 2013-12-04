@@ -106,9 +106,9 @@ static void FalloffFunc( void *unused )
 
 static void BounceModeFunc( void *unused )
 {
-	float temp;
 	Cvar_SetInteger("vr_hud_bounce_mode",s_options_vr_advanced_hudbounce_func_box.curvalue );
 }
+
 static void NeckmodelFunc ( void *unused )
 {
 	float temp;
