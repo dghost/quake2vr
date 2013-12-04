@@ -35,7 +35,7 @@ void VR_OVR_SetFOV()
 	{
 		float scale = VR_OVR_GetDistortionScale();
 		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * scale, 2 * vr_ovr_settings.eye_to_screen_distance);
-		float viewport_fov_y = fovy * 180 / M_PI * vr_fov_scale->value;
+		float viewport_fov_y = fovy * 180 / M_PI * vr_autofov_scale->value;
 		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
 		vrState.viewFovY = viewport_fov_y;
 		vrState.viewFovX = viewport_fov_x;

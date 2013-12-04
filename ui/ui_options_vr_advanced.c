@@ -107,7 +107,7 @@ static void FalloffFunc( void *unused )
 static void BounceModeFunc( void *unused )
 {
 	float temp;
-	Cvar_SetInteger("vr_hud_bounce_func",s_options_vr_advanced_hudbounce_func_box.curvalue );
+	Cvar_SetInteger("vr_hud_bounce_mode",s_options_vr_advanced_hudbounce_func_box.curvalue );
 }
 static void NeckmodelFunc ( void *unused )
 {
@@ -138,7 +138,7 @@ static void VRAdvSetMenuItemValues( void )
 	s_options_vr_advanced_hudtrans_box.curvalue = ( Cvar_VariableInteger("vr_hud_transparency") );
 	s_options_vr_advanced_hudbounce_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce") );
 	s_options_vr_advanced_neckmodel_box.curvalue = ( Cvar_VariableValue("vr_neckmodel") );
-	s_options_vr_advanced_hudbounce_func_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce_func") );
+	s_options_vr_advanced_hudbounce_func_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce_mode") );
 	strcpy( s_options_vr_advanced_hudfalloff_field.buffer, vr_hud_bounce_falloff->string );
 	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
 	strcpy( s_options_vr_advanced_neckmodel_up_field.buffer, vr_neckmodel_up->string );
@@ -158,7 +158,7 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault("vr_hud_transparency");
 	Cvar_SetToDefault("vr_hud_bounce");
 	Cvar_SetToDefault("vr_hud_bounce_falloff");
-	Cvar_SetToDefault("vr_hud_bounce_func");
+	Cvar_SetToDefault("vr_hud_bounce_mode");
 	Cvar_SetToDefault("vr_neckmodel");
 	Cvar_SetToDefault("vr_neckmodel_up");
 	Cvar_SetToDefault("vr_neckmodel_forward");

@@ -717,8 +717,29 @@ void VR_RenderStereo ()
 		cl.refdef.vieworg[2] += 1.0/16;
 
 		// FOV init
-		cl.refdef.fov_x = vrState.viewFovX;
-		cl.refdef.fov_y = vrState.viewFovY;
+
+		if (vr_autofov->value)
+		{
+			cl.refdef.fov_x = vrState.viewFovX;
+			cl.refdef.fov_y = vrState.viewFovY;
+		}
+		else {
+					if (cl_widescreen_fov->value)
+		{
+		//	float standardRatio, currentRatio;
+		//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+		//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+		//	if (currentRatio > standardRatio)
+		//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
+			float aspectRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+			// changed to improved algorithm by Dopefish
+			if (aspectRatio > STANDARD_ASPECT_RATIO)
+				cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
+			//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
+			cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
+		}
+		cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+		}
 
 		cl.refdef.time = cl.time*0.001;
 
@@ -792,9 +813,6 @@ void VR_RenderStereo ()
 
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
-
-	//	if (cls.key_dest != key_menu) 
-	//		SCR_DrawCrosshair ();
 
 	// draw for right eye
 

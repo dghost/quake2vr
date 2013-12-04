@@ -72,6 +72,8 @@ hmd_interface_t available_hmds[NUM_HMD_TYPES];
 
 extern cvar_t *vr_enabled;
 extern cvar_t *vr_autoenable;
+extern cvar_t *vr_autofov;
+extern cvar_t *vr_autofov_scale;
 extern cvar_t *vr_autoipd;
 extern cvar_t *vr_ipd;
 extern cvar_t *vr_hud_fov;
@@ -86,7 +88,6 @@ extern cvar_t *vr_aimmode_deadzone_pitch;
 extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
-extern cvar_t *vr_fov_scale;
 extern cvar_t *vr_nosleep;
 extern cvar_t *vr_neckmodel;
 extern cvar_t *vr_neckmodel_up;

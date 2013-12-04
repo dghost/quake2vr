@@ -5,8 +5,11 @@
 
 
 cvar_t *vr_enabled;
+cvar_t *vr_antialias;
 cvar_t *vr_autoenable;
 cvar_t *vr_autoipd;
+cvar_t *vr_autofov;
+cvar_t *vr_autofov_scale;
 cvar_t *vr_ipd;
 cvar_t *vr_hud_fov;
 cvar_t *vr_hud_depth;
@@ -20,13 +23,12 @@ cvar_t *vr_aimmode_deadzone_pitch;
 cvar_t *vr_viewmove;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
-cvar_t *vr_fov_scale;
+cvar_t *vr_hud_bounce_mode;
 cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
-cvar_t *vr_antialias;
-cvar_t *vr_hud_bounce_func;
+
 
 vr_param_t vrState;
 vr_attrib_t vrConfig;
@@ -86,7 +88,7 @@ int VR_GetSensorOrientation()
 	SlerpQuat(vr_doubleSmoothSeries, vr_smoothSeries, emaWeight, vr_doubleSmoothSeries);
 
 
-	if (vr_hud_bounce_func->value)
+	if (vr_hud_bounce_mode->value)
 	{
 		vec4_t level,trend, zero = { 1, 0, 0, 0 };
 		vec4_t negDouble;
@@ -270,13 +272,13 @@ void VR_Frame()
 		vr_hud_bounce_falloff->modified = false;
 	}
 
-	if (vr_fov_scale->modified)
+	if (vr_autofov_scale->modified)
 	{
-		if (vr_fov_scale->value > 2.0)
-			Cvar_Set("vr_fov_scale","2.0");
-		if (vr_fov_scale->value < 0.5)
-			Cvar_Set("vr_fov_scale","0.5");
-		vr_fov_scale->modified = false;
+		if (vr_autofov_scale->value > 2.0)
+			Cvar_Set("vr_autofov_scale","2.0");
+		if (vr_autofov_scale->value < 0.5)
+			Cvar_Set("vr_autofov_scale","0.5");
+		vr_autofov_scale->modified = false;
 		hmd->setfov();
 		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovY);
 	}
@@ -399,15 +401,17 @@ void VR_Init()
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","70",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
-	vr_hud_bounce_func = Cvar_Get("vr_hud_bounce_func","1",CVAR_ARCHIVE);
+	vr_hud_bounce_mode = Cvar_Get("vr_hud_bounce_mode","1",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
-	vr_fov_scale = Cvar_Get("vr_fov_scale","1.0",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
 	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
+
 	vr_autoipd = Cvar_Get("vr_autoipd","1",CVAR_ARCHIVE);
+	vr_autofov_scale = Cvar_Get("vr_autofov_scale", "1.0", CVAR_ARCHIVE);
+	vr_autofov = Cvar_Get("vr_autofov", "1", CVAR_ARCHIVE);
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_ARCHIVE);
 	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","30",CVAR_ARCHIVE);
 	vr_aimmode_deadzone_pitch = Cvar_Get("vr_aimmode_deadzone_pitch","60",CVAR_ARCHIVE);
