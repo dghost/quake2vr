@@ -2204,7 +2204,7 @@ void CL_CalcViewValues (void)
 
 	// calculate the origin
 	if ( (cl_predict->value) && !(cl.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION)
-		&& !cl.attractloop ) // Jay Dolan fix- so long as we're not viewing a demo 
+		&& !cl.attractloop  && !cl_paused->value) // Fix for not viewing a demo and being paused
 	{	// use predicted values
 		unsigned	delta;
 

@@ -196,7 +196,7 @@ void UI_PushMenu ( void (*draw) (void), const char *(*key) (int k) )
 {
 	int		i;
 
-	if (Cvar_VariableValue ("maxclients") == 1 && Com_ServerState () && !cls.consoleActive && !vr_enabled->value) // Knightmare added
+	if (Cvar_VariableValue ("maxclients") == 1 && Com_ServerState () && !cls.consoleActive) // Knightmare added
 		Cvar_Set ("paused", "1");
 
 	// Knightmare- if just opened menu, and ingame and not DM, grab screen first
@@ -249,7 +249,7 @@ void UI_ForceMenuOff (void)
 	cls.key_dest = key_game;
 	m_menudepth = 0;
 	Key_ClearStates ();
-	if (!cls.consoleActive && Cvar_VariableValue ("maxclients") == 1 && Com_ServerState() && !vr_enabled->value) // Knightmare added
+	if (!cls.consoleActive && Cvar_VariableValue ("maxclients") == 1 && Com_ServerState()) // Knightmare added
 		Cvar_Set ("paused", "0");
 }
 

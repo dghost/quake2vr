@@ -666,7 +666,7 @@ void VR_RenderStereo ()
 {
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
-	vec3_t view,tmp;
+	vec3_t view,viewOrig, tmp;
 	
 	if (cls.state != ca_active)
 		return;
@@ -684,7 +684,7 @@ void VR_RenderStereo ()
 
 	// an invalid frame will just use the exact previous refdef
 	// we can't use the old frame if the video mode has changed, though...
-	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) )
+	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) || cl_paused->value )
 	{
 		cl.force_refdef = false;
 
@@ -781,6 +781,8 @@ void VR_RenderStereo ()
 
 		// Neckmodel stuff
 
+
+	VectorCopy(cl.refdef.vieworg, viewOrig);
 	VectorCopy(cl.refdef.vieworg,view);
 	if (vr_enabled->value && vr_neckmodel->value)
 	{
@@ -829,7 +831,7 @@ void VR_RenderStereo ()
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 
-	VectorCopy(view,cl.refdef.vieworg);	
+	VectorCopy(viewOrig, cl.refdef.vieworg);
 
 	// reset for fullscreen rendering
 	R_VR_BindWorld();
