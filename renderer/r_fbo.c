@@ -60,6 +60,13 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 int R_ResizeFBO(int width, int height, fbo_t *FBO)
 {
 	int err;
+	
+	
+	if (!FBO->valid)
+	{
+		return R_GenFBO(width, height, FBO);
+	}
+
 	qglGetError();
 
 	GL_SelectTexture(0);
