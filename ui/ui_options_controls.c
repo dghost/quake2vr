@@ -88,13 +88,43 @@ static void XboxTriggerFunc ( void *unused )
 
 static void XboxViewFunc ( void *unused )
 {
-	Cvar_SetValue( "xbox_pitch_sensitivity", s_options_controls_xbox_pitch_sensitivity_slider.curvalue / 4.0f);
-	Cvar_SetValue( "xbox_yaw_sensitivity", s_options_controls_xbox_yaw_sensitivity_slider.curvalue / 4.0f);
+	float temp = 0;
+	temp = s_options_controls_xbox_pitch_sensitivity_slider.curvalue - 8.0f;
+	if (temp < 0)
+	{
+		temp = 4.0f / (abs(temp) + 4.0f);
+	} else if (temp > 0)
+	{
+		temp = (temp + 4.0f) / 4.0f;
+
+	} else
+	{
+		temp = 1.0f;
+	}
+	Cvar_SetValue( "xbox_pitch_sensitivity", temp);
+
+	temp = s_options_controls_xbox_yaw_sensitivity_slider.curvalue - 8.0f;
+
+	if (temp < 0)
+	{
+		temp = 4.0f / (abs(temp) + 4.0f);
+	} else if (temp > 0)
+	{
+		temp = (temp + 4.0f) / 4.0f;
+
+	} else
+	{
+		temp = 1.0f;
+	}
+
+	Cvar_SetValue( "xbox_yaw_sensitivity",temp);
 }
 
 
 static void ControlsSetMenuItemValues( void )
 {
+	float temp;
+
 	s_options_controls_sensitivity_slider.curvalue	= ( Cvar_VariableValue("sensitivity") ) * 2;
 	s_options_controls_invertmouse_box.curvalue		= Cvar_VariableValue("m_pitch") < 0;
 
@@ -110,11 +140,33 @@ static void ControlsSetMenuItemValues( void )
 	Cvar_SetValue( "xbox_trigger_threshold", ClampCvar( 0.04, 0.96, Cvar_VariableValue("xbox_trigger_threshold") ) );
 	s_options_controls_xbox_trigger_threshold_slider.curvalue = Cvar_VariableValue("xbox_trigger_threshold") * 25.0f;
 	
-	Cvar_SetValue( "xbox_pitch_sensitivity", ClampCvar( 0.25, 4.0, Cvar_VariableValue("xbox_pitch_sensitivity") ) );
-	s_options_controls_xbox_pitch_sensitivity_slider.curvalue = Cvar_VariableValue("xbox_pitch_sensitivity") * 4.0f;
+	temp = Cvar_VariableValue("xbox_pitch_sensitivity");
+
+	if (temp < 1.0f)
+	{
+		temp = 1.0f / temp;
+		temp *= -4.0f;
+		temp += 12.0f;
+	} else  
+	{
+		temp *= 4.0f;
+		temp += 4.0f;
+	}
+
+	s_options_controls_xbox_pitch_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
 	
-	Cvar_SetValue( "xbox_yaw_sensitivity", ClampCvar( 0.25, 4.0, Cvar_VariableValue("xbox_yaw_sensitivity") ) );
-	s_options_controls_xbox_yaw_sensitivity_slider.curvalue = Cvar_VariableValue("xbox_yaw_sensitivity") * 4.0f;
+	temp = Cvar_VariableValue("xbox_yaw_sensitivity");
+	if (temp < 1.0f)
+	{
+		temp = 1.0f / temp;
+		temp *= -4.0f;
+		temp += 12.0f;
+	} else  
+	{
+		temp *= 4.0f;
+		temp += 4.0f;
+	}
+	s_options_controls_xbox_yaw_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
 }
 
 static void ControlsResetDefaultsFunc ( void *unused )
@@ -231,7 +283,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.name		= "xbox pitch speed";
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_pitch_sensitivity_slider.minvalue			= 1;
+	s_options_controls_xbox_pitch_sensitivity_slider.minvalue			= 0;
 	s_options_controls_xbox_pitch_sensitivity_slider.maxvalue			= 16;
 	s_options_controls_xbox_pitch_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view pitch speed";
 	
@@ -240,7 +292,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.name		= "xbox yaw speed";
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_yaw_sensitivity_slider.minvalue			= 1;
+	s_options_controls_xbox_yaw_sensitivity_slider.minvalue			= 0;
 	s_options_controls_xbox_yaw_sensitivity_slider.maxvalue			= 16;
 	s_options_controls_xbox_yaw_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view yaw speed";
 
