@@ -1,4 +1,4 @@
-### Quake II VR v1.3
+### Quake II VR v1.3.1
 
 This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.
 
@@ -20,9 +20,9 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 ####Downloads
 Note: I've made several changes to both names of and what files get bundled with the executable and in the extras package for this release. If you run into any issues while upgrading, I suggest a clean install and copying saved games.
 
-- Playable shareware Quake II VR package (43MB): [Download 1](http://dgho.st/5ksG) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-weHJoMklEcFJndWc)
-- Quake II VR Binaries package (15MB): [Download 1](http://dgho.st/WFPz) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wcGlvVVAwU2JLNzQ)
-- Optional extras - HD textures and mission pack support (448MB): [Download 1](http://dgho.st/PpWd) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wOTBYNUpUTXEyRk0)
+- Playable shareware Quake II VR package (43MB): [Download 1](http://dgho.st/cCb3) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wX2JpSl9CN1pRVkU)
+- Quake II VR Binaries package (15MB): [Download 1](http://dgho.st/eco9) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wRC1LS2lSaU1CXzA)
+- Optional extras - HD textures and mission pack support (448MB): [Download 1](http://dgho.st/at0i) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wOTBYNUpUTXEyRk0)
 
 ####Instructions
 
@@ -66,6 +66,6 @@ Thanks go out to:
 - Knightmare and [KMQuake II](http://www.markshan.com/knightmare/). The general cleanliness of the code base and significant graphical upgrades responsible for this turning out as well as it did.
 - [Dominic Szablewski](https://github.com/phoboslab) and [John Marshall](https://github.com/swax) for their work on RiftQuake. It served as the basis for this project, and in some places their code remains.
 - Jim Waurzyniak for taking the time and effort to host a collection of high-resolution assets for Quake II.
-- [Isla S.](http://islaes.com/) for the idea of applying counter-rotation to the HUD to help reduce nausea.
+- [Isla Schanuel](http://islaes.com/) for the idea of applying counter-rotation to the HUD to help reduce nausea.
 - Karl B. for reporting bugs in multiplayer.
 - [Nick Patrick](http://enpat.net) for a truly amazing job finding bugs in pre-release builds.
