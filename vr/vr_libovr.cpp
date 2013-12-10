@@ -102,6 +102,11 @@ void LibOVR_DeviceRelease() {
 		latencyTester=NULL;
 	}
 	
+	if (sensor) {
+		sensor->Release();
+		sensor = NULL;
+	}
+
 	if (hmd) {
 		hmd->Release();
 		hmd = NULL;
@@ -110,11 +115,6 @@ void LibOVR_DeviceRelease() {
 	if (fusion) {
 		delete fusion;
 		fusion = NULL;
-	}
-
-	if (sensor) {
-		sensor->Release();
-		sensor = NULL;
 	}
 
 
@@ -134,6 +134,7 @@ void LibOVR_Shutdown() {
 		manager->Release();
 		manager = NULL;
 	}
+	OVR::System::Destroy();
 }
 
 void LibOVR_ResetHMDOrientation()
