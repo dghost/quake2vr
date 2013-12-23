@@ -206,6 +206,7 @@ void Options_VR_MenuInit ( void )
 	{
 		"none",
 		"dot",
+		"laser (experimental)",
 		0
 	};
 

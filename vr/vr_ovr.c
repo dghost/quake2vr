@@ -198,7 +198,7 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 				settings->h_resolution = 1920;
 				settings->v_resolution = 1080;
 				settings->h_screen_size = 0.12096f;
-				settings->v_screen_size = 0.0756f;
+				settings->v_screen_size = 0.06804f;
 				settings->interpupillary_distance = 0.064f;
 				settings->lens_separation_distance = 0.0635f;
 				settings->eye_to_screen_distance = 0.040f;
