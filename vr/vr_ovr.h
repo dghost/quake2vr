@@ -73,7 +73,6 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 	"}\n",
 
 	// fragment shader
-	// fragment shader
 	"varying vec2 texCoords;\n"
 	"uniform vec2 scale;\n"
 	"uniform vec2 screenCenter;\n"
@@ -120,10 +119,10 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 		"texCoord0 *= textureSize.zw;\n"
 		"texCoord1 *= textureSize.zw;\n"
 		// sample texture and apply weighting
-		"return sampleClamp( texture, warp(vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, warp(vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, warp(vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
-			   "sampleClamp( texture, warp(vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
+		"return sampleClamp( texture, (vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
 	"}\n"
 	"void main()\n"
 	"{\n"
@@ -132,7 +131,7 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 			"gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n"
 		"else\n"
 			// have to reapply warping for the bicubic sampling
-			"gl_FragColor = vec4(filter(texture, texCoords),1.0);\n"
+			"gl_FragColor = vec4(filter(texture, tc),1.0);\n"
 	"}\n"
 };
 
@@ -199,40 +198,33 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 	0, 0, 0,
 	
 	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
+	"varying vec2 theta;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scaleIn;\n"
 	"void main(void) {\n"
 		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
+		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
 	"}\n",
 
 	// fragment shader
-	"varying vec2 texCoords;\n"
+	"varying vec2 theta;\n"
 	"uniform vec2 lensCenter;\n"
 	"uniform vec2 scale;\n"
 	"uniform vec2 screenCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"uniform vec4 textureSize;\n"
 	"uniform vec4 hmdWarpParam;\n"
 	"uniform vec4 chromAbParam;\n"
+	"uniform vec4 textureSize;\n"
 	"uniform sampler2D texture;\n"
 	// hack to fix artifacting with AMD cards
 	// not necessary for chromatic
-	//"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
-	//"{\n"
-	//	"if (any(lessThan(uv,vec2(0.0)))||any(greaterThan(uv,vec2(1.0))))\n"
-	//		"return vec3(0.0);\n"
-	//	"else\n"
-	//		"return texture2D(tex,uv).rgb;\n"
-	//"}\n"
-	"vec2 warpChroma(vec2 uv, vec2 chromAdjust)\n"
+	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
 	"{\n"
-		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"rvector *= (chromAdjust.x + chromAdjust.y * rSq);\n"
-		"return (lensCenter + scale * rvector);\n"
+		"if (any(lessThan(uv,vec2(0.0)))||any(greaterThan(uv,vec2(1.0))))\n"
+			"return vec3(0.0);\n"
+		"else\n"
+			"return texture2D(tex,uv).rgb;\n"
 	"}\n"
-	"vec3 filter(sampler2D texture, vec2 texCoord, vec2 warpAdjust)\n"
+	"vec3 filter(sampler2D texture, vec2 texCoord)\n"
 	"{\n"
 		// calculate the center of the texel
 		"texCoord *= textureSize.xy;\n"
@@ -254,18 +246,24 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 		"vec2 texCoord1 = texelCenter + 1.0 + f1;\n"
 		"texCoord0 *= textureSize.zw;\n"
 		"texCoord1 *= textureSize.zw;\n"
-		"return texture2D( texture, warpChroma(vec2( texCoord0.x, texCoord0.y ), warpAdjust) ).rgb * scalingFactor0.x * scalingFactor0.y +\n"
-			"texture2D( texture, warpChroma(vec2( texCoord1.x, texCoord0.y ), warpAdjust) ).rgb * scalingFactor1.x * scalingFactor0.y +\n"
-			"texture2D( texture, warpChroma(vec2( texCoord0.x, texCoord1.y ), warpAdjust) ).rgb * scalingFactor0.x * scalingFactor1.y +\n"
-			"texture2D( texture, warpChroma(vec2( texCoord1.x, texCoord1.y ), warpAdjust) ).rgb * scalingFactor1.x * scalingFactor1.y;\n"
-		"}\n"
+		// sample texture and apply weighting
+		"return sampleClamp( texture, (vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
+			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
+	"}\n"
 
 	// Scales input texture coordinates for distortion.
 	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
 	// larger due to aspect ratio.
-	"void main()\n"
+		"void main()\n"
 	"{\n"
-		"vec2 tcBlue = warpChroma(texCoords,vec2(chromAbParam.z,chromAbParam.w));\n"
+		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
+		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
+
+		// Detect whether blue texture coordinates are out of range since these will scaled out the furthest.
+		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
+		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
 
 		"if (!all(equal(clamp(tcBlue, screenCenter - vec2(0.25,0.5), screenCenter + vec2(0.25,0.5)),tcBlue)))\n"
 		"{\n"
@@ -273,13 +271,23 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 			"return;\n"
 		"}\n"
 
-		// have to reapply warping for the bicubic sampling
-		"float blue = filter(texture, texCoords,vec2(chromAbParam.z,chromAbParam.w)).b;\n"
-		"float green = filter(texture, texCoords,vec2(1.0,0.0)).g;\n"
-		"float red = filter(texture, texCoords,vec2(chromAbParam.x,chromAbParam.y)).r;\n"
+		// Now do blue texture lookup.
+		"float blue = filter(texture, tcBlue).b;\n"
+
+		// Do green lookup (no scaling).
+		"vec2  tcGreen = lensCenter + scale * theta1;\n"
+
+		"float green = filter(texture, tcGreen).g;\n"
+
+		// Do red scale and lookup.
+		"vec2  thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
+		"vec2  tcRed = lensCenter + scale * thetaRed;\n"
+
+		"float red = filter(texture, tcRed).r;\n"
 
 		"gl_FragColor = vec4(red, green, blue, 1.0);\n"
 	"}\n"
+
 };
 extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
