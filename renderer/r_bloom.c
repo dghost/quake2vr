@@ -356,16 +356,16 @@ void R_Bloom_GeneratexCross (void)
 	static float	range;
 
 	// set up sample size workspace
-	qglViewport( 0, 0, sample_width, sample_height );
-	qglMatrixMode( GL_PROJECTION );
-    qglLoadIdentity ();
-	qglOrtho(0, sample_width, sample_height, 0, -10, 100);
-	qglMatrixMode( GL_MODELVIEW );
-    qglLoadIdentity ();
+	glViewport( 0, 0, sample_width, sample_height );
+	glMatrixMode( GL_PROJECTION );
+    glLoadIdentity ();
+	glOrtho(0, sample_width, sample_height, 0, -10, 100);
+	glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity ();
 
 	// copy small scene into r_bloomeffecttexture
 	GL_Bind(0, r_bloomeffecttexture);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 
 	// start modifying the small scene corner
 	GL_Enable(GL_BLEND);
@@ -381,7 +381,7 @@ void R_Bloom_GeneratexCross (void)
 			R_Bloom_SamplePass( 0, 0, 1.0f, 1.0f, 1.0f, 1.0f );
 		}
 		R_Bloom_DrawFinish
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 	}
 
 	// bluring passes
@@ -400,7 +400,7 @@ void R_Bloom_GeneratexCross (void)
 		R_Bloom_SamplePass( -1, -1, 0.5f, 0.5f, 0.5f, 1.0 );
 		R_Bloom_SamplePass( 1, -1, 0.5f, 0.5f, 0.5f, 1.0 );
 		R_Bloom_DrawFinish
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 
 		R_Bloom_DrawStart
 		for(i=-(BLOOM_BLUR_RADIUS+1);i<BLOOM_BLUR_RADIUS;i++) {
@@ -411,7 +411,7 @@ void R_Bloom_GeneratexCross (void)
 		}
 		R_Bloom_DrawFinish
 
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 
 		R_Bloom_DrawStart
 		//for(i=0;i<BLOOM_BLUR_RADIUS;i++) {
@@ -423,16 +423,16 @@ void R_Bloom_GeneratexCross (void)
 		}
 		R_Bloom_DrawFinish
 
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 	}
 	
 	// restore full screen workspace
-	qglViewport( 0, 0, glState.width, glState.height );
-	qglMatrixMode( GL_PROJECTION );
-    qglLoadIdentity ();
-	qglOrtho(0, glState.width, glState.height, 0, -10, 100);
-	qglMatrixMode( GL_MODELVIEW );
-    qglLoadIdentity ();
+	glViewport( 0, 0, glState.width, glState.height );
+	glMatrixMode( GL_PROJECTION );
+    glLoadIdentity ();
+	glOrtho(0, glState.width, glState.height, 0, -10, 100);
+	glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity ();
 }
 #endif
 
@@ -448,16 +448,16 @@ void R_Bloom_GeneratexDiamonds (void)
 	static float	intensity;
 
 	// set up sample size workspace
-	qglViewport( 0, 0, sample_width, sample_height );
-	qglMatrixMode( GL_PROJECTION );
-    qglLoadIdentity ();
-	qglOrtho(0, sample_width, sample_height, 0, -10, 100);
-	qglMatrixMode( GL_MODELVIEW );
-    qglLoadIdentity ();
+	glViewport( 0, 0, sample_width, sample_height );
+	glMatrixMode( GL_PROJECTION );
+    glLoadIdentity ();
+	glOrtho(0, sample_width, sample_height, 0, -10, 100);
+	glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity ();
 
 	// copy small scene into r_bloomeffecttexture
 	GL_Bind(r_bloomeffecttexture->texnum);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 
 	// start modifying the small scene corner
 	GL_Enable(GL_BLEND);
@@ -473,7 +473,7 @@ void R_Bloom_GeneratexDiamonds (void)
 			R_Bloom_SamplePass( 0, 0, 1.0f, 1.0f, 1.0f, 1.0f );
 		}
 		R_Bloom_DrawFinish
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 	}
 
 	// bluring passes
@@ -523,15 +523,15 @@ void R_Bloom_GeneratexDiamonds (void)
 		R_Bloom_DrawFinish			
 	}
 	
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, sample_width, sample_height);
 
 	//restore full screen workspace
-	qglViewport( 0, 0, vid.width, vid.height );
-	qglMatrixMode( GL_PROJECTION );
-    qglLoadIdentity ();
-	qglOrtho(0, vid.width, vid.height, 0, -10, 100);
-	qglMatrixMode( GL_MODELVIEW );
-    qglLoadIdentity ();
+	glViewport( 0, 0, vid.width, vid.height );
+	glMatrixMode( GL_PROJECTION );
+    glLoadIdentity ();
+	glOrtho(0, vid.width, vid.height, 0, -10, 100);
+	glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity ();
 }											
 
 /*
@@ -551,12 +551,12 @@ void R_Bloom_DownsampleView (void)
 		
 		// copy the screen and draw resized
 		GL_Bind(r_bloomscreentexture->texnum);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, curView_x, vid.height - (curView_y + curView_height), curView_width, curView_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, curView_x, vid.height - (curView_y + curView_height), curView_width, curView_height);
 		R_Bloom_Quad( 0,  vid.height-midsample_height, midsample_width, midsample_height, screenText_tcw, screenText_tch,  1.0f, 1.0f, 1.0f, 1.0f );
 		
 		// now copy into Downsampling (mid-sized) texture
 		GL_Bind(r_bloomdownsamplingtexture->texnum);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, midsample_width, midsample_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, midsample_width, midsample_height);
 
 		// now draw again in bloom size
 		R_Bloom_Quad( 0,  vid.height-sample_height, sample_width, sample_height, sampleText_tcw, sampleText_tch, 0.5f, 0.5f, 0.5f, 1.0f );
@@ -572,7 +572,7 @@ void R_Bloom_DownsampleView (void)
 	else // downsample simple
 	{	
 		GL_Bind(r_bloomscreentexture->texnum);
-		qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, curView_x, vid.height - (curView_y + curView_height), curView_width, curView_height);
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, curView_x, vid.height - (curView_y + curView_height), curView_width, curView_height);
 		R_Bloom_Quad( 0, vid.height-sample_height, sample_width, sample_height, screenText_tcw, screenText_tch, 1.0f, 1.0f, 1.0f, 1.0f );
 	}
 }
@@ -600,14 +600,14 @@ void R_BloomBlend ( refdef_t *fd )
 		return;
 	
 	// set up full screen workspace
-	qglViewport ( 0, 0, vid.width, vid.height );
+	glViewport ( 0, 0, vid.width, vid.height );
 	GL_TexEnv (GL_REPLACE); // Knightmare added
 	GL_Disable (GL_DEPTH_TEST);
-	qglMatrixMode (GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho(0, vid.width, vid.height, 0, -10, 100);
-	qglMatrixMode (GL_MODELVIEW);
-    qglLoadIdentity ();
+	glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+	glOrtho(0, vid.width, vid.height, 0, -10, 100);
+	glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity ();
 	GL_Disable (GL_CULL_FACE);
 
 	GL_Disable (GL_BLEND);
@@ -632,8 +632,8 @@ void R_BloomBlend ( refdef_t *fd )
 	
 	// copy the screen space we'll use to work into the backup texture
 	GL_Bind(r_bloombackuptexture->texnum);
-//	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_screenbackuptexture_size * sampleText_tcw, r_screenbackuptexture_size * sampleText_tch);
-	qglCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_screenbackuptexture_width, r_screenbackuptexture_height);
+//	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_screenbackuptexture_size * sampleText_tcw, r_screenbackuptexture_size * sampleText_tch);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, r_screenbackuptexture_width, r_screenbackuptexture_height);
 
 	// create the bloom image
 	R_Bloom_DownsampleView();
@@ -659,5 +659,5 @@ void R_BloomBlend ( refdef_t *fd )
 	R_SetupGL ();
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_EnableTexture (0);
-	//qglColor4f(1,1,1,1);
+	//glColor4f(1,1,1,1);
 }

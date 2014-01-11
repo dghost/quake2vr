@@ -229,15 +229,15 @@ void CreateDSTTex_NV (void)
 			data[x][y][1]=rand()%255-128;
 		}
 
-	qglGenTextures(1,&dst_texture_NV);
-	qglBindTexture(GL_TEXTURE_2D, dst_texture_NV);
-	qglTexImage2D(GL_TEXTURE_2D, 0, GL_DSDT8_NV, DST_SIZE, DST_SIZE, 0, GL_DSDT_NV,
+	glGenTextures(1,&dst_texture_NV);
+	glBindTexture(GL_TEXTURE_2D, dst_texture_NV);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DSDT8_NV, DST_SIZE, DST_SIZE, 0, GL_DSDT_NV,
 				GL_BYTE, data);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
 /*
@@ -261,16 +261,16 @@ void CreateDSTTex_ARB (void)
 			dist[x][y][3] = rand()%48;
 		}
 
-	qglGenTextures(1,&dst_texture_ARB);
-	qglBindTexture(GL_TEXTURE_2D, dst_texture_ARB);
-	qglTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
+	glGenTextures(1,&dst_texture_ARB);
+	glBindTexture(GL_TEXTURE_2D, dst_texture_ARB);
+	glTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
 
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	qglTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 }
 
 /*
@@ -338,28 +338,28 @@ void RB_RenderWarpSurface (msurface_t *fa)
 		GL_MBind(1, dst_texture_ARB);
 
 		GL_Enable (GL_FRAGMENT_PROGRAM_ARB);
-		qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
-		qglProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, r_overbrightbits->value, r_overbrightbits->value, r_overbrightbits->value, 1.0);
+		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
+		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, r_overbrightbits->value, r_overbrightbits->value, r_overbrightbits->value, 1.0);
 	}
 	else if (texShaderWarpNV)
 	{
 		GL_SelectTexture(0);
 		GL_MBind(0, dst_texture_NV);
-		qglTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_2D);
 
 		GL_EnableTexture(1);
 		GL_MBind(1, image->texnum);
-		qglTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_2D);
-		qglTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_2D_NV);
-		qglTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB);
-		qglTexEnvfv(GL_TEXTURE_SHADER_NV, GL_OFFSET_TEXTURE_MATRIX_NV, &args[1]);
+		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_2D_NV);
+		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB);
+		glTexEnvfv(GL_TEXTURE_SHADER_NV, GL_OFFSET_TEXTURE_MATRIX_NV, &args[1]);
 
 		// Psychospaz's lighting
 		// use this so that the new water isnt so bright anymore
 		// We won't bother check for the extensions availabiliy, as the hardware required
 		// to make it this far definately supports this as well
 		if (light)
-			qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 
 		GL_Enable (GL_TEXTURE_SHADER_NV);
 	}
@@ -379,7 +379,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	{ 
 		GL_DisableTexture(1);
 		if (light)
-			qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // Psychospaz's lighting
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // Psychospaz's lighting
 
 		GL_SelectTexture(0);
 		GL_Disable (GL_TEXTURE_SHADER_NV);

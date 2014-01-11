@@ -30,13 +30,13 @@ R_RotateForEntity
 */
 void R_RotateForEntity (entity_t *e, qboolean full)
 {
-    qglTranslatef (e->origin[0],  e->origin[1],  e->origin[2]);
+    glTranslatef (e->origin[0],  e->origin[1],  e->origin[2]);
 
-    qglRotatef (e->angles[1],  0, 0, 1);
+    glRotatef (e->angles[1],  0, 0, 1);
 	if (full==true)
 	{
-		qglRotatef (e->angles[0],  0, 1, 0);
-		qglRotatef (e->angles[2],  1, 0, 0);
+		glRotatef (e->angles[0],  0, 1, 0);
+		glRotatef (e->angles[2],  1, 0, 0);
 	}
 }
 
@@ -68,29 +68,29 @@ void R_DrawNullModel (void)
 	if (!r_drawnullmodel->value)
 		return;
 
-    qglPushMatrix ();
+    glPushMatrix ();
 	R_RotateForEntity (currententity, true);
 	GL_DisableTexture (0);
 
-	qglBegin(GL_LINES);
+	glBegin(GL_LINES);
 
-	qglColor4ub(255, 0, 0, 255);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(16, 0, 0);
+	glColor4ub(255, 0, 0, 255);
+	glVertex3f(0, 0, 0);
+	glVertex3f(16, 0, 0);
 
-	qglColor4ub(0, 255, 0, 255);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(0, 16, 0);
+	glColor4ub(0, 255, 0, 255);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 16, 0);
 
-	qglColor4ub(0, 0, 255, 255);
-	qglVertex3f(0, 0, 0);
-	qglVertex3f(0, 0, 16);
+	glColor4ub(0, 0, 255, 255);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 0, 16);
 
-	qglEnd();
+	glEnd();
 
 	GL_EnableTexture (0);
-	qglPopMatrix ();
-	qglColor4f (1,1,1,1);
+	glPopMatrix ();
+	glColor4f (1,1,1,1);
 }
 
 

@@ -340,9 +340,9 @@ void R_DrawSkyBox (void)
 			return;		// nothing visible
 	}
 
-	qglPushMatrix ();
-	qglTranslatef (r_origin[0], r_origin[1], r_origin[2]);
-	qglRotatef (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
+	glPushMatrix ();
+	glTranslatef (r_origin[0], r_origin[1], r_origin[2]);
+	glRotatef (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
 
 	for (i=0; i<6; i++)
 	{
@@ -374,7 +374,7 @@ void R_DrawSkyBox (void)
 		RB_RenderMeshGeneric (true);
 	}
 
-	qglPopMatrix ();
+	glPopMatrix ();
 }
 
 

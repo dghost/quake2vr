@@ -50,7 +50,7 @@ static qboolean VerifyDriver( void )
 {
 	char buffer[1024];
 
-	strcpy( buffer, qglGetString( GL_RENDERER ) );
+	strcpy( buffer, glGetString( GL_RENDERER ) );
 	strlwr( buffer );
 	if ( strcmp( buffer, "gdi generic" ) == 0 )
 		if ( !glw_state.mcd_accelerated )
@@ -490,32 +490,16 @@ void GLimp_Shutdown( void )
 	//Knightmare- added Vic's hardware gamma ramp
 	if ( !r_ignorehwgamma->value )
 	{
-		if( qwglSetDeviceGammaRamp3DFX )
-		{
-			WORD newramp[3*256];
-			int j;
-
-			for( j = 0; j < 256; j++ )
-			{
-				newramp[j+0] = original_ramp[0][j];
-				newramp[j+256] = original_ramp[1][j];
-				newramp[j+512] = original_ramp[2][j];
-			}
-
-			qwglSetDeviceGammaRamp3DFX ( glw_state.hDC, newramp );
-		}
-		else
-		{
+	
 			SetDeviceGammaRamp (glw_state.hDC, original_ramp);
-		}
 	}
 	//end Knightmare
 
-	if ( qwglMakeCurrent && !qwglMakeCurrent( NULL, NULL ) )
+	if ( wglMakeCurrent && !wglMakeCurrent( NULL, NULL ) )
 		VID_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglMakeCurrent failed\n");
 	if ( glw_state.hGLRC )
 	{
-		if (  qwglDeleteContext && !qwglDeleteContext( glw_state.hGLRC ) )
+		if (  wglDeleteContext && !wglDeleteContext( glw_state.hGLRC ) )
 			VID_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglDeleteContext failed\n");
 		glw_state.hGLRC = NULL;
 	}
@@ -619,11 +603,8 @@ qboolean GLimp_InitGL (void)
 	/*
 	** figure out if we're running on a minidriver or not
 	*/
-	if ( strstr( gl_driver->string, "opengl32" ) != 0 )
-		glw_state.minidriver = false;
-	else
-		glw_state.minidriver = true;
 
+	Com_Printf("Using current OpenGL driver: %s\n",gl_driver->string);
 	/*
 	** Get a DC for the specified window
 	*/
@@ -636,47 +617,31 @@ qboolean GLimp_InitGL (void)
 		return false;
 	}
 
-	if ( glw_state.minidriver )
+
+	if ( ( pixelformat = ChoosePixelFormat( glw_state.hDC, &pfd)) == 0 )
 	{
-		if ( (pixelformat = qwglChoosePixelFormat( glw_state.hDC, &pfd)) == 0 )
-		{
-			VID_Printf (PRINT_ALL, "GLimp_Init() - qwglChoosePixelFormat failed\n");
-			return false;
-		}
-		if ( qwglSetPixelFormat( glw_state.hDC, pixelformat, &pfd) == FALSE )
-		{
-			VID_Printf (PRINT_ALL, "GLimp_Init() - qwglSetPixelFormat failed\n");
-			return false;
-		}
-		qwglDescribePixelFormat( glw_state.hDC, pixelformat, sizeof( pfd ), &pfd );
+		VID_Printf (PRINT_ALL, "GLimp_Init() - ChoosePixelFormat failed\n");
+		return false;
+	}
+	if ( SetPixelFormat( glw_state.hDC, pixelformat, &pfd) == FALSE )
+	{
+		VID_Printf (PRINT_ALL, "GLimp_Init() - SetPixelFormat failed\n");
+		return false;
+	}
+	DescribePixelFormat( glw_state.hDC, pixelformat, sizeof( pfd ), &pfd );
+
+	if ( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) )
+	{
+		extern cvar_t *gl_allow_software;
+
+		if ( gl_allow_software->value )
+			glw_state.mcd_accelerated = true;
+		else
+			glw_state.mcd_accelerated = false;
 	}
 	else
 	{
-		if ( ( pixelformat = ChoosePixelFormat( glw_state.hDC, &pfd)) == 0 )
-		{
-			VID_Printf (PRINT_ALL, "GLimp_Init() - ChoosePixelFormat failed\n");
-			return false;
-		}
-		if ( SetPixelFormat( glw_state.hDC, pixelformat, &pfd) == FALSE )
-		{
-			VID_Printf (PRINT_ALL, "GLimp_Init() - SetPixelFormat failed\n");
-			return false;
-		}
-		DescribePixelFormat( glw_state.hDC, pixelformat, sizeof( pfd ), &pfd );
-
-		if ( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) )
-		{
-			extern cvar_t *gl_allow_software;
-
-			if ( gl_allow_software->value )
-				glw_state.mcd_accelerated = true;
-			else
-				glw_state.mcd_accelerated = false;
-		}
-		else
-		{
-			glw_state.mcd_accelerated = true;
-		}
+		glw_state.mcd_accelerated = true;
 	}
 
 	/*
@@ -693,20 +658,21 @@ qboolean GLimp_InitGL (void)
 	** startup the OpenGL subsystem by creating a context and making
 	** it current
 	*/
-	if ( ( glw_state.hGLRC = qwglCreateContext( glw_state.hDC ) ) == 0 )
+	if ( ( glw_state.hGLRC = wglCreateContext( glw_state.hDC ) ) == 0 )
 	{
-		VID_Printf (PRINT_ALL, "GLimp_Init() - qwglCreateContext failed\n");
+		VID_Printf (PRINT_ALL, "GLimp_Init() - wglCreateContext failed\n");
 
 		goto fail;
 	}
 
-    if ( !qwglMakeCurrent( glw_state.hDC, glw_state.hGLRC ) )
+    if ( !wglMakeCurrent( glw_state.hDC, glw_state.hGLRC ) )
 	{
-		VID_Printf (PRINT_ALL, "GLimp_Init() - qwglMakeCurrent failed\n");
+		VID_Printf (PRINT_ALL, "GLimp_Init() - wglMakeCurrent failed\n");
 
 		goto fail;
 	}
-
+	glewExperimental = GL_TRUE;
+	glewInit();
 	if ( !VerifyDriver() )
 	{
 		VID_Printf( PRINT_ALL, "GLimp_Init() - no hardware acceleration detected.\nPlease install drivers provided by your video card/GPU vendor.\n" );
@@ -721,23 +687,7 @@ qboolean GLimp_InitGL (void)
 	//Knightmare- Vic's hardware gamma stuff
 	if ( !r_ignorehwgamma->value )
 	{
-		if( qwglGetDeviceGammaRamp3DFX )
-		{
-			WORD newramp[3*256];
-			int j;
-
-			glState.gammaRamp = qwglGetDeviceGammaRamp3DFX ( glw_state.hDC, newramp );
-
-			for( j = 0; j < 256; j++ )
-			{
-				original_ramp[0][j] = newramp[j+0];
-				original_ramp[1][j] = newramp[j+256];
-				original_ramp[2][j] = newramp[j+512];
-			}
-		} else
-		{
 			glState.gammaRamp = GetDeviceGammaRamp ( glw_state.hDC, original_ramp );
-		}
 	}
 	else
 	{
@@ -756,41 +706,36 @@ qboolean GLimp_InitGL (void)
 	{
 		char buffer[1024];
 
-		strcpy( buffer, qglGetString( GL_RENDERER ) );
+		strcpy( buffer, glGetString( GL_RENDERER ) );
 		strlwr( buffer );
-		if (strstr(buffer, "Voodoo3")) {
-			VID_Printf( PRINT_ALL, "... Voodoo3 has no stencil buffer\n" );
-			glConfig.have_stencil = false;
-		} else {
-			if (pfd.cStencilBits) {
-				VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
-				glConfig.have_stencil = true; // Stencil shadows - MrG
-			}
+		if (pfd.cStencilBits) {
+			VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
+			glConfig.have_stencil = true; // Stencil shadows - MrG
 		}
 	}
 	//if (pfd.cStencilBits)
 	//	glConfig.have_stencil = true;
 	//end Knightmare
 
-/*	Moved to GL_SetDefaultState in r_glstate.c
+	/*	Moved to GL_SetDefaultState in r_glstate.c
 	// Vertex arrays
-	qglEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	qglEnableClientState (GL_VERTEX_ARRAY);
-	qglEnableClientState (GL_COLOR_ARRAY);
+	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState (GL_VERTEX_ARRAY);
+	glEnableClientState (GL_COLOR_ARRAY);
 
-	qglTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
-	qglVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
-	qglColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
+	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
+	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
+	glColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
 	//glState.activetmu[0] = true;
 	// end vertex arrays
-*/
+	*/
 
 	return true;
 
 fail:
 	if ( glw_state.hGLRC )
 	{
-		qwglDeleteContext( glw_state.hGLRC );
+		wglDeleteContext( glw_state.hGLRC );
 		glw_state.hGLRC = NULL;
 	}
 
@@ -824,21 +769,7 @@ void UpdateGammaRamp (void)
 			gamma_ramp[o][i] = ((WORD)v) << 8;
 		}
 	}
-
-	if( qwglSetDeviceGammaRamp3DFX ) {
-		WORD newramp[3*256];
-		int j;
-
-		for( j = 0; j < 256; j++ ) {
-			newramp[j+0] = gamma_ramp[0][j];
-			newramp[j+256] = gamma_ramp[1][j];
-			newramp[j+512] = gamma_ramp[2][j];
-		}
-
-		qwglSetDeviceGammaRamp3DFX ( glw_state.hDC, newramp );
-	} else {
-		SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
-	}
+	SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
 }
 
 /*
@@ -858,19 +789,19 @@ void GLimp_BeginFrame( float camera_separation )
 
 	if ( vr_enabled->value )
 	{
-		qglDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
 	} 
 	else if ( camera_separation < 0 && glState.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_LEFT );
+		glDrawBuffer( GL_BACK_LEFT );
 	}
 	else if ( camera_separation > 0 && glState.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_RIGHT );
+		glDrawBuffer( GL_BACK_RIGHT );
 	}
 	else
 	{
-		qglDrawBuffer( GL_BACK );
+		glDrawBuffer( GL_BACK );
 	}
 }
 
@@ -884,14 +815,14 @@ void GLimp_BeginFrame( float camera_separation )
 void GLimp_EndFrame (void)
 {
 	int		err;
-	err = qglGetError();
+	err = glGetError();
 //	assert( err == GL_NO_ERROR );
 	if (err != GL_NO_ERROR)	// Output error code instead
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
 	if ( stricmp( r_drawbuffer->string, "GL_BACK" ) == 0 || vr_enabled->value)
 	{
-		if ( !qwglSwapBuffers( glw_state.hDC ) )
+		if ( !SwapBuffers( glw_state.hDC ) )
 			VID_Error (ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n");
 	}
 }

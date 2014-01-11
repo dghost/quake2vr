@@ -345,7 +345,7 @@ void R_GrabScreen (void)
 	if (!saveshotdata)	return;
 
 	// Read the framebuffer into our storage
-	qglReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
+	glReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
 }
 
 
@@ -413,7 +413,7 @@ void R_ScreenShot_JPG (qboolean silent)
 	}
 
 	// Read the framebuffer into our storage
-	qglReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
+	glReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
 
 	// Initialise the JPEG compression object
 	cinfo.err = jpeg_std_error(&jerr);
@@ -523,7 +523,7 @@ void R_ScreenShot_TGA (qboolean silent)
 	buffer[15] = vid.height>>8;
 	buffer[16] = 24;	// pixel size
 
-	qglReadPixels (0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
+	glReadPixels (0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
 
 	// swap rgb to bgr
 	c = 18+vid.width*vid.height*3;
@@ -593,8 +593,8 @@ void GL_UpdateSwapInterval (void)
 		if ( !glState.stereo_enabled ) 
 		{
 #ifdef _WIN32
-			if ( qwglSwapIntervalEXT )
-				qwglSwapIntervalEXT( r_swapinterval->value );
+			if ( wglSwapIntervalEXT )
+				wglSwapIntervalEXT( r_swapinterval->value );
 #endif
 		}
 	}

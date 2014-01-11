@@ -163,41 +163,41 @@ void R_SetLightingMode (int renderflags)
 		GL_TexEnv (GL_COMBINE_ARB);
 
 		if (renderflags & RF_TRANSLUCENT) {
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
 		}
 		else {
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
 		}
 
 		GL_SelectTexture (1);
 		GL_TexEnv (GL_COMBINE_ARB);
 		if (r_lightmap->value) 
 		{
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
 		} 
 		else 
 		{
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
 
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
 		}
 
 		if (r_overbrightbits->value)
 		{
-			qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
 		}
 	}
 #else
@@ -207,41 +207,41 @@ void R_SetLightingMode (int renderflags)
 		GL_TexEnv (GL_COMBINE_EXT);
 
 		if (renderflags & RF_TRANSLUCENT) {
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
 		}
 		else {
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
 		}
 
 		GL_SelectTexture (1);
 		GL_TexEnv (GL_COMBINE_EXT);
 		if (r_lightmap->value) 
 		{
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
 		} 
 		else 
 		{
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PREVIOUS_EXT);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PREVIOUS_EXT);
 
-			qglTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_MODULATE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-			qglTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_PREVIOUS_EXT);
+			glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_MODULATE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+			glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_PREVIOUS_EXT);
 		}
 
 		if (r_overbrightbits->value)
 		{
-			qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, r_overbrightbits->value);
+			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, r_overbrightbits->value);
 		}
 	}
 #endif
@@ -379,11 +379,11 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 	RB_DrawArrays ();
 
 	if (glowPass) {	// just redraw with existing arrays for glow
-		qglDisableClientState (GL_COLOR_ARRAY);
-		qglColor4f(1.0, 1.0, 1.0, alpha);
+		glDisableClientState (GL_COLOR_ARRAY);
+		glColor4f(1.0, 1.0, 1.0, alpha);
 		RB_DrawTexGlow (glow);
-		qglColor4f(1.0, 1.0, 1.0, 1.0);
-		qglEnableClientState (GL_COLOR_ARRAY);
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+		glEnableClientState (GL_COLOR_ARRAY);
 	}
 
 	if (envMap && !causticPass)
@@ -511,7 +511,7 @@ void R_DrawTriangleOutlines (void)
 		GL_Disable(GL_DEPTH_TEST);
 
 	GL_DisableTexture (0);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
 	rb_vertex = rb_index = 0;
 	for (i = 0; i < MAX_LIGHTMAPS; i++)
@@ -541,7 +541,7 @@ void R_DrawTriangleOutlines (void)
 //	RB_DrawArrays ();
 	RB_RenderMeshGeneric (false);
 
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	GL_EnableTexture(0);
 
 	if (r_showtris->value == 1)
@@ -810,7 +810,7 @@ dynamic:
 
 			GL_Bind(glState.lightmap_textures + fa->lightmaptexturenum);
 
-			qglTexSubImage2D( GL_TEXTURE_2D, 0,
+			glTexSubImage2D( GL_TEXTURE_2D, 0,
 							  fa->light_s, fa->light_t, 
 							  smax, tmax, 
 			//				  GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
@@ -919,12 +919,12 @@ void R_DrawAlphaSurfaces (void)
 	// so scale it back down
 
 	rb_vertex = rb_index = 0;
-	qglPushMatrix();
+	glPushMatrix();
 	for (s = r_alpha_surfaces; s; s = s->texturechain)
 	{
 		// go back to the world matrix
-//		qglLoadMatrixf (r_world_matrix);
-		qglPushMatrix();
+//		glLoadMatrixf (r_world_matrix);
+		glPushMatrix();
 
 		R_BuildVertexLight (s);
 		GL_Enable (GL_BLEND);
@@ -957,16 +957,16 @@ void R_DrawAlphaSurfaces (void)
 		else
 			R_DrawGLPoly (s, !R_SurfsAreBatchable (s, s->texturechain));// true);
 
-		qglPopMatrix();
+		glPopMatrix();
 	}
 
 	// go back to the world matrix after shifting trans faces
-//	qglLoadMatrixf (r_world_matrix);
-	qglPopMatrix();
+//	glLoadMatrixf (r_world_matrix);
+	glPopMatrix();
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_TexEnv (GL_REPLACE);
-	qglColor4f (1,1,1,1);
+	glColor4f (1,1,1,1);
 	GL_Disable (GL_BLEND);
 	GL_DepthMask (true);
 
@@ -1028,7 +1028,7 @@ void R_RebuildLightmaps (void)
 		if ( !glConfig.newLMFormat )
 		{
 			GL_MBind (1, glState.lightmap_textures + i);
-			qglTexSubImage2D (GL_TEXTURE_2D, 0,
+			glTexSubImage2D (GL_TEXTURE_2D, 0,
 					0, gl_lms.lightrect[i].top, 
 					LM_BLOCK_WIDTH, (gl_lms.lightrect[i].bottom - gl_lms.lightrect[i].top), 
 			//		GL_LIGHTMAP_FORMAT, GL_LIGHTMAP_TYPE,
@@ -1038,11 +1038,11 @@ void R_RebuildLightmaps (void)
 		else
 		{
 			if (!storeSet) {
-				qglPixelStorei(GL_UNPACK_ROW_LENGTH, LM_BLOCK_WIDTH);
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, LM_BLOCK_WIDTH);
 				storeSet = true;
 			}
 			GL_MBind (1, glState.lightmap_textures + i);
-			qglTexSubImage2D (GL_TEXTURE_2D, 0,
+			glTexSubImage2D (GL_TEXTURE_2D, 0,
 					gl_lms.lightrect[i].left, gl_lms.lightrect[i].top, 
 					(gl_lms.lightrect[i].right - gl_lms.lightrect[i].left), (gl_lms.lightrect[i].bottom - gl_lms.lightrect[i].top), 
 			//		GL_LIGHTMAP_FORMAT, GL_LIGHTMAP_TYPE,
@@ -1058,7 +1058,7 @@ void R_RebuildLightmaps (void)
 		gl_lms.lightrect[i].bottom = 0;
 	}
 	if (storeSet)
-		qglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 #endif // BATCH_LM_UPDATES
 
@@ -1184,16 +1184,16 @@ static void RB_DrawEnvMap (void)
 	if (!glState.blend)	GL_Enable (GL_BLEND);
 	else				previousBlend = true;
 
-	qglTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-	qglTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 
-	qglEnable(GL_TEXTURE_GEN_S);
-	qglEnable(GL_TEXTURE_GEN_T);
+	glEnable(GL_TEXTURE_GEN_S);
+	glEnable(GL_TEXTURE_GEN_T);
 
 	RB_DrawArrays ();
 	
-	qglDisable(GL_TEXTURE_GEN_S);
-	qglDisable(GL_TEXTURE_GEN_T);
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
 
 	if (!previousBlend) // restore state
 		GL_Disable (GL_BLEND);
@@ -1268,8 +1268,8 @@ static void RB_DrawCaustics (msurface_t *surf)
 		GL_EnableTexture(1);
 		GL_MBind (1, dst_texture_ARB);
 		GL_Enable (GL_FRAGMENT_PROGRAM_ARB);
-		qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
-		qglProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, 1.0, 1.0, 1.0, 1.0);
+		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
+		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, 1.0, 1.0, 1.0, 1.0);
 	}
 
 	GL_BlendFunc (GL_DST_COLOR, GL_ONE);
@@ -1356,7 +1356,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 			lmtex = 0;
 		}
 
-		qglTexSubImage2D (GL_TEXTURE_2D, 0,
+		glTexSubImage2D (GL_TEXTURE_2D, 0,
 						  surf->light_s, surf->light_t, 
 						  smax, tmax, 
 		//				  GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
@@ -1385,24 +1385,24 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 			GL_TexEnv (GL_ADD);
 		else
 		{
-			qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_ADD);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
-		//	qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
-		//	qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_ADD);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
+		//	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_CONSTANT_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+		//	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_SRC_ALPHA);
 			if (alpha < 1.0f)
-				qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 			else
-				qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_ADD);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
-		//	qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-			qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
-		//	qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, GL_SRC_ALPHA);
+				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_ADD);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
+		//	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_ARB, GL_CONSTANT_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
+		//	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_ARB, GL_SRC_ALPHA);
 		}
 	}
 
@@ -1791,7 +1791,7 @@ void R_DrawBrushModel (entity_t *e)
 	if (R_CullBox (mins, maxs))
 		return;
 
-	qglColor3f (1,1,1);
+	glColor3f (1,1,1);
 	memset (gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 
 	VectorSubtract (r_newrefdef.vieworg, e->origin, modelorg);
@@ -1846,7 +1846,7 @@ void R_DrawBrushModel (entity_t *e)
 		}
 	}
 
-    qglPushMatrix ();
+    glPushMatrix ();
 	R_RotateForEntity (e, true);
 
 	GL_EnableMultitexture (true);
@@ -1856,7 +1856,7 @@ void R_DrawBrushModel (entity_t *e)
 
 	GL_EnableMultitexture (false);
 
-	qglPopMatrix ();
+	glPopMatrix ();
 }
 
 /*
@@ -2030,7 +2030,7 @@ void R_DrawWorld (void)
 
 	glState.currenttextures[0] = glState.currenttextures[1] = -1;
 
-	qglColor3f (1,1,1);
+	glColor3f (1,1,1);
 	memset (gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 	R_ClearSkyBox ();
 
@@ -2325,8 +2325,8 @@ static void LM_UploadBlock (qboolean dynamic)
 	}
 
 	GL_Bind( glState.lightmap_textures + texture );
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	if ( dynamic )
 	{
@@ -2338,7 +2338,7 @@ static void LM_UploadBlock (qboolean dynamic)
 				height = gl_lms.allocated[i];
 		}
 
-		qglTexSubImage2D( GL_TEXTURE_2D, 
+		glTexSubImage2D( GL_TEXTURE_2D, 
 						  0,
 						  0, 0,
 						  LM_BLOCK_WIDTH, height,
@@ -2350,7 +2350,7 @@ static void LM_UploadBlock (qboolean dynamic)
 	}
 	else
 	{
-		qglTexImage2D( GL_TEXTURE_2D, 
+		glTexImage2D( GL_TEXTURE_2D, 
 					   0, 
 					   gl_lms.internal_format,
 					   LM_BLOCK_WIDTH, LM_BLOCK_HEIGHT, 
@@ -2671,9 +2671,9 @@ void R_BeginBuildingLightmaps (model_t *m)
 
 	// initialize the dynamic lightmap texture
 	GL_Bind( glState.lightmap_textures + 0 );
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	qglTexImage2D( GL_TEXTURE_2D, 
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D( GL_TEXTURE_2D, 
 				   0, 
 				   gl_lms.internal_format,
 				   LM_BLOCK_WIDTH, LM_BLOCK_HEIGHT, 

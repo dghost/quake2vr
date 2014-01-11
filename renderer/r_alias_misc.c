@@ -136,12 +136,12 @@ void R_ShadowBlend (float shadowalpha)
 	if (r_shadows->value != 3)
 		return;
 
-	qglPushMatrix();
-    qglLoadIdentity ();
+	glPushMatrix();
+    glLoadIdentity ();
 
 	// FIXME: get rid of these
-    qglRotatef (-90,  1, 0, 0);	    // put Z going up
-    qglRotatef (90,  0, 0, 1);	    // put Z going up
+    glRotatef (-90,  1, 0, 0);	    // put Z going up
+    glRotatef (90,  0, 0, 1);	    // put Z going up
 
 	GL_Disable (GL_ALPHA_TEST);
 	GL_Enable (GL_BLEND);
@@ -149,8 +149,8 @@ void R_ShadowBlend (float shadowalpha)
 	GL_DisableTexture(0);
 
 	GL_Enable(GL_STENCIL_TEST);
-	qglStencilFunc(GL_NOTEQUAL, 0, 255);
-	qglStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glStencilFunc(GL_NOTEQUAL, 0, 255);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 	rb_vertex = rb_index = 0;
 	indexArray[rb_index++] = rb_vertex+0;
@@ -173,7 +173,7 @@ void R_ShadowBlend (float shadowalpha)
 	rb_vertex++;
 	RB_RenderMeshGeneric (false);
 
-	qglPopMatrix();
+	glPopMatrix();
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_Disable (GL_BLEND);
@@ -182,7 +182,7 @@ void R_ShadowBlend (float shadowalpha)
 	GL_Disable(GL_STENCIL_TEST);
 	//GL_Enable (GL_ALPHA_TEST);
 
-	qglColor4f(1,1,1,1);
+	glColor4f(1,1,1,1);
 }
 
 
@@ -212,17 +212,17 @@ void R_SetVertexOverbrights (qboolean toggle)
 	if (toggle) // turn on
 	{
 #if 1
-		qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 		
 		GL_TexEnv(GL_COMBINE_ARB);
 #else
-		qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 
 		GL_TexEnv(GL_COMBINE_EXT);
 #endif
@@ -230,7 +230,7 @@ void R_SetVertexOverbrights (qboolean toggle)
 	else // turn off
 	{
 		GL_TexEnv(GL_MODULATE);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
 	}
 }
 
@@ -274,13 +274,13 @@ void R_SetShellBlend (qboolean toggle)
 		// Psychospaz's envmapping
 		if (EnvMapShell())
 		{
-			qglTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-			qglTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+			glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+			glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 
 			GL_Bind(glMedia.spheremappic->texnum);
 
-			qglEnable(GL_TEXTURE_GEN_S);
-			qglEnable(GL_TEXTURE_GEN_T);
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
 		}
 		else if (FlowingShell())
 			GL_Bind(glMedia.shelltexture->texnum);
@@ -297,8 +297,8 @@ void R_SetShellBlend (qboolean toggle)
 		// Psychospaz's envmapping
 		if (EnvMapShell())
 		{
-			qglDisable(GL_TEXTURE_GEN_S);
-			qglDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
 		}
 		else if (FlowingShell())
 		{ /*nothing*/ }
@@ -318,7 +318,7 @@ void R_FlipModel (qboolean on)
 {
 	if (on)
 	{
-		qglScalef(1,-1,1);
+		glScalef(1,-1,1);
 		GL_CullFace( GL_BACK );
 
 	}
@@ -350,7 +350,7 @@ void R_SetBlendModeOn (image_t *skin)
 		if (currententity->flags & RF_TRANS_ADDITIVE)
 		{ 
 			GL_BlendFunc   (GL_SRC_ALPHA, GL_ONE);	
-			qglColor4ub(255, 255, 255, 255);
+			glColor4ub(255, 255, 255, 255);
 			GL_ShadeModel (GL_FLAT);
 		}
 		else
@@ -537,36 +537,36 @@ void R_DrawAliasModelBBox (vec3_t bbox[8], entity_t *e)
 		return;
 
 	GL_Disable (GL_CULL_FACE);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 	GL_DisableTexture (0);
 
 	// Draw top and sides
-	qglBegin(GL_TRIANGLE_STRIP);
-	qglVertex3fv( bbox[2] );
-	qglVertex3fv( bbox[1] );
-	qglVertex3fv( bbox[0] );
-	qglVertex3fv( bbox[1] );
-	qglVertex3fv( bbox[4] );
-	qglVertex3fv( bbox[5] );
-	qglVertex3fv( bbox[1] );
-	qglVertex3fv( bbox[7] );
-	qglVertex3fv( bbox[3] );
-	qglVertex3fv( bbox[2] );
-	qglVertex3fv( bbox[7] );
-	qglVertex3fv( bbox[6] );
-	qglVertex3fv( bbox[2] );
-	qglVertex3fv( bbox[4] );
-	qglVertex3fv( bbox[0] );
-	qglEnd();
+	glBegin(GL_TRIANGLE_STRIP);
+	glVertex3fv( bbox[2] );
+	glVertex3fv( bbox[1] );
+	glVertex3fv( bbox[0] );
+	glVertex3fv( bbox[1] );
+	glVertex3fv( bbox[4] );
+	glVertex3fv( bbox[5] );
+	glVertex3fv( bbox[1] );
+	glVertex3fv( bbox[7] );
+	glVertex3fv( bbox[3] );
+	glVertex3fv( bbox[2] );
+	glVertex3fv( bbox[7] );
+	glVertex3fv( bbox[6] );
+	glVertex3fv( bbox[2] );
+	glVertex3fv( bbox[4] );
+	glVertex3fv( bbox[0] );
+	glEnd();
 
   	// Draw bottom
-	qglBegin(GL_TRIANGLE_STRIP);
-	qglVertex3fv( bbox[4] );
-	qglVertex3fv( bbox[6] );
-	qglVertex3fv( bbox[7] );
-	qglEnd();
+	glBegin(GL_TRIANGLE_STRIP);
+	glVertex3fv( bbox[4] );
+	glVertex3fv( bbox[6] );
+	glVertex3fv( bbox[7] );
+	glEnd();
 
 	GL_EnableTexture (0);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	GL_Enable (GL_CULL_FACE);
 }

@@ -138,7 +138,6 @@ cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 //cvar_t	*r_motionblur;				// motionblur
 cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-settable
 
-cvar_t	*r_log;
 cvar_t	*r_bitdepth;
 cvar_t	*r_drawbuffer;
 cvar_t	*r_lightmap;
@@ -231,11 +230,11 @@ void R_PolyBlend (void)
 	GL_Disable (GL_DEPTH_TEST);
 	GL_DisableTexture(0);
 
-    qglLoadIdentity ();
+    glLoadIdentity ();
 
 	// FIXME: get rid of these
-    qglRotatef (-90,  1, 0, 0);	    // put Z going up
-    qglRotatef (90,  0, 0, 1);	    // put Z going up
+    glRotatef (-90,  1, 0, 0);	    // put Z going up
+    glRotatef (90,  0, 0, 1);	    // put Z going up
 
 	rb_vertex = rb_index = 0;
 	indexArray[rb_index++] = rb_vertex+0;
@@ -262,7 +261,7 @@ void R_PolyBlend (void)
 	GL_EnableTexture(0);
 	//GL_Enable (GL_ALPHA_TEST);
 
-	qglColor4f (1,1,1,1);
+	glColor4f (1,1,1,1);
 }
 
 //=======================================================================
@@ -396,10 +395,10 @@ void R_SetupFrame (void)
 	/*if ( r_newrefdef.rdflags & RDF_NOWORLDMODEL )
 	{
 		GL_Enable( GL_SCISSOR_TEST );
-		qglClearColor( 0.3, 0.3, 0.3, 1 );
-		qglScissor( r_newrefdef.x, vid.height - r_newrefdef.height - r_newrefdef.y, r_newrefdef.width, r_newrefdef.height );
-		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		qglClearColor( 1, 0, 0.5, 0.5 );
+		glClearColor( 0.3, 0.3, 0.3, 1 );
+		glScissor( r_newrefdef.x, vid.height - r_newrefdef.height - r_newrefdef.y, r_newrefdef.width, r_newrefdef.height );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		glClearColor( 1, 0, 0.5, 0.5 );
 		GL_Disable( GL_SCISSOR_TEST );
 	}*/
 }
@@ -428,7 +427,7 @@ void vrPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar
 	out[14] = (2.0f * zFar * zNear) * nf;
 	out[15] = 0;
 
-	qglMultMatrixd(out);
+	glMultMatrixd(out);
 }
 
 /*
@@ -471,7 +470,7 @@ void R_SetupGL(void)
 	w = x2 - x;
 	h = y - y2;
 
-	qglViewport(x, y2, w, h);
+	glViewport(x, y2, w, h);
 
 	// Knightmare- variable sky range
 	// calc farz falue from skybox size
@@ -497,8 +496,8 @@ void R_SetupGL(void)
 	// set up projection matrix
 	//
 	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 
 	screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
 
@@ -518,15 +517,15 @@ void R_SetupGL(void)
 
 	GL_CullFace(GL_FRONT);
 
-	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity ();
 
-    qglRotatef (-90,  1, 0, 0);	    // put Z going up
-    qglRotatef (90,  0, 0, 1);	    // put Z going up
+    glRotatef (-90,  1, 0, 0);	    // put Z going up
+    glRotatef (90,  0, 0, 1);	    // put Z going up
 
-	qglRotatef (-r_newrefdef.viewangles[2],  1, 0, 0);
-	qglRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
-	qglRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
+	glRotatef (-r_newrefdef.viewangles[2],  1, 0, 0);
+	glRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
+	glRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
 	
 
 	VectorCopy(r_newrefdef.vieworg,vieworigin);
@@ -547,13 +546,13 @@ void R_SetupGL(void)
 		VectorAdd(vieworigin,out,vieworigin); 
 	}
 	*/
-    qglTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
+    glTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
 
 //	if ( glState.camera_separation != 0 && glState.stereo_enabled )
-//		qglTranslatef ( glState.camera_separation, 0, 0 );
+//		glTranslatef ( glState.camera_separation, 0, 0 );
 
 	
-	//qglGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
+	//glGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
 
 	//
 	// set drawing parms
@@ -588,7 +587,7 @@ void R_Clear (void)
 		static int trickframe;
 
 	//	if (gl_clear->value)
-	//		qglClear (GL_COLOR_BUFFER_BIT);
+	//		glClear (GL_COLOR_BUFFER_BIT);
 
 		trickframe++;
 		if (trickframe & 1)
@@ -607,9 +606,9 @@ void R_Clear (void)
 	else
 	{
 	//	if (gl_clear->value)
-	//		qglClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//	else
-	//		qglClear (GL_DEPTH_BUFFER_BIT);
+	//		glClear (GL_DEPTH_BUFFER_BIT);
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
 		gldepthmin = 0;
@@ -623,16 +622,16 @@ void R_Clear (void)
 	if (glConfig.have_stencil)
 	{
 		if (r_shadows->value == 3) // BeefQuake R6 shadows
-			qglClearStencil(0);
+			glClearStencil(0);
 		else
-			qglClearStencil(1);
-	//	qglClear(GL_STENCIL_BUFFER_BIT);
+			glClearStencil(1);
+	//	glClear(GL_STENCIL_BUFFER_BIT);
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
 //	GL_DepthRange (gldepthmin, gldepthmax);
 
 	if (clearBits)	// bitshifter's consolidation
-		qglClear(clearBits);
+		glClear(clearBits);
 }
 
 
@@ -672,24 +671,24 @@ void VR_DrawCrosshair()
 	GL_Enable(GL_BLEND);
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	GL_Bind(0);
-	qglColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
+	glColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
 	if ((int) vr_crosshair->value == VR_CROSSHAIR_DOT)
 	{
-		qglEnable(GL_POINT_SMOOTH);
+		glEnable(GL_POINT_SMOOTH);
 
-		qglPointSize(vr_crosshair_size->value * vrState.pixelScale);
-		qglBegin(GL_POINTS);
-		qglVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
-		qglEnd();
-		qglDisable(GL_POINT_SMOOTH);
+		glPointSize(vr_crosshair_size->value * vrState.pixelScale);
+		glBegin(GL_POINTS);
+		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
+		glEnd();
+		glDisable(GL_POINT_SMOOTH);
 	} else if ((int) vr_crosshair->value == VR_CROSSHAIR_LASER)
 	{
 
-		qglLineWidth( vr_crosshair_size->value * vrState.pixelScale );
-		qglBegin (GL_LINES);
-		qglVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
-		qglVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
-		qglEnd ();
+		glLineWidth( vr_crosshair_size->value * vrState.pixelScale );
+		glBegin (GL_LINES);
+		glVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
+		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
+		glEnd ();
 	}
 
 	GL_Enable(GL_DEPTH_TEST);
@@ -725,7 +724,7 @@ void VR_RenderView (refdef_t *fd)
 	R_PushDlights ();
 
 	if (r_finish->value)
-		qglFinish ();
+		glFinish ();
 
 	R_SetupFrame ();
 
@@ -741,10 +740,10 @@ void VR_RenderView (refdef_t *fd)
 	{
 		qboolean fog_on = false;
 		//Knightmare- no fogging on menu/hud models
-		if (qglIsEnabled(GL_FOG)) //check if fog is enabled
+		if (glIsEnabled(GL_FOG)) //check if fog is enabled
 		{
 			fog_on = true;
-			qglDisable(GL_FOG); //if so, disable it
+			glDisable(GL_FOG); //if so, disable it
 		}
 
 		//R_DrawAllDecals();
@@ -753,7 +752,7 @@ void VR_RenderView (refdef_t *fd)
 
 		//re-enable fog if it was on
 		if (fog_on)
-			qglEnable(GL_FOG);
+			glEnable(GL_FOG);
 	}
 	else
 	{
@@ -839,7 +838,7 @@ void R_RenderView (refdef_t *fd)
 	R_PushDlights ();
 
 	if (r_finish->value)
-		qglFinish ();
+		glFinish ();
 
 	R_SetupFrame ();
 
@@ -855,10 +854,10 @@ void R_RenderView (refdef_t *fd)
 	{
 		qboolean fog_on = false;
 		//Knightmare- no fogging on menu/hud models
-		if (qglIsEnabled(GL_FOG)) //check if fog is enabled
+		if (glIsEnabled(GL_FOG)) //check if fog is enabled
 		{
 			fog_on = true;
-			qglDisable(GL_FOG); //if so, disable it
+			glDisable(GL_FOG); //if so, disable it
 		}
 
 		//R_DrawAllDecals();
@@ -867,7 +866,7 @@ void R_RenderView (refdef_t *fd)
 
 		//re-enable fog if it was on
 		if (fog_on)
-			qglEnable(GL_FOG);
+			glEnable(GL_FOG);
 	}
 	else
 	{
@@ -926,17 +925,17 @@ float	SCR_ScaledVideo (float param);
 void R_SetGL2D (void)
 {
 	// set 2D virtual screen size
-	qglViewport (0,0, vid.width, vid.height);
-	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+	glViewport (0,0, vid.width, vid.height);
+	glMatrixMode(GL_PROJECTION);
+    glLoadIdentity ();
+	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity ();
 	GL_Disable (GL_DEPTH_TEST);
 	GL_Disable (GL_CULL_FACE);
 	GL_Disable (GL_BLEND);
 	GL_Enable (GL_ALPHA_TEST);
-	qglColor4f (1,1,1,1);
+	glColor4f (1,1,1,1);
 
 	// Knightmare- draw r_speeds (modified from Echon's tutorial)
 	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL)) // don't do this for options menu
@@ -972,12 +971,12 @@ void R_SetGL2D (void)
 #if 0
 static void GL_DrawColoredStereoLinePair (float r, float g, float b, float y)
 {
-	qglColor3f( r, g, b );
-	qglVertex2f( 0, y );
-	qglVertex2f( vid.width, y );
-	qglColor3f( 0, 0, 0 );
-	qglVertex2f( 0, y + 1 );
-	qglVertex2f( vid.width, y + 1 );
+	glColor3f( r, g, b );
+	glVertex2f( 0, y );
+	glVertex2f( vid.width, y );
+	glColor3f( 0, 0, 0 );
+	glVertex2f( 0, y + 1 );
+	glVertex2f( vid.width, y + 1 );
 }
 
 
@@ -990,11 +989,11 @@ static void GL_DrawStereoPattern (void)
 
 	R_SetGL2D();
 
-	qglDrawBuffer( GL_BACK_LEFT );
+	glDrawBuffer( GL_BACK_LEFT );
 
 	for ( i = 0; i < 20; i++ )
 	{
-		qglBegin( GL_LINES );
+		glBegin( GL_LINES );
 			GL_DrawColoredStereoLinePair( 1, 0, 0, 0 );
 			GL_DrawColoredStereoLinePair( 1, 0, 0, 2 );
 			GL_DrawColoredStereoLinePair( 1, 0, 0, 4 );
@@ -1003,7 +1002,7 @@ static void GL_DrawStereoPattern (void)
 			GL_DrawColoredStereoLinePair( 1, 1, 0, 10);
 			GL_DrawColoredStereoLinePair( 1, 1, 0, 12);
 			GL_DrawColoredStereoLinePair( 0, 1, 0, 14);
-		qglEnd();
+		glEnd();
 		
 		GLimp_EndFrame();
 	}
@@ -1137,7 +1136,6 @@ void R_Register (void)
 	r_particle_max = Cvar_Get ("r_particle_max", "0", CVAR_ARCHIVE );
 
 	r_modulate = Cvar_Get ("r_modulate", "1", CVAR_ARCHIVE );
-	r_log = Cvar_Get( "r_log", "0", 0 );
 	r_bitdepth = Cvar_Get( "r_bitdepth", "0", 0 );
 	r_lightmap = Cvar_Get ("r_lightmap", "0", 0);
 	r_shadows = Cvar_Get ("r_shadows", "0", CVAR_ARCHIVE );
@@ -1370,19 +1368,19 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	//
 	// get our various GL strings
 	//
-	glConfig.vendor_string = qglGetString (GL_VENDOR);
+	glConfig.vendor_string = glGetString (GL_VENDOR);
 	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
-	glConfig.renderer_string = qglGetString (GL_RENDERER);
+	glConfig.renderer_string = glGetString (GL_RENDERER);
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
-	glConfig.version_string = qglGetString (GL_VERSION);
+	glConfig.version_string = glGetString (GL_VERSION);
 	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);
 	VID_Printf (PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
 
 	// Knighmare- added max texture size
-	qglGetIntegerv(GL_MAX_TEXTURE_SIZE,&glConfig.max_texsize);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,&glConfig.max_texsize);
 	VID_Printf (PRINT_DEVELOPER, "GL_MAX_TEXTURE_SIZE: %i\n", glConfig.max_texsize );
 
-	glConfig.extensions_string = qglGetString (GL_EXTENSIONS);
+	glConfig.extensions_string = glGetString (GL_EXTENSIONS);
 //	VID_Printf (PRINT_DEVELOPER, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
 	if (developer->value > 0)	// print extensions 2 to a line
 	{
@@ -1500,12 +1498,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		 strstr( glConfig.extensions_string, "GL_SGI_compiled_vertex_array" ) )
 	{
 		if (r_ext_compiled_vertex_array->value) {
-			qglLockArraysEXT = (void *) qwglGetProcAddress( "glLockArraysEXT" );
-			qglUnlockArraysEXT = (void *) qwglGetProcAddress( "glUnlockArraysEXT" );
-			if (!qglLockArraysEXT || !qglUnlockArraysEXT) {
+			if (!glLockArraysEXT || !glUnlockArraysEXT) {
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT/SGI_compiled_vertex_array not properly supported!\n");
-				qglLockArraysEXT	= NULL;
-				qglUnlockArraysEXT	= NULL;
+				glLockArraysEXT	= NULL;
+				glUnlockArraysEXT	= NULL;
 			}
 			else {
 				VID_Printf (PRINT_ALL, "...enabling GL_EXT/SGI_compiled_vertex_array\n" );
@@ -1524,8 +1520,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if (r_ext_draw_range_elements->value)
 		{
-			qglDrawRangeElementsEXT = (void *) qwglGetProcAddress("glDrawRangeElementsEXT");
-			if (!qglDrawRangeElementsEXT)
+			if (!glDrawRangeElementsEXT)
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_draw_range_elements not properly supported!\n");
 			else {
 				VID_Printf (PRINT_ALL, "...enabling GL_EXT_draw_range_elements\n");
@@ -1559,7 +1554,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	// WGL_EXT_swap_control
 	if ( strstr( glConfig.extensions_string, "WGL_EXT_swap_control" ) )
 	{
-		qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) qwglGetProcAddress( "wglSwapIntervalEXT" );
 		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
 	}
 	else
@@ -1572,8 +1566,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if ( gl_ext_pointparameters->value )
 		{
-			qglPointParameterfEXT = ( void (APIENTRY *)( GLenum, GLfloat ) ) qwglGetProcAddress( "glPointParameterfEXT" );
-			qglPointParameterfvEXT = ( void (APIENTRY *)( GLenum, const GLfloat * ) ) qwglGetProcAddress( "glPointParameterfvEXT" );
 			VID_Printf (PRINT_ALL, "...using GL_EXT_point_parameters\n" );
 		}
 		else
@@ -1582,14 +1574,13 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	else
 		VID_Printf (PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
 
-	if ( !qglColorTableEXT &&
+	if ( !glColorTableEXT &&
 		strstr( glConfig.extensions_string, "GL_EXT_paletted_texture" ) && 
 		strstr( glConfig.extensions_string, "GL_EXT_shared_texture_palette" ) )
 	{
 		if (gl_ext_palettedtexture->value)
 		{
 			VID_Printf (PRINT_ALL, "...using GL_EXT_shared_texture_palette\n" );
-			qglColorTableEXT = ( void ( APIENTRY * ) ( int, int, int, int, int, const void * ) ) qwglGetProcAddress( "glColorTableEXT" );
 		}
 		else
 			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_shared_texture_palette\n" );
@@ -1602,20 +1593,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.vertexBufferObject = false;
 	if ( strstr( glConfig.extensions_string, "GL_ARB_vertex_buffer_object" ) )
 	{
-		/*if (r_arb_vertex_buffer_object->value)
-		{
-			VID_Printf(PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n" );
-			glConfig.vertexBufferObject = true;
-
-			qglBindBufferARB = (void *) qwglGetProcAddress( "glBindBufferARB" );
-			qglDeleteBuffersARB = (void *) qwglGetProcAddress( "glDeleteBuffersARB" );
-			qglGenBuffersARB = (void *) qwglGetProcAddress( "glGenBuffersARB" );
-			qglBufferDataARB = (void *) qwglGetProcAddress( "glBufferDataARB" );
-			qglBufferSubDataARB = (void *) qwglGetProcAddress( "glBufferSubDataARB" );
-			qglMapBufferARB = (void *) qwglGetProcAddress( "glMapBufferARB" );
-			qglUnmapBufferARB = (void *) qwglGetProcAddress( "glUnmapBufferARB" );
-		}
-		else*/
 			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_vertex_buffer_object\n");
 	}
 	else
@@ -1628,15 +1605,12 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if (r_ext_multitexture->value)
 		{
-			qglMultiTexCoord2fARB = (void *) qwglGetProcAddress( "glMultiTexCoord2fARB" );
-			qglActiveTextureARB = (void *) qwglGetProcAddress( "glActiveTextureARB" );
-			qglClientActiveTextureARB = (void *) qwglGetProcAddress( "glClientActiveTextureARB" );
-			if (!qglMultiTexCoord2fARB || !qglActiveTextureARB || !qglClientActiveTextureARB)
+			if (!glMultiTexCoord2fARB || !glActiveTextureARB || !glClientActiveTextureARB)
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_multitexture not properly supported!\n"S_COLOR_YELLOW"WARNING: glow/caustic texture effects not enabled\n");
 			else {
 				VID_Printf (PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				glConfig.multitexture = true;
-				qglGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.max_texunits);
+				glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.max_texunits);
 				VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS_ARB: %i\n", glConfig.max_texunits);
 			}
 		}
@@ -1696,11 +1670,9 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if (r_stencilTwoSide->value)
 		{
-			qglStencilOpSeparateATI = (void *) qwglGetProcAddress("glStencilOpSeparateATI");
-			qglStencilFuncSeparateATI = (void *) qwglGetProcAddress("glStencilFuncSeparateATI");
-			if (!qglStencilOpSeparateATI) {
+			if (!glStencilOpSeparateATI) {
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ATI_separate_stencil not properly supported!\n");
-				qglStencilOpSeparateATI = NULL;
+				glStencilOpSeparateATI = NULL;
 			}
 			else {
 				VID_Printf (PRINT_ALL, "...using GL_ATI_separate_stencil\n");
@@ -1719,10 +1691,9 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if (r_stencilTwoSide->value)
 		{
-			qglActiveStencilFaceEXT = (void *) qwglGetProcAddress( "glActiveStencilFaceEXT" );
-			if (!qglActiveStencilFaceEXT) {
+			if (!glActiveStencilFaceEXT) {
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_stencil_two_side not properly supported!\n");
-				qglActiveStencilFaceEXT = NULL;
+				glActiveStencilFaceEXT = NULL;
 			}
 			else {
 				VID_Printf (PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
@@ -1741,34 +1712,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		if (r_arb_fragment_program->value)
 		{
-			qglProgramStringARB = (void *) qwglGetProcAddress( "glProgramStringARB" );
-			qglBindProgramARB = (void *) qwglGetProcAddress( "glBindProgramARB" );
-			qglDeleteProgramsARB = (void *) qwglGetProcAddress( "glDeleteProgramsARB" );
-			qglGenProgramsARB = (void *) qwglGetProcAddress( "glGenProgramsARB" );
-			qglProgramEnvParameter4dARB = (void *) qwglGetProcAddress( "glProgramEnvParameter4dARB" );
-			qglProgramEnvParameter4dvARB = (void *) qwglGetProcAddress( "glProgramEnvParameter4dvARB" );
-			qglProgramEnvParameter4fARB = (void *) qwglGetProcAddress( "glProgramEnvParameter4fARB" );
-			qglProgramEnvParameter4fvARB = (void *) qwglGetProcAddress( "glProgramEnvParameter4fvARB" );
-			qglProgramLocalParameter4dARB = (void *) qwglGetProcAddress( "glProgramLocalParameter4dARB" );
-			qglProgramLocalParameter4dvARB = (void *) qwglGetProcAddress( "glProgramLocalParameter4dvARB" );
-			qglProgramLocalParameter4fARB = (void *) qwglGetProcAddress( "glProgramLocalParameter4fARB" );
-			qglProgramLocalParameter4fvARB = (void *) qwglGetProcAddress( "glProgramLocalParameter4fvARB" );
-			qglGetProgramEnvParameterdvARB = (void *) qwglGetProcAddress( "glGetProgramEnvParameterdvARB" );
-			qglGetProgramEnvParameterfvARB = (void *) qwglGetProcAddress( "glGetProgramEnvParameterfvARB" );
-			qglGetProgramLocalParameterdvARB = (void *) qwglGetProcAddress( "glGetProgramLocalParameterdvARB" );
-			qglGetProgramLocalParameterfvARB = (void *) qwglGetProcAddress( "glGetProgramLocalParameterfvARB" );
-			qglGetProgramivARB = (void *) qwglGetProcAddress( "glGetProgramivARB" );
-			qglGetProgramStringARB = (void *) qwglGetProcAddress( "glGetProgramStringARB" );
-			qglIsProgramARB = (void *) qwglGetProcAddress( "glIsProgramARB" );
-			if (!qglProgramStringARB || !qglBindProgramARB
-				|| !qglDeleteProgramsARB || !qglGenProgramsARB
-				|| !qglProgramEnvParameter4dARB || !qglProgramEnvParameter4dvARB
-				|| !qglProgramEnvParameter4fARB || !qglProgramEnvParameter4fvARB
-				|| !qglProgramLocalParameter4dARB || !qglProgramLocalParameter4dvARB
-				|| !qglProgramLocalParameter4fARB || !qglProgramLocalParameter4fvARB
-				|| !qglGetProgramEnvParameterdvARB || !qglGetProgramEnvParameterfvARB
-				|| !qglGetProgramLocalParameterdvARB  || !qglGetProgramLocalParameterfvARB
-				|| !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB)
+			if (!GLEW_ARB_fragment_program)
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_fragment_program not properly supported!\n");
 			else {
 				VID_Printf (PRINT_ALL, "...using GL_ARB_fragment_program\n");
@@ -1789,12 +1733,8 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		{
 			if (r_arb_vertex_program->value)
 			{
-				qglGetVertexAttribdvARB = (void *) qwglGetProcAddress( "glGetVertexAttribdvARB" );
-				qglGetVertexAttribfvARB	= (void *) qwglGetProcAddress( "glGetVertexAttribfvARB" );
-				qglGetVertexAttribivARB	= (void *) qwglGetProcAddress( "glGetVertexAttribivARB" );
-				qglGetVertexAttribPointervARB	= (void *) qwglGetProcAddress( "glGetVertexAttribPointervARB" );
-				if (!qglGetVertexAttribdvARB || !qglGetVertexAttribfvARB
-					|| !qglGetVertexAttribivARB || !qglGetVertexAttribPointervARB)
+				if (!glGetVertexAttribdvARB || !glGetVertexAttribfvARB
+					|| !glGetVertexAttribivARB || !glGetVertexAttribPointervARB)
 					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_vertex_program not properly supported!\n");
 				else {
 					VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_program\n");
@@ -1823,39 +1763,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.ext_framebuffer_object = false;
 	if ( glConfig.ext_packed_depth_stencil )
 	{
-		if ( strstr(glConfig.extensions_string, "GL_EXT_framebuffer_object") )
+		if (glewIsSupported("GL_EXT_framebuffer_object"))
 		{
-			qglBindFramebuffer = (void *) qwglGetProcAddress( "glBindFramebufferEXT" );
-			qglBindRenderbuffer = (void *) qwglGetProcAddress( "glBindRenderbufferEXT" );
-			//		qglBlitFramebuffer = (void *) qwglGetProcAddress( "glBlitFramebuffer" );
-			qglCheckFramebufferStatus = (void *) qwglGetProcAddress( "glCheckFramebufferStatusEXT" );
-			qglDeleteFramebuffers = (void *) qwglGetProcAddress( "glDeleteFramebuffersEXT" );
-			qglDeleteRenderbuffers = (void *) qwglGetProcAddress( "glDeleteRenderbuffersEXT" );
-			qglFramebufferRenderbuffer = (void *) qwglGetProcAddress( "glFramebufferRenderbufferEXT" );
-			qglFramebufferTexture1D = (void *) qwglGetProcAddress( "glFramebufferTexture1DEXT" );
-			qglFramebufferTexture2D = (void *) qwglGetProcAddress( "glFramebufferTexture2DEXT" );
-			qglFramebufferTexture3D = (void *) qwglGetProcAddress( "glFramebufferTexture3DEXT" );
-			//		qglFramebufferTextureLayer = (void *) qwglGetProcAddress( "glFramebufferTextureLayer" );
-			qglGenFramebuffers = (void *) qwglGetProcAddress( "glGenFramebuffersEXT" );
-			qglGenRenderbuffers = (void *) qwglGetProcAddress( "glGenRenderbuffersEXT" );
-			qglGenerateMipmap = (void *) qwglGetProcAddress( "glGenerateMipmapEXT" );
-			qglGetFramebufferAttachmentParameteriv = (void *) qwglGetProcAddress( "glGetFramebufferAttachmentParameterivEXT" );
-			qglGetRenderbufferParameteriv = (void *) qwglGetProcAddress( "glGetRenderbufferParameterivEXT" );
-			qglIsFramebuffer = (void *) qwglGetProcAddress( "glIsFramebufferEXT" );
-			qglIsRenderbuffer = (void *) qwglGetProcAddress( "glIsRenderbufferEXT" );
-			qglRenderbufferStorage = (void *) qwglGetProcAddress( "glRenderbufferStorageEXT" );
-			//	qglRenderbufferStorageMultisample = (void *) qwglGetProcAddress( "glRenderbufferStorageMultisampleEXT" );
-
-			if (!qglBindFramebuffer || !qglBindRenderbuffer || !qglCheckFramebufferStatus ||
-				!qglDeleteFramebuffers || !qglDeleteRenderbuffers || !qglFramebufferRenderbuffer || !qglFramebufferTexture1D ||
-				!qglFramebufferTexture2D || !qglFramebufferTexture3D || !qglGenFramebuffers ||
-				!qglGenRenderbuffers || !qglGenerateMipmap || !qglGetFramebufferAttachmentParameteriv || !qglGetRenderbufferParameteriv ||
-				!qglIsFramebuffer || !qglIsRenderbuffer || !qglRenderbufferStorage)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_framebuffer_object not properly supported!\n");
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
-				glConfig.ext_framebuffer_object = true;
-			}
+			VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
+			glConfig.ext_framebuffer_object = true;
 		} else {
 			VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 		}
@@ -1865,55 +1776,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		if ( strstr(glConfig.extensions_string, "GL_ARB_shader_objects") )
 		{
 
-			qglAttachObjectARB = (void *) qwglGetProcAddress( "glAttachObjectARB" );
-			qglCompileShaderARB = (void *) qwglGetProcAddress( "glCompileShaderARB" );
-			qglCreateProgramObjectARB = (void *) qwglGetProcAddress( "glCreateProgramObjectARB" );
-			qglCreateShaderObjectARB = (void *) qwglGetProcAddress( "glCreateShaderObjectARB" );
-			qglDeleteObjectARB = (void *) qwglGetProcAddress( "glDeleteObjectARB" );
-			qglDetachObjectARB = (void *) qwglGetProcAddress( "glDetachObjectARB" );
-			qglGetActiveUniformARB = (void *) qwglGetProcAddress( "glGetActiveUniformARB" );
-			qglGetAttachedObjectsARB = (void *) qwglGetProcAddress( "glGetAttachedObjectsARB" );
-			qglGetHandleARB = (void *) qwglGetProcAddress( "glGetHandleARB" );
-			qglGetInfoLogARB = (void *) qwglGetProcAddress( "glGetInfoLogARB" );
-			qglGetObjectParameterfvARB = (void *) qwglGetProcAddress( "glGetObjectParameterfvARB" );
-			qglGetObjectParameterivARB = (void *) qwglGetProcAddress( "glGetObjectParameterivARB" );
-			qglGetShaderSourceARB = (void *) qwglGetProcAddress( "glGetShaderSourceARB" );
-			qglGetUniformLocationARB = (void *) qwglGetProcAddress( "glGetUniformLocationARB" );
-			qglGetUniformfvARB = (void *) qwglGetProcAddress( "glGetUniformfvARB" );
-			qglGetUniformivARB = (void *) qwglGetProcAddress( "glGetUniformivARB" );
-			qglLinkProgramARB = (void *) qwglGetProcAddress( "glLinkProgramARB" );
-			qglShaderSourceARB = (void *) qwglGetProcAddress( "glShaderSourceARB" );
-			qglUniform1fARB = (void *) qwglGetProcAddress( "glUniform1fARB" );
-			qglUniform1fvARB = (void *) qwglGetProcAddress( "glUniform1fvARB" );
-			qglUniform1iARB = (void *) qwglGetProcAddress( "glUniform1iARB" );
-			qglUniform1ivARB = (void *) qwglGetProcAddress( "glUniform1ivARB" );
-			qglUniform2fARB = (void *) qwglGetProcAddress( "glUniform2fARB" );
-			qglUniform2fvARB = (void *) qwglGetProcAddress( "glUniform2fvARB" );
-			qglUniform2iARB = (void *) qwglGetProcAddress( "glUniform2iARB" );
-			qglUniform2ivARB = (void *) qwglGetProcAddress( "glUniform2ivARB" );
-			qglUniform3fARB = (void *) qwglGetProcAddress( "glUniform3fARB" );
-			qglUniform3fvARB = (void *) qwglGetProcAddress( "glUniform3fvARB" );
-			qglUniform3iARB = (void *) qwglGetProcAddress( "glUniform3iARB" );
-			qglUniform3ivARB = (void *) qwglGetProcAddress( "glUniform3ivARB" );
-			qglUniform4fARB = (void *) qwglGetProcAddress( "glUniform4fARB" );
-			qglUniform4fvARB = (void *) qwglGetProcAddress( "glUniform4fvARB" );
-			qglUniform4iARB = (void *) qwglGetProcAddress( "glUniform4iARB" );
-			qglUniform4ivARB = (void *) qwglGetProcAddress( "glUniform4ivARB" );
-			qglUniformMatrix2fvARB = (void *) qwglGetProcAddress( "glUniformMatrix2fvARB" );
-			qglUniformMatrix3fvARB = (void *) qwglGetProcAddress( "glUniformMatrix3fvARB" );
-			qglUniformMatrix4fvARB = (void *) qwglGetProcAddress( "glUniformMatrix4fvARB" );
-			qglUseProgramObjectARB = (void *) qwglGetProcAddress( "glUseProgramObjectARB" );
-			qglValidateProgramARB = (void *) qwglGetProcAddress( "glValidateProgramARB" );
-
-			if ( !qglAttachObjectARB || !qglCompileShaderARB || !qglCreateProgramObjectARB || !qglCreateShaderObjectARB
-				|| !qglDeleteObjectARB || !qglDetachObjectARB || !qglGetActiveUniformARB || !qglGetAttachedObjectsARB 
-				|| !qglGetHandleARB || !qglGetInfoLogARB || !qglGetObjectParameterfvARB || !qglGetObjectParameterivARB
-				|| !qglGetShaderSourceARB || !qglGetUniformLocationARB || !qglGetUniformfvARB || !qglGetUniformivARB
-				|| !qglLinkProgramARB || !qglShaderSourceARB || !qglUniform1fARB || !qglUniform1fvARB || !qglUniform1iARB
-				|| !qglUniform1ivARB || !qglUniform2fARB || !qglUniform2fvARB || !qglUniform2iARB || !qglUniform2ivARB
-				|| !qglUniform3fARB || !qglUniform3fvARB || !qglUniform3iARB || !qglUniform3ivARB || !qglUniform4fARB
-				|| !qglUniform4fvARB || !qglUniform4iARB || !qglUniform4ivARB || !qglUniformMatrix2fvARB || !qglUniformMatrix3fvARB
-				|| !qglUniformMatrix4fvARB || !qglUseProgramObjectARB || !qglValidateProgramARB)
+			if (!GLEW_ARB_shader_objects)
 				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_shader_objects not properly supported!\n");
 			else {
 				VID_Printf (PRINT_ALL, "...using GL_ARB_shader_objects\n");
@@ -1942,7 +1805,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	{
 		VID_Printf (PRINT_ALL,"...using GL_EXT_texture_filter_anisotropic\n" );
 		glConfig.anisotropic = true;
-		qglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.max_anisotropy);
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.max_anisotropy);
 		Cvar_SetValue("r_anisotropic_avail", glConfig.max_anisotropy);
 	}
 	else
@@ -1986,23 +1849,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		Cvar_Set("r_ext_texture_compression", "0");
 	}
 
-	// WGL_3DFX_gamma_control
-	if ( strstr(glConfig.extensions_string, "WGL_3DFX_gamma_control") )
-	{
-		if (!r_ignorehwgamma->value)
-		{
-			qwglGetDeviceGammaRamp3DFX	= ( BOOL (WINAPI *)(HDC, WORD *)) qwglGetProcAddress( "wglGetDeviceGammaRamp3DFX" );
-			qwglSetDeviceGammaRamp3DFX	= ( BOOL (WINAPI *)(HDC, WORD *)) qwglGetProcAddress( "wglSetDeviceGammaRamp3DFX" );
-			VID_Printf (PRINT_ALL, "...using WGL_3DFX_gamma_control\n" );
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring WGL_3DFX_gamma_control\n" );
-	}
-	else
-		VID_Printf (PRINT_ALL, "...WGL_3DFX_gamma_control not found\n" );
-
-
-
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
 	Com_Printf( "Size of entities: %i\n", sizeof (entity_t)*MAX_ENTITIES );
@@ -2028,7 +1874,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	R_InitFogVars (); // reset fog variables
 	VLight_Init (); // Vic's bmodel lights
 
-	err = qglGetError();
+	err = glGetError();
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
 
@@ -2158,17 +2004,6 @@ void R_BeginFrame( float camera_separation )
 		ref->modified = true;
 	}
 
-	if ( r_log->modified )
-	{
-		GLimp_EnableLogging( r_log->value );
-		r_log->modified = false;
-	}
-
-	if ( r_log->value )
-	{
-		GLimp_LogNewFrame();
-	}
-
 	//
 	// update 3Dfx gamma -- it is expected that a user will do a vid_restart
 	// after tweaking this value
@@ -2196,18 +2031,18 @@ void R_BeginFrame( float camera_separation )
 	//
 	// go into 2D mode
 	//
-	qglViewport (0,0, vid.width, vid.height);
-	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+	glViewport (0,0, vid.width, vid.height);
+	glMatrixMode(GL_PROJECTION);
+    glLoadIdentity ();
+	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity ();
 
 	GL_Disable (GL_DEPTH_TEST);
 	GL_Disable (GL_CULL_FACE);
 	GL_Disable (GL_BLEND);
 	GL_Enable (GL_ALPHA_TEST);
-	qglColor4f (1,1,1,1);
+	glColor4f (1,1,1,1);
 
 	//
 	// draw buffer stuff
@@ -2221,9 +2056,9 @@ void R_BeginFrame( float camera_separation )
 			if ( glState.camera_separation == 0 || !glState.stereo_enabled )
 			{
 				if ( Q_stricmp( r_drawbuffer->string, "GL_FRONT" ) == 0 )
-					qglDrawBuffer( GL_FRONT );
+					glDrawBuffer( GL_FRONT );
 				else
-					qglDrawBuffer( GL_BACK );
+					glDrawBuffer( GL_BACK );
 			}
 		}
 	}
@@ -2294,7 +2129,7 @@ void R_SetPalette ( const unsigned char *palette)
 	}
 	//GL_SetTexturePalette( r_rawpalette );
 
-	qglClearColor (0,0,0,0);
-	qglClear (GL_COLOR_BUFFER_BIT);
-	qglClearColor (1,0, 0.5 , 0.5);
+	glClearColor (0,0,0,0);
+	glClear (GL_COLOR_BUFFER_BIT);
+	glClearColor (1,0, 0.5 , 0.5);
 }

@@ -241,9 +241,9 @@ void RB_DrawArrays (void)
 
 	GL_LockArrays (rb_vertex);
 	if (glConfig.drawRangeElements)
-		qglDrawRangeElementsEXT(GL_TRIANGLES, 0, rb_vertex, rb_index, GL_UNSIGNED_INT, indexArray);
+		glDrawRangeElementsEXT(GL_TRIANGLES, 0, rb_vertex, rb_index, GL_UNSIGNED_INT, indexArray);
 	else
-		qglDrawElements(GL_TRIANGLES, rb_index, GL_UNSIGNED_INT, indexArray);
+		glDrawElements(GL_TRIANGLES, rb_index, GL_UNSIGNED_INT, indexArray);
 	GL_UnlockArrays ();
 }
 
@@ -263,19 +263,19 @@ void RB_DrawMeshTris (void)
 	if (r_showtris->value == 1)
 		GL_Disable(GL_DEPTH_TEST);
 
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 	for (i=0; i<glConfig.max_texunits; i++)
 		if (glState.activetmu[i])
 		{	numTMUs++;		GL_DisableTexture (i);	}
-	qglDisableClientState (GL_COLOR_ARRAY);
-	qglColor4f(1.0, 1.0, 1.0, 1.0);
+	glDisableClientState (GL_COLOR_ARRAY);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 
 	RB_DrawArrays ();
 
-	qglEnableClientState (GL_COLOR_ARRAY);
+	glEnableClientState (GL_COLOR_ARRAY);
 	for (i=0; i<numTMUs; i++)
 		GL_EnableTexture(i);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 	if (r_showtris->value == 1)
 		GL_Enable(GL_DEPTH_TEST);

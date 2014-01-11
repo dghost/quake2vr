@@ -115,16 +115,16 @@ void R_VR_StartFrame()
 	}
 
 
-	qglClearColor(0.0,0.0,0.0,0.0);
+	glClearColor(0.0,0.0,0.0,0.0);
 
 	R_VR_BindWorld();
 
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	R_VR_BindHud();
 
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	qglClearColor (1,0, 0.5, 0.5);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClearColor (1,0, 0.5, 0.5);
 
 }
 
@@ -145,7 +145,7 @@ void R_VR_BindLeft()
 	if (vr_enabled->value)
 	{
 		R_BindFBO(&world);
-		qglViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
+		glViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrHalfWidth;
 		vrState.eye = EYE_LEFT;
@@ -157,7 +157,7 @@ void R_VR_BindRight()
 	if (vr_enabled->value)
 	{
 		R_BindFBO(&world);
-		qglViewport(vrState.vrHalfWidth,0,vrState.vrHalfWidth,vrState.vrHeight);
+		glViewport(vrState.vrHalfWidth,0,vrState.vrHalfWidth,vrState.vrHeight);
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrHalfWidth;
 		vrState.eye = EYE_RIGHT;
@@ -170,7 +170,7 @@ void R_VR_BindWorld()
 	if (vr_enabled->value)
 	{
 		R_BindFBO(&world);
-//		qglViewport(0,0,vrState.vrWidth,vrState.vrHeight);
+//		glViewport(0,0,vrState.vrWidth,vrState.vrHeight);
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrWidth;
 		vrState.eye = EYE_NONE;
@@ -197,8 +197,8 @@ void R_VR_EndFrame()
 {
 	if (vr_enabled->value)
 	{
-		qglBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
-		qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
+		glBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
+		glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
 		vid.height = vrState.viewHeight;
 	}
@@ -218,12 +218,12 @@ void R_VR_DrawHud()
 	if (!vr_enabled->value)
 		return;
 
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	vrPerspective(vrState.viewFovY, vrConfig.aspect, 0.24, 251.0, vrState.eye * vrState.projOffset);
 
-	qglMatrixMode(GL_MODELVIEW);
-	qglLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int) vr_aimmode->value > 0))
@@ -234,21 +234,21 @@ void R_VR_DrawHud()
 		VR_GetOrientationEMAQuat(q);
 		q[2] = -q[2];
 		QuatToRotation(q,mat);
-		qglMultMatrixf((const GLfloat *) mat);
+		glMultMatrixf((const GLfloat *) mat);
 		
 	
 		/* depriciated as of 9/30/2013 - consider removing later
 		// convert to euler angles and rotate
 		vec3_t orientation;
 		VR_GetOrientationEMA(orientation);
-		qglRotatef (orientation[0],  1, 0, 0);
+		glRotatef (orientation[0],  1, 0, 0);
 		// y axis is inverted between Quake II and OpenGL
-		qglRotatef (-orientation[1],  0, 1, 0);
-		qglRotatef (orientation[2],  0, 0, 1);
+		glRotatef (-orientation[1],  0, 1, 0);
+		glRotatef (orientation[2],  0, 0, 1);
 		*/
 	}
 
-	qglTranslatef(vrState.eye * -ipd,0,0);
+	glTranslatef(vrState.eye * -ipd,0,0);
 	// calculate coordinates for hud
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
 	y = x / ((float) hud.width / hud.height);
@@ -264,12 +264,12 @@ void R_VR_DrawHud()
 	GL_Bind(hud.texture);
 
 
-	qglBegin(GL_TRIANGLE_STRIP);
-	qglTexCoord2f (0, 0); qglVertex3f (-x, -y,-depth);
-	qglTexCoord2f (0, 1); qglVertex3f (-x, y,-depth);		
-	qglTexCoord2f (1, 0); qglVertex3f (x, -y,-depth);
-	qglTexCoord2f (1, 1); qglVertex3f (x, y,-depth);
-	qglEnd();
+	glBegin(GL_TRIANGLE_STRIP);
+	glTexCoord2f (0, 0); glVertex3f (-x, -y,-depth);
+	glTexCoord2f (0, 1); glVertex3f (-x, y,-depth);		
+	glTexCoord2f (1, 0); glVertex3f (x, -y,-depth);
+	glTexCoord2f (1, 1); glVertex3f (x, y,-depth);
+	glEnd();
 
 	GL_Disable(GL_BLEND);
 }
@@ -292,13 +292,13 @@ void R_VR_Present()
 	GL_SelectTexture(0);
 	GL_Bind(hud.texture);
 	R_BindFBO(&world);
-	qglViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
+	glViewport(0,0,vrState.vrHalfWidth,vrState.vrHeight);
 	vid.height = vrState.vrHeight;
 	vid.width = vrState.vrHalfWidth;
 	vrState.eye = EYE_LEFT;
 	R_VR_DrawHud();
 
-	qglViewport(vrState.vrHalfWidth,0,vrState.vrHalfWidth,vrState.vrHeight);
+	glViewport(vrState.vrHalfWidth,0,vrState.vrHalfWidth,vrState.vrHeight);
 	vrState.eye = EYE_RIGHT;
 
 	R_VR_DrawHud();
@@ -308,11 +308,11 @@ void R_VR_Present()
 
 	GL_Disable(GL_ALPHA_TEST);
 
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 
-	qglMatrixMode(GL_MODELVIEW);
-	qglLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	if (vr_antialias->value)
 	{
@@ -337,66 +337,66 @@ void R_VR_Present()
 
 			GL_Bind(world.texture);
 
-			qglUseProgramObjectARB(current_shader->shader->program);
+			glUseProgramObjectARB(current_shader->shader->program);
 
-			qglUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
-			qglUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
-			qglUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
-			qglUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
-			qglUniform4fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale, superscale / vrState.vrWidth, superscale / vrState.vrHeight);
-			//qglUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
+			glUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
+			glUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
+			glUniform2fARB(current_shader->uniform.scale_in, 4.0f, 2.0f / vrConfig.aspect);
+			glUniform2fARB(current_shader->uniform.scale, 0.25f / scale, 0.5f * vrConfig.aspect / scale);
+			glUniform4fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale, superscale / vrState.vrWidth, superscale / vrState.vrHeight);
+			//glUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
 
-			qglUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
-			qglUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);
+			glUniform2fARB(current_shader->uniform.lens_center, 0.25 + vrState.projOffset * 0.25, 0.5);
+			glUniform2fARB(current_shader->uniform.screen_center, 0.25 , 0.5);
 
-			qglBegin(GL_TRIANGLE_STRIP);
-			qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-			qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
-			qglTexCoord2f(0.5, 0); qglVertex2f(0, -1);
-			qglTexCoord2f(0.5, 1); qglVertex2f(0, 1);
-			qglEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+			glTexCoord2f(0, 0); glVertex2f(-1, -1);
+			glTexCoord2f(0, 1); glVertex2f(-1, 1);
+			glTexCoord2f(0.5, 0); glVertex2f(0, -1);
+			glTexCoord2f(0.5, 1); glVertex2f(0, 1);
+			glEnd();
 
-			qglUniform2fARB(current_shader->uniform.lens_center, 0.75 -vrState.projOffset * 0.25, 0.5 );
-			qglUniform2fARB(current_shader->uniform.screen_center, 0.75 , 0.5);
+			glUniform2fARB(current_shader->uniform.lens_center, 0.75 -vrState.projOffset * 0.25, 0.5 );
+			glUniform2fARB(current_shader->uniform.screen_center, 0.75 , 0.5);
 
-			qglBegin(GL_TRIANGLE_STRIP);
-			qglTexCoord2f(0.5, 0); qglVertex2f(0, -1);
-			qglTexCoord2f(0.5, 1); qglVertex2f(0, 1);
-			qglTexCoord2f(1, 0); qglVertex2f(1, -1);
-			qglTexCoord2f(1, 1); qglVertex2f(1, 1);
-			qglEnd();
-			qglUseProgramObjectARB(0);
+			glBegin(GL_TRIANGLE_STRIP);
+			glTexCoord2f(0.5, 0); glVertex2f(0, -1);
+			glTexCoord2f(0.5, 1); glVertex2f(0, 1);
+			glTexCoord2f(1, 0); glVertex2f(1, -1);
+			glTexCoord2f(1, 1); glVertex2f(1, 1);
+			glEnd();
+			glUseProgramObjectARB(0);
 
 
 			if (VR_OVR_RenderLatencyTest(debugColor))
 			{
-				qglColor4fv(debugColor);
+				glColor4fv(debugColor);
 				GL_Bind(0);
-				qglBegin(GL_TRIANGLE_STRIP);
-				qglVertex2f(0.3, -0.4);
-				qglVertex2f(0.3, 0.4);
-				qglVertex2f(0.7, -0.4);
-				qglVertex2f(0.7, 0.4); 
-				qglEnd();
+				glBegin(GL_TRIANGLE_STRIP);
+				glVertex2f(0.3, -0.4);
+				glVertex2f(0.3, 0.4);
+				glVertex2f(0.7, -0.4);
+				glVertex2f(0.7, 0.4); 
+				glEnd();
 
-				qglBegin(GL_TRIANGLE_STRIP);
-				qglVertex2f(-0.3, -0.4);
-				qglVertex2f(-0.3, 0.4);
-				qglVertex2f(-0.7, -0.4);
-				qglVertex2f(-0.7, 0.4); 
-				qglEnd();
+				glBegin(GL_TRIANGLE_STRIP);
+				glVertex2f(-0.3, -0.4);
+				glVertex2f(-0.3, 0.4);
+				glVertex2f(-0.7, -0.4);
+				glVertex2f(-0.7, 0.4); 
+				glEnd();
 			}
 
 		} else {
 			
 			GL_Bind(world.texture);
 
-			qglBegin(GL_TRIANGLE_STRIP);
-			qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-			qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
-			qglTexCoord2f(1, 0); qglVertex2f(1, -1);
-			qglTexCoord2f(1, 1); qglVertex2f(1, 1);
-			qglEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+			glTexCoord2f(0, 0); glVertex2f(-1, -1);
+			glTexCoord2f(0, 1); glVertex2f(-1, 1);
+			glTexCoord2f(1, 0); glVertex2f(1, -1);
+			glTexCoord2f(1, 1); glVertex2f(1, 1);
+			glEnd();
 		}
 	}
 
@@ -405,12 +405,12 @@ void R_VR_Present()
 		R_VR_EndFrame();
 		GL_Bind(offscreen.texture);
 
-		qglBegin(GL_TRIANGLE_STRIP);
-		qglTexCoord2f(0, 0); qglVertex2f(-1, -1);
-		qglTexCoord2f(0, 1); qglVertex2f(-1, 1);
-		qglTexCoord2f(1, 0); qglVertex2f(1, -1);
-		qglTexCoord2f(1, 1); qglVertex2f(1, 1);
-		qglEnd();
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0, 0); glVertex2f(-1, -1);
+		glTexCoord2f(0, 1); glVertex2f(-1, 1);
+		glTexCoord2f(1, 0); glVertex2f(1, -1);
+		glTexCoord2f(1, 1); glVertex2f(1, 1);
+		glEnd();
 
 	}
 	GL_Bind(0);
@@ -467,8 +467,8 @@ void R_VR_Enable()
 // disables renderer support for the Rift
 void R_VR_Disable()
 {
-	qglBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
-	qglViewport(0,0,vrState.viewWidth,vrState.viewHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER_EXT,defaultFBO);
+	glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 
 	vid.width = vrState.viewWidth;
 	vid.height = vrState.viewHeight;
@@ -494,7 +494,7 @@ void R_VR_Init()
 		vrState.hudHeight = 480;
 		vrState.hudWidth = 640;
 
-		qglGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
 		R_InitFBO(&world);
 		R_InitFBO(&hud);
 		R_InitFBO(&offscreen);

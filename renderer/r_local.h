@@ -27,19 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "glext.h" //Knightmare- MrG's shader waterwarp support
+//#include <GL/gl.h>
+//#include "include/GL/glew.h"
+//#include <GL/glu.h>
+//#include "glext.h" //Knightmare- MrG's shader waterwarp support
 #include <math.h>
 
-#ifndef __linux__
-#ifndef GL_COLOR_INDEX8_EXT
-#define GL_COLOR_INDEX8_EXT GL_COLOR_INDEX
-#endif
-#endif
-
 #include "../client/ref.h"
-
 
 #include "qgl.h"
 
@@ -283,7 +277,6 @@ extern	cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 
 extern	cvar_t	*r_nosubimage;
 extern	cvar_t	*r_bitdepth;
-extern	cvar_t	*r_log;
 extern	cvar_t	*r_lightmap;
 extern	cvar_t	*r_shadows;
 extern	cvar_t	*r_shadowalpha;
@@ -973,8 +966,7 @@ int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
 int     	GLimp_SetMode( int *pwidth, int *pheight, qboolean fullscreen );
 void		GLimp_AppActivate( qboolean active );
-void		GLimp_EnableLogging( qboolean enable );
-void		GLimp_LogNewFrame( void );
+
 
 /*
 ====================================================================

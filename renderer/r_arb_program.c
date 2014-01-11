@@ -287,19 +287,19 @@ void R_Compile_ARB_Programs (void)
 		return;
 
 	// fragment programs
-	qglGenProgramsARB(NUM_FRAGMENT_PROGRAM, &fragment_programs[0]);
+	glGenProgramsARB(NUM_FRAGMENT_PROGRAM, &fragment_programs[0]);
     for (i = 0; i < NUM_FRAGMENT_PROGRAM; i++)
     {
-		qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[i]);
-		qglProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[i]);
+		glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 							strlen(fragment_progs[i]), fragment_progs[i]);
-		qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
+		glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 		if (error_pos != -1) 
 		{
-			errors = qglGetString(GL_PROGRAM_ERROR_STRING_ARB);	
+			errors = glGetString(GL_PROGRAM_ERROR_STRING_ARB);	
 			VID_Printf (PRINT_ALL, S_COLOR_RED"FragmentProgram error at position %d in shader %d\nARB_ERROR: %s\n", 
 						error_pos, fragment_programs[i], errors);
-			qglDeleteProgramsARB(1, &fragment_programs[i]);
+			glDeleteProgramsARB(1, &fragment_programs[i]);
 			break;
 		}
 	}
@@ -307,19 +307,19 @@ void R_Compile_ARB_Programs (void)
 	// vertex programs
 	if (glConfig.arb_vertex_program)
 	{
-		qglGenProgramsARB(NUM_VERTEX_PROGRAM, &vertex_programs[0]);
+		glGenProgramsARB(NUM_VERTEX_PROGRAM, &vertex_programs[0]);
 		for (i = 0; i < NUM_VERTEX_PROGRAM; i++)
 		{
-			qglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_programs[i]);
-			qglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+			glBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_programs[i]);
+			glProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 								strlen(vertex_progs[i]), vertex_progs[i]);
-			qglGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
+			glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 			if (error_pos != -1)
 			{
-				errors = qglGetString(GL_PROGRAM_ERROR_STRING_ARB);	
+				errors = glGetString(GL_PROGRAM_ERROR_STRING_ARB);	
 				VID_Printf (PRINT_ALL, S_COLOR_RED"VertexProgram error at position %d in shader %d\nARB_ERROR: %s\n", 
 							error_pos, vertex_programs[i], errors);
-				qglDeleteProgramsARB(1, &vertex_programs[i]);
+				glDeleteProgramsARB(1, &vertex_programs[i]);
 				break;
 			}
 		}

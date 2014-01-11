@@ -372,10 +372,10 @@ void R_BeginParticles (qboolean decals)
 
 		// no fog on particles
 		fog_on = false;
-		if (qglIsEnabled(GL_FOG)) // check if fog is enabled
+		if (glIsEnabled(GL_FOG)) // check if fog is enabled
 		{
 			fog_on = true;
-			qglDisable(GL_FOG); // if so, disable it
+			glDisable(GL_FOG); // if so, disable it
 		}
 	}
 	// clear particle rendering state
@@ -408,12 +408,12 @@ void R_FinishParticles (qboolean decals)
 	GL_DepthMask (true);
 	GL_Disable (GL_POLYGON_OFFSET_FILL);
 	GL_Disable (GL_BLEND);
-	qglColor4f (1,1,1,1);
+	glColor4f (1,1,1,1);
 
 	if (!decals)
 	{	// re-enable fog if it was on
 		if (fog_on)
-			qglEnable(GL_FOG);
+			glEnable(GL_FOG);
 	}
 }
 

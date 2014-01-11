@@ -104,10 +104,10 @@ void R_DrawBeam( entity_t *e )
 	qboolean fog_on = false;
 
 	// Knightmare- no fog on lasers
-	if (qglIsEnabled(GL_FOG)) // check if fog is enabled
+	if (glIsEnabled(GL_FOG)) // check if fog is enabled
 	{
 		fog_on = true;
-		qglDisable(GL_FOG); // if so, disable it
+		glDisable(GL_FOG); // if so, disable it
 	}
 
 	R_RenderBeam( e->origin, e->oldorigin, e->frame, 
@@ -118,5 +118,5 @@ void R_DrawBeam( entity_t *e )
 
 	// re-enable fog if it was on
 	if (fog_on)
-		qglEnable(GL_FOG);
+		glEnable(GL_FOG);
 }

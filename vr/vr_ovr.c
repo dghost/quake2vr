@@ -230,16 +230,16 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 		R_CompileShaderProgram(object);
 
 	shader->shader = object;
-	qglUseProgramObjectARB(shader->shader->program);
+	glUseProgramObjectARB(shader->shader->program);
 
-	shader->uniform.scale = qglGetUniformLocationARB(shader->shader->program, "scale");
-	shader->uniform.scale_in = qglGetUniformLocationARB(shader->shader->program, "scaleIn");
-	shader->uniform.lens_center = qglGetUniformLocationARB(shader->shader->program, "lensCenter");
-	shader->uniform.screen_center = qglGetUniformLocationARB(shader->shader->program, "screenCenter");
-	shader->uniform.hmd_warp_param = qglGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
-	shader->uniform.chrom_ab_param = qglGetUniformLocationARB(shader->shader->program, "chromAbParam");
-	shader->uniform.texture_size = qglGetUniformLocationARB(shader->shader->program,"textureSize");
-	qglUseProgramObjectARB(0);
+	shader->uniform.scale = glGetUniformLocationARB(shader->shader->program, "scale");
+	shader->uniform.scale_in = glGetUniformLocationARB(shader->shader->program, "scaleIn");
+	shader->uniform.lens_center = glGetUniformLocationARB(shader->shader->program, "lensCenter");
+	shader->uniform.screen_center = glGetUniformLocationARB(shader->shader->program, "screenCenter");
+	shader->uniform.hmd_warp_param = glGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
+	shader->uniform.chrom_ab_param = glGetUniformLocationARB(shader->shader->program, "chromAbParam");
+	shader->uniform.texture_size = glGetUniformLocationARB(shader->shader->program,"textureSize");
+	glUseProgramObjectARB(0);
 }
 
 int VR_OVR_Enable()

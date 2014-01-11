@@ -44,18 +44,18 @@ void R_SetFog (void)
 		return;			// leave fog enabled if set by game DLL
 
 	r_fogColor[3] = 1.0;
-	qglEnable(GL_FOG);
-	qglClearColor (r_fogColor[0], r_fogColor[1], r_fogColor[2], r_fogColor[3]); // Clear the background color to the fog color
-	qglFogi(GL_FOG_MODE, r_fogmodel);
-	qglFogfv(GL_FOG_COLOR, r_fogColor);
+	glEnable(GL_FOG);
+	glClearColor (r_fogColor[0], r_fogColor[1], r_fogColor[2], r_fogColor[3]); // Clear the background color to the fog color
+	glFogi(GL_FOG_MODE, r_fogmodel);
+	glFogfv(GL_FOG_COLOR, r_fogColor);
 	if (r_fogmodel == GL_LINEAR)
 	{
-		qglFogf(GL_FOG_START, r_fognear); 
-		qglFogf(GL_FOG_END, r_fogfar);
+		glFogf(GL_FOG_START, r_fognear); 
+		glFogf(GL_FOG_END, r_fogfar);
 	}
 	else
-		qglFogf(GL_FOG_DENSITY, r_fogdensity/10000.f);
-	qglHint (GL_FOG_HINT, GL_NICEST);
+		glFogf(GL_FOG_DENSITY, r_fogdensity/10000.f);
+	glHint (GL_FOG_HINT, GL_NICEST);
 }
 
 /*
@@ -87,11 +87,11 @@ void R_SetFogVars (qboolean enable, int model, int density,
 	//	model, density, start, end, red, green, blue );
 
 	// Skip this if QGL subsystem is already down
-	if (!qglDisable)	return;
+	if (!glDisable)	return;
 
 	r_fogenable = enable;
 	if (!r_fogenable) { // recieved fog disable message
-		qglDisable(GL_FOG);
+		glDisable(GL_FOG);
 		return;
 	}
 	temp = model;
