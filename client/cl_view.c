@@ -801,7 +801,9 @@ void VR_RenderStereo ()
 	}
 
 	// draw for left eye
-	R_VR_BindLeft();
+//	R_VR_BindLeft();
+
+	R_VR_BindWorld();
 
 	VectorScale( cl.v_right, vrState.eye * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
@@ -834,7 +836,7 @@ void VR_RenderStereo ()
 	VectorCopy(viewOrig, cl.refdef.vieworg);
 
 	// reset for fullscreen rendering
-	R_VR_BindWorld();
+//	R_VR_BindWorld();
 
 	vrState.eye = EYE_NONE;
 	cl.refdef.x = 0;
@@ -845,7 +847,7 @@ void VR_RenderStereo ()
 	// render full screen effects
 	VR_RenderScreenEffects(&cl.refdef);
 
-	R_VR_BindHud();
+//	R_VR_BindHud();
 
 	// finish house keeping tasks
 	R_SetLightLevel ();

@@ -117,9 +117,7 @@ void R_VR_StartFrame()
 
 	glClearColor(0.0,0.0,0.0,0.0);
 
-	R_VR_BindWorld();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	R_VR_BindHud();
 
@@ -174,6 +172,11 @@ void R_VR_BindWorld()
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrWidth;
 		vrState.eye = EYE_NONE;
+
+		glClearColor(0.0,0.0,0.0,0.0);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 	}
 }
 
@@ -303,7 +306,7 @@ void R_VR_Present()
 
 	R_VR_DrawHud();
 	GL_Bind(0);
-	R_VR_EndFrame();
+
 
 
 	GL_Disable(GL_ALPHA_TEST);
@@ -317,6 +320,8 @@ void R_VR_Present()
 	if (vr_antialias->value)
 	{
 		R_BindFBO(&offscreen);
+	} else {
+		R_VR_EndFrame();
 	}
 
 	if (current_hmd == HMD_RIFT)
@@ -462,6 +467,7 @@ void R_VR_Enable()
 		Com_Printf(" ok!\n");
 	}
 	Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
+	R_VR_StartFrame();
 }
 
 // disables renderer support for the Rift

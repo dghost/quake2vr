@@ -325,6 +325,7 @@ extern  cvar_t  *r_bloom;
 extern	cvar_t	*vid_fullscreen;
 extern	cvar_t	*vid_gamma;
 
+extern  cvar_t  *r_fencesync;
 
 extern	int		gl_lightmap_format;
 extern	int		gl_solid_format;
@@ -803,7 +804,7 @@ typedef struct
 	qboolean	arb_shader_objects;
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
-
+	qboolean	arb_sync;
 
 	// anisotropic filtering
 	qboolean	anisotropic;

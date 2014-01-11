@@ -191,6 +191,7 @@ cvar_t	*r_skydistance; //Knightmare- variable sky range
 cvar_t	*r_saturation;	//** DMP
 
 cvar_t  *r_drawnullmodel;
+cvar_t  *r_fencesync;
 
 /*
 =================
@@ -1235,6 +1236,7 @@ void R_Register (void)
 	r_lightcutoff = Cvar_Get( "r_lightcutoff", "0", CVAR_ARCHIVE );	//** DMP dynamic light cutoffnow variable
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
+	r_fencesync = Cvar_Get("r_fencesync","0",CVAR_ARCHIVE );
 
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
@@ -1849,6 +1851,16 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		Cvar_Set("r_ext_texture_compression", "0");
 	}
 
+	glConfig.arb_sync = false;
+	if (GLEW_ARB_sync)
+	{
+			VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
+			glConfig.arb_sync = true;
+	} else {
+			VID_Printf (PRINT_ALL, "...GL_ARB_sync not found\n" );
+			glConfig.arb_sync = false;
+			Cvar_SetInteger("vr_fencesync",0);
+	}
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
 	Com_Printf( "Size of entities: %i\n", sizeof (entity_t)*MAX_ENTITIES );
@@ -2091,7 +2103,8 @@ void R_BeginFrame( float camera_separation )
 
 	// clear screen if desired
 	//
-	R_Clear ();
+	if (!vr_enabled->value)
+		R_Clear ();
 }
 
 /*
