@@ -2084,12 +2084,6 @@ void VR_UpdateScreen (void)
 
 		if (cls.consoleActive)
 			Con_DrawConsole (0.5, false);
-
-		// explicitly force a swap/present
-//		R_VR_Present();
-//		GLimp_EndFrame();
-
-//		return;
 	} 
 	// if a cinematic is supposed to be running, handle menus
 	// and console specially

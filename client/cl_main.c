@@ -1652,7 +1652,7 @@ CL_Frame
 
 ==================
 */
-
+extern void R_FrameSync(void);
 void CL_Frame (int msec)
 {
 	static int	extratime;
@@ -1687,10 +1687,13 @@ void CL_Frame (int msec)
 		}
 	}
 
+
+
 	// let the mouse activate or deactivate
 	IN_Frame ();
 
 	VR_Frame();
+		
 	// decide the simulation time
 	cls.frametime = extratime/1000.0;
 	cl.time += extratime;
@@ -1717,9 +1720,12 @@ void CL_Frame (int msec)
 	if (r_decal_life->value < MIN_DECAL_LIFE)
 		Cvar_SetValue("r_decal_life", MIN_DECAL_LIFE);
 
+	R_FrameSync();
+
 	// if in the debugger last frame, don't timeout
 	if (msec > 5000)
 		cls.netchan.last_received = Sys_Milliseconds ();
+
 
 	// fetch results from server
 	CL_ReadPackets ();

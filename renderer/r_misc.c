@@ -599,3 +599,40 @@ void GL_UpdateSwapInterval (void)
 		}
 	}
 }
+
+
+static struct {
+	GLsync sync; 
+	qboolean fenced;
+	GLint64 timeout;
+} glFence;
+
+void R_FrameFence (void)
+{
+	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value)
+	{
+		
+		glFence.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
+		glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &glFence.timeout);
+		glColor4f(0.0f,0.0f,0.0f,0.0f);
+		GL_Bind(0);
+		glBegin(GL_TRIANGLE_STRIP);
+		glVertex2f(0, 0);
+		glVertex2f(0, 0);
+		glVertex2f(0, 0);
+		glEnd();
+		glFence.fenced = true;
+	}
+}
+
+void R_FrameSync (void)
+{
+	if (glConfig.arb_sync && glFence.fenced && r_fencesync->value)
+	{
+		GLenum result;
+		result = glClientWaitSync(glFence.sync, GL_SYNC_FLUSH_COMMANDS_BIT, glFence.timeout);
+		glDeleteSync(glFence.sync);
+ 		glFence.fenced = false;
+	}
+
+}

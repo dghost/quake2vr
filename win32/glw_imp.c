@@ -825,29 +825,7 @@ void GLimp_EndFrame (void)
 		if ( !SwapBuffers( glw_state.hDC ) )
 			VID_Error (ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n");
 	}
-
-	if (glConfig.arb_sync && r_fencesync->value)
-	{
-		GLuint64 max_timeout;
-		GLenum result;
-		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
-		glColor4f(0.0f,0.0f,0.0f,0.0f);
-		GL_Bind(0);
-		glBegin(GL_TRIANGLE_STRIP);
-		glVertex2f(0, 0);
-		glVertex2f(0, 0);
-		glVertex2f(0, 0);
-		glEnd();
-	    glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &max_timeout);
-	    glWaitSync(sync, 0, max_timeout);
-		result = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, max_timeout);
-		if (result != GL_CONDITION_SATISFIED || GL_ALREADY_SIGNALED)
-		{
-			if (developer->value)
-				Com_Printf("GL_ARB_sync failure!\n");
-		}
-	}
-
+	R_FrameFence();
 }
 
 /*
