@@ -13,6 +13,7 @@ cvar_t *vr_ovr_autoscale;
 cvar_t *vr_ovr_autolensdistance;
 cvar_t *vr_ovr_bicubic;
 cvar_t *vr_ovr_supersample;
+cvar_t *vr_ovr_latencytest;
 
 ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -45,9 +46,9 @@ void VR_OVR_SetFOV()
 
 int VR_OVR_getOrientation(float euler[3])
 {
-	if (vr_ovr_debug->value)
+	if (vr_ovr_latencytest->value)
 		LibOVR_ProcessLatencyInputs();
-	return LibOVR_GetOrientation(euler);
+    return LibOVR_GetOrientation(euler);
 }
 
 void VR_OVR_ResetHMDOrientation()
@@ -57,7 +58,7 @@ void VR_OVR_ResetHMDOrientation()
 
 int VR_OVR_RenderLatencyTest(vec4_t color) 
 {
-	return (vr_ovr_debug->value && LibOVR_GetLatencyTestColor(color));
+	return (vr_ovr_latencytest->value && LibOVR_GetLatencyTestColor(color));
 }
 
 void VR_OVR_CalcRenderParam()
@@ -142,12 +143,13 @@ void VR_OVR_Frame()
 			Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
 
 	}
-	if (vr_ovr_debug->value)
+
+	if (vr_ovr_latencytest->value && LibOVR_IsLatencyTesterAvailable())
 	{
-		const char *results = LibOVR_ProcessLatencyResults();
-		if (results)
-			Com_Printf("VR_OVR: %s\n",results);		
-	}
+			const char *results = LibOVR_ProcessLatencyResults();
+			if (results)
+				Com_Printf("VR_OVR: %s\n",results);		
+	} 
 }
 
 int VR_OVR_GetSettings(ovr_settings_t *settings)
@@ -217,7 +219,7 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 int VR_OVR_isDeviceAvailable()
 {
 	if (!vr_ovr_debug->value)
-		return LibOVR_IsDeviceAvailable();
+		return LibOVR_IsHMDAvailable();
 	else
 		return 1;
 }
@@ -246,7 +248,7 @@ int VR_OVR_Enable()
 {
 	char string[6];
 	int failure = 0;
-	if (!LibOVR_IsDeviceAvailable())
+	if (!LibOVR_IsHMDAvailable())
 	{
 		Com_Printf("VR_OVR: Error, no HMD detected!\n");
 		failure = 1;
@@ -321,12 +323,12 @@ void VR_OVR_Disable()
 
 int VR_OVR_Init()
 {
-	qboolean init = LibOVR_Init();
-
+	int init = LibOVR_Init();
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
+	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);

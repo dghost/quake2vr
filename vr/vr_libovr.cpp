@@ -27,7 +27,7 @@ int LibOVR_Init()
 	return (manager != NULL);	
 }
 
-int LibOVR_InitHMD()
+int LibOVR_InitHMD(void)
 {
 	if (hmd)
 		return 1;
@@ -41,11 +41,11 @@ int LibOVR_InitHMD()
 	return (hmd != NULL);
 }
 
-int LibOVR_InitSensor() {
+int LibOVR_InitSensor(void) {
 	if (fusion)
 		return 1;
 
-	if (!LibOVR_InitHMD())
+	if (!hmd)
 		return 0;
 
 
@@ -62,7 +62,7 @@ int LibOVR_InitSensor() {
 	return (sensor != NULL && fusion != NULL);
 }
 
-int LibOVR_InitLatencyTest() {
+int LibOVR_IsLatencyTesterAvailable(void) {
 	if (latencyUtil)
 		return 1;
 
@@ -81,12 +81,12 @@ int LibOVR_InitLatencyTest() {
 
 	return (latencyTester != NULL && latencyUtil != NULL);
 }
-int LibOVR_IsDeviceAvailable()
+int LibOVR_IsHMDAvailable(void)
 {
 	return (LibOVR_InitHMD());
 }
 
-void LibOVR_DeviceRelease() {
+void LibOVR_DeviceRelease(void) {
 	if (!initialized)
 		return;
 
@@ -121,11 +121,11 @@ void LibOVR_DeviceRelease() {
 	
 }
 
-int LibOVR_DeviceInit() {
+int LibOVR_DeviceInit(void) {
 	return (LibOVR_InitHMD());
 }
 
-void LibOVR_Shutdown() {
+void LibOVR_Shutdown(void) {
 
 	LibOVR_DeviceRelease();
 
@@ -137,7 +137,7 @@ void LibOVR_Shutdown() {
 	OVR::System::Destroy();
 }
 
-void LibOVR_ResetHMDOrientation()
+void LibOVR_ResetHMDOrientation(void)
 {
 	if (!LibOVR_InitSensor())
 		return;
@@ -173,9 +173,9 @@ int LibOVR_GetLatencyTestColor(float color[4])
 	return 0;
 }
 
-void LibOVR_ProcessLatencyInputs()
+void LibOVR_ProcessLatencyInputs(void)
 {
-	if (LibOVR_InitLatencyTest())
+	if (latencyUtil)
 		latencyUtil->ProcessInputs();
 
 }

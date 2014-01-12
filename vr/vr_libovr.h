@@ -24,18 +24,19 @@ extern "C" {
 	} ovr_settings_t;
 
 	int LibOVR_Init(void);
-	int LibOVR_IsDeviceAvailable(void);
+	int LibOVR_IsHMDAvailable(void);
 	int LibOVR_DeviceInit(void);
 	void LibOVR_DeviceRelease(void);
 	void LibOVR_Shutdown(void);
 	int LibOVR_GetOrientation(float euler[3]);
 	int LibOVR_GetSettings(ovr_settings_t *settings);
 	int LibOVR_SetPredictionTime(float time);
-	int LibOVR_EnableDriftCorrection();
-	void LibOVR_DisableDriftCorrection();
-	int LibOVR_IsDriftCorrectionEnabled();
-	void LibOVR_ResetHMDOrientation();
-	void LibOVR_ProcessLatencyInputs();
+	int LibOVR_EnableDriftCorrection(void);
+	void LibOVR_DisableDriftCorrection(void);
+	int LibOVR_IsDriftCorrectionEnabled(void);
+	void LibOVR_ResetHMDOrientation(void);
+	int LibOVR_IsLatencyTesterAvailable(void);
+	void LibOVR_ProcessLatencyInputs(void);
 	int LibOVR_GetLatencyTestColor(float color[4]);
 	const char* LibOVR_ProcessLatencyResults();
 

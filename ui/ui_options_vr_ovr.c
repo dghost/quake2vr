@@ -46,7 +46,9 @@ static menulist_s		s_options_vr_ovr_autoscale_box;
 static menufield_s		s_options_vr_ovr_scale_field;
 static menulist_s		s_options_vr_ovr_autolensdistance_box;
 static menufield_s		s_options_vr_ovr_lensdistance_field;
+static menulist_s		s_options_vr_ovr_latency_box;
 static menulist_s		s_options_vr_ovr_debug_box;
+
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
 extern cvar_t *vr_ovr_prediction;
@@ -83,6 +85,11 @@ static void AutoFunc( void *unused )
 	Cvar_SetInteger( "vr_ovr_autolensdistance", s_options_vr_ovr_autolensdistance_box.curvalue);
 }
 
+static void LatencyFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_latencytest",s_options_vr_ovr_latency_box.curvalue);
+}
+
 static void DebugFunc( void *unused)
 {
 	Cvar_SetInteger("vr_ovr_debug",s_options_vr_ovr_debug_box.curvalue);
@@ -95,6 +102,7 @@ static void VROVRSetMenuItemValues( void )
 	s_options_vr_ovr_bicubic_box.curvalue = ( Cvar_VariableInteger("vr_ovr_bicubic") );
 	s_options_vr_ovr_distortion_box.curvalue = ( Cvar_VariableInteger("vr_ovr_distortion") );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
+	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
 	s_options_vr_ovr_autolensdistance_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autolensdistance") );
 
@@ -116,6 +124,7 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_distortion");
 	Cvar_SetToDefault ("vr_ovr_autoscale");
 	Cvar_SetToDefault ("vr_ovr_scale");
+	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
 	Cvar_SetToDefault ("vr_ovr_prediction");
 	Cvar_SetToDefault ("vr_ovr_autolensdistance");
@@ -300,13 +309,21 @@ void Options_VR_OVR_MenuInit ( void )
 	strcpy( s_options_vr_ovr_lensdistance_field.buffer, vr_ovr_lensdistance->string );
 	s_options_vr_ovr_lensdistance_field.cursor = strlen( vr_ovr_lensdistance->string );
 
+	s_options_vr_ovr_latency_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_latency_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_latency_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_ovr_latency_box.generic.name		= "latency tester";
+	s_options_vr_ovr_latency_box.generic.callback	= LatencyFunc;
+	s_options_vr_ovr_latency_box.itemnames			= yesno_names;
+	s_options_vr_ovr_latency_box.generic.statusbar	= "enables support for the oculus latency tester";
+
 	s_options_vr_ovr_debug_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_debug_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_debug_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_debug_box.generic.name			= "debug mode";
+	s_options_vr_ovr_debug_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_debug_box.generic.name			= "debug rendering";
 	s_options_vr_ovr_debug_box.generic.callback		= DebugFunc;
 	s_options_vr_ovr_debug_box.itemnames			= debug_names;
-	s_options_vr_ovr_debug_box.generic.statusbar	= "enables oculus rift debugging support";
+	s_options_vr_ovr_debug_box.generic.statusbar	= "enables oculus rift debug rendering support";
 
 	s_options_vr_ovr_defaults_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_ovr_defaults_action.generic.x			= MENU_FONT_SIZE;
@@ -334,7 +351,10 @@ void Options_VR_OVR_MenuInit ( void )
 		
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autolensdistance_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lensdistance_field );
+
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latency_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	
+
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_defaults_action );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_back_action );
 
