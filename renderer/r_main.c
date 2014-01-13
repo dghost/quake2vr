@@ -1561,61 +1561,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	}
 
 
-	// GL_EXT_stencil_wrap
-	glConfig.extStencilWrap = false;
-	if (strstr(glConfig.extensions_string, "GL_EXT_stencil_wrap"))
-	{
-		VID_Printf (PRINT_ALL, "...using GL_EXT_stencil_wrap\n");
-		glConfig.extStencilWrap = true;
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_EXT_stencil_wrap not found\n");
-
-	// GL_ATI_separate_stencil - Barnes
-	glConfig.atiSeparateStencil = false;
-	glConfig.extStencilTwoSide = false;
-
-	if (glConfig.version_major < 2)
-	{
-		if (strstr(glConfig.extensions_string, "GL_ATI_separate_stencil"))
-		{
-			if (r_stencilTwoSide->value)
-			{
-				if (!glStencilOpSeparateATI) {
-					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ATI_separate_stencil not properly supported!\n");
-					glStencilOpSeparateATI = NULL;
-				}
-				else {
-					VID_Printf (PRINT_ALL, "...using GL_ATI_separate_stencil\n");
-					glConfig.atiSeparateStencil = true;
-				}
-			}
-			else
-				VID_Printf (PRINT_ALL, "...ignoring GL_ATI_separate_stencil\n");
-		}
-		else
-			VID_Printf (PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
-		// GL_EXT_stencil_two_side - Echon
-
-		if (strstr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
-		{
-			if (r_stencilTwoSide->value)
-			{
-				if (!glActiveStencilFaceEXT) {
-					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_stencil_two_side not properly supported!\n");
-					glActiveStencilFaceEXT = NULL;
-				}
-				else {
-					VID_Printf (PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
-					glConfig.extStencilTwoSide = true;
-				}
-			}
-			else
-				VID_Printf (PRINT_ALL, "...ignoring GL_EXT_stencil_two_side\n");
-		}
-		else
-			Com_Printf("...GL_EXT_stencil_two_side not found\n");
-	}
 	// GL_ARB_fragment_program
 	glConfig.arb_fragment_program = false;
 	if (strstr(glConfig.extensions_string, "GL_ARB_fragment_program"))

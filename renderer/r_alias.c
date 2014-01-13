@@ -738,43 +738,14 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 
 		if (!r_shadowvolumes->value)
 		{
-			if (glConfig.atiSeparateStencil && glConfig.extStencilWrap) // Barnes ATI stenciling
-			{
-				GL_Disable(GL_CULL_FACE);
+			GL_Disable(GL_CULL_FACE);
 
-				glStencilOpSeparateATI (GL_BACK, GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP); 
-				glStencilOpSeparateATI (GL_FRONT, GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
+			glStencilOpSeparate  (GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP); 
+			glStencilOpSeparate  (GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
-				R_DrawShadowVolume ();
+			R_DrawShadowVolume ();
 
-				GL_Enable(GL_CULL_FACE);
-			}
-			else if (glConfig.extStencilTwoSide && glConfig.extStencilWrap) // Echon's two-sided stenciling
-			{
-				GL_Disable(GL_CULL_FACE);
-				glEnable (GL_STENCIL_TEST_TWO_SIDE_EXT);
-
-				glActiveStencilFaceEXT (GL_BACK);
-				glStencilOp (GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
-				glActiveStencilFaceEXT (GL_FRONT);
-				glStencilOp (GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
-
-				R_DrawShadowVolume ();
-
-				glDisable (GL_STENCIL_TEST_TWO_SIDE_EXT);
-				GL_Enable(GL_CULL_FACE);
-			}
-			else
-			{	// increment stencil if backface is behind depthbuffer
-				GL_CullFace(GL_BACK); // quake is backwards, this culls front faces
-				glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-				R_DrawShadowVolume ();
-
-				// decrement stencil if frontface is behind depthbuffer
-				GL_CullFace(GL_FRONT); // quake is backwards, this culls back faces
-				glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-				R_DrawShadowVolume ();
-			}
+			GL_Enable(GL_CULL_FACE);
 		}
 		else
 			R_DrawShadowVolume ();

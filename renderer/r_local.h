@@ -790,9 +790,6 @@ typedef struct
 	qboolean	mtexcombine;	// added Vic's overbright rendering
 
 	qboolean	have_stencil;
-	qboolean	extStencilWrap;
-	qboolean	atiSeparateStencil;
-	qboolean	extStencilTwoSide;
 
 	qboolean	extCompiledVertArray;
 	qboolean	drawRangeElements;
