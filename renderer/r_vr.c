@@ -114,10 +114,11 @@ void R_VR_StartFrame()
 		}
 	}
 
-
 	glClearColor(0.0,0.0,0.0,0.0);
 
-
+	R_BindFBO(&world);
+	glViewport(0,0,vrState.vrWidth,vrState.vrHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	R_VR_BindHud();
 
@@ -168,15 +169,10 @@ void R_VR_BindWorld()
 	if (vr_enabled->value)
 	{
 		R_BindFBO(&world);
-//		glViewport(0,0,vrState.vrWidth,vrState.vrHeight);
+		glViewport(0,0,vrState.vrWidth,vrState.vrHeight);
 		vid.height = vrState.vrHeight;
 		vid.width = vrState.vrWidth;
 		vrState.eye = EYE_NONE;
-
-		glClearColor(0.0,0.0,0.0,0.0);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 	}
 }
 
@@ -323,6 +319,7 @@ void R_VR_Present()
 	} else {
 		R_VR_EndFrame();
 	}
+
 
 	if (current_hmd == HMD_RIFT)
 	{

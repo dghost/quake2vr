@@ -2103,8 +2103,7 @@ void R_BeginFrame( float camera_separation )
 
 	// clear screen if desired
 	//
-	if (!vr_enabled->value)
-		R_Clear ();
+	R_Clear ();
 }
 
 /*

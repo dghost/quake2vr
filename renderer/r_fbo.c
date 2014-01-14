@@ -6,9 +6,9 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 	int err;
 	glGetError();
 
-	glGenFramebuffers(1, &fbo);
+	glGenFramebuffersEXT(1, &fbo);
 	glGenTextures(1, &tex);
-	glGenRenderbuffers(1, &dep);
+	glGenRenderbuffersEXT(1, &dep);
 	GL_SelectTexture(0);
 	GL_Bind(tex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -21,24 +21,24 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 	err = glGetError();
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_GenFBO: Texture creation: glGetError() = 0x%x\n", err);
-	glBindRenderbuffer(GL_RENDERBUFFER_EXT, dep);
-	glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER_EXT, 0);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, dep);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
+//	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
-	glBindFramebuffer(GL_FRAMEBUFFER_EXT, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
 	err = glGetError();
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_GenFBO: Depth buffer creation: glGetError() = 0x%x\n", err);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+	if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
 		Com_Printf("ERROR: Creation of %i x %i FBO failed!\n", width, height);
 
 		glDeleteTextures(1, &tex);
-		glDeleteRenderbuffers(1, &dep);
-		glDeleteFramebuffers(1, &fbo);
+		glDeleteRenderbuffersEXT(1, &dep);
+		glDeleteFramebuffersEXT(1, &fbo);
 		return 0;
 	}
 	else {
@@ -82,14 +82,15 @@ int R_ResizeFBO(int width, int height, fbo_t *FBO)
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_ResizeFBO: Texture resize: glGetError() = 0x%x\n", err);
 
-	glBindRenderbuffer(GL_RENDERBUFFER_EXT, FBO->depthbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER_EXT, 0);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, FBO->depthbuffer);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 	err = glGetError();
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_ResizeFBO: Depth buffer resize: glGetError() = 0x%x\n", err);
 	FBO->width = width;
 	FBO->height = height;
+
 	/*
 	glBindFramebuffer(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
@@ -121,9 +122,9 @@ int R_ResizeFBO(int width, int height, fbo_t *FBO)
 
 void R_DelFBO(fbo_t *FBO)
 {
-	glDeleteFramebuffers(1, &FBO->framebuffer);
+	glDeleteFramebuffersEXT(1, &FBO->framebuffer);
 	glDeleteTextures(1, &FBO->texture);
-	glDeleteRenderbuffers(1, &FBO->depthbuffer);
+	glDeleteRenderbuffersEXT(1, &FBO->depthbuffer);
 	
 	FBO->framebuffer = 0;
 	FBO->texture = 0;
@@ -150,7 +151,7 @@ GLuint R_BindFBO(fbo_t *FBO)
 {
 	GLint currentFrameBuffer = 0;
 	//glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
 	glViewport(0, 0, FBO->width, FBO->height);
 	return (GLuint) currentFrameBuffer;
 }
