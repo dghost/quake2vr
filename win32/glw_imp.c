@@ -671,7 +671,7 @@ qboolean GLimp_InitGL (void)
 
 		goto fail;
 	}
-	glewExperimental = GL_TRUE;
+//	glewExperimental = GL_TRUE;
 	glewInit();
 	if ( !VerifyDriver() )
 	{

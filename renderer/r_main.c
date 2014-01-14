@@ -1364,19 +1364,37 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		return false;
 	}
 
-	RB_InitBackend(); // init mini-backend
 
 
 	//
 	// get our various GL strings
 	//
 	glConfig.vendor_string = glGetString (GL_VENDOR);
-	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
 	glConfig.renderer_string = glGetString (GL_RENDERER);
-	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	glConfig.version_string = glGetString (GL_VERSION);
-	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);
+	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);	
+	
+	if (glConfig.version_major < 2)
+	{
+		QGL_Shutdown();
+		memcpy (reason, "Could not get OpenGL 2.0 or higher context!\0", 44);
+		return false;
+	}
+
+
+	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
+	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	VID_Printf (PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
+
+#ifdef __REGAL_H__
+	glEnable(GL_LOG_WARNING_REGAL);
+	glEnable(GL_LOG_ERROR_REGAL);
+//	glDisable(GL_DRIVER_REGAL);
+	glDisable(GL_EMULATION_REGAL);
+	VID_Printf (PRINT_ALL, "GL_DRIVER_REGAL: %s\n", glIsEnabled(GL_DRIVER_REGAL) ? "enabled" : "disabled");
+	VID_Printf (PRINT_ALL, "GL_EMULATION_REGAL: %s\n", glIsEnabled(GL_EMULATION_REGAL) ? "enabled" : "disabled");
+
+#endif
 
 	// Knighmare- added max texture size
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE,&glConfig.max_texsize);
@@ -1474,6 +1492,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	else
 		VID_Printf (PRINT_ALL, "...disabling CDS\n" );
 
+	// TODO: Consider removing all this hacked up shit
 	// If using one of the mini-drivers, a Voodoo w/ WickedGL, or pre-1.2 driver,
 	// use the texture formats determined by gl_texturesolidmode and gl_texturealphamode.
 	if ( Q_stricmp(gl_driver->string, "opengl32") || glConfig.rendType == GLREND_VOODOO
@@ -1494,63 +1513,26 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	//
 
 	// GL_EXT_compiled_vertex_array
-	// GL_SGI_compiled_vertex_array
-	glConfig.extCompiledVertArray = false;
-	if ( strstr( glConfig.extensions_string, "GL_EXT_compiled_vertex_array" ) || 
-		 strstr( glConfig.extensions_string, "GL_SGI_compiled_vertex_array" ) )
+	glConfig.extCompiledVertArray = r_ext_compiled_vertex_array->value;
+	if ( strstr( glConfig.extensions_string, "GL_EXT_compiled_vertex_array" ) )
 	{
 		if (r_ext_compiled_vertex_array->value) {
 			if (!glLockArraysEXT || !glUnlockArraysEXT) {
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT/SGI_compiled_vertex_array not properly supported!\n");
+				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_compiled_vertex_array not properly supported!\n");
 				glLockArraysEXT	= NULL;
 				glUnlockArraysEXT	= NULL;
 			}
 			else {
-				VID_Printf (PRINT_ALL, "...enabling GL_EXT/SGI_compiled_vertex_array\n" );
+				VID_Printf (PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
 				glConfig.extCompiledVertArray = true;
 			}
 		}
 		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_EXT/SGI_compiled_vertex_array\n");
+			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n");
 	}
 	else
-		VID_Printf (PRINT_ALL, "...GL_EXT/SGI_compiled_vertex_array not found\n" );
+		VID_Printf (PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 
-	// GL_EXT_draw_range_elements
-	glConfig.drawRangeElements = false;
-	if ( strstr( glConfig.extensions_string, "GL_EXT_draw_range_elements" ) )
-	{
-		if (r_ext_draw_range_elements->value)
-		{
-			if (!glDrawRangeElementsEXT)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_draw_range_elements not properly supported!\n");
-			else {
-				VID_Printf (PRINT_ALL, "...enabling GL_EXT_draw_range_elements\n");
-				glConfig.drawRangeElements = true;
-			}
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_draw_range_elements\n");
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_EXT_draw_range_elements not found\n" );
-
-
-	// GL_ARB_texture_non_power_of_two
-	glConfig.arbTextureNonPowerOfTwo = false;
-	if ( strstr( glConfig.extensions_string, "GL_ARB_texture_non_power_of_two" ) )
-	{
-		if (r_arb_texturenonpoweroftwo->value) {
-			VID_Printf (PRINT_ALL, "...using GL_ARB_texture_non_power_of_two\n");
-			glConfig.arbTextureNonPowerOfTwo = true;
-		}
-		else {
-			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_texture_non_power_of_two\n");
-		}
-
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ARB_texture_non_power_of_two not found\n");
 
 #ifdef _WIN32
 	// WGL_EXT_swap_control
@@ -1563,98 +1545,21 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 #endif
 
 
-#if 0
-	if ( strstr( glConfig.extensions_string, "GL_EXT_point_parameters" ) )
-	{
-		if ( gl_ext_pointparameters->value )
-		{
-			VID_Printf (PRINT_ALL, "...using GL_EXT_point_parameters\n" );
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_point_parameters\n" );
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
-
-	if ( !glColorTableEXT &&
-		strstr( glConfig.extensions_string, "GL_EXT_paletted_texture" ) && 
-		strstr( glConfig.extensions_string, "GL_EXT_shared_texture_palette" ) )
-	{
-		if (gl_ext_palettedtexture->value)
-		{
-			VID_Printf (PRINT_ALL, "...using GL_EXT_shared_texture_palette\n" );
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_shared_texture_palette\n" );
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_EXT_shared_texture_palette not found\n" );
-#endif
-
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObject = false;
-	if ( strstr( glConfig.extensions_string, "GL_ARB_vertex_buffer_object" ) )
-	{
-			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_vertex_buffer_object\n");
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n" );
+	glConfig.vertexBufferObject = true;
 
 	// GL_ARB_multitexture
-	glConfig.multitexture = false;
-	glConfig.max_texunits = 1;
-	if ( strstr( glConfig.extensions_string, "GL_ARB_multitexture" ) )
+	if (r_ext_multitexture->value)
 	{
-		if (r_ext_multitexture->value)
-		{
-			if (!glMultiTexCoord2fARB || !glActiveTextureARB || !glClientActiveTextureARB)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_multitexture not properly supported!\n"S_COLOR_YELLOW"WARNING: glow/caustic texture effects not enabled\n");
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_ARB_multitexture\n" );
-				glConfig.multitexture = true;
-				glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.max_texunits);
-				VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS_ARB: %i\n", glConfig.max_texunits);
-			}
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_multitexture\n"S_COLOR_YELLOW"WARNING: glow/caustic texture effects not enabled\n" );
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ARB_multitexture not found\n"S_COLOR_YELLOW"WARNING: glow/caustic texture effects not supported\n" );
+		glConfig.multitexture = true;
+		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &glConfig.max_texunits);
+		VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS_ARB: %i\n", glConfig.max_texunits);
+	} else {
+		glConfig.multitexture = false;
+		glConfig.max_texunits = 1;
 
-	// GL_ARB_texture_env_combine - Vic
-	glConfig.mtexcombine = false;
-	if (strstr(glConfig.extensions_string, "GL_ARB_texture_env_combine"))
-	{
-		if (r_ext_mtexcombine->value)
-		{
-			VID_Printf (PRINT_ALL, "...using GL_ARB_texture_env_combine\n");
-			glConfig.mtexcombine = true;
-		}
-		else
-			VID_Printf (PRINT_ALL, "..ignoring GL_ARB_texture_env_combine\n");
 	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ARB_texture_env_combine not found\n");
 
-#if 0
-	// GL_EXT_texture_env_combine - Vic
-	if (!glConfig.mtexcombine)
-	{
-		if (strstr(glConfig.extensions_string, "GL_EXT_texture_env_combine"))
-		{
-			if (r_ext_mtexcombine->value)
-			{
-				VID_Printf (PRINT_ALL, "..using GL_EXT_texture_env_combine\n");
-				glConfig.mtexcombine = true;
-			}
-			else
-				VID_Printf (PRINT_ALL, "...ignoring GL_EXT_texture_env_combine\n");
-		}
-		else
-			VID_Printf (PRINT_ALL, "...GL_EXT_texture_env_combine not found\n");
-	}
-#endif
 
 	// GL_EXT_stencil_wrap
 	glConfig.extStencilWrap = false;
@@ -1668,46 +1573,49 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	// GL_ATI_separate_stencil - Barnes
 	glConfig.atiSeparateStencil = false;
-	if (strstr(glConfig.extensions_string, "GL_ATI_separate_stencil"))
-	{
-		if (r_stencilTwoSide->value)
-		{
-			if (!glStencilOpSeparateATI) {
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ATI_separate_stencil not properly supported!\n");
-				glStencilOpSeparateATI = NULL;
-			}
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_ATI_separate_stencil\n");
-				glConfig.atiSeparateStencil = true;
-			}
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_ATI_separate_stencil\n");
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
-
-	// GL_EXT_stencil_two_side - Echon
 	glConfig.extStencilTwoSide = false;
-	if (strstr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
+
+	if (glConfig.version_major < 2)
 	{
-		if (r_stencilTwoSide->value)
+		if (strstr(glConfig.extensions_string, "GL_ATI_separate_stencil"))
 		{
-			if (!glActiveStencilFaceEXT) {
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_stencil_two_side not properly supported!\n");
-				glActiveStencilFaceEXT = NULL;
+			if (r_stencilTwoSide->value)
+			{
+				if (!glStencilOpSeparateATI) {
+					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ATI_separate_stencil not properly supported!\n");
+					glStencilOpSeparateATI = NULL;
+				}
+				else {
+					VID_Printf (PRINT_ALL, "...using GL_ATI_separate_stencil\n");
+					glConfig.atiSeparateStencil = true;
+				}
 			}
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
-				glConfig.extStencilTwoSide = true;
-			}
+			else
+				VID_Printf (PRINT_ALL, "...ignoring GL_ATI_separate_stencil\n");
 		}
 		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_stencil_two_side\n");
-	}
-	else
-		Com_Printf("...GL_EXT_stencil_two_side not found\n");
+			VID_Printf (PRINT_ALL, "...GL_ATI_separate_stencil not found\n");
+		// GL_EXT_stencil_two_side - Echon
 
+		if (strstr(glConfig.extensions_string, "GL_EXT_stencil_two_side"))
+		{
+			if (r_stencilTwoSide->value)
+			{
+				if (!glActiveStencilFaceEXT) {
+					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_EXT_stencil_two_side not properly supported!\n");
+					glActiveStencilFaceEXT = NULL;
+				}
+				else {
+					VID_Printf (PRINT_ALL, "...using GL_EXT_stencil_two_side\n");
+					glConfig.extStencilTwoSide = true;
+				}
+			}
+			else
+				VID_Printf (PRINT_ALL, "...ignoring GL_EXT_stencil_two_side\n");
+		}
+		else
+			Com_Printf("...GL_EXT_stencil_two_side not found\n");
+	}
 	// GL_ARB_fragment_program
 	glConfig.arb_fragment_program = false;
 	if (strstr(glConfig.extensions_string, "GL_ARB_fragment_program"))
@@ -1753,7 +1661,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	R_Compile_ARB_Programs ();
 
 	glConfig.ext_packed_depth_stencil = false;
-	if ( strstr(glConfig.extensions_string,"GL_EXT_packed_depth_stencil") )
+	if ( GLEW_EXT_packed_depth_stencil )
 	{
 		VID_Printf (PRINT_ALL, "...using GL_EXT_packed_depth_stencil\n");
 		glConfig.ext_packed_depth_stencil = true;
@@ -1765,7 +1673,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.ext_framebuffer_object = false;
 	if ( glConfig.ext_packed_depth_stencil )
 	{
-		if (glewIsSupported("GL_EXT_framebuffer_object"))
+		if (GLEW_EXT_framebuffer_object)
 		{
 			VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
 			glConfig.ext_framebuffer_object = true;
@@ -1773,23 +1681,9 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 			VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 		}
 	}
-	glConfig.arb_shader_objects = false;
-	if (glConfig.ext_framebuffer_object) {
-		if ( strstr(glConfig.extensions_string, "GL_ARB_shader_objects") )
-		{
 
-			if (!GLEW_ARB_shader_objects)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_shader_objects not properly supported!\n");
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_ARB_shader_objects\n");
-				glConfig.arb_shader_objects = true;
-			}
-		} else {
-			VID_Printf (PRINT_ALL, "...GL_ARB_shader_objects not found\n");
-		}
-	}
 
-		// GL_NV_texture_shader - MrG
+	// GL_NV_texture_shader - MrG
 	if ( strstr( glConfig.extensions_string, "GL_NV_texture_shader" ) )
 	{
 		VID_Printf (PRINT_ALL, "...using GL_NV_texture_shader\n" );
@@ -1818,38 +1712,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		Cvar_SetValue("r_anisotropic_avail", 0.0);
 	} 
 
-	// GL_SGIS_generate_mipmap
-	if ( strstr( glConfig.extensions_string, "GL_SGIS_generate_mipmap") )
-	{
-		VID_Printf (PRINT_ALL, "...using GL_SGIS_generate_mipmap\n" );
-		glState.sgis_mipmap = true;
-	}
-	else
-	{
-		VID_Printf (PRINT_ALL, "...GL_SGIS_generate_mipmap not found\n" );
-		glState.sgis_mipmap = false;
-	}
-
-	// GL_ARB_texture_compression - Heffo
-	if ( strstr( glConfig.extensions_string, "GL_ARB_texture_compression" ) )
-	{
-		if(!r_ext_texture_compression->value)
-		{
-			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_texture_compression\n" );
-			glState.texture_compression = false;
-		}
-		else
-		{
-			VID_Printf (PRINT_ALL, "...using GL_ARB_texture_compression\n" );
-			glState.texture_compression = true;
-		}
-	}
-	else
-	{
-		VID_Printf(PRINT_ALL, "...GL_ARB_texture_compression not found\n");
-		glState.texture_compression = false;
-		Cvar_Set("r_ext_texture_compression", "0");
-	}
 
 	glConfig.arb_sync = false;
 	if (GLEW_ARB_sync)
@@ -1861,6 +1723,18 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 			glConfig.arb_sync = false;
 			Cvar_SetInteger("vr_fencesync",0);
 	}
+
+	// dghost: guaranteed extensions from OpenGL 2.0
+	// TODO: consider removing legacy code
+	glState.texture_compression = (qboolean) r_ext_texture_compression->value;
+	glConfig.arb_shader_objects = (qboolean) true;
+	// GL_ARB_texture_env_combine - Vic
+	glConfig.mtexcombine = (qboolean) r_ext_mtexcombine->value;
+	// GL_EXT_draw_range_elements
+	glConfig.drawRangeElements = (qboolean) r_ext_draw_range_elements->value;
+	// GL_ARB_texture_non_power_of_two
+	glConfig.arbTextureNonPowerOfTwo = (qboolean) r_arb_texturenonpoweroftwo->value;
+
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
 	Com_Printf( "Size of entities: %i\n", sizeof (entity_t)*MAX_ENTITIES );
@@ -1885,6 +1759,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	R_InitDSTTex (); // init shader warp texture
 	R_InitFogVars (); // reset fog variables
 	VLight_Init (); // Vic's bmodel lights
+	RB_InitBackend(); // init mini-backend
 
 	err = glGetError();
 	if ( err != GL_NO_ERROR )

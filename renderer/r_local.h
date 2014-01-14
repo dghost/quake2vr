@@ -836,7 +836,6 @@ typedef struct
 	qboolean		texgen;
 
 	qboolean		regCombiners;
-	qboolean		sgis_mipmap;
 	unsigned int	dst_texture;
 
 	qboolean		envAdd;
