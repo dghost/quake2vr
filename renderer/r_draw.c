@@ -630,21 +630,6 @@ void R_DrawStretchRaw (int x, int y, int w, int h, const byte *raw, int rawWidth
 	//if (!noDraw)
 	//	RB_RenderMesh();
 
-	// Check the dimensions
-	if (!glConfig.arbTextureNonPowerOfTwo) // skip if nonstandard textures sizes are supported
-	{
-		while (width < rawWidth)
-			width <<= 1;
-		while (height < rawHeight)
-			height <<= 1;
-
-		if (rawWidth != width || rawHeight != height)
-			VID_Error(ERR_DROP, "R_DrawStretchRaw: size is not a power of two (%i x %i)", rawWidth, rawHeight);
-
-		if (rawWidth > glConfig.max_texsize || rawHeight > glConfig.max_texsize)
-			VID_Error(ERR_DROP, "R_DrawStretchRaw: size exceeds hardware limits (%i > %i or %i > %i)", rawWidth, glConfig.max_texsize, rawHeight, glConfig.max_texsize);
-	}
-
 	// Update the texture as appropriate
 	GL_Bind(glMedia.rawtexture->texnum);
 	

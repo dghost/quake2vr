@@ -543,10 +543,7 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 			GL_CullFace(GL_FRONT); // quake is backwards, this culls back faces
 			glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 		}
-		if (glConfig.drawRangeElements)
-			glDrawRangeElementsEXT(GL_TRIANGLES, 0, md2shadow_va, md2shadow_index, GL_UNSIGNED_INT, indexArray);
-		else
-			glDrawElements(GL_TRIANGLES, md2shadow_index, GL_UNSIGNED_INT, indexArray);
+		glDrawRangeElements(GL_TRIANGLES, 0, md2shadow_va, md2shadow_index, GL_UNSIGNED_INT, indexArray);
 
 		// decrement stencil if frontface is behind depthbuffer
 		if (zfail) { // Carmack reverse
@@ -559,10 +556,7 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 		}
 	}
 
-	if (glConfig.drawRangeElements)
-		glDrawRangeElementsEXT(GL_TRIANGLES, 0, md2shadow_va, md2shadow_index, GL_UNSIGNED_INT, indexArray);
-	else
-		glDrawElements(GL_TRIANGLES, md2shadow_index, GL_UNSIGNED_INT, indexArray);
+	glDrawRangeElements(GL_TRIANGLES, 0, md2shadow_va, md2shadow_index, GL_UNSIGNED_INT, indexArray);
 	GL_UnlockArrays();
 
 	/*for (i=-1; i<r_newrefdef.num_dlights; i++) //, dl++)

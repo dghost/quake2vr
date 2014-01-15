@@ -626,10 +626,7 @@ R_DrawShadowVolume
 */
 void R_DrawShadowVolume (void)
 {
-	if (glConfig.drawRangeElements)
-		glDrawRangeElementsEXT(GL_TRIANGLES, 0, shadow_va, shadow_index, GL_UNSIGNED_INT, indexArray);
-	else
-		glDrawElements(GL_TRIANGLES, shadow_index, GL_UNSIGNED_INT, indexArray);
+	glDrawRangeElements(GL_TRIANGLES, 0, shadow_va, shadow_index, GL_UNSIGNED_INT, indexArray);
 }
 
 

@@ -240,10 +240,7 @@ void RB_DrawArrays (void)
 		return;
 
 	GL_LockArrays (rb_vertex);
-	if (glConfig.drawRangeElements)
-		glDrawRangeElementsEXT(GL_TRIANGLES, 0, rb_vertex, rb_index, GL_UNSIGNED_INT, indexArray);
-	else
-		glDrawElements(GL_TRIANGLES, rb_index, GL_UNSIGNED_INT, indexArray);
+	glDrawRangeElements(GL_TRIANGLES, 0, rb_vertex, rb_index, GL_UNSIGNED_INT, indexArray);
 	GL_UnlockArrays ();
 }
 

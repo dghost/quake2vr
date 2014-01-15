@@ -129,12 +129,8 @@ typedef struct
 	int			max_texsize;
 	int			max_texunits;
 
-	// non-power of two texture support
-	qboolean	arbTextureNonPowerOfTwo;
-
 	qboolean	vertexBufferObject;
 	qboolean	multitexture;
-	qboolean	mtexcombine;	// added Vic's overbright rendering
 
 	qboolean	have_stencil;
 	qboolean	extStencilWrap;
@@ -142,7 +138,6 @@ typedef struct
 	qboolean	extStencilTwoSide;
 
 	qboolean	extCompiledVertArray;
-	qboolean	drawRangeElements;
 
 	// texture shader support
 	qboolean	arb_fragment_program;
@@ -1213,15 +1208,9 @@ static qboolean CIN_StaticCinematic (cinematic_t *cin, const char *name)
 
 	cin->vidBuffer = cin->pcxBuffer;
 
-	if (glConfig.arbTextureNonPowerOfTwo) {
-		cin->rawWidth = cin->vidWidth;
-		cin->rawHeight = cin->vidHeight;
-	}
-	else {
-		cin->rawWidth = 256;
-		cin->rawHeight = 256;
-	}
-
+	cin->rawWidth = cin->vidWidth;
+	cin->rawHeight = cin->vidHeight;
+	
 	if (cin->rawWidth != cin->vidWidth || cin->rawHeight != cin->vidHeight)
 		cin->rawBuffer = Z_Malloc(cin->rawWidth * cin->rawHeight * 4);
 
@@ -1612,14 +1601,8 @@ cinHandle_t CIN_PlayCinematic (const char *name, int x, int y, int w, int h, int
 
 		cin->remaining -= 20;
 
-		if (glConfig.arbTextureNonPowerOfTwo) {
-			cin->rawWidth = cin->vidWidth;
-			cin->rawHeight = cin->vidHeight;
-		}
-		else {
-			cin->rawWidth = 256;
-			cin->rawHeight = 256;
-		}
+		cin->rawWidth = cin->vidWidth;
+		cin->rawHeight = cin->vidHeight;
 
 		if (cin->rawWidth != cin->vidWidth || cin->rawHeight != cin->vidHeight)
 			cin->rawBuffer = Z_Malloc(cin->rawWidth * cin->rawHeight * 4);

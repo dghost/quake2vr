@@ -112,12 +112,9 @@ cvar_t	*r_vertex_arrays;
 
 cvar_t	*r_ext_swapinterval;
 cvar_t	*r_ext_multitexture;
-cvar_t	*r_ext_draw_range_elements;
 cvar_t	*r_ext_compiled_vertex_array;
-cvar_t	*r_arb_texturenonpoweroftwo;	// Knightmare- non-power-of-two texture support
 cvar_t	*r_nonpoweroftwo_mipmaps;		// Knightmare- non-power-of-two texture support
 cvar_t	*r_newlightmapformat;			// Knightmare- whether to use new lightmap format
-cvar_t	*r_ext_mtexcombine; // Vic's overbright rendering
 cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 cvar_t	*r_arb_fragment_program;
 cvar_t	*r_arb_vertex_program;
@@ -1173,15 +1170,12 @@ void R_Register (void)
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
 	r_ext_swapinterval = Cvar_Get( "r_ext_swapinterval", "1", CVAR_ARCHIVE );
 	r_ext_multitexture = Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE );
-	r_ext_draw_range_elements = Cvar_Get("r_ext_draw_range_elements", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 	r_ext_compiled_vertex_array = Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE );
-	r_arb_texturenonpoweroftwo  = Cvar_Get("r_arb_texturenonpoweroftwo", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 
 	r_newlightmapformat = Cvar_Get("r_newlightmapformat", "1", CVAR_ARCHIVE);	// whether to use new lightmap format
 
 	// added Vic's overbright rendering
-	r_ext_mtexcombine = Cvar_Get ("r_ext_mtexcombine", "1", CVAR_ARCHIVE);
 
 	// Echon's two-sided stenciling
 	r_stencilTwoSide = Cvar_Get ("r_stencilTwoSide", "0", CVAR_ARCHIVE);
@@ -1668,17 +1662,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 			glConfig.arb_sync = false;
 			Cvar_SetInteger("vr_fencesync",0);
 	}
-
+	
 	// dghost: guaranteed extensions from OpenGL 2.0
 	// TODO: consider removing legacy code
 	glState.texture_compression = (qboolean) r_ext_texture_compression->value;
-	glConfig.arb_shader_objects = (qboolean) true;
-	// GL_ARB_texture_env_combine - Vic
-	glConfig.mtexcombine = (qboolean) r_ext_mtexcombine->value;
-	// GL_EXT_draw_range_elements
-	glConfig.drawRangeElements = (qboolean) r_ext_draw_range_elements->value;
-	// GL_ARB_texture_non_power_of_two
-	glConfig.arbTextureNonPowerOfTwo = (qboolean) r_arb_texturenonpoweroftwo->value;
 
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );

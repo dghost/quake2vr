@@ -251,12 +251,9 @@ extern	cvar_t	*r_vertex_arrays;
 //extern	cvar_t	*gl_ext_pointparameters;
 extern	cvar_t	*r_ext_swapinterval;
 extern	cvar_t	*r_ext_multitexture;
-extern	cvar_t	*r_ext_draw_range_elements;
 extern	cvar_t	*r_ext_compiled_vertex_array;
-extern	cvar_t	*r_arb_texturenonpoweroftwo;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
 extern	cvar_t	*r_newlightmapformat;	// Knightmare- whether to use new lightmap format
-extern	cvar_t	*r_ext_mtexcombine; // Vic's overbright rendering
 extern	cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 extern	cvar_t	*r_arb_vertex_buffer_object;
 extern	cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
@@ -782,24 +779,18 @@ typedef struct
 	int			max_texsize;
 	int			max_texunits;
 
-	// non-power of two texture support
-	qboolean	arbTextureNonPowerOfTwo;
-
 	qboolean	vertexBufferObject;
 	qboolean	multitexture;
-	qboolean	mtexcombine;	// added Vic's overbright rendering
 
 	qboolean	have_stencil;
 
 	qboolean	extCompiledVertArray;
-	qboolean	drawRangeElements;
 
 	// texture shader support
 	qboolean	arb_fragment_program;
 	qboolean	arb_vertex_program;
 	qboolean	NV_texshaders;
 
-	qboolean	arb_shader_objects;
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;

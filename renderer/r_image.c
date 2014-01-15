@@ -1563,7 +1563,7 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 	//
 	// find sizes to scale to
 	//
-	if ( glConfig.arbTextureNonPowerOfTwo && (!mipmap || r_nonpoweroftwo_mipmaps->value) ) {
+	if (!mipmap || r_nonpoweroftwo_mipmaps->value) {
 		scaled_width = width;
 		scaled_height = height;
 	}
@@ -1622,23 +1622,6 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 	//
 	// generate mipmaps and upload
 	//
-#if 0
-	glTexImage2D (GL_TEXTURE_2D, 0, comp, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaled);
-	if (mipmap)
-	{
-		int		mip_width, mip_height, miplevel = 0;
-
-		mip_width = scaled_width;	mip_height = scaled_height;
-		while (mip_width > 1 || mip_height > 1)
-		{
-			GL_MipMap ((byte *)scaled, mip_width, mip_height);
-			mip_width = max(mip_width>>1, 1);
-			mip_height = max(mip_height>>1, 1);
-			miplevel++;
-			glTexImage2D (GL_TEXTURE_2D, miplevel, comp, mip_width, mip_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaled);
-		}
-	}
-#else
 	if (mipmap)
 	{
 			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -1646,7 +1629,6 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 	} 
 	else
 		glTexImage2D (GL_TEXTURE_2D, 0, comp, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaled);
-#endif
 
 	if (scaled_width != width || scaled_height != height)
 		free(scaled);
@@ -2227,10 +2209,7 @@ void R_InitImages (void)
 	//r_intensity = Cvar_Get ("r_intensity", "2", CVAR_ARCHIVE);
 
 	// Knightmare- added Vic's overbright rendering
-	if (glConfig.mtexcombine)
-		r_intensity = Cvar_Get ("r_intensity", "1", 0);
-	else
-		r_intensity = Cvar_Get ("r_intensity", "2", 0);
+	r_intensity = Cvar_Get ("r_intensity", "1", 0);
 	// end Knightmare
 
 	if ( r_intensity->value <= 1 )

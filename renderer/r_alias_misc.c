@@ -206,26 +206,17 @@ R_SetVertexOverbrights
 */
 void R_SetVertexOverbrights (qboolean toggle)
 {
-	if (!r_overbrightbits->value || !glConfig.mtexcombine)
+	if (!r_overbrightbits->value)
 		return;
 
 	if (toggle) // turn on
 	{
-#if 1
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 		
 		GL_TexEnv(GL_COMBINE_ARB);
-#else
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-
-		GL_TexEnv(GL_COMBINE_EXT);
-#endif
 	}
 	else // turn off
 	{

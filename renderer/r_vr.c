@@ -492,7 +492,7 @@ void R_VR_Disable()
 // launch-time initialization for Rift support
 void R_VR_Init()
 {
-	if (glConfig.ext_framebuffer_object && glConfig.arb_shader_objects)
+	if (glConfig.ext_framebuffer_object)
 	{
 		vrState.hudHeight = 480;
 		vrState.hudWidth = 640;
