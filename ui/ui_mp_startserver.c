@@ -542,7 +542,7 @@ void StartServerActionFunc (void *self)
 	Cvar_SetValue ("coop", s_rules_box.curvalue == 1);
 	Cvar_SetValue ("ctf", s_rules_box.curvalue == 2);
 	Cvar_SetValue ("ttctf", s_rules_box.curvalue == 3);
-	Cvar_SetValue ("gamerules", roguepath() ? (s_rules_box.curvalue == 4) : 0);
+	Cvar_SetValue ("gamerules", roguepath() ? ((s_rules_box.curvalue == 4) ? 2 : 0) : 0);
 
 	spot = NULL;
 	if (s_rules_box.curvalue == 1)		// PGM
@@ -644,7 +644,7 @@ void StartServer_MenuInit (void)
 		s_rules_box.curvalue = 3;
 	else if (Cvar_VariableValue("ctf"))
 		s_rules_box.curvalue = 2;
-	else if (roguepath() && Cvar_VariableValue("gamerules"))
+	else if (roguepath() && Cvar_VariableValue("gamerules") == 2)
 		s_rules_box.curvalue = 4;
 	else if (Cvar_VariableValue("coop"))
 		s_rules_box.curvalue = 1;

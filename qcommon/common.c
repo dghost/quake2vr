@@ -1868,6 +1868,136 @@ void Qcommon_Shutdown (void)
 
 /*
 =================
+Q_strncpyz
+
+Safe strncpy that ensures a trailing zero
+=================
+*/
+void Q_strncpyz (char *dst, const char *src, int dstSize)
+{
+	if (!dst) {
+	//	Com_Error (ERR_FATAL, "Q_strncpyz: NULL dst");
+	//	Com_Printf ("Q_strncpyz: NULL dst\n");
+		return;
+	}
+	if (!src) {
+	//	Com_Error (ERR_FATAL, "Q_strncpyz: NULL src");
+	//	Com_Printf ("Q_strncpyz: NULL src\n");
+		return;
+	}
+	if (dstSize < 1) {
+	//	Com_Error (ERR_FATAL, "Q_strncpyz: dstSize < 1");
+	//	Com_Printf ("Q_strncpyz: dstSize < 1\n");
+		return;
+	}
+
+	strncpy(dst, src, dstSize-1);
+	dst[dstSize-1] = 0;
+}
+
+/*
+=================
+Q_strncatz
+
+Safe strncat that ensures a trailing zero
+=================
+*/
+void Q_strncatz (char *dst, const char *src, int dstSize)
+{
+	if (!dst) {
+	//	Com_Error (ERR_FATAL, "Q_strncatz: NULL dst");
+	//	Com_Printf ("Q_strncatz: NULL dst\n");
+		return;
+	}
+	if (!src) {
+	//	Com_Error (ERR_FATAL, "Q_strncatz: NULL src");
+	//	Com_Printf ("Q_strncatz: NULL src\n");
+		return;
+	}
+	if (dstSize < 1) {
+	//	Com_Error (ERR_FATAL, "Q_strncatz: dstSize < 1");
+	//	Com_Printf ("Q_strncatz: dstSize < 1\n");
+		return;
+	}
+
+	while (--dstSize && *dst)
+		dst++;
+
+	if (dstSize > 0){
+		while (--dstSize && *src)
+			*dst++ = *src++;
+
+		*dst = 0;
+	}
+}
+
+
+/*
+=================
+Q_snprintfz
+
+Safe snprintf that ensures a trailing zero
+=================
+*/
+void Q_snprintfz (char *dst, int dstSize, const char *fmt, ...)
+{
+	va_list	argPtr;
+
+	if (!dst) {
+	//	Com_Error(ERR_FATAL, "Q_snprintfz: NULL dst");
+	//	Com_Printf("Q_snprintfz: NULL dst\n");
+		return;
+	}
+	if (dstSize < 1) {
+	//	Com_Error(ERR_FATAL, "Q_snprintfz: dstSize < 1");
+	//	Com_Printf("Q_snprintfz: dstSize < 1\n");
+		return;
+	}
+
+	va_start(argPtr, fmt);
+	Q_vsnprintf(dst, dstSize, fmt, argPtr);
+	va_end(argPtr);
+
+	dst[dstSize-1] = 0;
+}
+
+
+/*
+=================
+Q_strlwr
+=================
+*/
+char *Q_strlwr (char *string)
+{
+	char	*s = string;
+
+	while (*s) {
+		*s = tolower(*s);
+		s++;
+	}
+	return string;
+}
+
+
+/*
+=================
+Q_strupr
+=================
+*/
+char *Q_strupr (char *string)
+{
+	char	*s = string;
+
+	while (*s) {
+		*s = toupper(*s);
+		s++;
+	}
+	return string;
+}
+
+
+/*
+=================
 StripHighBits
 
 String parsing function from r1q2

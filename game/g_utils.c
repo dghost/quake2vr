@@ -1100,7 +1100,8 @@ void my_bprintf (int printlevel, char *fmt, ...)
 	edict_t	*cl_ent;
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+//	len = vsprintf (bigbuffer,fmt,argptr);
+	len = Q_vsnprintf (bigbuffer, sizeof(bigbuffer), fmt, argptr);
 	va_end (argptr);
 
 	if (dedicated->value)

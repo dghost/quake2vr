@@ -42,7 +42,7 @@ static menuframework_s	s_video_advanced_menu;
 static menuseparator_s	s_options_advanced_header;	
 static menuslider_s		s_lightmapscale_slider;
 static menuslider_s		s_textureintensity_slider;
-static menulist_s  		s_overbrights_box;
+static menulist_s  		s_rgbscale_box;
 static menulist_s  		s_trans_lighting_box;
 static menulist_s  		s_warp_lighting_box;
 static menuslider_s		s_lightcutoff_slider;
@@ -72,11 +72,11 @@ static void Video_Advanced_MenuSetValues ( void )
 	Cvar_SetValue( "r_intensity", ClampCvar( 1, 2, Cvar_VariableValue("r_intensity") ) );
 	s_textureintensity_slider.curvalue = (Cvar_VariableValue("r_intensity") -1) * 10;
 
-	Cvar_SetValue( "r_overbrightbits", ClampCvar( 1, 2, Cvar_VariableValue("r_overbrightbits") ) );
-	if (Cvar_VariableValue("r_overbrightbits") == 1)
-		s_overbrights_box.curvalue = 0;
+	Cvar_SetValue( "r_rgbscale", ClampCvar( 1, 2, Cvar_VariableValue("r_rgbscale") ) );
+	if (Cvar_VariableValue("r_rgbscale") == 1)
+		s_rgbscale_box.curvalue = 0;
 	else
-		s_overbrights_box.curvalue = 1;
+		s_rgbscale_box.curvalue = 1;
 
 	Cvar_SetValue( "r_trans_lighting", ClampCvar( 0, 2, Cvar_VariableValue("r_trans_lighting") ) );
 	s_trans_lighting_box.curvalue = Cvar_VariableValue("r_trans_lighting");
@@ -140,9 +140,9 @@ static void TextureIntensCallback ( void *unused )
 	Cvar_SetValue( "r_intensity", s_textureintensity_slider.curvalue / 10 + 1);
 }
 
-static void OverbrightsCallback ( void *unused )
+static void RGBSCaleCallback ( void *unused )
 {
-	Cvar_SetValue( "r_overbrightbits", s_overbrights_box.curvalue + 1);
+	Cvar_SetValue( "r_rgbscale", s_rgbscale_box.curvalue + 1);
 }
 
 static void TransLightingCallback ( void *unused )
@@ -324,13 +324,13 @@ void Menu_Video_Advanced_Init (void)
 	s_textureintensity_slider.maxvalue			= 10;
 	s_textureintensity_slider.generic.statusbar	= "leave at minimum, washes out textures";
 
-	s_overbrights_box.generic.type			= MTYPE_SPINCONTROL;
-	s_overbrights_box.generic.x				= 0;
-	s_overbrights_box.generic.y				= y += MENU_LINE_SIZE;
-	s_overbrights_box.generic.name			= "overbrights";
-	s_overbrights_box.generic.callback		= OverbrightsCallback;
-	s_overbrights_box.itemnames				= yesno_names;
-	s_overbrights_box.generic.statusbar		= "brightens textures without washing them out";
+	s_rgbscale_box.generic.type				= MTYPE_SPINCONTROL;
+	s_rgbscale_box.generic.x				= 0;
+	s_rgbscale_box.generic.y				= y += MENU_LINE_SIZE;
+	s_rgbscale_box.generic.name				= "RGB enhance";
+	s_rgbscale_box.generic.callback			= RGBSCaleCallback;
+	s_rgbscale_box.itemnames				= yesno_names;
+	s_rgbscale_box.generic.statusbar		= "brightens textures without washing them out";
 
 	s_trans_lighting_box.generic.type		= MTYPE_SPINCONTROL;
 	s_trans_lighting_box.generic.x			= 0;
@@ -488,7 +488,7 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_options_advanced_header );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightmapscale_slider );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_textureintensity_slider );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_overbrights_box );
+	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_rgbscale_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_trans_lighting_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_warp_lighting_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightcutoff_slider );

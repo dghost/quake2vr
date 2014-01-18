@@ -397,35 +397,6 @@ char *Sys_ScanForCD (void)
 }
 
 //================================================================
-/*
-=================
-Q_strncatz
-
-Safe strncat that ensures a trailing zero
-=================
-*/
-void Q_strncatz (char *dst, const char *src, int dstSize)
-{
-	if (!dst)
-		Com_Error(ERR_FATAL, "Q_strncatz: NULL dst");
-
-	if (!src)
-		Com_Error(ERR_FATAL, "Q_strncatz: NULL src");
-
-	if (dstSize < 1)
-		Com_Error(ERR_FATAL, "Q_strncatz: dstSize < 1");
-
-	while (--dstSize && *dst)
-		dst++;
-
-	if (dstSize > 0){
-		while (--dstSize && *src)
-			*dst++ = *src++;
-
-		*dst = 0;
-	}
-}
-
 
 /*
 =================
@@ -632,8 +603,13 @@ NoExtFunction:
 					else
 						Q_strncatz(cpuString, " FX series", maxSize);
 					break;
-				case 2: // Vishera
-					Q_strncatz(cpuString, " FX series", maxSize);
+				case 2:
+					if (extModel == 2) // Vishera
+						Q_strncatz(cpuString, " FX series", maxSize);
+					break;
+				case 3:
+					if (extModel == 13)	// Richland
+						Q_strncatz(cpuString, " A series APU", maxSize);
 					break;
 				default:
 					Q_strncatz(cpuString, " FX series", maxSize);
@@ -779,6 +755,8 @@ NoExtFunction:
 				case 12:
 					if (intModel == 0x2C)	// Gulftown
 						Q_strncatz(cpuString, " Core i7 9xx", maxSize);
+					else if (extModel == 0x3C)	// Haswell
+						Q_strncatz(cpuString, "  Core i7 /i5 4xxx", maxSize);
 					else	// Silverthorne
 						Q_strncatz(cpuString, " Atom", maxSize);
 					break;

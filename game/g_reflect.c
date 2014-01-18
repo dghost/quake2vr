@@ -407,8 +407,8 @@ void AddReflection (edict_t *ent)
 			ent->reflection[i]->s.renderfx &= ~RF_IR_VISIBLE;
 		#ifdef KMQUAKE2_ENGINE_MOD
 			// Don't flip if left handed player model
-		//	if ( !(ent->s.modelindex == (MAX_MODELS-1) && hand->value == 1) )
-		//		ent->reflection[i]->s.renderfx |= RF_MIRRORMODEL; // Knightmare added- flip reflected models
+			if ( !(ent->s.modelindex == (MAX_MODELS-1) && hand->value == 1) )
+				ent->reflection[i]->s.renderfx |= RF_MIRRORMODEL; // Knightmare added- flip reflected models
 		#endif
 			VectorCopy (ent->s.angles, ent->reflection[i]->s.angles);
 			switch(i)

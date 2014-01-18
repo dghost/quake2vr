@@ -43,6 +43,7 @@ static menuslider_s		s_options_screen_crosshairalpha_slider;
 static menuslider_s		s_options_screen_crosshairpulse_slider;
 static menuslider_s		s_options_screen_hudscale_slider;
 static menuslider_s		s_options_screen_hudalpha_slider;
+static menulist_s		s_options_screen_hudsqueezedigits_box;
 static menulist_s		s_options_screen_fps_box;
 static menuaction_s		s_options_screen_defaults_action;
 static menuaction_s		s_options_screen_back_action;
@@ -74,6 +75,12 @@ static void HudScaleFunc( void *unused )
 static void HudAlphaFunc( void *unused )
 {
 	Cvar_SetValue( "hud_alpha", (s_options_screen_hudalpha_slider.curvalue-1)/10);
+}
+
+// hud squeeze digits option
+static void HudSqueezeDigitsFunc( void *unused )
+{
+	Cvar_SetValue( "hud_squeezedigits", s_options_screen_hudsqueezedigits_box.curvalue);
 }
 
 // FPS counter option
@@ -309,6 +316,9 @@ static void ScreenSetMenuItemValues( void )
 	Cvar_SetValue( "hud_alpha", ClampCvar( 0, 1, Cvar_VariableValue("hud_alpha") ) );
 	s_options_screen_hudalpha_slider.curvalue		= Cvar_VariableValue("hud_alpha")*10 + 1;
 
+	Cvar_SetValue( "hud_squeezedigits", ClampCvar( 0, 1, Cvar_VariableValue("hud_squeezedigits") ) );
+	s_options_screen_hudsqueezedigits_box.curvalue	= Cvar_VariableValue("hud_squeezedigits");
+
 	Cvar_SetValue( "cl_drawfps", ClampCvar( 0, 1, Cvar_VariableValue("cl_drawfps") ) );
 	s_options_screen_fps_box.curvalue				= Cvar_VariableValue("cl_drawfps");
 }
@@ -321,6 +331,7 @@ static void ScreenResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("crosshair_pulse");
 	Cvar_SetToDefault ("hud_scale");
 	Cvar_SetToDefault ("hud_alpha");
+	Cvar_SetToDefault ("hud_squeezedigits");
 	Cvar_SetToDefault ("cl_drawfps");
 
 	ScreenSetMenuItemValues();
@@ -403,6 +414,15 @@ void Options_Screen_MenuInit ( void )
 	s_options_screen_hudalpha_slider.maxvalue				= 11;
 	s_options_screen_hudalpha_slider.generic.statusbar		= "changes opacity of HUD elements";
 
+	// hud squeeze digits option
+	s_options_screen_hudsqueezedigits_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_screen_hudsqueezedigits_box.generic.x			= 0;
+	s_options_screen_hudsqueezedigits_box.generic.y			= y += MENU_LINE_SIZE;
+	s_options_screen_hudsqueezedigits_box.generic.name		= "status bar digit squeezing";
+	s_options_screen_hudsqueezedigits_box.generic.callback	= HudSqueezeDigitsFunc;
+	s_options_screen_hudsqueezedigits_box.itemnames			= yesno_names;
+	s_options_screen_hudsqueezedigits_box.generic.statusbar	= "enables showing of longer numbers on HUD";
+
 	s_options_screen_fps_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_screen_fps_box.generic.x					= 0;
 	s_options_screen_fps_box.generic.y					= y += 2*MENU_LINE_SIZE;
@@ -431,6 +451,7 @@ void Options_Screen_MenuInit ( void )
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_crosshairpulse_slider );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_hudscale_slider );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_hudalpha_slider );
+	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_hudsqueezedigits_box );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_fps_box );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_defaults_action );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_back_action );

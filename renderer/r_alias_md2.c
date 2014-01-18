@@ -173,7 +173,7 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 	else
 		R_LerpMD2Verts(paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv, 0);
 
-	R_SetVertexOverbrights (true); // added
+	R_SetVertexRGBScale (true); // added
 	R_SetShellBlend (true);
 
 	rb_vertex = rb_index = 0;
@@ -248,7 +248,7 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 	rb_vertex = rb_index = 0;
 
 	R_SetShellBlend (false);
-	R_SetVertexOverbrights (false); // added
+	R_SetVertexRGBScale (false); // added
 }
 
 
@@ -889,6 +889,9 @@ void R_DrawAliasMD2Model (entity_t *e)
 	}
 
 
+	if (mirrormodel)
+		R_FlipModel (true, false);
+
 
     glPushMatrix ();
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();	// roll is backwards
@@ -942,11 +945,9 @@ void R_DrawAliasMD2Model (entity_t *e)
 	GL_ShadeModel (GL_FLAT);
 
 	if (mirrormodel)
-		R_FlipModel(false);
+		R_FlipModel (false, false);
+
 	glPopMatrix ();
-
-
-
 	// show model bounding box
 	R_DrawAliasModelBBox (bbox, e);
 
@@ -1023,7 +1024,7 @@ void R_DrawAliasMD2ModelShadow (entity_t *e)
 	paliashdr = (dmdl_t *)currentmodel->extradata;
 
 //	if (mirrormodel)
-//		R_FlipModel(true);
+//		R_FlipModel (true, false);
 
 	if ( (e->frame >= paliashdr->num_frames) 
 		|| (e->frame < 0) )
@@ -1074,7 +1075,7 @@ void R_DrawAliasMD2ModelShadow (entity_t *e)
 	}*/
 
 //	if (mirrormodel)
-//		R_FlipModel(false);
+//		R_FlipModel (false, false);
 }
 #endif
 

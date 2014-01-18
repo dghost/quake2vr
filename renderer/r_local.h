@@ -79,6 +79,7 @@ typedef enum
 typedef struct image_s
 {
 	char		name[MAX_QPATH];			// game path, including extension
+	long		hash;						// to speed up searching
 	imagetype_t	type;
 	int			width, height;				// source image
 	int			upload_width, upload_height;	// after power of two and picmip
@@ -238,8 +239,8 @@ extern	cvar_t	*r_model_dlights;
 
 extern	cvar_t	*r_lightlevel;	// FIXME: This is a HACK to get the client's light level
 
-// Knightmare- added Vic's overbright rendering
-extern	cvar_t	*r_overbrightbits;
+// Knightmare- added Vic's RGB brightening
+extern	cvar_t	*r_rgbscale;
 
 // Knightmare- added Psychospaz's console font size option
 extern	cvar_t	*con_font;
@@ -254,6 +255,7 @@ extern	cvar_t	*r_ext_multitexture;
 extern	cvar_t	*r_ext_compiled_vertex_array;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
 extern	cvar_t	*r_newlightmapformat;	// Knightmare- whether to use new lightmap format
+
 extern	cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 extern	cvar_t	*r_arb_vertex_buffer_object;
 extern	cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
@@ -516,12 +518,12 @@ extern	float	shellFlowH, shellFlowV;
 
 void	R_ShadowLight (vec3_t pos, vec3_t lightAdd);
 void	R_SetShellBlend (qboolean toggle);
-void	R_SetVertexOverbrights (qboolean toggle);
+void	R_SetVertexRGBScale (qboolean toggle);
 qboolean FlowingShell (void);
 float	R_CalcEntAlpha (float alpha, vec3_t point);
 float	R_CalcShadowAlpha (entity_t *e);
 void	R_ShadowBlend (float alpha);
-void	R_FlipModel (qboolean on);
+void	R_FlipModel (qboolean on, qboolean cullOnly);
 void	R_SetBlendModeOn (image_t *skin);
 void	R_SetBlendModeOff (void);
 void	R_SetShadeLight (void);

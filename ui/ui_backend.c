@@ -1264,12 +1264,28 @@ void UI_Think_MouseCursor (void)
 UI_Draw_Cursor
 =================
 */
+#if 1
 void UI_Draw_Cursor (void)
 {
-	float alpha = 1, scale = SCR_ScaledVideo(1);
-	int w,h;
-	char *overlay = NULL;
-	char *cur_img = NULL;
+	int		w, h;
+	float	ofs_x, ofs_y;
+	float	scale = SCR_ScaledVideo(ui_cursor_scale->value); // 0.4
+	char	*cur_img = UI_MOUSECURSOR_PIC;
+
+	//get sizing vars
+	R_DrawGetPicSize( &w, &h, UI_MOUSECURSOR_PIC );
+	ofs_x = SCR_ScaledVideo(w) * ui_cursor_scale->value * 0.5;
+	ofs_y = SCR_ScaledVideo(h) * ui_cursor_scale->value * 0.5;
+	
+	R_DrawScaledPic (cursor.x - ofs_x, cursor.y - ofs_y, scale, 1.0f, cur_img);
+}
+#else
+void UI_Draw_Cursor (void)
+{
+	float	alpha = 1, scale = SCR_ScaledVideo(0.66);
+	int		w, h;
+	char	*overlay = NULL;
+	char	*cur_img = NULL;
 
 	if (m_drawfunc == M_Main_Draw)
 	{
@@ -1333,7 +1349,7 @@ void UI_Draw_Cursor (void)
 		}
 	}
 }
-
+#endif
 
 /*void UI_Draw_Cursor (void)
 {

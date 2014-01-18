@@ -201,22 +201,23 @@ void capColorVec (vec3_t color)
 
 /*
 =================
-R_SetVertexOverbrights
+R_SetVertexRGBScale
 =================
 */
-void R_SetVertexOverbrights (qboolean toggle)
+void R_SetVertexRGBScale (qboolean toggle)
 {
-	if (!r_overbrightbits->value)
+	if (!r_rgbscale->value)
 		return;
 
 	if (toggle) // turn on
 	{
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_rgbscale->value);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 		
 		GL_TexEnv(GL_COMBINE_ARB);
+
 	}
 	else // turn off
 	{
@@ -305,16 +306,22 @@ void R_SetShellBlend (qboolean toggle)
 R_FlipModel
 =================
 */
-void R_FlipModel (qboolean on)
+void R_FlipModel (qboolean on, qboolean cullOnly)
 {
+
+// TODO - optimize
+
 	if (on)
 	{
-		glScalef(1,-1,1);
+		if (!cullOnly)
+			glScalef(1,-1,1);
 		GL_CullFace( GL_BACK );
 
 	}
 	else
 	{
+		if (!cullOnly)
+			glScalef(1,-1,1);
 		GL_CullFace( GL_FRONT );
 
 	}

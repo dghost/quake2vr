@@ -1398,7 +1398,6 @@ void Swap_Init (void)
 }
 
 
-
 /*
 ============
 va
@@ -1779,6 +1778,33 @@ void Com_sprintf (char *dest, int size, char *fmt, ...)
 	if (len >= size)
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
 	strncpy (dest, bigbuffer, size-1);
+}
+
+/*
+=============
+Com_HashFileName
+=============
+*/
+long Com_HashFileName (const char *fname, int hashSize, qboolean sized)
+{
+	int		i = 0;
+	long	hash = 0;
+	char	letter;
+
+	if (fname[0] == '/' || fname[0] == '\\') i++;	// skip leading slash
+	while (fname[i] != '\0')
+	{
+		letter = tolower(fname[i]);
+	//	if (letter == '.') break;
+		if (letter == '\\') letter = '/';	// fix filepaths
+		hash += (long)(letter)*(i+119);
+		i++;
+	}
+	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
+	if (sized) {
+		hash &= (hashSize-1);
+	}
+	return hash;
 }
 
 /*

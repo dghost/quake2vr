@@ -86,7 +86,7 @@ void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count);
 void CL_ParticleBulletDecal(vec3_t org, vec3_t dir, float size);
 void CL_ParticlePlasmaBeamDecal(vec3_t org, vec3_t dir, float size);
 void CL_ParticleBlasterDecal (vec3_t org, vec3_t dir, float size, int red, int green, int blue);
-void CL_Explosion_Decal (vec3_t org, float size);
+void CL_Explosion_Decal (vec3_t org, float size, int decalnum);
 
 void CL_Explosion_Sparks (vec3_t org, int size, int count);
 void CL_BFGExplosionParticles (vec3_t org);
@@ -911,7 +911,7 @@ void CL_ParseTEnt (void)
 		}
 		CL_Explosion_Sparks (pos, 16, 128);
 		if (type != TE_EXPLOSION2)
-			CL_Explosion_Decal (pos, 50);
+			CL_Explosion_Decal (pos, 50, particle_burnmark);
 		if (type == TE_GRENADE_EXPLOSION_WATER)
 			S_StartSound (pos, 0, 0, clMedia.sfx_watrexp, 1, ATTN_NORM, 0);
 		else
@@ -943,7 +943,7 @@ void CL_ParseTEnt (void)
 			CL_Explosion_Flash (pos, 10, 50, true);
 		}
 		CL_Explosion_Sparks (pos, 16, 128);
-		CL_Explosion_Decal (pos, 50);
+		CL_Explosion_Decal (pos, 50, particle_burnmark);
 		if (cl_plasma_explo_sound->value)
 			S_StartSound (pos, 0, 0, clMedia.sfx_plasexp, 1, ATTN_NORM, 0);
 		else
@@ -1032,7 +1032,7 @@ void CL_ParseTEnt (void)
 		}
 		CL_Explosion_Sparks (pos, 16, 128);
 		if (type == TE_ROCKET_EXPLOSION || type == TE_ROCKET_EXPLOSION_WATER)
-			CL_Explosion_Decal (pos, 50);
+			CL_Explosion_Decal (pos, 50, particle_burnmark);
 		if (type == TE_ROCKET_EXPLOSION_WATER)
 			S_StartSound (pos, 0, 0, clMedia.sfx_watrexp, 1, ATTN_NORM, 0);
 		else
@@ -1059,6 +1059,7 @@ void CL_ParseTEnt (void)
 	case TE_BFG_BIGEXPLOSION:
 		MSG_ReadPos (&net_message, pos);
 		CL_BFGExplosionParticles (pos);
+		CL_Explosion_Decal (pos, 75, particle_bfgmark);
 		break;
 
 	case TE_BFG_LASER:
@@ -1343,6 +1344,7 @@ void CL_ParseTEnt (void)
 		CL_ColorFlash (pos, 0, 150, -1, -1, -1);
 	//	CL_ColorExplosionParticles (pos, 0, 1);
 		CL_Tracker_Explode (pos);
+		CL_Explosion_Decal (pos, 14, particle_trackermark);
 		S_StartSound (pos, 0, 0, clMedia.sfx_disrexp, 1, ATTN_NORM, 0);
 		break;
 

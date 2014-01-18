@@ -1532,6 +1532,8 @@ void CL_InitLocal (void)
 
 	Cmd_AddCommand ("download", CL_Download_f);
 
+	Cmd_AddCommand ("writeconfig", CL_WriteConfig_f);
+
 	Cmd_AddCommand ("aacskey", CL_AACSkey_f);
 
 	//
@@ -1570,7 +1572,7 @@ CL_WriteConfiguration
 Writes key bindings and archived cvars to config.cfg
 ===============
 */
-void CL_WriteConfiguration (void)
+void CL_WriteConfiguration (char *cfgName)
 {
 	FILE	*f;
 	char	path[MAX_QPATH];
@@ -1580,12 +1582,14 @@ void CL_WriteConfiguration (void)
 
 	// Knightmare changed- use separate config for better cohabitation
 	//Com_sprintf (path, sizeof(path),"%s/config.cfg",FS_Gamedir());
-	Com_sprintf (path, sizeof(path),"%s/kmq2config.cfg",FS_Gamedir());
+//	Com_sprintf (path, sizeof(path),"%s/kmq2config.cfg",FS_Gamedir());
+	Com_sprintf (path, sizeof(path),"%s/%s.cfg", FS_Gamedir(), cfgName);
 	f = fopen (path, "w");
 	if (!f)
 	{	// Knightmare changed- use separate config for better cohabitation
 		//Com_Printf ("Couldn't write config.cfg.\n");
-		Com_Printf ("Couldn't write kmq2config.cfg.\n");
+	//	Com_Printf ("Couldn't write kmq2config.cfg.\n");
+		Com_Printf ("Couldn't write %s.cfg.\n", cfgName);
 		return;
 	}
 
@@ -1595,6 +1599,31 @@ void CL_WriteConfiguration (void)
 	fclose (f);
 
 	Cvar_WriteVariables (path);
+}
+
+
+/*
+===============
+CL_WriteConfig_f
+
+===============
+*/
+void CL_WriteConfig_f (void)
+{
+	char cfgName[MAX_QPATH];
+
+	if (Cmd_Argc() == 1 || Cmd_Argc() == 2)
+	{
+		if (Cmd_Argc() == 1)
+			Com_sprintf (cfgName, sizeof(cfgName), "kmq2config");
+		else // if (Cmd_Argc() == 2)
+			strncpy (cfgName, Cmd_Argv(1), sizeof(cfgName));
+
+		CL_WriteConfiguration (cfgName);
+		Com_Printf ("Wrote config file %s/%s.cfg.\n", FS_Gamedir(), cfgName);
+	}
+	else
+		Com_Printf ("Usage: writeconfig <name>\n");
 }
 
 
@@ -1850,7 +1879,7 @@ void CL_Shutdown (void)
 	}
 	isdown = true;
 
-	CL_WriteConfiguration (); 
+	CL_WriteConfiguration ("kmq2config"); 
 
 	CDAudio_Shutdown ();
 

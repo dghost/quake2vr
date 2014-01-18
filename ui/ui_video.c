@@ -130,7 +130,7 @@ static void ResetVideoDefaults ( void *unused )
 
 	Cvar_SetToDefault ("r_modulate");
 	Cvar_SetToDefault ("r_intensity");
-	Cvar_SetToDefault ("r_overbrightbits");
+	Cvar_SetToDefault ("r_rgbscale");
 	Cvar_SetToDefault ("r_trans_lighting");
 	Cvar_SetToDefault ("r_warp_lighting");
 	Cvar_SetToDefault ("r_lightcutoff");

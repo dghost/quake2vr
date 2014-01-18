@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client/client.h"
 #include "ui_local.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define	MAX_SAVEGAMES	21 // was 15
 
@@ -48,65 +50,107 @@ SAVESHOT HANDLING
 
 char		m_savestrings[MAX_SAVEGAMES][32];
 qboolean	m_savevalid[MAX_SAVEGAMES];
+time_t		m_savetimestamps[MAX_SAVEGAMES];
+qboolean	m_savechanged[MAX_SAVEGAMES];
 qboolean	m_saveshotvalid[MAX_SAVEGAMES+1];
 
 char		m_mapname[MAX_QPATH];
-qboolean	m_mapshotvalid;
+//qboolean	m_mapshotvalid;
 
-void Create_Savestrings (void)
+void Load_Savestrings (qboolean update)
 {
 	int		i;
+	FILE	*fp;
 	fileHandle_t	f;
 	char	name[MAX_OSPATH];
 	char	mapname[MAX_TOKEN_CHARS];
 	char	*ch;
+	time_t	old_timestamp;
+	struct	stat	st;
 
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
-		Com_sprintf (name, sizeof(name), "save/kmq2save%i/server.ssv", i);
-		FS_FOpenFile (name, &f, FS_READ);
-		if (!f)
-		{
-			//Com_Printf("Save file %s not found.\n", name);
+		Com_sprintf (name, sizeof(name), "%s/save/kmq2save%i/server.ssv", FS_Gamedir(), i);
+
+		old_timestamp = m_savetimestamps[i];
+		stat(name, &st);
+		m_savetimestamps[i] = st.st_mtime;
+
+		// doesn't need to be refreshed
+		if ( update && m_savetimestamps[i] == old_timestamp ) {
+			m_savechanged[i] = false;
+			continue;
+		}
+
+		fp = fopen (name, "rb");
+		if (!fp) {
+		//	Com_Printf("Save file %s not found.\n", name);
 			strcpy (m_savestrings[i], "<EMPTY>");
 			m_savevalid[i] = false;
+			m_savetimestamps[i] = 0;
 		}
 		else
 		{
-			FS_Read (m_savestrings[i], sizeof(m_savestrings[i]), f);
-
-			if (i==0) { // grab mapname
-				FS_Read (mapname, sizeof(mapname), f);
-				if (mapname[0] == '*') // skip * marker
-					Com_sprintf (m_mapname, sizeof(m_mapname), mapname+1);
-				else
-					Com_sprintf (m_mapname, sizeof(m_mapname), mapname);
-				if (ch = strchr (m_mapname, '$'))
-					*ch = 0; // terminate string at $ marker
+			fclose (fp);
+			Com_sprintf (name, sizeof(name), "save/kmq2save%i/server.ssv", i);
+			FS_FOpenFile (name, &f, FS_READ);
+			if (!f)
+			{
+				//Com_Printf("Save file %s not found.\n", name);
+				strcpy (m_savestrings[i], "<EMPTY>");
+				m_savevalid[i] = false;
+				m_savetimestamps[i] = 0;
 			}
-			FS_FCloseFile(f);
-			m_savevalid[i] = true;
+			else
+			{
+				FS_Read (m_savestrings[i], sizeof(m_savestrings[i]), f);
+
+				if (i==0) { // grab mapname
+					FS_Read (mapname, sizeof(mapname), f);
+					if (mapname[0] == '*') // skip * marker
+						Com_sprintf (m_mapname, sizeof(m_mapname), mapname+1);
+					else
+						Com_sprintf (m_mapname, sizeof(m_mapname), mapname);
+					if (ch = strchr (m_mapname, '$'))
+						*ch = 0; // terminate string at $ marker
+				}
+				FS_FCloseFile(f);
+				m_savevalid[i] = true;
+			}
 		}
+		m_savechanged[i] = (m_savetimestamps[i] != old_timestamp);
 	}
 }
 
-void InitSaveshots (qboolean loadmenu)
+void ValidateSaveshots (void)
 {
 	int i;
 	char shotname [MAX_QPATH];
-	char mapshotname [MAX_QPATH];
+//	char mapshotname [MAX_QPATH];
 
-	for ( i = 1; i < MAX_SAVEGAMES; i++ )
-	{	// free previously loaded shots
-		Com_sprintf(shotname, sizeof(shotname), "save/kmq2save%i/shot.jpg", i);
-		R_FreePic (shotname);
-		Com_sprintf(shotname, sizeof(shotname), "/save/kmq2save%i/shot.jpg", i);
-		if (R_DrawFindPic(shotname))
-			m_saveshotvalid[i] = true;
+	for ( i = 0; i < MAX_SAVEGAMES; i++ )
+	{
+		if ( !m_savechanged[i] )	// doeesn't need to be reloaded
+			continue;
+		if ( m_savevalid[i] )
+		{
+			if (i == 0)
+				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
+			else
+			{	// free previously loaded shots
+				Com_sprintf(shotname, sizeof(shotname), "save/kmq2save%i/shot.jpg", i);
+				R_FreePic (shotname);
+				Com_sprintf(shotname, sizeof(shotname), "/save/kmq2save%i/shot.jpg", i);
+			}
+			if (R_DrawFindPic(shotname))
+				m_saveshotvalid[i] = true;
+			else
+				m_saveshotvalid[i] = false;
+		}
 		else
 			m_saveshotvalid[i] = false;
 	}
-	if (loadmenu)
+/*	if (loadmenu)
 	{	// register mapshot for autosave
 		if (m_savevalid[0]) {
 			Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.pcx", m_mapname);
@@ -118,12 +162,40 @@ void InitSaveshots (qboolean loadmenu)
 		else
 			m_mapshotvalid = false;
 	}
-	// register null saveshot
+
+	// register null saveshot, this is only done once
+	if (R_DrawFindPic("/gfx/ui/noscreen.pcx"))
+		m_saveshotvalid[MAX_SAVEGAMES] = true;
+	else
+		m_saveshotvalid[MAX_SAVEGAMES] = false;
+*/
+}
+
+void UI_UpdateSavegameData (void)
+{
+	Load_Savestrings (true);
+	ValidateSaveshots ();	// register saveshots
+}
+
+void UI_InitSavegameData (void)
+{
+	int		i;
+
+	for (i=0; i<MAX_SAVEGAMES; i++) {
+		m_savetimestamps[i] = 0;
+		m_savechanged[i] = true;
+	}
+
+	Load_Savestrings (false);
+	ValidateSaveshots ();	// register saveshots
+
+	// register null saveshot, this is only done once
 	if (R_DrawFindPic("/gfx/ui/noscreen.pcx"))
 		m_saveshotvalid[MAX_SAVEGAMES] = true;
 	else
 		m_saveshotvalid[MAX_SAVEGAMES] = false;
 }
+
 
 void DrawSaveshot (qboolean loadmenu)
 {
@@ -143,7 +215,7 @@ void DrawSaveshot (qboolean loadmenu)
 
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, shotname, 1.0);
 	}
-	else if ( loadmenu && i==0 && m_savevalid[i] && m_mapshotvalid ) // autosave shows mapshot
+	else if ( loadmenu && i==0 && m_savevalid[i] && m_saveshotvalid[0])	// m_mapshotvalid ) // autosave shows mapshot
 	{
 		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.pcx", m_mapname);
 
@@ -187,11 +259,13 @@ void LoadGame_MenuInit ( void )
 {
 	int i;
 
+	UI_UpdateSavegameData ();
+
 	s_loadgame_menu.x = SCREEN_WIDTH*0.5 - 240;
 	s_loadgame_menu.y = SCREEN_HEIGHT*0.5 - 58;
 	s_loadgame_menu.nitems = 0;
 
-	Create_Savestrings();
+//	Load_Savestrings ();
 
 	for ( i = 0; i < MAX_SAVEGAMES; i++ )
 	{
@@ -219,7 +293,7 @@ void LoadGame_MenuInit ( void )
 
 	Menu_AddItem( &s_loadgame_menu, &s_loadgame_back_action );
 
-	InitSaveshots (true); // register saveshots
+//	ValidateSaveshots (true); // register saveshots
 }
 
 void LoadGame_MenuDraw( void )
@@ -276,11 +350,13 @@ void SaveGame_MenuInit( void )
 {
 	int i;
 
+	UI_UpdateSavegameData ();
+
 	s_savegame_menu.x = SCREEN_WIDTH*0.5 - 240;
 	s_savegame_menu.y = SCREEN_HEIGHT*0.5 - 58;
 	s_savegame_menu.nitems = 0;
 
-	Create_Savestrings();
+//	Load_Savestrings ();
 
 	// don't include the autosave slot
 	for ( i = 0; i < MAX_SAVEGAMES-1; i++ )
@@ -306,8 +382,7 @@ void SaveGame_MenuInit( void )
 
 	Menu_AddItem( &s_savegame_menu, &s_savegame_back_action );
 
-
-	InitSaveshots (false);
+//	ValidateSaveshots (false);
 }
 
 const char *SaveGame_MenuKey( int key )
@@ -328,5 +403,5 @@ void M_Menu_SaveGame_f (void)
 
 	SaveGame_MenuInit();
 	UI_PushMenu( SaveGame_MenuDraw, SaveGame_MenuKey );
-	Create_Savestrings ();
+//	Load_Savestrings ();
 }

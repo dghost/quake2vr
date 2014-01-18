@@ -146,16 +146,16 @@ void CL_LightningBeam (vec3_t start, vec3_t end, int srcEnt, int dstEnt, float s
 CL_Explosion_Decal
 ===============
 */
-void CL_Explosion_Decal (vec3_t org, float size)
+void CL_Explosion_Decal (vec3_t org, float size, int decalnum)
 {
 	if (r_decals->value)
 	{
-		int i, j;
-		cparticle_t *p;
-		vec3_t angle[6], ang;
-		trace_t	trace1, trace2;
-		vec3_t end1, end2, normal, sorg, dorg;
-		vec3_t	planenormals[6];
+		int			i, j, offset=8;	//size/2
+		cparticle_t	*p;
+		vec3_t		angle[6], ang;
+		trace_t		trace1, trace2;
+		vec3_t		end1, end2, normal, sorg, dorg;
+		vec3_t		planenormals[6];
 
 		VectorSet(angle[0], -1, 0, 0);
 		VectorSet(angle[1], 1, 0, 0);
@@ -166,8 +166,8 @@ void CL_Explosion_Decal (vec3_t org, float size)
 
 		for (i=0; i<6; i++)
 		{
-			VectorMA(org, -2, angle[i], sorg); // move origin 2 units back
-			VectorMA(sorg, size/2, angle[i], end1);
+			VectorMA(org, -offset, angle[i], sorg); // move origin 8 units back
+			VectorMA(sorg, size/2+offset, angle[i], end1);
 			trace1 = CL_Trace (sorg, end1, 0, CONTENTS_SOLID);
 			if (trace1.fraction < 1) // hit a surface
 			{	// make sure we haven't hit this plane before
@@ -196,7 +196,7 @@ void CL_Explosion_Decal (vec3_t org, float size)
 					1,		-1/r_decal_life->value,
 					GL_ZERO, GL_ONE_MINUS_SRC_ALPHA,
 					size,		0,			
-					particle_burnmark,
+					decalnum, // particle_burnmark
 					PART_SHADED|PART_DECAL|PART_ALPHACOLOR,
 					CL_DecalAlphaThink, true);
 			}

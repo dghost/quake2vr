@@ -315,3 +315,5 @@ void	Hunk_Free (void *base);
 
 void	Mod_FreeAll (void);
 void	Mod_Free (model_t *mod);
+
+extern qboolean	registration_active;	// map registration flag

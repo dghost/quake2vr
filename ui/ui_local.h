@@ -201,10 +201,24 @@ void	UI_Draw_Cursor (void);
 
 // menu_main.c
 
-#define NUM_CURSOR_FRAMES 15
+#define NUM_MAINMENU_CURSOR_FRAMES 15
 
 #define MOUSEBUTTON1 0
 #define MOUSEBUTTON2 1
+
+#define LOADSCREEN_NAME		"/gfx/ui/unknownmap.pcx"
+#define UI_BACKGROUND_NAME	"/gfx/ui/menu_background.pcx"
+#define UI_NOSCREEN_NAME	"/gfx/ui/noscreen.pcx"
+
+#define UI_MOUSECURSOR_MAIN_PIC		"/gfx/ui/cursors/m_cur_main.pcx"
+#define UI_MOUSECURSOR_HOVER_PIC	"/gfx/ui/cursors/m_cur_hover.pcx"
+#define UI_MOUSECURSOR_CLICK_PIC	"/gfx/ui/cursors/m_cur_click.pcx"
+#define UI_MOUSECURSOR_OVER_PIC		"/gfx/ui/cursors/m_cur_over.pcx"
+#define UI_MOUSECURSOR_TEXT_PIC		"/gfx/ui/cursors/m_cur_text.pcx"
+
+#define UI_MOUSECURSOR_PIC			"/gfx/ui/cursors/m_mouse_cursor.pcx"
+
+extern	cvar_t	*ui_cursor_scale;
 
 static char *menu_in_sound		= "misc/menu1.wav";
 static char *menu_move_sound	= "misc/menu2.wav";
@@ -268,7 +282,10 @@ const char *Default_MenuKey( menuframework_s *m, int key );
 void M_Main_Draw (void);
 void UI_CheckMainMenuMouse (void);
 
-// ui_credists.c
+// ui_game_saveload.c
+void UI_InitSavegameData (void);
+
+// ui_credits.c
 void M_Credits_MenuDraw (void);
 
 // ui_options_screen.c

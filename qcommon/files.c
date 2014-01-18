@@ -21,6 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.h"
 #include "include/unzip.h"
 
+// enables faster binary pak searck, still experimental
+#define BINARY_PACK_SEARCH
+
+
 #pragma warning (disable : 4715)
 
 /*
@@ -83,6 +87,7 @@ typedef struct fsLink_s {
 
 typedef struct {
 	char			name[MAX_QPATH];
+	long			hash;				// To speed up searching
 	int				size;
 	int				offset;				// This is ignored in PK3 files
 	qboolean		ignore;				// Whether this file should be ignored
@@ -94,6 +99,7 @@ typedef struct {
 	unzFile			*pk3;
 	int				numFiles;
 	fsPackFile_t	*files;
+	unsigned int	contentFlags;
 } fsPack_t;
 
 typedef struct fsSearchPath_s {
@@ -125,29 +131,8 @@ cvar_t	*fs_debug;
 
 
 void CDAudio_Stop (void);
+void Com_FileExtension (const char *path, char *dst, int dstSize);
 
-
-/*
-=================
-Q_strncpyz
-
-Safe strncpy that ensures a trailing zero
-=================
-*/
-void Q_strncpyz (char *dst, const char *src, int dstSize){
-
-	if (!dst)
-		Com_Error(ERR_FATAL, "Q_strncpyz: NULL dst");
-
-	if (!src)
-		Com_Error(ERR_FATAL, "Q_strncpyz: NULL src");
-
-	if (dstSize < 1)
-		Com_Error(ERR_FATAL, "Q_strncpyz: dstSize < 1");
-
-	strncpy(dst, src, dstSize-1);
-	dst[dstSize-1] = 0;
-}
 
 /*
 =================
@@ -172,12 +157,79 @@ void Com_FilePath (const char *path, char *dst, int dstSize){
 }
 
 
+char *type_extensions[] =
+{
+	"bsp",
+	"md2",
+	"md3",
+	"sp2",
+	"dm2",
+	"cin",
+	"roq",
+	"wav",
+	"ogg",
+	"pcx",
+	"wal",
+	"tga",
+	"jpg",
+	"png",
+	"cfg",
+	"txt",
+	"def",
+	"alias",
+	"arena",
+	"script",
+//	"shader",
+	"hud",
+//	"menu",
+//	"efx",
+	0
+};
+
+/*
+=================
+FS_TypeFlagForPakItem
+Returns bit flag based on pak item's extension.
+=================
+*/
+unsigned int FS_TypeFlagForPakItem (char *itemName)
+{
+	int		i;	
+	char	extension[8];
+
+	Com_FileExtension (itemName, extension, sizeof(extension));
+	for (i=0; type_extensions[i]; i++) {
+		if ( !Q_stricmp(extension, type_extensions[i]) )
+			return (1<<i);
+	}
+	return 0;
+}
+
+
+/*
+=================
+FS_FileLength
+=================
+*/
+int FS_FileLength (FILE *f)
+{
+	int cur, end;
+
+	cur = ftell(f);
+	fseek(f, 0, SEEK_END);
+	end = ftell(f);
+	fseek(f, cur, SEEK_SET);
+
+	return end;
+}
+
+#if 0
 /*
 ================
-FS_filelength
+FS_Filelength
 ================
 */
-int FS_filelength (FILE *f)
+int FS_Filelength (FILE *f)
 {
 	int		pos;
 	int		end;
@@ -189,6 +241,7 @@ int FS_filelength (FILE *f)
 
 	return end;
 }
+#endif
 
 
 /*
@@ -369,24 +422,57 @@ fsHandle_t *FS_GetFileByHandle (fileHandle_t f)
 	return &fs_handles[f-1];
 }
 
-
+#ifdef BINARY_PACK_SEARCH
 /*
 =================
-FS_FileLength
+FS_FindPackItem
+
+Performs a binary search by hashed filename
+to find pack items in a sorted pack
 =================
 */
-int FS_FileLength (FILE *f)
+int FS_FindPackItem (fsPack_t *pack, char *itemName, long itemHash)
 {
-	int cur, end;
+	int		smax, smin, smidpt;	//, counter = 0;
+	int		i;	//, matchStart, matchEnd;
 
-	cur = ftell(f);
-	fseek(f, 0, SEEK_END);
-	end = ftell(f);
-	fseek(f, cur, SEEK_SET);
+	// catch null pointers
+	if ( !pack || !itemName )
+		return -1;
 
-	return end;
+	smin = 0;	smax = pack->numFiles;
+	while ( (smax - smin) > 5 )	//&& counter < pack->numFiles )
+	{
+		smidpt = (smax + smin) / 2;
+		if (pack->files[smidpt].hash > itemHash)	// before midpoint
+			smax = smidpt;
+		else if (pack->files[smidpt].hash < itemHash)	// after midpoint
+			smin = smidpt;
+		else	// pack->files[smidpt].hash == itemHash
+			break;
+	//	counter++;
+	}
+	for (i=smin; i<smax; i++)
+	{	// make sure this entry is not blacklisted & compare filenames
+		if ( pack->files[i].hash == itemHash && !pack->files[i].ignore
+			&& !Q_stricmp(pack->files[i].name, itemName) )
+			return i;
+	}
+	// found a match, scan for identical hashes
+/*	if (pack->files[smidpt].hash == itemHash)
+	{
+		for (matchStart = smidpt-1; matchStart >= 0 && pack->files[matchStart].hash == itemHash; matchStart--);
+		for (matchEnd = smidpt+1; matchEnd < pack->numFiles && pack->files[matchEnd].hash == itemHash; matchEnd++);
+		for (i = matchStart; i < matchEnd; i++)
+		{	// make sure this entry is not blacklisted & compare filenames
+			if ( pack->files[i].hash == itemHash && !pack->files[i].ignore
+				&& !Q_stricmp(pack->files[i].name, itemName) )
+				return i;
+		}
+	}*/
+	return -1;
 }
-
+#endif	// BINARY_PACK_SEARCH
 
 /*
 =================
@@ -463,12 +549,16 @@ int FS_FOpenFileRead (fsHandle_t *handle)
 	fsSearchPath_t	*search;
 	fsPack_t		*pack;
 	char			path[MAX_OSPATH];
+	long			hash;
 	int				i;
+	unsigned int	typeFlag;
 
 	// Knightmare- hack global vars for autodownloads
 	file_from_pak = 0;
 	file_from_pk3 = 0;
-	sprintf(last_pk3_name, "\0");
+	Com_sprintf(last_pk3_name, sizeof(last_pk3_name), "\0");
+	hash = Com_HashFileName(handle->name, 0, false);
+	typeFlag = FS_TypeFlagForPakItem(handle->name);
 
 	// Search through the path, one element at a time
 	for (search = fs_searchPaths; search; search = search->next)
@@ -477,10 +567,26 @@ int FS_FOpenFileRead (fsHandle_t *handle)
 		{	// Search inside a pack file
 			pack = search->pack;
 
+			// skip if pack doesn't contain this type of file
+			if ((typeFlag != 0)) {
+				if (!(pack->contentFlags & typeFlag))
+					continue;
+			}
+
+#ifdef BINARY_PACK_SEARCH
+			// find index of pack item
+			i = FS_FindPackItem (pack, handle->name, hash);
+			// found it!
+			if ( i != -1 && i >= 0 && i < pack->numFiles )
+			{
+#else
 			for (i = 0; i < pack->numFiles; i++)
 			{
 				if (pack->files[i].ignore)	// skip blacklisted files
 					continue;
+				if (hash != pack->files[i].hash)	// compare hash first
+					continue;
+#endif	// 	BINARY_PACK_SEARCH
 				if (!Q_stricmp(pack->files[i].name, handle->name))
 				{
 					// Found it!
@@ -504,7 +610,7 @@ int FS_FOpenFileRead (fsHandle_t *handle)
 					else if (pack->pk3)
 					{	// PK3
 						file_from_pk3 = 1; // Knightmare added
-						sprintf(last_pk3_name, strrchr(pack->name, '/')+1); // Knightmare added
+						Com_sprintf(last_pk3_name, sizeof(last_pk3_name), strrchr(pack->name, '/')+1); // Knightmare added
 						handle->zip = unzOpen(pack->name);
 						if (handle->zip)
 						{
@@ -520,6 +626,8 @@ int FS_FOpenFileRead (fsHandle_t *handle)
 
 					Com_Error(ERR_FATAL, "Couldn't reopen %s", pack->name);
 				}
+				else
+					Com_Printf("FS_FOpenFileRead: different filenames with identical hash (%s, %s)!\n", pack->files[i].name, handle->name);
 			}
 		}
 		else
@@ -1081,6 +1189,25 @@ qboolean FS_FileInPakBlacklist (char *filename, qboolean isPk3)
 }
 
 
+#ifdef BINARY_PACK_SEARCH
+/*
+=================
+FS_PakFileCompare
+ 
+Used for sorting pak entries by hash
+=================
+*/
+long *nameHashes = NULL;
+int FS_PakFileCompare (const void *f1, const void *f2)
+{
+	if (!nameHashes)
+		return 1;
+
+	return (nameHashes[*((int *)(f1))] - nameHashes[*((int *)(f2))]);
+}
+#endif	// BINARY_PACK_SEARCH
+
+
 /*
 =================
 FS_LoadPAK
@@ -1099,6 +1226,11 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	FILE			*handle;
 	dpackheader_t		header;
 	dpackfile_t		info[MAX_FILES_IN_PACK];
+	unsigned		contentFlags = 0;
+#ifdef BINARY_PACK_SEARCH
+	int				*sortIndices;
+	long			*sortHashes;
+#endif	// BINARY_PACK_SEARCH
 
 	handle = fopen(packPath, "rb");
 	if (!handle)
@@ -1127,14 +1259,46 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	fseek(handle, header.dirofs, SEEK_SET);
 	fread(info, 1, header.dirlen, handle);
 
+#ifdef BINARY_PACK_SEARCH
+	// create sort table
+	sortIndices = Z_Malloc(numFiles * sizeof(int));
+	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
+	nameHashes = sortHashes;
+	for (i = 0; i < numFiles; i++)
+	{
+		sortIndices[i] = i;
+		sortHashes[i] = Com_HashFileName(info[i].name, 0, false);
+	}
+	qsort((void *)sortIndices, numFiles, sizeof(int), FS_PakFileCompare);
+
 	// Parse the directory
 	for (i = 0; i < numFiles; i++)
 	{
+		strcpy(files[i].name, info[sortIndices[i]].name);
+		files[i].hash = sortHashes[sortIndices[i]];
+		files[i].offset = LittleLong(info[sortIndices[i]].filepos);
+		files[i].size = LittleLong(info[sortIndices[i]].filelen);
+		files[i].ignore = FS_FileInPakBlacklist(files[i].name, false);	// check against pak loading blacklist
+		if (!files[i].ignore)	// add type flag for this file
+			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
+	}
+
+	// free sort table
+	Z_Free (sortIndices);
+	Z_Free (sortHashes);
+	nameHashes = NULL;
+#else	// Parse the directory
+	for (i = 0; i < numFiles; i++)
+	{
 		strcpy(files[i].name, info[i].name);
+		files[i].hash = Com_HashFileName(info[i].name, 0, false);	// Added to speed up seaching
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].ignore = FS_FileInPakBlacklist(info[i].name, false);	// check against pak loading blacklist
+		if (!files[i].ignore)	// add type flag for this file
+			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
 	}
+#endif	// BINARY_PACK_SEARCH
 
 	pack = Z_Malloc(sizeof(fsPack_t));
 	strcpy(pack->name, packPath);
@@ -1142,6 +1306,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	pack->pk3 = NULL;
 	pack->numFiles = numFiles;
 	pack->files = files;
+	pack->contentFlags = contentFlags;
 
 	return pack;
 }
@@ -1186,7 +1351,13 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	unz_global_info	global;
 	unz_file_info	info;
 	int				status;
+	unsigned		contentFlags = 0;
 	char			fileName[MAX_QPATH];
+#ifdef BINARY_PACK_SEARCH
+	fsPackFile_t	*tmpFiles;
+	int				*sortIndices;
+	long			*sortHashes;
+#endif	// BINARY_PACK_SEARCH
 
 	handle = unzOpen(packPath);
 	if (!handle)
@@ -1205,7 +1376,48 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	}
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
+#ifdef BINARY_PACK_SEARCH
+	// create sort table
+	tmpFiles = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+	sortIndices = Z_Malloc(numFiles * sizeof(int));
+	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
+	nameHashes = sortHashes;	
+
 	// Parse the directory
+	status = unzGoToFirstFile(handle);
+	while (status == UNZ_OK)
+	{
+		fileName[0] = 0;
+		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
+		sortIndices[i] = i;
+		strcpy(tmpFiles[i].name, fileName);
+		tmpFiles[i].hash = sortHashes[i] = Com_HashFileName(fileName, 0, false);	// Added to speed up seaching
+		tmpFiles[i].offset = -1;		// Not used in ZIP files
+		tmpFiles[i].size = info.uncompressed_size;
+		tmpFiles[i].ignore = FS_FileInPakBlacklist(fileName, true);	// check against pak loading blacklist
+		if (!tmpFiles[i].ignore)	// add type flag for this file
+			contentFlags |= FS_TypeFlagForPakItem(tmpFiles[i].name);
+		i++;
+		status = unzGoToNextFile(handle);
+	}
+
+	// sort by hash and copy to final file table
+	qsort((void *)sortIndices, numFiles, sizeof(int), FS_PakFileCompare);
+	for (i=0; i < numFiles; i++)
+	{
+		strcpy(files[i].name, tmpFiles[sortIndices[i]].name);
+		files[i].hash = tmpFiles[sortIndices[i]].hash;
+		files[i].offset = tmpFiles[sortIndices[i]].offset;
+		files[i].size = tmpFiles[sortIndices[i]].size;
+		files[i].ignore = tmpFiles[sortIndices[i]].ignore;
+	}
+
+	// free sort table
+	Z_Free (tmpFiles);
+	Z_Free (sortIndices);
+	Z_Free (sortHashes);
+	nameHashes = NULL;
+#else	// Parse the directory
 	status = unzGoToFirstFile(handle);
 	while (status == UNZ_OK)
 	{
@@ -1213,19 +1425,25 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
 
 		strcpy(files[i].name, fileName);
+		files[i].hash = Com_HashFileName(fileName, 0, false);	// Added to speed up seaching
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
 		files[i].ignore = FS_FileInPakBlacklist(fileName, true);	// check against pak loading blacklist
+		if (!files[i].ignore)	// add type flag for this file
+			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
 		i++;
 
 		status = unzGoToNextFile(handle);
 	}
+#endif	// BINARY_PACK_SEARCH
+
 	pack = Z_Malloc(sizeof(fsPack_t));
 	strcpy(pack->name, packPath);
 	pack->pak = NULL;
 	pack->pk3 = handle;
 	pack->numFiles = numFiles;
 	pack->files = files;
+	pack->contentFlags = contentFlags;
 
 	return pack;
 }

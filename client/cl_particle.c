@@ -63,14 +63,16 @@ void CL_SetParticleImages (void)
 //	R_SetParticlePicture(particle_dexplosion2,	"gfx/particles/d_explod_2.tga");
 //	R_SetParticlePicture(particle_dexplosion3,	"gfx/particles/d_explod_3.tga");
 
-	R_SetParticlePicture(particle_bulletmark,	"gfx/decals/bulletmark.tga");
-	R_SetParticlePicture(particle_shadow,		"gfx/decals/shadow.tga");
+	R_SetParticlePicture(particle_bfgmark,		"gfx/decals/bfgmark.tga");
 	R_SetParticlePicture(particle_burnmark,		"gfx/decals/burnmark.tga");
 	R_SetParticlePicture(particle_blooddecal1,	"gfx/decals/blood_1.tga");
 	R_SetParticlePicture(particle_blooddecal2,	"gfx/decals/blood_2.tga");
 	R_SetParticlePicture(particle_blooddecal3,	"gfx/decals/blood_3.tga");
 	R_SetParticlePicture(particle_blooddecal4,	"gfx/decals/blood_4.tga");
 	R_SetParticlePicture(particle_blooddecal5,	"gfx/decals/blood_5.tga");
+	R_SetParticlePicture(particle_shadow,		"gfx/decals/shadow.tga");
+	R_SetParticlePicture(particle_bulletmark,	"gfx/decals/bulletmark.tga");
+	R_SetParticlePicture(particle_trackermark,	"gfx/decals/trackermark.tga");
 //	R_SetParticlePicture(particle_footprint,	"gfx/decals/footprint.tga");
 }
 

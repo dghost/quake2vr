@@ -261,25 +261,38 @@ void R_ScaledScreenshot (char *name)
 	JSAMPROW						s[1];
 	FILE							*file;
 	char							shotname[MAX_OSPATH];
-	int								saveshotsize, offset;
+	int								saveshotWidth, saveshotHeight, offset;
 	byte							*jpgdata;
 
 	if (!saveshotdata)	return;
 
 	// Optional hi-res saveshots
-	if (r_saveshotsize->value && (vid.width >= 1024) && (vid.height >= 1024))
+	saveshotWidth = saveshotHeight = 256;
+	if (r_saveshotsize->value)
+	{
+		if (vid.width >= 1024)
+			saveshotWidth = 1024;
+		else if (vid.width >= 512)
+			saveshotWidth = 512;
+
+		if (vid.height >= 1024)
+			saveshotHeight = 1024;
+		else if (vid.height >= 512)
+			saveshotHeight = 512;
+	}
+/*	if (r_saveshotsize->value && (vid.width >= 1024) && (vid.height >= 1024))
 		saveshotsize = 1024;
 	else if (r_saveshotsize->value && (vid.width >= 512) && (vid.height >= 512))
 		saveshotsize = 512;
 	else
-		saveshotsize = 256;
+		saveshotsize = 256;*/
 
 	// Allocate room for reduced screenshot
-	jpgdata = malloc(saveshotsize * saveshotsize * 3);
+	jpgdata = malloc(saveshotWidth * saveshotHeight * 3);
 	if (!jpgdata)	return;
 
 	// Resize grabbed screen
-	R_ResampleShot(saveshotdata, vid.width, vid.height, jpgdata, saveshotsize, saveshotsize);
+	R_ResampleShot(saveshotdata, vid.width, vid.height, jpgdata, saveshotWidth, saveshotHeight);
 
 	// Open the file for Binary Output
 	Com_sprintf (shotname, sizeof(shotname), "%s", name);
@@ -296,8 +309,8 @@ void R_ScaledScreenshot (char *name)
 	jpeg_stdio_dest(&cinfo, file);
 
 	// Setup JPEG Parameters
-	cinfo.image_width = saveshotsize; //256;
-	cinfo.image_height = saveshotsize; //256;
+	cinfo.image_width = saveshotWidth; //256;
+	cinfo.image_height = saveshotHeight; //256;
 	cinfo.in_color_space = JCS_RGB;
 	cinfo.input_components = 3;
 	jpeg_set_defaults(&cinfo);
@@ -586,16 +599,22 @@ GL_UpdateSwapInterval
 */
 void GL_UpdateSwapInterval (void)
 {
+	static qboolean registering;
+
+	// don't swap interval if loading a map
+	if (registering != registration_active)
+		r_swapinterval->modified = true;
+
 	if ( r_swapinterval->modified )
 	{
 		r_swapinterval->modified = false;
 
+		registering = registration_active;
+
 		if ( !glState.stereo_enabled ) 
 		{
-#ifdef _WIN32
 			if ( wglSwapIntervalEXT )
-				wglSwapIntervalEXT( r_swapinterval->value );
-#endif
+				wglSwapIntervalEXT( (registration_active) ? 0 : r_swapinterval->value );
 		}
 	}
 }

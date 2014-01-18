@@ -47,6 +47,7 @@ int		mod_numknown;
 model_t	mod_inline[MAX_MOD_KNOWN];
 
 int		registration_sequence;
+qboolean	registration_active;	// map registration flag
 
 /*
 ===============
@@ -171,6 +172,8 @@ Mod_Init
 void Mod_Init (void)
 {
 	memset (mod_novis, 0xff, sizeof(mod_novis));
+
+	registration_active = false;	// map registration flag
 }
 
 
@@ -457,6 +460,7 @@ void Mod_LoadEdges (lump_t *l)
 // store the names of last textures that failed to load
 #define NUM_FAIL_TEXTURES 256
 char lastFailedTexture[NUM_FAIL_TEXTURES][MAX_OSPATH];
+long lastFailedTextureHash[NUM_FAIL_TEXTURES];
 static unsigned failedTexListIndex;
 
 /*
@@ -468,8 +472,10 @@ void Mod_InitFailedTexList (void)
 {
 	int		i;
 
-	for (i=0; i<NUM_FAIL_TEXTURES; i++)
-		sprintf(lastFailedTexture[i], "\0");
+	for (i=0; i<NUM_FAIL_TEXTURES; i++) {
+		Com_sprintf(lastFailedTexture[i], sizeof(lastFailedTexture[i]), "\0");
+		lastFailedTextureHash[i] = 0;
+	}
 
 	failedTexListIndex = 0;
 }
@@ -482,13 +488,19 @@ Mod_CheckTexFailed
 qboolean Mod_CheckTexFailed (char *name)
 {
 	int		i;
+	long	hash;
 
+	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_FAIL_TEXTURES; i++)
-		if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
-			&& !strcmp(name, lastFailedTexture[i]))
-		{	// we already tried to load this image, didn't find it
-			return true;
+	{
+		if (hash == lastFailedTextureHash[i]) {	// compare hash first
+			if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
+				&& !strcmp(name, lastFailedTexture[i]))
+			{	// we already tried to load this image, didn't find it
+				return true;
+			}
 		}
+	}
 	return false;
 }
 
@@ -499,7 +511,9 @@ Mod_AddToFailedTexList
 */
 void Mod_AddToFailedTexList (char *name)
 {
-	sprintf(lastFailedTexture[failedTexListIndex++], "%s", name);
+	Com_sprintf(lastFailedTexture[failedTexListIndex], sizeof(lastFailedTexture[failedTexListIndex]), "%s", name);
+	lastFailedTextureHash[failedTexListIndex] = Com_HashFileName(name, 0, false);
+	failedTexListIndex++;
 
 	// wrap around to start of list
 	if (failedTexListIndex >= NUM_FAIL_TEXTURES)
@@ -535,6 +549,7 @@ image_t	*Mod_FindTexture (char *name, imagetype_t type)
 typedef struct walsize_s
 {
 	char	name[MAX_OSPATH];
+	long	hash;
 	int		width;
 	int		height;
 } walsize_t;
@@ -553,7 +568,8 @@ void Mod_InitWalSizeList (void)
 	int		i;
 
 	for (i=0; i<NUM_WALSIZES; i++) {
-		sprintf(walSizeList[i].name, "\0");
+		Com_sprintf(walSizeList[i].name, sizeof(walSizeList[i].name), "\0");
+		walSizeList[i].hash = 0;
 		walSizeList[i].width = 0;
 		walSizeList[i].height = 0;
 	}
@@ -568,17 +584,23 @@ Mod_CheckWalSizeList
 qboolean Mod_CheckWalSizeList (const char *name, int *width, int *height)
 {
 	int		i;
+	long	hash;
 
+	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_WALSIZES; i++)
-		if (walSizeList[i].name && strlen(walSizeList[i].name)
-			&& !strcmp(name, walSizeList[i].name))
-		{	// return size of texture
-			if (width)
-				*width = walSizeList[i].width;
-			if (height)
-				*height = walSizeList[i].height;
-			return true;
+	{
+		if (hash == walSizeList[i].hash) {	// compare hash first
+			if (walSizeList[i].name && strlen(walSizeList[i].name)
+				&& !strcmp(name, walSizeList[i].name))
+			{	// return size of texture
+				if (width)
+					*width = walSizeList[i].width;
+				if (height)
+					*height = walSizeList[i].height;
+				return true;
+			}
 		}
+	}
 	return false;
 }
 
@@ -589,7 +611,8 @@ Mod_AddToWalSizeList
 */
 void Mod_AddToWalSizeList (const char *name, int width, int height)
 {
-	sprintf(walSizeList[walSizeListIndex].name, "%s", name);
+	Com_sprintf(walSizeList[walSizeListIndex].name, sizeof(walSizeList[walSizeListIndex].name), "%s", name);
+	walSizeList[walSizeListIndex].hash = Com_HashFileName(name, 0, false);
 	walSizeList[walSizeListIndex].width = width;
 	walSizeList[walSizeListIndex].height = height;
 	walSizeListIndex++;
@@ -1921,7 +1944,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	poutmesh = poutmodel->meshes = Hunk_Alloc(sizeof(maliasmesh_t));
 
-	sprintf(poutmesh->name, "md2mesh"); // mesh name in script must match this
+	Com_sprintf(poutmesh->name, sizeof(poutmesh->name), "md2mesh"); // mesh name in script must match this
 
 	poutmesh->num_tris = LittleLong(pinmodel->num_tris);
 	if (poutmesh->num_tris > MAX_TRIANGLES || poutmesh->num_tris <= 0)
@@ -2064,9 +2087,9 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	{
 		poutskin = poutmesh->skins = Hunk_Alloc ( sizeof(maliasskin_t) * 1 );
 		poutmesh->num_skins = 1;
-		sprintf(name, "players/male/grunt.pcx");
+		Com_sprintf(name, sizeof(name), "players/male/grunt.pcx");
 		memcpy(poutskin->name, name, MD3_MAX_PATH);
-		sprintf(poutskin->glowname, "\0"); // set null glowskin
+		Com_sprintf(poutskin->glowname, sizeof(poutskin->glowname), "\0"); // set null glowskin
 		mod->skins[0][0] = R_FindImage (name, it_skin);
 	}
 	else
@@ -2076,7 +2099,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 		{
 			memcpy(name, ((char *)pinmodel + LittleLong(pinmodel->ofs_skins) + i*MAX_SKINNAME), MD3_MAX_PATH);
 			memcpy(poutskin->name, name, MD3_MAX_PATH);
-			sprintf(poutskin->glowname, "\0"); // set null glowskin
+			Com_sprintf(poutskin->glowname, sizeof(poutskin->glowname), "\0"); // set null glowskin
 			mod->skins[0][i] = R_FindImage (name, it_skin);
 		}
 	}
@@ -2255,7 +2278,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 			if (name[1] == 'l')
 				name[0] = 'p';
 			memcpy (poutskin->name, name, MD3_MAX_PATH);
-			sprintf(poutskin->glowname, "\0"); // set null glowskin
+			Com_sprintf(poutskin->glowname, sizeof(poutskin->glowname), "\0"); // set null glowskin
 			mod->skins[i][j] = R_FindImage (name, it_skin);
 		}
 
@@ -2427,6 +2450,8 @@ void R_BeginRegistration (char *model)
 	r_worldmodel = Mod_ForName(fullname, true);
 
 	r_viewcluster = -1;
+
+	registration_active = true;	// map registration flag
 }
 
 
@@ -2530,6 +2555,8 @@ void R_EndRegistration (void)
 	}
 
 	R_FreeUnusedImages ();
+
+	registration_active = false;	// map registration flag
 }
 
 

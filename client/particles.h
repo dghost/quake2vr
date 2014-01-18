@@ -31,14 +31,16 @@ typedef enum
 //	particle_dexplosion1,
 //	particle_dexplosion2,
 //	particle_dexplosion3,
-	particle_bulletmark,
-	particle_shadow,
+	particle_bfgmark,
 	particle_burnmark,
 	particle_blooddecal1,
 	particle_blooddecal2,
 	particle_blooddecal3,
 	particle_blooddecal4,
 	particle_blooddecal5,
+	particle_shadow,
+	particle_bulletmark,
+	particle_trackermark,
 //	particle_footprint,
 } particle_type;
 

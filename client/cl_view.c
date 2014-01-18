@@ -409,7 +409,7 @@ void CL_PrepRefresh (void)
 	// Knightmare- for Psychospaz's map loading screen
 	loadingMessage = true;
 	Com_sprintf (loadingMessages, sizeof(loadingMessages), S_COLOR_ALT"loading %s", cl.configstrings[CS_MODELS+1]);
-	loadingPercent = 0;
+	loadingPercent = 0.0f;
 	// end Knightmare
 
 	// let the render dll load the map
@@ -424,7 +424,7 @@ void CL_PrepRefresh (void)
 
 	// Knightmare- for Psychospaz's map loading screen
 	Com_sprintf (loadingMessages, sizeof(loadingMessages), S_COLOR_ALT"loading models...");
-	loadingPercent += 20;
+	loadingPercent += 20.0f;
 	// end Knightmare
 
 	// precache status bar pics
@@ -551,7 +551,7 @@ void CL_PrepRefresh (void)
 	// Knightmare- for Psychospaz's map loading screen
 	Com_sprintf (loadingMessages, sizeof(loadingMessages), S_COLOR_ALT"loading players...done");
 	//hack hack hack - psychospaz
-	loadingPercent = 100;
+	loadingPercent = 100.0f;
 
 	// Knightmare - Vics fix to get rid of male/grunt flicker
 	// CL_LoadClientinfo (&cl.baseclientinfo, "unnamed\\male/grunt");

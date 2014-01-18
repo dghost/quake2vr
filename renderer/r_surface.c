@@ -181,9 +181,9 @@ void R_SetLightingMode (int renderflags)
 		glTexEnvi (GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
 	}
 
-	if (r_overbrightbits->value)
+	if (r_rgbscale->value)
 	{
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_rgbscale->value);
 	}
 
 }
@@ -313,7 +313,7 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 	GL_Bind (image->texnum);
 
 	if (light) {
-		R_SetVertexOverbrights (true);
+		R_SetVertexRGBScale (true);
 		GL_ShadeModel (GL_SMOOTH);
 	}
 
@@ -341,7 +341,7 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 		RB_DrawCaustics (surf);
 
 	if (light) {
-		R_SetVertexOverbrights(false);
+		R_SetVertexRGBScale (false);
 		GL_ShadeModel (GL_FLAT);
 	}
 
