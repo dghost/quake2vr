@@ -1,5 +1,5 @@
 ------------------------------
-KMQuake2 v0.20 Beta 3 with hotfix 5
+KMQuake2 v0.20 with update 6
 
 Readme.txt
 ------------------------------
@@ -52,6 +52,8 @@ Other code by:
 	Vic
 	VoiD
 	And anyone else I forgot...
+
+Menu dogtags, HUD numbers, and F1 coomputer icon by Pieter Verhoeven
 
 Menu screen by MDK
 
@@ -129,7 +131,49 @@ How To Run
 	will be taken care of internally by KMQuake2.
 	
 ------------------------------------
-Changes as of v0.20 beta3 hotfix 5:
+Changes as of v0.20 update 6:
+------------------------------------
+
+- Added writeconfig command.  Usage:
+	writeconfig <configname>
+	Using no parameter will write kmq2config.cfg.
+
+- Added 3200x1800, 3840x2160, and 3840x2400 video modes.
+
+- Inventory and help computer/scoreboard are now always scaled up from 640x480, instead of sizing based
+	on status bar scale.
+	
+- Added support for high-res menu graphics.
+
+- Added 3D cursor to main menu.
+
+- Added higher-res 128x128 HUD icons.
+
+- Added impact decals for the BFG and disruptor.
+
+- Optimized load times with filename hashing.
+
+- Added simplified load screen.  The original load screen can be re-enabled in the interface menu.
+
+- Fixed savegames in baseq2 being visible in the save and load menus when running with a different game dir.
+
+- Increased MAX_OSPATH to 256 characters.  This should improve compatibility when
+  Quake2 is installed under C:\Program Files.
+
+- Fixed lag/stutter on opening save and load game menus.
+
+- Fixed tag mode not working when set from the start server menu.
+
+- Added option to display 4-digit numbers on the default HUD.  This can be changed with the
+	status bar digit squeezing option in the screen options menu.
+
+- Saveshots are now sized to the nearest power of two for each dimension, so a game saved at 1024x768 will
+	have a 1024x512 saveshot.
+	
+- Tweaked cvar defaults for bloom effect to be more subtle.
+
+------------------------------------
+Changes as of v0.20 update 5:
 ------------------------------------
 
 - Added an option to the video menu to enable or disable non-power-of-2 mipmapped textures.  Some video drivers
@@ -152,7 +196,7 @@ Changes as of v0.20 beta3 hotfix 5:
   Set the cvar r_newlightmapformat to 0 if you happen to get fullbright lightmaps from this change.
 
 ------------------------------------
-Changes as of v0.20 beta3 hotfix 4:
+Changes as of v0.20 update 4:
 ------------------------------------
 - Fixed the missing audio in the intermission cinematics.
 
@@ -163,14 +207,14 @@ Changes as of v0.20 beta3 hotfix 4:
 - Added multitexture rendering optimizations.
 
 ------------------------------------
-Changes as of v0.20 beta3 hotfix 3:
+Changes as of v0.20 update 3:
 ------------------------------------
 - Fixed a potential crash with blood effects in certain situations.
 
 - Fixed shadow volume errors with certain models.
 
 ------------------------------------
-Changes as of v0.20 beta3 hotfix 2:
+Changes as of v0.20 update 2:
 ------------------------------------
 - Fixed problem with surround video modes (multi-monitor).  The FOV adjustment
 	algorithm has been changed so that it no longer breaks in such extremely wide modes.
@@ -848,7 +892,7 @@ that the new engine will load it (don't overwrite your existing game DLL!).
 =====================================================================================
 
 If you downloaded this engine mod without source code, the complete source is
-available at kmq2.quakedev.com
+available at www.markshan.com/knightmare
 
 =====================================================================================
 

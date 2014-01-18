@@ -137,6 +137,9 @@ void Sys_ConsoleOutput (char *text)
 	// Scroll down
 	SendMessage(sys_console.hWndOutput, EM_LINESCROLL, 0, 0xFFFF);
 	SendMessage(sys_console.hWndOutput, EM_SCROLLCARET, 0, 0);
+
+	// Fix text bleed
+	InvalidateRect(sys_console.hWndOutput, NULL, TRUE);
 }
 
 
@@ -443,9 +446,9 @@ void Sys_InitDedConsole (void)
 	sys_console.hWndMsg = CreateWindowEx(0, "STATIC", "", WS_CHILD | SS_SUNKEN, 5, 65, 530, 30, sys_console.hWnd, NULL, global_hInstance, NULL); // was 5, 5, 530, 30
 	sys_console.hWndOutput = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | ES_MULTILINE, 5, 40+LOGO_OFFSET, 530, 350, sys_console.hWnd, NULL, global_hInstance, NULL);
 	sys_console.hWndInput = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 5, 395+LOGO_OFFSET, 530, 20, sys_console.hWnd, NULL, global_hInstance, NULL);
-	sys_console.hWndCopy = CreateWindowEx(0, "BUTTON", "copy", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 5, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
-	sys_console.hWndClear = CreateWindowEx(0, "BUTTON", "clear", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 80, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
-	sys_console.hWndQuit = CreateWindowEx(0, "BUTTON", "quit", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 465, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
+	sys_console.hWndCopy = CreateWindowEx(0, "BUTTON", "Copy", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 5, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
+	sys_console.hWndClear = CreateWindowEx(0, "BUTTON", "Clear", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 80, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
+	sys_console.hWndQuit = CreateWindowEx(0, "BUTTON", "Quit", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 465, 425+LOGO_OFFSET, 70, 25, sys_console.hWnd, NULL, global_hInstance, NULL);
 
 	// splash logo
 	sys_console.hWndLogo = CreateWindowEx(0, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_BITMAP | SS_CENTERIMAGE, 0, 0, 540, 160, sys_console.hWnd, NULL, global_hInstance, NULL);

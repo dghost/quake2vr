@@ -40,10 +40,10 @@ void CL_ParseInventory (void)
 Inv_DrawString
 ================
 */
-void Hud_DrawString (int x, int y, const char *string, int alpha);
+void Hud_DrawString (int x, int y, const char *string, int alpha, qboolean isStatusBar);
 void Inv_DrawString (int x, int y, char *string)
 {
-	Hud_DrawString(x, y, string, 255);
+	Hud_DrawString(x, y, string, 255, false);
 }
 
 void SetStringHighBit (char *s)
@@ -93,18 +93,28 @@ void CL_DrawInventory (void)
 	if (top < 0)
 		top = 0;
 
-	x = viddef.width/2 - scaledHud(128);
-	y = viddef.height/2 - scaledHud(120);
 	//x = (viddef.width-256)/2;
 	//y = (viddef.height-240)/2;
+//	x = viddef.width/2 - scaledHud(128);
+//	y = viddef.height/2 - scaledHud(120);
+	x = SCREEN_WIDTH/2 - 128;
+	y = SCREEN_HEIGHT/2 - 116;
 
-	R_DrawScaledPic (x, y+scaledHud(8), HudScale(), hud_alpha->value, "inventory");
+//	R_DrawScaledPic (x, y+scaledHud(8), HudScale(), hud_alpha->value, "inventory");
+//	y += scaledHud(24);
+//	x += scaledHud(24);
+//	Inv_DrawString (x, y, S_COLOR_BOLD"hotkey ### item");
+//	Inv_DrawString (x, y+scaledHud(8), S_COLOR_BOLD"------ --- ----");
+//	y += scaledHud(16);
+	SCR_DrawPic (x, y, 256, 192, ALIGN_CENTER, "inventory", hud_alpha->value);
+	x += 24;
+	y += 20;
+	SCR_DrawString (x, y, ALIGN_CENTER, S_COLOR_BOLD"hotkey ### item", 255);
+	y += 8;
+	SCR_DrawString (x, y, ALIGN_CENTER, S_COLOR_BOLD"------ --- ----", 255);
+	x += 16;
+	y += 8;
 
-	y += scaledHud(24);
-	x += scaledHud(24);
-	Inv_DrawString (x, y, S_COLOR_BOLD"hotkey ### item");
-	Inv_DrawString (x, y+scaledHud(8), S_COLOR_BOLD"------ --- ----");
-	y += scaledHud(16);
 	for (i=top; i<num && i < top+DISPLAY_ITEMS; i++)
 	{
 		item = index[i];
@@ -154,10 +164,11 @@ void CL_DrawInventory (void)
 			}
 		}
 
-		Inv_DrawString (x, y, string);
-		y += scaledHud(8);
+//		Inv_DrawString (x, y, string);
+//		y += scaledHud(8);
+		SCR_DrawString (x, y, ALIGN_CENTER, string, 255);
+		y += 8;
 	}
-
 
 }
 

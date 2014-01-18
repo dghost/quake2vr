@@ -268,13 +268,13 @@ void lithium_defaults(void)
 	blaster_speed = gi.cvar("blaster_speed", "1000", 0);
 	blaster_color = gi.cvar("blaster_color", "1", 0);
 
-	shotgun_damage = gi.cvar("shotgun_damage", "6", 0);
+	shotgun_damage = gi.cvar("shotgun_damage", "4", 0);
 	shotgun_count = gi.cvar("shotgun_count", "12", 0);
 	shotgun_hspread = gi.cvar("shotgun_hspread", "500", 0);
 	shotgun_vspread = gi.cvar("shotgun_vspread", "500", 0);
 
 	sshotgun_damage = gi.cvar("sshotgun_damage", "6", 0);
-	sshotgun_count = gi.cvar("sshotgun_count", "22", 0);
+	sshotgun_count = gi.cvar("sshotgun_count", "20", 0);
 	sshotgun_hspread = gi.cvar("sshotgun_hspread", "1000", 0);
 	sshotgun_vspread = gi.cvar("sshotgun_vspread", "500", 0);
 

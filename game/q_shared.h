@@ -70,7 +70,12 @@ typedef enum {false, true}	qboolean;
 
 // from Quake3 source
 #ifdef WIN32
-#define Q_vsnprintf _vsnprintf
+//#define Q_vsnprintf _vsnprintf
+__inline int Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_list Args) {
+	int ret = _vsnprintf(Dest, Count, Format, Args);
+	Dest[Count-1] = 0;	// null terminate
+	return ret;
+}
 #else
 // TODO: do we need Mac define?
 #define Q_vsnprintf vsnprintf
@@ -123,7 +128,7 @@ typedef enum {false, true}	qboolean;
 #define	MAX_TOKEN_CHARS		128		// max length of an individual token
 
 #define	MAX_QPATH			64		// max length of a quake game pathname
-#define	MAX_OSPATH			128		// max length of a filesystem pathname
+#define	MAX_OSPATH			256		// max length of a filesystem pathname
 
 //
 // per-level limits
@@ -316,6 +321,7 @@ char *COM_Parse (char **data_p);
 char *COM_ParseExt (char **data_p, qboolean allowNewLines);
 
 void Com_sprintf (char *dest, int size, char *fmt, ...);
+long Com_HashFileName (const char *fname, int hashSize, qboolean sized);
 
 void Com_PageInMemory (byte *buffer, int size);
 

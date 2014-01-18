@@ -224,8 +224,9 @@ void R_DrawGetPicSize (int *w, int *h, char *pic)
 		*w = *h = -1;
 		return;
 	}
-	*w = gl->width;
-	*h = gl->height;
+	// Factor in replace scale, so tga/jpg replacements are scaled down...
+	*w = (int)((float)gl->width * gl->replace_scale_w);
+	*h = (int)((float)gl->height * gl->replace_scale_w);
 }
 
 
@@ -451,10 +452,10 @@ void R_DrawTileClear (int x, int y, int w, int h, char *pic)
 	Vector2Set(texCoord[2], (x+w)/64.0, (y+h)/64.0);
 	Vector2Set(texCoord[3], x/64.0, (y+h)/64.0);
 */
-	Vector2Set(texCoord[0], x/image->width, y/image->height);
-	Vector2Set(texCoord[1], (x+w)/image->width, y/image->height);
-	Vector2Set(texCoord[2], (x+w)/image->width, (y+h)/image->height);
-	Vector2Set(texCoord[3], x/image->width, (y+h)/image->height);
+	Vector2Set(texCoord[0], (float)x/(float)image->width, (float)y/(float)image->height);
+	Vector2Set(texCoord[1], (float)(x+w)/(float)image->width, (float)y/(float)image->height);
+	Vector2Set(texCoord[2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
+	Vector2Set(texCoord[3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
 
 	Vector2Set(verts[0], x, y);
 	Vector2Set(verts[1], x+w, y);

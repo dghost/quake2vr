@@ -477,7 +477,7 @@ void StartServerActionFunc (void *self)
 	if (roguepath()) {
 		Cvar_SetValue ("deathmatch", s_rules_box.curvalue != 1);
 		Cvar_SetValue ("coop", s_rules_box.curvalue == 1);
-		Cvar_SetValue ("gamerules", s_rules_box.curvalue == 2 );
+		Cvar_SetValue ("gamerules", (s_rules_box.curvalue == 2) ? 2 : 0 );
 		Cvar_SetValue ("ctf", s_rules_box.curvalue >= 3 );
 		Cvar_SetValue ("ttctf", s_rules_box.curvalue == 4 );
 	} else {
@@ -588,7 +588,7 @@ void StartServer_MenuInit (void)
 			s_rules_box.curvalue = 4;
 		else if (Cvar_VariableValue("ctf"))
 			s_rules_box.curvalue = 3;
-		else if (Cvar_VariableValue("gamerules"))
+		else if (Cvar_VariableValue("gamerules") == 2)
 			s_rules_box.curvalue = 2;
 		else if (Cvar_VariableValue("coop"))
 			s_rules_box.curvalue = 1;

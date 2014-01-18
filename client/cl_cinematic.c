@@ -134,7 +134,7 @@ typedef struct
 
 	qboolean	vertexBufferObject;
 	qboolean	multitexture;
-	qboolean	mtexcombine;	// added Vic's overbright rendering
+	qboolean	mtexcombine;	// added Vic's RGB brightening
 
 	qboolean	have_stencil;
 	qboolean	extStencilWrap;

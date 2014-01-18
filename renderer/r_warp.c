@@ -320,7 +320,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	if (light) {
 		GL_ShadeModel (GL_SMOOTH);
 		if (!texShaderWarp)
-			R_SetVertexOverbrights(true);
+			R_SetVertexRGBScale (true);
 	}
 
 	/*
@@ -339,7 +339,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 
 		GL_Enable (GL_FRAGMENT_PROGRAM_ARB);
 		qglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
-		qglProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, r_overbrightbits->value, r_overbrightbits->value, r_overbrightbits->value, 1.0);
+		qglProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, r_rgbscale->value, r_rgbscale->value, r_rgbscale->value, 1.0);
 	}
 	else if (texShaderWarpNV)
 	{
@@ -389,7 +389,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	if (light) {
 		GL_ShadeModel (GL_FLAT);
 		if (!texShaderWarp)
-			R_SetVertexOverbrights(false); 
+			R_SetVertexRGBScale (false); 
 	}
 
 	RB_DrawMeshTris ();

@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "ui_local.h"
 
+cvar_t	*ui_cursor_scale;
+
 void	(*m_drawfunc) (void);
 const char *(*m_keyfunc) (int key);
 
@@ -409,6 +411,85 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 	return sound;
 }
 
+
+/*
+=================
+UI_Precache
+=================
+*/
+void UI_Precache (void)
+{
+	int		i;
+	char	scratch[80];
+
+	// general images
+	R_DrawFindPic (LOADSCREEN_NAME); 
+	R_DrawFindPic (UI_BACKGROUND_NAME); 
+	R_DrawFindPic (UI_NOSCREEN_NAME); 
+
+	// loadscreen images
+	R_DrawFindPic ("/pics/loading.pcx");
+	R_DrawFindPic ("/pics/loading_bar.pcx");
+	R_DrawFindPic ("/pics/downloading.pcx");
+	R_DrawFindPic ("/pics/downloading_bar.pcx");
+	R_DrawFindPic ("/pics/loading_led1.pcx");
+
+	// cursors
+//	R_DrawFindPic (UI_MOUSECURSOR_MAIN_PIC);
+//	R_DrawFindPic (UI_MOUSECURSOR_HOVER_PIC);
+//	R_DrawFindPic (UI_MOUSECURSOR_CLICK_PIC);
+//	R_DrawFindPic (UI_MOUSECURSOR_OVER_PIC);
+//	R_DrawFindPic (UI_MOUSECURSOR_TEXT_PIC);
+	R_DrawFindPic (UI_MOUSECURSOR_PIC);
+
+	for (i = 0; i < NUM_MAINMENU_CURSOR_FRAMES; i++) {
+		Com_sprintf (scratch, sizeof(scratch), "/pics/m_cursor%d.pcx", i);
+		R_DrawFindPic (scratch);
+	}
+
+	// main menu items
+	R_DrawFindPic ("/pics/m_main_game.pcx");
+	R_DrawFindPic ("/pics/m_main_game_sel.pcx");
+	R_DrawFindPic ("/pics/m_main_multiplayer.pcx");
+	R_DrawFindPic ("/pics/m_main_multiplayer_sel.pcx");
+	R_DrawFindPic ("/pics/m_main_options.pcx");
+	R_DrawFindPic ("/pics/m_main_options_sel.pcx");
+	R_DrawFindPic ("/pics/m_main_video.pcx");
+	R_DrawFindPic ("/pics/m_main_video_sel.pcx");
+//	R_DrawFindPic ("/pics/m_main_mods.pcx");
+//	R_DrawFindPic ("/pics/m_main_mods_sel.pcx");
+	R_DrawFindPic ("/pics/m_main_quit.pcx");
+	R_DrawFindPic ("/pics/m_main_quit_sel.pcx");
+	R_DrawFindPic ("/pics/m_main_plaque.pcx");
+	R_DrawFindPic ("/pics/m_main_logo.pcx");
+	R_RegisterModel ("models/ui/quad_cursor.md2");
+
+	// menu banners
+	R_DrawFindPic ("/pics/m_banner_game.pcx");
+	R_DrawFindPic ("/pics/m_banner_load_game.pcx");
+	R_DrawFindPic ("/pics/m_banner_save_game.pcx");
+	R_DrawFindPic ("/pics/m_banner_multiplayer.pcx");
+	R_DrawFindPic ("/pics/m_banner_join_server.pcx");
+	R_DrawFindPic ("/pics/m_banner_addressbook.pcx");
+	R_DrawFindPic ("/pics/m_banner_start_server.pcx");
+	R_DrawFindPic ("/pics/m_banner_plauer_setup.pcx"); // typo for image name is id's fault
+	R_DrawFindPic ("/pics/m_banner_options.pcx");
+	R_DrawFindPic ("/pics/m_banner_customize.pcx");
+	R_DrawFindPic ("/pics/m_banner_video.pcx");
+//	R_DrawFindPic ("/pics/m_banner_mods.pcx");
+	R_DrawFindPic ("/pics/quit.pcx");
+//	R_DrawFindPic ("/pics/areyousure.pcx");
+//	R_DrawFindPic ("/pics/yn.pcx");
+
+	// GUI elements
+	R_DrawFindPic ("/gfx/ui/listbox_background.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left_d.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.pcx"); 
+}
+
+
 /*
 =================
 UI_Init
@@ -420,8 +501,13 @@ void UI_Init (void)
 	if (!alt_text_color)
 		alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
 
+	ui_cursor_scale = Cvar_Get ("ui_cursor_scale", "0.4", 0);
+
 	UI_LoadMapList();	// load map list
-	
+	UI_InitSavegameData ();	// load savegame data
+
+	UI_Precache ();		// precache images
+
 	Cmd_AddCommand ("menu_main", M_Menu_Main_f);
 	Cmd_AddCommand ("menu_game", M_Menu_Game_f);
 		Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);

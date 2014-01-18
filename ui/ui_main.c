@@ -29,6 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int	m_main_cursor;
 
+// for checking if quad cursor model is available
+#define QUAD_CURSOR_MODEL	"models/ui/quad_cursor.md2"
+qboolean	quadModel_loaded;
+
+
 /*
 =======================================================================
 
@@ -94,7 +99,7 @@ void UI_DrawMainCursor (int x, int y, int f)
 	{
 		int i;
 
-		for (i = 0; i < NUM_CURSOR_FRAMES; i++) {
+		for (i = 0; i < NUM_MAINMENU_CURSOR_FRAMES; i++) {
 			Com_sprintf (cursorname, sizeof(cursorname), "m_cursor%d", i);
 			R_DrawFindPic (cursorname);
 		}
@@ -104,6 +109,72 @@ void UI_DrawMainCursor (int x, int y, int f)
 	Com_sprintf (cursorname, sizeof(cursorname), "m_cursor%d", f);
 	R_DrawGetPicSize (&w, &h, cursorname);
 	SCR_DrawPic (x, y, w, h, ALIGN_CENTER, cursorname, 1.0);
+}
+
+
+/*
+=============
+UI_DrawMainCursor3D
+
+Draws a rotating quad damage model.
+=============
+*/
+void UI_DrawMainCursor3D (int x, int y)
+{
+	refdef_t	refdef;
+	entity_t	quadEnt, *ent;
+	float		rx, ry, rw, rh;
+	int			yaw;
+
+	yaw = anglemod(cl.time/10);
+
+	memset(&refdef, 0, sizeof(refdef));
+	memset (&quadEnt, 0, sizeof(quadEnt));
+
+	// size 24x34
+	rx = x;				ry = y;
+	rw = 24;			rh = 34;
+	SCR_AdjustFrom640 (&rx, &ry, &rw, &rh, ALIGN_CENTER);
+	refdef.x = rx;		refdef.y = ry;
+	refdef.width = rw;	refdef.height = rh;
+	refdef.fov_x = 40;
+	refdef.fov_y = CalcFov (refdef.fov_x, refdef.width, refdef.height);
+	refdef.time = cls.realtime*0.001;
+	refdef.areabits = 0;
+	refdef.lightstyles = 0;
+	refdef.rdflags = RDF_NOWORLDMODEL;
+	refdef.num_entities = 0;
+	refdef.entities = &quadEnt;
+
+	ent = &quadEnt;
+	ent->model = R_RegisterModel (QUAD_CURSOR_MODEL);
+	ent->flags = RF_FULLBRIGHT|RF_NOSHADOW|RF_DEPTHHACK;
+	VectorSet (ent->origin, 40, 0, -18);
+	VectorCopy( ent->origin, ent->oldorigin );
+	ent->frame = 0;
+	ent->oldframe = 0;
+	ent->backlerp = 0.0;
+	ent->angles[1] = yaw;
+	refdef.num_entities++;
+
+	R_RenderFrame( &refdef );
+}
+
+
+/*
+=============
+UI_CheckQuadModel
+
+Checks for quad damage model.
+=============
+*/
+void UI_CheckQuadModel (void)
+{
+	struct model_s *quadModel;
+
+	quadModel = R_RegisterModel (QUAD_CURSOR_MODEL);
+	
+	quadModel_loaded = (quadModel != NULL);
 }
 
 
@@ -135,7 +206,11 @@ void M_Main_Draw (void)
 	R_DrawGetPicSize (&w, &h, litname);
 	SCR_DrawPic (xoffset-1, (ystart + m_main_cursor*40+2), w+2, h+2, ALIGN_CENTER, litname, 1.0);
 
-	UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (int)(cls.realtime/100)%NUM_CURSOR_FRAMES);
+	// Draw our nifty quad damage model as a cursor if it's loaded.
+	if (quadModel_loaded)
+		UI_DrawMainCursor3D (xoffset-27, ystart+(m_main_cursor*40+1));
+	else
+		UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (int)(cls.realtime/100)%NUM_MAINMENU_CURSOR_FRAMES);
 
 	R_DrawGetPicSize (&w, &h, "m_main_plaque");
 	SCR_DrawPic (xoffset-(w/2+50), ystart, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
@@ -320,5 +395,6 @@ M_Menu_Main_f
 */
 void M_Menu_Main_f (void)
 {
+	UI_CheckQuadModel ();
 	UI_PushMenu (M_Main_Draw, M_Main_Key);
 }

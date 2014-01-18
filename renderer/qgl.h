@@ -522,7 +522,7 @@ void Fake_glColorTableEXT( GLenum target, GLenum internalformat,
 #endif
 
 
-// Knightmare- added Vic's overbright rendering
+// Knightmare- added Vic's RGB brightening
 // Vic - begin
 #ifndef GL_EXT_texture_env_conbine
 

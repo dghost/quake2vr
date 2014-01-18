@@ -102,7 +102,7 @@ cvar_t	*r_model_dlights;
 
 cvar_t	*r_lightlevel;	// FIXME: This is a HACK to get the client's light level
 
-cvar_t	*r_overbrightbits; // Vic's overbright rendering
+cvar_t	*r_rgbscale; // Vic's RGB brightening
 
 cvar_t	*r_nosubimage;
 cvar_t	*r_vertex_arrays;
@@ -114,7 +114,7 @@ cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_arb_texturenonpoweroftwo;	// Knightmare- non-power-of-two texture support
 cvar_t	*r_nonpoweroftwo_mipmaps;		// Knightmare- non-power-of-two texture support
 cvar_t	*r_newlightmapformat;			// Knightmare- whether to use new lightmap format
-cvar_t	*r_ext_mtexcombine; // Vic's overbright rendering
+cvar_t	*r_ext_mtexcombine; // Vic's RGB brightening
 cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 cvar_t	*r_arb_fragment_program;
 cvar_t	*r_arb_vertex_program;
@@ -914,8 +914,8 @@ void R_Register (void)
 	r_model_dlights = Cvar_Get( "r_model_dlights", "8", CVAR_ARCHIVE );
 
 	r_lightlevel = Cvar_Get ("r_lightlevel", "0", 0);
-	// added Vic's overbright rendering
-	r_overbrightbits = Cvar_Get ("r_overbrightbits", "2", CVAR_ARCHIVE);
+	// added Vic's RGB brightening
+	r_rgbscale = Cvar_Get ("r_rgbscale", "2", CVAR_ARCHIVE);
 
 	r_waterwave = Cvar_Get ("r_waterwave", "0", CVAR_ARCHIVE );
 	r_caustics = Cvar_Get ("r_caustics", "1", CVAR_ARCHIVE );
@@ -977,7 +977,7 @@ void R_Register (void)
 
 	r_newlightmapformat = Cvar_Get("r_newlightmapformat", "1", CVAR_ARCHIVE);	// whether to use new lightmap format
 
-	// added Vic's overbright rendering
+	// added Vic's RGB brightening
 	r_ext_mtexcombine = Cvar_Get ("r_ext_mtexcombine", "1", CVAR_ARCHIVE);
 
 	// Echon's two-sided stenciling
@@ -1176,7 +1176,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	// Knighmare- added max texture size
 	qglGetIntegerv(GL_MAX_TEXTURE_SIZE,&glConfig.max_texsize);
-	VID_Printf (PRINT_DEVELOPER, "GL_MAX_TEXTURE_SIZE: %i\n", glConfig.max_texsize );
+	VID_Printf (PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %i\n", glConfig.max_texsize );
 
 	glConfig.extensions_string = qglGetString (GL_EXTENSIONS);
 //	VID_Printf (PRINT_DEVELOPER, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );

@@ -88,7 +88,7 @@ static void ResetVideoDefaults ( void *unused )
 
 	Cvar_SetToDefault ("r_modulate");
 	Cvar_SetToDefault ("r_intensity");
-	Cvar_SetToDefault ("r_overbrightbits");
+	Cvar_SetToDefault ("r_rgbscale");
 	Cvar_SetToDefault ("r_trans_lighting");
 	Cvar_SetToDefault ("r_warp_lighting");
 	Cvar_SetToDefault ("r_lightcutoff");
@@ -347,6 +347,9 @@ void Menu_Video_Init (void)
 		"[2560x1080]", // Knightmare added
 		"[2560x1440]", // Knightmare added
 		"[2560x1600]", // Knightmare added
+		"[3200x1800]", // Knightmare added
+		"[3840x2160]", // Knightmare added
+		"[3840x2400]", // Knightmare added
 		0
 	};
 	static const char *refreshrate_names[] = 

@@ -66,7 +66,7 @@ void R_DrawSpriteModel (entity_t *e)
 	if (e->flags & RF_TRANSLUCENT)
 		alpha = e->alpha;
 
-	R_SetVertexOverbrights(true);
+	R_SetVertexRGBScale (true);
 
 	// Psychospaz's additive transparency
 	if ((currententity->flags & RF_TRANS_ADDITIVE) && (alpha != 1.0f))
@@ -131,7 +131,7 @@ void R_DrawSpriteModel (entity_t *e)
 	GL_Disable (GL_ALPHA_TEST);
 	GL_Disable (GL_BLEND);
 
-	R_SetVertexOverbrights (false);
+	R_SetVertexRGBScale (false);
 
 	RB_DrawMeshTris ();
 	rb_vertex = rb_index = 0;

@@ -345,7 +345,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					sprintf(fn, "textures/%s.jpg", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.jpg", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -366,7 +366,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					sprintf(fn, "textures/%s.tga", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.tga", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -619,7 +619,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					sprintf(fn, "textures/%s.wal", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.wal", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -641,7 +641,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					sprintf(fn, "textures/%s.jpg", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.jpg", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -662,7 +662,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					sprintf(fn, "textures/%s.tga", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.tga", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -706,7 +706,7 @@ void CL_InitFailedDownloadList (void)
 	int		i;
 
 	for (i=0; i<NUM_FAIL_DLDS; i++)
-		sprintf(lastfaileddownload[i], "\0");
+		Com_sprintf(lastfaileddownload[i], sizeof(lastfaileddownload[i]), "\0");
 
 	failedDlListIndex = 0;
 }
@@ -753,7 +753,7 @@ void CL_AddToFailedDownloadList (char *name)
 	// if it isn't already in the table, then we need to add it
 	if (!found)
 	{
-		sprintf(lastfaileddownload[failedDlListIndex++], "%s", name);
+		Com_sprintf(lastfaileddownload[failedDlListIndex++], sizeof(lastfaileddownload[failedDlListIndex++]), "%s", name);
 
 		// wrap around to start of list
 		if (failedDlListIndex >= NUM_FAIL_DLDS)

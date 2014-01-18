@@ -201,12 +201,12 @@ void capColorVec (vec3_t color)
 
 /*
 =================
-R_SetVertexOverbrights
+R_SetVertexRGBScale
 =================
 */
-void R_SetVertexOverbrights (qboolean toggle)
+void R_SetVertexRGBScale (qboolean toggle)
 {
-	if (!r_overbrightbits->value || !glConfig.mtexcombine)
+	if (!r_rgbscale->value || !glConfig.mtexcombine)
 		return;
 
 	if (toggle) // turn on
@@ -214,14 +214,14 @@ void R_SetVertexOverbrights (qboolean toggle)
 #if 1
 		qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_rgbscale->value);
 		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 		
 		GL_TexEnv(GL_COMBINE_ARB);
 #else
 		qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
 		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_overbrightbits->value);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_rgbscale->value);
 		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
 
 		GL_TexEnv(GL_COMBINE_EXT);
@@ -314,26 +314,30 @@ void R_SetShellBlend (qboolean toggle)
 R_FlipModel
 =================
 */
-void R_FlipModel (qboolean on)
+void R_FlipModel (qboolean on, qboolean cullOnly)
 {
 	extern void MYgluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar );
 
 	if (on)
 	{
-		qglMatrixMode( GL_PROJECTION );
-		qglPushMatrix();
-		qglLoadIdentity();
-		qglScalef( -1, 1, 1 );
-		MYgluPerspective( r_newrefdef.fov_y, ( float ) r_newrefdef.width / r_newrefdef.height,  4,  4096);
-		qglMatrixMode( GL_MODELVIEW );
-
+		if (!cullOnly)
+		{
+			qglMatrixMode( GL_PROJECTION );
+			qglPushMatrix();
+			qglLoadIdentity();
+			qglScalef( -1, 1, 1 );
+			MYgluPerspective( r_newrefdef.fov_y, ( float ) r_newrefdef.width / r_newrefdef.height,  4,  4096);
+			qglMatrixMode( GL_MODELVIEW );
+		}
 		GL_CullFace( GL_BACK );
 	}
 	else
 	{
-		qglMatrixMode( GL_PROJECTION );
-		qglPopMatrix();
-		qglMatrixMode( GL_MODELVIEW );
+		if (!cullOnly) {
+			qglMatrixMode( GL_PROJECTION );
+			qglPopMatrix();
+			qglMatrixMode( GL_MODELVIEW );
+		}
 		GL_CullFace( GL_FRONT );
 	}
 }

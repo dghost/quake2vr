@@ -257,9 +257,9 @@ void RB_RenderAliasMesh (maliasmodel_t *paliashdr, unsigned meshnum, unsigned sk
 R_DrawAliasMeshes
 =================
 */
-void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
+void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly, qboolean mirrored)
 {
-	int				i, k, meshnum, skinnum, baseindex;// numCalls;
+	int				i, k, meshnum, skinnum, baseindex;	// numCalls
 	maliasframe_t	*frame, *oldframe;
 	maliasmesh_t	mesh;
 	maliasvertex_t	*v, *ov;
@@ -268,7 +268,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
 	vec3_t			tempNormalsArray[MD3_MAX_VERTS];
 	vec2_t			tempSkinCoord;
 	vec3_t			meshlight, lightcolor;
-	float			alpha, meshalpha, thisalpha, shellscale, frontlerp, backlerp = e->backlerp;
+	float			alpha, meshalpha, thisalpha, shellscale, frontlerp, backlerp = e->backlerp, mirrormult;
 	image_t			*skin;
 	renderparms_t	skinParms;
 	qboolean		shellModel = e->flags & RF_MASK_SHELL;
@@ -288,6 +288,8 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
 	VectorScale(frame->scale, frontlerp, curScale);
 	VectorScale(oldframe->scale, backlerp, oldScale);
 
+	mirrormult = (mirrored) ? -1.0f : 1.0f;
+
 	// move should be the delta back to the previous frame * backlerp
 	VectorSubtract (e->oldorigin, e->origin, delta);
 	AngleVectors (e->angles, vectors[0], vectors[1], vectors[2]);
@@ -303,7 +305,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
 
 	GL_ShadeModel (GL_SMOOTH);
 	GL_TexEnv (GL_MODULATE);
-	R_SetVertexOverbrights(true);
+	R_SetVertexRGBScale(true);
 	R_SetShellBlend (true);
 
 	rb_vertex = rb_index = 0;
@@ -381,8 +383,13 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
 
 			VectorSet ( tempVertexArray[meshnum][i], 
 					move[0] + ov->xyz[0]*oldScale[0] + v->xyz[0]*curScale[0] + tempNormalsArray[i][0]*shellscale,
-					move[1] + ov->xyz[1]*oldScale[1] + v->xyz[1]*curScale[1] + tempNormalsArray[i][1]*shellscale,
+					mirrormult * (move[1] + ov->xyz[1]*oldScale[1] + v->xyz[1]*curScale[1] + tempNormalsArray[i][1]*shellscale),
 					move[2] + ov->xyz[2]*oldScale[2] + v->xyz[2]*curScale[2] + tempNormalsArray[i][2]*shellscale );
+
+			// skip drawing if we're only lerping the verts for a shadow-only rendering pass
+			if (lerpOnly)	continue;
+
+			tempNormalsArray[i][1] *= mirrormult;
 
 			// calc lighting and alpha
 			if (shellModel)
@@ -426,7 +433,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e)
 //		VID_Printf (PRINT_DEVELOPER, "%s: rendered %i  meshes in %i pass(es)\n", currentmodel->name, paliashdr->num_meshes, numCalls);
 	
 	R_SetShellBlend (false);
-	R_SetVertexOverbrights(false);
+	R_SetVertexRGBScale(false);
 	GL_TexEnv (GL_REPLACE);
 	GL_ShadeModel (GL_FLAT);
 }
@@ -962,7 +969,7 @@ void R_DrawAliasModel (entity_t *e)
 {
 	maliasmodel_t	*paliashdr;
 	vec3_t		bbox[8];
-	qboolean	mirrormodel = false;
+	qboolean	mirrorview = false, mirrormodel = false;
 	int			i;
 
 	// also skip this for viewermodels and cameramodels
@@ -978,11 +985,12 @@ void R_DrawAliasModel (entity_t *e)
 		if (r_lefthand->value == 2)
 			return;
 		else if (r_lefthand->value == 1)
-			mirrormodel = true;
+			mirrorview = true;
+	//		mirrormodel = true;
 	}
 	else if (e->renderfx & RF2_CAMERAMODEL)
 	{
-		if (r_lefthand->value==1)
+		if (r_lefthand->value == 1)
 			mirrormodel = true;
 	}
 	else if (e->flags & RF_MIRRORMODEL)
@@ -1002,8 +1010,10 @@ void R_DrawAliasModel (entity_t *e)
 	}
 
 	// mirroring support
-	if (mirrormodel)
-		R_FlipModel(true);
+//	if (mirrormodel)
+//		R_FlipModel (true);
+	if (mirrorview || mirrormodel)
+		R_FlipModel (true, mirrormodel);
 
 	for (i=0; i < paliashdr->num_meshes; i++)
 		c_alias_polys += paliashdr->meshes[i].num_tris;
@@ -1031,13 +1041,15 @@ void R_DrawAliasModel (entity_t *e)
 	if (!r_lerpmodels->value)
 		e->backlerp = 0;
 
-	R_DrawAliasMeshes (paliashdr, e);
+	R_DrawAliasMeshes (paliashdr, e, false, mirrormodel);
 
 	qglPopMatrix ();
 
 	// mirroring support
-	if (mirrormodel)
-		R_FlipModel(false);
+//	if (mirrormodel)
+//		R_FlipModel (false);
+	if (mirrorview || mirrormodel)
+		R_FlipModel (false, mirrormodel);
 
 	// show model bounding box
 	R_DrawAliasModelBBox (bbox, e);
@@ -1134,6 +1146,8 @@ void R_DrawAliasModelShadow (entity_t *e)
 	//if ( !r_lerpmodels->value )
 	//	e->backlerp = 0;
 	
+	R_DrawAliasMeshes (paliashdr, e, true, mirrormodel);
+
 	qglPushMatrix ();
 	GL_DisableTexture(0);
 	GL_Enable (GL_BLEND);

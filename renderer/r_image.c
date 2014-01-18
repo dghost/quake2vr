@@ -1768,6 +1768,7 @@ image_t *R_LoadPic (char *name, byte *pic, int width, int height, imagetype_t ty
 	if (strlen(name) >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
+	image->hash = Com_HashFileName(name, 0, false);	// Knightmare added
 	image->registration_sequence = registration_sequence;
 
 	image->width = width;
@@ -1850,6 +1851,7 @@ nonscrap:
 // store the names of last images that failed to load
 #define NUM_FAIL_IMAGES 256
 char lastFailedImage[NUM_FAIL_IMAGES][MAX_OSPATH];
+long lastFailedImageHash[NUM_FAIL_IMAGES];
 static unsigned failedImgListIndex;
 
 /*
@@ -1861,8 +1863,10 @@ void R_InitFailedImgList (void)
 {
 	int		i;
 
-	for (i=0; i<NUM_FAIL_IMAGES; i++)
-		sprintf(lastFailedImage[i], "\0");
+	for (i=0; i<NUM_FAIL_IMAGES; i++) {
+		Com_sprintf(lastFailedImage[i], sizeof(lastFailedImage[i]), "\0");
+		lastFailedImageHash[i] = 0;
+	}
 
 	failedImgListIndex = 0;
 }
@@ -1875,14 +1879,20 @@ R_CheckImgFailed
 qboolean R_CheckImgFailed (char *name)
 {
 	int		i;
+	long	hash;
 
+	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
-		if (lastFailedImage[i] && strlen(lastFailedImage[i])
-			&& !strcmp(name, lastFailedImage[i]))
-		{	// we already tried to load this image, didn't find it
-			//VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
-			return true;
+	{
+		if (hash == lastFailedImageHash[i]) {	// compare hash first
+			if (lastFailedImage[i] && strlen(lastFailedImage[i])
+				&& !strcmp(name, lastFailedImage[i]))
+			{	// we already tried to load this image, didn't find it
+				//VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
+				return true;
+			}
 		}
+	}
 
 	return false;
 }
@@ -1899,7 +1909,9 @@ void R_AddToFailedImgList (char *name)
 
 	//VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
 
-	sprintf(lastFailedImage[failedImgListIndex++], "%s", name);
+	Com_sprintf(lastFailedImage[failedImgListIndex], sizeof(lastFailedImage[failedImgListIndex]), "%s", name);
+	lastFailedImageHash[failedImgListIndex] = Com_HashFileName(name, 0, false);
+	failedImgListIndex++;
 
 	// wrap around to start of list
 	if (failedImgListIndex >= NUM_FAIL_IMAGES)
@@ -2230,7 +2242,7 @@ void R_InitImages (void)
 	// init intensity conversions
 	//r_intensity = Cvar_Get ("r_intensity", "2", CVAR_ARCHIVE);
 
-	// Knightmare- added Vic's overbright rendering
+	// Knightmare- added Vic's RGB brightening
 	if (glConfig.mtexcombine)
 		r_intensity = Cvar_Get ("r_intensity", "1", 0);
 	else
