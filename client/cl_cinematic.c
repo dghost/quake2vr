@@ -125,6 +125,9 @@ typedef struct
 	int			version_release;
 
 	qboolean	allowCDS;
+	qboolean	ext_swap_control;
+	qboolean	ext_swap_control_tear;
+
 	// max texture size
 	int			max_texsize;
 	int			max_texunits;
@@ -133,9 +136,6 @@ typedef struct
 	qboolean	multitexture;
 
 	qboolean	have_stencil;
-	qboolean	extStencilWrap;
-	qboolean	atiSeparateStencil;
-	qboolean	extStencilTwoSide;
 
 	qboolean	extCompiledVertArray;
 
@@ -144,11 +144,15 @@ typedef struct
 	qboolean	arb_vertex_program;
 	qboolean	NV_texshaders;
 
+	qboolean	ext_packed_depth_stencil;
+	qboolean	ext_framebuffer_object;
+	qboolean	arb_sync;
+
 	// anisotropic filtering
 	qboolean	anisotropic;
 	float		max_anisotropy;
 
-	qboolean	newTexFormat;			// whether to use GL_RGBA textures / GL_BGRA lightmaps
+	qboolean	newLMFormat;			// whether to use GL_BGRA lightmaps
 } glconfig_t;
 extern	glconfig_t glConfig;
 

@@ -116,7 +116,6 @@ cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_nonpoweroftwo_mipmaps;		// Knightmare- non-power-of-two texture support
 cvar_t	*r_newlightmapformat;			// Knightmare- whether to use new lightmap format
 
-cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 cvar_t	*r_arb_fragment_program;
 cvar_t	*r_arb_vertex_program;
 cvar_t	*r_arb_vertex_buffer_object;
@@ -170,6 +169,7 @@ cvar_t	*r_polyblend;
 cvar_t	*r_flashblend;
 cvar_t  *r_saturatelighting;
 cvar_t	*r_swapinterval;
+cvar_t  *r_adaptivevsync;
 cvar_t	*r_texturemode;
 cvar_t	*r_texturealphamode;
 cvar_t	*r_texturesolidmode;
@@ -1176,9 +1176,6 @@ void R_Register (void)
 
 	r_newlightmapformat = Cvar_Get("r_newlightmapformat", "1", CVAR_ARCHIVE);	// whether to use new lightmap format
 
-	// Echon's two-sided stenciling
-	r_stencilTwoSide = Cvar_Get ("r_stencilTwoSide", "0", CVAR_ARCHIVE);
-
 	r_arb_fragment_program = Cvar_Get ("r_arb_fragment_program", "1", CVAR_ARCHIVE);
 	r_arb_vertex_program = Cvar_Get ("_arb_vertex_program", "1", CVAR_ARCHIVE);
 
@@ -1213,6 +1210,7 @@ void R_Register (void)
 
 	r_drawbuffer = Cvar_Get( "r_drawbuffer", "GL_BACK", 0 );
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
+	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
 
 	r_saturatelighting = Cvar_Get( "r_saturatelighting", "0", 0 );
 
@@ -1367,10 +1365,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.version_string = glGetString (GL_VERSION);
 	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);	
 	
-	if (glConfig.version_major < 2)
+	if (glConfig.version_major < 2 || (glConfig.version_major == 2 && glConfig.version_minor < 1))
 	{
 		QGL_Shutdown();
-		memcpy (reason, "Could not get OpenGL 2.0 or higher context!\0", 44);
+		memcpy (reason, "Could not get OpenGL 2.1 or higher context!\0", 44);
 		return false;
 	}
 
@@ -1529,12 +1527,28 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 #ifdef _WIN32
 	// WGL_EXT_swap_control
-	if ( strstr( glConfig.extensions_string, "WGL_EXT_swap_control" ) )
+	glConfig.ext_swap_control = false;
+	
+	if ( WGLEW_EXT_swap_control )
 	{
+		glConfig.ext_swap_control = true;
 		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
 	}
 	else
-		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
+		
+	VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
+	
+	
+	// WGL_EXT_swap_control_tear
+	glConfig.ext_swap_control_tear = false;
+
+	if ( WGLEW_EXT_swap_control_tear )
+	{
+		glConfig.ext_swap_control_tear = true;
+		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control_tear\n" );
+	}
+	else
+		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control_tear not found\n" );
 #endif
 
 

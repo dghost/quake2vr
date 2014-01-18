@@ -54,7 +54,6 @@ static menulist_s		s_particle_overdraw_box;
 static menulist_s		s_lightbloom_box;
 static menulist_s		s_modelshading_box;
 static menulist_s		s_shadows_box;
-static menulist_s		s_two_side_stencil_box;
 static menulist_s  		s_ent_shell_box;
 static menulist_s  		s_glass_envmap_box;
 static menulist_s  		s_screenshotjpeg_box;
@@ -113,9 +112,6 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_shadows", ClampCvar( 0, 3, Cvar_VariableValue("r_shadows") ) );
 	s_shadows_box.curvalue	= Cvar_VariableValue("r_shadows");
-
-	Cvar_SetValue( "r_stencilTwoSide", ClampCvar( 0, 1, Cvar_VariableValue("r_stencilTwoSide") ) );
-	s_two_side_stencil_box.curvalue = Cvar_VariableValue("r_stencilTwoSide");
 
 	Cvar_SetValue( "r_shelltype", ClampCvar( 0, 2, Cvar_VariableValue("r_shelltype") ) );
 	s_ent_shell_box.curvalue = Cvar_VariableValue("r_shelltype");
@@ -205,11 +201,6 @@ static void ShadowsCallback ( void *unused )
 	Cvar_SetValue( "r_shadows", s_shadows_box.curvalue);
 }
 
-static void TwoSideStencilCallback ( void *unused )
-{
-	Cvar_SetValue( "r_stencilTwoSide", s_two_side_stencil_box.curvalue);
-}
-
 static void EntShellCallback ( void *unused )
 {
 	Cvar_SetValue( "r_shelltype", s_ent_shell_box.curvalue);
@@ -232,7 +223,7 @@ static void SaveshotSizeCallback ( void *unused )
 
 static void AdvancedMenuApplyChanges ( void *unused )
 {
-	// update for modified r_intensity and r_stencilTwoSide
+	// update for modified r_intensity
 	if (r_intensity->modified)
 		vid_ref->modified = true;
 }
@@ -430,14 +421,6 @@ void Menu_Video_Advanced_Init (void)
 	s_shadows_box.itemnames					= shadow_names;
 	s_shadows_box.generic.statusbar			= "type of model shadows to draw";
 
-	s_two_side_stencil_box.generic.type			= MTYPE_SPINCONTROL;
-	s_two_side_stencil_box.generic.x			= 0;
-	s_two_side_stencil_box.generic.y			= y += MENU_LINE_SIZE;
-	s_two_side_stencil_box.generic.name			= "two-sided stenciling";
-	s_two_side_stencil_box.generic.callback		= TwoSideStencilCallback;
-	s_two_side_stencil_box.itemnames			= ifsupported_names;
-	s_two_side_stencil_box.generic.statusbar	= "use single-pass shadow stenciling";
-
 	s_ent_shell_box.generic.type				= MTYPE_SPINCONTROL;
 	s_ent_shell_box.generic.x					= 0;
 	s_ent_shell_box.generic.y					= y += MENU_LINE_SIZE;
@@ -501,7 +484,6 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightbloom_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_modelshading_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_shadows_box );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_two_side_stencil_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_ent_shell_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpeg_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpegquality_slider );

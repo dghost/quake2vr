@@ -605,16 +605,30 @@ void GL_UpdateSwapInterval (void)
 	if (registering != registration_active)
 		r_swapinterval->modified = true;
 
+	if (r_adaptivevsync->modified)
+	{
+		Cvar_SetInteger("r_adaptivevsync",!!r_adaptivevsync->value);
+		r_swapinterval->modified = true;
+		r_adaptivevsync->modified = false;
+	}
 	if ( r_swapinterval->modified )
 	{
+		int sync = 0;
+		int tear = (r_adaptivevsync->value ? -1 : 1);
+		Cvar_SetInteger("r_swapinterval", abs(r_swapinterval->value));
 		r_swapinterval->modified = false;
+		
+		sync = r_swapinterval->value;
+		if (glConfig.ext_swap_control_tear)
+			sync *= tear;
 
 		registering = registration_active;
-
 		if ( !glState.stereo_enabled ) 
 		{
-			if ( wglSwapIntervalEXT )
-				wglSwapIntervalEXT( (registration_active) ? 0 : r_swapinterval->value );
+			if ( glConfig.ext_swap_control )
+#ifdef _WIN32
+				wglSwapIntervalEXT( (registration_active) ? 0 : sync );
+#endif
 		}
 	}
 }

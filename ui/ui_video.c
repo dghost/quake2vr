@@ -51,6 +51,7 @@ static menulist_s		s_aniso_box;
 static menulist_s		s_npot_mipmap_box;
 //static menulist_s  		s_texcompress_box;
 static menulist_s  		s_vsync_box;
+static menulist_s		s_adaptivevsync_box;
 static menulist_s		s_refresh_box;	// Knightmare- refresh rate option
 static menulist_s  		s_adjust_fov_box;
 static menuaction_s		s_advanced_action;
@@ -91,17 +92,8 @@ static void BrightnessCallback( void *s )
 
 static void VsyncCallback ( void *unused )
 {
-	switch(s_vsync_box.curvalue)
-	{
-	default:
-	case 0:
-	case 1:
-		Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue);
-	break;
-	case 2:
-		Cvar_SetValue( "r_swapinterval", -1);
-	break;
-	}
+	Cvar_SetValue( "r_adaptivevsync", s_adaptivevsync_box.curvalue);
+	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue);
 }
 
 static void AdjustFOVCallback ( void *unused )
@@ -125,6 +117,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_picmip");
 	Cvar_SetToDefault ("r_ext_texture_compression");
 	Cvar_SetToDefault ("r_swapinterval");
+	Cvar_SetToDefault ("r_adaptivevsync");
 	Cvar_SetToDefault ("r_displayrefresh");
 	Cvar_SetToDefault ("cl_widescreen_fov");
 
@@ -143,7 +136,6 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_bloom");
 	Cvar_SetToDefault ("r_model_shading");
 	Cvar_SetToDefault ("r_shadows");
-	Cvar_SetToDefault ("r_stencilTwoSide");
 	Cvar_SetToDefault ("r_shelltype");
 	Cvar_SetToDefault ("r_screenshot_jpeg");
 	Cvar_SetToDefault ("r_screenshot_jpeg_quality");
@@ -424,14 +416,6 @@ void Menu_Video_Init (void)
 		0
 	};
 
-	static const char *vsync_names[] =
-	{
-		"no",
-		"yes",
-		"adaptive",
-		0
-	};
-
 	int		y = 0;
 	float	temp;
 
@@ -528,9 +512,19 @@ void Menu_Video_Init (void)
 	s_vsync_box.generic.y				= y += 2*MENU_LINE_SIZE;
 	s_vsync_box.generic.name			= "video sync";
 	s_vsync_box.generic.callback		= VsyncCallback;
-	s_vsync_box.curvalue				= Cvar_VariableValue("r_swapinterval") == -1 ? 2 : (int) Cvar_VariableValue("r_swapinterval");
-	s_vsync_box.itemnames				= vsync_names;
+	s_vsync_box.curvalue				= (int) Cvar_VariableValue("r_swapinterval");
+	s_vsync_box.itemnames				= yesno_names;
 	s_vsync_box.generic.statusbar		= "sync framerate with monitor refresh";
+
+	s_adaptivevsync_box.generic.type			= MTYPE_SPINCONTROL;
+	s_adaptivevsync_box.generic.x				= 0;
+	s_adaptivevsync_box.generic.y				= y += MENU_LINE_SIZE;
+	s_adaptivevsync_box.generic.name			= "adaptive vsync";
+	s_adaptivevsync_box.generic.callback		= VsyncCallback;
+	s_adaptivevsync_box.curvalue				= (int) Cvar_VariableValue("r_adaptivevsync");
+	s_adaptivevsync_box.itemnames				= yesno_names;
+	s_adaptivevsync_box.generic.statusbar		= "force vsync only when framerate is above monitor refresh";
+
 
 	// Knightmare- refresh rate option
 	s_refresh_box.generic.type			= MTYPE_SPINCONTROL;
@@ -585,6 +579,7 @@ void Menu_Video_Init (void)
 	Menu_AddItem( &s_video_menu, ( void * ) &s_npot_mipmap_box );
 //	Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_vsync_box );
+	Menu_AddItem( &s_video_menu, ( void * ) &s_adaptivevsync_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_refresh_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_adjust_fov_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_advanced_action );

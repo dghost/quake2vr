@@ -256,7 +256,6 @@ extern	cvar_t	*r_ext_compiled_vertex_array;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
 extern	cvar_t	*r_newlightmapformat;	// Knightmare- whether to use new lightmap format
 
-extern	cvar_t	*r_stencilTwoSide; // Echon's two-sided stenciling
 extern	cvar_t	*r_arb_vertex_buffer_object;
 extern	cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
 extern	cvar_t	*r_trans_lighting; // allow disabling of lighting on trans surfaces
@@ -307,6 +306,7 @@ extern	cvar_t	*r_modulate;
 extern	cvar_t	*r_drawbuffer;
 extern	cvar_t	*r_3dlabs_broken;
 extern	cvar_t	*r_swapinterval;
+extern  cvar_t  *r_adaptivevsync;
 extern	cvar_t	*r_anisotropic;
 extern	cvar_t	*r_anisotropic_avail;
 extern	cvar_t	*r_texturemode;
@@ -777,6 +777,9 @@ typedef struct
 	int			version_release;
 
 	qboolean	allowCDS;
+	qboolean	ext_swap_control;
+	qboolean	ext_swap_control_tear;
+
 	// max texture size
 	int			max_texsize;
 	int			max_texunits;
