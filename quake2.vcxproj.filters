@@ -204,9 +204,6 @@
     <ClCompile Include="win32\glw_imp.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="win32\qgl_win.c">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\r_alias.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>

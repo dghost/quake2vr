@@ -738,28 +738,15 @@ void R_SetFogVars (qboolean enable, int model, int density,
 enum {
 	GLREND_DEFAULT		= 1 << 0,
 
-	GLREND_MCD			= 1 << 1,
-	GLREND_3DLABS		= 1 << 2,
-	GLREND_GLINT_MX		= 1 << 3,
-	GLREND_PCX1			= 1 << 4,
-	GLREND_PCX2			= 1 << 5,
-	GLREND_PERMEDIA2	= 1 << 6,
-	GLREND_PMX			= 1 << 7,
-	GLREND_POWERVR		= 1 << 8,
-	GLREND_REALIZM		= 1 << 9,
-	GLREND_RENDITION	= 1 << 10,
-	GLREND_SGI			= 1 << 11,
-	GLREND_SIS			= 1 << 12,
-	GLREND_VOODOO		= 1 << 13,
+	GLREND_POWERVR		= 1 << 1,
+	
+	GLREND_NVIDIA		= 1 << 2,
+	GLREND_GEFORCE		= 1 << 3,
 
-	GLREND_NVIDIA		= 1 << 14,
-	GLREND_GEFORCE		= 1 << 15,
+	GLREND_ATI			= 1 << 4,
+	GLREND_RADEON		= 1 << 5,
 
-	GLREND_ATI			= 1 << 16,
-	GLREND_RADEON		= 1 << 17,
-
-	GLREND_MATROX		= 1 << 18,
-	GLREND_INTEL		= 1 << 19
+	GLREND_INTEL		= 1 << 6
 };
 
 

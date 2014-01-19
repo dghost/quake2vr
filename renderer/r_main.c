@@ -1320,27 +1320,17 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	// place default error
 	memcpy (reason, "Unknown failure on intialization!\0", 34);
-
+	
 #ifdef _WIN32
 	// output system info
 	VID_Printf (PRINT_ALL, "OS: %s\n", Cvar_VariableString("sys_osVersion"));
 	VID_Printf (PRINT_ALL, "CPU: %s\n", Cvar_VariableString("sys_cpuString"));
 	VID_Printf (PRINT_ALL, "RAM: %s MB\n", Cvar_VariableString("sys_ramMegs"));
 #endif
-
-	// initialize our QGL dynamic bindings
-	if ( !QGL_Init( gl_driver->string ) )
-	{
-		QGL_Shutdown();
-        VID_Printf (PRINT_ALL, "R_Init() - could not load \"%s\"\n", gl_driver->string );
-		memcpy (reason, "Init of QGL dynamic bindings Failed!\0", 37);
-		return false;
-	}
-
+	glConfig.allowCDS = true;
 	// initialize OS-specific parts of OpenGL
 	if ( !GLimp_Init( hinstance, hWnd ) )
 	{
-		QGL_Shutdown();
 		memcpy (reason, "Init of OS-specific parts of OpenGL Failed!\0", 44);
 		return false;
 	}
@@ -1349,7 +1339,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	// create the window and set up the context
 	if ( !R_SetMode () )
 	{
-		QGL_Shutdown();
         VID_Printf (PRINT_ALL, "R_Init() - could not R_SetMode()\n" );
 		memcpy (reason, "Creation of the window/context set-up Failed!\0", 46);
 		return false;
@@ -1367,7 +1356,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	
 	if (glConfig.version_major < 2 || (glConfig.version_major == 2 && glConfig.version_minor < 1))
 	{
-		QGL_Shutdown();
 		memcpy (reason, "Could not get OpenGL 2.1 or higher context!\0", 44);
 		return false;
 	}
@@ -1427,30 +1415,15 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		glConfig.rendType = GLREND_ATI;
 		if (strstr(vendor_buffer, "radeon"))		glConfig.rendType |= GLREND_RADEON;
 	}
-	else if (strstr(vendor_buffer, "matrox"))		glConfig.rendType = GLREND_MATROX;
 	else if (strstr(vendor_buffer, "intel"))		glConfig.rendType = GLREND_INTEL;
-	else if (strstr	(vendor_buffer, "sgi"))			glConfig.rendType = GLREND_SGI;
-	else if (strstr	(renderer_buffer, "permedia"))	glConfig.rendType = GLREND_PERMEDIA2;
-	else if (strstr	(renderer_buffer, "glint"))		glConfig.rendType = GLREND_GLINT_MX;
-	else if (strstr	(renderer_buffer, "glzicd"))	glConfig.rendType = GLREND_REALIZM;
-	else if (strstr	(renderer_buffer, "pcx1"))		glConfig.rendType = GLREND_PCX1;
-	else if (strstr	(renderer_buffer, "pcx2"))		glConfig.rendType = GLREND_PCX2;
-	else if (strstr	(renderer_buffer, "pmx"))		glConfig.rendType = GLREND_PMX;
-	else if (strstr	(renderer_buffer, "verite"))	glConfig.rendType = GLREND_RENDITION;
-	else if (strstr	(vendor_buffer, "sis"))			glConfig.rendType = GLREND_SIS;
-	else if (strstr (renderer_buffer, "voodoo"))	glConfig.rendType = GLREND_VOODOO;
-	else if (strstr	(renderer_buffer, "gdi generic")) glConfig.rendType = GLREND_MCD;
 	else											glConfig.rendType = GLREND_DEFAULT;
 
+
+	// wat?
 	if ( toupper( r_monolightmap->string[1] ) != 'F' )
 	{
-		if (glConfig.rendType == GLREND_PERMEDIA2)
-		{
-			Cvar_Set( "r_monolightmap", "A" );
-			VID_Printf (PRINT_ALL, "...using r_monolightmap 'a'\n" );
-		}
-		else
-			Cvar_Set( "r_monolightmap", "0" );
+		// dghost - there used to be a 3DLabs branch here
+		Cvar_Set( "r_monolightmap", "0" );
 	}
 
 	Cvar_Set( "scr_drawall", "0" );
@@ -1462,20 +1435,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 #endif
 	r_swapinterval->modified = true;	// force swapinterval update
 
-	// MCD has buffering issues
-	if (glConfig.rendType == GLREND_MCD)
-		Cvar_SetValue( "r_finish", 1 );
-
-	if (glConfig.rendType & GLREND_3DLABS)
-	{
-		if ( r_3dlabs_broken->value )
-			glConfig.allowCDS = false;
-		else
-			glConfig.allowCDS = true;
-	}
-	else
-		glConfig.allowCDS = true;
-
 	if (glConfig.allowCDS)
 		VID_Printf (PRINT_ALL, "...allowing CDS\n" );
 	else
@@ -1484,9 +1443,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	// TODO: Consider removing all this hacked up shit
 	// If using one of the mini-drivers, a Voodoo w/ WickedGL, or pre-1.2 driver,
 	// use the texture formats determined by gl_texturesolidmode and gl_texturealphamode.
-	if ( Q_stricmp(gl_driver->string, "opengl32") || glConfig.rendType == GLREND_VOODOO
-		|| (glConfig.version_major < 2 && glConfig.version_minor < 2)
-		|| (!r_newlightmapformat || !r_newlightmapformat->value) )
+	if (!r_newlightmapformat || !r_newlightmapformat->value)
 	{
 		VID_Printf (PRINT_ALL, "...using legacy lightmap format\n" );
 		glConfig.newLMFormat = false;
@@ -1792,7 +1749,6 @@ void R_Shutdown (void)
 	//
 	// shutdown our QGL subsystem
 	//
-	QGL_Shutdown();
 }
 
 
@@ -1841,18 +1797,6 @@ void R_BeginFrame( float camera_separation )
 	if ( vid_gamma->modified )
 	{
 		vid_gamma->modified = false;
-
-		if ( glConfig.rendType == GLREND_VOODOO )
-		{
-			char envbuffer[1024];
-			float g;
-
-			g = 2.00 * ( 0.8 - ( vid_gamma->value - 0.5 ) ) + 1.0F;
-			Com_sprintf( envbuffer, sizeof(envbuffer), "SSTV2_GAMMA=%f", g );
-			putenv( envbuffer );
-			Com_sprintf( envbuffer, sizeof(envbuffer), "SST_GAMMA=%f", g );
-			putenv( envbuffer );
-		}
 		UpdateGammaRamp ();
 	}
 

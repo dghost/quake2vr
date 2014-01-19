@@ -263,7 +263,6 @@
     <ClCompile Include="win32\sys_win.c" />
     <ClCompile Include="win32\vid_dll.c" />
     <ClCompile Include="win32\glw_imp.c" />
-    <ClCompile Include="win32\qgl_win.c" />
     <ClCompile Include="renderer\r_alias.c" />
     <ClCompile Include="renderer\r_alias_md2.c" />
     <ClCompile Include="renderer\r_alias_misc.c" />

@@ -61,6 +61,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #endif // Q2VR_REGAL
-qboolean QGL_Init( const char *dllname );
-void     QGL_Shutdown( void );
+
 #endif

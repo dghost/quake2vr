@@ -2240,12 +2240,6 @@ void R_InitImages (void)
 			VID_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}
 
-	if (glConfig.rendType == GLREND_VOODOO)
-	//if ( glConfig.renderer & ( GL_RENDERER_VOODOO | GL_RENDERER_VOODOO2 ) )
-	{
-		g = 1.0F;
-	}
-
 	for ( i = 0; i < 256; i++ )
 	{
 		if ( g == 1 )
