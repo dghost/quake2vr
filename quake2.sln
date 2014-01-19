@@ -14,6 +14,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Release - Regal|Win32 = Release - Regal|Win32
+		Release - Regal|x64 = Release - Regal|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -21,12 +23,18 @@ Global
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Debug|Win32.Build.0 = Debug|Win32
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Debug|x64.ActiveCfg = Debug|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release - Regal|Win32.ActiveCfg = Release - Regal|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release - Regal|Win32.Build.0 = Release - Regal|Win32
+		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release - Regal|x64.ActiveCfg = Release - Regal|Win32
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release|Win32.ActiveCfg = Release|Win32
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release|Win32.Build.0 = Release|Win32
 		{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}.Release|x64.ActiveCfg = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Debug|Win32.ActiveCfg = Debug|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Debug|Win32.Build.0 = Debug|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Debug|x64.ActiveCfg = Debug|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release - Regal|Win32.ActiveCfg = Release|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release - Regal|Win32.Build.0 = Release|Win32
+		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release - Regal|x64.ActiveCfg = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.ActiveCfg = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.Build.0 = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|x64.ActiveCfg = Release|Win32
@@ -34,6 +42,10 @@ Global
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|Win32.Build.0 = Debug|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|x64.ActiveCfg = Debug|x64
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|x64.Build.0 = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release - Regal|Win32.ActiveCfg = Release|Win32
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release - Regal|Win32.Build.0 = Release|Win32
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release - Regal|x64.ActiveCfg = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release - Regal|x64.Build.0 = Release|x64
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|Win32.ActiveCfg = Release|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|Win32.Build.0 = Release|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|x64.ActiveCfg = Release|x64

@@ -29,6 +29,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #define GLEW_STATIC
+
+#ifdef Q2VR_REGAL
+#define REGAL_NO_HTTP
+#include "include/GL/RegalGLEW.h"
+//#include <GL/gl.h>
+
+#ifdef __linux__
+//#include <GL/fxmesa.h>
+#include "include/GL/RegalGLXEW.h"
+//#include <GL/glx.h>
+#endif
+
+#ifdef _WIN32
+#include "include/GL/RegalWGLEW.h"
+#endif
+
+#else
+
 #include "include/GL/glew.h"
 //#include <GL/gl.h>
 
@@ -42,6 +60,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "include/GL/wglew.h"
 #endif
 
+#endif // Q2VR_REGAL
 qboolean QGL_Init( const char *dllname );
 void     QGL_Shutdown( void );
 #endif

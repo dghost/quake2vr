@@ -1377,14 +1377,12 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	VID_Printf (PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
 
-#ifdef __REGAL_H__
-	glEnable(GL_LOG_WARNING_REGAL);
-	glEnable(GL_LOG_ERROR_REGAL);
+#ifdef Q2VR_REGAL
+//	glEnable(GL_LOG_WARNING_REGAL);
+//	glEnable(GL_LOG_ERROR_REGAL);
 //	glDisable(GL_DRIVER_REGAL);
-	glDisable(GL_EMULATION_REGAL);
-	VID_Printf (PRINT_ALL, "GL_DRIVER_REGAL: %s\n", glIsEnabled(GL_DRIVER_REGAL) ? "enabled" : "disabled");
+//	glDisable(GL_EMULATION_REGAL);
 	VID_Printf (PRINT_ALL, "GL_EMULATION_REGAL: %s\n", glIsEnabled(GL_EMULATION_REGAL) ? "enabled" : "disabled");
-
 #endif
 
 	// Knighmare- added max texture size
