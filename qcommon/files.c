@@ -1150,7 +1150,7 @@ char *pakfile_ignore_names[] =
 	"save/",
 	"scrnshot/",
 	"autoexec.cfg",
-	"kmq2config.cfg",
+	"vrconfig.cfg",
 	0
 };
 

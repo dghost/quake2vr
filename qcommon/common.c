@@ -1656,14 +1656,14 @@ void Qcommon_Init (int argc, char **argv)
 	FS_InitFilesystem ();
 
 	Cbuf_AddText ("exec default.cfg\n");
-	Cbuf_AddText ("exec kmq2config.cfg\n");
+	Cbuf_AddText ("exec vrconfig.cfg\n");
 
-	// Knightmare- look for kmq2config.cfg, if not there, try config.cfg
+	// Knightmare- look for vrconfig.cfg, if not there, try config.cfg
 	// removed because some settings in existing config.cfgs may cause problems
-	/*FS_LoadFile ("kmq2config.cfg", (void **)&cfgfile);
+	/*FS_LoadFile ("vrconfig.cfg", (void **)&cfgfile);
 	if (cfgfile)
 	{
-		Cbuf_AddText ("exec kmq2config.cfg\n");
+		Cbuf_AddText ("exec vrconfig.cfg\n");
 		FS_FreeFile (cfgfile);
 	}
 	else

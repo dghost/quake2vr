@@ -967,7 +967,7 @@ void SV_StartMod (char *mod)
 	Cbuf_AddText (va("game %s\n", mod));
 	Cbuf_AddText ("unbindall\n");
 	Cbuf_AddText ("exec default.cfg\n");
-	Cbuf_AddText ("exec kmq2config.cfg\n");
+	Cbuf_AddText ("exec vrconfig.cfg\n");
 	Cbuf_AddText ("exec autoexec.cfg\n");
 	Cbuf_AddText ("d1\n");
 }

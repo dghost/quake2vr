@@ -1582,13 +1582,13 @@ void CL_WriteConfiguration (char *cfgName)
 
 	// Knightmare changed- use separate config for better cohabitation
 	//Com_sprintf (path, sizeof(path),"%s/config.cfg",FS_Gamedir());
-//	Com_sprintf (path, sizeof(path),"%s/kmq2config.cfg",FS_Gamedir());
+//	Com_sprintf (path, sizeof(path),"%s/vrconfig.cfg",FS_Gamedir());
 	Com_sprintf (path, sizeof(path),"%s/%s.cfg", FS_Gamedir(), cfgName);
 	f = fopen (path, "w");
 	if (!f)
 	{	// Knightmare changed- use separate config for better cohabitation
 		//Com_Printf ("Couldn't write config.cfg.\n");
-	//	Com_Printf ("Couldn't write kmq2config.cfg.\n");
+	//	Com_Printf ("Couldn't write vrconfig.cfg.\n");
 		Com_Printf ("Couldn't write %s.cfg.\n", cfgName);
 		return;
 	}
@@ -1615,7 +1615,7 @@ void CL_WriteConfig_f (void)
 	if (Cmd_Argc() == 1 || Cmd_Argc() == 2)
 	{
 		if (Cmd_Argc() == 1)
-			Com_sprintf (cfgName, sizeof(cfgName), "kmq2config");
+			Com_sprintf (cfgName, sizeof(cfgName), "vrconfig");
 		else // if (Cmd_Argc() == 2)
 			strncpy (cfgName, Cmd_Argv(1), sizeof(cfgName));
 
@@ -1879,7 +1879,7 @@ void CL_Shutdown (void)
 	}
 	isdown = true;
 
-	CL_WriteConfiguration ("kmq2config"); 
+	CL_WriteConfiguration ("vrconfig"); 
 
 	CDAudio_Shutdown ();
 
