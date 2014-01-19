@@ -1058,10 +1058,11 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
-
+	int i = 0;
 	//Knightmare- changed DLL name for better cohabitation
-	const char *gamename = "kmq2gamex86.dll"; 
-
+	const char *dllnames[2] = {"vrgamex86.dll", "kmq2gamex86.dll"};
+	const char *gamename = NULL;
+	
 #ifdef NDEBUG
 	const char *debugdir = "release";
 #else
@@ -1070,14 +1071,21 @@ void *Sys_GetGameAPI (void *parms)
 
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
-
+	
+	
+	
 	// check the current debug directory first for development purposes
 	_getcwd (cwd, sizeof(cwd));
-	Com_sprintf (name, sizeof(name), "%s/%s/%s", cwd, debugdir, gamename);
-	game_library = LoadLibrary ( name );
+	
+	for (i = 0; (i < 2) && (game_library == NULL); i++)
+	{
+		gamename = dllnames[i];
+		Com_sprintf (name, sizeof(name), "%s/%s/%s", cwd, debugdir, gamename);
+		game_library = LoadLibrary ( name );
+	}
 	if (game_library)
 	{
-		Com_DPrintf ("LoadLibrary (%s)\n", name);
+		Com_Printf ("LoadLibrary (%s)\n", name);
 	}
 	else
 	{
@@ -1099,11 +1107,15 @@ void *Sys_GetGameAPI (void *parms)
 				path = FS_NextPath (path);
 				if (!path)
 					return NULL;		// couldn't find one anywhere
-				Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
-				game_library = LoadLibrary (name);
+				for (i = 0; (i < 2) && (game_library == NULL); i++)
+				{
+					gamename = dllnames[i];
+					Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
+					game_library = LoadLibrary (name);
+				}
 				if (game_library)
 				{
-					Com_DPrintf ("LoadLibrary (%s)\n",name);
+					Com_Printf ("LoadLibrary (%s)\n",name);
 					break;
 				}
 			}
