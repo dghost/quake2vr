@@ -1050,7 +1050,7 @@ SCR_DrawLoading
 void SCR_DrawLoading (void)
 {
 	int			plaqueOffset;
-	char		mapfile[32];
+//	char		mapfile[32];
 	char		*loadMsg;
 	qboolean	isMap = false, haveMapPic = false, widescreen;
 	qboolean	simplePlaque = (scr_simple_loadscreen->value != 0);

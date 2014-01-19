@@ -1085,7 +1085,7 @@ void *Sys_GetGameAPI (void *parms)
 	}
 	if (game_library)
 	{
-		Com_Printf ("LoadLibrary (%s)\n", name);
+		Com_DPrintf ("LoadLibrary (%s)\n", name);
 	}
 	else
 	{
@@ -1115,7 +1115,7 @@ void *Sys_GetGameAPI (void *parms)
 				}
 				if (game_library)
 				{
-					Com_Printf ("LoadLibrary (%s)\n",name);
+					Com_DPrintf ("LoadLibrary (%s)\n",name);
 					break;
 				}
 			}

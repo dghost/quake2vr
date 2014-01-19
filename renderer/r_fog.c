@@ -87,7 +87,7 @@ void R_SetFogVars (qboolean enable, int model, int density,
 	//	model, density, start, end, red, green, blue );
 
 	// Skip this if QGL subsystem is already down
-	if (!glDisable)	return;
+	//if (!glDisable)	return;
 
 	r_fogenable = enable;
 	if (!r_fogenable) { // recieved fog disable message
