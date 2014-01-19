@@ -2221,7 +2221,7 @@ extern void R_VR_StartFrame();
 extern void R_VR_Present();
 void VR_UpdateScreen (void)
 {
-//	R_VR_StartFrame();
+	R_VR_StartFrame();
 
 	viddef.width = vrState.hudWidth;
 	viddef.height = vrState.hudHeight;
@@ -2337,7 +2337,7 @@ void VR_UpdateScreen (void)
 	}
 	R_VR_Present();
 	GLimp_EndFrame();
-	R_VR_StartFrame();
+	//R_VR_StartFrame();
 }
 
 

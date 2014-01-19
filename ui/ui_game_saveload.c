@@ -70,7 +70,7 @@ void Load_Savestrings (qboolean update)
 
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
-		Com_sprintf (name, sizeof(name), "%s/save/kmq2save%i/server.ssv", FS_Gamedir(), i);
+		Com_sprintf (name, sizeof(name), "%s/save/vrsave%i/server.ssv", FS_Gamedir(), i);
 
 		old_timestamp = m_savetimestamps[i];
 		stat(name, &st);
@@ -92,7 +92,7 @@ void Load_Savestrings (qboolean update)
 		else
 		{
 			fclose (fp);
-			Com_sprintf (name, sizeof(name), "save/kmq2save%i/server.ssv", i);
+			Com_sprintf (name, sizeof(name), "save/vrsave%i/server.ssv", i);
 			FS_FOpenFile (name, &f, FS_READ);
 			if (!f)
 			{
@@ -138,9 +138,9 @@ void ValidateSaveshots (void)
 				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
 			else
 			{	// free previously loaded shots
-				Com_sprintf(shotname, sizeof(shotname), "save/kmq2save%i/shot.jpg", i);
+				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.jpg", i);
 				R_FreePic (shotname);
-				Com_sprintf(shotname, sizeof(shotname), "/save/kmq2save%i/shot.jpg", i);
+				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.jpg", i);
 			}
 			if (R_DrawFindPic(shotname))
 				m_saveshotvalid[i] = true;
@@ -202,16 +202,25 @@ void DrawSaveshot (qboolean loadmenu)
 	char shotname [MAX_QPATH];
 	char mapshotname [MAX_QPATH];
 	int i;
-	if (loadmenu)
-		i = s_loadgame_actions[s_loadgame_menu.cursor].generic.localdata[0];
-	else
-		i = s_savegame_actions[s_savegame_menu.cursor].generic.localdata[0];
 
+	
+	if (loadmenu)
+	{
+		if (s_loadgame_menu.cursor +1  == s_loadgame_menu.nitems)
+			return;
+		i = s_loadgame_actions[s_loadgame_menu.cursor].generic.localdata[0];
+	}
+	else
+	{
+		if (s_savegame_menu.cursor +1 == s_savegame_menu.nitems)
+			return;
+		i = s_savegame_actions[s_savegame_menu.cursor].generic.localdata[0];
+	}
 	SCR_DrawFill (SCREEN_WIDTH/2+44, SCREEN_HEIGHT/2-60, 244, 184, ALIGN_CENTER, 60,60,60,255);
 
-	if ( m_savevalid[i] && m_saveshotvalid[i] )
+	if ( i != 0 && m_savevalid[i] && m_saveshotvalid[i] )
 	{
-		Com_sprintf(shotname, sizeof(shotname), "/save/kmq2save%i/shot.jpg", i);
+		Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.jpg", i);
 
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, shotname, 1.0);
 	}
@@ -225,6 +234,7 @@ void DrawSaveshot (qboolean loadmenu)
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/ui/noscreen.pcx", 1.0);
 	else
 		SCR_DrawFill (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);
+
 }
 
 
@@ -245,13 +255,13 @@ void LoadGameCallback( void *self )
 
 	// set saveshot name here
 	if ( m_saveshotvalid[ a->generic.localdata[0] ] ) {
-		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/kmq2save%i/shot.jpg", a->generic.localdata[0]);
+		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%i/shot.jpg", a->generic.localdata[0]);
 		load_saveshot = loadshotname; }
 	else
 		load_saveshot = NULL;
 
 	if ( m_savevalid[ a->generic.localdata[0] ] )
-		Cbuf_AddText (va("load kmq2save%i\n",  a->generic.localdata[0] ) );
+		Cbuf_AddText (va("load vrsave%i\n",  a->generic.localdata[0] ) );
 	UI_ForceMenuOff ();
 }
 
@@ -334,7 +344,7 @@ void SaveGameCallback( void *self )
 {
 	menuaction_s *a = ( menuaction_s * ) self;
 
-	Cbuf_AddText (va("save kmq2save%i\n", a->generic.localdata[0] ));
+	Cbuf_AddText (va("save vrsave%i\n", a->generic.localdata[0] ));
 	UI_ForceMenuOff ();
 }
 
