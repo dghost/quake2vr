@@ -1354,9 +1354,9 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.version_string = glGetString (GL_VERSION);
 	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);	
 	
-	if (glConfig.version_major < 2 || (glConfig.version_major == 2 && glConfig.version_minor < 1))
+	if (glConfig.version_major < 2)
 	{
-		memcpy (reason, "Could not get OpenGL 2.1 or higher context!\0", 44);
+		memcpy (reason, "Could not get OpenGL 2.0 or higher context!\0", 44);
 		return false;
 	}
 
