@@ -369,6 +369,9 @@
     <ClCompile Include="renderer\r_shaderobjects.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\r_vr_ovr.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
@@ -483,6 +486,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vr\vr_ovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\r_vr_ovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\r_vr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,15 +1,15 @@
-#ifndef __R_VR_H
-#define __R_VR_H
+#ifndef __VR_H
+#define __VR_H
 #include "../qcommon/qcommon.h"
 
 #define PLAYER_HEIGHT_UNITS 56.0f
 #define PLAYER_HEIGHT_M 1.75f
 
-enum vr_eye_t {
+typedef enum {
 	EYE_LEFT = -1,
-	EYE_NONE = 0,
+	EYE_HUD = 0,
 	EYE_RIGHT = 1
-};
+} vr_eye_t;
 
 typedef struct {
 	float viewOffset;
@@ -26,7 +26,7 @@ typedef struct {
 	unsigned int vrHeight;
 	unsigned int hudWidth;
 	unsigned int hudHeight;
-	int eye;
+	vr_eye_t eye;
 } vr_param_t;
 
 // struct for things that may change from frame to frame
@@ -69,7 +69,6 @@ typedef struct {
 	int (*getHeadOffset)(float offset[3]);
 } hmd_interface_t;
 
-hmd_interface_t available_hmds[NUM_HMD_TYPES];
 
 extern cvar_t *vr_enabled;
 extern cvar_t *vr_autoenable;

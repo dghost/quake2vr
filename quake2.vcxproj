@@ -211,6 +211,7 @@
     <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_shaderobjects.c" />
     <ClCompile Include="renderer\r_vr.c" />
+    <ClCompile Include="renderer\r_vr_ovr.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
     <ClCompile Include="ui\ui_options_vr_advanced.c" />
     <ClCompile Include="ui\ui_options_vr_ovr.c" />
@@ -327,6 +328,8 @@
     <ClInclude Include="client\cdaudio.h" />
     <ClInclude Include="client\cinematic.h" />
     <ClInclude Include="client\client.h" />
+    <ClInclude Include="renderer\r_vr.h" />
+    <ClInclude Include="renderer\r_vr_ovr.h" />
     <ClInclude Include="vr\vr.h" />
     <ClInclude Include="vr\vr_libovr.h" />
     <ClInclude Include="vr\vr_ovr.h" />

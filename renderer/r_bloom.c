@@ -226,7 +226,7 @@ void R_Bloom_InitTextures (void)
 	if (vr_enabled->value)
 	{
 		// use screen size
-		screen_texture_width = vrState.vrWidth;
+		screen_texture_width = vrState.vrHalfWidth;
 		screen_texture_height = vrState.vrHeight;
 	} else {
 		//find closer power of 2 to screen size 
@@ -246,6 +246,9 @@ void R_Bloom_InitTextures (void)
 	//init the screen texture
 	size = screen_texture_width * screen_texture_height * 4;
 	data = malloc( size );
+	// malloc failed
+	if (!data)
+		return;
 	memset( data, 255, size );
 	r_bloomscreentexture = R_LoadPic( "***r_bloomscreentexture***", (byte *)data, screen_texture_width, screen_texture_height, it_pic, 3 );
 	free ( data );

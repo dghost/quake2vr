@@ -39,6 +39,8 @@ static vec4_t vr_smoothSeries;
 static vec4_t vr_doubleSmoothSeries;
 static vec4_t vr_smoothOrientation;
 
+static hmd_interface_t available_hmds[NUM_HMD_TYPES];
+
 static hmd_interface_t *hmd;
 
 static hmd_interface_t hmd_none = {
@@ -154,10 +156,7 @@ void VR_GetHeadOffset(vec3_t offset)
 
 	if (hmd->getHeadOffset && hmd->getHeadOffset(headOffset))
 	{
-		// headset returned position offset
-		vec3_t out;
 		// sure, this probably won't work
-		
 		VectorScale(headOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M,offset);
 	} else if (vr_neckmodel->value) {
 		// HMD doesn't support position tracking

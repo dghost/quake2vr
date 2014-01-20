@@ -991,25 +991,5 @@ qboolean R_CompileShader(GLhandleARB shader, const char *source);
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
 void R_DelShaderProgram(r_shaderobject_t *shader);
 
-/*
-====================================================================
-
-r_vr.c
-
-====================================================================
-*/
-
-void R_VR_Init();
-void R_VR_Shutdown();
-void R_VR_Enable();
-void R_VR_Disable();
-void R_VR_StartFrame();
-void R_VR_BindHud();
-void R_VR_BindLeft();
-void R_VR_BindRight();
-void R_VR_BindWorld();
-void R_VR_Present();
-void R_VR_EndFrame();
-void R_VR_DrawHud();
 
 #endif

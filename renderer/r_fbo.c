@@ -23,7 +23,7 @@ int R_GenFBO(int width, int height, fbo_t *FBO)
 		VID_Printf(PRINT_ALL, "R_GenFBO: Texture creation: glGetError() = 0x%x\n", err);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, dep);
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
-//	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);

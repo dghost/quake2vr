@@ -69,18 +69,28 @@ void VR_OVR_CalcRenderParam()
 		float *dk = vr_ovr_settings.distortion_k;
 		float lsd = vr_ovr_autolensdistance->value ? vr_ovr_settings.lens_separation_distance : vr_ovr_lensdistance->value / 1000.0;
 		float h = 1.0f - (2.0f * lsd) / vr_ovr_settings.h_screen_size;
-		float le = (-1.0f - h) * (-1.0f - h);
-		float re = (-1.0f + h) * (-1.0f + h);
 
-		if (le > re)
+		if (lsd > 0)
 		{
-			vrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-			vrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
-		} else 
-		{
-			vrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-			vrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+			float le = (-1.0f - h) * (-1.0f - h);
+			float re = (-1.0f + h) * (-1.0f + h);
+
+			if (le > re)
+			{
+				vrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+				vrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+			} else
+			{
+				vrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+				vrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+			}
+		} else {
+			vrConfig.maxScale = 2.0;
+			vrConfig.minScale = 1.0;
 		}
+
+		if (vrConfig.maxScale >= 2.0)
+			vrConfig.maxScale = 2.0;
 
 		vrConfig.ipd = vr_ovr_settings.interpupillary_distance;
 		vrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
@@ -225,25 +235,6 @@ int VR_OVR_isDeviceAvailable()
 		return 1;
 }
 
-
-void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
-{
-
-	if (!object->program)
-		R_CompileShaderProgram(object);
-
-	shader->shader = object;
-	glUseProgramObjectARB(shader->shader->program);
-
-	shader->uniform.scale = glGetUniformLocationARB(shader->shader->program, "scale");
-	shader->uniform.scale_in = glGetUniformLocationARB(shader->shader->program, "scaleIn");
-	shader->uniform.lens_center = glGetUniformLocationARB(shader->shader->program, "lensCenter");
-	shader->uniform.screen_center = glGetUniformLocationARB(shader->shader->program, "screenCenter");
-	shader->uniform.hmd_warp_param = glGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
-	shader->uniform.chrom_ab_param = glGetUniformLocationARB(shader->shader->program, "chromAbParam");
-	shader->uniform.texture_size = glGetUniformLocationARB(shader->shader->program,"textureSize");
-	glUseProgramObjectARB(0);
-}
 
 int VR_OVR_Enable()
 {
