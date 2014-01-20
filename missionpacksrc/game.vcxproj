@@ -17,10 +17,15 @@
   <PropertyGroup Label="Globals">
     <SccProjectName />
     <SccLocalPath />
-    <ProjectGuid>{09E58C1F-353D-58C5-DE43-60F70BB966AE}</ProjectGuid>
-    <ProjectName>baseq2</ProjectName>
+    <ProjectGuid>{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}</ProjectGuid>
+    <ProjectName>missionpack</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
@@ -28,16 +33,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Regal|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
     <PlatformToolset>v110</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -47,18 +51,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)build\$(Configuration)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <TargetName>vrgamex86</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -71,6 +64,92 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>vrgamex86</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)build\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>vrgamex86</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\release\game.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\release\</ProgramDataBaseFileName>
+    </ClCompile>
+    <Midl>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TypeLibraryName>.\release\game.tlb</TypeLibraryName>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <RedirectOutputAndErrors>NUL</RedirectOutputAndErrors>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\release\game.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkDLL>true</LinkDLL>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
+      <ImportLibrary>.\release\gamex86.lib</ImportLibrary>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Regal|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\release\game.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\release\</ProgramDataBaseFileName>
+    </ClCompile>
+    <Midl>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TypeLibraryName>.\release\game.tlb</TypeLibraryName>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <RedirectOutputAndErrors>NUL</RedirectOutputAndErrors>
+      <TargetEnvironment>Win32</TargetEnvironment>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\release\game.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LinkDLL>true</LinkDLL>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
+      <ImportLibrary>.\release\gamex86.lib</ImportLibrary>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -80,19 +159,18 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
-      <AdditionalIncludeDirectories>c:\3dfx\sdk\glide2x\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;BUILDING_REF_GL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <BrowseInformation>true</BrowseInformation>
-      <PrecompiledHeaderOutputFile>$(IntDir)lazarus.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\debug\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\debug\game.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\debug\</ProgramDataBaseFileName>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>$(IntDir)lazarus.tlb</TypeLibraryName>
+      <TypeLibraryName>.\debug\game.tlb</TypeLibraryName>
       <MkTypLibCompatible>true</MkTypLibCompatible>
+      <RedirectOutputAndErrors>NUL</RedirectOutputAndErrors>
       <TargetEnvironment>Win32</TargetEnvironment>
     </Midl>
     <ResourceCompile>
@@ -101,7 +179,7 @@
     </ResourceCompile>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(IntDir)lazarus.bsc</OutputFile>
+      <OutputFile>.\debug\game.bsc</OutputFile>
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -109,113 +187,20 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <ImportLibrary>$(IntDir)kmq2gamex86.lib</ImportLibrary>
-      <BaseAddress>0x20000000</BaseAddress>
+      <ImportLibrary>.\debug\gamex86.lib</ImportLibrary>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>.\lazarus.def</ModuleDefinitionFile>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <Optimization>MaxSpeed</Optimization>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>c:\3dfx\sdk\glide2x\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(IntDir)lazarus.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-    </ClCompile>
-    <Midl>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>$(IntDir)lazarus.tlb</TypeLibraryName>
-      <MkTypLibCompatible>true</MkTypLibCompatible>
-      <TargetEnvironment>Win32</TargetEnvironment>
-    </Midl>
-    <ResourceCompile>
-      <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-    <Bscmake>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(IntDir)lazarus.bsc</OutputFile>
-    </Bscmake>
-    <Link>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <LinkDLL>true</LinkDLL>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <ImportLibrary>$(IntDir)kmq2gamex86.lib</ImportLibrary>
-      <BaseAddress>0x20000000</BaseAddress>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>.\lazarus.def</ModuleDefinitionFile>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Regal|Win32'">
-    <ClCompile>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <Optimization>MaxSpeed</Optimization>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>c:\3dfx\sdk\glide2x\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <PrecompiledHeaderOutputFile>$(IntDir)lazarus.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-    </ClCompile>
-    <Midl>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <TypeLibraryName>$(IntDir)lazarus.tlb</TypeLibraryName>
-      <MkTypLibCompatible>true</MkTypLibCompatible>
-      <TargetEnvironment>Win32</TargetEnvironment>
-    </Midl>
-    <ResourceCompile>
-      <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-    <Bscmake>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(IntDir)lazarus.bsc</OutputFile>
-    </Bscmake>
-    <Link>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <LinkDLL>true</LinkDLL>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <ImportLibrary>$(IntDir)kmq2gamex86.lib</ImportLibrary>
-      <BaseAddress>0x20000000</BaseAddress>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>.\lazarus.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="acesrc\acebot_ai.c" />
-    <ClCompile Include="acesrc\acebot_cmds.c" />
-    <ClCompile Include="acesrc\acebot_compress.c" />
-    <ClCompile Include="acesrc\acebot_items.c" />
-    <ClCompile Include="acesrc\acebot_movement.c" />
-    <ClCompile Include="acesrc\acebot_nodes.c" />
-    <ClCompile Include="acesrc\acebot_spawn.c" />
+    <ClCompile Include="dm_ball.c" />
+    <ClCompile Include="dm_tag.c" />
     <ClCompile Include="g_ai.c" />
     <ClCompile Include="g_camera.c" />
     <ClCompile Include="g_chase.c" />
     <ClCompile Include="g_cmds.c" />
     <ClCompile Include="g_combat.c" />
     <ClCompile Include="g_crane.c" />
-    <ClCompile Include="g_ctf.c" />
     <ClCompile Include="g_fog.c" />
     <ClCompile Include="g_func.c" />
     <ClCompile Include="g_items.c" />
@@ -223,17 +208,23 @@
     <ClCompile Include="g_lights.c" />
     <ClCompile Include="g_lock.c" />
     <ClCompile Include="g_main.c" />
+    <ClCompile Include="g_mappack.c" />
     <ClCompile Include="g_misc.c" />
-    <ClCompile Include="g_model.c" />
     <ClCompile Include="g_monster.c" />
-    <ClCompile Include="g_moreai.c" />
-    <ClCompile Include="g_mtrain.c" />
+    <ClCompile Include="g_newai.c" />
+    <ClCompile Include="g_newdm.c" />
+    <ClCompile Include="g_newfnc.c" />
+    <ClCompile Include="g_newtarg.c" />
+    <ClCompile Include="g_newtrig.c" />
+    <ClCompile Include="g_newutils.c" />
+    <ClCompile Include="g_newweap.c" />
     <ClCompile Include="g_patchplayermodels.c" />
     <ClCompile Include="g_pendulum.c" />
     <ClCompile Include="g_phys.c" />
-    <ClCompile Include="g_reflect.c" />
     <ClCompile Include="g_save.c" />
+    <ClCompile Include="g_sound.c" />
     <ClCompile Include="g_spawn.c" />
+    <ClCompile Include="g_sphere.c" />
     <ClCompile Include="g_svcmds.c" />
     <ClCompile Include="g_target.c" />
     <ClCompile Include="g_thing.c" />
@@ -243,6 +234,7 @@
     <ClCompile Include="g_utils.c" />
     <ClCompile Include="g_vehicle.c" />
     <ClCompile Include="g_weapon.c" />
+    <ClCompile Include="grenade.c" />
     <ClCompile Include="km_cvar.c" />
     <ClCompile Include="m_actor.c" />
     <ClCompile Include="m_actor_weap.c" />
@@ -251,12 +243,19 @@
     <ClCompile Include="m_boss3.c" />
     <ClCompile Include="m_boss31.c" />
     <ClCompile Include="m_boss32.c" />
+    <ClCompile Include="m_boss5.c" />
     <ClCompile Include="m_brain.c" />
+    <ClCompile Include="m_brainbeta.c" />
+    <ClCompile Include="m_carrier.c" />
     <ClCompile Include="m_chick.c" />
+    <ClCompile Include="m_dog.c" />
+    <ClCompile Include="m_fixbot.c" />
     <ClCompile Include="m_flash.c" />
     <ClCompile Include="m_flipper.c" />
     <ClCompile Include="m_float.c" />
     <ClCompile Include="m_flyer.c" />
+    <ClCompile Include="m_gekk.c" />
+    <ClCompile Include="m_gladb.c" />
     <ClCompile Include="m_gladiator.c" />
     <ClCompile Include="m_gunner.c" />
     <ClCompile Include="m_hover.c" />
@@ -267,9 +266,13 @@
     <ClCompile Include="m_mutant.c" />
     <ClCompile Include="m_parasite.c" />
     <ClCompile Include="m_soldier.c" />
+    <ClCompile Include="m_stalker.c" />
     <ClCompile Include="m_supertank.c" />
     <ClCompile Include="m_tank.c" />
-    <ClCompile Include="p_chase.c" />
+    <ClCompile Include="m_turret.c" />
+    <ClCompile Include="m_widow.c" />
+    <ClCompile Include="m_widow2.c" />
+    <ClCompile Include="p_chasecam.c" />
     <ClCompile Include="p_client.c" />
     <ClCompile Include="p_hud.c" />
     <ClCompile Include="p_menu.c" />
@@ -278,11 +281,13 @@
     <ClCompile Include="p_view.c" />
     <ClCompile Include="p_weapon.c" />
     <ClCompile Include="q_shared.c" />
+    <ClCompile Include="z_anim.c" />
+    <ClCompile Include="z_sentien.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="acesrc\acebot.h" />
-    <ClInclude Include="g_ctf.h" />
+    <ClInclude Include="fmod.h" />
     <ClInclude Include="g_local.h" />
+    <ClInclude Include="g_main.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="km_cvar.h" />
     <ClInclude Include="laz_misc.h" />
@@ -293,9 +298,13 @@
     <ClInclude Include="m_boss32.h" />
     <ClInclude Include="m_brain.h" />
     <ClInclude Include="m_chick.h" />
+    <ClInclude Include="m_dog.h" />
+    <ClInclude Include="m_fiend.h" />
+    <ClInclude Include="m_fixbot.h" />
     <ClInclude Include="m_flipper.h" />
     <ClInclude Include="m_float.h" />
     <ClInclude Include="m_flyer.h" />
+    <ClInclude Include="m_gekk.h" />
     <ClInclude Include="m_gladiator.h" />
     <ClInclude Include="m_gunner.h" />
     <ClInclude Include="m_hover.h" />
@@ -305,19 +314,26 @@
     <ClInclude Include="m_mutant.h" />
     <ClInclude Include="m_parasite.h" />
     <ClInclude Include="m_player.h" />
+    <ClInclude Include="m_rider.h" />
     <ClInclude Include="m_soldier.h" />
+    <ClInclude Include="m_soldierh.h" />
     <ClInclude Include="m_supertank.h" />
     <ClInclude Include="m_tank.h" />
+    <ClInclude Include="m_turret.h" />
+    <ClInclude Include="m_zombie.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="p_menu.h" />
     <ClInclude Include="p_text.h" />
     <ClInclude Include="pak.h" />
     <ClInclude Include="q_shared.h" />
+    <ClInclude Include="z_anim.h" />
+    <ClInclude Include="z_sentien.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="game.def" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gamex86.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="lazarus.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
