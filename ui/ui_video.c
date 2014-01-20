@@ -52,6 +52,7 @@ static menulist_s		s_npot_mipmap_box;
 //static menulist_s  		s_texcompress_box;
 static menulist_s  		s_vsync_box;
 static menulist_s		s_adaptivevsync_box;
+static menulist_s		s_fencesync_box;
 static menulist_s		s_refresh_box;	// Knightmare- refresh rate option
 static menulist_s  		s_adjust_fov_box;
 static menuaction_s		s_advanced_action;
@@ -96,6 +97,10 @@ static void VsyncCallback ( void *unused )
 	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue);
 }
 
+static void FenceSyncCallback (void *unused )
+{
+	Cvar_SetValue( "r_fencesync", s_fencesync_box.curvalue);
+}
 static void AdjustFOVCallback ( void *unused )
 {
 	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue);
@@ -118,6 +123,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_ext_texture_compression");
 	Cvar_SetToDefault ("r_swapinterval");
 	Cvar_SetToDefault ("r_adaptivevsync");
+	Cvar_SetToDefault ("r_fencesync");
 	Cvar_SetToDefault ("r_displayrefresh");
 	Cvar_SetToDefault ("cl_widescreen_fov");
 
@@ -227,6 +233,8 @@ static void ApplyChanges( void *unused )
 //	Cvar_SetValue( "r_ext_texture_compression", s_texcompress_box.curvalue );
 
 	VsyncCallback(NULL);
+	FenceSyncCallback(NULL);
+
 //	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue );
 	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue );
 
@@ -524,7 +532,15 @@ void Menu_Video_Init (void)
 	s_adaptivevsync_box.curvalue				= (int) Cvar_VariableValue("r_adaptivevsync");
 	s_adaptivevsync_box.itemnames				= yesno_names;
 	s_adaptivevsync_box.generic.statusbar		= "force vsync only when framerate is above monitor refresh";
-
+	
+	s_fencesync_box.generic.type			= MTYPE_SPINCONTROL;
+	s_fencesync_box.generic.x				= 0;
+	s_fencesync_box.generic.y				= y += MENU_LINE_SIZE;
+	s_fencesync_box.generic.name			= "sync gpu with vsync";
+	s_fencesync_box.generic.callback		= FenceSyncCallback;
+	s_fencesync_box.curvalue				= (int) Cvar_VariableValue("r_fencesync");
+	s_fencesync_box.itemnames				= yesno_names;
+	s_fencesync_box.generic.statusbar		= "forces the gpu to synchronize after monitor refresh";
 
 	// Knightmare- refresh rate option
 	s_refresh_box.generic.type			= MTYPE_SPINCONTROL;
@@ -580,6 +596,7 @@ void Menu_Video_Init (void)
 //	Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_vsync_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_adaptivevsync_box );
+	Menu_AddItem( &s_video_menu, ( void * ) &s_fencesync_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_refresh_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_adjust_fov_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_advanced_action );
