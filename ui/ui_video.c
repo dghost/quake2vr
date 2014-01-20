@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/client.h"
 #include "ui_local.h"
+#include "../renderer/r_local.h"
 
 extern cvar_t *vid_ref;
 
@@ -524,24 +525,29 @@ void Menu_Video_Init (void)
 	s_vsync_box.itemnames				= yesno_names;
 	s_vsync_box.generic.statusbar		= "sync framerate with monitor refresh";
 
-	s_adaptivevsync_box.generic.type			= MTYPE_SPINCONTROL;
-	s_adaptivevsync_box.generic.x				= 0;
-	s_adaptivevsync_box.generic.y				= y += MENU_LINE_SIZE;
-	s_adaptivevsync_box.generic.name			= "adaptive vsync";
-	s_adaptivevsync_box.generic.callback		= VsyncCallback;
-	s_adaptivevsync_box.curvalue				= (int) Cvar_VariableValue("r_adaptivevsync");
-	s_adaptivevsync_box.itemnames				= yesno_names;
-	s_adaptivevsync_box.generic.statusbar		= "force vsync only when framerate is above monitor refresh";
-	
-	s_fencesync_box.generic.type			= MTYPE_SPINCONTROL;
-	s_fencesync_box.generic.x				= 0;
-	s_fencesync_box.generic.y				= y += MENU_LINE_SIZE;
-	s_fencesync_box.generic.name			= "sync gpu with vsync";
-	s_fencesync_box.generic.callback		= FenceSyncCallback;
-	s_fencesync_box.curvalue				= (int) Cvar_VariableValue("r_fencesync");
-	s_fencesync_box.itemnames				= yesno_names;
-	s_fencesync_box.generic.statusbar		= "forces the gpu to synchronize after monitor refresh";
+	if (glConfig.ext_swap_control_tear)
+	{
+		s_adaptivevsync_box.generic.type			= MTYPE_SPINCONTROL;
+		s_adaptivevsync_box.generic.x				= 0;
+		s_adaptivevsync_box.generic.y				= y += MENU_LINE_SIZE;
+		s_adaptivevsync_box.generic.name			= "adaptive vsync";
+		s_adaptivevsync_box.generic.callback		= VsyncCallback;
+		s_adaptivevsync_box.curvalue				= (int) Cvar_VariableValue("r_adaptivevsync");
+		s_adaptivevsync_box.itemnames				= yesno_names;
+		s_adaptivevsync_box.generic.statusbar		= "force vsync only when framerate is above monitor refresh";
+	}
 
+	if (glConfig.arb_sync)
+	{
+		s_fencesync_box.generic.type			= MTYPE_SPINCONTROL;
+		s_fencesync_box.generic.x				= 0;
+		s_fencesync_box.generic.y				= y += MENU_LINE_SIZE;
+		s_fencesync_box.generic.name			= "sync gpu with vsync";
+		s_fencesync_box.generic.callback		= FenceSyncCallback;
+		s_fencesync_box.curvalue				= (int) Cvar_VariableValue("r_fencesync");
+		s_fencesync_box.itemnames				= yesno_names;
+		s_fencesync_box.generic.statusbar		= "forces the gpu to synchronize after monitor refresh";
+	}
 	// Knightmare- refresh rate option
 	s_refresh_box.generic.type			= MTYPE_SPINCONTROL;
 	s_refresh_box.generic.x				= 0;
@@ -595,8 +601,12 @@ void Menu_Video_Init (void)
 	Menu_AddItem( &s_video_menu, ( void * ) &s_npot_mipmap_box );
 //	Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_vsync_box );
-	Menu_AddItem( &s_video_menu, ( void * ) &s_adaptivevsync_box );
-	Menu_AddItem( &s_video_menu, ( void * ) &s_fencesync_box );
+
+	if (glConfig.ext_swap_control_tear)
+		Menu_AddItem( &s_video_menu, ( void * ) &s_adaptivevsync_box );
+	if (glConfig.arb_sync)
+		Menu_AddItem( &s_video_menu, ( void * ) &s_fencesync_box );
+
 	Menu_AddItem( &s_video_menu, ( void * ) &s_refresh_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_adjust_fov_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_advanced_action );
