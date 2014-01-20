@@ -64,8 +64,9 @@ typedef struct {
 	void (*disable)();
 	void (*setfov)();
 	void (*frame)();
-	int (*getOrientation)(float euler[3]);
 	void (*resetOrientation)();
+	int (*getOrientation)(float euler[3]);
+	int (*getHeadOffset)(float offset[3]);
 } hmd_interface_t;
 
 hmd_interface_t available_hmds[NUM_HMD_TYPES];
@@ -131,6 +132,7 @@ void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
+void VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
 
 #endif

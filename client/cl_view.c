@@ -786,17 +786,24 @@ void VR_RenderStereo ()
 	VectorCopy(cl.refdef.vieworg,view);
 	if (vr_enabled->value && vr_neckmodel->value)
 	{
-		vec3_t forward, up, out;
-		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		vec3_t forward, right, up, out;
+		vec3_t headOffset;
+		VR_GetHeadOffset(headOffset);
+		
 		VectorCopy(cl.v_forward,forward);
 		VectorCopy(cl.v_up,up);
+		VectorCopy(cl.v_right,right);
+
 		VectorNormalize(forward);
 		VectorNormalize(up);
-		VectorScale(forward, eyeDist ,forward);
-		VectorScale(up,neckLength,up);
+		VectorNormalize(right);
+
+		// apply this using X forward, Y left, Z up
+		VectorScale(forward, headOffset[0] ,forward);
+		VectorScale(up,headOffset[2],up);
+		VectorScale(right,headOffset[1],up);
 		VectorAdd(forward,up,out);
-		out[2] -= neckLength;
+		VectorAdd(out,right,out);
 		VectorAdd(view,out,view); 
 	}
 

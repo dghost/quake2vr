@@ -26,8 +26,9 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_Disable,
 	VR_OVR_SetFOV,
 	VR_OVR_Frame,
+	VR_OVR_ResetHMDOrientation,
 	VR_OVR_getOrientation,
-	VR_OVR_ResetHMDOrientation
+	NULL
 };
 
 void VR_OVR_SetFOV()
