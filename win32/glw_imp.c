@@ -671,8 +671,14 @@ qboolean GLimp_InitGL (void)
 
 		goto fail;
 	}
+
 	glewExperimental = GL_TRUE;
-	glewInit();
+	if ( glewInit() != GLEW_OK)
+	{
+		VID_Printf( PRINT_ALL, "GLimp_Init() - glewInit failed\n");
+		goto fail;
+	}
+
 	if ( !VerifyDriver() )
 	{
 		VID_Printf( PRINT_ALL, "GLimp_Init() - no hardware acceleration detected.\nPlease install drivers provided by your video card/GPU vendor.\n" );
