@@ -131,7 +131,7 @@ void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
-void VR_GetHeadOffset(vec3_t offset);
+int VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
 
 #endif

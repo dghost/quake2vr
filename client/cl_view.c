@@ -780,27 +780,44 @@ void VR_RenderStereo ()
 
 	VectorCopy(cl.refdef.vieworg, viewOrig);
 	VectorCopy(cl.refdef.vieworg,view);
-	if (vr_enabled->value && vr_neckmodel->value)
-	{
-		vec3_t forward, right, up, out;
-		vec3_t headOffset;
-		VR_GetHeadOffset(headOffset);
-		
-		VectorCopy(cl.v_forward,forward);
-		VectorCopy(cl.v_up,up);
-		VectorCopy(cl.v_right,right);
+    if (vr_enabled->value)
+    {
+		vec3_t offset;
+		if (VR_GetHeadOffset(offset))
+		{
+			vec3_t forward, right, up, out;
 
-		VectorNormalize(forward);
-		VectorNormalize(up);
-		VectorNormalize(right);
+			VectorCopy(cl.v_forward,forward);
+			VectorCopy(cl.v_up,up);
+			VectorCopy(cl.v_right,right);
 
-		// apply this using X forward, Y left, Z up
-		VectorScale(forward, headOffset[0] ,forward);
-		VectorScale(up,headOffset[2],up);
-		VectorScale(right,headOffset[1],up);
-		VectorAdd(forward,up,out);
-		VectorAdd(out,right,out);
-		VectorAdd(view,out,view); 
+			VectorNormalize(forward);
+			VectorNormalize(up);
+			VectorNormalize(right);
+
+			// apply this using X forward, Y left, Z up
+			VectorScale(forward, offset[0] ,forward);
+			VectorScale(up,offset[2],up);
+			VectorScale(right,offset[1],up);
+			VectorAdd(forward,up,out);
+			VectorAdd(out,right,out);
+			VectorAdd(view,out,view); 
+		}
+		else if (vr_neckmodel->value)
+		{
+			vec3_t forward, up, out;
+			float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			VectorCopy(cl.v_forward,forward);
+			VectorCopy(cl.v_up,up);
+			VectorNormalize(forward);
+			VectorNormalize(up);
+			VectorScale(forward, eyeDist ,forward);
+			VectorScale(up,neckLength,up);
+			VectorAdd(forward,up,out);
+			out[2] -= neckLength;
+			VectorAdd(view,out,view); 
+		}
 	}
 
 	// draw for left eye

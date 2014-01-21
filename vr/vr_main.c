@@ -144,7 +144,7 @@ void VR_GetOrientationEMA(vec3_t angle)
 }
 
 // returns head offset using X forward, Y left, Z up
-void VR_GetHeadOffset(vec3_t offset)
+int VR_GetHeadOffset(vec3_t offset)
 {
 	vec3_t headOffset;
 
@@ -157,29 +157,12 @@ void VR_GetHeadOffset(vec3_t offset)
 	if (hmd->getHeadOffset && hmd->getHeadOffset(headOffset))
 	{
 		// sure, this probably won't work
+		// apply this using X forward, Y left, Z up
 		VectorScale(headOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M,offset);
-	} else if (vr_neckmodel->value) {
-		// HMD doesn't support position tracking
-		vec3_t forward, up, out;
-		
-		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		
-		AngleVectors(vr_orientation,forward,NULL,up);
-		
-		VectorNormalize(up);
-		VectorNormalize(forward);
+		return true;
+	} 
 
-		VectorScale(forward, eyeDist ,forward);
-		VectorScale(up,neckLength,up);		
-
-		VectorAdd(forward,up,out);
-		out[2] -= neckLength;
-
-		VectorCopy(out,offset);
-	} else {
-		VectorSet(offset,0,0,0);
-	}
+	return false;
 
 }
 
@@ -202,7 +185,6 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 	t2[0] = -t2[0];
 	QuatMultiply(t2, t1, t1);
 	SlerpQuat(zero, t1, bounce, quat);
-
 
 }
 
