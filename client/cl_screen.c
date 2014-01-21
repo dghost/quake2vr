@@ -1050,10 +1050,10 @@ SCR_DrawLoading
 void SCR_DrawLoading (void)
 {
 	int			plaqueOffset;
-//	char		mapfile[32];
+	char		mapfile[32];
 	char		*loadMsg;
 	qboolean	isMap = false, haveMapPic = false, widescreen;
-	qboolean	simplePlaque = (scr_simple_loadscreen->value != 0);
+	qboolean	simplePlaque = (scr_simple_loadscreen->value != 0) || (vr_enabled->value);
 
 
 	if (!scr_draw_loading) {
@@ -1070,9 +1070,9 @@ void SCR_DrawLoading (void)
 
 	widescreen = (((float)viddef.width / (float)viddef.height) > STANDARD_ASPECT_RATIO);
 
-	/*
+
 	// loading a map...
-	if (loadingMessage && cl.configstrings[CS_MODELS+1][0])
+	if (!simplePlaque && loadingMessage && cl.configstrings[CS_MODELS+1][0])
 	{
 		strcpy (mapfile, cl.configstrings[CS_MODELS+1] + 5);	// skip "maps/"
 		mapfile[strlen(mapfile)-4] = 0;		// cut off ".bsp"
@@ -1105,12 +1105,10 @@ void SCR_DrawLoading (void)
 
 		isMap = true;
 	}
-	else if (R_DrawFindPic(LOADSCREEN_NAME))
+	else if (!simplePlaque && R_DrawFindPic(LOADSCREEN_NAME))
 		SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, LOADSCREEN_NAME, 1.0);
 	else
-		
-		*/
-	SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
+		SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 
 	// Add Download info stuff...
 	if (cls.download) // download bar...
