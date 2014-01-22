@@ -149,7 +149,7 @@ int VR_GetHeadOffset(vec3_t offset)
 	vec3_t headOffset;
 
 	if (!hmd)
-		return;
+		return false;
 
 	if (vrState.stale && VR_GetSensorOrientation())
 		vrState.stale = 0;

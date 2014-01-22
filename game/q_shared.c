@@ -27,6 +27,7 @@ vec3_t vec3_origin = {0,0,0};
 //============================================================================
 
 #ifdef _WIN32
+#include <ctype.h>
 #pragma optimize( "", off )
 #endif
 
