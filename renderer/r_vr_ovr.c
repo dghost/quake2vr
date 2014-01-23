@@ -365,16 +365,14 @@ void R_VR_OVR_FrameStart(int changeBackBuffers)
 
 	if (changeBackBuffers)
 	{
-		float fsaaScale = vr_antialias->value == VR_ANTIALIAS_FSAA? 2.0f : 1.0f;
-		float worldScale = VR_OVR_GetDistortionScale() * fsaaScale * vr_ovr_supersample->value;
-		//R_DelFBO(&world);
+		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
 
-		vrState.vrWidth = worldScale * vrState.viewWidth;
+		vrState.vrWidth = ovrScale * vrState.scaledViewWidth;
 		vrState.vrHalfWidth = vrState.vrWidth / 2.0;
-		vrState.vrHeight = worldScale  * vrState.viewHeight;
+		vrState.vrHeight = ovrScale  * vrState.scaledViewHeight;
 		R_ResizeFBO(vrState.vrHalfWidth, vrState.vrHeight, &left);
 		R_ResizeFBO(vrState.vrHalfWidth, vrState.vrHeight, &right);
-	
+
 		VR_OVR_SetFOV();
 		vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
 	}

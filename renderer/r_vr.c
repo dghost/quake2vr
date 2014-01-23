@@ -41,8 +41,27 @@ void R_VR_StartFrame()
 	
 	if (vr_antialias->modified)
 	{
-		Cvar_SetInteger("vr_antialias", !!(int) vr_antialias->value);
+		int aa = vr_antialias->value;
+		if (aa >= NUM_VR_ANTIALIAS)
+			aa = NUM_VR_ANTIALIAS - 1;
+		else if (aa < 0)
+			aa = 0;
+		Cvar_SetInteger("vr_antialias", aa);
 		resolutionChanged = 1;
+		switch (aa)
+		{
+		case VR_ANTIALIAS_4X_FSAA:
+			vrState.scaledViewHeight = vrState.viewHeight * 2;
+			vrState.scaledViewWidth = vrState.viewWidth * 2; 
+			R_ResizeFBO(vrState.scaledViewWidth, vrState.scaledViewHeight, &offscreen);
+			break;
+		default:
+		case VR_ANTIALIAS_NONE:
+			vrState.scaledViewHeight = vrState.viewHeight;
+			vrState.scaledViewWidth = vrState.viewWidth;
+			R_DelFBO(&offscreen);
+			break;
+		}
 		vr_antialias->modified = false;
 	}
 	
@@ -50,8 +69,8 @@ void R_VR_StartFrame()
 
 	if (resolutionChanged)
 	{
-		float fsaaScale = vr_antialias->value == VR_ANTIALIAS_FSAA? 2.0f : 1.0f;
-		R_ResizeFBO(vrState.viewWidth * fsaaScale, vrState.viewHeight * fsaaScale, &offscreen);
+
+
 		Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
 		Com_Printf("VR: Using %u x %u backbuffer\n", vrState.vrWidth, vrState.vrHeight);
 
@@ -234,13 +253,14 @@ void R_VR_Present()
 void R_VR_Enable()
 {
 	qboolean success = false;
-	float fsaaScale = vr_antialias->value == VR_ANTIALIAS_FSAA? 2.0f : 1.0f;
 	vrState.viewHeight = vid.height;
+	vrState.scaledViewHeight = vid.height;
+	vrState.scaledViewWidth = vid.width;
 	vrState.viewWidth = vid.width;
 	vrState.vrHalfWidth = vid.width;
 	vrState.vrWidth = vid.width;
 	vrState.vrHeight = vid.height;
-
+	
 
 	if (hud.valid)
 		R_DelFBO(&hud);
@@ -253,9 +273,9 @@ void R_VR_Enable()
 	success = (qboolean) R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
 
 	if (vr_antialias->value)
-		success = success && (qboolean) R_GenFBO(vrState.viewWidth * fsaaScale, vrState.viewHeight * fsaaScale, &offscreen);
+		success = success && (qboolean) R_GenFBO(vrState.viewHeight, vrState.viewHeight, &offscreen);
 
-
+	vr_antialias->modified = true;
 
 	success = success && hmd->enable();
 	if (!success)

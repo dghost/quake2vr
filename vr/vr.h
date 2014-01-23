@@ -21,6 +21,8 @@ typedef struct {
 	unsigned int stale;
 	unsigned int viewHeight;
 	unsigned int viewWidth;
+	unsigned int scaledViewHeight;
+	unsigned int scaledViewWidth;
 	unsigned int vrWidth;
 	unsigned int vrHalfWidth;
 	unsigned int vrHeight;
@@ -116,7 +118,7 @@ enum {
 
 enum {
 	VR_ANTIALIAS_NONE,
-	VR_ANTIALIAS_FSAA,
+	VR_ANTIALIAS_4X_FSAA,
 	NUM_VR_ANTIALIAS
 } vr_antialias_t;
 
