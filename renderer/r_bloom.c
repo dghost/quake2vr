@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_bloom.c: 2D lighting post process effect
 
 #include "r_local.h"
-#include "../vr/vr.h"
+#include "../renderer/r_vr.h"
 
 /* 
 ============================================================================== 
@@ -226,8 +226,10 @@ void R_Bloom_InitTextures (void)
 	if (vr_enabled->value)
 	{
 		// use screen size
-		screen_texture_width = vrState.vrHalfWidth;
-		screen_texture_height = vrState.vrHeight;
+		unsigned int size[2];
+		R_VR_GetViewSize(EYE_LEFT,size);
+		screen_texture_width = size[0];
+		screen_texture_height = size[1];
 	} else {
 		//find closer power of 2 to screen size 
 		for (screen_texture_width = 1; screen_texture_width < vid.width; screen_texture_width *= 2);

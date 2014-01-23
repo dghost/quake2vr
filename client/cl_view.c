@@ -663,7 +663,8 @@ void VR_RenderStereo ()
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,viewOrig, tmp;
-	
+	unsigned int pos[2], size[2];
+
 	if (cls.state != ca_active)
 		return;
 
@@ -828,10 +829,12 @@ void VR_RenderStereo ()
 	VectorScale( cl.v_right, EYE_LEFT * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
-	cl.refdef.x = 0;
-	cl.refdef.y = 0;
-	cl.refdef.width = vrState.vrHalfWidth;
-	cl.refdef.height = vrState.vrHeight;
+	R_VR_GetViewPos(EYE_LEFT,pos);
+	cl.refdef.x = pos[0];
+	cl.refdef.y = pos[1];
+	R_VR_GetViewSize(EYE_LEFT,size);
+	cl.refdef.width = size[0];
+	cl.refdef.height = size[1];
 
 	R_RenderView(&cl.refdef );
 
@@ -841,11 +844,21 @@ void VR_RenderStereo ()
 //	VR_RenderScreenEffects(&cl.refdef);
 	// draw for right eye
 
+
+
 	// shift view to the right half of the frame buffer
 	R_VR_BindView(EYE_RIGHT);
 		
 	VectorScale( cl.v_right, EYE_RIGHT * vrState.viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
+	
+	R_VR_GetViewPos(EYE_RIGHT,pos);
+	cl.refdef.x = pos[0];
+	cl.refdef.y = pos[1];
+	R_VR_GetViewSize(EYE_RIGHT,size);
+	cl.refdef.width = size[0];
+	cl.refdef.height = size[1];
+
 
 	R_RenderView(&cl.refdef );
 

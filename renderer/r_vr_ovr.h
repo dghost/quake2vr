@@ -1,5 +1,5 @@
-#ifndef __R_VR_OVR_H
-#define __R_VR_OVR_H
+#ifndef __OVR_H
+#define __OVR_H
 
 #include "r_vr.h"
 #include "r_local.h"
@@ -18,13 +18,15 @@ typedef struct {
 
 } r_ovr_shader_t;
 
-void R_VR_OVR_FrameStart(int changeBackBuffers);
-void R_VR_OVR_BindView(vr_eye_t eye);
-void R_VR_OVR_Present();
-int R_VR_OVR_Enable();
-void R_VR_OVR_Disable();
-int R_VR_OVR_Init();
+void OVR_FrameStart(int changeBackBuffers);
+void OVR_BindView(vr_eye_t eye);
+void OVR_GetViewPos(vr_eye_t eye, unsigned int pos[2]);
+void OVR_GetViewSize(vr_eye_t eye, unsigned int size[2]);
+void OVR_Present();
+int OVR_Enable();
+void OVR_Disable();
+int OVR_Init();
 
 extern hmd_render_t vr_render_ovr;
 
-#endif //__R_VR_OVR_H
+#endif //__OVR_H

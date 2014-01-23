@@ -5,12 +5,14 @@
 hmd_render_t vr_render_ovr = 
 {
 	HMD_RIFT,
-	R_VR_OVR_Init,
-	R_VR_OVR_Enable,
-	R_VR_OVR_Disable,
-	R_VR_OVR_BindView,
-	R_VR_OVR_FrameStart,
-	R_VR_OVR_Present
+	OVR_Init,
+	OVR_Enable,
+	OVR_Disable,
+	OVR_BindView,
+	OVR_GetViewPos,
+	OVR_GetViewSize,
+	OVR_FrameStart,
+	OVR_Present
 };
 
 
@@ -19,6 +21,8 @@ static r_ovr_shader_t ovr_bicubic_shaders[2];
 
 //static fbo_t world;
 static fbo_t left, right;
+
+static unsigned int renderTargetSize[2];
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
@@ -301,7 +305,7 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 
 
 
-void R_VR_OVR_FrameStart(int changeBackBuffers)
+void OVR_FrameStart(int changeBackBuffers)
 {
 
 
@@ -367,45 +371,57 @@ void R_VR_OVR_FrameStart(int changeBackBuffers)
 	{
 		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
 
-		vrState.vrWidth = ovrScale * vrState.scaledViewWidth;
-		vrState.vrHalfWidth = vrState.vrWidth / 2.0;
-		vrState.vrHeight = ovrScale  * vrState.scaledViewHeight;
-		R_ResizeFBO(vrState.vrHalfWidth, vrState.vrHeight, &left);
-		R_ResizeFBO(vrState.vrHalfWidth, vrState.vrHeight, &right);
-
+		renderTargetSize[0] = ovrScale * vrState.scaledViewWidth * 0.5;
+		renderTargetSize[1] = ovrScale  * vrState.scaledViewHeight;
+		Com_Printf("OVR: Set render target size to %ux%u\n",renderTargetSize[0],renderTargetSize[1]);
 		VR_OVR_SetFOV();
-		vrState.pixelScale = (float) vrState.vrWidth / (float) vrConfig.hmdWidth;
+		vrState.pixelScale = (int) ovrScale * vrState.scaledViewWidth / (int) vrConfig.hmdWidth;
 	}
-	R_BindFBO(&left);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	R_BindFBO(&right);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 }
 
 
-void R_VR_OVR_BindView(vr_eye_t eye)
+void OVR_BindView(vr_eye_t eye)
 {
-
-
-	vid.height = vrState.vrHeight;
-	vid.width = vrState.vrHalfWidth;
-
 	switch(eye)
 	{
 	case EYE_LEFT:
+		if (renderTargetSize[0] != left.width || renderTargetSize[1] != left.height)
+		{
+			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], &left);
+			Com_Printf("OVR: Set left render target size to %ux%u\n",left.width,left.height);
+		}
+		vid.height = left.height;
+		vid.width = left.width;
 		R_BindFBO(&left);
 		break;
 	case EYE_RIGHT:
+		if (renderTargetSize[0] != right.width || renderTargetSize[1] != right.height)
+		{
+			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], &right);
+			Com_Printf("OVR: Set right render target size to %ux%u\n",right.width, right.height);
+		}
+		vid.height = right.height;
+		vid.width = right.width;
 		R_BindFBO(&right);
 		break;
-	case EYE_HUD:
-		break;
-
+	default:
+		return;
 	}
 }
 
-void R_VR_OVR_Present()
+void OVR_GetViewPos(vr_eye_t eye, unsigned int pos[2])
+{
+	unsigned int zero[2] = {0,0};
+	pos = zero;
+}
+
+void OVR_GetViewSize(vr_eye_t eye, unsigned int size[2])
+{
+	size[0] = renderTargetSize[0];
+	size[1] = renderTargetSize[1];
+}
+
+void OVR_Present()
 {
 	if (vr_ovr_distortion->value)
 	{
@@ -428,7 +444,7 @@ void R_VR_OVR_Present()
 		glUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
 		glUniform2fARB(current_shader->uniform.scale_in, 2.0f, 2.0f / vrConfig.aspect);
 		glUniform2fARB(current_shader->uniform.scale, 0.5f / scale, 0.5f * vrConfig.aspect / scale);
-		glUniform4fARB(current_shader->uniform.texture_size, vrState.vrWidth / superscale, vrState.vrHeight / superscale, superscale / vrState.vrWidth, superscale / vrState.vrHeight);
+		glUniform4fARB(current_shader->uniform.texture_size, renderTargetSize[0] / superscale, renderTargetSize[1] / superscale, superscale / renderTargetSize[0], superscale / renderTargetSize[1]);
 		//glUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
 
 		glUniform2fARB(current_shader->uniform.lens_center, 0.5 + vrState.projOffset * 0.5, 0.5);
@@ -454,7 +470,8 @@ void R_VR_OVR_Present()
 		glTexCoord2f(1, 1); glVertex2f(1, 1);
 		glEnd();
 		glUseProgramObjectARB(0);
-					GL_Bind(0);
+		
+		GL_Bind(0);
 
 		if (VR_OVR_RenderLatencyTest(debugColor))
 		{
@@ -499,19 +516,19 @@ void R_VR_OVR_Present()
 
 }
 
-int R_VR_OVR_Enable()
+int OVR_Enable()
 {
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)
 		R_DelFBO(&right);
 
-	R_VR_OVR_FrameStart(true);
+	OVR_FrameStart(true);
 
-	return (left.framebuffer && right.framebuffer);
+	return true;
 }
 
-void R_VR_OVR_Disable()
+void OVR_Disable()
 {
 	R_DelShaderProgram(&ovr_shader_norm);
 	R_DelShaderProgram(&ovr_shader_chrm);
@@ -524,7 +541,7 @@ void R_VR_OVR_Disable()
 		R_DelFBO(&right);
 }
 
-int R_VR_OVR_Init()
+int OVR_Init()
 {
 	R_InitFBO(&left);
 	R_InitFBO(&right);

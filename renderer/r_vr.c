@@ -15,6 +15,8 @@ static hmd_render_t vr_render_none =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
+	NULL,
 	NULL
 };
 
@@ -22,6 +24,7 @@ static hmd_render_t available_hmds[NUM_HMD_TYPES];
 
 static hmd_render_t *hmd;
 
+static int leftStale, rightStale, hudStale;
 //
 // Rendering related functions
 //
@@ -36,9 +39,7 @@ void R_VR_StartFrame()
 		return;
 	
 	vrState.viewOffset = ipd * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-	
-	glClearColor(0.0,0.0,0.0,0.0);
-	
+
 	if (vr_antialias->modified)
 	{
 		int aa = vr_antialias->value;
@@ -72,31 +73,67 @@ void R_VR_StartFrame()
 
 
 		Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
-		Com_Printf("VR: Using %u x %u backbuffer\n", vrState.vrWidth, vrState.vrHeight);
-
 	}
-	
-
-	R_VR_BindView(EYE_HUD);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	glClearColor (1,0, 0.5, 0.5);
-
+	leftStale = 1;
+	rightStale = 1;
+	hudStale = 1;
 
 }
 
 void R_VR_BindView(vr_eye_t eye)
 {
-	
+	int clear = 0;
 	vrState.eye = eye;
 	if (eye == EYE_HUD)
 	{
 		R_BindFBO(&hud);
 		vid.height = hud.height;
 		vid.width = hud.width;
+		clear = hudStale;
+		hudStale = 0;
 	}
 	else if (hmd) 
+	{
 		hmd->bindView(eye);
+		if (eye == EYE_LEFT)
+		{
+			clear = leftStale;
+			leftStale = 0;
+		} else if (eye == EYE_RIGHT)
+		{
+			clear = rightStale;
+			rightStale = 0;
+		}
+	}
+
+	if (clear)
+	{
+		glClearColor(0.0,0.0,0.0,0.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClearColor (1,0, 0.5, 0.5);
+
+	}
+}
+
+void R_VR_GetViewPos(vr_eye_t eye, unsigned int pos[2])
+{
+	if (eye == EYE_HUD)
+	{
+		unsigned int zero[2] = {0,0};
+		pos = zero;
+	} else if (hmd)
+		hmd->getViewPos(eye,pos);
+}
+
+void R_VR_GetViewSize(vr_eye_t eye, unsigned int size[2])
+{
+	if (eye == EYE_HUD)
+	{
+		size[0] = hud.width;
+		size[1] = hud.height;
+	} else if (hmd)
+		hmd->getViewSize(eye,size);
+
 }
 
 void R_VR_Rebind()
@@ -257,16 +294,15 @@ void R_VR_Enable()
 	vrState.scaledViewHeight = vid.height;
 	vrState.scaledViewWidth = vid.width;
 	vrState.viewWidth = vid.width;
-	vrState.vrHalfWidth = vid.width;
-	vrState.vrWidth = vid.width;
-	vrState.vrHeight = vid.height;
-	
 
 	if (hud.valid)
 		R_DelFBO(&hud);
 	if (offscreen.valid)
 		R_DelFBO(&offscreen);
 
+	leftStale = 1;
+	rightStale = 1;
+	hudStale = 1;
 
 	Com_Printf("VR: Initializing renderer:");
 
@@ -285,7 +321,6 @@ void R_VR_Enable()
 	} else {
 		Com_Printf(" ok!\n");
 	}
-	Com_Printf("VR: Using %u x %u backbuffer\n",vrState.vrWidth,vrState.vrHeight);
 	//	R_VR_StartFrame();
 }
 
@@ -298,9 +333,6 @@ void R_VR_Disable()
 	vid.width = vrState.viewWidth;
 	vid.height = vrState.viewHeight;
 
-	vrState.vrWidth = vrState.viewWidth;
-	vrState.vrHalfWidth = vrState.viewWidth;
-	vrState.vrHeight = vrState.viewHeight;
 	vrState.pixelScale = 1.0;
 
 	hmd->disable();

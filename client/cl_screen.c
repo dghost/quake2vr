@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 #include "../ui/ui_local.h"
-#include "../vr/vr.h"
+#include "../renderer/r_vr.h"
 
 float		scr_con_current;	// aproaches scr_conlines at scr_conspeed
 float		scr_conlines;		// 0.0 to 1.0 lines of console to display
@@ -2215,20 +2215,21 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-extern void R_VR_StartFrame();
-extern void R_VR_Present();
+
 void VR_UpdateScreen (void)
 {
 	R_VR_StartFrame();
-
+	R_VR_BindView(EYE_HUD);
 	viddef.width = vrState.hudWidth;
 	viddef.height = vrState.hudHeight;
 	scr_vrect.width = vrState.hudWidth;
 	scr_vrect.height = vrState.hudHeight;
 
+
 	R_BeginFrame(0.0f );
 	if (scr_draw_loading == 2)
 	{	//  loading plaque over black screen
+
 		//R_SetPalette(NULL);
 		// Knightmare- refresh loading screen
 		SCR_DrawLoading ();
@@ -2317,20 +2318,7 @@ void VR_UpdateScreen (void)
 
 		SCR_DrawConsole ();	
 
-		viddef.width = vrState.vrHalfWidth;
-		viddef.height = vrState.vrHeight;
-		scr_vrect.width = vrState.vrHalfWidth;
-		scr_vrect.height = vrState.vrHeight;
-
-		scr_vrect.x = 0;
-		scr_vrect.y = 0;
-
 		VR_RenderStereo();
-
-		viddef.width = vrState.viewWidth;
-		viddef.height = vrState.viewHeight;
-		scr_vrect.width = vrState.viewWidth;
-		scr_vrect.height = vrState.viewHeight;
 
 	}
 	R_VR_Present();
