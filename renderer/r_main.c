@@ -1086,7 +1086,7 @@ void R_Register (void)
 	r_rgbscale = Cvar_Get ("r_rgbscale", "2", CVAR_ARCHIVE);
 
 	r_waterwave = Cvar_Get ("r_waterwave", "0", CVAR_ARCHIVE );
-	r_caustics = Cvar_Get ("r_caustics", "1", CVAR_ARCHIVE );
+	r_caustics = Cvar_Get ("r_caustics", "2", CVAR_ARCHIVE );
 	r_glows = Cvar_Get ("r_glows", "1", CVAR_ARCHIVE );
 	r_saveshotsize = Cvar_Get ("r_saveshotsize", "1", CVAR_ARCHIVE );
 
@@ -1164,7 +1164,7 @@ void R_Register (void)
 	//r_motionblur = Cvar_Get( "r_motionblur", "0", CVAR_ARCHIVE );	// motionblur
 
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
-	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
+	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "0", CVAR_ARCHIVE );
 
 	r_saturatelighting = Cvar_Get( "r_saturatelighting", "0", 0 );
 

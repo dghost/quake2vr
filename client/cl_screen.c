@@ -846,9 +846,9 @@ void SCR_Init (void)
 
 	scr_simple_loadscreen = Cvar_Get ("scr_simple_loadscreen", "1", CVAR_ARCHIVE);
 
-	hud_scale = Cvar_Get ("hud_scale", "3", CVAR_ARCHIVE);
-	hud_width = Cvar_Get ("hud_width", "640", CVAR_ARCHIVE);
-	hud_height = Cvar_Get ("hud_height", "480", CVAR_ARCHIVE);
+	hud_scale = Cvar_Get ("hud_scale", "4", CVAR_ARCHIVE);
+	hud_width = Cvar_Get ("hud_width", "512", CVAR_ARCHIVE);
+	hud_height = Cvar_Get ("hud_height", "384", CVAR_ARCHIVE);
 	hud_alpha = Cvar_Get ("hud_alpha", "1", CVAR_ARCHIVE);
 	hud_squeezedigits = Cvar_Get ("hud_squeezedigits", "1", CVAR_ARCHIVE);
 
