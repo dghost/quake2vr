@@ -250,7 +250,13 @@ void R_Bloom_InitTextures (void)
 	data = malloc( size );
 	// malloc failed
 	if (!data)
+	{
+		screen_texture_width = screen_texture_height = 0;
+		Cvar_SetValue ("r_bloom", 0);
+		Com_Printf( "ERROR: Could not allocate necessary memory. Effect disabled\n" );
 		return;
+	}
+
 	memset( data, 255, size );
 	r_bloomscreentexture = R_LoadPic( "***r_bloomscreentexture***", (byte *)data, screen_texture_width, screen_texture_height, it_pic, 3 );
 	free ( data );
@@ -298,8 +304,8 @@ void R_InitBloomTextures (void)
 	BLOOM_SIZE = 0;
 	if (!r_bloom->value)
 		return;
-
-	R_Bloom_InitTextures ();
+	// defer initializing bloom textures until they are needed
+	//	R_Bloom_InitTextures ();
 }
 
  
