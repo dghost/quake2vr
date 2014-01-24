@@ -246,15 +246,10 @@ extern	cvar_t	*r_rgbscale;
 extern	cvar_t	*con_font;
 extern	cvar_t	*con_font_size;
 
-extern	cvar_t	*r_vertex_arrays;
-
 //extern	cvar_t	*gl_ext_palettedtexture;
 //extern	cvar_t	*gl_ext_pointparameters;
 extern	cvar_t	*r_ext_swapinterval;
-extern	cvar_t	*r_ext_multitexture;
-extern	cvar_t	*r_ext_compiled_vertex_array;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
-extern	cvar_t	*r_newlightmapformat;	// Knightmare- whether to use new lightmap format
 
 extern	cvar_t	*r_arb_vertex_buffer_object;
 extern	cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
@@ -273,7 +268,6 @@ extern	cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-s
 extern	cvar_t	*r_screenshot_jpeg;			// Heffo - JPEG Screenshots
 extern	cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 
-extern	cvar_t	*r_nosubimage;
 extern	cvar_t	*r_bitdepth;
 extern	cvar_t	*r_lightmap;
 extern	cvar_t	*r_shadows;
@@ -288,23 +282,18 @@ extern	cvar_t	*r_particle_max;
 extern	cvar_t	*r_particledistance;
 
 extern	cvar_t	*r_dynamic;
-extern  cvar_t  *r_monolightmap;
 extern	cvar_t	*r_nobind;
-extern	cvar_t	*r_round_down;
 extern	cvar_t	*r_picmip;
 extern	cvar_t	*r_skymip;
 extern	cvar_t	*r_playermip;
 extern	cvar_t	*r_showtris;
 extern	cvar_t	*r_showbbox;	// Knightmare- show model bounding box
 extern	cvar_t	*r_finish;
-extern	cvar_t	*r_ztrick;
 extern	cvar_t	*r_cull;
 extern	cvar_t	*r_polyblend;
 extern	cvar_t	*r_flashblend;
 extern	cvar_t	*r_lightmaptype;
 extern	cvar_t	*r_modulate;
-extern	cvar_t	*r_drawbuffer;
-extern	cvar_t	*r_3dlabs_broken;
 extern	cvar_t	*r_swapinterval;
 extern  cvar_t  *r_adaptivevsync;
 extern	cvar_t	*r_anisotropic;
@@ -772,7 +761,7 @@ typedef struct
 	int			max_texunits;
 
 	qboolean	vertexBufferObject;
-	qboolean	multitexture;
+//	qboolean	multitexture;
 
 	qboolean	have_stencil;
 
@@ -781,7 +770,6 @@ typedef struct
 	// texture shader support
 	qboolean	arb_fragment_program;
 	qboolean	arb_vertex_program;
-	qboolean	NV_texshaders;
 
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
@@ -791,7 +779,6 @@ typedef struct
 	qboolean	anisotropic;
 	float		max_anisotropy;
 
-	qboolean	newLMFormat;			// whether to use GL_BGRA lightmaps
 } glconfig_t;
 
 
@@ -825,7 +812,6 @@ typedef struct
 
 	qboolean		cullFace;
 	qboolean		polygonOffsetFill; // Knightmare added
-	qboolean		TexShaderNV;
 	qboolean		vertexProgram;
 	qboolean		fragmentProgram;
 	qboolean		alphaTest;

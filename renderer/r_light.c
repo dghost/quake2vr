@@ -866,7 +866,6 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 	int			nummaps;
 	float		*bl;
 	lightstyle_t	*style;
-	int			monolightmap;
 
 	// if ( surf->texinfo->flags & (SURF_SKY|SURF_TRANS33|SURF_TRANS66|SURF_WARP) )
 	if ( surf->texinfo->flags & (SURF_SKY|SURF_WARP) )
@@ -984,178 +983,74 @@ store:
 	stride -= (smax<<2);
 	bl = s_blocklights;
 
-	monolightmap = r_monolightmap->string[0];
 
-	if ( monolightmap == '0' )
+	for (i=0 ; i<tmax ; i++, dest += stride)
 	{
-		for (i=0 ; i<tmax ; i++, dest += stride)
+		for (j=0 ; j<smax ; j++)
 		{
-			for (j=0 ; j<smax ; j++)
+
+			r = Q_ftol( bl[0] );
+			g = Q_ftol( bl[1] );
+			b = Q_ftol( bl[2] );
+
+			// catch negative lights
+			if (r < 0)
+				r = 0;
+			if (g < 0)
+				g = 0;
+			if (b < 0)
+				b = 0;
+
+			//
+			// determine the brightest of the three color components
+			//
+			if (r > g)
+				max = r;
+			else
+				max = g;
+			if (b > max)
+				max = b;
+
+			//
+			// alpha is ONLY used for the mono lightmap case.  For this reason
+			// we set it to the brightest of the color components so that 
+			// things don't get too dim.
+			//
+			a = max;
+
+			//
+			// rescale all the color components if the intensity of the greatest
+			// channel exceeds 1.0
+			//
+			if (max > 255)
 			{
-				
-				r = Q_ftol( bl[0] );
-				g = Q_ftol( bl[1] );
-				b = Q_ftol( bl[2] );
+				float t = 255.0F / max;
 
-				// catch negative lights
-				if (r < 0)
-					r = 0;
-				if (g < 0)
-					g = 0;
-				if (b < 0)
-					b = 0;
-
-				//
-				// determine the brightest of the three color components
-				//
-				if (r > g)
-					max = r;
-				else
-					max = g;
-				if (b > max)
-					max = b;
-
-				//
-				// alpha is ONLY used for the mono lightmap case.  For this reason
-				// we set it to the brightest of the color components so that 
-				// things don't get too dim.
-				//
-				a = max;
-
-				//
-				// rescale all the color components if the intensity of the greatest
-				// channel exceeds 1.0
-				//
-				if (max > 255)
-				{
-					float t = 255.0F / max;
-
-					r = r*t;
-					g = g*t;
-					b = b*t;
-					a = a*t;
-				}
-				a = 255;	// fix for alpha test
-
-				if (gl_lms.format == GL_BGRA)
-				{
-					dest[0] = b;
-					dest[1] = g;
-					dest[2] = r;
-					dest[3] = a;
-				}
-				else
-				{
-					dest[0] = r;
-					dest[1] = g;
-					dest[2] = b;
-					dest[3] = a;
-				}
-
-				bl += 3;
-				dest += 4;
+				r = r*t;
+				g = g*t;
+				b = b*t;
+				a = a*t;
 			}
+			a = 255;	// fix for alpha test
+
+			if (gl_lms.format == GL_BGRA)
+			{
+				dest[0] = b;
+				dest[1] = g;
+				dest[2] = r;
+				dest[3] = a;
+			}
+			else
+			{
+				dest[0] = r;
+				dest[1] = g;
+				dest[2] = b;
+				dest[3] = a;
+			}
+
+			bl += 3;
+			dest += 4;
 		}
 	}
-	else
-	{
-		for (i=0 ; i<tmax ; i++, dest += stride)
-		{
-			for (j=0 ; j<smax ; j++)
-			{
-				
-				r = Q_ftol( bl[0] );
-				g = Q_ftol( bl[1] );
-				b = Q_ftol( bl[2] );
 
-				// catch negative lights
-				if (r < 0)
-					r = 0;
-				if (g < 0)
-					g = 0;
-				if (b < 0)
-					b = 0;
-
-				//
-				// determine the brightest of the three color components
-				//
-				if (r > g)
-					max = r;
-				else
-					max = g;
-				if (b > max)
-					max = b;
-
-				//
-				// alpha is ONLY used for the mono lightmap case.  For this reason
-				// we set it to the brightest of the color components so that 
-				// things don't get too dim.
-				//
-				a = max;
-
-				//
-				// rescale all the color components if the intensity of the greatest
-				// channel exceeds 1.0
-				//
-				if (max > 255)
-				{
-					float t = 255.0F / max;
-
-					r = r*t;
-					g = g*t;
-					b = b*t;
-					a = a*t;
-				}
-
-				//
-				// So if we are doing alpha lightmaps we need to set the R, G, and B
-				// components to 0 and we need to set alpha to 1-alpha.
-				//
-				switch ( monolightmap )
-				{
-				case 'L':
-				case 'I':
-					r = a;
-					g = b = 0;
-					a = 255;	// fix for alpha test
-					break;
-				case 'C':
-					// try faking colored lighting
-					a = 255 - ((r+g+b)/3); //Knightmare changed
-					r *= a*0.003921568627450980392156862745098; // /255.0;
-					g *= a*0.003921568627450980392156862745098; // /255.0;
-					b *= a*0.003921568627450980392156862745098; // /255.0;
-					a = 255;	// fix for alpha test
-					break;
-				case 'A':
-				//	r = g = b = 0;
-					a = 255 - a;
-					r = g = b = a;
-					break;
-				default:
-					r = g = b = a;
-					a = 255;	// fix for alpha test
-					break;
-				}
-
-				if (gl_lms.format == GL_BGRA)
-				{
-					dest[0] = b;
-					dest[1] = g;
-					dest[2] = r;
-					dest[3] = a;
-				}
-				else
-				{
-					dest[0] = r;
-					dest[1] = g;
-					dest[2] = b;
-					dest[3] = a;
-				}
-
-				bl += 3;
-				dest += 4;
-			}
-		}
-	}
 }

@@ -42,11 +42,6 @@ void GL_Enable (GLenum cap)
 			return;
 		glState.polygonOffsetFill = true;
 		break;
-	case GL_TEXTURE_SHADER_NV: 
-		if (!glConfig.NV_texshaders || glState.TexShaderNV)
-			return;
-		glState.TexShaderNV = true;
-		break;
 	case GL_VERTEX_PROGRAM_ARB:
 		if (!glConfig.arb_vertex_program || glState.vertexProgram)
 			return;
@@ -104,11 +99,6 @@ void GL_Disable (GLenum cap)
 		if (!glState.polygonOffsetFill)
 			return;
 		glState.polygonOffsetFill = false;
-		break;
-	case GL_TEXTURE_SHADER_NV: 
-		if (!glConfig.NV_texshaders || !glState.TexShaderNV)
-			return;
-		glState.TexShaderNV = false;
 		break;
 	case GL_VERTEX_PROGRAM_ARB:
 		if (!glConfig.arb_vertex_program || !glState.vertexProgram)
@@ -424,9 +414,6 @@ GL_EnableTexture
 */
 void GL_EnableTexture (unsigned tmu)
 {
-	if (tmu > 0 && !glConfig.multitexture)
-		return;
-
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
 
@@ -444,9 +431,6 @@ GL_DisableTexture
 */
 void GL_DisableTexture (unsigned tmu)
 {
-	if (tmu > 0 && !glConfig.multitexture)
-		return;
-
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
 
@@ -464,9 +448,6 @@ Only used for world drawing
 */
 void GL_EnableMultitexture (qboolean enable)
 {
-	if (!glConfig.multitexture)
-		return;
-
 	if (enable)
 	{
 		GL_EnableTexture(1);
@@ -488,9 +469,6 @@ GL_SelectTexture
 */
 void GL_SelectTexture (unsigned tmu)
 {
-	if (!glConfig.multitexture)
-		return;
-
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
 
@@ -552,7 +530,6 @@ void GL_SetDefaultState (void)
 	glState.texgen = false;
 	glState.cullFace = false;
 	glState.polygonOffsetFill = false;
-	glState.TexShaderNV = false;
 	glState.vertexProgram = false;
 	glState.fragmentProgram = false;
 	glState.alphaTest = false;
