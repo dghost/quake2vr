@@ -5,8 +5,6 @@
 
 static fbo_t offscreen, hud; 
 
-static GLint defaultFBO;
-
 static hmd_render_t vr_render_none = 
 {
 	HMD_NONE,
@@ -179,7 +177,7 @@ void R_VR_EndFrame()
 {
 	if (vr_enabled->value)
 	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,defaultFBO);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 		glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
 		vid.height = vrState.viewHeight;
@@ -365,7 +363,7 @@ void R_VR_Enable()
 // disables renderer support for the Rift
 void R_VR_Disable()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,defaultFBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 	glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 
 	vid.width = vrState.viewWidth;
@@ -385,8 +383,6 @@ void R_VR_Init()
 {
 	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
-
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
 
 		R_InitFBO(&hud);
 		R_InitFBO(&offscreen);
