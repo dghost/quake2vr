@@ -226,10 +226,7 @@ void R_Bloom_InitTextures (void)
 	if (vr_enabled->value)
 	{
 		// use screen size
-		unsigned int size[2];
-		R_VR_GetViewSize(EYE_LEFT,size);
-		screen_texture_width = size[0];
-		screen_texture_height = size[1];
+		R_VR_CurrentViewSize(&screen_texture_width,&screen_texture_height);
 	} else {
 		//find closer power of 2 to screen size 
 		for (screen_texture_width = 1; screen_texture_width < vid.width; screen_texture_width *= 2);

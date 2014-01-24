@@ -2218,13 +2218,15 @@ text to the screen.
 
 void VR_UpdateScreen (void)
 {
+	vr_rect_t view;
 	R_VR_StartFrame();
 	R_VR_BindView(EYE_HUD);
-	viddef.width = vrState.hudWidth;
-	viddef.height = vrState.hudHeight;
-	scr_vrect.width = vrState.hudWidth;
-	scr_vrect.height = vrState.hudHeight;
 
+	R_VR_CurrentViewRect(&view);
+	scr_vrect.x = view.x;
+	scr_vrect.y = view.y;
+	scr_vrect.width = viddef.width = view.width;
+	scr_vrect.height = viddef.height = view.height;
 
 	R_BeginFrame(0.0f );
 	if (scr_draw_loading == 2)

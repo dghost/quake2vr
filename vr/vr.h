@@ -23,8 +23,6 @@ typedef struct {
 	unsigned int viewWidth;
 	unsigned int scaledViewHeight;
 	unsigned int scaledViewWidth;
-	unsigned int hudWidth;
-	unsigned int hudHeight;
 	vr_eye_t eye;
 } vr_param_t;
 

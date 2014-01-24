@@ -16,7 +16,6 @@ static hmd_render_t vr_render_none =
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	NULL
 };
 
@@ -25,6 +24,8 @@ static hmd_render_t available_hmds[NUM_HMD_TYPES];
 static hmd_render_t *hmd;
 
 static int leftStale, rightStale, hudStale;
+
+static vr_rect_t hudRect;
 //
 // Rendering related functions
 //
@@ -114,25 +115,58 @@ void R_VR_BindView(vr_eye_t eye)
 	}
 }
 
-void R_VR_GetViewPos(vr_eye_t eye, unsigned int pos[2])
+void R_VR_GetViewPos(vr_eye_t eye, int *x, int *y)
 {
 	if (eye == EYE_HUD)
 	{
-		pos[0] = 0;
-		pos[1] = 0;
+		*x = 0;
+		*y = 0;
 	} else if (hmd)
-		hmd->getViewPos(eye,pos);
+	{
+		vr_rect_t view;
+		hmd->getViewRect(eye,&view);
+		*x = view.x;
+		*y = view.y;
+	}
 }
 
-void R_VR_GetViewSize(vr_eye_t eye, unsigned int size[2])
+void R_VR_GetViewSize(vr_eye_t eye, int *width, int *height)
 {
 	if (eye == EYE_HUD)
 	{
-		size[0] = hud.width;
-		size[1] = hud.height;
+		*width = hud.width;
+		*height = hud.height;
 	} else if (hmd)
-		hmd->getViewSize(eye,size);
+	{
+		vr_rect_t view;
+		hmd->getViewRect(eye,&view);
+		*width = view.width;
+		*height = view.height;
+	}
+}
 
+void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
+{
+	if (eye == EYE_HUD)
+	{
+		*rect = hudRect;
+	} else if (hmd)
+		hmd->getViewRect(eye,rect);
+}
+
+void R_VR_CurrentViewPosition(int *x, int *y)
+{
+	R_VR_GetViewPos(vrState.eye,x,y);
+}
+
+void R_VR_CurrentViewSize(int *width, int *height)
+{
+	R_VR_GetViewSize(vrState.eye,width,height);
+}
+
+void R_VR_CurrentViewRect(vr_rect_t *rect)
+{
+	R_VR_GetViewRect(vrState.eye,rect);
 }
 
 void R_VR_Rebind()
@@ -303,9 +337,14 @@ void R_VR_Enable()
 	rightStale = 1;
 	hudStale = 1;
 
+	hudRect.x = 0;
+	hudRect.y = 0;
+	hudRect.width = 640;
+	hudRect.height = 480;
+
 	Com_Printf("VR: Initializing renderer:");
 
-	success = (qboolean) R_GenFBO(vrState.hudWidth,vrState.hudHeight, 1, &hud);
+	success = (qboolean) R_GenFBO(hudRect.width, hudRect.height, 1, &hud);
 
 	if (vr_antialias->value)
 		success = success && (qboolean) R_GenFBO(vrState.viewHeight, vrState.viewHeight, 1, &offscreen);
@@ -346,9 +385,6 @@ void R_VR_Init()
 {
 	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
-
-		vrState.hudHeight = 480;
-		vrState.hudWidth = 640;
 
 		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT,&defaultFBO);
 

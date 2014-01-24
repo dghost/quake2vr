@@ -28,8 +28,7 @@ typedef enum {
 
 void OVR_FrameStart(int changeBackBuffers);
 void OVR_BindView(vr_eye_t eye);
-void OVR_GetViewPos(vr_eye_t eye, unsigned int pos[2]);
-void OVR_GetViewSize(vr_eye_t eye, unsigned int size[2]);
+void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
 void OVR_Present();
 int OVR_Enable();
 void OVR_Disable();
