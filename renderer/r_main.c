@@ -1056,7 +1056,7 @@ void R_Register (void)
 	alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
 	scr_netgraph_pos = Cvar_Get ("netgraph_pos", "0", CVAR_ARCHIVE);
 
-	gl_driver = Cvar_Get( "gl_driver", "opengl32", CVAR_ARCHIVE );
+	gl_driver = Cvar_Get( "gl_driver", "opengl32", CVAR_NOSET );
 	gl_allow_software = Cvar_Get( "gl_allow_software", "0", 0 );
 	gl_clear = Cvar_Get ("gl_clear", "0", 0);
 
@@ -1170,7 +1170,7 @@ void R_Register (void)
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_gamma = Cvar_Get( "vid_gamma", "0.8", CVAR_ARCHIVE ); // was 1.0
-	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_ARCHIVE );
+	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
 

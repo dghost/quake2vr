@@ -154,8 +154,8 @@ static void ResetVideoDefaults ( void *unused )
 static void prepareVideoRefresh( void )
 {
 	// set the right mode for refresh
-	Cvar_Set( "vid_ref", "gl" );
-	Cvar_Set( "gl_driver", "opengl32" );
+	Cvar_ForceSet( "vid_ref", "gl" );
+	Cvar_ForceSet( "gl_driver", "opengl32" );
 
 	// tell them they're modified so they refresh
 	vid_ref->modified = true;
