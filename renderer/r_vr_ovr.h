@@ -18,6 +18,14 @@ typedef struct {
 
 } r_ovr_shader_t;
 
+typedef enum {
+	OVR_FILTER_BILINEAR,
+	OVR_FILTER_WEIGHTED_BILINEAR,
+	OVR_FILTER_BICUBIC,
+	NUM_OVR_FILTER_MODES
+} ovr_filtermode_t;
+
+
 void OVR_FrameStart(int changeBackBuffers);
 void OVR_BindView(vr_eye_t eye);
 void OVR_GetViewPos(vr_eye_t eye, unsigned int pos[2]);

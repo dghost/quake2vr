@@ -11,7 +11,7 @@ cvar_t *vr_ovr_distortion;
 cvar_t *vr_ovr_lensdistance;
 cvar_t *vr_ovr_autoscale;
 cvar_t *vr_ovr_autolensdistance;
-cvar_t *vr_ovr_bicubic;
+cvar_t *vr_ovr_filtermode;
 cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_latencytest;
 
@@ -325,7 +325,7 @@ int VR_OVR_Init()
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
-	vr_ovr_bicubic = Cvar_Get("vr_ovr_bicubic","0",CVAR_ARCHIVE);
+	vr_ovr_filtermode = Cvar_Get("vr_ovr_filtermode","0",CVAR_ARCHIVE);
 	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","2",CVAR_ARCHIVE);
 	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
 

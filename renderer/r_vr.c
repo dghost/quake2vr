@@ -54,7 +54,7 @@ void R_VR_StartFrame()
 		case VR_ANTIALIAS_4X_FSAA:
 			vrState.scaledViewHeight = vrState.viewHeight * 2;
 			vrState.scaledViewWidth = vrState.viewWidth * 2; 
-			R_ResizeFBO(vrState.scaledViewWidth, vrState.scaledViewHeight, &offscreen);
+			R_ResizeFBO(vrState.scaledViewWidth, vrState.scaledViewHeight, 1, &offscreen);
 			break;
 		default:
 		case VR_ANTIALIAS_NONE:
@@ -70,10 +70,9 @@ void R_VR_StartFrame()
 
 	if (resolutionChanged)
 	{
-
-
 		Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
 	}
+
 	leftStale = 1;
 	rightStale = 1;
 	hudStale = 1;
@@ -119,8 +118,8 @@ void R_VR_GetViewPos(vr_eye_t eye, unsigned int pos[2])
 {
 	if (eye == EYE_HUD)
 	{
-		unsigned int zero[2] = {0,0};
-		pos = zero;
+		pos[0] = 0;
+		pos[1] = 0;
 	} else if (hmd)
 		hmd->getViewPos(eye,pos);
 }
@@ -306,10 +305,10 @@ void R_VR_Enable()
 
 	Com_Printf("VR: Initializing renderer:");
 
-	success = (qboolean) R_GenFBO(vrState.hudWidth,vrState.hudHeight,&hud);
+	success = (qboolean) R_GenFBO(vrState.hudWidth,vrState.hudHeight, 1, &hud);
 
 	if (vr_antialias->value)
-		success = success && (qboolean) R_GenFBO(vrState.viewHeight, vrState.viewHeight, &offscreen);
+		success = success && (qboolean) R_GenFBO(vrState.viewHeight, vrState.viewHeight, 1, &offscreen);
 
 	vr_antialias->modified = true;
 

@@ -24,6 +24,8 @@ static fbo_t left, right;
 
 static unsigned int renderTargetSize[2];
 
+static unsigned useBilinear;
+
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
 	0, 0, 0,
@@ -367,6 +369,25 @@ void OVR_FrameStart(int changeBackBuffers)
 		vr_ovr_supersample->modified = false;
 	}
 
+	if (vr_ovr_filtermode->modified)
+	{
+		switch ((int) vr_ovr_filtermode->value)
+		{
+		default:
+		case OVR_FILTER_BILINEAR:
+		case OVR_FILTER_BICUBIC:
+			useBilinear = 1;
+			break;
+		case OVR_FILTER_WEIGHTED_BILINEAR:
+			useBilinear = 0;
+			break;
+		}
+//		Com_Printf("OVR: %s bilinear texture filtering\n", useBilinear ? "Using" : "Not using");
+		R_SetFBOFilter(useBilinear,&left);
+		R_SetFBOFilter(useBilinear,&right);
+		vr_ovr_filtermode->modified = false;
+	}
+
 	if (changeBackBuffers)
 	{
 		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
@@ -382,13 +403,14 @@ void OVR_FrameStart(int changeBackBuffers)
 
 void OVR_BindView(vr_eye_t eye)
 {
+	
 	switch(eye)
 	{
 	case EYE_LEFT:
 		if (renderTargetSize[0] != left.width || renderTargetSize[1] != left.height)
 		{
-			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], &left);
-			Com_Printf("OVR: Set left render target size to %ux%u\n",left.width,left.height);
+			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], useBilinear, &left);
+	//		Com_Printf("OVR: Set left render target size to %ux%u\n",left.width,left.height);
 		}
 		vid.height = left.height;
 		vid.width = left.width;
@@ -397,8 +419,8 @@ void OVR_BindView(vr_eye_t eye)
 	case EYE_RIGHT:
 		if (renderTargetSize[0] != right.width || renderTargetSize[1] != right.height)
 		{
-			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], &right);
-			Com_Printf("OVR: Set right render target size to %ux%u\n",right.width, right.height);
+			R_ResizeFBO(renderTargetSize[0], renderTargetSize[1], useBilinear, &right);
+	//		Com_Printf("OVR: Set right render target size to %ux%u\n",right.width, right.height);
 		}
 		vid.height = right.height;
 		vid.width = right.width;
@@ -411,8 +433,8 @@ void OVR_BindView(vr_eye_t eye)
 
 void OVR_GetViewPos(vr_eye_t eye, unsigned int pos[2])
 {
-	unsigned int zero[2] = {0,0};
-	pos = zero;
+		pos[0] = 0;
+		pos[1] = 0;
 }
 
 void OVR_GetViewSize(vr_eye_t eye, unsigned int size[2])
@@ -431,7 +453,7 @@ void OVR_Present()
 		float superscale = vr_ovr_supersample->value;
 		r_ovr_shader_t *current_shader;
 		vec4_t debugColor;
-		if (vr_ovr_bicubic->value)
+		if (vr_ovr_filtermode->value)
 			current_shader = &ovr_bicubic_shaders[!!(int) vr_ovr_chromatic->value];
 		else
 			current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
@@ -523,7 +545,7 @@ int OVR_Enable()
 	if (right.valid)
 		R_DelFBO(&right);
 
-	OVR_FrameStart(true);
+//	OVR_FrameStart(true);
 
 	return true;
 }

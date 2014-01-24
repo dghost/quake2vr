@@ -19,7 +19,7 @@ extern cvar_t *vr_ovr_distortion;
 extern cvar_t *vr_ovr_lensdistance;
 extern cvar_t *vr_ovr_autoscale;
 extern cvar_t *vr_ovr_autolensdistance;
-extern cvar_t *vr_ovr_bicubic;
+extern cvar_t *vr_ovr_filtermode;
 extern cvar_t *vr_ovr_supersample;
 
 
