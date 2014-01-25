@@ -818,23 +818,10 @@ void GLimp_BeginFrame( float camera_separation )
 ** as yet to be determined.  Probably better not to make this a GLimp
 ** function and instead do a call to GLimp_SwapBuffers.
 */
-extern void R_VR_Present(void);
 void GLimp_EndFrame (void)
 {
-	int		err;
-	err = glGetError();
-//	assert( err == GL_NO_ERROR );
-
-	if (err != GL_NO_ERROR)	// Output error code instead
-		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
-
-	if (vr_enabled->value)
-		R_VR_Present();
-
 	if ( !SwapBuffers( glw_state.hDC ) )
 		VID_Error (ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n");
-
-	R_FrameFence();
 }
 
 /*

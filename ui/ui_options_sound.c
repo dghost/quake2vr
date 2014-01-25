@@ -100,7 +100,7 @@ static void UpdateSoundQualityFunc ( void *unused )
 	SCR_DrawString (188, 192+MENU_FONT_SIZE*3, ALIGN_CENTER, S_COLOR_ALT"please be patient.", 255);
 
 	// the text box won't show up unless we do a buffer swap
-	GLimp_EndFrame();
+	R_EndFrame();
 
 	CL_Snd_Restart_f();
 }
@@ -139,7 +139,7 @@ static void SoundResetDefaultsFunc ( void *unused )
 	SCR_DrawString (188, 192+MENU_FONT_SIZE*3, ALIGN_CENTER, S_COLOR_ALT"please be patient.", 255);
 
 	// the text box won't show up unless we do a buffer swap
-	GLimp_EndFrame();
+	R_EndFrame();
 
 	CL_Snd_Restart_f();
 

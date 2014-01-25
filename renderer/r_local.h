@@ -448,6 +448,7 @@ void R_ClearState (void);
 void R_Shutdown (void);
 void R_RenderView (refdef_t *fd);
 void R_BeginFrame( float camera_separation );
+void R_EndFrame ( void );
 void R_SwapBuffers( int );
 void R_SetPalette ( const unsigned char *palette);
 

@@ -201,7 +201,7 @@ void SearchLocalGames( void )
 	SCR_DrawString (188, 192+MENU_FONT_SIZE*3, ALIGN_CENTER, S_COLOR_ALT"please be patient.", 255);
 
 	// the text box won't show up unless we do a buffer swap
-	GLimp_EndFrame();
+	R_EndFrame();
 
 	// send out info packets
 	CL_PingServers_f();

@@ -968,7 +968,7 @@ static void GL_DrawStereoPattern (void)
 			GL_DrawColoredStereoLinePair( 0, 1, 0, 14);
 		glEnd();
 		
-		GLimp_EndFrame();
+		R_EndFrame();
 	}
 }
 #endif
@@ -1746,6 +1746,23 @@ void R_BeginFrame( float camera_separation )
 	// clear screen if desired
 	//
 	R_Clear ();
+}
+
+void R_EndFrame(void)
+{
+	int		err;
+	err = glGetError();
+	//	assert( err == GL_NO_ERROR );
+
+	if (err != GL_NO_ERROR)	// Output error code instead
+		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
+
+	if (vr_enabled->value)
+		R_VR_Present();
+	GLimp_EndFrame();
+
+	R_FrameFence();
+
 }
 
 /*

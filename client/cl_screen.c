@@ -1455,7 +1455,7 @@ void SCR_TimeRefresh_f (void)
 			cl.refdef.viewangles[1] = i/128.0*360.0;
 			R_RenderFrame (&cl.refdef);
 		}
-		GLimp_EndFrame();
+		R_EndFrame();
 	}
 	else
 	{
@@ -1465,7 +1465,7 @@ void SCR_TimeRefresh_f (void)
 
 			R_BeginFrame( 0 );
 			R_RenderFrame (&cl.refdef);
-			GLimp_EndFrame();
+			R_EndFrame();
 		}
 	}
 
@@ -2324,7 +2324,7 @@ void VR_UpdateScreen (void)
 
 	}
 	R_VR_EndFrame();
-	GLimp_EndFrame();
+	R_EndFrame();
 }
 
 
@@ -2485,5 +2485,5 @@ void SCR_UpdateScreen (void)
 		}
 		SCR_DrawConsole ();	
 	}
-	GLimp_EndFrame();
+	R_EndFrame();
 }
