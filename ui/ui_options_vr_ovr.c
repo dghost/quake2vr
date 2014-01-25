@@ -214,7 +214,7 @@ void Options_VR_OVR_MenuInit ( void )
 	static const char *filter_names[] =
 	{
 		"bilinear",
-		"weighted bilinear",
+		"bspline bilinear",
 		0
 	};
 
