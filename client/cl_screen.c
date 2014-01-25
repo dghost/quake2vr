@@ -2323,9 +2323,8 @@ void VR_UpdateScreen (void)
 		VR_RenderStereo();
 
 	}
-	R_VR_Present();
+	R_VR_EndFrame();
 	GLimp_EndFrame();
-	//R_VR_StartFrame();
 }
 
 
