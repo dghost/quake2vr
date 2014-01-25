@@ -437,14 +437,14 @@ void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
 
 void OVR_Present()
 {
+	vec4_t debugColor;
+
 	if (vr_ovr_distortion->value)
 	{
 
 		float scale = VR_OVR_GetDistortionScale();
-		//float superscale = (vr_antialias->value == VR_ANTIALIAS_FSAA ? 2.0f : 1.0f);
 		float superscale = vr_ovr_supersample->value;
 		r_ovr_shader_t *current_shader;
-		vec4_t debugColor;
 		if (vr_ovr_filtermode->value)
 			current_shader = &ovr_bicubic_shaders[!!(int) vr_ovr_chromatic->value];
 		else
@@ -487,28 +487,9 @@ void OVR_Present()
 		
 		GL_Bind(0);
 
-		if (VR_OVR_RenderLatencyTest(debugColor))
-		{
-			glColor4fv(debugColor);
-			
-			glBegin(GL_TRIANGLE_STRIP);
-			glVertex2f(0.3, -0.4);
-			glVertex2f(0.3, 0.4);
-			glVertex2f(0.7, -0.4);
-			glVertex2f(0.7, 0.4); 
-			glEnd();
-
-			glBegin(GL_TRIANGLE_STRIP);
-			glVertex2f(-0.3, -0.4);
-			glVertex2f(-0.3, 0.4);
-			glVertex2f(-0.7, -0.4);
-			glVertex2f(-0.7, 0.4); 
-			glEnd();
-		}
-
-
 	} else {
 		GL_Bind(left.texture);
+
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
@@ -526,6 +507,24 @@ void OVR_Present()
 		glTexCoord2f(1, 1); glVertex2f(1, 1);
 		glEnd();
 		GL_Bind(0);
+	}
+	if (VR_OVR_RenderLatencyTest(debugColor))
+	{
+		glColor4fv(debugColor);
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glVertex2f(0.3, -0.4);
+		glVertex2f(0.3, 0.4);
+		glVertex2f(0.7, -0.4);
+		glVertex2f(0.7, 0.4); 
+		glEnd();
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glVertex2f(-0.3, -0.4);
+		glVertex2f(-0.3, 0.4);
+		glVertex2f(-0.7, -0.4);
+		glVertex2f(-0.7, 0.4); 
+		glEnd();
 	}
 
 }
