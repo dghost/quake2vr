@@ -49,7 +49,8 @@ static menuslider_s		s_brightness_slider;
 static menulist_s		s_texqual_box;
 static menulist_s		s_texfilter_box;
 static menulist_s		s_aniso_box;
-static menulist_s		s_npot_mipmap_box;
+static menulist_s		s_antialias_box;
+//static menulist_s		s_npot_mipmap_box;
 //static menulist_s  		s_texcompress_box;
 static menulist_s  		s_vsync_box;
 static menulist_s		s_adaptivevsync_box;
@@ -107,6 +108,11 @@ static void AdjustFOVCallback ( void *unused )
 	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue);
 }
 
+static void AntialiasCallback ( void *usused )
+{
+	Cvar_SetValue( "r_antialias", s_antialias_box.curvalue);
+}
+
 static void AdvancedOptions( void *s )
 {
 	M_Menu_Video_Advanced_f ();
@@ -147,7 +153,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_screenshot_jpeg");
 	Cvar_SetToDefault ("r_screenshot_jpeg_quality");
 	Cvar_SetToDefault ("r_saveshotsize");
-
+	Cvar_SetToDefault ("r_antialias");
 	Menu_Video_Init();
 }
 
@@ -230,11 +236,12 @@ static void ApplyChanges( void *unused )
 		case 0: Cvar_SetValue( "r_anisotropic", 0.0 ); break;
 	}
 
-	Cvar_SetValue( "r_nonpoweroftwo_mipmaps", s_npot_mipmap_box.curvalue );
+//	Cvar_SetValue( "r_nonpoweroftwo_mipmaps", s_npot_mipmap_box.curvalue );
 //	Cvar_SetValue( "r_ext_texture_compression", s_texcompress_box.curvalue );
 
 	VsyncCallback(NULL);
-	FenceSyncCallback(NULL);
+//	FenceSyncCallback(NULL);
+//	AntialiasCallback(NULL);
 
 //	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue );
 	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue );
@@ -425,6 +432,13 @@ void Menu_Video_Init (void)
 		0
 	};
 
+	static const char *antialias_names[] =
+	{
+		"off",
+		"4x SSAA",
+		0
+	};
+
 	int		y = 0;
 	float	temp;
 
@@ -500,6 +514,18 @@ void Menu_Video_Init (void)
 	s_texqual_box.itemnames			= lmh_names;
 	s_texqual_box.generic.statusbar	= "changes maximum texture size (highest = no limit)";
 
+	if (glConfig.ext_framebuffer_object)
+	{
+		s_antialias_box.generic.type		= MTYPE_SPINCONTROL;
+		s_antialias_box.generic.x			= 0;
+		s_antialias_box.generic.y			= y += MENU_LINE_SIZE;
+		s_antialias_box.generic.name		= "post-process anti-aliasing";
+		s_antialias_box.generic.callback	= AntialiasCallback;
+		s_antialias_box.curvalue			= Cvar_VariableInteger("r_antialias");
+		s_antialias_box.itemnames			= antialias_names;
+		s_antialias_box.generic.statusbar	= "selects a software post-processing antialiasing technique";
+	}
+/*
 	s_npot_mipmap_box.generic.type		= MTYPE_SPINCONTROL;
 	s_npot_mipmap_box.generic.x			= 0;
 	s_npot_mipmap_box.generic.y			= y += MENU_LINE_SIZE;
@@ -507,7 +533,7 @@ void Menu_Video_Init (void)
 	s_npot_mipmap_box.itemnames			= yesno_names;
 	s_npot_mipmap_box.curvalue			= Cvar_VariableValue("r_nonpoweroftwo_mipmaps");
 	s_npot_mipmap_box.generic.statusbar	= "enables non-power-of-2 mipmapped textures (requires driver support)";
-/*
+
 	s_texcompress_box.generic.type		= MTYPE_SPINCONTROL;
 	s_texcompress_box.generic.x			= 0;
 	s_texcompress_box.generic.y			= y += MENU_LINE_SIZE;
@@ -598,7 +624,9 @@ void Menu_Video_Init (void)
 	Menu_AddItem( &s_video_menu, ( void * ) &s_texfilter_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_aniso_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_texqual_box );
-	Menu_AddItem( &s_video_menu, ( void * ) &s_npot_mipmap_box );
+	if (glConfig.ext_framebuffer_object)
+		Menu_AddItem( &s_video_menu, ( void * ) &s_antialias_box );
+//	Menu_AddItem( &s_video_menu, ( void * ) &s_npot_mipmap_box );
 //	Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_vsync_box );
 

@@ -2219,8 +2219,8 @@ text to the screen.
 void VR_UpdateScreen (void)
 {
 	vr_rect_t view;
-	R_VR_StartFrame();
-	R_VR_BindView(EYE_HUD);
+
+	R_BeginFrame(0.0f );
 
 	R_VR_CurrentViewRect(&view);
 	scr_vrect.x = view.x;
@@ -2228,7 +2228,6 @@ void VR_UpdateScreen (void)
 	scr_vrect.width = viddef.width = view.width;
 	scr_vrect.height = viddef.height = view.height;
 
-	R_BeginFrame(0.0f );
 	if (scr_draw_loading == 2)
 	{	//  loading plaque over black screen
 
@@ -2323,7 +2322,7 @@ void VR_UpdateScreen (void)
 		VR_RenderStereo();
 
 	}
-	R_VR_EndFrame();
+//	R_VR_EndFrame();
 	R_EndFrame();
 }
 
@@ -2336,6 +2335,7 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
+
 void SCR_UpdateScreen (void)
 {
 	int numframes;
@@ -2390,7 +2390,6 @@ void SCR_UpdateScreen (void)
 	for ( i = 0; i < numframes; i++ )
 	{
 		R_BeginFrame( separation[i] );
-
 		if (scr_draw_loading == 2)
 		{	//  loading plaque over black screen
 			//R_SetPalette(NULL);

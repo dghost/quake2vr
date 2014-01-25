@@ -585,11 +585,6 @@ void R_Clear (void)
 	// added stencil buffer
 	if (glConfig.have_stencil)
 	{
-		if (r_shadows->value == 3) // BeefQuake R6 shadows
-			glClearStencil(0);
-		else
-			glClearStencil(1);
-	//	glClear(GL_STENCIL_BUFFER_BIT);
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
 //	GL_DepthRange (gldepthmin, gldepthmax);
@@ -1542,7 +1537,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 */
 
 	GL_SetDefaultState();
-
+	R_InitAntialias();
 	R_VR_Init();
 
 	// draw our stereo patterns
@@ -1700,22 +1695,35 @@ void R_BeginFrame( float camera_separation )
 	}
 
 	GLimp_BeginFrame( camera_separation );
+	
+	R_AntialiasStartFrame();
 
-	//
-	// go into 2D mode
-	//
-	glViewport (0,0, vid.width, vid.height);
-	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity ();
-	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity ();
+	if (vr_enabled->value)
+	{
+		R_VR_StartFrame();
+		R_VR_BindView(EYE_HUD);	
+	} else 
+	{
+		R_AntialiasBind();
+	}
 
-	GL_Disable (GL_DEPTH_TEST);
-	GL_Disable (GL_CULL_FACE);
-	GL_Disable (GL_BLEND);
-	GL_Enable (GL_ALPHA_TEST);
-	glColor4f (1,1,1,1);
+	// fuck with draw buffers here
+	if ( vr_enabled->value || r_antialias->value)
+	{
+		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
+	} 
+	else if ( camera_separation < 0 && glState.stereo_enabled )
+	{
+		glDrawBuffer( GL_BACK_LEFT );
+	}
+	else if ( camera_separation > 0 && glState.stereo_enabled )
+	{
+		glDrawBuffer( GL_BACK_RIGHT );
+	}
+	else
+	{
+		glDrawBuffer( GL_BACK );
+	}
 
 	//
 	// texturemode stuff
@@ -1745,7 +1753,34 @@ void R_BeginFrame( float camera_separation )
 
 	// clear screen if desired
 	//
-	R_Clear ();
+
+	
+	if (glConfig.have_stencil)
+	{
+		if (r_shadows->value == 3) // BeefQuake R6 shadows
+			glClearStencil(0);
+		else
+			glClearStencil(1);
+	}
+
+	//
+	// go into 2D mode
+	//
+	glViewport (0,0, vid.width, vid.height);
+	glMatrixMode(GL_PROJECTION);
+    glLoadIdentity ();
+	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity ();
+
+	GL_Disable (GL_DEPTH_TEST);
+	GL_Disable (GL_CULL_FACE);
+	GL_Disable (GL_BLEND);
+	GL_Enable (GL_ALPHA_TEST);
+	glColor4f (1,1,1,1);
+
+	if (!vr_enabled->value)
+		R_Clear ();
 }
 
 void R_EndFrame(void)
@@ -1757,10 +1792,17 @@ void R_EndFrame(void)
 	if (err != GL_NO_ERROR)	// Output error code instead
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
-	if (vr_enabled->value)
-		R_VR_Present();
-	GLimp_EndFrame();
 
+	if (vr_enabled->value)
+	{
+		R_VR_EndFrame();
+		R_AntialiasBind();
+		R_VR_Present();
+	}
+	R_AntialiasEndFrame();
+
+	GLimp_EndFrame();
+	
 	R_FrameFence();
 
 }

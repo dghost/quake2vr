@@ -21,8 +21,6 @@ typedef struct {
 	unsigned int stale;
 	unsigned int viewHeight;
 	unsigned int viewWidth;
-	unsigned int scaledViewHeight;
-	unsigned int scaledViewWidth;
 	vr_eye_t eye;
 } vr_param_t;
 
@@ -89,7 +87,6 @@ extern cvar_t *vr_nosleep;
 extern cvar_t *vr_neckmodel;
 extern cvar_t *vr_neckmodel_up;
 extern cvar_t *vr_neckmodel_forward;
-extern cvar_t *vr_antialias;
 
 enum {
 	VR_AIMMODE_DISABLE,
@@ -111,11 +108,7 @@ enum {
 	NUM_VR_CROSSHAIR
 } vr_crosshair_t;
 
-enum {
-	VR_ANTIALIAS_NONE,
-	VR_ANTIALIAS_4X_FSAA,
-	NUM_VR_ANTIALIAS
-} vr_antialias_t;
+
 
 void VR_Init();
 void VR_Shutdown();

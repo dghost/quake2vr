@@ -39,32 +39,13 @@ void R_VR_StartFrame()
 	
 	vrState.viewOffset = ipd * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 
-	if (vr_antialias->modified)
+	if (vid.width != vrState.viewWidth || vid.height != vrState.viewHeight)
 	{
-		int aa = vr_antialias->value;
-		if (aa >= NUM_VR_ANTIALIAS)
-			aa = NUM_VR_ANTIALIAS - 1;
-		else if (aa < 0)
-			aa = 0;
-		Cvar_SetInteger("vr_antialias", aa);
-		resolutionChanged = 1;
-		switch (aa)
-		{
-		case VR_ANTIALIAS_4X_FSAA:
-			vrState.scaledViewHeight = vrState.viewHeight * 2;
-			vrState.scaledViewWidth = vrState.viewWidth * 2; 
-			R_ResizeFBO(vrState.scaledViewWidth, vrState.scaledViewHeight, 1, &offscreen);
-			break;
-		default:
-		case VR_ANTIALIAS_NONE:
-			vrState.scaledViewHeight = vrState.viewHeight;
-			vrState.scaledViewWidth = vrState.viewWidth;
-			R_DelFBO(&offscreen);
-			break;
-		}
-		vr_antialias->modified = false;
+		vrState.viewHeight = vid.height;
+		vrState.viewWidth = vid.width;
+		resolutionChanged = true;		
 	}
-	
+
 	hmd->frameStart(resolutionChanged);
 
 	if (resolutionChanged)
@@ -109,7 +90,6 @@ void R_VR_BindView(vr_eye_t eye)
 		glClearColor(0.0,0.0,0.0,0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glClearColor (1,0, 0.5, 0.5);
-
 	}
 }
 
@@ -177,6 +157,22 @@ void R_VR_EndFrame()
 {
 	if (vr_enabled->value)
 	{
+		GL_Disable(GL_DEPTH_TEST);
+		GL_Enable (GL_ALPHA_TEST);
+		GL_AlphaFunc(GL_GREATER,0.0f);
+		GL_SelectTexture(0);
+
+
+		R_VR_BindView(EYE_LEFT);
+		R_VR_DrawHud(EYE_LEFT);
+
+		R_VR_BindView(EYE_RIGHT);
+		R_VR_DrawHud(EYE_RIGHT);
+
+//		GL_Bind(0);
+
+		GL_Disable(GL_ALPHA_TEST);
+
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 		glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
@@ -259,59 +255,16 @@ void R_VR_Present()
 {
 	if (!hmd)
 		return;
-
-	GL_Disable(GL_DEPTH_TEST);
-	GL_Enable (GL_ALPHA_TEST);
-	GL_AlphaFunc(GL_GREATER,0.0f);
-	GL_SelectTexture(0);
-	
-
-	R_VR_BindView(EYE_LEFT);
-	R_VR_DrawHud(EYE_LEFT);
-
-	R_VR_BindView(EYE_RIGHT);
-	R_VR_DrawHud(EYE_RIGHT);
-	
-	GL_Bind(0);
-
-
-
-	GL_Disable(GL_ALPHA_TEST);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	if (vr_antialias->value)
-	{
-		R_BindFBO(&offscreen);
-	} else {
-		R_VR_EndFrame();
-	}
-
-
 	// tell the HMD renderer to draw composited scene
 	hmd->present();
 
-	if (vr_antialias->value)
-	{
-		R_VR_EndFrame();
-		GL_Bind(offscreen.texture);
-
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(-1, -1);
-		glTexCoord2f(0, 1); glVertex2f(-1, 1);
-		glTexCoord2f(1, 0); glVertex2f(1, -1);
-		glTexCoord2f(1, 1); glVertex2f(1, 1);
-		glEnd();
-
-	}
-	GL_Bind(0);
-
 	// flag HMD to refresh next frame
-
 	vrState.stale = 1;
 }
 
@@ -321,10 +274,8 @@ void R_VR_Present()
 void R_VR_Enable()
 {
 	qboolean success = false;
-	vrState.viewHeight = vid.height;
-	vrState.scaledViewHeight = vid.height;
-	vrState.scaledViewWidth = vid.width;
-	vrState.viewWidth = vid.width;
+	vrState.viewHeight = 0;
+	vrState.viewWidth = 0;
 
 	if (hud.valid)
 		R_DelFBO(&hud);
@@ -344,11 +295,6 @@ void R_VR_Enable()
 
 	success = (qboolean) R_GenFBO(hudRect.width, hudRect.height, 1, &hud);
 
-	if (vr_antialias->value)
-		success = success && (qboolean) R_GenFBO(vrState.viewHeight, vrState.viewHeight, 1, &offscreen);
-
-	vr_antialias->modified = true;
-
 	success = success && hmd->enable();
 	if (!success)
 	{
@@ -357,7 +303,7 @@ void R_VR_Enable()
 	} else {
 		Com_Printf(" ok!\n");
 	}
-	//	R_VR_StartFrame();
+	R_VR_StartFrame();
 }
 
 // disables renderer support for the Rift

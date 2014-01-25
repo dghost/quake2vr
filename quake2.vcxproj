@@ -209,6 +209,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="renderer\r_antialias.c" />
     <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_shaderobjects.c" />
     <ClCompile Include="renderer\r_vr.c" />

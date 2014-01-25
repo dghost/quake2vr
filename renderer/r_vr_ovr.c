@@ -391,11 +391,11 @@ void OVR_FrameStart(int changeBackBuffers)
 	if (changeBackBuffers)
 	{
 		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
-		renderTargetRect.width = ovrScale * vrState.scaledViewWidth * 0.5;
-		renderTargetRect.height = ovrScale  * vrState.scaledViewHeight;
+		renderTargetRect.width = ovrScale * vrState.viewWidth * 0.5;
+		renderTargetRect.height = ovrScale  * vrState.viewHeight;
 		Com_Printf("OVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
 		VR_OVR_SetFOV();
-		vrState.pixelScale = (int) ovrScale * vrState.scaledViewWidth / (int) vrConfig.hmdWidth;
+		vrState.pixelScale = (int) ovrScale * vrState.viewWidth / (int) vrConfig.hmdWidth;
 	}
 }
 

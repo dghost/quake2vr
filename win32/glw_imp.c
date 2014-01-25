@@ -793,22 +793,7 @@ void GLimp_BeginFrame( float camera_separation )
 		r_bitdepth->modified = false;
 	}
 
-	if ( vr_enabled->value )
-	{
-		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
-	} 
-	else if ( camera_separation < 0 && glState.stereo_enabled )
-	{
-		glDrawBuffer( GL_BACK_LEFT );
-	}
-	else if ( camera_separation > 0 && glState.stereo_enabled )
-	{
-		glDrawBuffer( GL_BACK_RIGHT );
-	}
-	else
-	{
-		glDrawBuffer( GL_BACK );
-	}
+
 }
 
 /*

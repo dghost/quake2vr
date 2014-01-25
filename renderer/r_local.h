@@ -314,6 +314,7 @@ extern	cvar_t	*vid_fullscreen;
 extern	cvar_t	*vid_gamma;
 
 extern  cvar_t  *r_fencesync;
+extern  cvar_t	*r_antialias;
 
 extern	int		gl_lightmap_format;
 extern	int		gl_solid_format;
@@ -979,5 +980,23 @@ qboolean R_CompileShader(GLhandleARB shader, const char *source);
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
 void R_DelShaderProgram(r_shaderobject_t *shader);
 
+/*
+====================================================================
+
+r_antialias.c
+
+====================================================================
+*/
+
+enum {
+	ANTIALIAS_NONE,
+	ANTIALIAS_4X_FSAA,
+	NUM_ANTIALIAS_MODES
+} r_antialias_t;
+
+void R_AntialiasStartFrame (void);
+void R_AntialiasBind(void);
+void R_AntialiasEndFrame(void);
+void R_InitAntialias (void);
 
 #endif
