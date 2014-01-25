@@ -22,7 +22,6 @@ cvar_t *vr_aimmode_deadzone_pitch;
 cvar_t *vr_viewmove;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
-cvar_t *vr_hud_bounce_mode;
 cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
@@ -90,7 +89,7 @@ int VR_GetSensorOrientation()
 	SlerpQuat(vr_doubleSmoothSeries, vr_smoothSeries, emaWeight, vr_doubleSmoothSeries);
 
 
-	if (vr_hud_bounce_mode->value)
+	if (vr_hud_bounce->value == VR_HUD_BOUNCE_LES)
 	{
 		vec4_t level,trend, zero = { 1, 0, 0, 0 };
 		vec4_t negDouble;
@@ -103,7 +102,7 @@ int VR_GetSensorOrientation()
 
 		SlerpQuat(zero,trend, emaWeight / ( 1 - emaWeight), trend);
 		QuatMultiply(level,trend,vr_smoothOrientation);
-	} else {
+	} else if (vr_hud_bounce->value <= VR_HUD_BOUNCE_SES) {
 		QuatCopy(vr_smoothSeries,vr_smoothOrientation);
 	}
 	return 1;
@@ -168,7 +167,7 @@ int VR_GetHeadOffset(vec3_t offset)
 
 void VR_GetOrientationEMAQuat(vec3_t quat) 
 {
-	float bounce = vr_hud_bounce->value / vr_hud_bounce_falloff->value;
+	float bounce = (!!vr_hud_bounce->value) / vr_hud_bounce_falloff->value;
 	vec4_t t1, t2, zero = { 1, 0, 0, 0 };
 	
 	if (!hmd)
@@ -283,8 +282,8 @@ void VR_Frame()
 	{
 		if (vr_hud_bounce->value < 0.0)
 			Cvar_SetInteger("vr_hud_bounce", 0);
-		else if (vr_hud_bounce->value > 2)
-			Cvar_SetInteger("vr_hud_bounce", 2);
+		else if (vr_hud_bounce->value > NUM_HUD_BOUNCE_MODES)
+			Cvar_SetInteger("vr_hud_bounce", NUM_HUD_BOUNCE_MODES - 1);
 		vr_hud_bounce->modified = false;
 	}
 
@@ -425,9 +424,8 @@ void VR_Init()
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","70",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
-	vr_hud_bounce_mode = Cvar_Get("vr_hud_bounce_mode","1",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
-	vr_hud_bounce = Cvar_Get("vr_hud_bounce","1",CVAR_ARCHIVE);
+	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);

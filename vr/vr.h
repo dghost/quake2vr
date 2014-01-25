@@ -108,7 +108,12 @@ enum {
 	NUM_VR_CROSSHAIR
 } vr_crosshair_t;
 
-
+enum {
+	VR_HUD_BOUNCE_NONE,
+	VR_HUD_BOUNCE_SES,
+	VR_HUD_BOUNCE_LES,
+	NUM_HUD_BOUNCE_MODES
+} vr_bounce_mode_t;
 
 void VR_Init();
 void VR_Shutdown();
