@@ -23,7 +23,6 @@ static hmd_render_t *hmd;
 
 static int leftStale, rightStale, hudStale;
 
-static vr_rect_t hudRect;
 //
 // Rendering related functions
 //
@@ -45,6 +44,7 @@ void R_VR_StartFrame()
 		vrState.viewWidth = vid.width;
 		resolutionChanged = true;		
 	}
+
 
 	hmd->frameStart(resolutionChanged);
 
@@ -127,7 +127,10 @@ void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
 {
 	if (eye == EYE_HUD)
 	{
-		*rect = hudRect;
+		rect->x = 0;
+		rect->y = 0;
+		rect->width = hud.width;
+		rect->height = hud.height;
 	} else if (hmd)
 		hmd->getViewRect(eye,rect);
 }
@@ -286,14 +289,9 @@ void R_VR_Enable()
 	rightStale = 1;
 	hudStale = 1;
 
-	hudRect.x = 0;
-	hudRect.y = 0;
-	hudRect.width = 640;
-	hudRect.height = 480;
-
 	Com_Printf("VR: Initializing renderer:");
 
-	success = (qboolean) R_GenFBO(hudRect.width, hudRect.height, 1, &hud);
+	success = (qboolean) R_GenFBO(640, 480, 1, &hud);
 
 	success = success && hmd->enable();
 	if (!success)
