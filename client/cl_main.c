@@ -1398,7 +1398,7 @@ void CL_InitLocal (void)
 	cl_autoskins = Cvar_Get ("cl_autoskins", "0", 0);
 	cl_predict = Cvar_Get ("cl_predict", "1", 0);
 //	cl_minfps = Cvar_Get ("cl_minfps", "5", 0);
-	cl_maxfps = Cvar_Get ("cl_maxfps", "120", 0);
+	cl_maxfps = Cvar_Get ("cl_maxfps", "150", 0);
 	cl_sleep = Cvar_Get ("cl_sleep", "1", 0); 
 
 	// whether to trick version 34 servers that this is a version 34 client
