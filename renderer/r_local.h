@@ -229,7 +229,7 @@ extern  cvar_t  *r_width;
 extern  cvar_t  *r_height;
 
 extern	cvar_t	*r_waterwave;	// Knightmare- water waves
-extern	cvar_t  *r_caustics;	// Barnes water caustics
+extern  cvar_t  *r_waterquality; // dghost - new water options
 extern	cvar_t  *r_glows;		// texture glows
 extern	cvar_t	*r_saveshotsize;// Knightmare- save shot size option
 
@@ -252,7 +252,6 @@ extern	cvar_t	*r_ext_swapinterval;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
 
 extern	cvar_t	*r_arb_vertex_buffer_object;
-extern	cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
 extern	cvar_t	*r_trans_lighting; // allow disabling of lighting on trans surfaces
 extern	cvar_t	*r_warp_lighting; // allow disabling of lighting on warp surfaces
 extern	cvar_t	*r_solidalpha;			// allow disabling of trans33+trans66 surface flag combining
@@ -556,30 +555,6 @@ void RB_DrawMeshTris (void);
 
 
 //
-// r_arb_program.c
-//
-void R_Compile_ARB_Programs ();
-
-typedef enum
-{
-	F_PROG_HEATHAZEMASK = 0,
-	F_PROG_WARP,
-	F_PROG_WATER_DISTORT,
-	NUM_FRAGMENT_PROGRAM
-} fr_progs;
-
-typedef enum
-{
-    V_PROG_DISTORT = 0,
-	NUM_VERTEX_PROGRAM
-} vrt_progs;
-
-
-extern GLuint fragment_programs[NUM_FRAGMENT_PROGRAM];
-extern GLuint vertex_programs[NUM_VERTEX_PROGRAM];
-
-
-//
 // r_warp.c
 //
 //glpoly_t *WaterWarpPolyVerts (glpoly_t *p);
@@ -769,10 +744,6 @@ typedef struct
 
 	qboolean	extCompiledVertArray;
 
-	// texture shader support
-	qboolean	arb_fragment_program;
-	qboolean	arb_vertex_program;
-
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;
@@ -816,8 +787,6 @@ typedef struct
 
 	qboolean		cullFace;
 	qboolean		polygonOffsetFill; // Knightmare added
-	qboolean		vertexProgram;
-	qboolean		fragmentProgram;
 	qboolean		alphaTest;
 	qboolean		blend;
 	qboolean		stencilTest;
@@ -973,15 +942,22 @@ r_shaderobjects.c
 
 typedef struct {
 	GLhandleARB program;
-	GLhandleARB vert_shader;
-	GLhandleARB frag_shader;
 	const char *vert_source;
 	const char *frag_source;
 } r_shaderobject_t;
 
+typedef struct {
+	r_shaderobject_t *shader;
+	GLuint scale_uniform;
+} r_warpshader_t;
+
+extern r_warpshader_t warpshader;
+
 qboolean R_CompileShader(GLhandleARB shader, const char *source);
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
 void R_DelShaderProgram(r_shaderobject_t *shader);
+void R_ShaderObjectsInit();
+void R_ShaderObjectsShutdown();
 
 /*
 ====================================================================

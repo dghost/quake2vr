@@ -234,14 +234,16 @@ void CreateDSTTex_ARB (void)
 
 	glGenTextures(1,&dst_texture_ARB);
 	glBindTexture(GL_TEXTURE_2D, dst_texture_ARB);
+	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
 	glTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+
 }
 
 /*
@@ -275,7 +277,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	float		alpha = colorArray[0][3];
 	image_t		*image = R_TextureAnimation (fa);
 	qboolean	light = r_warp_lighting->value && !(fa->texinfo->flags & SURF_NOLIGHTENV);
-	qboolean	texShaderWarpARB = glConfig.arb_fragment_program && r_pixel_shader_warp->value;
+	qboolean	texShaderWarpARB = r_waterquality->value;
 
 	if (rb_vertex == 0 || rb_index == 0) // nothing to render
 		return;
@@ -297,16 +299,16 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	*/
 	if (texShaderWarpARB)
 	{
+		GLfloat param[4];
 		GL_SelectTexture(0);
 		GL_MBind(0, image->texnum);
 
 		GL_EnableTexture(1);
 		GL_MBind(1, dst_texture_ARB);
 
-		GL_Enable (GL_FRAGMENT_PROGRAM_ARB);
-
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, r_rgbscale->value, r_rgbscale->value, r_rgbscale->value, 1.0);
+		Vector4Set(param,r_rgbscale->value,r_rgbscale->value,r_rgbscale->value,1.0);
+		glUseProgramObjectARB(warpshader.shader->program);
+		glUniform4fvARB(warpshader.scale_uniform,1,param);
 	}
 	else
 		GL_Bind(image->texnum);
@@ -316,7 +318,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	// MrG - texture shader waterwarp
 	if (texShaderWarpARB)
 	{
-		GL_Disable (GL_FRAGMENT_PROGRAM_ARB);
+		glUseProgramObjectARB(0);
 		GL_DisableTexture(1);
 		GL_SelectTexture(0);
 	}

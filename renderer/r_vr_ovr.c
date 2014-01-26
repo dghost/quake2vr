@@ -28,7 +28,7 @@ static unsigned useBilinear;
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
-	0, 0, 0,
+	0, 
 	
 	// vertex shader (identity)
 	"varying vec2 texCoords;\n"
@@ -64,7 +64,7 @@ static r_shaderobject_t ovr_shader_norm = {
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_bicubic_norm = {
-	0, 0, 0,
+	0,
 
 	// vertex shader (identity)
 	"varying vec2 texCoords;\n"
@@ -136,7 +136,7 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 
 // Lens Warp Shader with Chromatic Aberration 
 static r_shaderobject_t ovr_shader_chrm = {
-	0, 0, 0,
+	0, 
 	
 	// vertex shader (identity)
 	"varying vec2 theta;\n"
@@ -193,7 +193,7 @@ static r_shaderobject_t ovr_shader_chrm = {
 };
 
 static r_shaderobject_t ovr_shader_bicubic_chrm = {
-	0, 0, 0,
+	0,
 	
 	// vertex shader (identity)
 	"varying vec2 theta;\n"

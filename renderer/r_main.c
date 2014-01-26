@@ -93,7 +93,7 @@ cvar_t	*r_ignorehwgamma; // hardware gamma
 cvar_t	*r_displayrefresh; // refresh rate control
 cvar_t	*r_lefthand;
 cvar_t	*r_waterwave;	// water waves
-cvar_t  *r_caustics;	// Barnes water caustics
+cvar_t  *r_waterquality;
 cvar_t  *r_glows;		// texture glows
 cvar_t	*r_saveshotsize;//  save shot size option
 
@@ -110,10 +110,7 @@ cvar_t	*r_rgbscale; // Vic's RGB brightening
 cvar_t	*r_ext_swapinterval;
 cvar_t	*r_nonpoweroftwo_mipmaps;		// Knightmare- non-power-of-two texture support
 
-cvar_t	*r_arb_fragment_program;
-cvar_t	*r_arb_vertex_program;
 cvar_t	*r_arb_vertex_buffer_object;
-cvar_t	*r_pixel_shader_warp; // allow disabling the nVidia water warp
 cvar_t	*r_trans_lighting; // disabling of lightmaps on trans surfaces
 cvar_t	*r_warp_lighting; // allow disabling of lighting on warp surfaces
 cvar_t	*r_solidalpha;			// allow disabling of trans33+trans66 surface flag combining
@@ -1081,7 +1078,7 @@ void R_Register (void)
 	r_rgbscale = Cvar_Get ("r_rgbscale", "2", CVAR_ARCHIVE);
 
 	r_waterwave = Cvar_Get ("r_waterwave", "0", CVAR_ARCHIVE );
-	r_caustics = Cvar_Get ("r_caustics", "2", CVAR_ARCHIVE );
+	r_waterquality = Cvar_Get ("r_waterquality","2",CVAR_ARCHIVE );
 	r_glows = Cvar_Get ("r_glows", "1", CVAR_ARCHIVE );
 	r_saveshotsize = Cvar_Get ("r_saveshotsize", "1", CVAR_ARCHIVE );
 
@@ -1126,13 +1123,7 @@ void R_Register (void)
 	r_ext_swapinterval = Cvar_Get( "r_ext_swapinterval", "1", CVAR_ARCHIVE );
 	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 
-	r_arb_fragment_program = Cvar_Get ("r_arb_fragment_program", "1", CVAR_ARCHIVE);
-	r_arb_vertex_program = Cvar_Get ("_arb_vertex_program", "1", CVAR_ARCHIVE);
-
 	r_arb_vertex_buffer_object = Cvar_Get ("r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE);
-
-	// allow disabling the nVidia water warp
-	r_pixel_shader_warp = Cvar_Get( "r_pixel_shader_warp", "1", CVAR_ARCHIVE );
 
 	// allow disabling of lightmaps on trans surfaces
 	r_trans_lighting = Cvar_Get( "r_trans_lighting", "2", CVAR_ARCHIVE );
@@ -1435,41 +1426,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	// GL_ARB_vertex_buffer_object
 	glConfig.vertexBufferObject = true;
 
-	// GL_ARB_fragment_program
-	glConfig.arb_fragment_program = false;
-	if (GLEW_ARB_fragment_program)
-	{
-		if (r_arb_fragment_program->value)
-		{
-			VID_Printf (PRINT_ALL, "...using GL_ARB_fragment_program\n");
-			glConfig.arb_fragment_program = true;
-		}
-		else
-			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_fragment_program\n");
-	}
-	else
-		VID_Printf (PRINT_ALL, "...GL_ARB_fragment_program not found\n");
-
-	// GL_ARB_vertex_program
-	glConfig.arb_vertex_program = false;
-	if (glConfig.arb_fragment_program)
-	{
-		if (GLEW_ARB_vertex_program)
-		{
-			if (r_arb_vertex_program->value)
-			{
-				VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_program\n");
-				glConfig.arb_vertex_program = true;
-			}
-			else
-				VID_Printf (PRINT_ALL, "...ignoring GL_ARB_vertex_program\n");
-		}
-		else
-			VID_Printf (PRINT_ALL, "...GL_ARB_vertex_program not found\n");
-	}
-
-	R_Compile_ARB_Programs ();
-
 	glConfig.ext_packed_depth_stencil = false;
 	if ( GLEW_EXT_packed_depth_stencil )
 	{
@@ -1510,7 +1466,6 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		Cvar_SetValue("r_anisotropic_avail", 0.0);
 	} 
 
-
 	glConfig.arb_sync = false;
 	if (GLEW_ARB_sync)
 	{
@@ -1536,7 +1491,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	Com_Printf( "Size of particles: %i\n", sizeof (particle_t)*MAX_PARTICLES );
 	Com_Printf( "Size of decals: %i\n", sizeof (particle_t)*MAX_DECAL_FRAGS );
 */
-
+	R_ShaderObjectsInit();
 	GL_SetDefaultState();
 	R_InitAntialias();
 	R_VR_Init();
@@ -1632,7 +1587,7 @@ void R_Shutdown (void)
 	saveshotdata = NULL;	// make sure this is null after a vid restart!
 
 	Mod_FreeAll ();
-
+	R_ShaderObjectsShutdown();
 	R_ShutdownImages ();
 	R_VR_Shutdown();
 

@@ -278,7 +278,6 @@
     <ClCompile Include="renderer\r_alias.c" />
     <ClCompile Include="renderer\r_alias_md2.c" />
     <ClCompile Include="renderer\r_alias_misc.c" />
-    <ClCompile Include="renderer\r_arb_program.c" />
     <ClCompile Include="renderer\r_backend.c" />
     <ClCompile Include="renderer\r_beam.c" />
     <ClCompile Include="renderer\r_bloom.c" />

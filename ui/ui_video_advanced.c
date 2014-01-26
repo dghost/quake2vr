@@ -49,7 +49,6 @@ static menuslider_s		s_lightcutoff_slider;
 static menulist_s  		s_solidalpha_box;
 static menulist_s  		s_texshader_warp_box;
 static menuslider_s  	s_waterwave_slider;
-static menulist_s  		s_caustics_box;
 static menulist_s		s_particle_overdraw_box;
 static menulist_s		s_lightbloom_box;
 static menulist_s		s_modelshading_box;
@@ -92,14 +91,11 @@ static void Video_Advanced_MenuSetValues ( void )
 	Cvar_SetValue( "r_solidalpha", ClampCvar( 0, 1, Cvar_VariableValue("r_solidalpha") ) );
 	s_solidalpha_box.curvalue = Cvar_VariableValue("r_solidalpha");
 
-	Cvar_SetValue( "r_pixel_shader_warp", ClampCvar( 0, 1, Cvar_VariableValue("r_pixel_shader_warp") ) );
-	s_texshader_warp_box.curvalue = Cvar_VariableValue("r_pixel_shader_warp");
+	Cvar_SetValue( "r_waterquality", ClampCvar( 0, 2, Cvar_VariableValue("r_waterquality") ) );
+	s_texshader_warp_box.curvalue = Cvar_VariableValue("r_waterquality");
 
 	Cvar_SetValue( "r_waterwave", ClampCvar( 0, 24, Cvar_VariableValue("r_waterwave") ) );
 	s_waterwave_slider.curvalue = Cvar_VariableValue("r_waterwave");
-
-	Cvar_SetValue( "r_caustics", ClampCvar( 0, 2, Cvar_VariableValue("r_caustics") ) );
-	s_caustics_box.curvalue = Cvar_VariableValue("r_caustics");
 
 	Cvar_SetValue( "r_particle_overdraw", ClampCvar( 0, 1, Cvar_VariableValue("r_particle_overdraw") ) );
 	s_particle_overdraw_box.curvalue = Cvar_VariableValue("r_particle_overdraw");
@@ -168,17 +164,12 @@ static void SolidAlphaCallback ( void *unused )
 
 static void TexShaderWarpCallback ( void *unused )
 {
-	Cvar_SetValue( "r_pixel_shader_warp", s_texshader_warp_box.curvalue);
+	Cvar_SetValue( "r_waterquality", s_texshader_warp_box.curvalue);
 }
 
 static void WaterWaveCallback ( void *unused )
 {
 	Cvar_SetValue( "r_waterwave", s_waterwave_slider.curvalue);
-}
-
-static void CausticsCallback ( void *unused )
-{
-	Cvar_SetValue( "r_caustics", s_caustics_box.curvalue);
 }
 
 static void ParticleOverdrawCallback( void *unused )
@@ -270,13 +261,14 @@ void Menu_Video_Advanced_Init (void)
 		"if supported",
 		0
 	};
-	static const char *caustics_names[] =
+	static const char *quality_names[] =
 	{
-		"no",
-		"standard",
-		"hardware warp (if supported)",
+		"low",
+		"medium",
+		"high",
 		0
 	};
+
 	static const char *shell_names[] =
 	{
 		"solid",
@@ -367,10 +359,10 @@ void Menu_Video_Advanced_Init (void)
 	s_texshader_warp_box.generic.type		= MTYPE_SPINCONTROL;
 	s_texshader_warp_box.generic.x			= 0;
 	s_texshader_warp_box.generic.y			= y += MENU_LINE_SIZE;
-	s_texshader_warp_box.generic.name		= "texture shader warp";
+	s_texshader_warp_box.generic.name		= "water quality";
 	s_texshader_warp_box.generic.callback	= TexShaderWarpCallback;
-	s_texshader_warp_box.itemnames			= ifsupported_names;
-	s_texshader_warp_box.generic.statusbar	= "enables hardware water warping effect";
+	s_texshader_warp_box.itemnames			= quality_names;
+	s_texshader_warp_box.generic.statusbar	= "enables hardware water warping and caustic effect";
 
 	s_waterwave_slider.generic.type			= MTYPE_SLIDER;
 	s_waterwave_slider.generic.x			= 0;
@@ -380,14 +372,6 @@ void Menu_Video_Advanced_Init (void)
 	s_waterwave_slider.minvalue				= 0;
 	s_waterwave_slider.maxvalue				= 24;
 	s_waterwave_slider.generic.statusbar	= "size of waves on flat water surfaces";
-
-	s_caustics_box.generic.type				= MTYPE_SPINCONTROL;
-	s_caustics_box.generic.x				= 0;
-	s_caustics_box.generic.y				= y += MENU_LINE_SIZE;
-	s_caustics_box.generic.name				= "underwater caustics";
-	s_caustics_box.generic.callback			= CausticsCallback;
-	s_caustics_box.itemnames				= caustics_names;
-	s_caustics_box.generic.statusbar		= "caustic effect on underwater surfaces";
 
 	s_particle_overdraw_box.generic.type		= MTYPE_SPINCONTROL;
 	s_particle_overdraw_box.generic.x			= 0;
@@ -479,7 +463,6 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_solidalpha_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_texshader_warp_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_waterwave_slider );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_caustics_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_particle_overdraw_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightbloom_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_modelshading_box );

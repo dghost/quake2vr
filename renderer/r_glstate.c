@@ -42,16 +42,6 @@ void GL_Enable (GLenum cap)
 			return;
 		glState.polygonOffsetFill = true;
 		break;
-	case GL_VERTEX_PROGRAM_ARB:
-		if (!glConfig.arb_vertex_program || glState.vertexProgram)
-			return;
-		glState.vertexProgram = true;
-		break;
-	case GL_FRAGMENT_PROGRAM_ARB:
-		if (!glConfig.arb_fragment_program || glState.fragmentProgram)
-			return;
-		glState.fragmentProgram = true;
-		break;
 	case GL_ALPHA_TEST:
 		if (glState.alphaTest)
 			return;
@@ -99,16 +89,6 @@ void GL_Disable (GLenum cap)
 		if (!glState.polygonOffsetFill)
 			return;
 		glState.polygonOffsetFill = false;
-		break;
-	case GL_VERTEX_PROGRAM_ARB:
-		if (!glConfig.arb_vertex_program || !glState.vertexProgram)
-			return;
-		glState.vertexProgram = false;
-		break;
-	case GL_FRAGMENT_PROGRAM_ARB:
-		if (!glConfig.arb_fragment_program || !glState.fragmentProgram)
-			return;
-		glState.fragmentProgram = false;
 		break;
 	case GL_ALPHA_TEST:
 		if (!glState.alphaTest)
@@ -547,8 +527,6 @@ void GL_SetDefaultState (void)
 	glState.texgen = false;
 	glState.cullFace = false;
 	glState.polygonOffsetFill = false;
-	glState.vertexProgram = false;
-	glState.fragmentProgram = false;
 	glState.alphaTest = false;
 	glState.blend = false;
 	glState.stencilTest = false;

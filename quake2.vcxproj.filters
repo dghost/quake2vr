@@ -213,9 +213,6 @@
     <ClCompile Include="renderer\r_alias_misc.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\r_arb_program.c">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\r_backend.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>

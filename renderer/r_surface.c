@@ -306,7 +306,7 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 
 	glowPass = ( r_glows->value && (glow != glMedia.notexture) && light );
 	envMap = R_SurfHasEnvMap (surf);
-	causticPass = ( r_caustics->value && (surf->flags & SURF_MASK_CAUSTIC) && light );
+	causticPass = ( (r_waterquality->value > 1) && (surf->flags & SURF_MASK_CAUSTIC) && light );
 
 	c_brush_calls++;
 
@@ -594,7 +594,7 @@ qboolean R_SurfsAreBatchable (msurface_t *s1, msurface_t *s2)
 			return false;
 		if (R_SurfHasEnvMap(s1) || R_SurfHasEnvMap(s2))
 			return false;
-		if ( r_caustics->value
+		if ( (r_waterquality->value > 1)
 			&& ((s1->flags & SURF_MASK_CAUSTIC) || (s2->flags & SURF_MASK_CAUSTIC)) )
 			return false;
 		return true;
@@ -958,9 +958,8 @@ static void RB_DrawCaustics (msurface_t *surf)
 	float		scrollh, scrollv, scaleh, scalev, dstscroll;	// *v,
 	image_t		*causticpic = RB_CausticForSurface (surf);
 	qboolean	previousBlend = false;
-	qboolean	fragmentWarp = glConfig.arb_fragment_program && (r_caustics->value > 1.0);
-//	glpoly_t	*p;
-	
+	GLfloat param[4];	
+
 	// adjustment for texture size and caustic image
 	scaleh = surf->texinfo->texWidth / (causticpic->width*0.5);
 	scalev = surf->texinfo->texHeight / (causticpic->height*0.5);
@@ -971,14 +970,14 @@ static void RB_DrawCaustics (msurface_t *surf)
 	dstscroll = -1.0 * ( (r_newrefdef.time*0.15) - (int)(r_newrefdef.time*0.15) );
 
 	GL_MBind (0, causticpic->texnum);
-	if (fragmentWarp)
-	{
-		GL_EnableTexture(1);
-		GL_MBind (1, dst_texture_ARB);
-		GL_Enable (GL_FRAGMENT_PROGRAM_ARB);
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, fragment_programs[F_PROG_WARP]);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, 1.0, 1.0, 1.0, 1.0);
-	}
+
+	GL_EnableTexture(1);
+	GL_MBind (1, dst_texture_ARB);
+
+	Vector4Set(param,1.0,1.0,1.0,1.0);
+	glUseProgramObjectARB(warpshader.shader->program);
+	glUniform4fvARB(warpshader.scale_uniform,1,param);
+
 
 	GL_BlendFunc (GL_DST_COLOR, GL_ONE);
 	if (!glState.blend)	GL_Enable (GL_BLEND);
@@ -1001,11 +1000,10 @@ static void RB_DrawCaustics (msurface_t *surf)
 	}*/
 	RB_DrawArrays ();
 
-	if (fragmentWarp) {
-		GL_Disable (GL_FRAGMENT_PROGRAM_ARB);
-		GL_DisableTexture(1);
-		GL_SelectTexture(0);
-	}
+	glUseProgramObjectARB(0);
+	GL_DisableTexture(1);
+	GL_SelectTexture(0);
+
 	if (!previousBlend) // restore state
 		GL_Disable (GL_BLEND);
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1037,7 +1035,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 	glowLayer = ( r_glows->value && (glow != glMedia.notexture) && (glConfig.max_texunits > 2) );
 	glowPass = ( r_glows->value && (glow != glMedia.notexture) && !glowLayer );
 	envMap = R_SurfHasEnvMap (surf);
-	causticPass = ( r_caustics->value && !(surf->texinfo->flags & SURF_ALPHATEST)
+	causticPass = ( (r_waterquality->value > 1) && !(surf->texinfo->flags & SURF_ALPHATEST)
 		&& (surf->flags & SURF_MASK_CAUSTIC) );
 
 	c_brush_calls++;
@@ -1505,7 +1503,7 @@ void R_DrawBrushModel (entity_t *e)
 	}
 
 	// check for caustics, based on code by Berserker
-	if (r_caustics->value)
+	if (r_waterquality->value > 1)
 	{
 		VectorSet(org, mins[0], mins[1], mins[2]);
 	//	contents[0] = Mod_PointInLeaf(org, r_worldmodel)->contents;

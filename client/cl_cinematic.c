@@ -139,10 +139,6 @@ typedef struct
 
 	qboolean	extCompiledVertArray;
 
-	// texture shader support
-	qboolean	arb_fragment_program;
-	qboolean	arb_vertex_program;
-
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;
