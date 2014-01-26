@@ -5,6 +5,7 @@ fbo_t offscreen;
 viddef_t offscreenBounds;
 viddef_t screenBounds;
 
+static int offscreenStale = 1;
 
 void R_AntialiasStartFrame (void)
 {
@@ -44,6 +45,8 @@ void R_AntialiasStartFrame (void)
 
 		VID_NewWindow(offscreenBounds.width,offscreenBounds.height);
 	}
+
+	offscreenStale = 1;
 	vid.width = offscreenBounds.width;
 	vid.height = offscreenBounds.height;
 }
@@ -55,6 +58,13 @@ void R_AntialiasBind(void)
 		R_BindFBO(&offscreen);
 		vid.width = offscreen.width;
 		vid.height = offscreen.height;
+		if (offscreenStale)
+		{
+			offscreenStale = 0;
+			glClearColor(0.0,0.0,0.0,0.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClearColor (1,0, 0.5, 0.5);
+		}
 	} 
 }
 
@@ -66,15 +76,16 @@ void R_AntialiasEndFrame(void)
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 		glViewport(0,0,screenBounds.width,screenBounds.height);
 		//GL_SelectTexture(0);
+
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Disable(GL_ALPHA_TEST);
-		GL_Bind(offscreen.texture);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+
+		GL_Bind(offscreen.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
