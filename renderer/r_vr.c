@@ -176,7 +176,7 @@ void R_VR_EndFrame()
 
 		GL_Disable(GL_ALPHA_TEST);
 
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+		GL_BindFBO(0);
 		glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 		vid.width = vrState.viewWidth;
 		vid.height = vrState.viewHeight;
@@ -307,7 +307,7 @@ void R_VR_Enable()
 // disables renderer support for the Rift
 void R_VR_Disable()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+	GL_BindFBO(0);
 	glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
 
 	vid.width = vrState.viewWidth;

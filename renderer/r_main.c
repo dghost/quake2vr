@@ -1487,6 +1487,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		{
 			VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
 			glConfig.ext_framebuffer_object = true;
+			glState.currentFBO = 0;
 		} else {
 			VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
 		}

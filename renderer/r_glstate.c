@@ -519,6 +519,23 @@ void GL_MBind (unsigned tmu, int texnum)
 
 /*
 =================
+GL_MBind
+=================
+*/
+void GL_BindFBO (unsigned fbo)
+{
+	if (!glConfig.ext_framebuffer_object)
+		return;
+
+	if (glState.currentFBO == fbo)
+		return;
+
+	glState.currentFBO = fbo;
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo);
+}
+
+/*
+=================
 GL_SetDefaultState
 =================
 */
@@ -606,6 +623,6 @@ void GL_SetDefaultState (void)
 		glState.activetmu[i] = false;
 
 	GL_TexEnv (GL_REPLACE);
-
+	
 	GL_UpdateSwapInterval();
 }

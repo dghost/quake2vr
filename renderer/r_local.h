@@ -798,6 +798,8 @@ typedef struct
 	unsigned int	currenttmu;
 	qboolean		activetmu[MAX_TEXTURE_UNITS];
 
+	unsigned int	currentFBO;
+	
 	float			camera_separation;
 	qboolean		stereo_enabled;
 
@@ -877,6 +879,7 @@ void	GL_EnableMultitexture(qboolean enable);
 void	GL_SelectTexture (unsigned tmu);
 void	GL_Bind (int texnum);
 void	GL_MBind (unsigned tmu, int texnum);
+void	GL_BindFBO (unsigned fbo);
 void	GL_SetDefaultState (void);
 
 /*
@@ -958,7 +961,7 @@ int R_ResizeFBO(int width, int height, int bilinear, fbo_t *FBO);
 void R_SetFBOFilter(int bilinear, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);
 void R_InitFBO(fbo_t *FBO);
-GLuint R_BindFBO(fbo_t *FBO);
+void R_BindFBO(fbo_t *FBO);
 
 /*
 ====================================================================

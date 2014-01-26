@@ -73,7 +73,7 @@ void R_AntialiasEndFrame(void)
 
 	if (r_antialias->value)
 	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+		GL_BindFBO(0);
 		glViewport(0,0,screenBounds.width,screenBounds.height);
 		//GL_SelectTexture(0);
 

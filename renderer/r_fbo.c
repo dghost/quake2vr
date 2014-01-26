@@ -33,7 +33,7 @@ int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	GL_BindFBO(fbo);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
@@ -157,11 +157,9 @@ void R_InitFBO(fbo_t *FBO)
 
 }
 
-GLuint R_BindFBO(fbo_t *FBO)
+void R_BindFBO(fbo_t *FBO)
 {
-	GLint currentFrameBuffer = 0;
 	//glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO->framebuffer);
+	GL_BindFBO(FBO->framebuffer);
 	glViewport(0, 0, FBO->width, FBO->height);
-	return (GLuint) currentFrameBuffer;
 }
