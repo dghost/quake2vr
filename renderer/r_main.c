@@ -1362,6 +1362,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		glConfig.rendType = GLREND_ATI;
 		if (strstr(vendor_buffer, "radeon"))		glConfig.rendType |= GLREND_RADEON;
 	}
+		else if (strstr(vendor_buffer, "amd")) {
+		glConfig.rendType = GLREND_ATI;
+		if (strstr(vendor_buffer, "radeon"))		glConfig.rendType |= GLREND_RADEON;
+	}
 	else if (strstr(vendor_buffer, "intel"))		glConfig.rendType = GLREND_INTEL;
 	else											glConfig.rendType = GLREND_DEFAULT;
 
@@ -1389,8 +1393,8 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.extCompiledVertArray = false;
 	if ( GLEW_EXT_compiled_vertex_array )
 	{
-				VID_Printf (PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
-				glConfig.extCompiledVertArray = true;
+		VID_Printf (PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
+		glConfig.extCompiledVertArray = true;
 	}
 	else
 		VID_Printf (PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
@@ -1406,17 +1410,22 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
 	}
 	else
-		
-	VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
+		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
 	
 	
 	// WGL_EXT_swap_control_tear
 	glConfig.ext_swap_control_tear = false;
 
-	if ( WGLEW_EXT_swap_control_tear )
+	if (WGLEW_EXT_swap_control_tear)
 	{
-		glConfig.ext_swap_control_tear = true;
-		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control_tear\n" );
+		if ( !glConfig.rendType == GLREND_ATI )
+		{
+			glConfig.ext_swap_control_tear = true;
+			VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control_tear\n" );
+		} else {
+			VID_Printf (PRINT_ALL, "...disabling WGL_EXT_swap_control_tear on AMD hardware\n" );
+			Cvar_SetInteger("r_adaptivevsync",0);
+		}
 	}
 	else
 		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control_tear not found\n" );
@@ -1428,16 +1437,12 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	// GL_ARB_fragment_program
 	glConfig.arb_fragment_program = false;
-	if (strstr(glConfig.extensions_string, "GL_ARB_fragment_program"))
+	if (GLEW_ARB_fragment_program)
 	{
 		if (r_arb_fragment_program->value)
 		{
-			if (!GLEW_ARB_fragment_program)
-				VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_fragment_program not properly supported!\n");
-			else {
-				VID_Printf (PRINT_ALL, "...using GL_ARB_fragment_program\n");
-				glConfig.arb_fragment_program = true;
-			}
+			VID_Printf (PRINT_ALL, "...using GL_ARB_fragment_program\n");
+			glConfig.arb_fragment_program = true;
 		}
 		else
 			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_fragment_program\n");
@@ -1449,17 +1454,12 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.arb_vertex_program = false;
 	if (glConfig.arb_fragment_program)
 	{
-		if (strstr(glConfig.extensions_string, "GL_ARB_vertex_program"))
+		if (GLEW_ARB_vertex_program)
 		{
 			if (r_arb_vertex_program->value)
 			{
-				if (!glGetVertexAttribdvARB || !glGetVertexAttribfvARB
-					|| !glGetVertexAttribivARB || !glGetVertexAttribPointervARB)
-					VID_Printf (PRINT_ALL, "..." S_COLOR_RED "GL_ARB_vertex_program not properly supported!\n");
-				else {
-					VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_program\n");
-					glConfig.arb_vertex_program = true;
-				}
+				VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_program\n");
+				glConfig.arb_vertex_program = true;
 			}
 			else
 				VID_Printf (PRINT_ALL, "...ignoring GL_ARB_vertex_program\n");
@@ -1494,7 +1494,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	// GL_EXT_texture_filter_anisotropic - NeVo
 	glConfig.anisotropic = false;
-	if ( strstr(glConfig.extensions_string,"GL_EXT_texture_filter_anisotropic") )
+	if ( GLEW_EXT_texture_filter_anisotropic)
 	{
 		VID_Printf (PRINT_ALL,"...using GL_EXT_texture_filter_anisotropic\n" );
 		glConfig.anisotropic = true;
@@ -1518,7 +1518,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	} else {
 			VID_Printf (PRINT_ALL, "...GL_ARB_sync not found\n" );
 			glConfig.arb_sync = false;
-			Cvar_SetInteger("vr_fencesync",0);
+			Cvar_SetInteger("r_fencesync",0);
 	}
 
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
