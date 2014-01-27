@@ -1415,7 +1415,7 @@ void CL_InitLocal (void)
 	cl_blood = Cvar_Get ("cl_blood", "2", CVAR_ARCHIVE);
 
 	// Option for old explosions
-	cl_old_explosions = Cvar_Get ("cl_old_explosions", "0", CVAR_ARCHIVE);
+	cl_old_explosions = Cvar_Get ("cl_old_explosions", "1", CVAR_ARCHIVE);
 	// Option for unique plasma explosion sound
 	cl_plasma_explo_sound = Cvar_Get ("cl_plasma_explo_sound", "0", CVAR_ARCHIVE);
 	cl_item_bobbing = Cvar_Get ("cl_item_bobbing", "0", CVAR_ARCHIVE);

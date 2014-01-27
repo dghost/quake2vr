@@ -130,7 +130,7 @@ static void EffectsSetMenuItemValues( void )
 	Cvar_SetValue( "cl_particle_scale", ClampCvar( 0, 5, Cvar_VariableValue("cl_particle_scale") ) );
 	s_options_effects_particle_comp_slider.curvalue	= (Cvar_VariableValue("cl_particle_scale") -3)*-1+3;
 
-	Cvar_SetValue( "cl_railtype", ClampCvar( 0, 2, Cvar_VariableValue("cl_railtype") ) );
+	Cvar_SetValue( "cl_railtype", ClampCvar( 0, 3, Cvar_VariableValue("cl_railtype") ) );
 	s_options_effects_railtrail_box.curvalue		= Cvar_VariableValue("cl_railtype");
 	s_options_effects_railcolor_slider[0].curvalue		= Cvar_VariableValue("cl_railred")/16;
 	s_options_effects_railcolor_slider[1].curvalue		= Cvar_VariableValue("cl_railgreen")/16;
@@ -178,6 +178,7 @@ void Options_Effects_MenuInit ( void )
 
 	static const char *railtrail_names[] =
 	{
+		"standard",
 		"colored spiral",
 		"colored beam", //laser
 		"colored devrail",
@@ -315,6 +316,7 @@ void Options_Effects_MenuInit ( void )
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[0] );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[1] );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[2] );
+
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_footstep_box );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_defaults_action );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_back_action );
