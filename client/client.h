@@ -321,9 +321,8 @@ extern	cvar_t	*cl_plasma_explo_sound;	// Option for unique plasma explosion soun
 extern	cvar_t	*cl_item_bobbing;	// Option for bobbing items
 
 // Psychospaz's changeable rail code
-extern	cvar_t	*cl_railred;
-extern	cvar_t	*cl_railgreen;
-extern	cvar_t	*cl_railblue;
+extern cvar_t	*cl_railcore_color;
+extern  cvar_t  *cl_railspiral_color;
 extern	cvar_t	*cl_railtype;
 extern	cvar_t	*cl_rail_length;
 extern	cvar_t	*cl_rail_space;
@@ -436,7 +435,7 @@ extern	sizebuf_t	net_message;
 float ClampCvar( float min, float max, float value );
 
 // for use with the alt_text_color cvar
-void TextColor (int colornum, int *red, int *green, int *blue);
+void ColorLookup (int colornum, int *red, int *green, int *blue);
 qboolean StringSetParams (char modifier, int *red, int *green, int *blue, int *bold, int *shadow, int *italic, int *reset);
 void Con_DrawString (int x, int y, char *s, int alpha);
 void DrawStringGeneric (int x, int y, const char *string, int alpha, textscaletype_t scaleType, qboolean altBit);

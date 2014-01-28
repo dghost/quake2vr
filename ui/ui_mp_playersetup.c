@@ -685,7 +685,7 @@ void PlayerConfig_DrawSkinSelection (void)
 	float	x, y, w, h;
 	int		i, count, color[3];
 
-	TextColor((int)Cvar_VariableValue("alt_text_color"), &color[0], &color[1], &color[2]);
+	ColorLookup((int)Cvar_VariableValue("alt_text_color"), &color[0], &color[1], &color[2]);
 
 	if (s_pmi[s_player_model_box.curvalue].nskins<NUM_SKINBOX_ITEMS || s_player_skin_box.curvalue<4)
 		i=0;

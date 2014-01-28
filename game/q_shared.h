@@ -343,16 +343,30 @@ void Com_PageInMemory (byte *buffer, int size);
 
 //=============================================
 
-#define COLOR_GRAY		'0'
-#define COLOR_RED		'1'
-#define COLOR_GREEN		'2'
-#define COLOR_YELLOW	'3'
-#define COLOR_BLUE		'4'
-#define COLOR_CYAN		'5'
-#define COLOR_MAGENTA	'6'
-#define COLOR_WHITE		'7'
-#define COLOR_BLACK		'8'
-#define COLOR_ORANGE	'9'
+typedef enum {
+ COLOR_GRAY,
+ COLOR_RED,
+ COLOR_GREEN,
+ COLOR_YELLOW,
+ COLOR_BLUE,
+ COLOR_CYAN,
+ COLOR_MAGENTA,
+ COLOR_WHITE,
+ COLOR_BLACK,
+ COLOR_ORANGE,
+} color_t;
+
+
+#define C_COLOR_GRAY	'0'
+#define C_COLOR_RED		'1'
+#define C_COLOR_GREEN	'2'
+#define C_COLOR_YELLOW	'3'
+#define C_COLOR_BLUE	'4'
+#define C_COLOR_CYAN	'5'
+#define C_COLOR_MAGENTA	'6'
+#define C_COLOR_WHITE	'7'
+#define C_COLOR_BLACK	'8'
+#define C_COLOR_ORANGE	'9'
 
 #define S_COLOR_GRAY	"^0"
 #define S_COLOR_RED		"^1"

@@ -82,12 +82,11 @@ cvar_t	*cl_plasma_explo_sound;	// Option for unique plasma explosion sound
 cvar_t	*cl_item_bobbing;	// Option for bobbing items
 
 // Psychospaz's rail code
-cvar_t	*cl_railred;
-cvar_t	*cl_railgreen;
-cvar_t	*cl_railblue;
 cvar_t	*cl_railtype;
 cvar_t	*cl_rail_length;
 cvar_t	*cl_rail_space;
+cvar_t	*cl_railcore_color;
+cvar_t  *cl_railspiral_color;
 
 // whether to use texsurfs.txt footstep sounds
 cvar_t	*cl_footstep_override;
@@ -1421,9 +1420,8 @@ void CL_InitLocal (void)
 	cl_item_bobbing = Cvar_Get ("cl_item_bobbing", "0", CVAR_ARCHIVE);
 
 	// Psychospaz's changeable rail code
-	cl_railred = Cvar_Get ("cl_railred", "20", CVAR_ARCHIVE);
-	cl_railgreen = Cvar_Get ("cl_railgreen", "50", CVAR_ARCHIVE);
-	cl_railblue = Cvar_Get ("cl_railblue", "175", CVAR_ARCHIVE);
+	cl_railcore_color = Cvar_Get ("cl_railcore_color", "7", CVAR_ARCHIVE);
+	cl_railspiral_color = Cvar_Get ("cl_railspiral_color","5", CVAR_ARCHIVE);
 	cl_railtype = Cvar_Get ("cl_railtype", "0", CVAR_ARCHIVE);
 	cl_rail_length = Cvar_Get ("cl_rail_length", va("%i", DEFAULT_RAIL_LENGTH), CVAR_ARCHIVE);
 	cl_rail_space = Cvar_Get ("cl_rail_space", va("%i", DEFAULT_RAIL_SPACE), CVAR_ARCHIVE);

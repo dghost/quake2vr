@@ -123,3 +123,67 @@ void vectoangles2 (vec3_t value1, vec3_t angles)
 	angles[YAW] = yaw;
 	angles[ROLL] = 0;
 }
+
+/*
+================
+ColorLookup
+Returns RGB values for color type, can be called from anywhere
+================
+*/
+void ColorLookup (color_t colornum, int *red, int *green, int *blue)
+{
+	switch (colornum)
+	{
+	case COLOR_GRAY:		//gray
+		*red =	155;
+		*green=	155;
+		*blue =	155;
+		break;
+	case COLOR_RED:		//red
+		*red =	255;
+		*green=	0;
+		*blue =	0;
+		break;
+	case COLOR_GREEN:		//green
+		*red =	0;
+		*green=	255;
+		*blue =	0;
+		break;
+	case COLOR_YELLOW:		//yellow
+		*red =	255;
+		*green=	255;
+		*blue =	0;
+		break;
+	case COLOR_BLUE:		//blue
+		*red =	0;
+		*green=	0;
+		*blue =	255;
+		break;
+	case COLOR_CYAN:		//cyan
+		*red =	0;
+		*green=	255;
+		*blue =	255;
+		break;
+	case COLOR_MAGENTA:		//magenta
+		*red =	255;
+		*green=	0;
+		*blue =	255;
+		break;
+	case COLOR_BLACK:		//black
+		*red =	0;
+		*green=	0;
+		*blue =	0;
+		break;
+	case COLOR_ORANGE:		//orange
+		*red =	255;
+		*green=	135;
+		*blue =	0;
+		break;
+	default:	//white
+	case COLOR_WHITE:
+		*red =	255;
+		*green=	255;
+		*blue =	255;
+		break;
+	}
+}

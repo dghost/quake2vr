@@ -234,8 +234,6 @@ void CreateDSTTex_ARB (void)
 
 	glGenTextures(1,&dst_texture_ARB);
 	glBindTexture(GL_TEXTURE_2D, dst_texture_ARB);
-	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 	glTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
 
@@ -244,6 +242,8 @@ void CreateDSTTex_ARB (void)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 }
 
 /*

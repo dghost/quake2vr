@@ -44,7 +44,8 @@ static menulist_s		s_options_effects_itembob_box;
 static menuslider_s		s_options_effects_decal_slider;
 static menuslider_s		s_options_effects_particle_comp_slider;
 static menulist_s		s_options_effects_railtrail_box;
-static menuslider_s		s_options_effects_railcolor_slider[3];
+static menulist_s		s_options_effects_railcore_color;
+static menulist_s		s_options_effects_railspiral_color;
 static menulist_s		s_options_effects_footstep_box;
 static menuaction_s		s_options_effects_defaults_action;
 static menuaction_s		s_options_effects_back_action;
@@ -86,19 +87,10 @@ static void RailTrailFunc( void *unused )
 	Cvar_SetValue( "cl_railtype", s_options_effects_railtrail_box.curvalue );
 }
 
-static void RailColorRedFunc( void *unused )
+static void RailColorFunc( void *unused )
 {
-	Cvar_SetValue( "cl_railred", s_options_effects_railcolor_slider[0].curvalue*16 );
-}
-
-static void RailColorGreenFunc( void *unused )
-{
-	Cvar_SetValue( "cl_railgreen", s_options_effects_railcolor_slider[1].curvalue*16 );
-}
-
-static void RailColorBlueFunc( void *unused )
-{
-	Cvar_SetValue( "cl_railblue", s_options_effects_railcolor_slider[2].curvalue*16 );
+	Cvar_SetInteger( "cl_railcore_color",s_options_effects_railcore_color.curvalue + 1);
+	Cvar_SetInteger( "cl_railspiral_color",s_options_effects_railspiral_color.curvalue + 1);
 }
 
 // foostep override option
@@ -132,9 +124,13 @@ static void EffectsSetMenuItemValues( void )
 
 	Cvar_SetValue( "cl_railtype", ClampCvar( 0, 3, Cvar_VariableValue("cl_railtype") ) );
 	s_options_effects_railtrail_box.curvalue		= Cvar_VariableValue("cl_railtype");
-	s_options_effects_railcolor_slider[0].curvalue		= Cvar_VariableValue("cl_railred")/16;
-	s_options_effects_railcolor_slider[1].curvalue		= Cvar_VariableValue("cl_railgreen")/16;
-	s_options_effects_railcolor_slider[2].curvalue		= Cvar_VariableValue("cl_railblue")/16;
+
+	Cvar_SetValue( "cl_railcore_color", ClampCvar( 1, 7, Cvar_VariableValue("cl_railcore_color") ) );
+	s_options_effects_railcore_color.curvalue		= Cvar_VariableValue("cl_railcore_color") - 1;
+
+	Cvar_SetValue( "cl_railspiral_color", ClampCvar( 1, 7, Cvar_VariableValue("cl_railspiral_color") ) );
+	s_options_effects_railspiral_color.curvalue		= Cvar_VariableValue("cl_railspiral_color") - 1;
+
 
 	Cvar_SetValue( "cl_footstep_override", ClampCvar( 0, 1, Cvar_VariableValue("cl_footstep_override") ) );
 	s_options_effects_footstep_box.curvalue			= Cvar_VariableValue("cl_footstep_override");
@@ -149,9 +145,8 @@ static void EffectsResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("r_decals");
 	Cvar_SetToDefault ("cl_particle_scale");
 	Cvar_SetToDefault ("cl_railtype");
-	Cvar_SetToDefault ("cl_railred");
-	Cvar_SetToDefault ("cl_railgreen");
-	Cvar_SetToDefault ("cl_railblue");	
+	Cvar_SetToDefault ("cl_railcore_color");
+	Cvar_SetToDefault ("cl_railspiral_color");
 	Cvar_SetToDefault ("cl_footstep_override");
 
 	EffectsSetMenuItemValues();
@@ -179,12 +174,23 @@ void Options_Effects_MenuInit ( void )
 	static const char *railtrail_names[] =
 	{
 		"standard",
-		"colored spiral",
-		"colored beam", //laser
-		"colored devrail",
+		"core", //laser
+		"core + spiral",
+		"core + smoke",
 		0
 	};
 
+	static const char *ColorLookup_names[] =
+	{
+		"red",
+		"green",
+		"yellow",
+		"blue",
+		"cyan",
+		"magenta",
+		"white",
+		0
+	};
 
 	int y = 3*MENU_LINE_SIZE;
 
@@ -256,32 +262,22 @@ void Options_Effects_MenuInit ( void )
 	s_options_effects_railtrail_box.itemnames				= railtrail_names;
 	s_options_effects_railtrail_box.generic.statusbar		= "changes railgun particle effect";
 
-	s_options_effects_railcolor_slider[0].generic.type		= MTYPE_SLIDER;
-	s_options_effects_railcolor_slider[0].generic.x			= 0;
-	s_options_effects_railcolor_slider[0].generic.y			= y += MENU_LINE_SIZE;
-	s_options_effects_railcolor_slider[0].generic.name		= "railtrail - red";
-	s_options_effects_railcolor_slider[0].generic.callback	= RailColorRedFunc;
-	s_options_effects_railcolor_slider[0].minvalue			= 0;
-	s_options_effects_railcolor_slider[0].maxvalue			= 16;
-	s_options_effects_railcolor_slider[0].generic.statusbar	= "changes railtrail red component";
+	s_options_effects_railcore_color.generic.type			= MTYPE_SPINCONTROL;
+	s_options_effects_railcore_color.generic.x				= 0;
+	s_options_effects_railcore_color.generic.y				= y += MENU_LINE_SIZE;
+	s_options_effects_railcore_color.generic.name			= "railgun core color";
+	s_options_effects_railcore_color.generic.callback		= RailColorFunc;
+	s_options_effects_railcore_color.itemnames				= ColorLookup_names;
+	s_options_effects_railcore_color.generic.statusbar		= "changes railgun core color";
 
-	s_options_effects_railcolor_slider[1].generic.type		= MTYPE_SLIDER;
-	s_options_effects_railcolor_slider[1].generic.x			= 0;
-	s_options_effects_railcolor_slider[1].generic.y			= y += MENU_LINE_SIZE;
-	s_options_effects_railcolor_slider[1].generic.name		= "railtrail - green";
-	s_options_effects_railcolor_slider[1].generic.callback	= RailColorGreenFunc;
-	s_options_effects_railcolor_slider[1].minvalue			= 0;
-	s_options_effects_railcolor_slider[1].maxvalue			= 16;
-	s_options_effects_railcolor_slider[1].generic.statusbar	= "changes railtrail green component";
+	s_options_effects_railspiral_color.generic.type			= MTYPE_SPINCONTROL;
+	s_options_effects_railspiral_color.generic.x			= 0;
+	s_options_effects_railspiral_color.generic.y			= y += MENU_LINE_SIZE;
+	s_options_effects_railspiral_color.generic.name			= "railgun spiral color";
+	s_options_effects_railspiral_color.generic.callback		= RailColorFunc;
+	s_options_effects_railspiral_color.itemnames			= ColorLookup_names;
+	s_options_effects_railspiral_color.generic.statusbar	= "changes railgun spiral color";
 
-	s_options_effects_railcolor_slider[2].generic.type		= MTYPE_SLIDER;
-	s_options_effects_railcolor_slider[2].generic.x			= 0;
-	s_options_effects_railcolor_slider[2].generic.y			= y += MENU_LINE_SIZE;
-	s_options_effects_railcolor_slider[2].generic.name		= "railtrail - blue";
-	s_options_effects_railcolor_slider[2].generic.callback	= RailColorBlueFunc;
-	s_options_effects_railcolor_slider[2].minvalue			= 0;
-	s_options_effects_railcolor_slider[2].maxvalue			= 16;
-	s_options_effects_railcolor_slider[2].generic.statusbar	= "changes railtrail blue component";
 
 	// foostep override option
 	s_options_effects_footstep_box.generic.type			= MTYPE_SPINCONTROL;
@@ -313,10 +309,9 @@ void Options_Effects_MenuInit ( void )
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_decal_slider );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_particle_comp_slider );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railtrail_box );
-	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[0] );
-	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[1] );
-	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcolor_slider[2] );
-
+	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railcore_color );
+	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_railspiral_color );
+	
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_footstep_box );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_defaults_action );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_back_action );

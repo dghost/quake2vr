@@ -653,7 +653,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 	// changeable download bar color
 	int				red, green, blue;
 
-	TextColor((int)alt_text_color->value, &red, &green, &blue);
+	ColorLookup((int)alt_text_color->value, &red, &green, &blue);
 	barwidth = SCREEN_WIDTH;	barheight = 2;
 	SCR_AdjustFrom640 (NULL, NULL, &barwidth, &barheight, ALIGN_STRETCH);
 

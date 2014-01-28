@@ -26,75 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
 ================
-TextColor
-This sets the actual text color, can be called from anywhere
-================
-*/
-void TextColor (int colornum, int *red, int *green, int *blue)
-{
-	switch (colornum)
-	{
-		case 1:		//red
-			*red =	255;
-			*green=	0;
-			*blue =	0;
-			break;
-		case 2:		//green
-			*red =	0;
-			*green=	255;
-			*blue =	0;
-			break;
-		case 3:		//yellow
-			*red =	255;
-			*green=	255;
-			*blue =	0;
-			break;
-		case 4:		//blue
-			*red =	0;
-			*green=	0;
-			*blue =	255;
-			break;
-		case 5:		//cyan
-			*red =	0;
-			*green=	255;
-			*blue =	255;
-			break;
-		case 6:		//magenta
-			*red =	255;
-			*green=	0;
-			*blue =	255;
-			break;
-		case 7:		//white
-			*red =	255;
-			*green=	255;
-			*blue =	255;
-			break;
-		case 8:		//black
-			*red =	0;
-			*green=	0;
-			*blue =	0;
-			break;
-		case 9:		//orange
-			*red =	255;
-			*green=	135;
-			*blue =	0;
-			break;
-		case 0:		//gray
-			*red =	155;
-			*green=	155;
-			*blue =	155;
-			break;
-		default:	//white
-			*red =	255;
-			*green=	255;
-			*blue =	255;
-			break;
-	}
-}
-
-
-/*
-================
 StringSetParams
 ================
 */
@@ -130,21 +61,21 @@ qboolean StringSetParams (char modifier, int *red, int *green, int *blue, int *b
 			else 
 				*italic=true;
 			return true;
-		case COLOR_RED:
-		case COLOR_GREEN:
-		case COLOR_YELLOW:
-		case COLOR_BLUE:
-		case COLOR_CYAN:
-		case COLOR_MAGENTA:
-		case COLOR_WHITE:
-		case COLOR_BLACK:
-		case COLOR_ORANGE:
-		case COLOR_GRAY:
-			TextColor(atoi(&modifier), red, green, blue);
+		case C_COLOR_RED:
+		case C_COLOR_GREEN:
+		case C_COLOR_YELLOW:
+		case C_COLOR_BLUE:
+		case C_COLOR_CYAN:
+		case C_COLOR_MAGENTA:
+		case C_COLOR_WHITE:
+		case C_COLOR_BLACK:
+		case C_COLOR_ORANGE:
+		case C_COLOR_GRAY:
+			ColorLookup(atoi(&modifier), red, green, blue);
 			return true;
 		case 'A':	//alt text color
 		case 'a':
-			TextColor((int)alt_text_color->value, red, green, blue);
+			ColorLookup((int)alt_text_color->value, red, green, blue);
 			return true;
 	}
 	
@@ -228,12 +159,12 @@ void DrawStringGeneric (int x, int y, const char *string, int alpha, textscalety
 				if (!modified) {
 					character ^= 0x80;
 					if (character & 128)
-						TextColor((int)alt_text_color->value, &red, &green, &blue);
+						ColorLookup((int)alt_text_color->value, &red, &green, &blue);
 				}
 			}
 			else {
 				if (!modified && (character & 128))
-					TextColor((int)alt_text_color->value, &red, &green, &blue);
+					ColorLookup((int)alt_text_color->value, &red, &green, &blue);
 			}
 			break;
 		case SCALETYPE_CONSOLE:
@@ -242,7 +173,7 @@ void DrawStringGeneric (int x, int y, const char *string, int alpha, textscalety
 			textScale = FONT_SIZE/8.0;
 			// hack for alternate text color
 			if (!modified && (character & 128))
-				TextColor((int)alt_text_color->value, &red, &green, &blue);
+				ColorLookup((int)alt_text_color->value, &red, &green, &blue);
 			break;
 		}
 
