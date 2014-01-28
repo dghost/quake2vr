@@ -605,8 +605,12 @@ void GL_UpdateSwapInterval (void)
 	if (registering != registration_active)
 		r_swapinterval->modified = true;
 
+	if (r_adaptivevsync->value && !glConfig.ext_swap_control_tear)
+		Cvar_SetInteger("r_adaptivevsync",0);
+
 	if (r_adaptivevsync->modified)
 	{
+
 		Cvar_SetInteger("r_adaptivevsync",!!r_adaptivevsync->value);
 		r_swapinterval->modified = true;
 		r_adaptivevsync->modified = false;
