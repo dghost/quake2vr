@@ -765,7 +765,7 @@ void PlayerConfig_MenuDraw (void)
 		refdef.num_entities = 0;
 		refdef.entities = entity;
 
-		yaw = anglemod(cl.time/10);
+		yaw = anglemod(cls.realtime/10);
 
 		//VectorSet (modelOrg, 150, (hand->value==1)?25:-25, 0); // was 80, 0, 0
 		VectorSet (modelOrg, 150, -25, 0);

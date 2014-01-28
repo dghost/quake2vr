@@ -126,7 +126,7 @@ void UI_DrawMainCursor3D (int x, int y)
 	float		rx, ry, rw, rh;
 	int			yaw;
 
-	yaw = anglemod(cl.time/10);
+	yaw = anglemod(cls.realtime/10);
 
 	memset(&refdef, 0, sizeof(refdef));
 	memset (&quadEnt, 0, sizeof(quadEnt));

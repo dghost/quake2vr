@@ -1197,12 +1197,12 @@ void Xbox_HandleRepeat(unsigned char key)
 	else
 		delay = XBOX_REPEAT_DELAY;
 	
-	if (cl.time > xbox_repeatstatus[index].lastSendTime + delay || cl.time < xbox_repeatstatus[index].lastSendTime)
+	if (cls.realtime > xbox_repeatstatus[index].lastSendTime + delay || cls.realtime < xbox_repeatstatus[index].lastSendTime)
 		send = true;
 	
 	if (send)
 	{
-		xbox_repeatstatus[index].lastSendTime = cl.time;
+		xbox_repeatstatus[index].lastSendTime = cls.realtime;
 		xbox_repeatstatus[index].repeatCount++;
 		Key_Event (key, true, 0);
 	}

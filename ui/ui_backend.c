@@ -102,7 +102,7 @@ int mouseOverAlpha (menucommon_s *m)
 	{
 		int alpha;
 
-		alpha = 125 + 25 * cos(anglemod(cl.time*0.005));
+		alpha = 125 + 25 * cos(anglemod(cls.realtime*0.005));
 
 		if (alpha>255) alpha = 255;
 		if (alpha<0) alpha = 0;
@@ -1295,12 +1295,12 @@ void UI_Draw_Cursor (void)
 				|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 			{
 				cur_img = "/gfx/ui/cursors/m_cur_click.pcx";
-				alpha = 0.85 + 0.15*sin(anglemod(cl.time*0.005));
+				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 			else
 			{
 				cur_img = "/gfx/ui/cursors/m_cur_hover.pcx";
-				alpha = 0.85 + 0.15*sin(anglemod(cl.time*0.005));
+				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 		}
 		else
@@ -1321,12 +1321,12 @@ void UI_Draw_Cursor (void)
 					|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 				{
 					cur_img = "/gfx/ui/cursors/m_cur_click.pcx";
-					alpha = 0.85 + 0.15*sin(anglemod(cl.time*0.005));
+					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
 				else
 				{
 					cur_img = "/gfx/ui/cursors/m_cur_hover.pcx";
-					alpha = 0.85 + 0.15*sin(anglemod(cl.time*0.005));
+					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
 				overlay = "/gfx/ui/cursors/m_cur_over.pcx";
 			}
