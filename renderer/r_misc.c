@@ -655,6 +655,9 @@ void R_FrameFence (void)
 		glVertex2f(0, 0);
 		glEnd();
 		glFence.fenced = true;
+	} else if (!glConfig.arb_sync && r_fencesync->value)
+	{
+		Cvar_SetInteger("r_fencesync",0);
 	}
 }
 

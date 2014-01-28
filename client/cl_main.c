@@ -1679,6 +1679,7 @@ CL_Frame
 
 ==================
 */
+extern cvar_t *r_fencesync;
 extern void R_FrameSync(void);
 void CL_Frame (int msec)
 {
@@ -1700,7 +1701,8 @@ void CL_Frame (int msec)
 	{
 		if (cls.state == ca_connected && extratime < 100)
 			return;			// don't flood packets out while connecting
-		if (extratime < 1000/cl_maxfps->value)
+		// ignore the framerate cap if r_fencesync is enabled 
+		if (extratime < 1000/cl_maxfps->value && !r_fencesync->value)
 		{	
 #ifdef _WIN32 // Pooy's CPU usage fix
 			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )

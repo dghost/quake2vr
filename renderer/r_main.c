@@ -1140,7 +1140,7 @@ void R_Register (void)
 
 
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
-	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "0", CVAR_ARCHIVE );
+	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
 
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
@@ -1154,7 +1154,7 @@ void R_Register (void)
 	r_lightcutoff = Cvar_Get( "r_lightcutoff", "0", CVAR_ARCHIVE );	//** DMP dynamic light cutoffnow variable
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
-	r_fencesync = Cvar_Get("r_fencesync","0",CVAR_ARCHIVE );
+	r_fencesync = Cvar_Get("r_fencesync","1",CVAR_ARCHIVE );
 
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
