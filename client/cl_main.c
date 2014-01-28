@@ -1680,7 +1680,7 @@ CL_Frame
 ==================
 */
 extern cvar_t *r_fencesync;
-extern void R_FrameSync(void);
+extern int R_FrameSync(void);
 void CL_Frame (int msec)
 {
 	static int	extratime;
@@ -1702,7 +1702,16 @@ void CL_Frame (int msec)
 		if (cls.state == ca_connected && extratime < 100)
 			return;			// don't flood packets out while connecting
 		// ignore the framerate cap if r_fencesync is enabled 
-		if ((extratime < 1000/cl_maxfps->value) && !r_fencesync->value)
+
+		if (r_fencesync->value)
+		{ 
+			int timeWaited = R_FrameSync();
+			if (!timeWaited)
+				return;
+			else if (r_fencesync->value == 2)
+				Com_Printf("Time since last frame: %ims blocked by GPU: %ims difference: %ims\n",extratime, timeWaited, extratime - timeWaited);
+	
+		} else if ((extratime < 1000/cl_maxfps->value))
 		{	
 #ifdef _WIN32 // Pooy's CPU usage fix
 			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )
@@ -1749,7 +1758,7 @@ void CL_Frame (int msec)
 	if (r_decal_life->value < MIN_DECAL_LIFE)
 		Cvar_SetValue("r_decal_life", MIN_DECAL_LIFE);
 
-	R_FrameSync();
+	//R_FrameSync();
 
 	// if in the debugger last frame, don't timeout
 	if (msec > 5000)

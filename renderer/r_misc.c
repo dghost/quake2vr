@@ -642,6 +642,7 @@ static struct {
 	GLsync sync; 
 	qboolean fenced;
 	GLint64 timeout;
+	int timeStart;
 } glFence;
 
 void R_FrameFence (void)
@@ -649,7 +650,9 @@ void R_FrameFence (void)
 	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value)
 	{
 		glFence.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
-		glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &glFence.timeout);
+//		glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &glFence.timeout);
+//		glFence.timeout = 1000000;
+		glFence.timeout = 0;
 		glColor4f(0.0f,0.0f,0.0f,0.0f);
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Bind(0);
@@ -659,20 +662,33 @@ void R_FrameFence (void)
 		glVertex2f(0, 0);
 		glEnd();
 		glFence.fenced = true;
+		glFence.timeStart = Sys_Milliseconds();
 	} else if (!glConfig.arb_sync && r_fencesync->value)
 	{
 		Cvar_SetInteger("r_fencesync",0);
 	}
 }
 
-void R_FrameSync (void)
+int R_FrameSync (void)
 {
 	if (glConfig.arb_sync && glFence.fenced && r_fencesync->value)
 	{
 		GLenum result;
 		result = glClientWaitSync(glFence.sync, GL_SYNC_FLUSH_COMMANDS_BIT, glFence.timeout);
-		glDeleteSync(glFence.sync);
- 		glFence.fenced = false;
+		if (result == GL_TIMEOUT_EXPIRED)
+		{
+			return 0;
+		} else {
+			if (result == GL_WAIT_FAILED)
+			{
+				GLenum err = glGetError();
+				if ( err != GL_NO_ERROR )
+					VID_Printf (PRINT_ALL, "R_FrameSync: glGetError() = 0x%x\n", err);
+			}
+			glDeleteSync(glFence.sync);
+			glFence.fenced = false;
+			return Sys_Milliseconds()-glFence.timeStart;
+		}
 	}
-
+	return 1;
 }

@@ -457,7 +457,7 @@ void VR_RenderScreenEffects (refdef_t *fd);
 void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
-void R_FrameSync (void);
+int R_FrameSync (void);
 //
 // r_model.c
 //
