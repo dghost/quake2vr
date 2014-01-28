@@ -2297,8 +2297,8 @@ void R_BeginBuildingLightmaps (model_t *m)
 
 	gl_lms.internal_format = GL_RGBA8;
 
-	gl_lms.format = GL_BGRA;
-	gl_lms.type = GL_UNSIGNED_INT_8_8_8_8_REV;
+	gl_lms.format = GL_LIGHTMAP_FORMAT;
+	gl_lms.type = GL_LIGHTMAP_TYPE;
 
 	// initialize the dynamic lightmap texture
 	GL_Bind( glState.lightmap_textures + 0 );

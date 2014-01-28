@@ -384,7 +384,8 @@ void R_DrawAllDecals (void);
 
 //#define	MAX_LIGHTMAPS	128	// moved this up above to keeep TEXNUM_* values aligned
 
-#define GL_LIGHTMAP_FORMAT	GL_BGRA // was GL_RGBA
+#define GL_LIGHTMAP_FORMAT	GL_RGBA
+//#define GL_LIGHTMAP_FORMAT	GL_BGRA // was GL_RGBA
 #define GL_LIGHTMAP_TYPE	GL_UNSIGNED_INT_8_8_8_8_REV	// was GL_UNSIGNED_BYTE
 
 #define BATCH_LM_UPDATES
