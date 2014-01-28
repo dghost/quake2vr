@@ -248,10 +248,8 @@ extern	cvar_t	*con_font_size;
 
 //extern	cvar_t	*gl_ext_palettedtexture;
 //extern	cvar_t	*gl_ext_pointparameters;
-extern	cvar_t	*r_ext_swapinterval;
 extern	cvar_t	*r_nonpoweroftwo_mipmaps;
 
-extern	cvar_t	*r_arb_vertex_buffer_object;
 extern	cvar_t	*r_trans_lighting; // allow disabling of lighting on trans surfaces
 extern	cvar_t	*r_warp_lighting; // allow disabling of lighting on warp surfaces
 extern	cvar_t	*r_solidalpha;			// allow disabling of trans33+trans66 surface flag combining
@@ -261,7 +259,6 @@ extern	cvar_t	*r_glass_envmaps; // Psychospaz's envmapping
 extern	cvar_t	*r_trans_surf_sorting; // trans bmodel sorting
 extern	cvar_t	*r_shelltype; // entity shells: 0 = solid, 1 = warp, 2 = spheremap
 
-extern	cvar_t	*r_ext_texture_compression; // Heffo - ARB Texture Compression
 extern	cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-settable
 
 extern	cvar_t	*r_screenshot_jpeg;			// Heffo - JPEG Screenshots
@@ -291,7 +288,6 @@ extern	cvar_t	*r_finish;
 extern	cvar_t	*r_cull;
 extern	cvar_t	*r_polyblend;
 extern	cvar_t	*r_flashblend;
-extern	cvar_t	*r_lightmaptype;
 extern	cvar_t	*r_modulate;
 extern	cvar_t	*r_swapinterval;
 extern  cvar_t  *r_adaptivevsync;
@@ -300,7 +296,6 @@ extern	cvar_t	*r_anisotropic_avail;
 extern	cvar_t	*r_texturemode;
 extern	cvar_t	*r_texturealphamode;
 extern	cvar_t	*r_texturesolidmode;
-extern  cvar_t  *r_saturatelighting;
 extern  cvar_t  *r_lockpvs;
 extern	cvar_t	*r_intensity;
 
@@ -812,7 +807,6 @@ typedef struct
 	GLenum			depthFunc;
 	GLboolean		depthMask;
 
-	qboolean		texture_compression; // Heffo - ARB Texture Compression
 
 	unsigned char	originalRedGammaTable[256];
 	unsigned char	originalGreenGammaTable[256];

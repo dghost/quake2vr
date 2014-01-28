@@ -107,10 +107,8 @@ cvar_t	*r_lightlevel;	// FIXME: This is a HACK to get the client's light level
 
 cvar_t	*r_rgbscale; // Vic's RGB brightening
 
-cvar_t	*r_ext_swapinterval;
 cvar_t	*r_nonpoweroftwo_mipmaps;		// Knightmare- non-power-of-two texture support
 
-cvar_t	*r_arb_vertex_buffer_object;
 cvar_t	*r_trans_lighting; // disabling of lightmaps on trans surfaces
 cvar_t	*r_warp_lighting; // allow disabling of lighting on warp surfaces
 cvar_t	*r_solidalpha;			// allow disabling of trans33+trans66 surface flag combining
@@ -119,11 +117,9 @@ cvar_t	*r_entity_fliproll;		// allow disabling of backwards alias model roll
 cvar_t	*r_glass_envmaps; // Psychospaz's envmapping
 cvar_t	*r_trans_surf_sorting; // trans bmodel sorting
 cvar_t	*r_shelltype; // entity shells: 0 = solid, 1 = warp, 2 = spheremap
-cvar_t	*r_ext_texture_compression; // Heffo - ARB Texture Compression
 cvar_t	*r_screenshot_jpeg;			// Heffo - JPEG Screenshots
 cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 
-//cvar_t	*r_motionblur;				// motionblur
 cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-settable
 
 cvar_t	*r_bitdepth;
@@ -143,6 +139,7 @@ cvar_t	*r_particle_overdraw;
 
 cvar_t	*r_dynamic;
 
+//TODO: consider removing r_modulate
 cvar_t	*r_modulate;
 cvar_t	*r_nobind;
 cvar_t	*r_picmip;
@@ -154,7 +151,6 @@ cvar_t	*r_finish;
 cvar_t	*r_cull;
 cvar_t	*r_polyblend;
 cvar_t	*r_flashblend;
-cvar_t  *r_saturatelighting;
 cvar_t	*r_swapinterval;
 cvar_t  *r_adaptivevsync;
 cvar_t	*r_texturemode;
@@ -1075,7 +1071,7 @@ void R_Register (void)
 
 	r_lightlevel = Cvar_Get ("r_lightlevel", "0", 0);
 	// added Vic's RGB brightening
-	r_rgbscale = Cvar_Get ("r_rgbscale", "2", CVAR_ARCHIVE);
+	r_rgbscale = Cvar_Get ("r_rgbscale", "1", CVAR_ARCHIVE);
 
 	r_waterwave = Cvar_Get ("r_waterwave", "0", CVAR_ARCHIVE );
 	r_waterquality = Cvar_Get ("r_waterquality","2",CVAR_ARCHIVE );
@@ -1120,13 +1116,10 @@ void R_Register (void)
 
 	//gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "0", CVAR_ARCHIVE );
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
-	r_ext_swapinterval = Cvar_Get( "r_ext_swapinterval", "1", CVAR_ARCHIVE );
 	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 
-	r_arb_vertex_buffer_object = Cvar_Get ("r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE);
-
 	// allow disabling of lightmaps on trans surfaces
-	r_trans_lighting = Cvar_Get( "r_trans_lighting", "2", CVAR_ARCHIVE );
+	r_trans_lighting = Cvar_Get( "r_trans_lighting", "1", CVAR_ARCHIVE );
 
 	// allow disabling of lighting on warp surfaces
 	r_warp_lighting = Cvar_Get( "r_warp_lighting", "1", CVAR_ARCHIVE );
@@ -1142,17 +1135,13 @@ void R_Register (void)
 	r_trans_surf_sorting = Cvar_Get( "r_trans_surf_sorting", "0", CVAR_ARCHIVE );
 	r_shelltype = Cvar_Get( "r_shelltype", "1", CVAR_ARCHIVE );
 
-	r_ext_texture_compression = Cvar_Get( "r_ext_texture_compression", "0", CVAR_ARCHIVE ); // Heffo - ARB Texture Compression
-
 	r_screenshot_jpeg = Cvar_Get( "r_screenshot_jpeg", "1", CVAR_ARCHIVE );					// Heffo - JPEG Screenshots
 	r_screenshot_jpeg_quality = Cvar_Get( "r_screenshot_jpeg_quality", "85", CVAR_ARCHIVE );	// Heffo - JPEG Screenshots
 
-	//r_motionblur = Cvar_Get( "r_motionblur", "0", CVAR_ARCHIVE );	// motionblur
 
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
 	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "0", CVAR_ARCHIVE );
 
-	r_saturatelighting = Cvar_Get( "r_saturatelighting", "0", 0 );
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_gamma = Cvar_Get( "vid_gamma", "0.8", CVAR_ARCHIVE ); // was 1.0
@@ -1349,11 +1338,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 		glConfig.rendType = GLREND_NVIDIA;
 		if (strstr(renderer_buffer, "geforce"))	glConfig.rendType |= GLREND_GEFORCE;
 	}
-	else if (strstr(vendor_buffer, "ati")) {
-		glConfig.rendType = GLREND_ATI;
-		if (strstr(vendor_buffer, "radeon"))		glConfig.rendType |= GLREND_RADEON;
-	}
-		else if (strstr(vendor_buffer, "amd")) {
+	else if (strstr(vendor_buffer, "ati") || strstr(vendor_buffer, "amd")) {
 		glConfig.rendType = GLREND_ATI;
 		if (strstr(vendor_buffer, "radeon"))		glConfig.rendType |= GLREND_RADEON;
 	}
@@ -1384,7 +1369,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	glConfig.extCompiledVertArray = false;
 	if ( GLEW_EXT_compiled_vertex_array )
 	{
-		VID_Printf (PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
+		VID_Printf (PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
 		glConfig.extCompiledVertArray = true;
 	}
 	else
@@ -1398,7 +1383,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	if ( WGLEW_EXT_swap_control )
 	{
 		glConfig.ext_swap_control = true;
-		VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
+		VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control\n" );
 	}
 	else
 		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
@@ -1409,12 +1394,12 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	if (WGLEW_EXT_swap_control_tear)
 	{
-		if ( !glConfig.rendType == GLREND_ATI )
+		if ( !(glConfig.rendType & GLREND_ATI) )
 		{
 			glConfig.ext_swap_control_tear = true;
-			VID_Printf (PRINT_ALL, "...enabling WGL_EXT_swap_control_tear\n" );
+			VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control_tear\n" );
 		} else {
-			VID_Printf (PRINT_ALL, "...disabling WGL_EXT_swap_control_tear on AMD hardware\n" );
+			VID_Printf (PRINT_ALL, "...ignoring WGL_EXT_swap_control_tear on AMD hardware\n" );
 			Cvar_SetInteger("r_adaptivevsync",0);
 		}
 	}
@@ -1479,11 +1464,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
 
-
-	// dghost: guaranteed extensions from OpenGL 2.0
-	// TODO: consider removing legacy code
-	glState.texture_compression = (qboolean) r_ext_texture_compression->value;
 
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
@@ -1492,9 +1476,24 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 	Com_Printf( "Size of decals: %i\n", sizeof (particle_t)*MAX_DECAL_FRAGS );
 */
 	R_ShaderObjectsInit();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_ShaderObjectsInit: glGetError() = 0x%x\n", err);
+
 	GL_SetDefaultState();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "GL_SetDefaultState: glGetError() = 0x%x\n", err);
+
 	R_InitAntialias();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_InitAntialias: glGetError() = 0x%x\n", err);
+
 	R_VR_Init();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_VR_Init: glGetError() = 0x%x\n", err);
 
 	// draw our stereo patterns
 #if 0 // commented out until H3D pays us the money they owe us
@@ -1502,19 +1501,44 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 #endif
 
 	R_InitImages ();
-	Mod_Init ();
-	R_InitMedia ();
-	R_DrawInitLocal ();
-
-	R_InitDSTTex (); // init shader warp texture
-	R_InitFogVars (); // reset fog variables
-	VLight_Init (); // Vic's bmodel lights
-	RB_InitBackend(); // init mini-backend
-
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
-		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
+		VID_Printf (PRINT_ALL, "R_InitImages: glGetError() = 0x%x\n", err);
 
+	Mod_Init ();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "Mod_Init: glGetError() = 0x%x\n", err);
+
+	R_InitMedia ();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_InitMedia: glGetError() = 0x%x\n", err);
+
+	R_DrawInitLocal ();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_DrawInitLocal: glGetError() = 0x%x\n", err);
+
+	R_InitDSTTex (); // init shader warp texture
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_InitDSTTex: glGetError() = 0x%x\n", err);
+
+	R_InitFogVars (); // reset fog variables
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_InitFogVars: glGetError() = 0x%x\n", err);
+
+	VLight_Init (); // Vic's bmodel lights
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "VLight_Init: glGetError() = 0x%x\n", err);
+
+	RB_InitBackend(); // init mini-backend
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "RB_InitBackend: glGetError() = 0x%x\n", err);
 
 	return true;
 }

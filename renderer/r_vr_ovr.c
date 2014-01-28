@@ -536,6 +536,11 @@ int OVR_Enable()
 	if (right.valid)
 		R_DelFBO(&right);
 
+	VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
+	VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
+	VR_OVR_InitShader(&ovr_bicubic_shaders[0],&ovr_shader_bicubic_norm);
+	VR_OVR_InitShader(&ovr_bicubic_shaders[1],&ovr_shader_bicubic_chrm);
+
 //	OVR_FrameStart(true);
 
 	return true;
@@ -558,10 +563,6 @@ int OVR_Init()
 {
 	R_InitFBO(&left);
 	R_InitFBO(&right);
-	VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
-	VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
-	VR_OVR_InitShader(&ovr_bicubic_shaders[0],&ovr_shader_bicubic_norm);
-	VR_OVR_InitShader(&ovr_bicubic_shaders[1],&ovr_shader_bicubic_chrm);
 	return true;
 
 }

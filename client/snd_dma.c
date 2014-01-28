@@ -133,7 +133,7 @@ void S_Init (void)
 		s_mixahead = Cvar_Get ("s_mixahead", "0.2", CVAR_ARCHIVE);
 		s_show = Cvar_Get ("s_show", "0", 0);
 		s_testsound = Cvar_Get ("s_testsound", "0", 0);
-		s_primary = Cvar_Get ("s_primary", "0", CVAR_ARCHIVE);	// win32 specific
+		s_primary = Cvar_Get ("s_primary", "1", CVAR_ARCHIVE);	// win32 specific
 	#ifdef OGG_SUPPORT
 		s_musicvolume = Cvar_Get ("s_musicvolume", "1.0", CVAR_ARCHIVE); // Q2E
 	#endif

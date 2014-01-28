@@ -128,7 +128,6 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_texturemode");
 	Cvar_SetToDefault ("r_anisotropic");
 	Cvar_SetToDefault ("r_picmip");
-	Cvar_SetToDefault ("r_ext_texture_compression");
 	Cvar_SetToDefault ("r_swapinterval");
 	Cvar_SetToDefault ("r_adaptivevsync");
 	Cvar_SetToDefault ("r_fencesync");
@@ -236,8 +235,6 @@ static void ApplyChanges( void *unused )
 		case 0: Cvar_SetValue( "r_anisotropic", 0.0 ); break;
 	}
 
-//	Cvar_SetValue( "r_nonpoweroftwo_mipmaps", s_npot_mipmap_box.curvalue );
-//	Cvar_SetValue( "r_ext_texture_compression", s_texcompress_box.curvalue );
 
 	VsyncCallback(NULL);
 //	FenceSyncCallback(NULL);
@@ -543,13 +540,6 @@ void Menu_Video_Init (void)
 	s_npot_mipmap_box.curvalue			= Cvar_VariableValue("r_nonpoweroftwo_mipmaps");
 	s_npot_mipmap_box.generic.statusbar	= "enables non-power-of-2 mipmapped textures (requires driver support)";
 
-	s_texcompress_box.generic.type		= MTYPE_SPINCONTROL;
-	s_texcompress_box.generic.x			= 0;
-	s_texcompress_box.generic.y			= y += MENU_LINE_SIZE;
-	s_texcompress_box.generic.name		= "texture compression";
-	s_texcompress_box.curvalue			= Cvar_VariableValue("r_ext_texture_compression");
-	s_texcompress_box.itemnames			= yesno_names;
-	s_texcompress_box.generic.statusbar	= "reduces quality, increases performance (leave off unless needed)";
 */
 	s_vsync_box.generic.type			= MTYPE_SPINCONTROL;
 	s_vsync_box.generic.x				= 0;

@@ -31,6 +31,7 @@ int			base_textureid;		// gltextures[i] = base_textureid+i
 static byte			 intensitytable[256];
 static unsigned char gammatable[256];
 
+// TODO: consider removing r_intensity
 cvar_t		*r_intensity;
 
 unsigned	d_8to24table[256];
@@ -39,10 +40,10 @@ float		d_8to24tablef[256][3]; //Knightmare- MrG's Vertex array stuff
 qboolean GL_Upload8 (byte *data, int width, int height,  qboolean mipmap, qboolean is_sky );
 qboolean GL_Upload32 (unsigned *data, int width, int height,  qboolean mipmap);
 
-int		gl_solid_format = 3;
-int		gl_alpha_format = 4;
-int		gl_tex_solid_format = 3;
-int		gl_tex_alpha_format = 4;
+int		gl_solid_format = GL_RGB;
+int		gl_alpha_format = GL_RGBA;
+int		gl_tex_solid_format = GL_RGB;
+int		gl_tex_alpha_format = GL_RGBA;
 int		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int		gl_filter_max = GL_LINEAR;
 
@@ -1553,12 +1554,10 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 		}
 	}
 
-	// Heffo - ARB Texture Compression
-	glHint(GL_TEXTURE_COMPRESSION_HINT_ARB, GL_NICEST);
 	if (samples == gl_solid_format)
-		comp = (glState.texture_compression) ? GL_COMPRESSED_RGB_ARB : gl_tex_solid_format;
+		comp = gl_tex_solid_format;
 	else if (samples == gl_alpha_format)
-		comp = (glState.texture_compression) ? GL_COMPRESSED_RGBA_ARB : gl_tex_alpha_format;
+		comp = gl_tex_alpha_format;
 
 	//
 	// find sizes to scale to
@@ -2208,10 +2207,10 @@ void R_InitImages (void)
 
 	// Knightmare- reinitialize these after a vid_restart
 	// this is needed because the renderer is no longer a DLL
-	gl_solid_format = 3;
-	gl_alpha_format = 4;
-	gl_tex_solid_format = 3;
-	gl_tex_alpha_format = 4;
+	gl_solid_format = GL_RGB;
+	gl_alpha_format = GL_RGBA;
+	gl_tex_solid_format = GL_RGB;
+	gl_tex_alpha_format = GL_RGBA;
 	gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 	gl_filter_max = GL_LINEAR;
 

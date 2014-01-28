@@ -40,8 +40,6 @@ ADVANCED VIDEO MENU
 */
 static menuframework_s	s_video_advanced_menu;
 static menuseparator_s	s_options_advanced_header;	
-static menuslider_s		s_lightmapscale_slider;
-static menuslider_s		s_textureintensity_slider;
 static menulist_s  		s_rgbscale_box;
 static menulist_s  		s_trans_lighting_box;
 static menulist_s  		s_warp_lighting_box;
@@ -64,12 +62,6 @@ static menuaction_s		s_back_action;
 
 static void Video_Advanced_MenuSetValues ( void )
 {
-	Cvar_SetValue( "r_modulate", ClampCvar( 1, 2, Cvar_VariableValue("r_modulate") ) );
-	s_lightmapscale_slider.curvalue = (Cvar_VariableValue("r_modulate") -1) * 10;
-
-	Cvar_SetValue( "r_intensity", ClampCvar( 1, 2, Cvar_VariableValue("r_intensity") ) );
-	s_textureintensity_slider.curvalue = (Cvar_VariableValue("r_intensity") -1) * 10;
-
 	Cvar_SetValue( "r_rgbscale", ClampCvar( 1, 2, Cvar_VariableValue("r_rgbscale") ) );
 	if (Cvar_VariableValue("r_rgbscale") == 1)
 		s_rgbscale_box.curvalue = 0;
@@ -109,7 +101,7 @@ static void Video_Advanced_MenuSetValues ( void )
 	Cvar_SetValue( "r_shadows", ClampCvar( 0, 3, Cvar_VariableValue("r_shadows") ) );
 	s_shadows_box.curvalue	= Cvar_VariableValue("r_shadows");
 
-	Cvar_SetValue( "r_shelltype", ClampCvar( 0, 2, Cvar_VariableValue("r_shelltype") ) );
+	Cvar_SetValue( "r_shelltype", ClampCvar( 0, 1, Cvar_VariableValue("r_shelltype") ) );
 	s_ent_shell_box.curvalue = Cvar_VariableValue("r_shelltype");
 
 	Cvar_SetValue( "r_screenshot_jpeg", ClampCvar( 0, 1, Cvar_VariableValue("r_screenshot_jpeg") ) );
@@ -120,16 +112,6 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_saveshotsize", ClampCvar( 0, 1, Cvar_VariableValue("r_saveshotsize") ) );
 	s_saveshotsize_box.curvalue	= Cvar_VariableValue("r_saveshotsize");
-}
-
-static void LightMapScaleCallback ( void *unused )
-{
-	Cvar_SetValue( "r_modulate", s_lightmapscale_slider.curvalue / 10 + 1);
-}
-
-static void TextureIntensCallback ( void *unused )
-{
-	Cvar_SetValue( "r_intensity", s_textureintensity_slider.curvalue / 10 + 1);
 }
 
 static void RGBSCaleCallback ( void *unused )
@@ -272,8 +254,7 @@ void Menu_Video_Advanced_Init (void)
 	static const char *shell_names[] =
 	{
 		"solid",
-		"flowing",
-		"envmap",
+		"animated",
 		0
 	};
 	int y = 0;
@@ -288,24 +269,6 @@ void Menu_Video_Advanced_Init (void)
 	s_options_advanced_header.generic.name		= "Advanced Options";
 	s_options_advanced_header.generic.x			= MENU_FONT_SIZE/2 * strlen(s_options_advanced_header.generic.name);
 	s_options_advanced_header.generic.y			= y;
-
-	s_lightmapscale_slider.generic.type			= MTYPE_SLIDER;
-	s_lightmapscale_slider.generic.x			= 0;
-	s_lightmapscale_slider.generic.y			= y += 2*MENU_LINE_SIZE;
-	s_lightmapscale_slider.generic.name			= "lightmap scale";
-	s_lightmapscale_slider.generic.callback		= LightMapScaleCallback;
-	s_lightmapscale_slider.minvalue				= 0;
-	s_lightmapscale_slider.maxvalue				= 10;
-	s_lightmapscale_slider.generic.statusbar	= "leave at minimum, washes out textures";
-
-	s_textureintensity_slider.generic.type		= MTYPE_SLIDER;
-	s_textureintensity_slider.generic.x			= 0;
-	s_textureintensity_slider.generic.y			= y += MENU_LINE_SIZE;
-	s_textureintensity_slider.generic.name		= "texture intensity";
-	s_textureintensity_slider.generic.callback	= TextureIntensCallback;
-	s_textureintensity_slider.minvalue			= 0;
-	s_textureintensity_slider.maxvalue			= 10;
-	s_textureintensity_slider.generic.statusbar	= "leave at minimum, washes out textures";
 
 	s_rgbscale_box.generic.type				= MTYPE_SPINCONTROL;
 	s_rgbscale_box.generic.x				= 0;
@@ -453,8 +416,6 @@ void Menu_Video_Advanced_Init (void)
 	Video_Advanced_MenuSetValues();
 
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_options_advanced_header );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightmapscale_slider );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_textureintensity_slider );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_rgbscale_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_trans_lighting_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_warp_lighting_box );
