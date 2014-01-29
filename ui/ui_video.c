@@ -564,7 +564,7 @@ void Menu_Video_Init (void)
 		s_fencesync_box.generic.type			= MTYPE_SPINCONTROL;
 		s_fencesync_box.generic.x				= 0;
 		s_fencesync_box.generic.y				= y += MENU_LINE_SIZE;
-		s_fencesync_box.generic.name			= "sync gpu with vsync";
+		s_fencesync_box.generic.name			= "gpu frame pacing";
 		s_fencesync_box.generic.callback		= FenceSyncCallback;
 		s_fencesync_box.curvalue				= !!Cvar_VariableInteger("r_fencesync");
 		s_fencesync_box.itemnames				= yesno_names;

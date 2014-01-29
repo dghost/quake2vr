@@ -647,7 +647,7 @@ static struct {
 
 void R_FrameFence (void)
 {
-	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value)
+	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value && r_swapinterval->value)
 	{
 		glFence.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
 //		glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &glFence.timeout);
@@ -663,7 +663,7 @@ void R_FrameFence (void)
 		glEnd();
 		glFence.fenced = true;
 		glFence.timeStart = Sys_Milliseconds();
-	} else if (!glConfig.arb_sync && r_fencesync->value)
+	} else if (!glConfig.arb_sync && r_fencesync->value || !r_swapinterval->value)
 	{
 		Cvar_SetInteger("r_fencesync",0);
 	}
@@ -687,7 +687,7 @@ int R_FrameSync (void)
 			}
 			glDeleteSync(glFence.sync);
 			glFence.fenced = false;
-			return Sys_Milliseconds()-glFence.timeStart;
+			return max(Sys_Milliseconds()-glFence.timeStart,1);
 		}
 	}
 	return 1;

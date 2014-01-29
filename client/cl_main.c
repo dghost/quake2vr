@@ -1709,9 +1709,10 @@ void CL_Frame (int msec)
 			if (!timeWaited)
 				return;
 			else if (r_fencesync->value == 2)
-				Com_Printf("Time since last frame: %ims blocked by GPU: %ims difference: %ims\n",extratime, timeWaited, extratime - timeWaited);
+				Com_Printf("last: %ims GPU: %ims diff: %ims\n",extratime, timeWaited, extratime - timeWaited);
 	
-		} else if ((extratime < 1000/cl_maxfps->value))
+		}
+		if ((extratime < 1000/cl_maxfps->value))
 		{	
 #ifdef _WIN32 // Pooy's CPU usage fix
 			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )
