@@ -866,7 +866,7 @@ void VR_RenderStereo ()
 	// render full screen effects
 //	VR_RenderScreenEffects(&cl.refdef);
 
-//	R_VR_BindHud();
+//	R_VR_BindView(EYE_HUD);
 
 	// finish house keeping tasks
 	R_SetLightLevel ();

@@ -890,7 +890,7 @@ void R_SetGL2D (void)
 	glColor4f (1,1,1,1);
 
 	// Knightmare- draw r_speeds (modified from Echon's tutorial)
-	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL)) // don't do this for options menu
+	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL) &&!(vr_enabled->value)) // don't do this for options menu
 	{
 		char	S[128];
 		int		lines, i, x, y, n = 0;
@@ -1066,7 +1066,7 @@ void R_Register (void)
 
 	// lerped dlights on models
 	r_dlights_normal = Cvar_Get("r_dlights_normal", "1", CVAR_ARCHIVE);
-	r_model_shading = Cvar_Get( "r_model_shading", "2", CVAR_ARCHIVE );
+	r_model_shading = Cvar_Get( "r_model_shading", "3", CVAR_ARCHIVE );
 	r_model_dlights = Cvar_Get( "r_model_dlights", "8", CVAR_ARCHIVE );
 
 	r_lightlevel = Cvar_Get ("r_lightlevel", "0", 0);
@@ -1082,7 +1082,7 @@ void R_Register (void)
 	r_transrendersort = Cvar_Get ("r_transrendersort", "1", CVAR_ARCHIVE );
 	r_particle_lighting = Cvar_Get ("r_particle_lighting", "1.0", CVAR_ARCHIVE );
 	r_particledistance = Cvar_Get ("r_particledistance", "0", CVAR_ARCHIVE );
-	r_particle_overdraw = Cvar_Get ("r_particle_overdraw", "0", CVAR_ARCHIVE );
+	r_particle_overdraw = Cvar_Get ("r_particle_overdraw", "1", CVAR_ARCHIVE );
 	r_particle_min = Cvar_Get ("r_particle_min", "0", CVAR_ARCHIVE );
 	r_particle_max = Cvar_Get ("r_particle_max", "0", CVAR_ARCHIVE );
 
@@ -1394,6 +1394,8 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	if (WGLEW_EXT_swap_control_tear)
 	{
+		// AMD likes to abuse this extension and buffer the living shit out of frames
+		// thus, it gets disabled for the time being.
 		if ( !(glConfig.rendType & GLREND_ATI) )
 		{
 			glConfig.ext_swap_control_tear = true;
