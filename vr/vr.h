@@ -46,6 +46,9 @@ extern vr_attrib_t vrConfig;
 
 typedef enum {
 	HMD_NONE,
+#ifndef NO_STEAM
+	HMD_STEAM,
+#endif
 	HMD_RIFT,
 	NUM_HMD_TYPES
 } hmd_t;
@@ -116,7 +119,7 @@ enum {
 } vr_bounce_mode_t;
 
 void VR_Init();
-void VR_Shutdown();
+void VR_Teardown();
 int VR_Enable();
 void VR_Disable();
 void VR_Frame();

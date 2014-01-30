@@ -1,7 +1,7 @@
 #include "r_local.h"
-#include "r_vr_ovr.h"
 #include "../vr/vr.h"
-
+#include "r_vr_ovr.h"
+#include "r_vr_svr.h"
 
 static fbo_t offscreen, hud; 
 
@@ -334,6 +334,7 @@ void R_VR_Init()
 		// TODO: conditional this shit up
 
 		available_hmds[HMD_NONE] = vr_render_none;
+		available_hmds[HMD_STEAM] = vr_render_svr;
 		available_hmds[HMD_RIFT] = vr_render_ovr;
 
 		hmd = &available_hmds[HMD_RIFT];

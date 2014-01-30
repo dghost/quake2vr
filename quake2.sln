@@ -1,16 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2", "quake2.vcxproj", "{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2vr", "quake2.vcxproj", "{B4876AD1-5BC7-C790-1882-7C080D2DA6B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441} = {934B40C7-F40A-4E4C-97A7-B9659BE0A441}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "baseq2", "game\lazarus.vcxproj", "{09E58C1F-353D-58C5-DE43-60F70BB966AE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "LibOVR\Projects\Win32\LibOVR_Msvc2010.vcxproj", "{934B40C7-F40A-4E4C-97A7-B9659BE0A441}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "missionpack", "missionpacksrc\game.vcxproj", "{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "external\LibOVR\Projects\Win32\LibOVR_Msvc2010.vcxproj", "{934B40C7-F40A-4E4C-97A7-B9659BE0A441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +40,15 @@ Global
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.ActiveCfg = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.Build.0 = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|x64.ActiveCfg = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.Build.0 = Debug|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|x64.ActiveCfg = Debug|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|Win32.ActiveCfg = Regal|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|Win32.Build.0 = Regal|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|x64.ActiveCfg = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.ActiveCfg = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.Build.0 = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|x64.ActiveCfg = Release|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|Win32.ActiveCfg = Debug|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|Win32.Build.0 = Debug|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug|x64.ActiveCfg = Debug|x64
@@ -52,15 +61,6 @@ Global
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|Win32.Build.0 = Release|Win32
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|x64.ActiveCfg = Release|x64
 		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release|x64.Build.0 = Release|x64
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.Build.0 = Debug|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|x64.ActiveCfg = Debug|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|Win32.ActiveCfg = Regal|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|Win32.Build.0 = Regal|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Regal|x64.ActiveCfg = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.ActiveCfg = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.Build.0 = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

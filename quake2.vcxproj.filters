@@ -372,6 +372,15 @@
     <ClCompile Include="renderer\r_antialias.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="vr\vr_steamvr.cpp">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="vr\vr_svr.c">
+      <Filter>Source Files\vr</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\r_vr_svr.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
@@ -492,6 +501,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderer\r_vr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vr\vr_steamvr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vr\vr_svr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\r_vr_svr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

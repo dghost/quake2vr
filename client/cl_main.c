@@ -1909,5 +1909,5 @@ void CL_Shutdown (void)
 
 	IN_Shutdown ();
 	VID_Shutdown();
-	VR_Shutdown();
+	VR_Teardown();
 }

@@ -218,4 +218,4 @@ pip-log.txt
 *.dll
 *.exe
 
-LibOVR/
+external/

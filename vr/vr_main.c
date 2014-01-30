@@ -1,7 +1,7 @@
 #include "../client/client.h"
 #include "vr.h"
+#include "vr_svr.h"
 #include "vr_ovr.h"
-#include "vr_libovr.h"
 
 
 cvar_t *vr_enabled;
@@ -58,9 +58,6 @@ static hmd_interface_t hmd_none = {
 //
 // General functions
 //
-
-
-extern ovr_settings_t vr_ovr_settings;
 
 int VR_GetSensorOrientation()
 {
@@ -364,15 +361,16 @@ void VR_Disable()
 	hmd = NULL;
 }
 
-void VR_Shutdown()
+void VR_Teardown()
 {
 	int i = 0;
 	if (vr_enabled->value)
 		VR_Disable();
 
-	for (i = 1; i < NUM_HMD_TYPES; i++)
+	for (i = 0; i < NUM_HMD_TYPES; i++)
 	{
-		available_hmds[i].shutdown();
+		if (available_hmds[i].shutdown)
+			available_hmds[i].shutdown();
 	}
 
 }
@@ -408,11 +406,13 @@ void VR_Init()
 	Com_Printf("Quake II VR Version v%1i.%1i.%1i\n", Q2VR_MAJOR, Q2VR_MINOR, Q2VR_MAINT);
 
 	available_hmds[HMD_NONE] = hmd_none;
+	available_hmds[HMD_STEAM] = hmd_steam;
 	available_hmds[HMD_RIFT] = hmd_rift;
 
-	for (i = 1; i < NUM_HMD_TYPES; i++)
+	for (i = 0; i < NUM_HMD_TYPES; i++)
 	{
-		available_hmds[i].init();
+		if (available_hmds[i].init)
+			available_hmds[i].init();
 	}
 
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
