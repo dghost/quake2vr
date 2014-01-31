@@ -610,7 +610,8 @@ void S_IssuePlaysound (playsound_t *ps)
 
 	ch->pos = 0;
 	sc = S_LoadSound (ch->sfx);
-    ch->end = paintedtime + sc->length;
+	if (sc)
+	    ch->end = paintedtime + sc->length;
 
 	// free the playsound
 	S_FreePlaysound (ps);
