@@ -4,14 +4,17 @@
 
 #include "vr.h"
 
-/*
-void VR_SVR_SetFOV();
-void VR_SVR_CalcRenderParam();
-void VR_SVR_Frame();
+
 int VR_SVR_Enable();
 void VR_SVR_Disable();
 int VR_SVR_Init();
 void VR_SVR_Shutdown();
+
+/*
+
+void VR_SVR_SetFOV();
+void VR_SVR_CalcRenderParam();
+void VR_SVR_Frame();
 int VR_SVR_isDeviceAvailable();
 int VR_SVR_getOrientation(float euler[3]);
 void VR_SVR_ResetHMDOrientation();

@@ -209,16 +209,16 @@ float	r_turbsin[] =
 
 // MrG - texture shader stuffs
 #define DST_SIZE 16
-unsigned int dst_texture_ARB;
+unsigned int dst_texture;
 
 /*
 ===============
-CreateDSTTex_ARB
+CreateDSTTex
 
 Create the texture which warps texture shaders
 ===============
 */
-void CreateDSTTex_ARB (void)
+void CreateDSTTex (void)
 {
 	unsigned char	dist[DST_SIZE][DST_SIZE][4];
 	int				x,y;
@@ -232,8 +232,8 @@ void CreateDSTTex_ARB (void)
 			dist[x][y][3] = rand()%48;
 		}
 
-	glGenTextures(1,&dst_texture_ARB);
-	glBindTexture(GL_TEXTURE_2D, dst_texture_ARB);
+	glGenTextures(1,&dst_texture);
+	glBindTexture(GL_TEXTURE_2D, dst_texture);
 
 	glTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
 
@@ -256,8 +256,8 @@ Needed after a vid_restart.
 */
 void R_InitDSTTex (void)
 {
-	dst_texture_ARB = 0;
-	CreateDSTTex_ARB ();
+	dst_texture = 0;
+	CreateDSTTex ();
 }
 //end MrG
 
@@ -277,7 +277,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	float		alpha = colorArray[0][3];
 	image_t		*image = R_TextureAnimation (fa);
 	qboolean	light = r_warp_lighting->value && !(fa->texinfo->flags & SURF_NOLIGHTENV);
-	qboolean	texShaderWarpARB = r_waterquality->value;
+	qboolean	texShaderWarp = r_waterquality->value;
 
 	if (rb_vertex == 0 || rb_index == 0) // nothing to render
 		return;
@@ -287,7 +287,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	// Psychospaz's vertex lighting
 	if (light) {
 		GL_ShadeModel (GL_SMOOTH);
-		if (!texShaderWarpARB)
+		if (!texShaderWarp)
 			R_SetVertexRGBScale (true);
 	}
 
@@ -297,18 +297,18 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	WHY texture shaders? because I can!
 	- MrG
 	*/
-	if (texShaderWarpARB)
+	if (texShaderWarp)
 	{
 		GLfloat param[4];
 		GL_SelectTexture(0);
 		GL_MBind(0, image->texnum);
 
 		GL_EnableTexture(1);
-		GL_MBind(1, dst_texture_ARB);
+		GL_MBind(1, dst_texture);
 
 		Vector4Set(param,r_rgbscale->value,r_rgbscale->value,r_rgbscale->value,1.0);
-		glUseProgramObjectARB(warpshader.shader->program);
-		glUniform4fvARB(warpshader.scale_uniform,1,param);
+		glUseProgram(warpshader.shader->program);
+		glUniform4fv(warpshader.scale_uniform,1,param);
 	}
 	else
 		GL_Bind(image->texnum);
@@ -316,9 +316,9 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	RB_DrawArrays ();
 
 	// MrG - texture shader waterwarp
-	if (texShaderWarpARB)
+	if (texShaderWarp)
 	{
-		glUseProgramObjectARB(0);
+		glUseProgram(0);
 		GL_DisableTexture(1);
 		GL_SelectTexture(0);
 	}
@@ -326,7 +326,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	// Psychospaz's vertex lighting
 	if (light) {
 		GL_ShadeModel (GL_FLAT);
-		if (!texShaderWarpARB)
+		if (!texShaderWarp)
 			R_SetVertexRGBScale (false); 
 	}
 

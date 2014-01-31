@@ -2,6 +2,22 @@
 #include "vr_ovr.h"
 #include "vr_libovr.h"
 
+
+void VR_OVR_GetHMDPos(int *xpos, int *ypos);
+void VR_OVR_GetState(vr_param_t *state);
+void VR_OVR_Frame();
+int VR_OVR_Enable();
+void VR_OVR_Disable();
+int VR_OVR_Init();
+void VR_OVR_Shutdown();
+int VR_OVR_isDeviceAvailable();
+int VR_OVR_getOrientation(float euler[3]);
+void VR_OVR_ResetHMDOrientation();
+
+
+void VR_OVR_CalcRenderParam();
+float VR_OVR_GetDistortionScale();
+
 cvar_t *vr_ovr_driftcorrection;
 cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_chromatic;
@@ -15,7 +31,13 @@ cvar_t *vr_ovr_filtermode;
 cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_latencytest;
 
-ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
+static ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
+
+
+ovr_attrib_t ovrConfig = {0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}};
+
+vr_param_t ovrState = {0, 0, 0, 0, 0, 0};
+
 
 hmd_interface_t hmd_rift = {
 	HMD_RIFT,
@@ -24,23 +46,32 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_isDeviceAvailable,
 	VR_OVR_Enable,
 	VR_OVR_Disable,
-	VR_OVR_SetFOV,
+	VR_OVR_GetHMDPos,
 	VR_OVR_Frame,
 	VR_OVR_ResetHMDOrientation,
 	VR_OVR_getOrientation,
 	NULL
 };
 
-void VR_OVR_SetFOV()
+
+void VR_OVR_GetFOV(float *fovx, float *fovy)
 {
 	if (vr_ovr_settings.initialized)
 	{
 		float scale = VR_OVR_GetDistortionScale();
-		float fovy = 2 * atan2(vr_ovr_settings.v_screen_size * scale, 2 * vr_ovr_settings.eye_to_screen_distance);
-		float viewport_fov_y = fovy * 180 / M_PI * vr_autofov_scale->value;
-		float viewport_fov_x = viewport_fov_y * vrConfig.aspect;
-		vrState.viewFovY = viewport_fov_y;
-		vrState.viewFovX = viewport_fov_x;
+		float yfov = 2 * atan2(vr_ovr_settings.v_screen_size * scale, 2 * vr_ovr_settings.eye_to_screen_distance) * 180/ M_PI;
+		*fovy = yfov;
+		*fovx = yfov * ovrConfig.aspect;
+	}
+}
+
+
+void VR_OVR_GetHMDPos(int *xpos, int *ypos)
+{
+	if (vr_ovr_settings.initialized)
+	{
+		*xpos = vr_ovr_settings.xPos;
+		*ypos = vr_ovr_settings.yPos;
 	}
 }
 
@@ -77,31 +108,30 @@ void VR_OVR_CalcRenderParam()
 
 			if (le > re)
 			{
-				vrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-				vrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+				ovrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+				ovrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
 			} else
 			{
-				vrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-				vrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
+				ovrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
+				ovrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
 			}
 		} else {
-			vrConfig.maxScale = 2.0;
-			vrConfig.minScale = 1.0;
+			ovrConfig.maxScale = 2.0;
+			ovrConfig.minScale = 1.0;
 		}
 
-		if (vrConfig.maxScale >= 2.0)
-			vrConfig.maxScale = 2.0;
+		if (ovrConfig.maxScale >= 2.0)
+			ovrConfig.maxScale = 2.0;
 
-		vrConfig.ipd = vr_ovr_settings.interpupillary_distance;
-		vrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
-		vrConfig.hmdWidth = vr_ovr_settings.h_resolution;
-		vrConfig.hmdHeight = vr_ovr_settings.v_resolution;
-		vrConfig.xPos = vr_ovr_settings.xPos;
-		vrConfig.yPos = vr_ovr_settings.yPos;
-		strncpy(vrConfig.deviceName,vr_ovr_settings.deviceName,31);
-		memcpy(vrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
-		memcpy(vrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
-		vrState.projOffset = h;
+		ovrConfig.ipd = vr_ovr_settings.interpupillary_distance;
+		ovrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
+		ovrConfig.hmdWidth = vr_ovr_settings.h_resolution;
+		ovrConfig.hmdHeight = vr_ovr_settings.v_resolution;
+
+		memcpy(ovrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
+		memcpy(ovrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
+
+		ovrConfig.projOffset = h;
 	}
 }
 
@@ -114,9 +144,9 @@ float VR_OVR_GetDistortionScale()
 	switch ((int) vr_ovr_autoscale->value)
 	{
 	case 1:
-		return vrConfig.minScale;
+		return ovrConfig.minScale;
 	case 2:
-		return vrConfig.maxScale;
+		return ovrConfig.maxScale;
 	default:
 		return vr_ovr_scale->value;
 	}
@@ -283,14 +313,6 @@ int VR_OVR_Enable()
 
 	VR_OVR_CalcRenderParam();
 
-	strncpy(string, va("%.2f", vrConfig.ipd * 1000), sizeof(string));
-	vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
-
-	if (vr_ipd->value < 0)
-		Cvar_SetValue("vr_ipd", vrConfig.ipd * 1000);
-
-	VR_OVR_SetFOV();
-
 	if (vr_ovr_driftcorrection->value > 0.0)
 		if (!LibOVR_EnableDriftCorrection())
 				Com_Printf("VR_OVR: Cannot enable magnetic drift correction - device is not calibrated\n");
@@ -300,9 +322,9 @@ int VR_OVR_Enable()
 	if (vr_ovr_settings.v_resolution > 800)
 		Cvar_SetInteger("vr_hud_transparency", 1);
 	*/
-	Com_Printf("...calculated %.2f FOV\n", vrState.viewFovY);
-	Com_Printf("...calculated %.2f minimum distortion scale\n", vrConfig.minScale);
-	Com_Printf("...calculated %.2f maximum distortion scale\n", vrConfig.maxScale);
+	Com_Printf("...calculated %.2f FOV\n", ovrState.viewFovY);
+	Com_Printf("...calculated %.2f minimum distortion scale\n", ovrConfig.minScale);
+	Com_Printf("...calculated %.2f maximum distortion scale\n", ovrConfig.maxScale);
 
 	return 1;
 }

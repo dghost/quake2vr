@@ -27,15 +27,15 @@ cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
 
-
 vr_param_t vrState;
-vr_attrib_t vrConfig;
 
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
 static vec4_t vr_smoothSeries;
 static vec4_t vr_doubleSmoothSeries;
 static vec4_t vr_smoothOrientation;
+
+static qboolean stale;
 
 static hmd_interface_t available_hmds[NUM_HMD_TYPES];
 
@@ -110,8 +110,8 @@ void VR_GetOrientation(vec3_t angle)
 	if (!hmd)
 		return;
 
-	if (vrState.stale && VR_GetSensorOrientation())
-		vrState.stale = 0;
+	if (stale && VR_GetSensorOrientation())
+		stale = 0;
 
 	VectorCopy(vr_orientation,angle);
 }
@@ -121,8 +121,8 @@ void VR_GetOrientationDelta(vec3_t angle)
 	if (!hmd)
 		return;
 
-	if (vrState.stale && VR_GetSensorOrientation())
-		vrState.stale = 0;
+	if (stale && VR_GetSensorOrientation())
+		stale = 0;
 
 	VectorSubtract(vr_orientation,vr_lastOrientation,angle);
 }
@@ -146,8 +146,8 @@ int VR_GetHeadOffset(vec3_t offset)
 	if (!hmd)
 		return false;
 
-	if (vrState.stale && VR_GetSensorOrientation())
-		vrState.stale = 0;
+	if (stale && VR_GetSensorOrientation())
+		stale = 0;
 
 	if (hmd->getHeadOffset && hmd->getHeadOffset(headOffset))
 	{
@@ -161,6 +161,11 @@ int VR_GetHeadOffset(vec3_t offset)
 
 }
 
+void VR_GetHMDPos(int *xpos, int *ypos)
+{
+	if (hmd)
+		hmd->getPos(xpos,ypos);
+}
 
 void VR_GetOrientationEMAQuat(vec3_t quat) 
 {
@@ -170,8 +175,8 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 	if (!hmd)
 		return;
 
-	if (vrState.stale && VR_GetSensorOrientation())
-		vrState.stale = 0;
+	if (stale && VR_GetSensorOrientation())
+		stale = 0;
 
 
 	EulerToQuat(vr_orientation,t1);
@@ -265,15 +270,6 @@ void VR_Frame()
 		vr_hud_depth->modified = false;
 	}
 
-	if (vr_hud_fov->modified)
-	{
-		// clamp value from 30-90 degrees
-		if (vr_hud_fov->value < 30)
-			Cvar_SetValue("vr_hud_fov",30.0f);
-		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
-			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
-		vr_hud_fov->modified = false;
-	}
 
 	if (vr_hud_bounce->modified)
 	{
@@ -300,16 +296,31 @@ void VR_Frame()
 		if (vr_autofov_scale->value < 0.5)
 			Cvar_Set("vr_autofov_scale","0.5");
 		vr_autofov_scale->modified = false;
-		hmd->setfov();
-		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovY);
+//		hmd->getfov(&vrState.viewFovX, &vrState.viewFovY);
+//		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovY);
 	}
+
 
 	hmd->frame();
 
+//	VR_GetFOV(&vrState.viewFovX,&vrState.viewFovY);
+
+		if (vr_hud_fov->modified)
+	{
+		// clamp value from 30-90 degrees
+		if (vr_hud_fov->value < 30)
+			Cvar_SetValue("vr_hud_fov",30.0f);
+		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
+			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
+		vr_hud_fov->modified = false;
+	}
+
 // 	only flag as stale after a frame is rendered
-//	vrState.stale = 1;
+	stale = 1;
 
 }
+
+
 
 void VR_ResetOrientation( void )
 {
@@ -333,6 +344,7 @@ void VR_ResetOrientation( void )
 
 int VR_Enable()
 {
+	char string[6];
 	char hmd_type[3];
 	hmd = &available_hmds[HMD_RIFT];
 
@@ -344,14 +356,20 @@ int VR_Enable()
 
 	if (!hmd->enable())
 		return 0;
+	
+	
+	strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
+	vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
 
+	if (vr_ipd->value < 0)
+		Cvar_SetValue("vr_ipd", vrState.ipd * 1000);
 
 	VR_ResetOrientation();
 
 	strncpy(hmd_type, va("%i", hmd->type), sizeof(hmd_type));
 	Cvar_ForceSet("vr_enabled", hmd_type);
 
-	vrState.stale = 1;
+	stale = 1;
 	return 1;
 }
 

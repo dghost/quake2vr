@@ -265,7 +265,7 @@ qboolean VR_CreateWindow(int xPos, int yPos, int width, int height)
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
+rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean fullscreen )
 {
 	int width, height;
 	const char *win_fs[] = { "W", "FS" };
@@ -288,6 +288,12 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
 	{
 		DEVMODE dm;
 		DISPLAY_DEVICE  targetMonitor;
+		DISPLAY_DEVICE displayDevice , primaryDisplay;
+
+		qboolean found = false;
+		qboolean isPrimaryDisplay = false;
+		UINT i;
+
 		ZeroMemory(&targetMonitor, sizeof(targetMonitor));
 		targetMonitor.cb = sizeof(targetMonitor);
 
@@ -324,27 +330,30 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
 
 			ReleaseDC( 0, hdc );
 		}
+		
+		ZeroMemory(&displayDevice, sizeof(displayDevice));
+		displayDevice.cb = sizeof(displayDevice);
+		ZeroMemory(&primaryDisplay, sizeof(primaryDisplay));
+		primaryDisplay.cb = sizeof(primaryDisplay);
+		VID_Printf(PRINT_ALL, "...looking for display at (%u,%u)\n",xpos,ypos);
+		for (i = 0; EnumDisplayDevices(NULL, i, &displayDevice, 0); i++) {
 
-		if ((int) vr_enabled->value == HMD_RIFT)
-		{
-			qboolean found = false;
-			qboolean isPrimaryDisplay = false;
-			UINT i;
-			DISPLAY_DEVICE displayDevice , primaryDisplay;
-			ZeroMemory(&displayDevice, sizeof(displayDevice));
-			displayDevice.cb = sizeof(displayDevice);
-			ZeroMemory(&primaryDisplay, sizeof(primaryDisplay));
-			primaryDisplay.cb = sizeof(primaryDisplay);
-			VID_Printf(PRINT_ALL, "...looking for HMD\n");
-			for (i = 0; EnumDisplayDevices(NULL, i, &displayDevice, 0); i++) {
+			if (displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE || displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
+			{
+				DEVMODE settings;
+				ZeroMemory(&settings, sizeof(settings));
+				settings.dmSize = sizeof(settings);
+				VID_Printf( PRINT_ALL,"...found display device: %s - %s\n",displayDevice.DeviceName,displayDevice.DeviceString);
+				if (displayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+					primaryDisplay = displayDevice;
 
-				if (displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE || displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
+				if (EnumDisplaySettingsEx(displayDevice.DeviceName,
+					ENUM_CURRENT_SETTINGS,
+					&settings,
+					EDS_ROTATEDMODE))
 				{
-					size_t length = strlen(displayDevice.DeviceName);
-					VID_Printf( PRINT_ALL,"...found display device: %s - %s\n",displayDevice.DeviceName,displayDevice.DeviceString);
-					if (displayDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
-						primaryDisplay = displayDevice;
-					if (!strncmp(vrConfig.deviceName,displayDevice.DeviceName,length))
+					//Com_Printf("Display at (%u,%u)\n",settings.dmPosition.x,settings.dmPosition.y);
+					if (xpos == settings.dmPosition.x && ypos == settings.dmPosition.y)
 					{
 						found = true;
 						targetMonitor = displayDevice;
@@ -352,23 +361,23 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
 							isPrimaryDisplay = true;
 
 					}
-
-
 				}
 			}
-			if (found)
-			{
-				VID_Printf( PRINT_ALL,"...found HMD on %s display '%s'\n",isPrimaryDisplay?"primary":"secondary",targetMonitor.DeviceName);
-			} else
-			{
-				targetMonitor = primaryDisplay;
-				VID_Printf( PRINT_ALL,"...unable to locate HMD, using primary display %s\n",targetMonitor.DeviceName);
-			}
-		}	
-		
+
+		}
+		if (found)
+		{
+			VID_Printf( PRINT_ALL,"...using %s display %s\n",isPrimaryDisplay?"primary":"secondary",targetMonitor.DeviceName);
+		} else
+		{
+			targetMonitor = primaryDisplay;
+			VID_Printf( PRINT_ALL,"...using primary display %s\n",targetMonitor.DeviceName);
+		}
+
+
 		VID_Printf( PRINT_ALL, "...calling CDS: " );
 
-		if (vr_enabled->value && ChangeDisplaySettingsEx(targetMonitor.DeviceName, &dm, NULL, CDS_FULLSCREEN,NULL ) == DISP_CHANGE_SUCCESSFUL)
+		if (ChangeDisplaySettingsEx(targetMonitor.DeviceName, &dm, NULL, CDS_FULLSCREEN,NULL ) == DISP_CHANGE_SUCCESSFUL)
 		{
 			DEVMODE settings;
 			ZeroMemory(&settings, sizeof(settings));
@@ -379,33 +388,20 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, qboolean fullscreen )
 
 			glState.fullscreen = true;
 
-			VID_Printf( PRINT_ALL, "%s ok!\n" ,targetMonitor.DeviceName);
+			VID_Printf( PRINT_ALL, "ok!\n");
 			if (!EnumDisplaySettingsEx(targetMonitor.DeviceName,
 				ENUM_CURRENT_SETTINGS,
 				&settings,
 				EDS_ROTATEDMODE))
 			{
 				VID_Printf( PRINT_ALL,"Error enumerating display settings!\n");
+
 			}
 			if ( !VR_CreateWindow (settings.dmPosition.x,settings.dmPosition.y,width, height) )
 				return rserr_invalid_mode;
 
 			return rserr_ok;
 
-		}
-		else if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL  )
-		{
-			*pwidth = width;
-			*pheight = height;
-
-			glState.fullscreen = true;
-
-			VID_Printf( PRINT_ALL, "ok\n" );
-
-			if ( !VID_CreateWindow (width, height, true) )
-				return rserr_invalid_mode;
-
-			return rserr_ok;
 		}
 		else
 		{

@@ -692,3 +692,31 @@ int R_FrameSync (void)
 	}
 	return 1;
 }
+
+
+void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset)
+{
+
+	GLdouble f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
+	GLdouble nf = 1.0f / (zNear - zFar);
+	GLdouble out[16];
+
+	out[0] = f / aspect;
+	out[1] = 0;
+	out[2] = 0;
+	out[3] = 0;
+	out[4] = 0;
+	out[5] = f;
+	out[6] = 0;
+	out[7] = 0;
+	out[8] = offset;
+	out[9] = 0;
+	out[10] = (zFar + zNear) * nf;
+	out[11] = -1;
+	out[12] = 0;
+	out[13] = 0;
+	out[14] = (2.0f * zFar * zNear) * nf;
+	out[15] = 0;
+
+	glMultMatrixd(out);
+}

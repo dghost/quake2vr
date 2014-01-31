@@ -3,6 +3,16 @@
 #include "../renderer/r_local.h"
 #include "r_vr.h"
 
+
+void OVR_FrameStart(int changeBackBuffers);
+void OVR_BindView(vr_eye_t eye);
+void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
+void OVR_Present();
+int OVR_Enable();
+void OVR_Disable();
+int OVR_Init();
+void OVR_GetState(vr_param_t *state);
+
 hmd_render_t vr_render_ovr = 
 {
 	HMD_RIFT,
@@ -12,9 +22,14 @@ hmd_render_t vr_render_ovr =
 	OVR_BindView,
 	OVR_GetViewRect,
 	OVR_FrameStart,
+	OVR_GetState,
 	OVR_Present
 };
 
+
+extern void VR_OVR_CalcRenderParam();
+extern float VR_OVR_GetDistortionScale();
+extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 
 static r_ovr_shader_t ovr_shaders[2];
 static r_ovr_shader_t ovr_bicubic_shaders[2];
@@ -293,16 +308,16 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 		R_CompileShaderProgram(object);
 
 	shader->shader = object;
-	glUseProgramObjectARB(shader->shader->program);
+	glUseProgram(shader->shader->program);
 
-	shader->uniform.scale = glGetUniformLocationARB(shader->shader->program, "scale");
-	shader->uniform.scale_in = glGetUniformLocationARB(shader->shader->program, "scaleIn");
-	shader->uniform.lens_center = glGetUniformLocationARB(shader->shader->program, "lensCenter");
-	shader->uniform.screen_center = glGetUniformLocationARB(shader->shader->program, "screenCenter");
-	shader->uniform.hmd_warp_param = glGetUniformLocationARB(shader->shader->program, "hmdWarpParam");
-	shader->uniform.chrom_ab_param = glGetUniformLocationARB(shader->shader->program, "chromAbParam");
-	shader->uniform.texture_size = glGetUniformLocationARB(shader->shader->program,"textureSize");
-	glUseProgramObjectARB(0);
+	shader->uniform.scale = glGetUniformLocation(shader->shader->program, "scale");
+	shader->uniform.scale_in = glGetUniformLocation(shader->shader->program, "scaleIn");
+	shader->uniform.lens_center = glGetUniformLocation(shader->shader->program, "lensCenter");
+	shader->uniform.screen_center = glGetUniformLocation(shader->shader->program, "screenCenter");
+	shader->uniform.hmd_warp_param = glGetUniformLocation(shader->shader->program, "hmdWarpParam");
+	shader->uniform.chrom_ab_param = glGetUniformLocation(shader->shader->program, "chromAbParam");
+	shader->uniform.texture_size = glGetUniformLocation(shader->shader->program,"textureSize");
+	glUseProgram(0);
 }
 
 
@@ -391,11 +406,10 @@ void OVR_FrameStart(int changeBackBuffers)
 	if (changeBackBuffers)
 	{
 		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
-		renderTargetRect.width = ovrScale * vrState.viewWidth * 0.5;
-		renderTargetRect.height = ovrScale  * vrState.viewHeight;
+		renderTargetRect.width = ovrScale * vid.width * 0.5;
+		renderTargetRect.height = ovrScale  * vid.height;
 		Com_Printf("OVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
-		VR_OVR_SetFOV();
-		vrState.pixelScale = ovrScale * vrState.viewWidth / (int) vrConfig.hmdWidth;
+
 	}
 }
 
@@ -435,6 +449,19 @@ void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
 	*rect = renderTargetRect;
 }
 
+
+void OVR_GetState(vr_param_t *state)
+{
+		vr_param_t ovrState;
+		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
+		VR_OVR_GetFOV(&ovrState.viewFovX, &ovrState.viewFovY);
+		ovrState.projOffset = ovrConfig.projOffset;
+		ovrState.ipd = ovrConfig.ipd;
+		ovrState.pixelScale = ovrScale * vid.width / (int) ovrConfig.hmdWidth;
+		ovrState.aspect = ovrConfig.aspect;
+		*state = ovrState;
+}
+
 void OVR_Present()
 {
 	vec4_t debugColor;
@@ -452,17 +479,16 @@ void OVR_Present()
 
 		// draw left eye
 
-		glUseProgramObjectARB(current_shader->shader->program);
+		glUseProgram(current_shader->shader->program);
 
-		glUniform4fvARB(current_shader->uniform.chrom_ab_param, 1, vrConfig.chrm);
-		glUniform4fvARB(current_shader->uniform.hmd_warp_param, 1, vrConfig.dk);
-		glUniform2fARB(current_shader->uniform.scale_in, 2.0f, 2.0f / vrConfig.aspect);
-		glUniform2fARB(current_shader->uniform.scale, 0.5f / scale, 0.5f * vrConfig.aspect / scale);
-		glUniform4fARB(current_shader->uniform.texture_size, renderTargetRect.width / superscale, renderTargetRect.height / superscale, superscale / renderTargetRect.width, superscale / renderTargetRect.height);
-		//glUniform2fARB(current_shader->uniform.texture_size, vrState.viewWidth, vrState.viewHeight);
-
-		glUniform2fARB(current_shader->uniform.lens_center, 0.5 + vrState.projOffset * 0.5, 0.5);
-		glUniform2fARB(current_shader->uniform.screen_center, 0.5 , 0.5);
+		glUniform4fv(current_shader->uniform.chrom_ab_param, 1, ovrConfig.chrm);
+		glUniform4fv(current_shader->uniform.hmd_warp_param, 1, ovrConfig.dk);
+		glUniform2f(current_shader->uniform.scale_in, 2.0f, 2.0f / ovrConfig.aspect);
+		glUniform2f(current_shader->uniform.scale, 0.5f / scale, 0.5f * ovrConfig.aspect / scale);
+		glUniform4f(current_shader->uniform.texture_size, renderTargetRect.width / superscale, renderTargetRect.height / superscale, superscale / renderTargetRect.width, superscale / renderTargetRect.height);
+	
+		glUniform2f(current_shader->uniform.lens_center, 0.5 + vrState.projOffset * 0.5, 0.5);
+		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
 		GL_Bind(left.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
@@ -473,8 +499,8 @@ void OVR_Present()
 		glEnd();
 
 		// draw right eye
-		glUniform2fARB(current_shader->uniform.lens_center, 0.5 - vrState.projOffset * 0.5, 0.5 );
-		glUniform2fARB(current_shader->uniform.screen_center, 0.5 , 0.5);
+		glUniform2f(current_shader->uniform.lens_center, 0.5 - vrState.projOffset * 0.5, 0.5 );
+		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
 		GL_Bind(right.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
@@ -483,7 +509,7 @@ void OVR_Present()
 		glTexCoord2f(1, 0); glVertex2f(1, -1);
 		glTexCoord2f(1, 1); glVertex2f(1, 1);
 		glEnd();
-		glUseProgramObjectARB(0);
+		glUseProgram(0);
 		
 		GL_Bind(0);
 

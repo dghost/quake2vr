@@ -383,32 +383,6 @@ void R_SetupFrame (void)
 	}*/
 }
 
-void vrPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset)
-{
-
-	GLdouble f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
-	GLdouble nf = 1.0f / (zNear - zFar);
-	GLdouble out[16];
-
-	out[0] = f / aspect;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-	out[4] = 0;
-	out[5] = f;
-	out[6] = 0;
-	out[7] = 0;
-	out[8] = offset;
-	out[9] = 0;
-	out[10] = (zFar + zNear) * nf;
-	out[11] = -1;
-	out[12] = 0;
-	out[13] = 0;
-	out[14] = (2.0f * zFar * zNear) * nf;
-	out[15] = 0;
-
-	glMultMatrixd(out);
-}
 
 /*
 =============
@@ -418,7 +392,6 @@ R_SetupGL
 void R_SetupGL(void)
 {
 	float	screenaspect;
-	float	offset;
 	//	float	yfov;
 	int		x, x2, y2, y, w, h;
 	vec3_t vieworigin;
@@ -479,20 +452,13 @@ void R_SetupGL(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
-
 	if (vr_enabled->value)
-	{
-		offset = vrState.eye * vrState.projOffset;
-		screenaspect = vrConfig.aspect;
-	}
-	else {
-		offset = 0;
+		screenaspect = vrState.aspect;
+	else 
 		screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
-	}
 
 	//Knightmare- 12/26/2001- increase back clipping plane distance
-	vrPerspective(r_newrefdef.fov_y, screenaspect, 1, farz, offset); //was 4096
+	R_VR_Perspective(r_newrefdef.fov_y, screenaspect, 1, farz); //was 4096
 	//end Knightmare
 
 	GL_CullFace(GL_FRONT);
@@ -1170,10 +1136,19 @@ void R_Register (void)
 R_SetMode
 ==================
 */
+//extern void VR_GetHMDPos(int *xpos, int *ypos);
 qboolean R_SetMode (void)
 {
 	rserr_t err;
 	qboolean fullscreen;
+	int xpos = 0;
+	int ypos = 0;
+
+	if (vr_enabled->value)
+	{
+		VR_GetHMDPos(&xpos,&ypos);
+	}
+
 
 	if ( vid_fullscreen->modified && !glConfig.allowCDS )
 	{
@@ -1196,14 +1171,14 @@ qboolean R_SetMode (void)
 		VID_Printf (PRINT_ALL, "R_SetMode() - Invalid resolution set, reverting to default resolution\n" );
 	}
 
-	if ( ( err = GLimp_SetMode( &vid.width, &vid.height, fullscreen ) ) != rserr_ok )
+	if ( ( err = GLimp_SetMode( xpos, ypos, &vid.width, &vid.height, fullscreen ) ) != rserr_ok )
 	{
 		if ( err == rserr_invalid_fullscreen )
 		{
 			Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - fullscreen unavailable in this mode\n" );
-			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, false ) ) == rserr_ok )
+			if ( ( err = GLimp_SetMode( xpos, ypos, &vid.width, &vid.height, false ) ) == rserr_ok )
 				return true;
 		}
 		else if ( err == rserr_invalid_mode )
@@ -1214,7 +1189,7 @@ qboolean R_SetMode (void)
 		}
 
 		// try setting it back to something safe
-		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, false ) ) != rserr_ok )
+		if ( ( err = GLimp_SetMode( xpos, ypos,  &vid.width, &vid.height, false ) ) != rserr_ok )
 		{
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n" );
 			return false;

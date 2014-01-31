@@ -663,6 +663,8 @@ void VR_RenderStereo ()
 	extern int entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,viewOrig, tmp;
+	float viewOffset = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+
 
 	if (cls.state != ca_active)
 		return;
@@ -716,25 +718,24 @@ void VR_RenderStereo ()
 
 		if (vr_autofov->value)
 		{
-			cl.refdef.fov_x = vrState.viewFovX;
-			cl.refdef.fov_y = vrState.viewFovY;
+			R_VR_GetFOV(&cl.refdef.fov_x,&cl.refdef.fov_y);
 		}
 		else {
-					if (cl_widescreen_fov->value)
-		{
-		//	float standardRatio, currentRatio;
-		//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
-		//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
-		//	if (currentRatio > standardRatio)
-		//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
-			float aspectRatio = (float)cl.refdef.width/(float)cl.refdef.height;
-			// changed to improved algorithm by Dopefish
-			if (aspectRatio > STANDARD_ASPECT_RATIO)
-				cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
-			//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
-			cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
-		}
-		cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+			if (cl_widescreen_fov->value)
+			{
+				//	float standardRatio, currentRatio;
+				//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+				//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+				//	if (currentRatio > standardRatio)
+				//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
+				float aspectRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+				// changed to improved algorithm by Dopefish
+				if (aspectRatio > STANDARD_ASPECT_RATIO)
+					cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
+				//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
+				cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
+			}
+			cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
 		}
 
 		cl.refdef.time = cl.time*0.001;
@@ -825,7 +826,7 @@ void VR_RenderStereo ()
 
 //	R_VR_BindWorld();
 
-	VectorScale( cl.v_right, EYE_LEFT * vrState.viewOffset , tmp );
+	VectorScale( cl.v_right, EYE_LEFT * viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 
 	R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
@@ -844,7 +845,7 @@ void VR_RenderStereo ()
 	// shift view to the right half of the frame buffer
 	R_VR_BindView(EYE_RIGHT);
 		
-	VectorScale( cl.v_right, EYE_RIGHT * vrState.viewOffset , tmp );
+	VectorScale( cl.v_right, EYE_RIGHT * viewOffset , tmp );
 	VectorAdd( view, tmp, cl.refdef.vieworg );
 	
 	R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);

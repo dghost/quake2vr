@@ -33,24 +33,30 @@ static r_shaderobject_t warpshader_object = {
 	"}\n"
 };
 
-
-qboolean R_CompileShader(GLhandleARB shader, const char *source)
+qboolean R_CompileShader(GLuint shader, const char *source)
 {
 	GLint status;
+	int		err;
+	glGetError();
 
-	glShaderSourceARB(shader, 1, &source, NULL);
-	glCompileShaderARB(shader);
-	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &status);
+	glShaderSource(shader, 1, &source, NULL);
+	glCompileShader(shader);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == 0)
 	{
 		GLint length;
 		char *info;
-
-		glGetObjectParameterivARB(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+		
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 		info = (char *) malloc(sizeof(char) * length+1);
-		glGetInfoLogARB(shader, length, NULL, info);
+		glGetShaderInfoLog(shader, length, NULL, info);
 		VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to compile shader:\n%s\n%s", source, info);
 		free(info);
+	}
+	err = glGetError();
+	if (err != GL_NO_ERROR)
+	{
+		VID_Printf(PRINT_ALL, "R_CompileShader: glGetError() = 0x%x\n", err);
 	}
 
 	return !!status;
@@ -63,36 +69,54 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 
 	if (shader)
 	{
-		GLhandleARB vert_shader,frag_shader;
-		shader->program = glCreateProgramObjectARB();
+		GLuint vert_shader,frag_shader, program;
+		GLint status;
 
-		vert_shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+		program = glCreateProgram();
+
+		vert_shader = glCreateShader(GL_VERTEX_SHADER);
 		if (!R_CompileShader(vert_shader, shader->vert_source)) {
-			glDeleteObjectARB(vert_shader);
+			glDeleteShader(vert_shader);
+			glDeleteShader(frag_shader);		
 			return false;
 		}
 
-		frag_shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+		frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 		if (!R_CompileShader(frag_shader, shader->frag_source)) {
-			glDeleteObjectARB(vert_shader);
-			glDeleteObjectARB(frag_shader);
+			glDeleteShader(vert_shader);
+			glDeleteShader(frag_shader);
+			glDeleteProgram(program);
 			return false;
 		}
 
-		glAttachObjectARB(shader->program, vert_shader);
-		glAttachObjectARB(shader->program, frag_shader);
-		glLinkProgramARB(shader->program); 
-		glDeleteObjectARB(vert_shader);
-		glDeleteObjectARB(frag_shader);
+		glAttachShader(program, vert_shader);
+		glAttachShader(program, frag_shader);
+		glLinkProgram(program); 
+
+		glDeleteShader(vert_shader);
+		glDeleteShader(frag_shader);
 
 		err = glGetError();
 		if (err != GL_NO_ERROR)
 		{
 			VID_Printf(PRINT_ALL, "R_CompileShaderProgram: glGetError() = 0x%x\n", err);
-			glDeleteObjectARB(shader->program);
-			shader->program = 0;
+		}
+
+		glGetProgramiv(program, GL_LINK_STATUS, &status);
+		if (status == 0)
+		{
+			GLint length;
+			char *info;
+
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+			info = (char *) malloc(sizeof(char) * length+1);
+			glGetProgramInfoLog(program, length, NULL, info);
+			VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to link program:\n%s", info);
+			free(info);		
+			glDeleteProgram(program);
 			return false;
 		}
+		shader->program = program;
 	}
 
 	return true;
@@ -102,7 +126,8 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 {
 	if (shader->program)
 	{
-		glDeleteObjectARB(shader->program);
+		
+		glDeleteProgram(shader->program);
 		shader->program = 0;
 	}
 }
@@ -116,13 +141,13 @@ void R_ShaderObjectsInit()
 		GLint texloc;
 		Com_Printf("success!\n");
 		warpshader.shader = &warpshader_object;
-		glUseProgramObjectARB(warpshader.shader->program);
-		texloc = glGetUniformLocationARB(warpshader.shader->program,"texImage");
-		glUniform1iARB(texloc,0);
-		texloc = glGetUniformLocationARB(warpshader.shader->program,"texDistort");
-		glUniform1iARB(texloc,1);
-		warpshader.scale_uniform = glGetUniformLocationARB(warpshader.shader->program,"rgbscale");
-		glUseProgramObjectARB(0);
+		glUseProgram(warpshader.shader->program);
+		texloc = glGetUniformLocation(warpshader.shader->program,"texImage");
+		glUniform1i(texloc,0);
+		texloc = glGetUniformLocation(warpshader.shader->program,"texDistort");
+		glUniform1i(texloc,1);
+		warpshader.scale_uniform = glGetUniformLocation(warpshader.shader->program,"rgbscale");
+		glUseProgram(0);
 	} else {
 		Com_Printf("failed!\n");
 	}

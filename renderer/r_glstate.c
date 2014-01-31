@@ -457,8 +457,8 @@ void GL_SelectTexture (unsigned tmu)
 
 	glState.currenttmu = tmu;
 
-	glActiveTextureARB(GL_TEXTURE0_ARB+tmu);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB+tmu);
+	glActiveTexture(GL_TEXTURE0+tmu);
+	glClientActiveTexture(GL_TEXTURE0+tmu);
 }
 
 /*

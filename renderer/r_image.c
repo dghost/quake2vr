@@ -1641,7 +1641,7 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 	if (mipmap && glConfig.anisotropic && r_anisotropic->value)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_anisotropic->value);
 
-	return (samples == gl_alpha_format || samples == GL_COMPRESSED_RGBA_ARB);
+	return (samples == gl_alpha_format);
 }
 
 /*

@@ -7,7 +7,9 @@ extern "C" {
 #endif
 
 	int SteamVR_Init();
-
+	int SteamVR_Enable();
+	void SteamVR_Disable();
+	void SteamVR_Shutdown();
 
 #ifdef __cplusplus
 }

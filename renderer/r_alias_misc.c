@@ -211,18 +211,18 @@ void R_SetVertexRGBScale (qboolean toggle)
 
 	if (toggle) // turn on
 	{
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, r_rgbscale->value);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, r_rgbscale->value);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
 		
-		GL_TexEnv(GL_COMBINE_ARB);
+		GL_TexEnv(GL_COMBINE);
 
 	}
 	else // turn off
 	{
 		GL_TexEnv(GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1);
+		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 	}
 }
 

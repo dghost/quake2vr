@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#include <GL/gl.h>
 //#include "include/GL/glew.h"
 //#include <GL/glu.h>
-//#include "glext.h" //Knightmare- MrG's shader waterwarp support
 #include <math.h>
 
 #include "../client/ref.h"
@@ -458,6 +457,8 @@ void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
 int R_FrameSync (void);
+void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset);
+
 //
 // r_model.c
 //
@@ -900,7 +901,7 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int *pwidth, int *pheight, qboolean fullscreen );
+int     	GLimp_SetMode( int xpos, int ypos, int *pwidth, int *pheight, qboolean fullscreen );
 void		GLimp_AppActivate( qboolean active );
 
 
@@ -936,7 +937,7 @@ r_shaderobjects.c
 */
 
 typedef struct {
-	GLhandleARB program;
+	GLuint program;
 	const char *vert_source;
 	const char *frag_source;
 } r_shaderobject_t;
@@ -948,7 +949,7 @@ typedef struct {
 
 extern r_warpshader_t warpshader;
 
-qboolean R_CompileShader(GLhandleARB shader, const char *source);
+qboolean R_CompileShader(GLuint shader, const char *source);
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
 void R_DelShaderProgram(r_shaderobject_t *shader);
 void R_ShaderObjectsInit();

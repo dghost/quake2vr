@@ -23,6 +23,10 @@ static hmd_render_t *hmd;
 
 static int leftStale, rightStale, hudStale;
 
+static vr_eye_t currenteye;
+
+vr_rect_t screen;
+
 //
 // Rendering related functions
 //
@@ -30,23 +34,21 @@ static int leftStale, rightStale, hudStale;
 // executed once per frame
 void R_VR_StartFrame()
 {
-	float ipd = vr_autoipd->value ? vrConfig.ipd / 2.0 : (vr_ipd->value / 2000.0);
 	int resolutionChanged = 0;
 	
 	if (!hmd)
 		return;
 	
-	vrState.viewOffset = ipd * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-
-	if (vid.width != vrState.viewWidth || vid.height != vrState.viewHeight)
+	if (vid.width != screen.width || vid.height != screen.height)
 	{
-		vrState.viewHeight = vid.height;
-		vrState.viewWidth = vid.width;
+		screen.height = vid.height;
+		screen.width = vid.width;
 		resolutionChanged = true;		
 	}
 
 
 	hmd->frameStart(resolutionChanged);
+	hmd->getState(&vrState);
 
 	if (resolutionChanged)
 	{
@@ -62,7 +64,7 @@ void R_VR_StartFrame()
 void R_VR_BindView(vr_eye_t eye)
 {
 	int clear = 0;
-	vrState.eye = eye;
+	currenteye = eye;
 	if (eye == EYE_HUD)
 	{
 		R_BindFBO(&hud);
@@ -137,23 +139,23 @@ void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
 
 void R_VR_CurrentViewPosition(int *x, int *y)
 {
-	R_VR_GetViewPos(vrState.eye,x,y);
+	R_VR_GetViewPos(currenteye,x,y);
 }
 
 void R_VR_CurrentViewSize(int *width, int *height)
 {
-	R_VR_GetViewSize(vrState.eye,width,height);
+	R_VR_GetViewSize(currenteye,width,height);
 }
 
 void R_VR_CurrentViewRect(vr_rect_t *rect)
 {
-	R_VR_GetViewRect(vrState.eye,rect);
+	R_VR_GetViewRect(currenteye,rect);
 }
 
 void R_VR_Rebind()
 {
 	if (hmd) 
-		hmd->bindView(vrState.eye);
+		hmd->bindView(currenteye);
 }
 
 void R_VR_EndFrame()
@@ -177,20 +179,34 @@ void R_VR_EndFrame()
 		GL_Disable(GL_ALPHA_TEST);
 
 		GL_BindFBO(0);
-		glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
-		vid.width = vrState.viewWidth;
-		vid.height = vrState.viewHeight;
+		glViewport(0,0,screen.width,screen.height);
+		vid.width = screen.width ;
+		vid.height = screen.height;
 	}
 }
 
-extern void vrPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset);
+void R_VR_Perspective(double fovy, double aspect, double zNear, double zFar)
+{
+	R_PerspectiveOffset(fovy, aspect, zNear, zFar, currenteye * vrState.projOffset);
+}
+
+
+void R_VR_GetFOV(float *fovx, float *fovy)
+{
+	if (!hmd)
+		return;
+
+	*fovx = vrState.viewFovX * vr_autofov_scale->value;
+	*fovy = vrState.viewFovY * vr_autofov_scale->value;
+}
+
 
 void R_VR_DrawHud(vr_eye_t eye)
 {
 	float fov = vr_hud_fov->value;
 	float y,x;
 	float depth = vr_hud_depth->value;
-	float ipd = vr_autoipd->value ? vrConfig.ipd / 2.0 : (vr_ipd->value / 2000.0);
+	float ipd = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0);
 
 	extern int scr_draw_loading;
 
@@ -199,7 +215,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	vrPerspective(vrState.viewFovY, vrConfig.aspect, 0.24, 251.0, eye * vrState.projOffset);
+	R_PerspectiveOffset(vrState.viewFovY, vrState.aspect, 0.24, 251.0, eye * vrState.projOffset);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -267,8 +283,6 @@ void R_VR_Present()
 	// tell the HMD renderer to draw composited scene
 	hmd->present();
 
-	// flag HMD to refresh next frame
-	vrState.stale = 1;
 }
 
 
@@ -277,8 +291,8 @@ void R_VR_Present()
 void R_VR_Enable()
 {
 	qboolean success = false;
-	vrState.viewHeight = 0;
-	vrState.viewWidth = 0;
+	screen.width = 0;
+	screen.height = 0;
 
 	if (hud.valid)
 		R_DelFBO(&hud);
@@ -308,10 +322,10 @@ void R_VR_Enable()
 void R_VR_Disable()
 {
 	GL_BindFBO(0);
-	glViewport(0,0,vrState.viewWidth,vrState.viewHeight);
+	glViewport(0,0,screen.width,screen.height);
 
-	vid.width = vrState.viewWidth;
-	vid.height = vrState.viewHeight;
+	vid.width = screen.width;
+	vid.height = screen.height;
 
 	vrState.pixelScale = 1.0;
 
@@ -340,7 +354,7 @@ void R_VR_Init()
 		hmd = &available_hmds[HMD_RIFT];
 
 		hmd->init();
-		vrState.eye = EYE_HUD;
+		currenteye = EYE_HUD;
 
 		if (vr_enabled->value)
 			R_VR_Enable();

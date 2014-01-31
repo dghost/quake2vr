@@ -11,6 +11,21 @@ typedef enum {
 	NUM_RIFT
 } rift_t;
 
+
+typedef struct {
+	unsigned int hmdHeight;
+	unsigned int hmdWidth;
+	float aspect;
+	float ipd;
+	float projOffset;
+	float minScale;
+	float maxScale;
+	float dk[4];
+	float chrm[4];
+} ovr_attrib_t;
+
+extern ovr_attrib_t ovrConfig;
+
 extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
 extern cvar_t *vr_ovr_chromatic;
@@ -22,18 +37,9 @@ extern cvar_t *vr_ovr_autolensdistance;
 extern cvar_t *vr_ovr_filtermode;
 extern cvar_t *vr_ovr_supersample;
 
+/*
 
-void VR_OVR_SetFOV();
-void VR_OVR_CalcRenderParam();
-void VR_OVR_Frame();
-int VR_OVR_Enable();
-void VR_OVR_Disable();
-int VR_OVR_Init();
-void VR_OVR_Shutdown();
-int VR_OVR_isDeviceAvailable();
-int VR_OVR_getOrientation(float euler[3]);
-void VR_OVR_ResetHMDOrientation();
-float VR_OVR_GetDistortionScale();
+*/
 int VR_OVR_RenderLatencyTest(vec4_t color);
 extern hmd_interface_t hmd_rift;
 

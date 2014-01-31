@@ -12,37 +12,16 @@ typedef enum {
 } vr_eye_t;
 
 typedef struct {
-	float viewOffset;
 	float projOffset;
 	float viewFovY;
 	float viewFovX;
-	float scale;
+	float ipd;
 	float pixelScale;
-	unsigned int stale;
-	unsigned int viewHeight;
-	unsigned int viewWidth;
-	vr_eye_t eye;
+	float aspect;
 } vr_param_t;
 
 // struct for things that may change from frame to frame
 extern vr_param_t vrState;
-
-typedef struct {
-	unsigned int xPos;
-	unsigned int yPos;
-	unsigned int hmdHeight;
-	unsigned int hmdWidth;
-	float ipd;
-	float dk[4];
-	float chrm[4];
-	float aspect;
-	float minScale;
-	float maxScale;
-	char deviceName[32];
-} vr_attrib_t;
-
-// struct for things that should never change after init
-extern vr_attrib_t vrConfig;
 
 typedef enum {
 	HMD_NONE,
@@ -60,7 +39,7 @@ typedef struct {
 	int (*attached)();
 	int (*enable)();
 	void (*disable)();
-	void (*setfov)();
+	void (*getPos)(int *xpos, int *ypos);
 	void (*frame)();
 	void (*resetOrientation)();
 	int (*getOrientation)(float euler[3]);
@@ -123,7 +102,6 @@ void VR_Teardown();
 int VR_Enable();
 void VR_Disable();
 void VR_Frame();
-void VR_OVR_SetFOV();
 void VR_GetRenderParam(vr_param_t *settings);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
@@ -131,5 +109,6 @@ void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
 int VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
+void VR_GetHMDPos(int *xpos, int *ypos);
 
 #endif
