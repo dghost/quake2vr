@@ -65,6 +65,7 @@ qboolean R_CompileShader(GLuint shader, const char *source)
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 {
 	int		err;
+	qboolean success = false;
 	glGetError();
 
 	if (shader)
@@ -73,53 +74,51 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 		GLint status;
 
 		program = glCreateProgram();
-
 		vert_shader = glCreateShader(GL_VERTEX_SHADER);
-		if (!R_CompileShader(vert_shader, shader->vert_source)) {
-			glDeleteShader(vert_shader);
-			glDeleteShader(frag_shader);		
-			return false;
-		}
-
 		frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-		if (!R_CompileShader(frag_shader, shader->frag_source)) {
-			glDeleteShader(vert_shader);
-			glDeleteShader(frag_shader);
-			glDeleteProgram(program);
-			return false;
-		}
 
-		glAttachShader(program, vert_shader);
-		glAttachShader(program, frag_shader);
-		glLinkProgram(program); 
+
+		success = R_CompileShader(vert_shader, shader->vert_source);
+		success = success && R_CompileShader(frag_shader, shader->frag_source);
+
+		if (success)
+		{
+			glAttachShader(program, vert_shader);
+			glAttachShader(program, frag_shader);
+			glLinkProgram(program); 
+
+			err = glGetError();
+			if (err != GL_NO_ERROR)
+			{
+				VID_Printf(PRINT_ALL, "R_CompileShaderProgram: glGetError() = 0x%x\n", err);
+			}
+
+			glGetProgramiv(program, GL_LINK_STATUS, &status);
+			if (status == 0)
+			{
+				GLint length;
+				char *info;
+
+				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+				info = (char *) malloc(sizeof(char) * length+1);
+				glGetProgramInfoLog(program, length, NULL, info);
+				VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to link program:\n%s", info);
+				free(info);		
+				success = false;
+			} 		
+		}
 
 		glDeleteShader(vert_shader);
 		glDeleteShader(frag_shader);
 
-		err = glGetError();
-		if (err != GL_NO_ERROR)
-		{
-			VID_Printf(PRINT_ALL, "R_CompileShaderProgram: glGetError() = 0x%x\n", err);
-		}
-
-		glGetProgramiv(program, GL_LINK_STATUS, &status);
-		if (status == 0)
-		{
-			GLint length;
-			char *info;
-
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-			info = (char *) malloc(sizeof(char) * length+1);
-			glGetProgramInfoLog(program, length, NULL, info);
-			VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to link program:\n%s", info);
-			free(info);		
+		if (success)
+			shader->program = program;
+		else
 			glDeleteProgram(program);
-			return false;
-		}
-		shader->program = program;
+
 	}
 
-	return true;
+	return success;
 }
 
 void R_DelShaderProgram(r_shaderobject_t *shader)
