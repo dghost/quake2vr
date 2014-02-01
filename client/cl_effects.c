@@ -908,7 +908,7 @@ void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count)
 {
 	int			i;
 	float		d;
-	cparticle_t *p;
+	cparticle_t *p = NULL;
 
 	for (i=0 ; i<count ; i++)
 	{
@@ -1376,7 +1376,7 @@ void CL_BlasterParticles (vec3_t org, vec3_t dir, int count, float size,
 {
 	int			i;
 	float		speed = .75;
-	cparticle_t *p;
+	cparticle_t *p = NULL;
 	vec3_t		origin;
 
 	for (i = 0; i < count; i++)

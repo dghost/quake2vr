@@ -660,7 +660,7 @@ void IN_StartupJoystick (void)
 { 
 	int			numdevs;
 	JOYCAPS		jc;
-	MMRESULT	mmr;
+	MMRESULT	mmr = NULL;
 	cvar_t		*cv;
 
 	// assume no joystick

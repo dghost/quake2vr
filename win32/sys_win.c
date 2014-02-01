@@ -1177,7 +1177,7 @@ WinMain
 HINSTANCE	global_hInstance;
 HWND		hwnd_dialog; // Knightmare added
 
-int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd)
 {
     MSG				msg;
 	int				time, oldtime, newtime;

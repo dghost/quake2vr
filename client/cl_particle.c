@@ -98,11 +98,11 @@ PARTICLE MANAGEMENT
 
 cparticle_t	*active_particles, *free_particles;
 cparticle_t	particles[MAX_PARTICLES];
-int			cl_numparticles = MAX_PARTICLES;
+int	cl_numparticles = MAX_PARTICLES;
 
 decalpolys_t	*active_decals, *free_decals;
 decalpolys_t	decalfrags[MAX_DECAL_FRAGS];
-int				cl_numdecalfrags = MAX_DECAL_FRAGS;
+int		cl_numdecalfrags = MAX_DECAL_FRAGS;
 
 
 /*
@@ -175,7 +175,7 @@ void CL_ClearAllDecalPolys (void)
 		decalfrags[i].nextpoly = NULL;
 		decalfrags[i].node = NULL; // vis node
 	}
-	decalfrags[cl_numdecalfrags-1].next = NULL;
+	decalfrags[i-1].next = NULL;
 }
 
 
@@ -437,7 +437,7 @@ void CL_ClearParticles (void)
 		particles[i].decalnum = 0; // Knightmare added
 		particles[i].decal = NULL; // Knightmare added
 	}
-	particles[cl_numparticles-1].next = NULL;
+	particles[i-1].next = NULL;
 }
 
 

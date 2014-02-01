@@ -416,7 +416,7 @@ void SV_Map (qboolean attractloop, char *levelstring, qboolean loadgame)
 
 	if (sv.state == ss_dead && !sv.loadgame)
 		SV_InitGame ();	// the game is just starting
-
+	memset(level,0,sizeof(level));
 	// r1ch fix: buffer overflow
 //	strcpy (level, levelstring);
 	strncpy (level, levelstring, sizeof(level)-1);

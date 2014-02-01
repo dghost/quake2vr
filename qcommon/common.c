@@ -1397,6 +1397,7 @@ void *Z_TagMalloc (int size, int tag)
 	z = malloc(size);
 	if (!z)
 		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
+
 	memset (z, 0, size);
 	z_count++;
 	z_bytes += size;

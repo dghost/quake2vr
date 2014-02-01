@@ -1272,6 +1272,8 @@ void CL_FixUpGender(void)
 			gender->modified = false;
 			return;
 		}
+		memset(sk,0,sizeof(sk));
+
 		strncpy(sk, skin->string, sizeof(sk) - 1);
 		if ((p = strchr(sk, '/')) != NULL)
 			*p = 0;

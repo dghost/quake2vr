@@ -931,7 +931,7 @@ char **FS_ListPak (char *find, int *num)
 		}
 	}
 
-	list = malloc( sizeof( char * ) * nfiles );
+	list =  (char **) malloc( sizeof( char * ) * nfiles );
 	memset( list, 0, sizeof( char * ) * nfiles );
 
 	for (search = fs_searchPaths; search; search = search->next)
@@ -1960,24 +1960,26 @@ char **FS_ListFiles (char *findname, int *numfiles, unsigned musthave, unsigned 
 	*numfiles = nfiles;
 
 	list = malloc( sizeof( char * ) * nfiles );
-	memset( list, 0, sizeof( char * ) * nfiles );
-
-	s = Sys_FindFirst( findname, musthave, canthave );
-	nfiles = 0;
-	while ( s )
+	if (list)
 	{
-		if ( s[strlen(s)-1] != '.' )
-		{
-			list[nfiles] = strdup( s );
-#ifdef _WIN32
-			strlwr( list[nfiles] );
-#endif
-			nfiles++;
-		}
-		s = Sys_FindNext( musthave, canthave );
-	}
-	Sys_FindClose ();
+		memset( list, 0, sizeof( char * ) * nfiles );
 
+		s = Sys_FindFirst( findname, musthave, canthave );
+		nfiles = 0;
+		while ( s )
+		{
+			if ( s[strlen(s)-1] != '.' )
+			{
+				list[nfiles] = strdup( s );
+#ifdef _WIN32
+				strlwr( list[nfiles] );
+#endif
+				nfiles++;
+			}
+			s = Sys_FindNext( musthave, canthave );
+		}
+		Sys_FindClose ();
+	}
 	return list;
 }
 

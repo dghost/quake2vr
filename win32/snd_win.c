@@ -680,7 +680,7 @@ how many sample are required to fill it up.
 int SNDDMA_GetDMAPos(void)
 {
 	MMTIME	mmtime;
-	int		s;
+	int		s = 0;
 	DWORD	dwWrite;
 
 	if (dsound_init) 

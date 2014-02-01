@@ -166,7 +166,7 @@ qboolean UI_ParseArenaFromFile (char *filename, char *shortname, char *longname,
 		return false;
 	}
 	if (!strlen(longname))
-		longname = shortname;
+		strncpy(longname, shortname, strlen(shortname));
 	return true;
 }
 
