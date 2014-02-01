@@ -187,7 +187,8 @@ void R_VR_EndFrame()
 
 void R_VR_Perspective(double fovy, double aspect, double zNear, double zFar)
 {
-	R_PerspectiveOffset(fovy, aspect, zNear, zFar, currenteye * vrState.projOffset);
+	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
+	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
 }
 
 
@@ -294,27 +295,43 @@ void R_VR_Enable()
 	screen.width = 0;
 	screen.height = 0;
 
-	if (hud.valid)
-		R_DelFBO(&hud);
-	if (offscreen.valid)
-		R_DelFBO(&offscreen);
-
 	leftStale = 1;
 	rightStale = 1;
 	hudStale = 1;
 
-	Com_Printf("VR: Initializing renderer:");
-
-	success = (qboolean) R_GenFBO(640, 480, 1, &hud);
-
-	success = success && hmd->enable();
-	if (!success)
+	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
-		Com_Printf(" failed!\n");
-		Cmd_ExecuteString("vr_disable");
+		Com_Printf("VR: Initializing renderer:");
+
+		// TODO: conditional this shit up
+		if (hud.valid)
+			R_DelFBO(&hud);
+		if (offscreen.valid)
+			R_DelFBO(&offscreen);
+
+		hmd = &available_hmds[(int) vr_enabled->value];
+
+		success = (qboolean) R_GenFBO(640, 480, 1, &hud);
+		success = success && hmd->enable();
+
+		if (!success)
+		{
+			Com_Printf(" failed!\n");
+			Cmd_ExecuteString("vr_disable");
+		} else {
+			Com_Printf(" ok!\n");
+		}
+
 	} else {
-		Com_Printf(" ok!\n");
+		Com_Printf("VR: Cannot initialize renderer due to missing OpenGL extensions\n");
+		if (vr_enabled->value)
+		{
+			Cmd_ExecuteString("vr_disable");
+		}
 	}
+
+
+
 	R_VR_StartFrame();
 }
 
@@ -334,38 +351,26 @@ void R_VR_Disable()
 		R_DelFBO(&hud);
 }
 
-
-
-// launch-time initialization for Rift support
+// launch-time initialization for VR support
 void R_VR_Init()
 {
-	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
+	int i;
+	currenteye = EYE_HUD;
+	available_hmds[HMD_NONE] = vr_render_none;
+	available_hmds[HMD_STEAM] = vr_render_svr;
+	available_hmds[HMD_RIFT] = vr_render_ovr;
+
+	for (i = 0; i < NUM_HMD_TYPES; i++)
 	{
-
-		R_InitFBO(&hud);
-		R_InitFBO(&offscreen);
-
-		// TODO: conditional this shit up
-
-		available_hmds[HMD_NONE] = vr_render_none;
-		available_hmds[HMD_STEAM] = vr_render_svr;
-		available_hmds[HMD_RIFT] = vr_render_ovr;
-
-		hmd = &available_hmds[HMD_RIFT];
-
-		hmd->init();
-		currenteye = EYE_HUD;
-
-		if (vr_enabled->value)
-			R_VR_Enable();
-
-	} else {
-		if (vr_enabled->value)
-		{
-			VR_Disable();
-			Cvar_ForceSet("vr_enabled","0");
-		}
+		if (available_hmds[i].init)
+			available_hmds[i].init();
 	}
+
+	R_InitFBO(&hud);
+	R_InitFBO(&offscreen);
+
+	if (vr_enabled->value)
+		R_VR_Enable();
 }
 
 // called when the renderer is shutdown
@@ -373,8 +378,4 @@ void R_VR_Shutdown()
 {
 	if (vr_enabled->value)
 		R_VR_Disable();
-
-
-	if (hud.valid)
-		R_DelFBO(&hud);
 }

@@ -25,8 +25,6 @@ typedef enum {
 	NUM_OVR_FILTER_MODES
 } ovr_filtermode_t;
 
-
-
 extern hmd_render_t vr_render_ovr;
 
 #endif //__OVR_H

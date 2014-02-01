@@ -30,6 +30,7 @@ hmd_render_t vr_render_ovr =
 extern void VR_OVR_CalcRenderParam();
 extern float VR_OVR_GetDistortionScale();
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
+extern int VR_OVR_RenderLatencyTest(vec4_t color);
 
 static r_ovr_shader_t ovr_shaders[2];
 static r_ovr_shader_t ovr_bicubic_shaders[2];

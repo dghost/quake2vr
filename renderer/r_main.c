@@ -391,7 +391,6 @@ R_SetupGL
 */
 void R_SetupGL(void)
 {
-	float	screenaspect;
 	//	float	yfov;
 	int		x, x2, y2, y, w, h;
 	vec3_t vieworigin;
@@ -452,13 +451,8 @@ void R_SetupGL(void)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	if (vr_enabled->value)
-		screenaspect = vrState.aspect;
-	else 
-		screenaspect = (float) r_newrefdef.width / r_newrefdef.height;
-
 	//Knightmare- 12/26/2001- increase back clipping plane distance
-	R_VR_Perspective(r_newrefdef.fov_y, screenaspect, 1, farz); //was 4096
+	R_VR_Perspective(r_newrefdef.fov_y, (double) r_newrefdef.width / r_newrefdef.height, 1, farz); //was 4096
 	//end Knightmare
 
 	GL_CullFace(GL_FRONT);

@@ -1,7 +1,6 @@
 #ifndef __VR_OVR_H
 #define __VR_OVR_H
 
-
 #include "vr.h"
 
 typedef enum {
@@ -10,7 +9,6 @@ typedef enum {
 	RIFT_DKHD,
 	NUM_RIFT
 } rift_t;
-
 
 typedef struct {
 	unsigned int hmdHeight;
@@ -37,10 +35,6 @@ extern cvar_t *vr_ovr_autolensdistance;
 extern cvar_t *vr_ovr_filtermode;
 extern cvar_t *vr_ovr_supersample;
 
-/*
-
-*/
-int VR_OVR_RenderLatencyTest(vec4_t color);
 extern hmd_interface_t hmd_rift;
 
 #endif

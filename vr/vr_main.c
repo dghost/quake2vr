@@ -26,6 +26,8 @@ cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
+cvar_t *vr_hmdtype;
+
 
 vr_param_t vrState;
 
@@ -303,9 +305,7 @@ void VR_Frame()
 
 	hmd->frame();
 
-//	VR_GetFOV(&vrState.viewFovX,&vrState.viewFovY);
-
-		if (vr_hud_fov->modified)
+	if (vr_hud_fov->modified)
 	{
 		// clamp value from 30-90 degrees
 		if (vr_hud_fov->value < 30)
@@ -401,7 +401,7 @@ void VR_Enable_f(void)
 
 	if (VR_Enable())
 	{
-		Cvar_ForceSet("vr_enabled","1");
+		VR_Enable();
 		Cmd_ExecuteString("vid_restart");
 	}
 }
