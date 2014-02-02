@@ -1841,7 +1841,7 @@ void CL_Init (void)
 	// all archived variables will now be loaded
 
 	Con_Init ();	
-	VR_Init ();
+	VR_Startup ();
 
 #if defined __linux__ || defined __sgi
 	S_Init ();	

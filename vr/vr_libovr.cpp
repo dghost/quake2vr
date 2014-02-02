@@ -81,10 +81,6 @@ int LibOVR_IsLatencyTesterAvailable(void) {
 
 	return (latencyTester != NULL && latencyUtil != NULL);
 }
-int LibOVR_IsHMDAvailable(void)
-{
-	return (LibOVR_InitHMD());
-}
 
 void LibOVR_DeviceRelease(void) {
 	if (!initialized)

@@ -10,7 +10,6 @@ int VR_OVR_Enable();
 void VR_OVR_Disable();
 int VR_OVR_Init();
 void VR_OVR_Shutdown();
-int VR_OVR_isDeviceAvailable();
 int VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
 
@@ -43,7 +42,6 @@ hmd_interface_t hmd_rift = {
 	HMD_RIFT,
 	VR_OVR_Init,
 	VR_OVR_Shutdown,
-	VR_OVR_isDeviceAvailable,
 	VR_OVR_Enable,
 	VR_OVR_Disable,
 	VR_OVR_GetHMDPos,
@@ -256,21 +254,11 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 	return 0;
 }
 
-
-int VR_OVR_isDeviceAvailable()
-{
-	if (!vr_ovr_debug->value)
-		return LibOVR_IsHMDAvailable();
-	else
-		return 1;
-}
-
-
 int VR_OVR_Enable()
 {
 	char string[6];
 	int failure = 0;
-	if (!LibOVR_IsHMDAvailable())
+	if (!LibOVR_DeviceInit())
 	{
 		Com_Printf("VR_OVR: Error, no HMD detected!\n");
 		failure = 1;

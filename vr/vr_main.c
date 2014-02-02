@@ -54,7 +54,14 @@ static hmd_interface_t hmd_none = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
+};
+
+static const char *hmd_names[] = 
+{
+	"none",
+	"SteamVR",
+	"Oculus Rift",
+	0
 };
 
 //
@@ -346,18 +353,26 @@ int VR_Enable()
 {
 	char string[6];
 	char hmd_type[3];
-	hmd = &available_hmds[HMD_RIFT];
+	int i;
+	hmd = NULL;
+	for(i = 1 ; i < NUM_HMD_TYPES; i++)
+	{
+		Com_Printf("VR: Checking for %s HMD...\n",hmd_names[i]);
+		if (available_hmds[i].enable && available_hmds[i].enable())
+		{
+			hmd = &available_hmds[i];
+			break;
+		} 
+	}
 
-	if (!hmd->attached())
+	if (!hmd)
 	{
 		Com_Printf("VR: Error - no HMD attached.\n");
 		return 0;
 	}
 
-	if (!hmd->enable())
-		return 0;
-	
-	
+	Com_Printf("VR: using %s HMD.\n",hmd_names[i]);
+
 	strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
 	vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
 
@@ -401,7 +416,6 @@ void VR_Enable_f(void)
 
 	if (VR_Enable())
 	{
-		VR_Enable();
 		Cmd_ExecuteString("vid_restart");
 	}
 }
@@ -418,7 +432,7 @@ void VR_Disable_f(void)
 }
 
 // launch-time initialization for Rift support
-void VR_Init()
+void VR_Startup(void)
 {
 	int i = 0;
 	Com_Printf("Quake II VR Version v%1i.%1i.%1i\n", Q2VR_MAJOR, Q2VR_MINOR, Q2VR_MAINT);

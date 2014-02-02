@@ -24,7 +24,6 @@ extern "C" {
 	} ovr_settings_t;
 
 	int LibOVR_Init(void);
-	int LibOVR_IsHMDAvailable(void);
 	int LibOVR_DeviceInit(void);
 	void LibOVR_DeviceRelease(void);
 	void LibOVR_Shutdown(void);

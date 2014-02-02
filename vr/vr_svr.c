@@ -8,7 +8,6 @@ hmd_interface_t hmd_steam = {
 	HMD_STEAM,
 	VR_SVR_Init,
 	VR_SVR_Shutdown,
-	NULL,
 	VR_SVR_Enable,
 	VR_SVR_Disable,
 	NULL,

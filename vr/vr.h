@@ -36,7 +36,6 @@ typedef struct {
 	hmd_t type;
 	int (*init)();
 	void (*shutdown)();
-	int (*attached)();
 	int (*enable)();
 	void (*disable)();
 	void (*getPos)(int *xpos, int *ypos);
@@ -97,7 +96,7 @@ enum {
 	NUM_HUD_BOUNCE_MODES
 } vr_bounce_mode_t;
 
-void VR_Init();
+void VR_Startup();
 void VR_Teardown();
 int VR_Enable();
 void VR_Disable();
