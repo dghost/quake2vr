@@ -1363,8 +1363,10 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 
 	if (WGLEW_EXT_swap_control_tear)
 	{
-		// AMD likes to abuse this extension and buffer the living shit out of frames
-		// thus, it gets disabled for the time being.
+		// AMD likes to fuck up this extension
+		// either by periodocially running faster than vsync to buffer frames
+		// or simply by corrupting the image on the screen
+		// this is why we cannot have nice things
 		if ( !(glConfig.rendType & GLREND_ATI) )
 		{
 			glConfig.ext_swap_control_tear = true;
