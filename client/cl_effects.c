@@ -2143,7 +2143,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 			0,		0,		0,
 			beamred,	beamgreen,	beamblue,
 			0,	0,	0,
-			1,		-0.75 / (0.5 + frand()*0.3),
+			1,		-1.0 / (1.0 + frand()*0.2),
 			GL_SRC_ALPHA, GL_ONE,
 			2,			-0.25,			
 			particle_solid,
@@ -2200,7 +2200,7 @@ void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	// FIXME: this is a really silly way to have a loop
 	while (len > 0)
 	{
-		unsigned int temp = (rand() & 15);
+		unsigned int temp = 0x0 + rand()&15;
 		beamred = color8red(temp);
 		beamgreen = color8green(temp);
 		beamblue = color8blue(temp);
