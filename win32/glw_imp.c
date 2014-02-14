@@ -778,12 +778,14 @@ void UpdateGammaRamp (void)
 
 		gamma_ramp[0][i] =
 			gamma_ramp[1][i] =
-			gamma_ramp[2][i] = ((unsigned short)v << 8) | v;
+			gamma_ramp[2][i] = ((unsigned short)v << 8);
 	}
 
 
 	// Win2K gamma clamp from Quake 3.
 	// is this necessary?
+	// yes, if we want it to always actually set the gamma value
+	// if unclamped it will silently fail
 
 	for ( i = 0 ; i < 128 ; i++ ) {
 		if ( gamma_ramp[0][i] > ( (128+i) << 8 ) ) {
@@ -800,7 +802,9 @@ void UpdateGammaRamp (void)
 
 	ret = SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
 	if ( !ret ) {
-//			Com_Printf( "SetDeviceGammaRamp failed.\n" );
+		// originally the idea of warning on failures seemed pretty rad
+		// unfortunately, this tends to return false even if it succeeds
+		// Com_Printf( "SetDeviceGammaRamp failed.\n" );
 	}
 }
 

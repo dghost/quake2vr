@@ -1643,6 +1643,10 @@ void R_BeginFrame( float camera_separation )
 	//
 	if ( r_gamma->modified )
 	{
+		if (r_gamma->value > 3.0)
+			Cvar_SetValue("r_gamma",3.0);
+		else if (r_gamma->value < 0.5)
+			Cvar_SetValue("r_gamma",0.5);
 		r_gamma->modified = false;
 		UpdateGammaRamp ();
 	}
