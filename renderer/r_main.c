@@ -1663,7 +1663,7 @@ void R_BeginFrame( float camera_separation )
 	// fuck with draw buffers here
 	if ( vr_enabled->value || r_antialias->value)
 	{
-		glDrawBuffer( GL_COLOR_ATTACHMENT0_EXT );
+		glDrawBuffer( GL_COLOR_ATTACHMENT0 );
 	} 
 	else if ( camera_separation < 0 && glState.stereo_enabled )
 	{

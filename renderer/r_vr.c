@@ -345,8 +345,8 @@ void R_VR_Disable()
 	vid.height = screen.height;
 
 	vrState.pixelScale = 1.0;
-
-	hmd->disable();
+	if (hmd)
+		hmd->disable();
 	if (hud.valid)
 		R_DelFBO(&hud);
 }
