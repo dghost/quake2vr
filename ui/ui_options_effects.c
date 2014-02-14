@@ -122,7 +122,7 @@ static void EffectsSetMenuItemValues( void )
 	Cvar_SetValue( "cl_particle_scale", ClampCvar( 0, 5, Cvar_VariableValue("cl_particle_scale") ) );
 	s_options_effects_particle_comp_slider.curvalue	= (Cvar_VariableValue("cl_particle_scale") -3)*-1+3;
 
-	Cvar_SetValue( "cl_railtype", ClampCvar( 0, 3, Cvar_VariableValue("cl_railtype") ) );
+	Cvar_SetValue( "cl_railtype", ClampCvar( 0, 4, Cvar_VariableValue("cl_railtype") ) );
 	s_options_effects_railtrail_box.curvalue		= Cvar_VariableValue("cl_railtype");
 
 	Cvar_SetValue( "cl_railcore_color", ClampCvar( 1, 7, Cvar_VariableValue("cl_railcore_color") ) );
@@ -174,9 +174,10 @@ void Options_Effects_MenuInit ( void )
 	static const char *railtrail_names[] =
 	{
 		"standard",
-		"core", //laser
+		"core + particles",
 		"core + spiral",
-		"core + smoke",
+		"core", //laser
+		"devrail",
 		0
 	};
 

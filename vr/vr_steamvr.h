@@ -2,6 +2,14 @@
 #define __VR_STEAMVR_H
 #ifndef NO_STEAM
 
+typedef struct
+{
+	float rfRed[2];
+	float rfGreen[2];
+	float rfBlue[2];
+} distcoords_t;
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

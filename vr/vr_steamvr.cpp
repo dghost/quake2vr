@@ -20,7 +20,13 @@ int SteamVR_Init()
 
 int SteamVR_Enable()
 {
-
+	vr::HmdError error;
+	hmd = vr::VR_Init(&error);
+	if (hmd)
+	{
+		vr::VR_Shutdown();
+		hmd = NULL;
+	}
 	return 0;
 }
 
@@ -38,5 +44,10 @@ void SteamVR_Shutdown()
 		hmd = NULL;
 	}
 }
+
+
+
+
+
 
 #endif //NO_STEAM
