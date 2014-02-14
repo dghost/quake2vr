@@ -753,17 +753,24 @@ fail:
 void UpdateGammaRamp (void)
 {
 	int i, o;
-	float gamma = 1.0f / r_gamma->value;
+	float gamma =  r_gamma->value;
 	int v;
-
+	int ret;
 	if (!glState.gammaRamp)
 		return;
 
-	memcpy (gamma_ramp, original_ramp, sizeof(original_ramp));
-
+	//memcpy (gamma_ramp, original_ramp, sizeof(original_ramp));
+	memset(gamma_ramp,0,sizeof(gamma_ramp));
 
 	for ( i=0; i<256; ++i ) {
-		v = (int)(255 * pow( i/255.0f, gamma) + 0.5f);
+
+		if (gamma == 1)
+		{ 
+			v = i;
+		} else {
+			v = 255 * pow( i/255.0f, 1.0f /gamma) + 0.5f;
+		}
+
 		if (v < 0)
 			v = 0;
 		if ( v > 255 )
@@ -771,9 +778,30 @@ void UpdateGammaRamp (void)
 
 		gamma_ramp[0][i] =
 			gamma_ramp[1][i] =
-			gamma_ramp[2][i] = (WORD)v << 8;
+			gamma_ramp[2][i] = ((unsigned short)v << 8) | v;
 	}
-	SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
+
+
+	// Win2K gamma clamp from Quake 3.
+	// is this necessary?
+
+	for ( i = 0 ; i < 128 ; i++ ) {
+		if ( gamma_ramp[0][i] > ( (128+i) << 8 ) ) {
+			gamma_ramp[0][i] =
+				gamma_ramp[1][i] =
+				gamma_ramp[2][i] = (128+i) << 8;
+		}
+	}
+	if ( gamma_ramp[0][127] > 254<<8 ) {
+		gamma_ramp[0][127] =
+			gamma_ramp[1][127] =
+			gamma_ramp[2][127] = 254<<8;
+	}
+
+	ret = SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
+	if ( !ret ) {
+//			Com_Printf( "SetDeviceGammaRamp failed.\n" );
+	}
 }
 
 /*

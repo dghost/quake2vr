@@ -1104,7 +1104,7 @@ void R_Register (void)
 
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
-	r_gamma = Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE ); // was 1.0
+	r_gamma = Cvar_Get( "r_gamma", "1.4", CVAR_ARCHIVE ); // was 1.0
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
