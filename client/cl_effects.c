@@ -1006,17 +1006,20 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 			beamred = 255;
 			beamgreen = 20;
 			beamblue = 20;
-		} else if (!cl_railtype->value)
+		} else if (cl_railtype->value > 0 && cl_railtype->value < 5) {
+			ColorLookup(cl_railcore_color->value,&beamred,&beamgreen,&beamblue);
+			beamred *= 0.75;
+			beamblue *=0.75;
+			beamgreen *=0.75;
+		} 
+		else 
 		{
 			unsigned int temp = 0x74 + (rand() & 7);
 			beamred = color8red(temp);
 			beamgreen = color8green(temp);
 			beamblue = color8blue(temp);
-		} else {
-
-			ColorLookup(cl_railcore_color->value,&beamred,&beamgreen,&beamblue);
 		}
-	
+
 	VectorNegate(tr.plane.normal, angle);
 	VecToAngleRolled(angle, rand()%360, ang);
 	VectorCopy(tr.endpos, origin);
@@ -2133,10 +2136,6 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 	int			beamred, beamgreen, beamblue;
 	float		len;//, dec;
 
-	VectorSubtract (end, start, vec);
-	VectorNormalize(vec);
-	CL_ParticleRailDecal (end, vec, 7, isRed);
-
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2357,6 +2356,8 @@ void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 		VectorSubtract (end, start, vec);
 	}
 	len = VectorNormalize (vec);
+
+
 	len = min (len, cl_rail_length->value);  // cap length
 	VectorCopy(vec, point);
 
@@ -2473,6 +2474,13 @@ CL_RailTrail
 */
 void CL_RailTrail (vec3_t start, vec3_t end, qboolean isRed)
 {
+
+	vec3_t		vec;
+
+	VectorSubtract (end, start, vec);
+	VectorNormalize(vec);
+	CL_ParticleRailDecal (end, vec, 7, isRed);
+
 	switch((int) cl_railtype->value)
 	{
 	default:
