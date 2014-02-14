@@ -161,7 +161,7 @@ cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
 
 cvar_t	*vid_fullscreen;
-cvar_t	*vid_gamma;
+cvar_t	*r_gamma;
 cvar_t	*vid_ref;
 
 cvar_t  *r_bloom;	// BLOOMS
@@ -1104,7 +1104,7 @@ void R_Register (void)
 
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
-	vid_gamma = Cvar_Get( "vid_gamma", "0.8", CVAR_ARCHIVE ); // was 1.0
+	r_gamma = Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE ); // was 1.0
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
@@ -1641,9 +1641,9 @@ void R_BeginFrame( float camera_separation )
 	// update 3Dfx gamma -- it is expected that a user will do a vid_restart
 	// after tweaking this value
 	//
-	if ( vid_gamma->modified )
+	if ( r_gamma->modified )
 	{
-		vid_gamma->modified = false;
+		r_gamma->modified = false;
 		UpdateGammaRamp ();
 	}
 

@@ -2203,7 +2203,7 @@ R_InitImages
 void R_InitImages (void)
 {
 	int		i, j;
-	float	g = vid_gamma->value;
+	float	g = 1.0f / r_gamma->value;
 
 	// Knightmare- reinitialize these after a vid_restart
 	// this is needed because the renderer is no longer a DLL
@@ -2248,8 +2248,8 @@ void R_InitImages (void)
 		else
 		{
 			float inf;
-
-			inf = 255 * pow ( (i+0.5)/255.5 , g ) + 0.5;
+			
+			inf = (int)(255 * pow( i/255.0f, g) + 0.5f);
 			if (inf < 0)
 				inf = 0;
 			if (inf > 255)

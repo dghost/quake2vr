@@ -59,7 +59,7 @@ int	vidref_val;
 // Console variables that we need to access from this module
 cvar_t		*scanforcd; // Knightmare- just here to enable command line option without error
 cvar_t		*win_noalttab;
-cvar_t		*vid_gamma;
+cvar_t		*r_gamma;
 cvar_t		*vid_ref;			// Name of Refresh DLL loaded
 cvar_t		*vid_xpos;			// X coordinate of window position
 cvar_t		*vid_ypos;			// Y coordinate of window position
@@ -690,7 +690,7 @@ void VID_Init (void)
 	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
 	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "1", CVAR_ARCHIVE);
-	vid_gamma = Cvar_Get( "vid_gamma", "0.8", CVAR_ARCHIVE ); // was 1.0
+	r_gamma = Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE ); // was 1.0
 	win_noalttab = Cvar_Get( "win_noalttab", "0", CVAR_ARCHIVE );
 
 	// Knightmare- just here to enable command line option without error

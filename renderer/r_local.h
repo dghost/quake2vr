@@ -304,7 +304,7 @@ extern	cvar_t	*r_saturation;	//** DMP
 extern  cvar_t  *r_bloom;
 
 extern	cvar_t	*vid_fullscreen;
-extern	cvar_t	*vid_gamma;
+extern	cvar_t	*r_gamma;
 
 extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;

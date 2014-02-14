@@ -697,7 +697,7 @@ qboolean GLimp_InitGL (void)
 	}
 
 	if (glState.gammaRamp)
-		vid_gamma->modified = true;
+		r_gamma->modified = true;
 
 	// moved these to GL_SetDefaultState
 	//glState.blend = false;
@@ -753,23 +753,25 @@ fail:
 void UpdateGammaRamp (void)
 {
 	int i, o;
+	float gamma = 1.0f / r_gamma->value;
+	int v;
 
 	if (!glState.gammaRamp)
 		return;
-	
+
 	memcpy (gamma_ramp, original_ramp, sizeof(original_ramp));
 
-	for (o = 0; o < 3; o++) 
-	{
-		for (i = 0; i < 256; i++) 
-		{
-			signed int v;
 
-			v = 255 * pow ((i+0.5)/255.5, vid_gamma->value ) + 0.5;
-			if (v > 255) v = 255;
-			if (v < 0) v = 0;
-			gamma_ramp[o][i] = ((WORD)v) << 8;
-		}
+	for ( i=0; i<256; ++i ) {
+		v = (int)(255 * pow( i/255.0f, gamma) + 0.5f);
+		if (v < 0)
+			v = 0;
+		if ( v > 255 )
+			v = 255;
+
+		gamma_ramp[0][i] =
+			gamma_ramp[1][i] =
+			gamma_ramp[2][i] = (WORD)v << 8;
 	}
 	SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
 }
