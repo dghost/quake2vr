@@ -1637,10 +1637,7 @@ void R_BeginFrame( float camera_separation )
 		ref->modified = true;
 	}
 
-	//
-	// update 3Dfx gamma -- it is expected that a user will do a vid_restart
-	// after tweaking this value
-	//
+	// update gamma values
 	if ( r_gamma->modified )
 	{
 		if (r_gamma->value > 3.0)
