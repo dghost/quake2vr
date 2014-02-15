@@ -1698,10 +1698,10 @@ void Qcommon_Init (int argc, char **argv)
 #else
 	sv_engine = Cvar_Get ("sv_engine", "Quake II VR - eraser", CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
 #endif
-	sv_engine_version = Cvar_Get ("sv_engine_version", va("%f",VERSION), CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
+	sv_engine_version = Cvar_Get ("sv_engine_version", va("%4.2f",VERSION), CVAR_SERVERINFO | CVAR_NOSET | CVAR_LATCH);
 	// end Knightmare
 	
-	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
+	s = va("%4.2f%s %s %s %s", VERSION, PATCH, CPUSTRING, __DATE__, BUILDSTRING);
 	Cvar_Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 	if (dedicated->value)

@@ -1222,7 +1222,7 @@ int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 
 #ifdef NEW_DED_CONSOLE // init debug console
 	Sys_InitDedConsole ();
-	Com_Printf("KMQuake2 %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
+	Com_Printf("Quake II VR %4.2f %s %s %s\n", VERSION, CPUSTRING, BUILDSTRING, __DATE__);
 #endif
 
 	// Knightmare- scan for cd command line option

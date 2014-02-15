@@ -435,7 +435,7 @@ void VR_Disable_f(void)
 void VR_Startup(void)
 {
 	int i = 0;
-	Com_Printf("Quake II VR Version v%1i.%1i.%1i\n", Q2VR_MAJOR, Q2VR_MINOR, Q2VR_MAINT);
+	Com_Printf("Quake II VR Version v%4.2f%s\n", VERSION,PATCH);
 
 	available_hmds[HMD_NONE] = hmd_none;
 	available_hmds[HMD_STEAM] = hmd_steam;

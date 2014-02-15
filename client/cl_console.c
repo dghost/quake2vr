@@ -681,15 +681,15 @@ void Con_DrawConsole (float frac, qboolean trans)
 	// changed to "Quake II VR vx.x.x"
 #ifdef ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (Eraser net server)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s (Eraser net server)",  VERSION,PATCH);
 #else // NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (Eraser compatible)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s (Eraser compatible)",  VERSION,PATCH);
 #endif // NET_SERVER_BUILD
 #else // ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i (net server)", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s (net server)", VERSION,PATCH);
 #else
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%1i.%1i.%1i", Q2VR_MAJOR,Q2VR_MINOR,Q2VR_MAINT);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s",VERSION,PATCH);
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
 
