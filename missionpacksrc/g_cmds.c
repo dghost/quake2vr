@@ -649,7 +649,13 @@ void Cmd_WeapPrev_f (edict_t *ent)
 		index = (selected_weapon + MAX_ITEMS - i)%MAX_ITEMS;
 		if (!cl->pers.inventory[index])
 			continue;
+		// skip noweapon when cycling through
+		if (index == noweapon_index)
+			continue;
 		it = &itemlist[index];
+		// skip tryin to equip weapons that are empty
+		if (!g_select_empty->value && it->ammo && ent->client->pers.inventory[ITEM_INDEX(FindItem(it->ammo))] <= 0)
+			continue;
 		if (!it->use)
 			continue;
 		if (! (it->flags & IT_WEAPON) )
@@ -661,6 +667,12 @@ void Cmd_WeapPrev_f (edict_t *ent)
 		if (cl->newweapon == it)
 			return;
 	}
+	// this should only be possible if the current weapon was already noweapon
+	// but we do it anyways to be certain
+	it = &itemlist[noweapon_index];
+	if (it->use)
+		it->use(ent,it);
+
 }
 
 /*
@@ -690,7 +702,13 @@ void Cmd_WeapNext_f (edict_t *ent)
 		index = (selected_weapon + i)%MAX_ITEMS;
 		if (!cl->pers.inventory[index])
 			continue;
+		// skip noweapon when cycling through
+		if (index == noweapon_index)
+			continue;
 		it = &itemlist[index];
+		// skip tryin to equip weapons that are empty
+		if (!g_select_empty->value && it->ammo && ent->client->pers.inventory[ITEM_INDEX(FindItem(it->ammo))] <= 0)
+			continue;
 		if (!it->use)
 			continue;
 		if (! (it->flags & IT_WEAPON) )
@@ -702,6 +720,12 @@ void Cmd_WeapNext_f (edict_t *ent)
 		if (cl->newweapon == it)
 			return;
 	}
+	// this should only be possible if the current weapon was already noweapon
+	// but we do it anyways to be certain
+	it = &itemlist[noweapon_index];
+	if (it->use)
+		it->use(ent,it);
+
 }
 
 /*
