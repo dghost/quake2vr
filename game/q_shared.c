@@ -1970,7 +1970,7 @@ void Info_SetValueForKey (char *s, char *key, char *value)
 
 	if (strlen(newi) + strlen(s) > maxsize)
 	{
-		Com_Printf ("Info string length exceeded\n");
+		Com_Printf ("Info string for key \"%s\" length exceeded\n", key);
 		return;
 	}
 

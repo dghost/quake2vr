@@ -411,9 +411,9 @@ void InitGame (void)
 	sv_maplist = gi.cvar ("sv_maplist", "", 0);
 
 	// Lazarus
-	actorchicken = gi.cvar("actorchicken", "1", CVAR_SERVERINFO|CVAR_LATCH);
-	actorjump = gi.cvar("actorjump", "1", CVAR_SERVERINFO|CVAR_LATCH);
-	actorscram = gi.cvar("actorscram", "1", CVAR_SERVERINFO|CVAR_LATCH);
+	actorchicken = gi.cvar("actorchicken", "1", CVAR_LATCH);
+	actorjump = gi.cvar("actorjump", "1", CVAR_LATCH);
+	actorscram = gi.cvar("actorscram", "1", CVAR_LATCH);
 	alert_sounds = gi.cvar("alert_sounds", "0", CVAR_ARCHIVE);
 	allow_fog = gi.cvar ("allow_fog", "1", CVAR_ARCHIVE);
 
@@ -431,7 +431,7 @@ void InitGame (void)
 	footstep_sounds = gi.cvar("footstep_sounds", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	fov = gi.cvar("fov", "90", 0);
 	hand = gi.cvar("hand", "0", 0);
-	jetpack_weenie = gi.cvar("jetpack_weenie", "0", CVAR_SERVERINFO);
+	jetpack_weenie = gi.cvar("jetpack_weenie", "0", 32);
 	joy_pitchsensitivity = gi.cvar("joy_pitchsensitivity", "1", 0);
 	joy_yawsensitivity = gi.cvar("joy_yawsensitivity", "-1", 0);
 	jump_kick = gi.cvar("jump_kick", "0", CVAR_SERVERINFO|CVAR_LATCH);
@@ -448,14 +448,14 @@ void InitGame (void)
 #else
 	sv_maxgibs = gi.cvar("sv_maxgibs", "20", CVAR_SERVERINFO);
 #endif
-	turn_rider = gi.cvar("turn_rider", "1", CVAR_SERVERINFO);
+	turn_rider = gi.cvar("turn_rider", "1", 32);
 	zoomrate = gi.cvar("zoomrate", "80", CVAR_ARCHIVE);
 	zoomsnap = gi.cvar("zoomsnap", "20", CVAR_ARCHIVE);
 
 	// shift_ and rotate_distance only used for debugging stuff - this is the distance
 	// an entity will be moved by "item_left", "item_right", etc.
-	shift_distance = gi.cvar("shift_distance", "1", CVAR_SERVERINFO);
-	rotate_distance = gi.cvar("rotate_distance", "1", CVAR_SERVERINFO);
+	shift_distance = gi.cvar("shift_distance", "1", 32);
+	rotate_distance = gi.cvar("rotate_distance", "1", 32);
 
 	// GL stuff
 	gl_clear = gi.cvar("gl_clear", "0", 0);

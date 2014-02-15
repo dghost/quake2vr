@@ -502,9 +502,10 @@ qboolean Cvar_Command (void)
 	{	// Knightmare- show latched value if applicable
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", v->name, v->string, v->default_string, v->latched_string);
+		else if (v->flags & CVAR_NOSET)
+			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string, v->default_string);
 		else
 			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", v->name, v->string, v->default_string);
-
 		return true;
 	}
 
