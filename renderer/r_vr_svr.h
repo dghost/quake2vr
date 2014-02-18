@@ -15,10 +15,14 @@ void SVR_Disable();
 int SVR_Init();
 */
 
-extern hmd_render_t vr_render_svr;
+
 
 
 
 
 #endif // NO_STEAM
+
+extern hmd_render_t vr_render_svr;
+
+
 #endif // __R_VR_SVR_H

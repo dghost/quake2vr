@@ -25,9 +25,7 @@ extern vr_param_t vrState;
 
 typedef enum {
 	HMD_NONE,
-#ifndef NO_STEAM
 	HMD_STEAM,
-#endif
 	HMD_RIFT,
 	NUM_HMD_TYPES
 } hmd_t;

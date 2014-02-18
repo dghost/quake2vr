@@ -752,7 +752,7 @@ fail:
 //Knightmare- added Vic's hardware gammaramp
 void UpdateGammaRamp (void)
 {
-	int i, o;
+	int i;
 	float gamma =  r_gamma->value;
 	int v;
 	int ret;
