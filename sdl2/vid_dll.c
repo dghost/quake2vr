@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 
 #include "..\client\client.h"
-#include "../sdl2/sdl2quake.h"
+#include "sdl2quake.h"
 //#include "zmouse.h"
 
 

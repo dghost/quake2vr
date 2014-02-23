@@ -195,15 +195,6 @@
     <ClCompile Include="win32\sys_console.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
-    <ClCompile Include="win32\sys_win.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\vid_dll.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\glw_imp.c">
-      <Filter>Source Files\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\r_alias.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
@@ -381,6 +372,15 @@
     <ClCompile Include="renderer\r_vr_svr.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="sdl2\gl_sdl2.c">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl2\sys_sdl2.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl2\vid_dll.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
@@ -411,9 +411,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\glext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client\input.h">
@@ -485,9 +482,6 @@
     <ClInclude Include="win32\winnewerror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="win32\winquake.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vr\vr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -510,6 +504,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderer\r_vr_svr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdl2\sdl2quake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -113,7 +113,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Midl>
@@ -136,8 +136,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB </IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -156,7 +156,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -181,8 +181,8 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -200,7 +200,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -225,8 +225,8 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -244,7 +244,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -269,8 +269,8 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>steam_api.lib;rglewlib.lib;regal32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;rglewlib.lib;regal32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -281,6 +281,9 @@
     <ClCompile Include="renderer\r_vr.c" />
     <ClCompile Include="renderer\r_vr_ovr.c" />
     <ClCompile Include="renderer\r_vr_svr.c" />
+    <ClCompile Include="sdl2\gl_sdl2.c" />
+    <ClCompile Include="sdl2\sys_sdl2.c" />
+    <ClCompile Include="sdl2\vid_dll.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
     <ClCompile Include="ui\ui_options_vr_advanced.c" />
     <ClCompile Include="ui\ui_options_vr_ovr.c" />
@@ -341,9 +344,6 @@
     <ClCompile Include="win32\net_wins.c" />
     <ClCompile Include="win32\q_shwin.c" />
     <ClCompile Include="win32\sys_console.c" />
-    <ClCompile Include="win32\sys_win.c" />
-    <ClCompile Include="win32\vid_dll.c" />
-    <ClCompile Include="win32\glw_imp.c" />
     <ClCompile Include="renderer\r_alias.c" />
     <ClCompile Include="renderer\r_alias_md2.c" />
     <ClCompile Include="renderer\r_alias_misc.c" />
@@ -401,6 +401,7 @@
     <ClInclude Include="renderer\r_vr.h" />
     <ClInclude Include="renderer\r_vr_ovr.h" />
     <ClInclude Include="renderer\r_vr_svr.h" />
+    <ClInclude Include="sdl2\sdl2quake.h" />
     <ClInclude Include="vr\vr.h" />
     <ClInclude Include="vr\vr_libovr.h" />
     <ClInclude Include="vr\vr_ovr.h" />
@@ -409,7 +410,6 @@
     <ClInclude Include="win32\conproc.h" />
     <ClInclude Include="client\console.h" />
     <ClInclude Include="game\game.h" />
-    <ClInclude Include="renderer\glext.h" />
     <ClInclude Include="client\input.h" />
     <ClInclude Include="client\keys.h" />
     <ClInclude Include="client\particles.h" />
@@ -433,7 +433,6 @@
     <ClInclude Include="renderer\warpsin.h" />
     <ClInclude Include="qcommon\wildcard.h" />
     <ClInclude Include="win32\winnewerror.h" />
-    <ClInclude Include="win32\winquake.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="win32\q2.ico" />

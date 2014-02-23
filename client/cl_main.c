@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../vr/vr.h"
 
 #ifdef _WIN32
-#include "../win32/winquake.h"
+#include "../sdl2/sdl2quake.h"
 #endif
 
 cvar_t	*freelook;
