@@ -1715,15 +1715,6 @@ void Qcommon_Init (int argc, char **argv)
 	SV_Init ();
 	CL_Init ();
 
-#ifdef _WIN32  // Knightmare- remove startup logo, code from TomazQuake
-#ifdef NEW_DED_CONSOLE // Hide console
-	if (!dedicated->value)
-		Sys_ShowConsole(false);
-#else	
-	DestroyWindow (hwnd_dialog);
-#endif
-#endif
-
 	// add + commands from command line
 	if (!Cbuf_AddLateCommands ())
 	{	// if the user didn't give any commands, run default action

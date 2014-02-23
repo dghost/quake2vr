@@ -192,9 +192,6 @@
     <ClCompile Include="win32\q_shwin.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
-    <ClCompile Include="win32\sys_console.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\r_alias.c">
       <Filter>Source Files\renderer</Filter>
     </ClCompile>

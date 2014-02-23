@@ -343,7 +343,6 @@
     <ClCompile Include="win32\in_win.c" />
     <ClCompile Include="win32\net_wins.c" />
     <ClCompile Include="win32\q_shwin.c" />
-    <ClCompile Include="win32\sys_console.c" />
     <ClCompile Include="renderer\r_alias.c" />
     <ClCompile Include="renderer\r_alias_md2.c" />
     <ClCompile Include="renderer\r_alias_misc.c" />
