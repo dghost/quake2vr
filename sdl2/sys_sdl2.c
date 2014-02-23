@@ -45,8 +45,6 @@ unsigned	sys_msg_time;
 unsigned	sys_frame_time;
 
 
-static HANDLE		qwclsemaphore;
-
 #define	MAX_NUM_ARGVS	128
 int			argc;
 char		*argv[MAX_NUM_ARGVS];
@@ -288,9 +286,6 @@ void Sys_Error (char *error, ...)
 	{
 		printf("Error: %s\n",text);
 	}
-	
-	if (qwclsemaphore)
-		CloseHandle (qwclsemaphore);
 
 // shut down QHOST hooks if necessary
 	DeinitConProc ();
@@ -305,7 +300,6 @@ void Sys_Quit (void)
 
 	CL_Shutdown();
 	Qcommon_Shutdown ();
-	CloseHandle (qwclsemaphore);
 	if (dedicated && dedicated->value)
 		FreeConsole ();
 
@@ -490,7 +484,7 @@ GAME DLL
 ========================================================================
 */
 
-static HINSTANCE	game_library;
+static void* game_library;
 
 /*
 =================
@@ -499,8 +493,7 @@ Sys_UnloadGame
 */
 void Sys_UnloadGame (void)
 {
-	if (!FreeLibrary (game_library))
-		Com_Error (ERR_FATAL, "FreeLibrary failed for game library");
+	SDL_UnloadObject (game_library);
 	game_library = NULL;
 }
 
@@ -519,7 +512,11 @@ void *Sys_GetGameAPI (void *parms)
 	char	cwd[MAX_OSPATH];
 	int i = 0;
 	//Knightmare- changed DLL name for better cohabitation
+#ifdef _WIN32
 	const char *dllnames[2] = {"vrgamex86.dll", "kmq2gamex86.dll"};
+#else
+const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
+#endif
 	const char *gamename = NULL;
 	
 #ifdef NDEBUG
@@ -540,21 +537,21 @@ void *Sys_GetGameAPI (void *parms)
 	{
 		gamename = dllnames[i];
 		Com_sprintf (name, sizeof(name), "%s/%s/%s", cwd, debugdir, gamename);
-		game_library = LoadLibrary ( name );
+		game_library = SDL_LoadObject ( name );
 	}
 	if (game_library)
 	{
-		Com_DPrintf ("LoadLibrary (%s)\n", name);
+		Com_DPrintf ("SDL_LoadObject (%s)\n", name);
 	}
 	else
 	{
 #ifdef DEBUG
 		// check the current directory for other development purposes
 		Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
-		game_library = LoadLibrary ( name );
+		game_library = SDL_LoadObject ( name );
 		if (game_library)
 		{
-			Com_DPrintf ("LoadLibrary (%s)\n", name);
+			Com_DPrintf ("SDL_LoadObject (%s)\n", name);
 		}
 		else
 #endif
@@ -570,18 +567,18 @@ void *Sys_GetGameAPI (void *parms)
 				{
 					gamename = dllnames[i];
 					Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
-					game_library = LoadLibrary (name);
+					game_library = SDL_LoadObject (name);
 				}
 				if (game_library)
 				{
-					Com_DPrintf ("LoadLibrary (%s)\n",name);
+					Com_DPrintf ("SDL_LoadObject (%s)\n",name);
 					break;
 				}
 			}
 		}
 	}
 
-	GetGameAPI = (void *)GetProcAddress (game_library, "GetGameAPI");
+	GetGameAPI = (void *(*)(void*)) SDL_LoadFunction (game_library, "GetGameAPI");
 	if (!GetGameAPI)
 	{
 		Sys_UnloadGame ();		
