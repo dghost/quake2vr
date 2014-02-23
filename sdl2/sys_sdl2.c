@@ -51,6 +51,26 @@ static HANDLE		qwclsemaphore;
 int			argc;
 char		*argv[MAX_NUM_ARGVS];
 
+/*
+================
+Sys_Milliseconds
+================
+*/
+int	curtime;
+int Sys_Milliseconds (void)
+{
+	static int		base;
+	static qboolean	initialized = false;
+
+	if (!initialized)
+	{
+		base = SDL_GetTicks();
+		initialized = true;
+	}
+	curtime = SDL_GetTicks () - base;
+	return curtime;
+}
+
 
 /*
 ===============================================================================
