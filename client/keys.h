@@ -133,7 +133,7 @@ typedef enum {
 
 
 
-	K_XBOX_LSTICK_UP = 175,
+	K_XBOX_LSTICK_UP = 300,
 	K_XBOX_LSTICK_DOWN,
 	K_XBOX_LSTICK_LEFT,
 	K_XBOX_LSTICK_RIGHT,
@@ -159,6 +159,7 @@ typedef enum {
 
 	K_XBOXLT,
 	K_XBOXRT,
+
 } keynum_t;
 
 /*
@@ -279,8 +280,12 @@ typedef enum {
 //end Knightmare
 */
 
-extern char		*keybindings[256];
-extern	int		key_repeats[256];
+
+
+#define MAX_KEYEVENTS 512
+
+extern char		*keybindings[MAX_KEYEVENTS];
+extern	int		key_repeats[MAX_KEYEVENTS];
 
 extern	int	anykeydown;
 extern char chat_buffer[];

@@ -579,17 +579,15 @@ int			scr_erase_center;
 
 /*
 ==============
-SCR_CenterPrint
+SCR_CenterAlert
 
 Called for important messages that should stay in the center of the screen
-for a few moments
+for a few moments without echoing it to the console
 ==============
 */
-void SCR_CenterPrint (char *str)
+void SCR_CenterAlert (char *str)
 {
 	char	*s;
-	char	line[64];
-	int		i, j, l;
 
 	strncpy (scr_centerstring, str, sizeof(scr_centerstring)-1);
 	scr_centertime_off = scr_centertime->value;
@@ -605,6 +603,24 @@ void SCR_CenterPrint (char *str)
 			scr_center_lines++;
 		s++;
 	}
+}
+
+/*
+==============
+SCR_CenterPrint
+
+Called for important messages that should stay in the center of the screen
+for a few moments
+==============
+*/
+void SCR_CenterPrint (char *str)
+{
+	char	*s;
+	char	line[64];
+	int		i, j, l;
+
+	// print it to the screen
+	SCR_CenterAlert(str);
 
 	// echo it to the console
 	Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
@@ -640,7 +656,6 @@ void SCR_CenterPrint (char *str)
 	Con_ClearNotify ();
 }
 
-
 void SCR_DrawCenterString (void)
 {
 	char	*start, line[512];
@@ -664,7 +679,8 @@ void SCR_DrawCenterString (void)
 
 	do
 	{	// scan the width of the line
-		for (l=0 ; l<40 ; l++)
+		// 12/30/2013 - make it capable of displaying > 40 chars
+		for (l=0 ; l<80 ; l++)
 			if (start[l] == '\n' || !start[l])
 				break;
 

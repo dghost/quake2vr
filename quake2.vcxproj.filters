@@ -378,6 +378,12 @@
     <ClCompile Include="sdl2\vid_dll.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
+    <ClCompile Include="input\in_xinput.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="input\in_winjoy.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">

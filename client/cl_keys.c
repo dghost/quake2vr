@@ -36,12 +36,14 @@ int		edit_line=0;
 int		history_line=0;
 
 int		key_waiting;
-char	*keybindings[256];
-qboolean	consolekeys[256];	// if true, can't be rebound while in console
-qboolean	menubound[256];	// if true, can't be rebound while in menu
-int		keyshift[256];		// key to map to if shift held down in console
-int		key_repeats[256];	// if > 1, it is autorepeating
-qboolean	keydown[256];
+
+#define MAX_KEYEVENTS 512
+char		*keybindings[MAX_KEYEVENTS];
+qboolean	consolekeys[MAX_KEYEVENTS];	// if true, can't be rebound while in console
+qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
+keynum_t	keyshift[MAX_KEYEVENTS];		// key to map to if shift held down in console
+int			key_repeats[MAX_KEYEVENTS];	// if > 1, it is autorepeating
+qboolean	keydown[MAX_KEYEVENTS];
 
 typedef struct
 {
@@ -115,23 +117,6 @@ keyname_t keynames[] =
 	{"AUX15", K_AUX15},
 	{"AUX16", K_AUX16},
 
-	{"XBOX_UP", K_XBOX_UP},
-	{"XBOX_DOWN", K_XBOX_DOWN},
-	{"XBOX_LEFT", K_XBOX_LEFT},
-	{"XBOX_RIGHT", K_XBOX_RIGHT},
-	{"XBOX_START", K_XBOX_START},
-	{"XBOX_BACK", K_XBOX_BACK},
-	{"XBOX_LSTICK", K_XBOX_LEFT_STICK},
-	{"XBOX_RSTICK", K_XBOX_RIGHT_STICK},
-	{"XBOX_LB", K_XBOXLS},
-	{"XBOX_RB", K_XBOXRS},
-	{"XBOX_A", K_XBOXA},
-	{"XBOX_B", K_XBOXB},
-	{"XBOX_X", K_XBOXX},
-	{"XBOX_Y", K_XBOXY},
-	{"XBOX_LT", K_XBOXLT},
-	{"XBOX_RT", K_XBOXRT},
-
 	{"KP_HOME",			K_KP_HOME },
 	{"KP_UPARROW",		K_KP_UPARROW },
 	{"KP_PGUP",			K_KP_PGUP },
@@ -154,6 +139,23 @@ keyname_t keynames[] =
 	{"PAUSE", K_PAUSE},
 
 	{"SEMICOLON", ';'},	// because a raw semicolon seperates commands
+
+	{"XBOX_UP", K_XBOX_UP},
+	{"XBOX_DOWN", K_XBOX_DOWN},
+	{"XBOX_LEFT", K_XBOX_LEFT},
+	{"XBOX_RIGHT", K_XBOX_RIGHT},
+	{"XBOX_START", K_XBOX_START},
+	{"XBOX_BACK", K_XBOX_BACK},
+	{"XBOX_LSTICK", K_XBOX_LEFT_STICK},
+	{"XBOX_RSTICK", K_XBOX_RIGHT_STICK},
+	{"XBOX_LB", K_XBOXLS},
+	{"XBOX_RB", K_XBOXRS},
+	{"XBOX_A", K_XBOXA},
+	{"XBOX_B", K_XBOXB},
+	{"XBOX_X", K_XBOXX},
+	{"XBOX_Y", K_XBOXY},
+	{"XBOX_LT", K_XBOXLT},
+	{"XBOX_RT", K_XBOXRT},
 
 	{NULL,0}
 };
@@ -706,7 +708,7 @@ void Key_Unbindall_f (void)
 {
 	int		i;
 	
-	for (i=0 ; i<256 ; i++)
+	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i])
 			Key_SetBinding (i, "");
 }
@@ -768,7 +770,7 @@ void Key_WriteBindings (FILE *f)
 {
 	int		i;
 
-	for (i=0 ; i<256 ; i++)
+	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i] && keybindings[i][0])
 			fprintf (f, "bind %s \"%s\"\n", Key_KeynumToString(i), keybindings[i]);
 }
@@ -784,7 +786,7 @@ void Key_Bindlist_f (void)
 {
 	int		i;
 
-	for (i=0 ; i<256 ; i++)
+	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i] && keybindings[i][0])
 			Com_Printf ("%s \"%s\"\n", Key_KeynumToString(i), keybindings[i]);
 }
@@ -846,7 +848,7 @@ void Key_Init (void)
 	consolekeys['`'] = false;
 	consolekeys['~'] = false;
 
-	for (i=0 ; i<256 ; i++)
+	for (i=0 ; i< MAX_KEYEVENTS ; i++)
 		keyshift[i] = i;
 	for (i='a' ; i<='z' ; i++)
 		keyshift[i] = i - 'a' + 'A';
@@ -875,7 +877,8 @@ void Key_Init (void)
 	menubound[K_ESCAPE] = true;
 	for (i=0 ; i<12 ; i++)
 		menubound[K_F1+i] = true;
-
+	menubound[K_XBOX_START] = true;
+	menubound[K_XBOX_BACK] = true;
 //
 // register our functions
 //
@@ -928,7 +931,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 			&& key_repeats[key] > 1)
 			return;	// ignore most autorepeats
 			
-		if (key >= 200 && !keybindings[key])
+		if (key >= 200 && key < 300 && !keybindings[key])
 			Com_Printf ("%s is unbound, hit F4 to set.\n", Key_KeynumToString (key) );
 	}
 	else
@@ -949,15 +952,16 @@ void Key_Event (int key, qboolean down, unsigned time)
 	}
 
 	// Knightmare changed
-	if ( (!cls.consoleActive && cl.attractloop) && (cls.key_dest != key_menu)
+	/*if ( (!cls.consoleActive && cl.attractloop) && (cls.key_dest != key_menu)
 		&& !(key >= K_F1 && key <= K_F12) && (cl.cinematictime > 0)
 		&& (cls.realtime - cl.cinematictime > 1000) )
-		key = K_ESCAPE;
-
-	// any key during the attract mode will bring up the menu
-	/*if (cl.attractloop && cls.key_dest != key_menu 
-		&& !(key >= K_F1 && key <= K_F12))
 		key = K_ESCAPE;*/
+
+	// restore default config
+	// any key during the attract mode will bring up the menu
+	if (cl.attractloop && cls.key_dest != key_menu 
+		&& !(key >= K_F1 && key <= K_F12))
+		key = K_ESCAPE;
 
 	// menu key is hardcoded, so the user can never unbind it
 	if (key == K_ESCAPE || key == K_XBOX_START)
@@ -1116,7 +1120,7 @@ void Key_ClearStates (void)
 
 	anykeydown = false;
 
-	for (i=0 ; i<256 ; i++)
+	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 	{
 		if ( keydown[i] || key_repeats[i] )
 			Key_Event( i, false, 0 );

@@ -275,6 +275,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="input\in_winjoy.c" />
+    <ClCompile Include="input\in_xinput.c" />
     <ClCompile Include="renderer\r_antialias.c" />
     <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_shaderobjects.c" />

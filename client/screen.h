@@ -58,6 +58,7 @@ void	SCR_UpdateScreen (void);
 
 void	SCR_SizeUp (void);
 void	SCR_SizeDown (void);
+void	SCR_CenterAlert (char *str);
 void	SCR_CenterPrint (char *str);
 void	SCR_BeginLoadingPlaque (void);
 void	SCR_EndLoadingPlaque (void);
