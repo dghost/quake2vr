@@ -429,7 +429,9 @@ void Sys_Init (void)
 		Sys_Error("SDL_Init failed!");
 //		Com_Printf("SDL_Init Error: %s\n",SDL_GetError());
 	}
+#ifdef _WIN32
 	timeBeginPeriod( 1 );
+#endif
 
 	strncpy(string,SDL_GetPlatform(),sizeof(string));
 	Com_Printf("OS: %s\n", string);
@@ -589,64 +591,21 @@ const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
 
 //=======================================================================
 
-
-/*
-==================
-ParseCommandLine
-
-==================
-*/
-void ParseCommandLine (LPSTR lpCmdLine)
-{
-	argc = 1;
-	argv[0] = "exe";
-
-	while (*lpCmdLine && (argc < MAX_NUM_ARGVS))
-	{
-		while (*lpCmdLine && ((*lpCmdLine <= 32) || (*lpCmdLine > 126)))
-			lpCmdLine++;
-
-		if (*lpCmdLine)
-		{
-			argv[argc] = lpCmdLine;
-			argc++;
-
-			while (*lpCmdLine && ((*lpCmdLine > 32) && (*lpCmdLine <= 126)))
-				lpCmdLine++;
-
-			if (*lpCmdLine)
-			{
-				*lpCmdLine = 0;
-				lpCmdLine++;
-			}
-		}
-	}
-}
-
 /*
 ==================
 WinMain
 
 ==================
 */
-HINSTANCE	global_hInstance;
 
-int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd)
+int main(int argc, char *argv[])
 {
-    MSG				msg;
 	int				time, oldtime, newtime;
 	char			*cddir;
 	int				i; // Knightmare added
 	qboolean		cdscan = false; // Knightmare added
 
-    /* previous instances do not exist in Win32 */
-    if (hPrevInstance)
-        return 0;
-
-	global_hInstance = hInstance;
-
-	ParseCommandLine (lpCmdLine);
-
+	/*
 	// Knightmare- scan for cd command line option
 	for (i=0; i<argc; i++)
 		if (!strcmp(argv[i], "scanforcd")) {
@@ -674,7 +633,7 @@ int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 			}
 		}
 	}
-
+	*/
 	Qcommon_Init (argc, argv);
 	oldtime = Sys_Milliseconds ();
 
@@ -696,15 +655,13 @@ int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 
 
 		// DarkOne's CPU usage fix
-
-
 		while (1)
 		{
 			newtime = Sys_Milliseconds();
 			time = newtime - oldtime;
 			if (time > 0) break;
 			if (!vr_enabled->value || !vr_nosleep->value)
-				Sleep(0); // may also use Speep(1); to free more CPU, but it can lower your fps
+				Sleep(0); // may also use Sleep(1); to free more CPU, but it can lower your fps
 		}
 
 		/*do
@@ -715,7 +672,11 @@ int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 		//	Con_Printf ("time:%5.2f - %5.2f = %5.2f\n", newtime, oldtime, time);
 
 		//	_controlfp( ~( _EM_ZERODIVIDE /*| _EM_INVALID*/ ), _MCW_EM );
+
+#ifdef _WIN32
+		// is this necessary? Linux seems well behaved without it
 		_controlfp( _PC_24, _MCW_PC );
+#endif
 		Qcommon_Frame (time);
 
 		oldtime = newtime;

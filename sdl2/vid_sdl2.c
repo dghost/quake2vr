@@ -206,6 +206,7 @@ int MapSDLKey (SDL_Keysym key)
 		case SDL_SCANCODE_LGUI: 
 		case SDL_SCANCODE_RALT:	
 		case SDL_SCANCODE_RGUI: result = K_ALT;			break;
+		case SDL_SCANCODE_SPACE: result = K_SPACE; break;
 
 			//		case XK_KP_Begin: result = K_KP_5;	break;
 
@@ -222,6 +223,43 @@ int MapSDLKey (SDL_Keysym key)
 
 	return result;
 }
+
+void AppActivate(BOOL fActive, BOOL minimize)
+{
+	Minimized = minimize;
+
+	Key_ClearStates();
+
+	// we don't want to act like we're active if we're minimized
+	if (fActive && !Minimized)
+		ActiveApp = true;
+	else
+		ActiveApp = false;
+
+	// minimize/restore mouse-capture on demand
+	if (!ActiveApp)
+	{
+		IN_Activate (false);
+		CDAudio_Activate (false);
+		S_Activate (false);
+
+		if ( win_noalttab->value )
+		{
+			WIN_EnableAltTab();
+		}
+	}
+	else
+	{
+		IN_Activate (true);
+		CDAudio_Activate (true);
+		S_Activate (true);
+		if ( win_noalttab->value )
+		{
+			WIN_DisableAltTab();
+		}
+	}
+}
+
 
 /*
 ====================
@@ -254,10 +292,12 @@ void SDL_ProcEvent (SDL_Event *event)
 		switch (event->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			AppActivate(true,false);
 			if ( kmgl_active )
 				GLimp_AppActivate ( true );
 			break;
 		case SDL_WINDOWEVENT_FOCUS_LOST:
+			AppActivate(false,false);
 			if ( kmgl_active )
 				GLimp_AppActivate ( false );
 		break;
@@ -282,13 +322,13 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		{
-			int	temp;
+			static int mask = 0;			
+			int temp = 0;
 
-			temp = 0;
 			switch (event->button.button)
 			{
 			case SDL_BUTTON_LEFT:
-				temp = 1;
+				temp |= 1;
 				break;
 			case SDL_BUTTON_RIGHT:
 				temp = 2;
@@ -297,19 +337,24 @@ void SDL_ProcEvent (SDL_Event *event)
 				temp = 4;
 				break;
 			case SDL_BUTTON_X1:
-				temp =8;
+				temp = 8;
 				break;
 			case SDL_BUTTON_X2:
 				temp = 16;
 				break;
 			}
-			IN_MouseEvent (temp);
+			if (event->button.type == SDL_MOUSEBUTTONDOWN)
+				mask |= temp;
+			else
+				mask ^= temp;
+
+			IN_MouseEvent (mask);
 		}
 		break;
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 		// todo - trap alt-enter
-		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYUP), sys_msg_time);
+		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYDOWN), sys_msg_time);
 		break;
 	}
 

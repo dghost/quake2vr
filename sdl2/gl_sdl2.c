@@ -232,7 +232,7 @@ qboolean GLimp_InitGL (void)
 	//Knightmare- Vic's hardware gamma stuff
 	if ( !r_ignorehwgamma->value )
 	{
-		glState.gammaRamp = SDL_GetWindowGammaRamp ( mainWindow, original_ramp[0], original_ramp[1],original_ramp[2]);
+		glState.gammaRamp = !SDL_GetWindowGammaRamp ( mainWindow, original_ramp[0], original_ramp[1],original_ramp[2]);
 	}
 	else
 	{
@@ -295,10 +295,10 @@ void UpdateGammaRamp (void)
 
 	ret = SDL_SetWindowGammaRamp(mainWindow,ramp,ramp,ramp);
 
-	if ( !ret ) {
+	if ( ret < 0 ) {
 		// originally the idea of warning on failures seemed pretty rad
 		// unfortunately, this tends to return false even if it succeeds
-		// Com_Printf( "SetDeviceGammaRamp failed.\n" );
+		Com_Printf( "SetDeviceGammaRamp failed: %s\n", SDL_GetError() );
 	}
 }
 

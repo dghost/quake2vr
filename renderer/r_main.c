@@ -1361,7 +1361,7 @@ qboolean R_Init ( char *reason )
 	// WGL_EXT_swap_control_tear
 	glConfig.ext_swap_control_tear = false;
 
-	if (WGLEW_EXT_swap_control_tear)
+	if ( WGLEW_EXT_swap_control_tear )
 	{
 		// AMD likes to fuck up this extension
 		// either by periodocially running faster than vsync to buffer frames

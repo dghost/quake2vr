@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "r_local.h"
 #include "include/jpeglib.h" // Heffo - JPEG Screenshots
-
+#include "SDL.h"
 
 /*
 ==================
@@ -630,9 +630,9 @@ void GL_UpdateSwapInterval (void)
 		if ( !glState.stereo_enabled ) 
 		{
 			if ( glConfig.ext_swap_control )
-#ifdef _WIN32
-				wglSwapIntervalEXT( (registration_active) ? 0 : sync );
-#endif
+
+				SDL_GL_SetSwapInterval( (registration_active) ? 0 : sync );
+
 		}
 	}
 }
