@@ -55,8 +55,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0
- PRODUCTVERSION 1,4,0,0
+ FILEVERSION 2,0,0
+ PRODUCTVERSION 2,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -73,15 +73,15 @@ BEGIN
         BEGIN
             VALUE "Comments", "Licensed under the GPL.  Source available at http://github.com/dghost/quake2vr\0"
             VALUE "CompanyName", " \0"
-            VALUE "FileDescription", "Quake II VR engine mod\0"
-            VALUE "FileVersion", "1.4.0-pre"
+            VALUE "FileDescription", "Quake II VR\0"
+            VALUE "FileVersion", "2.0.0-pre"
             VALUE "InternalName", "quake2vr\0"
             VALUE "LegalCopyright", "\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "quake2vr.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Quake II VR\0"
-            VALUE "ProductVersion", "1.4.0-pre"
+            VALUE "ProductVersion", "2.0.0-pre"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -92,28 +92,6 @@ BEGIN
 END
 
 #endif    // !_MAC
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_BITMAP2             BITMAP  DISCARDABLE     "startup2.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG1 DIALOGEX 0, 0, 133, 56
-STYLE DS_SETFOREGROUND | DS_CENTER | WS_POPUP
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 16, "Times New Roman", 0, 0, 0x1
-BEGIN
-    CONTROL         115,IDC_STATIC,"Static",SS_BITMAP,0,0,133,70
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //

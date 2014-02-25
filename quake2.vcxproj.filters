@@ -528,14 +528,5 @@
     <CustomBuild Include="win32\q2mp2.ico">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="win32\startup.bmp">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="win32\startup2.bmp">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="win32\startup2beta.bmp">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
   </ItemGroup>
 </Project>

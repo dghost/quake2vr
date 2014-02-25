@@ -1016,7 +1016,7 @@ void jpg_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 		VID_Printf(PRINT_ALL, "Premature end of JPEG data\n");
 }
 
-void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, int len)
+void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, unsigned long len)
 {
     cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));
     cinfo->src->init_source = jpg_null;
@@ -1024,7 +1024,7 @@ void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, int len)
     cinfo->src->skip_input_data = jpg_skip_input_data;
     cinfo->src->resync_to_restart = jpeg_resync_to_restart;
     cinfo->src->term_source = jpg_null;
-    cinfo->src->bytes_in_buffer = len;
+    cinfo->src->bytes_in_buffer = (size_t) len;
     cinfo->src->next_input_byte = mem;
 }
 
@@ -1614,9 +1614,6 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 		scaled_height = height;
 		scaled = data;
 	}
-
-	if (!glState.gammaRamp)
-		GL_LightScaleTexture (scaled, scaled_width, scaled_height, !mipmap );
 
 	//
 	// generate mipmaps and upload
