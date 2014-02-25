@@ -1198,7 +1198,7 @@ qboolean R_SetMode (void)
 R_Init
 ===============
 */
-qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
+qboolean R_Init ( char *reason )
 {	
 	char renderer_buffer[1000];
 	char vendor_buffer[1000];
@@ -1225,7 +1225,7 @@ qboolean R_Init ( void *hinstance, void *hWnd, char *reason )
 #endif
 	glConfig.allowCDS = true;
 	// initialize OS-specific parts of OpenGL
-	if ( !GLimp_Init( hinstance, hWnd ) )
+	if ( !GLimp_Init( ) )
 	{
 		memcpy (reason, "Init of OS-specific parts of OpenGL Failed!\0", 44);
 		return false;

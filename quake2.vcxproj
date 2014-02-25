@@ -285,7 +285,7 @@
     <ClCompile Include="renderer\r_vr_svr.c" />
     <ClCompile Include="sdl2\gl_sdl2.c" />
     <ClCompile Include="sdl2\sys_sdl2.c" />
-    <ClCompile Include="sdl2\vid_dll.c" />
+    <ClCompile Include="sdl2\vid_sdl2.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
     <ClCompile Include="ui\ui_options_vr_advanced.c" />
     <ClCompile Include="ui\ui_options_vr_ovr.c" />

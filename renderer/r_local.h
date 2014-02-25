@@ -438,7 +438,7 @@ void V_AddBlend (float r, float g, float b, float a, float *v_blend);
 //
 // r_main.c
 //
-qboolean R_Init ( void *hinstance, void *hWnd, char *reason );
+qboolean R_Init ( char *reason );
 void R_ClearState (void);
 void R_Shutdown (void);
 void R_RenderView (refdef_t *fd);
@@ -899,7 +899,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
-int 		GLimp_Init( void *hinstance, void *hWnd );
+int 		GLimp_Init( );
 void		GLimp_Shutdown( void );
 int     	GLimp_SetMode( int xpos, int ypos, int *pwidth, int *pheight, qboolean fullscreen );
 void		GLimp_AppActivate( qboolean active );

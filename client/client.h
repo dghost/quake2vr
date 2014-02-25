@@ -610,7 +610,7 @@ IMPORTED FUNCTIONS
 */
 
 // called when the renderer is loaded
-qboolean	R_Init ( void *hinstance, void *wndproc, char *reason );
+qboolean	R_Init ( char *reason );
 
 // called to clear rendering state (error recovery, etc.)
 void		R_ClearState (void);

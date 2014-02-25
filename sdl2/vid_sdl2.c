@@ -153,319 +153,168 @@ void VID_Error (int err_level, char *fmt, ...)
 	Com_Error (err_level,"%s", msg);
 }
 
-//==========================================================================
-
-byte        scantokey[128] = 
-					{ 
-//  0           1       2       3       4       5       6       7 
-//  8           9       A       B       C       D       E       F 
-	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6', 
-	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0 
-	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i', 
-	'o',    'p',    '[',    ']',    13 ,    K_CTRL,'a',  's',      // 1 
-	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';', 
-	'\'' ,    '`',    K_SHIFT,'\\',  'z',    'x',    'c',    'v',      // 2 
-	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT,'*', 
-	K_ALT,' ',   0  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3 
-	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME, 
-	K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4 
-	K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11, 
-	K_F12,0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 5
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7 
-}; 
-
 /*
 =======
-MapKey
+MapSDLKey
 
-Map from windows to quake keynums
+Map from SDL to quake keynums
 =======
 */
-int MapKey (int key)
+int MapSDLKey (SDL_Keysym key)
 {
 	int result;
-	int modified = ( key >> 16 ) & 255;
-	qboolean is_extended = false;
-
-	if ( modified > 127)
-		return 0;
-
-	if ( key & ( 1 << 24 ) )
-		is_extended = true;
-
-	result = scantokey[modified];
-
-	if ( !is_extended )
+	if (key.sym > 32 && key.sym < 127)
 	{
-		switch ( result )
+		result = key.sym;
+	} else 
+	{
+		switch (key.scancode)
 		{
-		case K_HOME:
-			return K_KP_HOME;
-		case K_UPARROW:
-			return K_KP_UPARROW;
-		case K_PGUP:
-			return K_KP_PGUP;
-		case K_LEFTARROW:
-			return K_KP_LEFTARROW;
-		case K_RIGHTARROW:
-			return K_KP_RIGHTARROW;
-		case K_END:
-			return K_KP_END;
-		case K_DOWNARROW:
-			return K_KP_DOWNARROW;
-		case K_PGDN:
-			return K_KP_PGDN;
-		case K_INS:
-			return K_KP_INS;
-		case K_DEL:
-			return K_KP_DEL;
-		default:
-			return result;
+		case SDL_SCANCODE_PAGEUP:	 result = K_PGUP; break;
+		case SDL_SCANCODE_PAGEDOWN: result = K_PGDN; break;
+		case SDL_SCANCODE_HOME: result = K_HOME; break;
+		case SDL_SCANCODE_END:  result = K_END; break;
+		case SDL_SCANCODE_LEFT:	 result = K_LEFTARROW; break;
+		case SDL_SCANCODE_RIGHT:	result = K_RIGHTARROW;		break;
+		case SDL_SCANCODE_DOWN:	 result = K_DOWNARROW; break;
+		case SDL_SCANCODE_UP:		 result = K_UPARROW;	 break;
+		case SDL_SCANCODE_ESCAPE: result = K_ESCAPE;		break;
+		case SDL_SCANCODE_KP_ENTER: result = K_KP_ENTER;	break;
+		case SDL_SCANCODE_RETURN: result = K_ENTER;		 break;
+		case SDL_SCANCODE_RETURN2: result = K_ENTER;		 break;
+		case SDL_SCANCODE_TAB:		result = K_TAB;			 break;
+		case SDL_SCANCODE_F1:		 result = K_F1;				break;
+		case SDL_SCANCODE_F2:		 result = K_F2;				break;
+		case SDL_SCANCODE_F3:		 result = K_F3;				break;
+		case SDL_SCANCODE_F4:		 result = K_F4;				break;
+		case SDL_SCANCODE_F5:		 result = K_F5;				break;
+		case SDL_SCANCODE_F6:		 result = K_F6;				break;
+		case SDL_SCANCODE_F7:		 result = K_F7;				break;
+		case SDL_SCANCODE_F8:		 result = K_F8;				break;
+		case SDL_SCANCODE_F9:		 result = K_F9;				break;
+		case SDL_SCANCODE_F10:		result = K_F10;			 break;
+		case SDL_SCANCODE_F11:		result = K_F11;			 break;
+		case SDL_SCANCODE_F12:		result = K_F12;			 break;
+		case SDL_SCANCODE_BACKSPACE: result = K_BACKSPACE; break;
+		case SDL_SCANCODE_DELETE: result = K_DEL; break;
+		case SDL_SCANCODE_PAUSE:	result = K_PAUSE;		 break;
+		case SDL_SCANCODE_LSHIFT:
+		case SDL_SCANCODE_RSHIFT:	result = K_SHIFT;		break;
+		case SDL_SCANCODE_LCTRL: 
+		case SDL_SCANCODE_RCTRL:	result = K_CTRL;		 break;
+		case SDL_SCANCODE_LALT:	
+		case SDL_SCANCODE_LGUI: 
+		case SDL_SCANCODE_RALT:	
+		case SDL_SCANCODE_RGUI: result = K_ALT;			break;
+
+			//		case XK_KP_Begin: result = K_KP_5;	break;
+
+		case SDL_SCANCODE_INSERT:result = K_INS; break;
+			//		case XK_KP_Insert: result = K_KP_INS; break;
+
+		case SDL_SCANCODE_KP_MULTIPLY: result = '*'; break;
+		case SDL_SCANCODE_KP_PLUS:  result = K_KP_PLUS; break;
+		case SDL_SCANCODE_KP_MINUS: result = K_KP_MINUS; break;
+		case SDL_SCANCODE_KP_DIVIDE: result = K_KP_SLASH; break;
+
 		}
 	}
-	else
-	{
-		switch ( result )
-		{
-		case 0x0D:
-			return K_KP_ENTER;
-		case 0x2F:
-			return K_KP_SLASH;
-		case 0xAF:
-			return K_KP_PLUS;
-		}
-		return result;
-	}
-}
 
-void AppActivate(BOOL fActive, BOOL minimize)
-{
-	Minimized = minimize;
-
-	Key_ClearStates();
-
-	// we don't want to act like we're active if we're minimized
-	if (fActive && !Minimized)
-		ActiveApp = true;
-	else
-		ActiveApp = false;
-
-	// minimize/restore mouse-capture on demand
-	if (!ActiveApp)
-	{
-		IN_Activate (false);
-		CDAudio_Activate (false);
-		S_Activate (false);
-
-		if ( win_noalttab->value )
-		{
-			WIN_EnableAltTab();
-		}
-	}
-	else
-	{
-		IN_Activate (true);
-		CDAudio_Activate (true);
-		S_Activate (true);
-		if ( win_noalttab->value )
-		{
-			WIN_DisableAltTab();
-		}
-	}
+	return result;
 }
 
 /*
 ====================
-MainWndProc
+SDL_ProcEvent
 
 main window procedure
 ====================
 */
-LONG WINAPI MainWndProc (
-    HWND    hWnd,
-    UINT    uMsg,
-    WPARAM  wParam,
-    LPARAM  lParam)
+void SDL_ProcEvent (SDL_Event *event)
 {
-	LONG			lRet = 0;
-
-	if ( uMsg == MSH_MOUSEWHEEL )
+	switch (event->type)
 	{
-		if ( ( ( int ) wParam ) > 0 )
+	case SDL_MOUSEWHEEL:
+		if (event->wheel.x > 0)
 		{
 			Key_Event( K_MWHEELUP, true, sys_msg_time );
 			Key_Event( K_MWHEELUP, false, sys_msg_time );
-		}
-		else
-		{
-			Key_Event( K_MWHEELDOWN, true, sys_msg_time );
-			Key_Event( K_MWHEELDOWN, false, sys_msg_time );
-		}
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-	}
-
-	switch (uMsg)
-	{
-	case WM_MOUSEWHEEL:
-		//
-		// this chunk of code theoretically only works under NT4 and Win98
-		// since this message doesn't exist under Win95
-		//
-		if ( ( short ) HIWORD( wParam ) > 0 )
-		{
-			Key_Event( K_MWHEELUP, true, sys_msg_time );
-			Key_Event( K_MWHEELUP, false, sys_msg_time );
-		}
-		else
+		} else if (event->wheel.x < 0)
 		{
 			Key_Event( K_MWHEELDOWN, true, sys_msg_time );
 			Key_Event( K_MWHEELDOWN, false, sys_msg_time );
 		}
 		break;
 
-	case WM_HOTKEY:
-		return 0;
+	case SDL_QUIT:
+		Com_Quit ();
+		break;
 
-	case WM_CREATE:
-		cl_hwnd = hWnd;
-
-		MSH_MOUSEWHEEL = RegisterWindowMessage("MSWHEEL_ROLLMSG"); 
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-	case WM_PAINT:
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-	case WM_DESTROY:
-		// let sound and input know about this?
-		cl_hwnd = NULL;
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-	case WM_ACTIVATE:
+	case SDL_WINDOWEVENT:
+		switch (event->window.event)
 		{
-			int	fActive, fMinimized;
-
-			// KJB: Watch this for problems in fullscreen modes with Alt-tabbing.
-			fActive = LOWORD(wParam);
-			fMinimized = (BOOL) HIWORD(wParam);
-
-			AppActivate( fActive != WA_INACTIVE, fMinimized);
-
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
 			if ( kmgl_active )
-				GLimp_AppActivate ( !( fActive == WA_INACTIVE ) );
-		}
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-	case WM_MOVE:
-		{
-			int		xPos, yPos;
-			RECT r;
-			int		style;
-
+				GLimp_AppActivate ( true );
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			if ( kmgl_active )
+				GLimp_AppActivate ( false );
+		break;
+		case SDL_WINDOWEVENT_MOVED:
 			if (!vid_fullscreen->value)
 			{
-				xPos = (short) LOWORD(lParam);    // horizontal position 
-				yPos = (short) HIWORD(lParam);    // vertical position 
+				Sint32 xPos = event->window.data1;    // horizontal position 
+				Sint32 yPos = event->window.data2;    // vertical position 
 
-				r.left   = 0;
-				r.top    = 0;
-				r.right  = 1;
-				r.bottom = 1;
-
-				style = GetWindowLong( hWnd, GWL_STYLE );
-				AdjustWindowRect( &r, style, FALSE );
-
-				Cvar_SetValue( "vid_xpos", xPos + r.left);
-				Cvar_SetValue( "vid_ypos", yPos + r.top);
+				Cvar_SetValue( "vid_xpos", xPos);
+				Cvar_SetValue( "vid_ypos", yPos);
 				vid_xpos->modified = false;
 				vid_ypos->modified = false;
 				if (ActiveApp)
 					IN_Activate (true);
 			}
+			break;
+		case SDL_WINDOWEVENT_RESIZED:
+			break;
 		}
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-// this is complicated because Win32 seems to pack multiple mouse events into
-// one update sometimes, so we always check all states and look for events
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_XBUTTONDOWN:// Backslash's imouse explorer buttons
-	case WM_XBUTTONUP:	// Backslash's imouse explorer buttons 
-	case WM_MOUSEMOVE:
-	// Logitech mouse support
-	//case WM_MWHOOK:
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
 		{
 			int	temp;
 
 			temp = 0;
-
-			if (wParam & MK_LBUTTON)
-				temp |= 1;
-
-			if (wParam & MK_RBUTTON)
-				temp |= 2;
-
-			if (wParam & MK_MBUTTON)
-				temp |= 4;
-			// Mouse buttons 4 & 5 support
-			if (wParam & MK_XBUTTON1)
-				temp |= 8;
-
-			if (wParam & MK_XBUTTON2)
-				temp |= 16;
-			// end Mouse buttons 4 & 5 support
-
-			// Logitech mouse support
-			//if (uMsg == WM_MWHOOK)
-			//	temp |= MW_Hook_Message (lParam);
-
+			switch (event->button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				temp = 1;
+				break;
+			case SDL_BUTTON_RIGHT:
+				temp = 2;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				temp = 4;
+				break;
+			case SDL_BUTTON_X1:
+				temp =8;
+				break;
+			case SDL_BUTTON_X2:
+				temp = 16;
+				break;
+			}
 			IN_MouseEvent (temp);
 		}
 		break;
-
-	/*case WM_SYSCOMMAND:
-		if ( wParam == SC_SCREENSAVE )
-			return 0;
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);*/
-	// Idle's fix
-	case WM_SYSCOMMAND:
-		switch (wParam & 0xfffffff0)	// bitshifter's fix for screensaver bug
-		{
-		case SC_SCREENSAVE:
-		case SC_MONITORPOWER:
-			return 0;
-		case SC_CLOSE:
-			CL_Quit_f ();
-		//case SC_MAXIMIZE:
-		//	Cvar_SetValue ("vid_fullscreen", 1);
-		//	return 0;
-		}
-		return DefWindowProc (hWnd, uMsg, wParam, lParam);
-
-	case WM_SYSKEYDOWN:
-		if ( wParam == 13 )
-		{
-			if ( vid_fullscreen )
-			{
-				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
-			}
-			return 0;
-		}
-		// fall through
-	case WM_KEYDOWN:
-		Key_Event( MapKey( lParam ), true, sys_msg_time);
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+		// todo - trap alt-enter
+		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYUP), sys_msg_time);
 		break;
+	}
 
-	case WM_SYSKEYUP:
-	case WM_KEYUP:
-		Key_Event( MapKey( lParam ), false, sys_msg_time);
-		break;
+
+	/*
 
 	case MM_MCINOTIFY:
 		{
@@ -473,14 +322,11 @@ LONG WINAPI MainWndProc (
 			lRet = CDAudio_MessageHandler (hWnd, uMsg, wParam, lParam);
 		}
 		break;
-
-	default:	// pass all unhandled messages to DefWindowProc
-        return DefWindowProc (hWnd, uMsg, wParam, lParam);
-    }
-
-    /* return 0 if handled message, 1 if not */
-    return DefWindowProc( hWnd, uMsg, wParam, lParam );
+		*/
 }
+
+
+
 
 /*
 ============
@@ -616,7 +462,7 @@ void UpdateVideoRef (void)
 
 		Com_Printf( "\n------ Renderer Initialization ------\n");
 
-		if ( !R_Init( global_hInstance, MainWndProc, reason ) )
+		if ( !R_Init( reason ) )
 		{
 			R_Shutdown();
 			VID_FreeReflib ();

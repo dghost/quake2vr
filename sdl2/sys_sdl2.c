@@ -41,6 +41,8 @@ qboolean	Minimized;
 
 static HANDLE		hinput, houtput;
 
+SDL_Window *mainWindow;
+void SDL_ProcEvent(SDL_Event *event);
 unsigned	sys_msg_time;
 unsigned	sys_frame_time;
 
@@ -216,19 +218,16 @@ Send Key_Event calls
 */
 void Sys_SendKeyEvents (void)
 {
-    MSG        msg;
-
-	while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
 	{
-		if (!GetMessage (&msg, NULL, 0, 0))
-			Sys_Quit ();
-		sys_msg_time = msg.time;
-      	TranslateMessage (&msg);
-      	DispatchMessage (&msg);
+		sys_msg_time = event.common.timestamp;
+		SDL_ProcEvent(&event);
 	}
 
+
 	// grab frame time 
-	sys_frame_time = timeGetTime();	// FIXME: should this be at start?
+	sys_frame_time = Sys_Milliseconds();	// FIXME: should this be at start?
 }
 
 
@@ -631,7 +630,6 @@ WinMain
 ==================
 */
 HINSTANCE	global_hInstance;
-HWND		hwnd_dialog; // Knightmare added
 
 int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd)
 {
@@ -683,20 +681,19 @@ int WINAPI WinMain (__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
     /* main window message loop */
 	while (1)
 	{
+		SDL_Event event;
 		// if at a full screen console, don't update unless needed
 		if (Minimized || (dedicated && dedicated->value) )
 		{
 			Sleep (1);
 		}
 
-		while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
+		while (SDL_PollEvent(&event))
 		{
-			if (!GetMessage (&msg, NULL, 0, 0))
-				Com_Quit ();
-			sys_msg_time = msg.time;
-			TranslateMessage (&msg);
-   			DispatchMessage (&msg);
+			sys_msg_time = event.common.timestamp;
+			SDL_ProcEvent(&event);
 		}
+
 
 		// DarkOne's CPU usage fix
 
