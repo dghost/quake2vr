@@ -97,6 +97,34 @@ rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean 
 	// do a CDS if needed
 	if ( fullscreen )
 	{
+		SDL_Rect displayBounds;
+		int numDisplays = SDL_GetNumVideoDisplays();
+		int targetDisplay = 0;
+		int i = 0;
+		SDL_DisplayMode idealMode, targetMode;
+
+		for (i = 0; i < numDisplays; i++)
+		{
+			if (!SDL_GetDisplayBounds(i,&displayBounds) &&
+				(xpos >= displayBounds.x && xpos <= displayBounds.x + displayBounds.w) &&
+				(ypos >= displayBounds.y && ypos <= displayBounds.y + displayBounds.h))
+			{
+				xpos = displayBounds.x;
+				ypos = displayBounds.y;
+				targetDisplay = 0;
+			}
+		}
+
+		idealMode.format = SDL_PIXELFORMAT_RGBA8888;
+		idealMode.w = width;
+		idealMode.h = height;
+		idealMode.refresh_rate = 0;
+		idealMode.driverdata = 0;
+		SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode);
+		if (width != targetMode.w || height != targetMode.h)
+		{
+			return rserr_invalid_fullscreen;
+		}
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 	
@@ -124,32 +152,31 @@ rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean 
 
 	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
-	if (mainWindow)
+	if (!mainWindow)
+		return rserr_invalid_mode;
+
+#ifdef _WIN32
 	{
 		SDL_SysWMinfo info;
 		if (SDL_GetWindowWMInfo(mainWindow,&info))
 		{
-#ifdef _WIN32
 			cl_hwnd = info.info.win.window;
-
+		}
+	}
 #endif
 
-		}
-
-		mainWindowID = SDL_GetWindowID(mainWindow);
-		if (!GLimp_InitGL())
-		{
-			VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
-			return rserr_unknown;
-		}
-		SDL_GL_GetDrawableSize(mainWindow,&width,&height);
-		printf("Set window to size %ix%i...\n",width,height);
-		VID_NewWindow (width, height);
-		*pwidth = width;
-		*pheight = height;
-		return rserr_ok;
+	mainWindowID = SDL_GetWindowID(mainWindow);
+	if (!GLimp_InitGL())
+	{
+		VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
+		return rserr_unknown;
 	}
-	return rserr_unknown;
+	SDL_GL_GetDrawableSize(mainWindow,&width,&height);
+	printf("Set window to size %ix%i...\n",width,height);
+	VID_NewWindow (width, height);
+	*pwidth = width;
+	*pheight = height;
+	return rserr_ok;
 }
 
 /*
