@@ -130,7 +130,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_swapinterval");
 	Cvar_SetToDefault ("r_adaptivevsync");
 	Cvar_SetToDefault ("r_fencesync");
-	Cvar_SetToDefault ("r_displayrefresh");
+	Cvar_SetToDefault ("vid_refresh");
 	Cvar_SetToDefault ("cl_widescreen_fov");
 
 	Cvar_SetToDefault ("r_modulate");
@@ -187,35 +187,35 @@ static void ApplyChanges( void *unused )
 	switch (s_refresh_box.curvalue)
 	{
 	case 9:
-		Cvar_SetValue ("r_displayrefresh", 150);
+		Cvar_SetValue ("vid_refresh", 150);
 		break;
 	case 8:
-		Cvar_SetValue ("r_displayrefresh", 120);
+		Cvar_SetValue ("vid_refresh", 120);
 		break;
 	case 7:
-		Cvar_SetValue ("r_displayrefresh", 110);
+		Cvar_SetValue ("vid_refresh", 110);
 		break;
 	case 6:
-		Cvar_SetValue ("r_displayrefresh", 100);
+		Cvar_SetValue ("vid_refresh", 100);
 		break;
 	case 5:
-		Cvar_SetValue ("r_displayrefresh", 85);
+		Cvar_SetValue ("vid_refresh", 85);
 		break;
 	case 4:
-		Cvar_SetValue ("r_displayrefresh", 75);
+		Cvar_SetValue ("vid_refresh", 75);
 		break;
 	case 3:
-		Cvar_SetValue ("r_displayrefresh", 72);
+		Cvar_SetValue ("vid_refresh", 72);
 		break;
 	case 2:
-		Cvar_SetValue ("r_displayrefresh", 70);
+		Cvar_SetValue ("vid_refresh", 70);
 		break;
 	case 1:
-		Cvar_SetValue ("r_displayrefresh", 60);
+		Cvar_SetValue ("vid_refresh", 60);
 		break;
 	case 0:
 	default:
-		Cvar_SetValue ("r_displayrefresh", 0);
+		Cvar_SetValue ("vid_refresh", 0);
 		break;
 	}
 
@@ -261,7 +261,7 @@ int texfilter_box_setval (void)
 // Knightmare- refresh rate option
 int refresh_box_setval (void)
 {
-	int refreshVar = (int)Cvar_VariableValue ("r_displayrefresh");
+	int refreshVar = (int)Cvar_VariableValue ("vid_refresh");
 
 	if (refreshVar == 150)
 		return 9;

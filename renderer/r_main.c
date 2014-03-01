@@ -90,7 +90,7 @@ cvar_t	*r_novis;
 cvar_t	*r_nocull;
 cvar_t	*r_lerpmodels;
 cvar_t	*r_ignorehwgamma; // hardware gamma
-cvar_t	*r_displayrefresh; // refresh rate control
+cvar_t	*vid_refresh; // refresh rate control
 cvar_t	*r_lefthand;
 cvar_t	*r_waterwave;	// water waves
 cvar_t  *r_waterquality;
@@ -1018,8 +1018,8 @@ void R_Register (void)
 	r_lerpmodels = Cvar_Get ("r_lerpmodels", "1", 0);
 	r_speeds = Cvar_Get ("r_speeds", "0", 0);
 	r_ignorehwgamma = Cvar_Get ("r_ignorehwgamma", "0", CVAR_ARCHIVE);	// hardware gamma
-	r_displayrefresh = Cvar_Get ("r_displayrefresh", "0", CVAR_ARCHIVE); // refresh rate control
-	AssertCvarRange (r_displayrefresh, 0, 150, true);
+	vid_refresh = Cvar_Get ("vid_refresh", "0", CVAR_ARCHIVE); // refresh rate control
+	AssertCvarRange (vid_refresh, 0, 150, true);
 
 	vid_width = Cvar_Get( "vid_width", "1280", CVAR_ARCHIVE );
 	vid_height = Cvar_Get( "vid_height", "800", CVAR_ARCHIVE );

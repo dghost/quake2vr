@@ -50,6 +50,7 @@ SDL_GLContext glcontext;
 
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
+extern cvar_t *vid_refresh;
 
 static qboolean VerifyDriver( void )
 {
@@ -78,7 +79,7 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 {
 	int width, height;
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED;
-
+	SDL_DisplayMode targetMode;
 	const char *win_fs[] = { "W", "FS" };
 	char *title = NULL;
 
@@ -112,7 +113,8 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 		int numDisplays = SDL_GetNumVideoDisplays();
 		int targetDisplay = 0;
 		int i = 0;
-		SDL_DisplayMode idealMode, targetMode;
+		int refresh = vid_refresh->value;
+		SDL_DisplayMode idealMode;
 
 		for (i = 0; i < numDisplays; i++)
 		{
@@ -129,14 +131,15 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 		idealMode.format = SDL_PIXELFORMAT_RGBA8888;
 		idealMode.w = width;
 		idealMode.h = height;
-		idealMode.refresh_rate = 0;
+		idealMode.refresh_rate = refresh;
 		idealMode.driverdata = 0;
-		SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode);
-		if (width != targetMode.w || height != targetMode.h)
+		if (!SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode))
+			return rserr_invalid_fullscreen;
+
+		if (width != targetMode.w || height != targetMode.h || (refresh && refresh != targetMode.refresh_rate ))
 		{
 			return rserr_invalid_fullscreen;
 		}
-		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 	
 	if (modType("xatrix")) { // q2mp1
@@ -173,6 +176,15 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 	if (!mainWindow)
 		return rserr_invalid_mode;
 
+	if (fullscreen)
+	{
+		if (SDL_SetWindowDisplayMode(mainWindow,&targetMode) < 0 || SDL_SetWindowFullscreen(mainWindow,SDL_WINDOW_FULLSCREEN) < 0)
+		{
+			SDL_DestroyWindow(mainWindow);
+			mainWindow = NULL;
+			return rserr_invalid_fullscreen;
+		}
+	}
 #ifdef _WIN32
 	{
 		SDL_SysWMinfo info;
@@ -275,10 +287,6 @@ qboolean GLimp_InitGL (void)
 
 	//Knightmare- 12/24/2001- stecil buffer
 	{
-		char buffer[1024];
-
-		strcpy( buffer, glGetString( GL_RENDERER ) );
-		strlwr( buffer );
 		VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
 		glConfig.have_stencil = true; // Stencil shadows - MrG
 
