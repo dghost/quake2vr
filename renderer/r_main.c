@@ -1596,7 +1596,7 @@ void R_Shutdown (void)
 R_BeginFrame
 @@@@@@@@@@@@@@@@@@@@@
 */
-void UpdateGammaRamp (void); //Knightmare added
+void UpdateGammaRamp (qboolean enable); //Knightmare added
 void RefreshFont (void);
 void R_BeginFrame( float camera_separation )
 {
@@ -1636,7 +1636,8 @@ void R_BeginFrame( float camera_separation )
 		else if (r_gamma->value < 0.5)
 			Cvar_SetValue("r_gamma",0.5);
 		r_gamma->modified = false;
-		UpdateGammaRamp ();
+		
+		UpdateGammaRamp ((int) !r_ignorehwgamma->value);
 	}
 
 	GLimp_BeginFrame( camera_separation );

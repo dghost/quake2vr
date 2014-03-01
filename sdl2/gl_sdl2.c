@@ -200,15 +200,13 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 **
 */
 float original_brightness;
+void UpdateGammaRamp (qboolean enable);
 
 void GLimp_Shutdown( void )
 {
 	//Knightmare- added Vic's hardware gamma ramp
-	if ( !r_ignorehwgamma->value )
-	{
-	
-		SDL_SetWindowBrightness (mainWindow, original_brightness);
-	}
+	UpdateGammaRamp(false);
+
 	//end Knightmare
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(mainWindow);
@@ -317,10 +315,15 @@ fail:
 }
 
 //Knightmare- added Vic's hardware gammaramp
-void UpdateGammaRamp (void)
+void UpdateGammaRamp (qboolean enable)
 {
-	float gamma =  r_gamma->value;
+	float gamma;
 	int ret;
+
+	if (enable)
+		gamma =  r_gamma->value;
+	else
+		gamma = original_brightness;
 
 	ret = SDL_SetWindowBrightness(mainWindow,gamma);
 
