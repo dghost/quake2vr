@@ -223,8 +223,8 @@ extern	cvar_t	*r_nocull;
 extern	cvar_t	*r_lerpmodels;
 extern	cvar_t	*r_ignorehwgamma; // Knightmare- hardware gamma
 extern	cvar_t	*r_displayrefresh; // Knightmare- refresh rate control
-extern  cvar_t  *r_width;
-extern  cvar_t  *r_height;
+extern  cvar_t  *vid_width;
+extern  cvar_t  *vid_height;
 
 extern	cvar_t	*r_waterwave;	// Knightmare- water waves
 extern  cvar_t  *r_waterquality; // dghost - new water options

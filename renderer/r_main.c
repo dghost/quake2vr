@@ -97,8 +97,8 @@ cvar_t  *r_waterquality;
 cvar_t  *r_glows;		// texture glows
 cvar_t	*r_saveshotsize;//  save shot size option
 
-cvar_t	*r_width;
-cvar_t	*r_height;
+cvar_t	*vid_width;
+cvar_t	*vid_height;
 cvar_t	*r_dlights_normal; // lerped dlights on models
 cvar_t	*r_model_shading;
 cvar_t	*r_model_dlights;
@@ -1021,8 +1021,8 @@ void R_Register (void)
 	r_displayrefresh = Cvar_Get ("r_displayrefresh", "0", CVAR_ARCHIVE); // refresh rate control
 	AssertCvarRange (r_displayrefresh, 0, 150, true);
 
-	r_width = Cvar_Get( "r_width", "1280", CVAR_ARCHIVE );
-	r_height = Cvar_Get( "r_height", "800", CVAR_ARCHIVE );
+	vid_width = Cvar_Get( "vid_width", "1280", CVAR_ARCHIVE );
+	vid_height = Cvar_Get( "vid_height", "800", CVAR_ARCHIVE );
 
 	// lerped dlights on models
 	r_dlights_normal = Cvar_Get("r_dlights_normal", "1", CVAR_ARCHIVE);
@@ -1148,10 +1148,10 @@ qboolean R_SetMode (void)
 
 	vid_fullscreen->modified = false;
 
-	if (r_height->value < 480 || r_width->value < 640)
+	if (vid_height->value < 480 || vid_width->value < 640)
 	{
-		Cvar_SetToDefault("r_width");
-		Cvar_SetToDefault("r_height");
+		Cvar_SetToDefault("vid_width");
+		Cvar_SetToDefault("vid_height");
 
 		VID_Printf (PRINT_ALL, "R_SetMode() - Invalid resolution set, reverting to default resolution\n" );
 	}
@@ -1168,8 +1168,8 @@ qboolean R_SetMode (void)
 		}
 		else if ( err == rserr_invalid_mode )
 		{
-			Cvar_SetValue("r_width",640);
-			Cvar_SetValue("r_height",480);
+			Cvar_SetValue("vid_width",640);
+			Cvar_SetValue("vid_height",480);
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - invalid mode\n" );
 		}
 

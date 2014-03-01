@@ -122,8 +122,8 @@ static void ResetVideoDefaults ( void *unused )
 {
 	Cvar_SetToDefault ("vid_fullscreen");
 	Cvar_SetToDefault ("r_gamma");
-	Cvar_SetToDefault ("r_width");
-	Cvar_SetToDefault ("r_height");
+	Cvar_SetToDefault ("vid_width");
+	Cvar_SetToDefault ("vid_height");
 	Cvar_SetToDefault ("r_texturemode");
 	Cvar_SetToDefault ("r_anisotropic");
 	Cvar_SetToDefault ("r_picmip");
@@ -174,8 +174,8 @@ static void ApplyChanges( void *unused )
 	if (temp != NUM_VIDEO_MODES)
 	{
 
-		Cvar_SetValue( "r_width", vid_modes[temp].width ); // offset for eliminating < 640x480 modes
-		Cvar_SetValue( "r_height", vid_modes[temp].height ); // offset for eliminating < 640x480 modes
+		Cvar_SetValue( "vid_width", vid_modes[temp].width ); // offset for eliminating < 640x480 modes
+		Cvar_SetValue( "vid_height", vid_modes[temp].height ); // offset for eliminating < 640x480 modes
 	}
 
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
@@ -451,8 +451,8 @@ void Menu_Video_Init (void)
 	int j = sizeof(vid_modes) / sizeof(vidmode_t);
 	for (i = 0; i < NUM_VIDEO_MODES; i++)
 	{
-		if (vid_modes[i].width == Cvar_VariableInteger("r_width") 
-			&& vid_modes[i].height == Cvar_VariableInteger("r_height") )
+		if (vid_modes[i].width == Cvar_VariableInteger("vid_width") 
+			&& vid_modes[i].height == Cvar_VariableInteger("vid_height") )
 			break;
 	}
 	temp = i;

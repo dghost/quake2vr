@@ -92,8 +92,8 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 	}
 
 
-	width = Cvar_VariableInteger("r_width");
-	height = Cvar_VariableInteger("r_height");
+	width = Cvar_VariableInteger("vid_width");
+	height = Cvar_VariableInteger("vid_height");
 
 	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
