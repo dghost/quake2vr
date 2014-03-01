@@ -74,13 +74,24 @@ qboolean modType (char *name);
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean fullscreen )
+rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 {
 	int width, height;
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED;
 
 	const char *win_fs[] = { "W", "FS" };
 	char *title = NULL;
+
+	int xpos = Cvar_VariableInteger("vid_xpos");
+	int ypos = Cvar_VariableInteger("vid_ypos");
+	qboolean fullscreen = Cvar_VariableInteger("vid_fullscreen");
+
+	if (vr_enabled->value)
+	{
+		VR_GetHMDPos(&xpos,&ypos);
+	}
+
+
 	width = Cvar_VariableInteger("r_width");
 	height = Cvar_VariableInteger("r_height");
 

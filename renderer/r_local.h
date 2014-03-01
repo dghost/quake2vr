@@ -898,7 +898,7 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int xpos, int ypos, int *pwidth, int *pheight, qboolean fullscreen );
+int     	GLimp_SetMode( int *pwidth, int *pheight );
 void		GLimp_AppActivate( qboolean active );
 
 

@@ -1134,14 +1134,6 @@ R_SetMode
 qboolean R_SetMode (void)
 {
 	rserr_t err;
-	qboolean fullscreen;
-	int xpos = Cvar_VariableInteger("vid_xpos");
-	int ypos = Cvar_VariableInteger("vid_ypos");
-
-	if (vr_enabled->value)
-	{
-		VR_GetHMDPos(&xpos,&ypos);
-	}
 
 
 	if ( vid_fullscreen->modified && !glConfig.allowCDS )
@@ -1151,7 +1143,6 @@ qboolean R_SetMode (void)
 		vid_fullscreen->modified = false;
 	}
 
-	fullscreen = vid_fullscreen->value;
 	r_skydistance->modified = true; // skybox size variable
 
 
@@ -1165,14 +1156,14 @@ qboolean R_SetMode (void)
 		VID_Printf (PRINT_ALL, "R_SetMode() - Invalid resolution set, reverting to default resolution\n" );
 	}
 
-	if ( ( err = GLimp_SetMode( xpos, ypos, &vid.width, &vid.height, fullscreen ) ) != rserr_ok )
+	if ( ( err = GLimp_SetMode( &vid.width, &vid.height )) != rserr_ok )
 	{
 		if ( err == rserr_invalid_fullscreen )
 		{
 			Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - fullscreen unavailable in this mode\n" );
-			if ( ( err = GLimp_SetMode( xpos, ypos, &vid.width, &vid.height, false ) ) == rserr_ok )
+			if ( ( err = GLimp_SetMode( &vid.width, &vid.height ) ) == rserr_ok )
 				return true;
 		}
 		else if ( err == rserr_invalid_mode )
@@ -1183,7 +1174,7 @@ qboolean R_SetMode (void)
 		}
 
 		// try setting it back to something safe
-		if ( ( err = GLimp_SetMode( xpos, ypos,  &vid.width, &vid.height, false ) ) != rserr_ok )
+		if ( ( err = GLimp_SetMode(  &vid.width, &vid.height ) ) != rserr_ok )
 		{
 			VID_Printf (PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n" );
 			return false;
