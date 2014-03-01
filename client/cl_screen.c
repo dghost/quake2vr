@@ -1465,7 +1465,7 @@ void SCR_TimeRefresh_f (void)
 
 	if (Cmd_Argc() == 2)
 	{	// run without page flipping
-		R_BeginFrame( 0 );
+		R_BeginFrame( );
 		for (i=0 ; i<128 ; i++)
 		{
 			cl.refdef.viewangles[1] = i/128.0*360.0;
@@ -1479,7 +1479,7 @@ void SCR_TimeRefresh_f (void)
 		{
 			cl.refdef.viewangles[1] = i/128.0*360.0;
 
-			R_BeginFrame( 0 );
+			R_BeginFrame( );
 			R_RenderFrame (&cl.refdef);
 			R_EndFrame();
 		}
@@ -2236,7 +2236,7 @@ void VR_UpdateScreen (void)
 {
 	vr_rect_t view;
 
-	R_BeginFrame(0.0f );
+	R_BeginFrame( );
 
 	R_VR_CurrentViewRect(&view);
 	scr_vrect.x = view.x;
@@ -2354,10 +2354,6 @@ text to the screen.
 
 void SCR_UpdateScreen (void)
 {
-	int numframes;
-	int i;
-	float separation[2] = { 0, 0 };
-
 	// if the screen is disabled (loading plaque is up, or vid mode changing)
 	// do nothing at all
 	if (cls.disable_screen)
@@ -2381,124 +2377,103 @@ void SCR_UpdateScreen (void)
 		VR_UpdateScreen();
 		return;
 	}
-	//
-	// range check cl_camera_separation so we don't inadvertently fry someone's
-	// brain
-	//
-	if ( cl_stereo_separation->value > 1.0 )
-		Cvar_SetValue( "cl_stereo_separation", 1.0 );
-	else if ( cl_stereo_separation->value < 0 )
-		Cvar_SetValue( "cl_stereo_separation", 0.0 );
 
-	if ( cl_stereo->value )
+	R_BeginFrame();
+	if (scr_draw_loading == 2)
+	{	//  loading plaque over black screen
+		//R_SetPalette(NULL);
+		// Knightmare- refresh loading screen
+		SCR_DrawLoading ();
+
+		// Knightmare- set back for loading screen
+		if (cls.disable_screen)
+			scr_draw_loading = 2;
+
+		if (cls.consoleActive)
+			Con_DrawConsole (0.5, false);
+
+		//NO FULLSCREEN CONSOLE!!!
+		
+		R_EndFrame();
+		return;
+	} 
+	// if a cinematic is supposed to be running, handle menus
+	// and console specially
+	else if (cl.cinematictime > 0)
 	{
-		numframes = 2;
-		separation[0] = -cl_stereo_separation->value / 2;
-		separation[1] =  cl_stereo_separation->value / 2;
-	}		
-	else
-	{
-		separation[0] = 0;
-		separation[1] = 0;
-		numframes = 1;
-	}
-
-	for ( i = 0; i < numframes; i++ )
-	{
-		R_BeginFrame( separation[i] );
-		if (scr_draw_loading == 2)
-		{	//  loading plaque over black screen
-			//R_SetPalette(NULL);
-			// Knightmare- refresh loading screen
-			SCR_DrawLoading ();
-
-			// Knightmare- set back for loading screen
-			if (cls.disable_screen)
-				scr_draw_loading = 2;
-
-			if (cls.consoleActive)
-				Con_DrawConsole (0.5, false);
-
-			//NO FULLSCREEN CONSOLE!!!
-			continue;
-		} 
-		// if a cinematic is supposed to be running, handle menus
-		// and console specially
-		else if (cl.cinematictime > 0)
+		if (cls.key_dest == key_menu)
 		{
-			if (cls.key_dest == key_menu)
-			{
-				/*if (cl.cinematicpalette_active)
-				{
-					R_SetPalette(NULL);
-					cl.cinematicpalette_active = false;
-				}*/
-				UI_Draw ();
-			}
-			else
-				SCR_DrawCinematic();
-		}
-		else 
-		{
-			// Knightmare added- disconnected menu
-			if (cls.state == ca_disconnected && cls.key_dest != key_menu && !scr_draw_loading) 
-			{
-				SCR_EndLoadingPlaque ();	// get rid of loading plaque
-				cls.consoleActive = true; // show error in console
-				M_Menu_Main_f();
-			}
-
-			// make sure the game palette is active
 			/*if (cl.cinematicpalette_active)
 			{
-				R_SetPalette(NULL);
-				cl.cinematicpalette_active = false;
+			R_SetPalette(NULL);
+			cl.cinematicpalette_active = false;
 			}*/
-
-			// do 3D refresh drawing, and then update the screen
-			SCR_CalcVrect ();
-
-			// clear background around sized down view
-			SCR_TileClear ();
-
-			V_RenderView ( separation[i] );
-			// don't draw crosshair while in menu
-			if (cls.key_dest != key_menu) 
-				SCR_DrawCrosshair ();
-
-			if (!scr_hidehud)
-			{
-				SCR_DrawStats ();
-				if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 1)
-					SCR_DrawLayout ();
-				if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 2)
-					CL_DrawInventory ();
-			}
-			SCR_DrawCameraEffect ();
-			SCR_DrawLetterbox ();
-
-			SCR_DrawNet ();
-			SCR_CheckDrawCenterString ();
-
-			if (scr_timegraph->value)
-				SCR_DebugGraph (cls.frametime*300, 0);
-
-			if (scr_debuggraph->value || scr_timegraph->value || scr_netgraph->value)
-				SCR_DrawDebugGraph ();
-
-			SCR_DrawPause ();
-
-			if (cl_demomessage->value)
-				DrawDemoMessage();
-
-			//if ((cl_drawfps->value) && (cls.state == ca_active))
-			SCR_ShowFPS ();
-
 			UI_Draw ();
-
-			SCR_DrawLoading ();
 		}
-		SCR_DrawConsole ();	
+		else
+			SCR_DrawCinematic();
 	}
+	else 
+	{
+		// Knightmare added- disconnected menu
+		if (cls.state == ca_disconnected && cls.key_dest != key_menu && !scr_draw_loading) 
+		{
+			SCR_EndLoadingPlaque ();	// get rid of loading plaque
+			cls.consoleActive = true; // show error in console
+			M_Menu_Main_f();
+		}
+
+		// make sure the game palette is active
+		/*if (cl.cinematicpalette_active)
+		{
+		R_SetPalette(NULL);
+		cl.cinematicpalette_active = false;
+		}*/
+
+		// do 3D refresh drawing, and then update the screen
+		SCR_CalcVrect ();
+
+		// clear background around sized down view
+		SCR_TileClear ();
+
+		V_RenderView ( );
+		// don't draw crosshair while in menu
+		if (cls.key_dest != key_menu) 
+			SCR_DrawCrosshair ();
+
+		if (!scr_hidehud)
+		{
+			SCR_DrawStats ();
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 1)
+				SCR_DrawLayout ();
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 2)
+				CL_DrawInventory ();
+		}
+		SCR_DrawCameraEffect ();
+		SCR_DrawLetterbox ();
+
+		SCR_DrawNet ();
+		SCR_CheckDrawCenterString ();
+
+		if (scr_timegraph->value)
+			SCR_DebugGraph (cls.frametime*300, 0);
+
+		if (scr_debuggraph->value || scr_timegraph->value || scr_netgraph->value)
+			SCR_DrawDebugGraph ();
+
+		SCR_DrawPause ();
+
+		if (cl_demomessage->value)
+			DrawDemoMessage();
+
+		//if ((cl_drawfps->value) && (cls.state == ca_active))
+		SCR_ShowFPS ();
+
+		UI_Draw ();
+
+		SCR_DrawLoading ();
+	}
+	SCR_DrawConsole ();	
+
 	R_EndFrame();
 }

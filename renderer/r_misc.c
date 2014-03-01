@@ -627,13 +627,10 @@ void GL_UpdateSwapInterval (void)
 			sync *= tear;
 
 		registering = registration_active;
-		if ( !glState.stereo_enabled ) 
-		{
-			if ( glConfig.ext_swap_control )
+		if ( glConfig.ext_swap_control )
+			SDL_GL_SetSwapInterval( (registration_active) ? 0 : sync );
 
-				SDL_GL_SetSwapInterval( (registration_active) ? 0 : sync );
-
-		}
+		
 	}
 }
 

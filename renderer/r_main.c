@@ -1598,10 +1598,8 @@ R_BeginFrame
 */
 void UpdateGammaRamp (qboolean enable); //Knightmare added
 void RefreshFont (void);
-void R_BeginFrame( float camera_separation )
+void R_BeginFrame()
 {
-
-	glState.camera_separation = camera_separation;
 
 	// Knightmare- added Psychospaz's console font size option
 	if (con_font->modified)
@@ -1640,7 +1638,7 @@ void R_BeginFrame( float camera_separation )
 		UpdateGammaRamp ((int) !r_ignorehwgamma->value);
 	}
 
-	GLimp_BeginFrame( camera_separation );
+	GLimp_BeginFrame(  );
 	
 	R_AntialiasStartFrame();
 
@@ -1658,14 +1656,6 @@ void R_BeginFrame( float camera_separation )
 	{
 		glDrawBuffer( GL_COLOR_ATTACHMENT0 );
 	} 
-	else if ( camera_separation < 0 && glState.stereo_enabled )
-	{
-		glDrawBuffer( GL_BACK_LEFT );
-	}
-	else if ( camera_separation > 0 && glState.stereo_enabled )
-	{
-		glDrawBuffer( GL_BACK_RIGHT );
-	}
 	else
 	{
 		glDrawBuffer( GL_BACK );

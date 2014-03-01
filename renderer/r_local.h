@@ -441,7 +441,7 @@ qboolean R_Init ( char *reason );
 void R_ClearState (void);
 void R_Shutdown (void);
 void R_RenderView (refdef_t *fd);
-void R_BeginFrame( float camera_separation );
+void R_BeginFrame();
 void R_EndFrame ( void );
 void R_SwapBuffers( int );
 void R_SetPalette ( const unsigned char *palette);
@@ -767,9 +767,6 @@ typedef struct
 
 	unsigned int	currentFBO;
 	
-	float			camera_separation;
-	qboolean		stereo_enabled;
-
 	// advanced state manager - MrG
 	qboolean		texgen;
 
@@ -894,7 +891,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-void		GLimp_BeginFrame( float camera_separation );
+void		GLimp_BeginFrame( );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( );
 void		GLimp_Shutdown( void );

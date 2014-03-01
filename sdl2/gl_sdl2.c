@@ -239,22 +239,6 @@ qboolean GLimp_Init( )
 qboolean GLimp_InitGL (void)
 {
  
-	cvar_t *stereo;
-
-	stereo = Cvar_Get( "cl_stereo", "0", 0 );
-
-	/*
-	** set PFD_STEREO if necessary
-	*/
-	if ( stereo->value != 0 )
-	{
-		VID_Printf( PRINT_ALL, "...attempting to use stereo\n" );
-		glState.stereo_enabled = true;
-	}
-	else
-	{
-		glState.stereo_enabled = false;
-	}
 
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
@@ -346,7 +330,7 @@ void UpdateGammaRamp (qboolean enable)
 /*
 ** GLimp_BeginFrame
 */
-void GLimp_BeginFrame( float camera_separation )
+void GLimp_BeginFrame( )
 {
 	if ( r_bitdepth->modified )
 	{

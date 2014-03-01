@@ -283,8 +283,6 @@ extern client_static_t	cls;
 //
 // cvars
 //
-extern	cvar_t	*cl_stereo_separation;
-extern	cvar_t	*cl_stereo;
 
 extern	cvar_t	*cl_gun;
 extern	cvar_t	*cl_weapon_shells;
@@ -675,7 +673,7 @@ void	R_DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *dat
 ** video mode and refresh state management entry points
 */
 void	R_SetPalette (const unsigned char *palette);	// NULL = game palette
-void	R_BeginFrame (float camera_separation);
+void	R_BeginFrame ();
 void	R_EndFrame (void);
 
 void	GLimp_AppActivate (qboolean activate);
@@ -770,7 +768,7 @@ float loadingPercent;
 
 void V_Init (void);
 float CalcFov (float fov_x, float width, float height);
-void V_RenderView( float stereo_separation );
+void V_RenderView();
 void V_AddEntity (entity_t *ent);
 
 // Psychospaz's enhanced particle code
