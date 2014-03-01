@@ -1614,6 +1614,9 @@ qboolean GL_Upload32 (unsigned *data, int width, int height, qboolean mipmap)
 		scaled_height = height;
 		scaled = data;
 	}
+	if (r_ignorehwgamma->value)
+		GL_LightScaleTexture (scaled, scaled_width, scaled_height, !mipmap );
+
 
 	//
 	// generate mipmaps and upload

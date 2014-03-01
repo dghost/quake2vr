@@ -958,6 +958,7 @@ static void RB_DrawCaustics (msurface_t *surf)
 	float		scrollh, scrollv, scaleh, scalev, dstscroll;	// *v,
 	image_t		*causticpic = RB_CausticForSurface (surf);
 	qboolean	previousBlend = false;
+	qboolean	previousFill = false;
 	GLfloat param[4];	
 
 	// adjustment for texture size and caustic image
@@ -978,7 +979,9 @@ static void RB_DrawCaustics (msurface_t *surf)
 	glUseProgram(warpshader.shader->program);
 	glUniform4fvARB(warpshader.scale_uniform,1,param);
 
-
+	GL_Enable(GL_POLYGON_OFFSET_FILL);
+		
+	GL_PolygonOffset(-0.75,-1.0);
 	GL_BlendFunc (GL_DST_COLOR, GL_ONE);
 	if (!glState.blend)	GL_Enable (GL_BLEND);
 	else				previousBlend = true;
@@ -1000,9 +1003,12 @@ static void RB_DrawCaustics (msurface_t *surf)
 	}*/
 	RB_DrawArrays ();
 
+
 	glUseProgram(0);
 	GL_DisableTexture(1);
 	GL_SelectTexture(0);
+
+	GL_Disable(GL_POLYGON_OFFSET_FILL);
 
 	if (!previousBlend) // restore state
 		GL_Disable (GL_BLEND);

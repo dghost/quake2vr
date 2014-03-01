@@ -151,7 +151,14 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 		title = WINDOW_CLASS_NAME;
 		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	}
-	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+
+	if ( r_bitdepth->value > 0 ) {
+		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, r_bitdepth->value);
+		VID_Printf( PRINT_ALL, "...using r_bitdepth of %d\n", ( int ) r_bitdepth->value );
+	} else {
+		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+	}
+	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
@@ -176,6 +183,8 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 	}
 #endif
 
+	SDL_RaiseWindow(mainWindow);
+	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 	mainWindowID = SDL_GetWindowID(mainWindow);
 	if (!GLimp_InitGL())
 	{

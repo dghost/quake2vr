@@ -305,8 +305,6 @@ void VR_Frame()
 		if (vr_autofov_scale->value < 0.5)
 			Cvar_Set("vr_autofov_scale","0.5");
 		vr_autofov_scale->modified = false;
-//		hmd->getfov(&vrState.viewFovX, &vrState.viewFovY);
-//		Com_Printf("VR: New vertical FOV is %3.2f degrees\n",vrState.viewFovY);
 	}
 
 

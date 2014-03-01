@@ -338,7 +338,7 @@ void R_CheckParticleRenderState (particleRenderState_t *check, int numVerts, int
 
 		if (currentParticleState.polygon_offset_fill) {
 			GL_Enable(GL_POLYGON_OFFSET_FILL);
-			GL_PolygonOffset(-2, -1); 
+			GL_PolygonOffset(-2, -2); 
 		}
 		else
 			GL_Disable(GL_POLYGON_OFFSET_FILL);
@@ -573,7 +573,7 @@ void R_RenderParticle (particle_t *p)
 	thisPart.imagenum = TexParticle(p->image);
 	thisPart.polymode = GL_TRIANGLES;
 	thisPart.overbright = (p->flags & PART_OVERBRIGHT);
-	thisPart.polygon_offset_fill = false;
+	thisPart.polygon_offset_fill = true;
 	thisPart.alphatest = false;
 	thisPart.blendfunc_src = p->blendfunc_src;
 	thisPart.blendfunc_dst = p->blendfunc_dst;
@@ -1014,7 +1014,7 @@ void R_RenderDecal (particle_t *p)
 	if (p->decal)
 		thisPart.polygon_offset_fill = true;
 	else
-		thisPart.polygon_offset_fill = false;
+		thisPart.polygon_offset_fill = true;
 
 	thisPart.polymode = GL_TRIANGLES;
 //	thisPart.texture2D = true;

@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
 
 #ifdef _WIN32
 		// is this necessary? Linux seems well behaved without it
-		_controlfp( _PC_24, _MCW_PC );
+//		_controlfp( _PC_24, _MCW_PC );
 #endif
 		Qcommon_Frame (time);
 
