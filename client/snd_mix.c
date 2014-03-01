@@ -244,7 +244,7 @@ void S_PaintChannels(int endtime)
 		while (1)
 		{
 			ps = s_pendingplays.next;
-			if (ps == &s_pendingplays)
+			if (!ps || ps == &s_pendingplays)
 				break;	// no more pending sounds
 			if (ps->begin <= paintedtime)
 			{

@@ -285,6 +285,7 @@
     <ClCompile Include="renderer\r_vr_svr.c" />
     <ClCompile Include="sdl2\gl_sdl2.c" />
     <ClCompile Include="sdl2\in_sdl2.c" />
+    <ClCompile Include="sdl2\snd_sdl2.c" />
     <ClCompile Include="sdl2\sys_sdl2.c" />
     <ClCompile Include="sdl2\vid_sdl2.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
@@ -300,7 +301,6 @@
     <ClCompile Include="client\snd_mem.c" />
     <ClCompile Include="client\snd_mix.c" />
     <ClCompile Include="client\snd_stream.c" />
-    <ClCompile Include="win32\snd_win.c" />
     <ClCompile Include="client\cl_cin.c" />
     <ClCompile Include="client\cl_cinematic.c" />
     <ClCompile Include="client\cl_console.c" />

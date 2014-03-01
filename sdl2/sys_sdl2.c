@@ -427,7 +427,7 @@ void Sys_Init (void)
 {
 	char			string[64];	// Knightmare added
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0){
 		Sys_Error("SDL_Init failed!");
 //		Com_Printf("SDL_Init Error: %s\n",SDL_GetError());
 	}
