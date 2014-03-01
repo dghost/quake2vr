@@ -273,11 +273,11 @@ void SDL_ProcEvent (SDL_Event *event)
 	switch (event->type)
 	{
 	case SDL_MOUSEWHEEL:
-		if (event->wheel.x > 0)
+		if (event->wheel.y > 0)
 		{
 			Key_Event( K_MWHEELUP, true, sys_msg_time );
 			Key_Event( K_MWHEELUP, false, sys_msg_time );
-		} else if (event->wheel.x < 0)
+		} else if (event->wheel.y < 0)
 		{
 			Key_Event( K_MWHEELDOWN, true, sys_msg_time );
 			Key_Event( K_MWHEELDOWN, false, sys_msg_time );
