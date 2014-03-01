@@ -183,9 +183,6 @@
     <ClCompile Include="win32\conproc.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
-    <ClCompile Include="win32\in_win.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
     <ClCompile Include="win32\net_wins.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
@@ -382,6 +379,9 @@
       <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="sdl2\vid_sdl2.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl2\in_sdl2.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>

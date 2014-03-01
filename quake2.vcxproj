@@ -284,6 +284,7 @@
     <ClCompile Include="renderer\r_vr_ovr.c" />
     <ClCompile Include="renderer\r_vr_svr.c" />
     <ClCompile Include="sdl2\gl_sdl2.c" />
+    <ClCompile Include="sdl2\in_sdl2.c" />
     <ClCompile Include="sdl2\sys_sdl2.c" />
     <ClCompile Include="sdl2\vid_sdl2.c" />
     <ClCompile Include="ui\ui_options_vr.c" />
@@ -342,7 +343,6 @@
     <ClCompile Include="server\sv_user.c" />
     <ClCompile Include="server\sv_world.c" />
     <ClCompile Include="win32\conproc.c" />
-    <ClCompile Include="win32\in_win.c" />
     <ClCompile Include="win32\net_wins.c" />
     <ClCompile Include="win32\q_shwin.c" />
     <ClCompile Include="renderer\r_alias.c" />
