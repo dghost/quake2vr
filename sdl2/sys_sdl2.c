@@ -42,6 +42,8 @@ qboolean	Minimized;
 static HANDLE		hinput, houtput;
 
 SDL_Window *mainWindow;
+Uint32 mainWindowID;
+
 void SDL_ProcEvent(SDL_Event *event);
 unsigned	sys_msg_time;
 unsigned	sys_frame_time;
@@ -473,8 +475,8 @@ Sys_AppActivate
 */
 void Sys_AppActivate (void)
 {
-	ShowWindow ( cl_hwnd, SW_RESTORE);
-	SetForegroundWindow ( cl_hwnd );
+	SDL_RaiseWindow(mainWindow);
+	SDL_ShowWindow(mainWindow);
 }
 
 /*
@@ -601,11 +603,14 @@ WinMain
 int main(int argc, char *argv[])
 {
 	int				time, oldtime, newtime;
-	char			*cddir;
-	int				i; // Knightmare added
 	qboolean		cdscan = false; // Knightmare added
 
+	
 	/*
+	int				i; // Knightmare added
+	char			*cddir;
+
+
 	// Knightmare- scan for cd command line option
 	for (i=0; i<argc; i++)
 		if (!strcmp(argv[i], "scanforcd")) {

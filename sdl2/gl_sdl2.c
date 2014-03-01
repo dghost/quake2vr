@@ -135,6 +135,8 @@ rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean 
 #endif
 
 		}
+
+		mainWindowID = SDL_GetWindowID(mainWindow);
 		if (!GLimp_InitGL())
 		{
 			VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
@@ -159,7 +161,7 @@ rserr_t GLimp_SetMode ( int xpos, int ypos, int *pwidth, int *pheight, qboolean 
 ** for the window.  The state structure is also nulled out.
 **
 */
-Uint16 original_ramp[3][256]; //Knightmare added
+float original_brightness;
 
 void GLimp_Shutdown( void )
 {
@@ -167,12 +169,13 @@ void GLimp_Shutdown( void )
 	if ( !r_ignorehwgamma->value )
 	{
 	
-		SDL_SetWindowGammaRamp (mainWindow, original_ramp[0], original_ramp[1], original_ramp[2]);
+		SDL_SetWindowBrightness (mainWindow, original_brightness);
 	}
 	//end Knightmare
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(mainWindow);
 	mainWindow = NULL;
+	mainWindowID = -1;
 }
 
 
@@ -232,15 +235,9 @@ qboolean GLimp_InitGL (void)
 	//Knightmare- Vic's hardware gamma stuff
 	if ( !r_ignorehwgamma->value )
 	{
-		glState.gammaRamp = !SDL_GetWindowGammaRamp ( mainWindow, original_ramp[0], original_ramp[1],original_ramp[2]);
-	}
-	else
-	{
-		glState.gammaRamp = false;
-	}
-
-	if (glState.gammaRamp)
+		original_brightness = SDL_GetWindowBrightness(mainWindow);
 		r_gamma->modified = true;
+	}
 
 	// moved these to GL_SetDefaultState
 	//glState.blend = false;
@@ -286,19 +283,13 @@ void UpdateGammaRamp (void)
 {
 	float gamma =  r_gamma->value;
 	int ret;
-	Uint16 ramp[256];
 
-	if (!glState.gammaRamp)
-		return;
-
-	SDL_CalculateGammaRamp(gamma,ramp);
-
-	ret = SDL_SetWindowGammaRamp(mainWindow,ramp,ramp,ramp);
+	ret = SDL_SetWindowBrightness(mainWindow,gamma);
 
 	if ( ret < 0 ) {
 		// originally the idea of warning on failures seemed pretty rad
 		// unfortunately, this tends to return false even if it succeeds
-		Com_Printf( "SetDeviceGammaRamp failed: %s\n", SDL_GetError() );
+		Com_Printf( "SDL_SetWindowBrightness failed: %s\n", SDL_GetError() );
 	}
 }
 
@@ -334,9 +325,13 @@ void GLimp_AppActivate( qboolean active )
 {
 	if ( active )
 	{
-		SDL_ShowWindow(mainWindow);
-	}
-	else
+		if (mainWindow)
+		{
+			SDL_RaiseWindow(mainWindow);
+			SDL_ShowWindow(mainWindow);
+		}
+		
+	}	else
 	{
 		if ( vid_fullscreen->value )
 			SDL_MinimizeWindow(mainWindow);

@@ -289,6 +289,8 @@ void SDL_ProcEvent (SDL_Event *event)
 		break;
 
 	case SDL_WINDOWEVENT:
+		if (event->window.windowID != mainWindowID)
+			break;
 		switch (event->window.event)
 		{
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -354,6 +356,15 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 		// todo - trap alt-enter
+		if ( (event->key.keysym.sym == SDLK_RETURN) &&
+			(event->key.keysym.mod & KMOD_ALT) && event->key.type == SDL_KEYDOWN)
+		{
+			if ( vid_fullscreen )
+			{
+				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
+			}
+			break;
+		}
 		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYDOWN), sys_msg_time);
 		break;
 	}
@@ -389,8 +400,7 @@ void VID_Restart_f (void)
 
 void VID_Front_f( void )
 {
-	SetWindowLong( cl_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST );
-	SetForegroundWindow( cl_hwnd );
+	SDL_RaiseWindow(mainWindow);
 }
 
 /*
@@ -415,27 +425,17 @@ vidmode_t vid_modes[] =
 
 /*
 ==============
-VID_UpdateWindowPosAndSize
+VID_UpdateWindowPos
 ==============
 */
-void VID_UpdateWindowPosAndSize ( int x, int y )
+void VID_UpdateWindowPos ( int x, int y )
 {
 	RECT r;
 	int		style;
 	int		w, h;
 
-	r.left   = 0;
-	r.top    = 0;
-	r.right  = viddef.width;
-	r.bottom = viddef.height;
-
-	style = GetWindowLong( cl_hwnd, GWL_STYLE );
-	AdjustWindowRect( &r, style, FALSE );
-
-	w = r.right - r.left;
-	h = r.bottom - r.top;
-
-	MoveWindow( cl_hwnd, vid_xpos->value, vid_ypos->value, w, h, TRUE );
+	SDL_SetWindowPosition(mainWindow,x,y);
+	//SDL_SetWindowSize(mainWindow,viddef.width,viddef.height);
 }
 
 /*
@@ -561,7 +561,7 @@ void VID_CheckChanges (void)
 	if ( vid_xpos->modified || vid_ypos->modified )
 	{
 		if (!vid_fullscreen->value)
-			VID_UpdateWindowPosAndSize( vid_xpos->value, vid_ypos->value );
+			VID_UpdateWindowPos( vid_xpos->value, vid_ypos->value );
 
 		vid_xpos->modified = false;
 		vid_ypos->modified = false;

@@ -1135,8 +1135,8 @@ qboolean R_SetMode (void)
 {
 	rserr_t err;
 	qboolean fullscreen;
-	int xpos = 0;
-	int ypos = 0;
+	int xpos = Cvar_VariableInteger("vid_xpos");
+	int ypos = Cvar_VariableInteger("vid_ypos");
 
 	if (vr_enabled->value)
 	{

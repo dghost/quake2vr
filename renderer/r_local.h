@@ -21,9 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __R_LOCAL_H
 #define __R_LOCAL_H
 
-#ifdef _WIN32
-#  include <windows.h>
-#endif
+
+# include <SDL.h>
 
 #include <stdio.h>
 
@@ -779,8 +778,6 @@ typedef struct
 
 	qboolean		envAdd;
 	qboolean		stencilEnabled;
-
-	qboolean		gammaRamp;
 
 	qboolean		cullFace;
 	qboolean		polygonOffsetFill; // Knightmare added
