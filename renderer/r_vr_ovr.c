@@ -490,7 +490,7 @@ void OVR_Present()
 	
 		glUniform2f(current_shader->uniform.lens_center, 0.5 + vrState.projOffset * 0.5, 0.5);
 		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
-		GL_Bind(left.texture);
+		GL_MBind(0,left.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
@@ -502,7 +502,7 @@ void OVR_Present()
 		// draw right eye
 		glUniform2f(current_shader->uniform.lens_center, 0.5 - vrState.projOffset * 0.5, 0.5 );
 		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
-		GL_Bind(right.texture);
+		GL_MBind(0,right.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(0, -1);
@@ -512,10 +512,10 @@ void OVR_Present()
 		glEnd();
 		glUseProgram(0);
 		
-		GL_Bind(0);
+		GL_MBind(0,0);
 
 	} else {
-		GL_Bind(left.texture);
+		GL_MBind(0,left.texture);
 
 
 		glBegin(GL_TRIANGLE_STRIP);
@@ -525,7 +525,7 @@ void OVR_Present()
 		glTexCoord2f(1, 1); glVertex2f(0, 1);
 		glEnd();
 
-		GL_Bind(right.texture);
+		GL_MBind(0,right.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(0, -1);
@@ -533,7 +533,7 @@ void OVR_Present()
 		glTexCoord2f(1, 0); glVertex2f(1, -1);
 		glTexCoord2f(1, 1); glVertex2f(1, 1);
 		glEnd();
-		GL_Bind(0);
+		GL_MBind(0,0);
 	}
 	if (VR_OVR_RenderLatencyTest(debugColor))
 	{

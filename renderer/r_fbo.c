@@ -9,8 +9,9 @@ int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
 	glGenFramebuffersEXT(1, &fbo);
 	glGenTextures(1, &tex);
 	glGenRenderbuffersEXT(1, &dep);
-	GL_SelectTexture(0);
-	GL_Bind(tex);
+
+	GL_MBind(0,tex);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	if (bilinear)
@@ -25,7 +26,8 @@ int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	GL_Bind(0);
+
+	GL_MBind(0,0);
 	err = glGetError();
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_GenFBO: Texture creation: glGetError() = 0x%x\n", err);
@@ -77,8 +79,8 @@ int R_ResizeFBO(int width, int height,  int bilinear, fbo_t *FBO)
 
 	glGetError();
 
-	GL_SelectTexture(0);
-	GL_Bind(FBO->texture);
+	GL_MBind(0,FBO->texture);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	if (bilinear)
@@ -93,7 +95,7 @@ int R_ResizeFBO(int width, int height,  int bilinear, fbo_t *FBO)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	GL_Bind(0);
+	GL_MBind(0,0);
 	err = glGetError();
 	if (err != GL_NO_ERROR)
 		VID_Printf(PRINT_ALL, "R_ResizeFBO: Texture resize: glGetError() = 0x%x\n", err);
@@ -116,8 +118,7 @@ void R_SetFBOFilter(int bilinear, fbo_t *FBO)
 	if (!FBO->framebuffer)
 		return;
 
-	GL_SelectTexture(0);
-	GL_Bind(FBO->texture);
+	GL_MBind(0,FBO->texture);
 
 	if (bilinear)
 	{
@@ -128,7 +129,7 @@ void R_SetFBOFilter(int bilinear, fbo_t *FBO)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 	
-	GL_Bind(0);
+	GL_MBind(0,0);
 }
 void R_DelFBO(fbo_t *FBO)
 {

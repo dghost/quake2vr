@@ -165,16 +165,13 @@ void R_VR_EndFrame()
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Enable (GL_ALPHA_TEST);
 		GL_AlphaFunc(GL_GREATER,0.0f);
-		GL_SelectTexture(0);
-
+		GL_MBind(0,0);
 
 		R_VR_BindView(EYE_LEFT);
 		R_VR_DrawHud(EYE_LEFT);
 
 		R_VR_BindView(EYE_RIGHT);
 		R_VR_DrawHud(EYE_RIGHT);
-
-//		GL_Bind(0);
 
 		GL_Disable(GL_ALPHA_TEST);
 
@@ -257,7 +254,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	} 
-	GL_Bind(hud.texture);
+	GL_MBind(0,hud.texture);
 
 
 	glBegin(GL_TRIANGLE_STRIP);

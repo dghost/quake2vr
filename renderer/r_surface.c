@@ -2271,7 +2271,7 @@ void R_BeginBuildingLightmaps (model_t *m)
 	r_framecount = 1;		// no dlightcache
 
 	GL_EnableMultitexture (true);
-	GL_SelectTexture(1);
+//	GL_SelectTexture(1);
 
 	// setup the base lightstyles so the lightmaps won't have to be regenerated
 	// the first time they're seen
@@ -2307,7 +2307,7 @@ void R_BeginBuildingLightmaps (model_t *m)
 	gl_lms.type = GL_LIGHTMAP_TYPE;
 
 	// initialize the dynamic lightmap texture
-	GL_Bind( glState.lightmap_textures + 0 );
+	GL_MBind(1, glState.lightmap_textures + 0 );
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D( GL_TEXTURE_2D, 

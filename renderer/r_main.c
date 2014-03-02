@@ -582,7 +582,7 @@ void VR_DrawCrosshair()
 	GL_Disable(GL_ALPHA_TEST);
 	GL_Enable(GL_BLEND);
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	GL_Bind(0);
+	GL_MBind(0,0);
 	glColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
 	if ((int) vr_crosshair->value == VR_CROSSHAIR_DOT)
 	{

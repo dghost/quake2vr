@@ -652,7 +652,7 @@ void R_FrameFence (void)
 		glFence.timeout = 0;
 		glColor4f(0.0f,0.0f,0.0f,0.0f);
 		GL_Disable(GL_DEPTH_TEST);
-		GL_Bind(0);
+		GL_MBind(0,0);
 		glBegin(GL_TRIANGLES);
 		glVertex2f(0, 0);
 		glVertex2f(0, 0);

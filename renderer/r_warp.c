@@ -233,7 +233,7 @@ void CreateDSTTex (void)
 		}
 
 	glGenTextures(1,&dst_texture);
-	glBindTexture(GL_TEXTURE_2D, dst_texture);
+	GL_Bind(dst_texture);
 
 	glTexImage2D (GL_TEXTURE_2D, 0, 4, DST_SIZE, DST_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, dist);
 
@@ -300,7 +300,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	if (texShaderWarp)
 	{
 		GLfloat param[4];
-		GL_SelectTexture(0);
+		//GL_SelectTexture(0);
 		GL_MBind(0, image->texnum);
 
 		GL_EnableTexture(1);
@@ -311,7 +311,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 		glUniform4fv(warpshader.scale_uniform,1,param);
 	}
 	else
-		GL_Bind(image->texnum);
+		GL_MBind(0,image->texnum);
 
 	RB_DrawArrays ();
 
