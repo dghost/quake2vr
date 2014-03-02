@@ -206,13 +206,12 @@ void IN_ControllerCommands (void)
 		SCR_CenterPrint(buffer);
 
 		currentController = NULL;
-		memset(oldAxisState,0,sizeof(oldAxisState));
-		memset(oldButtonState,0,sizeof(oldButtonState));
 	}
 
 	if (!currentController)
 	{
 		int i;
+
 		for (i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			if (SDL_IsGameController(i))
@@ -231,6 +230,8 @@ void IN_ControllerCommands (void)
 
 		}
 
+		memset(newAxisState,0,sizeof(newAxisState));
+		memset(newButtonState,0,sizeof(newButtonState));
 	}
 
 	if (currentController)
@@ -249,7 +250,6 @@ void IN_ControllerCommands (void)
 		}
 	} 
 
-	i = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
 	if (cls.key_dest == key_menu)
 	{
 		vec3_t oldStick, newStick;
