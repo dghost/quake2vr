@@ -1,6 +1,4 @@
 #include "../client/client.h"
-#include "../win32/winquake.h"
-#include <Xinput.h>
 #include <SDL.h>
 #include "in_sdlcont.h"
 

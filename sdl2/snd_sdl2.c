@@ -36,9 +36,15 @@ static dma_t *shm;
 static void
 paint_audio (void *unused, Uint8 * stream, int len)
 {
-	SDL_memset(stream,0,len);
+
+	SDL_memset(stream,0,len)
+		;
 	if (shm) {
-		int posOffset = len / (shm->samplebits / 4);
+		int posOffset = (shm->samplebits / 4);
+		if (posOffset > 0)
+			posOffset = len / posOffset;
+		else
+			Com_Printf("FATAL\n");
 		shm->buffer = stream;
 		shm->samplepos += posOffset;
 		// Check for samplepos overflow?
@@ -230,4 +236,7 @@ between a deactivate and an activate.
 void S_Activate (qboolean active)
 {
 //
+
+	SDL_PauseAudio(!active);
+
 }
