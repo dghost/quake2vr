@@ -54,7 +54,7 @@ SNDDMA_Init (void)
 	char reqdriver[128];
 	cvar_t *s_sdldriver;
 
-	s_sdldriver = (Cvar_Get("s_sdldriver", "", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "auto", CVAR_ARCHIVE));
 /*
 #ifdef _WIN32
 	s_sdldriver = (Cvar_Get("s_sdldriver", "xaudio2", CVAR_ARCHIVE));
@@ -66,12 +66,14 @@ SNDDMA_Init (void)
 	s_sdldriver = (Cvar_Get("s_sdldriver", "dsp", CVAR_ARCHIVE));
 #endif
 	*/
+	if (strncmp(s_sdldriver->string,"default",8) && strncmp(s_sdldriver->string,"auto",5))
+	{
 #ifdef _WIN32
-	_snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
+		_snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
 #else
-	snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
+		snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
 #endif
-
+	}
 	putenv(reqdriver);
 	if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
 		if (SDL_Init(SDL_INIT_AUDIO) < 0) {

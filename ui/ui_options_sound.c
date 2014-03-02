@@ -26,7 +26,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client/client.h"
 #include "ui_local.h"
+#include "SDL.h"
 
+
+#ifdef _WIN32
+	static const char *drivers[] =
+	{
+		"auto",
+		"xaudio2",
+		"directsound",
+		0
+	};
+#elif __linux__
+	static const char *drivers[] =
+	{
+		"auto",
+		"alsa",
+		"pulse",
+		0
+	};
+#else
+	static const char *drivers[] =
+	{
+		"auto",
+		0
+	}
+#endif
 /*
 =======================================================================
 
@@ -42,7 +67,7 @@ static menuslider_s		s_options_sound_musicvolume_slider;
 static menulist_s		s_options_sound_oggmusic_box;
 static menulist_s		s_options_sound_cdvolume_box;
 static menulist_s		s_options_sound_quality_list;
-static menulist_s		s_options_sound_compatibility_list;
+static menulist_s		s_options_sound_driver_list;
 static menuaction_s		s_options_sound_defaults_action;
 static menuaction_s		s_options_sound_back_action;
 
@@ -92,7 +117,7 @@ static void UpdateSoundQualityFunc ( void *unused )
 	}
 	//** DMP end sound menu changes
 
-	Cvar_SetValue ("s_primary", s_options_sound_compatibility_list.curvalue);
+	Cvar_Set("s_sdldriver", (char *) drivers[ s_options_sound_driver_list.curvalue]);
 
 	Menu_DrawTextBox (168, 192, 36, 3);
 	SCR_DrawString (188, 192+MENU_FONT_SIZE, ALIGN_CENTER, S_COLOR_ALT"Restarting the sound system. This", 255);
@@ -107,6 +132,8 @@ static void UpdateSoundQualityFunc ( void *unused )
 
 static void SoundSetMenuItemValues( void )
 {
+	int i = 0;
+	qboolean found = false;
 	s_options_sound_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
 	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "s_musicvolume" ) * 10;
 	s_options_sound_oggmusic_box.curvalue			= (Cvar_VariableValue("cl_ogg_music") > 0);
@@ -121,7 +148,22 @@ static void SoundSetMenuItemValues( void )
 	default:  s_options_sound_quality_list.curvalue = 0;  break;
 	}
 	//** DMP end sound menu changes
-	s_options_sound_compatibility_list.curvalue = Cvar_VariableValue( "s_primary");
+
+
+	for (i = 0; drivers[i] != NULL ; i++)
+	{
+		if (strcmp(drivers[i],Cvar_VariableString("s_sdldriver")) == 0)
+		{
+			s_options_sound_driver_list.curvalue = i;
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		Cvar_SetToDefault("s_sdldriver");
+		s_options_sound_driver_list.curvalue = 0;
+	}
 }
 
 static void SoundResetDefaultsFunc ( void *unused )
@@ -131,7 +173,7 @@ static void SoundResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("cd_loopcount");
 	Cvar_SetToDefault ("s_khz");
 	Cvar_SetToDefault ("s_loadas8bit");
-	Cvar_SetToDefault ("s_primary");
+	Cvar_SetToDefault ("s_sdldriver");
 
 	Menu_DrawTextBox (168, 192, 36, 3);
 	SCR_DrawString (188, 192+MENU_FONT_SIZE, ALIGN_CENTER, S_COLOR_ALT"Restarting the sound system. This", 255);
@@ -145,6 +187,12 @@ static void SoundResetDefaultsFunc ( void *unused )
 
 	SoundSetMenuItemValues();
 }
+
+void Options_Sound_MenuBack (void *unused)
+{
+	UI_BackMenu (NULL);
+}
+
 
 void Options_Sound_MenuInit ( void )
 {
@@ -164,10 +212,7 @@ void Options_Sound_MenuInit ( void )
 		0
 	};
 
-	static const char *compatibility_items[] =
-	{
-		"max compatibility", "max performance", 0
-	};
+
 
 	int y = 3*MENU_LINE_SIZE;
 
@@ -227,14 +272,13 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_quality_list.curvalue			= !Cvar_VariableValue( "s_loadas8bit" );
 	s_options_sound_quality_list.generic.statusbar	= "changes quality of sound";
 
-	s_options_sound_compatibility_list.generic.type			= MTYPE_SPINCONTROL;
-	s_options_sound_compatibility_list.generic.x			= 0;
-	s_options_sound_compatibility_list.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_sound_compatibility_list.generic.name			= "sound compatibility";
-	s_options_sound_compatibility_list.generic.callback		= UpdateSoundQualityFunc;
-	s_options_sound_compatibility_list.itemnames			= compatibility_items;
-	s_options_sound_compatibility_list.curvalue				= Cvar_VariableValue( "s_primary" );
-	s_options_sound_compatibility_list.generic.statusbar	= "changes buffering mode of sound system";
+	s_options_sound_driver_list.generic.type			= MTYPE_SPINCONTROL;
+	s_options_sound_driver_list.generic.x			= 0;
+	s_options_sound_driver_list.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_sound_driver_list.generic.name			= "sound driver";
+	s_options_sound_driver_list.generic.callback		= UpdateSoundQualityFunc;
+	s_options_sound_driver_list.itemnames			= drivers;
+	s_options_sound_driver_list.generic.statusbar	= "changes the audio driver used to output sound";
 
 	s_options_sound_defaults_action.generic.type		= MTYPE_ACTION;
 	s_options_sound_defaults_action.generic.x			= MENU_FONT_SIZE;
@@ -247,7 +291,7 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_back_action.generic.x				= MENU_FONT_SIZE;
 	s_options_sound_back_action.generic.y				= 20*MENU_LINE_SIZE;
 	s_options_sound_back_action.generic.name			= "back to options";
-	s_options_sound_back_action.generic.callback		= UI_BackMenu;
+	s_options_sound_back_action.generic.callback		= Options_Sound_MenuBack;
 
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_header );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_sfxvolume_slider );
@@ -255,7 +299,7 @@ void Options_Sound_MenuInit ( void )
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_oggmusic_box );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_cdvolume_box );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_quality_list );
-	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_compatibility_list );
+	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_driver_list );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_defaults_action );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_back_action );
 
