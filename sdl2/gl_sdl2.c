@@ -18,9 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 /*
-** GLW_IMP.C
+** GL_SDL2.C
 **
-** This file contains ALL Win32 specific stuff having to do with the
+** This file contains ALL SDL2 specific stuff having to do with the
 ** OpenGL refresh.  When a port is being made the following functions
 ** must be implemented by the port:
 **
@@ -280,20 +280,13 @@ qboolean GLimp_InitGL (void)
 		r_gamma->modified = true;
 	}
 
-	// moved these to GL_SetDefaultState
-	//glState.blend = false;
-	//glState.alphaTest = false;
-	//end Knightmare
 
-	//Knightmare- 12/24/2001- stecil buffer
+	//Knightmare- 12/24/2001- stencil buffer
 	{
 		VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
 		glConfig.have_stencil = true; // Stencil shadows - MrG
 
 	}
-	//if (pfd.cStencilBits)
-	//	glConfig.have_stencil = true;
-	//end Knightmare
 
 	/*	Moved to GL_SetDefaultState in r_glstate.c
 	// Vertex arrays

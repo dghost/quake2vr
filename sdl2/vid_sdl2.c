@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+
 // Main windowed and fullscreen graphics interface module. This module
 // is used for both the software and OpenGL rendering versions of the
 // Quake refresh engine.
@@ -25,16 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "..\client\client.h"
 #include "sdl2quake.h"
-//#include "zmouse.h"
 
 //PGM
 int	vidref_val;
 //PGM
-
-// Logitech mouse support
-//#define WM_MWHOOK (WM_USER + 1)
-//int MW_Hook_Message (long buttons);
-// end Logitech mouse support
 
 // Console variables that we need to access from this module
 cvar_t		*scanforcd; // Knightmare- just here to enable command line option without error
