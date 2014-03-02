@@ -55,7 +55,6 @@ static menulist_s		s_antialias_box;
 static menulist_s  		s_vsync_box;
 static menulist_s		s_fencesync_box;
 static menulist_s		s_refresh_box;	// Knightmare- refresh rate option
-static menulist_s  		s_adjust_fov_box;
 static menuaction_s		s_advanced_action;
 static menuaction_s		s_defaults_action;
 static menuaction_s		s_apply_action;
@@ -102,10 +101,6 @@ static void VsyncCallback ( void *unused )
 static void FenceSyncCallback (void *unused )
 {
 	Cvar_SetValue( "r_fencesync", s_fencesync_box.curvalue);
-}
-static void AdjustFOVCallback ( void *unused )
-{
-	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue);
 }
 
 static void AntialiasCallback ( void *usused )
@@ -240,7 +235,6 @@ static void ApplyChanges( void *unused )
 //	AntialiasCallback(NULL);
 
 //	Cvar_SetValue( "r_swapinterval", s_vsync_box.curvalue );
-	Cvar_SetValue( "cl_widescreen_fov", s_adjust_fov_box.curvalue );
 
 	prepareVideoRefresh ();
 
@@ -578,15 +572,7 @@ void Menu_Video_Init (void)
 	s_refresh_box.itemnames				= refreshrate_names;
 	s_refresh_box.generic.statusbar		= "sets refresh rate for fullscreen modes";
 
-	s_adjust_fov_box.generic.type		= MTYPE_SPINCONTROL;
-	s_adjust_fov_box.generic.x			= 0;
-	s_adjust_fov_box.generic.y			= y += MENU_LINE_SIZE;
-	s_adjust_fov_box.generic.name		= "fov autoscaling";
-	s_adjust_fov_box.generic.callback	= AdjustFOVCallback;
-	s_adjust_fov_box.curvalue			= Cvar_VariableValue("cl_widescreen_fov");
-	s_adjust_fov_box.itemnames			= yesno_names;
-	s_adjust_fov_box.generic.statusbar	= "automatic scaling of fov for widescreen modes";
-
+	
 	s_advanced_action.generic.type		= MTYPE_ACTION;
 	s_advanced_action.generic.name		= "advanced options";
 	s_advanced_action.generic.x			= 0;
@@ -629,7 +615,7 @@ void Menu_Video_Init (void)
 		Menu_AddItem( &s_video_menu, ( void * ) &s_fencesync_box );
 
 	Menu_AddItem( &s_video_menu, ( void * ) &s_refresh_box );
-	Menu_AddItem( &s_video_menu, ( void * ) &s_adjust_fov_box );
+
 	Menu_AddItem( &s_video_menu, ( void * ) &s_advanced_action );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_defaults_action );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_apply_action );
