@@ -26,9 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../ui/ui_local.h"
 #include "../vr/vr.h"
 
-#ifdef _WIN32
 #include "../sdl2/sdl2quake.h"
-#endif
 
 cvar_t	*freelook;
 
@@ -1718,7 +1716,7 @@ void CL_Frame (int msec)
 			{
 				int temptime = 1000/cl_maxfps->value-extratime;
 				if (temptime > 1)
-					Sleep(1);
+					SDL_Delay(1);
 			}
 #endif // end CPU usage fix
 			return;			// framerate is too high

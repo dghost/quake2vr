@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
 		// if at a full screen console, don't update unless needed
 		if (Minimized || (dedicated && dedicated->value) )
 		{
-			Sleep (1);
+			SDL_Delay (1);
 		}
 
 		while (SDL_PollEvent(&event))
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
 			time = newtime - oldtime;
 			if (time > 0) break;
 			if (!vr_enabled->value || !vr_nosleep->value)
-				Sleep(0); // may also use Sleep(1); to free more CPU, but it can lower your fps
+				SDL_Delay(0); // may also use SDL_Delay(1); to free more CPU, but it can lower your fps
 		}
 
 		/*do
