@@ -37,6 +37,7 @@ static menuseparator_s	s_options_controls_header;
 static menuslider_s		s_options_controls_sensitivity_slider;
 static menulist_s		s_options_controls_alwaysrun_box;
 static menulist_s		s_options_controls_invertmouse_box;
+static menuseparator_s	s_options_controls_gamepad;
 static menulist_s		s_options_controls_gamepad_stickmode_box;
 static menulist_s		s_options_controls_gamepad_sticktoggle_box;
 static menuslider_s		s_options_controls_gamepad_trigger_threshold_slider;
@@ -249,10 +250,17 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_sensitivity_slider.generic.statusbar	= "changes sensitivity of mouse for head movement";
 	
 
+	s_options_controls_gamepad.generic.type	= MTYPE_SEPARATOR;
+	s_options_controls_gamepad.generic.name	= "Gamepad";
+	s_options_controls_gamepad.generic.x		= MENU_FONT_SIZE/2 * strlen(s_options_controls_gamepad.generic.name);
+	s_options_controls_gamepad.generic.y		= y+=2*MENU_LINE_SIZE;
+
+
+
 	s_options_controls_gamepad_stickmode_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_controls_gamepad_stickmode_box.generic.x			= 0;
 	s_options_controls_gamepad_stickmode_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_controls_gamepad_stickmode_box.generic.name		= "gamepad thumb stick mode";
+	s_options_controls_gamepad_stickmode_box.generic.name		= "thumb stick mode";
 	s_options_controls_gamepad_stickmode_box.generic.callback	= GamePadStickFunc;
 	s_options_controls_gamepad_stickmode_box.itemnames			= gamepad_stick_names;
 	s_options_controls_gamepad_stickmode_box.generic.statusbar	= "sets mode for the gamepad thumb sticks";
@@ -261,7 +269,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_gamepad_sticktoggle_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_controls_gamepad_sticktoggle_box.generic.x			= 0;
 	s_options_controls_gamepad_sticktoggle_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_gamepad_sticktoggle_box.generic.name		= "toggle gamepad thumb sticks";
+	s_options_controls_gamepad_sticktoggle_box.generic.name		= "toggle thumb sticks";
 	s_options_controls_gamepad_sticktoggle_box.generic.callback	= GamePadStickToggleFunc;
 	s_options_controls_gamepad_sticktoggle_box.itemnames			= yesno_names;
 	s_options_controls_gamepad_sticktoggle_box.generic.statusbar	= "enables thumb stick toggling instead of click-and-hold";
@@ -269,7 +277,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_gamepad_trigger_threshold_slider.generic.type		= MTYPE_SLIDER;
 	s_options_controls_gamepad_trigger_threshold_slider.generic.x			= 0;
 	s_options_controls_gamepad_trigger_threshold_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_gamepad_trigger_threshold_slider.generic.name		= "gamepad trigger sensitivity";
+	s_options_controls_gamepad_trigger_threshold_slider.generic.name		= "trigger sensitivity";
 	s_options_controls_gamepad_trigger_threshold_slider.generic.callback	= GamePadTriggerFunc;
 	s_options_controls_gamepad_trigger_threshold_slider.minvalue			= 1;
 	s_options_controls_gamepad_trigger_threshold_slider.maxvalue			= 24;
@@ -278,7 +286,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_gamepad_pitch_sensitivity_slider.generic.type		= MTYPE_SLIDER;
 	s_options_controls_gamepad_pitch_sensitivity_slider.generic.x			= 0;
 	s_options_controls_gamepad_pitch_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_gamepad_pitch_sensitivity_slider.generic.name		= "gamepad pitch speed";
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.name		= "pitch speed";
 	s_options_controls_gamepad_pitch_sensitivity_slider.generic.callback	= GamePadViewFunc;
 	s_options_controls_gamepad_pitch_sensitivity_slider.minvalue			= 0;
 	s_options_controls_gamepad_pitch_sensitivity_slider.maxvalue			= 16;
@@ -287,7 +295,7 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_gamepad_yaw_sensitivity_slider.generic.type		= MTYPE_SLIDER;
 	s_options_controls_gamepad_yaw_sensitivity_slider.generic.x			= 0;
 	s_options_controls_gamepad_yaw_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_gamepad_yaw_sensitivity_slider.generic.name		= "gamepad yaw speed";
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.name		= "yaw speed";
 	s_options_controls_gamepad_yaw_sensitivity_slider.generic.callback	= GamePadViewFunc;
 	s_options_controls_gamepad_yaw_sensitivity_slider.minvalue			= 0;
 	s_options_controls_gamepad_yaw_sensitivity_slider.maxvalue			= 16;
@@ -316,6 +324,9 @@ void Options_Controls_MenuInit ( void )
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_alwaysrun_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_invertmouse_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_sensitivity_slider );
+
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad );
+
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_stickmode_box );
 	
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_sticktoggle_box );
