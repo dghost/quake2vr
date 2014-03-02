@@ -98,21 +98,18 @@ static void UpdateSoundQualityFunc ( void *unused )
 	//** DMP check the newly added sound quality menu options
 	switch (s_options_sound_quality_list.curvalue)
 	{
-	case 1:
+	default:
+	case 0:
 		Cvar_SetValue( "s_khz", 22 );
 		Cvar_SetValue( "s_loadas8bit", false );
 		break;
-	case 2:
+	case 1:
 		Cvar_SetValue( "s_khz", 44 );
 		Cvar_SetValue( "s_loadas8bit", false );
 		break;
-	case 3:
+	case 2:
 		Cvar_SetValue( "s_khz", 48 );
 		Cvar_SetValue( "s_loadas8bit", false );
-		break;
-	default:
-		Cvar_SetValue( "s_khz", 11 );
-		Cvar_SetValue( "s_loadas8bit", true );
 		break;
 	}
 	//** DMP end sound menu changes
@@ -142,10 +139,11 @@ static void SoundSetMenuItemValues( void )
 	//**  DMP convert setting into index for option display text
 	switch((int)Cvar_VariableValue("s_khz"))
 	{
-	case 48:  s_options_sound_quality_list.curvalue = 3;  break;
-	case 44:  s_options_sound_quality_list.curvalue = 2;  break;
-	case 22:  s_options_sound_quality_list.curvalue = 1;  break;
-	default:  s_options_sound_quality_list.curvalue = 0;  break;
+	case 48:  s_options_sound_quality_list.curvalue = 2;  break;
+	case 44:  s_options_sound_quality_list.curvalue = 1;  break;
+	default:  
+	case 22:  s_options_sound_quality_list.curvalue = 0;  break;
+
 	}
 	//** DMP end sound menu changes
 
@@ -205,7 +203,6 @@ void Options_Sound_MenuInit ( void )
 
 	static const char *quality_items[] =
 	{
-		"low (11KHz/8-bit)",			//** DMP - changed text
 		"normal (22KHz/16-bit)",		//** DMP - changed text
 		"high (44KHz/16-bit)",			//** DMP - added 44 Khz menu item
 		"highest (48KHz/16-bit)",		//** DMP - added 48 Khz menu item
