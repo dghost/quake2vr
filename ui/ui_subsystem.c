@@ -312,18 +312,18 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 
 	switch ( key )
 	{
-	case K_XBOX_START:
+	case K_GAMEPAD_START:
 		while (m_menudepth)
 			UI_PopMenu();
 		return menu_out_sound;
-	case K_XBOXB:
-	case K_XBOX_BACK:
+	case K_GAMEPAD_B:
+	case K_GAMEPAD_BACK:
 	case K_ESCAPE:
 		UI_PopMenu();
 		return menu_out_sound;
-	case K_XBOX_UP:
-	case K_XBOX_LSTICK_UP:
-	case K_XBOX_RSTICK_UP:
+	case K_GAMEPAD_UP:
+	case K_GAMEPAD_LSTICK_UP:
+	case K_GAMEPAD_RSTICK_UP:
 	case K_KP_UPARROW:
 	case K_UPARROW:
 		if ( m )
@@ -337,9 +337,9 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 		}
 		break;
 	case K_TAB:
-	case K_XBOX_DOWN:
-	case K_XBOX_LSTICK_DOWN:
-	case K_XBOX_RSTICK_DOWN:
+	case K_GAMEPAD_DOWN:
+	case K_GAMEPAD_LSTICK_DOWN:
+	case K_GAMEPAD_RSTICK_DOWN:
 	case K_KP_DOWNARROW:
 	case K_DOWNARROW:
 		if ( m )
@@ -352,9 +352,9 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 			sound = menu_move_sound;
 		}
 		break;
-	case K_XBOX_LEFT:
-	case K_XBOX_LSTICK_LEFT:
-	case K_XBOX_RSTICK_LEFT:
+	case K_GAMEPAD_LEFT:
+	case K_GAMEPAD_LSTICK_LEFT:
+	case K_GAMEPAD_RSTICK_LEFT:
 	case K_KP_LEFTARROW:
 	case K_LEFTARROW:
 		if ( m )
@@ -363,9 +363,9 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 			sound = menu_move_sound;
 		}
 		break;
-	case K_XBOX_RIGHT:
-	case K_XBOX_LSTICK_RIGHT:
-	case K_XBOX_RSTICK_RIGHT:
+	case K_GAMEPAD_RIGHT:
+	case K_GAMEPAD_LSTICK_RIGHT:
+	case K_GAMEPAD_RSTICK_RIGHT:
 	case K_KP_RIGHTARROW:
 	case K_RIGHTARROW:
 		if ( m )
@@ -418,7 +418,7 @@ const char *Default_MenuKey ( menuframework_s *m, int key )
 	case K_AUX30:
 	case K_AUX31:
 	case K_AUX32:
-	case K_XBOXA:		
+	case K_GAMEPAD_A:		
 	case K_KP_ENTER:
 	case K_ENTER:
 		if ( m )

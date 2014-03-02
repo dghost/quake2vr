@@ -23,13 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "../sdl2/sdl2quake.h"
 #include "../vr/vr.h"
-#include "../input/in_xinput.h"
+#include "in_sdlcont.h"
 
 extern	unsigned	sys_msg_time;
 
 enum _ControllerType
 {
-	ControllerNone = 0, ControllerXbox, ControllerSDLGamePad
+	ControllerNone = 0, ControllerSDLController
 };
 
 
@@ -368,7 +368,7 @@ void IN_Init (void)
 
 
 	IN_StartupMouse ();
-	IN_XinputInit ();
+	IN_ControllerInit ();
 }
 
 /*
@@ -454,11 +454,11 @@ void IN_Move (usercmd_t *cmd)
 
 	switch((int) in_controller->value)
 	{
-	case ControllerXbox:
-		IN_XinputMove (cmd);
+	case ControllerSDLController:
+		IN_ControllerMove (cmd);
 		return;
 	default:
-		IN_XinputMove (cmd);
+		IN_ControllerMove (cmd);
 		return;
 	}
 
@@ -488,11 +488,11 @@ void IN_Commands (void)
 {
 	switch((int) in_controller->value)
 	{
-	case ControllerXbox:
-		IN_XinputCommands ();
+	case ControllerSDLController:
+		IN_ControllerCommands ();
 		return;
 	default:
-		IN_XinputCommands ();
+		IN_ControllerCommands ();
 		return;
 	}
 }

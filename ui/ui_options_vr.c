@@ -388,8 +388,8 @@ void Options_VR_MenuDraw (void)
 
 const char *Options_VR_MenuKey( int key )
 {
-	if ( key == K_ESCAPE		|| key == K_XBOXB
-		|| key == K_XBOX_BACK	|| key == K_XBOX_START
+	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
+		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
 		)
 		VRConfigAccept();
 

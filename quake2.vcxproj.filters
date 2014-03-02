@@ -369,12 +369,6 @@
     <ClCompile Include="sdl2\sys_sdl2.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
-    <ClCompile Include="input\in_xinput.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
-    <ClCompile Include="input\in_winjoy.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
     <ClCompile Include="sdl2\vid_sdl2.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
@@ -382,6 +376,9 @@
       <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="sdl2\snd_sdl2.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl2\in_sdlcont.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
   </ItemGroup>

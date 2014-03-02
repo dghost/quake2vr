@@ -40,11 +40,11 @@ static menuseparator_s	s_options_controls_header;
 static menuslider_s		s_options_controls_sensitivity_slider;
 static menulist_s		s_options_controls_alwaysrun_box;
 static menulist_s		s_options_controls_invertmouse_box;
-static menulist_s		s_options_controls_xbox_stickmode_box;
-static menulist_s		s_options_controls_xbox_sticktoggle_box;
-static menuslider_s		s_options_controls_xbox_trigger_threshold_slider;
-static menuslider_s		s_options_controls_xbox_pitch_sensitivity_slider;
-static menuslider_s		s_options_controls_xbox_yaw_sensitivity_slider;
+static menulist_s		s_options_controls_gamepad_stickmode_box;
+static menulist_s		s_options_controls_gamepad_sticktoggle_box;
+static menuslider_s		s_options_controls_gamepad_trigger_threshold_slider;
+static menuslider_s		s_options_controls_gamepad_pitch_sensitivity_slider;
+static menuslider_s		s_options_controls_gamepad_yaw_sensitivity_slider;
 
 
 static menuaction_s		s_options_controls_customize_keys_action;
@@ -72,24 +72,24 @@ static void CustomizeControlsFunc( void *unused )
 	M_Menu_Keys_f();
 }
 
-static void XboxStickFunc( void *unused )
+static void GamePadStickFunc( void *unused )
 {
-	Cvar_SetValue( "xbox_stick_mode", s_options_controls_xbox_stickmode_box.curvalue );
+	Cvar_SetValue( "gamepad_stick_mode", s_options_controls_gamepad_stickmode_box.curvalue );
 }
 
-static void XboxStickToggleFunc( void *unused )
+static void GamePadStickToggleFunc( void *unused )
 {
-	Cvar_SetValue( "xbox_stick_toggle", s_options_controls_xbox_sticktoggle_box.curvalue );
+	Cvar_SetValue( "gamepad_stick_toggle", s_options_controls_gamepad_sticktoggle_box.curvalue );
 }
-static void XboxTriggerFunc ( void *unused )
+static void GamePadTriggerFunc ( void *unused )
 {
-	Cvar_SetValue( "xbox_trigger_threshold", s_options_controls_xbox_trigger_threshold_slider.curvalue / 25.0f);
+	Cvar_SetValue( "gamepad_trigger_threshold", s_options_controls_gamepad_trigger_threshold_slider.curvalue / 25.0f);
 }
 
-static void XboxViewFunc ( void *unused )
+static void GamePadViewFunc ( void *unused )
 {
 	float temp = 0;
-	temp = s_options_controls_xbox_pitch_sensitivity_slider.curvalue - 8.0f;
+	temp = s_options_controls_gamepad_pitch_sensitivity_slider.curvalue - 8.0f;
 	if (temp < 0)
 	{
 		temp = 4.0f / (abs(temp) + 4.0f);
@@ -101,9 +101,9 @@ static void XboxViewFunc ( void *unused )
 	{
 		temp = 1.0f;
 	}
-	Cvar_SetValue( "xbox_pitch_sensitivity", temp);
+	Cvar_SetValue( "gamepad_pitch_sensitivity", temp);
 
-	temp = s_options_controls_xbox_yaw_sensitivity_slider.curvalue - 8.0f;
+	temp = s_options_controls_gamepad_yaw_sensitivity_slider.curvalue - 8.0f;
 
 	if (temp < 0)
 	{
@@ -117,7 +117,7 @@ static void XboxViewFunc ( void *unused )
 		temp = 1.0f;
 	}
 
-	Cvar_SetValue( "xbox_yaw_sensitivity",temp);
+	Cvar_SetValue( "gamepad_yaw_sensitivity",temp);
 }
 
 
@@ -131,16 +131,16 @@ static void ControlsSetMenuItemValues( void )
 	Cvar_SetValue( "cl_run", ClampCvar( 0, 1, Cvar_VariableValue("cl_run") ) );
 	s_options_controls_alwaysrun_box.curvalue		= Cvar_VariableValue("cl_run");
 
-	Cvar_SetValue( "xbox_stick_mode", ClampCvar( 0, 1, Cvar_VariableValue("xbox_stick_mode") ) );
-	s_options_controls_xbox_stickmode_box.curvalue		= Cvar_VariableValue("xbox_stick_mode");
+	Cvar_SetValue( "gamepad_stick_mode", ClampCvar( 0, 1, Cvar_VariableValue("gamepad_stick_mode") ) );
+	s_options_controls_gamepad_stickmode_box.curvalue		= Cvar_VariableValue("gamepad_stick_mode");
 
-	Cvar_SetValue( "xbox_stick_toggle", ClampCvar( 0, 1, Cvar_VariableValue("xbox_stick_toggle") ) );
-	s_options_controls_xbox_sticktoggle_box.curvalue		= Cvar_VariableValue("xbox_stick_toggle");
+	Cvar_SetValue( "gamepad_stick_toggle", ClampCvar( 0, 1, Cvar_VariableValue("gamepad_stick_toggle") ) );
+	s_options_controls_gamepad_sticktoggle_box.curvalue		= Cvar_VariableValue("gamepad_stick_toggle");
 
-	Cvar_SetValue( "xbox_trigger_threshold", ClampCvar( 0.04, 0.96, Cvar_VariableValue("xbox_trigger_threshold") ) );
-	s_options_controls_xbox_trigger_threshold_slider.curvalue = Cvar_VariableValue("xbox_trigger_threshold") * 25.0f;
+	Cvar_SetValue( "gamepad_trigger_threshold", ClampCvar( 0.04, 0.96, Cvar_VariableValue("gamepad_trigger_threshold") ) );
+	s_options_controls_gamepad_trigger_threshold_slider.curvalue = Cvar_VariableValue("gamepad_trigger_threshold") * 25.0f;
 	
-	temp = Cvar_VariableValue("xbox_pitch_sensitivity");
+	temp = Cvar_VariableValue("gamepad_pitch_sensitivity");
 
 	if (temp < 1.0f)
 	{
@@ -153,9 +153,9 @@ static void ControlsSetMenuItemValues( void )
 		temp += 4.0f;
 	}
 
-	s_options_controls_xbox_pitch_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
+	s_options_controls_gamepad_pitch_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
 	
-	temp = Cvar_VariableValue("xbox_yaw_sensitivity");
+	temp = Cvar_VariableValue("gamepad_yaw_sensitivity");
 	if (temp < 1.0f)
 	{
 		temp = 1.0f / temp;
@@ -166,7 +166,7 @@ static void ControlsSetMenuItemValues( void )
 		temp *= 4.0f;
 		temp += 4.0f;
 	}
-	s_options_controls_xbox_yaw_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
+	s_options_controls_gamepad_yaw_sensitivity_slider.curvalue = ClampCvar(0.0f,16.0f, temp );
 }
 
 static void ControlsResetDefaultsFunc ( void *unused )
@@ -188,12 +188,12 @@ static void ControlsResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("freelook");
 	Cvar_SetToDefault ("in_controller");
 
-	Cvar_SetToDefault ("xbox_usernum");
-	Cvar_SetToDefault ("xbox_stick_mode");
-	Cvar_SetToDefault ("xbox_stick_toggle");
-	Cvar_SetToDefault ("xbox_trigger_threshold");
-	Cvar_SetToDefault ("xbox_pitch_sensitivity");
-	Cvar_SetToDefault ("xbox_yaw_sensitivity");
+	Cvar_SetToDefault ("gamepad_usernum");
+	Cvar_SetToDefault ("gamepad_stick_mode");
+	Cvar_SetToDefault ("gamepad_stick_toggle");
+	Cvar_SetToDefault ("gamepad_trigger_threshold");
+	Cvar_SetToDefault ("gamepad_pitch_sensitivity");
+	Cvar_SetToDefault ("gamepad_yaw_sensitivity");
 
 	ControlsSetMenuItemValues();
 }
@@ -207,7 +207,7 @@ void Options_Controls_MenuInit ( void )
 		0
 	};
 
-	static const char *xbox_stick_names[] =
+	static const char *gamepad_stick_names[] =
 	{
 		"move / view",
 		"view / move",
@@ -252,49 +252,49 @@ void Options_Controls_MenuInit ( void )
 	s_options_controls_sensitivity_slider.generic.statusbar	= "changes sensitivity of mouse for head movement";
 	
 
-	s_options_controls_xbox_stickmode_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_controls_xbox_stickmode_box.generic.x			= 0;
-	s_options_controls_xbox_stickmode_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_controls_xbox_stickmode_box.generic.name		= "xbox thumb stick mode";
-	s_options_controls_xbox_stickmode_box.generic.callback	= XboxStickFunc;
-	s_options_controls_xbox_stickmode_box.itemnames			= xbox_stick_names;
-	s_options_controls_xbox_stickmode_box.generic.statusbar	= "sets mode for the xbox 360 controller thumb sticks";
+	s_options_controls_gamepad_stickmode_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_controls_gamepad_stickmode_box.generic.x			= 0;
+	s_options_controls_gamepad_stickmode_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_controls_gamepad_stickmode_box.generic.name		= "gamepad thumb stick mode";
+	s_options_controls_gamepad_stickmode_box.generic.callback	= GamePadStickFunc;
+	s_options_controls_gamepad_stickmode_box.itemnames			= gamepad_stick_names;
+	s_options_controls_gamepad_stickmode_box.generic.statusbar	= "sets mode for the gamepad thumb sticks";
 
 	
-	s_options_controls_xbox_sticktoggle_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_controls_xbox_sticktoggle_box.generic.x			= 0;
-	s_options_controls_xbox_sticktoggle_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_xbox_sticktoggle_box.generic.name		= "toggle xbox thumb sticks";
-	s_options_controls_xbox_sticktoggle_box.generic.callback	= XboxStickToggleFunc;
-	s_options_controls_xbox_sticktoggle_box.itemnames			= yesno_names;
-	s_options_controls_xbox_sticktoggle_box.generic.statusbar	= "enables thumb stick toggling instead of click-and-hold";
+	s_options_controls_gamepad_sticktoggle_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_controls_gamepad_sticktoggle_box.generic.x			= 0;
+	s_options_controls_gamepad_sticktoggle_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_gamepad_sticktoggle_box.generic.name		= "toggle gamepad thumb sticks";
+	s_options_controls_gamepad_sticktoggle_box.generic.callback	= GamePadStickToggleFunc;
+	s_options_controls_gamepad_sticktoggle_box.itemnames			= yesno_names;
+	s_options_controls_gamepad_sticktoggle_box.generic.statusbar	= "enables thumb stick toggling instead of click-and-hold";
 
-	s_options_controls_xbox_trigger_threshold_slider.generic.type		= MTYPE_SLIDER;
-	s_options_controls_xbox_trigger_threshold_slider.generic.x			= 0;
-	s_options_controls_xbox_trigger_threshold_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_xbox_trigger_threshold_slider.generic.name		= "xbox trigger sensitivity";
-	s_options_controls_xbox_trigger_threshold_slider.generic.callback	= XboxTriggerFunc;
-	s_options_controls_xbox_trigger_threshold_slider.minvalue			= 1;
-	s_options_controls_xbox_trigger_threshold_slider.maxvalue			= 24;
-	s_options_controls_xbox_trigger_threshold_slider.generic.statusbar	= "changes xbox 360 controller trigger sensitivity";	
+	s_options_controls_gamepad_trigger_threshold_slider.generic.type		= MTYPE_SLIDER;
+	s_options_controls_gamepad_trigger_threshold_slider.generic.x			= 0;
+	s_options_controls_gamepad_trigger_threshold_slider.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_gamepad_trigger_threshold_slider.generic.name		= "gamepad trigger sensitivity";
+	s_options_controls_gamepad_trigger_threshold_slider.generic.callback	= GamePadTriggerFunc;
+	s_options_controls_gamepad_trigger_threshold_slider.minvalue			= 1;
+	s_options_controls_gamepad_trigger_threshold_slider.maxvalue			= 24;
+	s_options_controls_gamepad_trigger_threshold_slider.generic.statusbar	= "changes gamepad trigger sensitivity";	
 	
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.type		= MTYPE_SLIDER;
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.x			= 0;
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.name		= "xbox pitch speed";
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_pitch_sensitivity_slider.minvalue			= 0;
-	s_options_controls_xbox_pitch_sensitivity_slider.maxvalue			= 16;
-	s_options_controls_xbox_pitch_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view pitch speed";
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.type		= MTYPE_SLIDER;
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.x			= 0;
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.name		= "gamepad pitch speed";
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.callback	= GamePadViewFunc;
+	s_options_controls_gamepad_pitch_sensitivity_slider.minvalue			= 0;
+	s_options_controls_gamepad_pitch_sensitivity_slider.maxvalue			= 16;
+	s_options_controls_gamepad_pitch_sensitivity_slider.generic.statusbar	= "changes gamepad view pitch speed";
 	
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.type		= MTYPE_SLIDER;
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.x			= 0;
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.name		= "xbox yaw speed";
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.callback	= XboxViewFunc;
-	s_options_controls_xbox_yaw_sensitivity_slider.minvalue			= 0;
-	s_options_controls_xbox_yaw_sensitivity_slider.maxvalue			= 16;
-	s_options_controls_xbox_yaw_sensitivity_slider.generic.statusbar	= "changes xbox 360 controller view yaw speed";
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.type		= MTYPE_SLIDER;
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.x			= 0;
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.name		= "gamepad yaw speed";
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.callback	= GamePadViewFunc;
+	s_options_controls_gamepad_yaw_sensitivity_slider.minvalue			= 0;
+	s_options_controls_gamepad_yaw_sensitivity_slider.maxvalue			= 16;
+	s_options_controls_gamepad_yaw_sensitivity_slider.generic.statusbar	= "changes gamepad view yaw speed";
 
 	s_options_controls_customize_keys_action.generic.type		= MTYPE_ACTION;
 	s_options_controls_customize_keys_action.generic.x			= MENU_FONT_SIZE;
@@ -319,12 +319,12 @@ void Options_Controls_MenuInit ( void )
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_alwaysrun_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_invertmouse_box );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_sensitivity_slider );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_stickmode_box );
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_stickmode_box );
 	
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_sticktoggle_box );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_trigger_threshold_slider );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_pitch_sensitivity_slider );
-	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_xbox_yaw_sensitivity_slider );
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_sticktoggle_box );
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_trigger_threshold_slider );
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_pitch_sensitivity_slider );
+	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_gamepad_yaw_sensitivity_slider );
 
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_customize_keys_action );
 	Menu_AddItem( &s_options_controls_menu, ( void * ) &s_options_controls_defaults_action );

@@ -377,8 +377,8 @@ void Options_VR_OVR_MenuDraw (void)
 
 const char *Options_VR_OVR_MenuKey( int key )
 {
-	if ( key == K_ESCAPE		|| key == K_XBOXB
-		|| key == K_XBOX_BACK	|| key == K_XBOX_START
+	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
+		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
 		)
 		VROVRConfigAccept();
 	return Default_MenuKey( &s_options_vr_ovr_menu, key );

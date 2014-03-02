@@ -140,22 +140,22 @@ keyname_t keynames[] =
 
 	{"SEMICOLON", ';'},	// because a raw semicolon seperates commands
 
-	{"XBOX_UP", K_XBOX_UP},
-	{"XBOX_DOWN", K_XBOX_DOWN},
-	{"XBOX_LEFT", K_XBOX_LEFT},
-	{"XBOX_RIGHT", K_XBOX_RIGHT},
-	{"XBOX_START", K_XBOX_START},
-	{"XBOX_BACK", K_XBOX_BACK},
-	{"XBOX_LSTICK", K_XBOX_LEFT_STICK},
-	{"XBOX_RSTICK", K_XBOX_RIGHT_STICK},
-	{"XBOX_LB", K_XBOXLS},
-	{"XBOX_RB", K_XBOXRS},
-	{"XBOX_A", K_XBOXA},
-	{"XBOX_B", K_XBOXB},
-	{"XBOX_X", K_XBOXX},
-	{"XBOX_Y", K_XBOXY},
-	{"XBOX_LT", K_XBOXLT},
-	{"XBOX_RT", K_XBOXRT},
+	{"GAMEPAD_UP", K_GAMEPAD_UP},
+	{"GAMEPAD_DOWN", K_GAMEPAD_DOWN},
+	{"GAMEPAD_LEFT", K_GAMEPAD_LEFT},
+	{"GAMEPAD_RIGHT", K_GAMEPAD_RIGHT},
+	{"GAMEPAD_START", K_GAMEPAD_START},
+	{"GAMEPAD_BACK", K_GAMEPAD_BACK},
+	{"GAMEPAD_LSTICK", K_GAMEPAD_LEFT_STICK},
+	{"GAMEPAD_RSTICK", K_GAMEPAD_RIGHT_STICK},
+	{"GAMEPAD_LB", K_GAMEPAD_LS},
+	{"GAMEPAD_RB", K_GAMEPAD_RS},
+	{"GAMEPAD_A", K_GAMEPAD_A},
+	{"GAMEPAD_B", K_GAMEPAD_B},
+	{"GAMEPAD_X", K_GAMEPAD_X},
+	{"GAMEPAD_Y", K_GAMEPAD_Y},
+	{"GAMEPAD_LT", K_GAMEPAD_LT},
+	{"GAMEPAD_RT", K_GAMEPAD_RT},
 
 	{NULL,0}
 };
@@ -877,8 +877,8 @@ void Key_Init (void)
 	menubound[K_ESCAPE] = true;
 	for (i=0 ; i<12 ; i++)
 		menubound[K_F1+i] = true;
-	menubound[K_XBOX_START] = true;
-	menubound[K_XBOX_BACK] = true;
+	menubound[K_GAMEPAD_START] = true;
+//	menubound[K_GAMEPAD_BACK] = true;
 //
 // register our functions
 //
@@ -927,7 +927,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 			&& key != K_KP_PGDN
 			&& key != K_DEL
 			&& !(key>='a' && key<='z')
-			&& !(key>= K_XBOX_LSTICK_UP && key <= K_XBOX_RIGHT)
+			&& !(key>= K_GAMEPAD_LSTICK_UP && key <= K_GAMEPAD_RIGHT)
 			&& key_repeats[key] > 1)
 			return;	// ignore most autorepeats
 			
@@ -964,7 +964,7 @@ void Key_Event (int key, qboolean down, unsigned time)
 		key = K_ESCAPE;
 
 	// menu key is hardcoded, so the user can never unbind it
-	if (key == K_ESCAPE || key == K_XBOX_START)
+	if (key == K_ESCAPE || key == K_GAMEPAD_START)
 	{
 		if (!down)
 			return;

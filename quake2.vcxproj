@@ -275,8 +275,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="input\in_winjoy.c" />
-    <ClCompile Include="input\in_xinput.c" />
     <ClCompile Include="renderer\r_antialias.c" />
     <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_shaderobjects.c" />
@@ -285,6 +283,7 @@
     <ClCompile Include="renderer\r_vr_svr.c" />
     <ClCompile Include="sdl2\gl_sdl2.c" />
     <ClCompile Include="sdl2\in_sdl2.c" />
+    <ClCompile Include="sdl2\in_sdlcont.c" />
     <ClCompile Include="sdl2\snd_sdl2.c" />
     <ClCompile Include="sdl2\sys_sdl2.c" />
     <ClCompile Include="sdl2\vid_sdl2.c" />

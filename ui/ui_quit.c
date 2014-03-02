@@ -93,16 +93,16 @@ const char *M_Quit_Key (int key)
 #else // QUITMENU_NOKEY
 	switch (key)
 	{
-	case K_XBOX_BACK:
-	case K_XBOX_START:
-	case K_XBOXB:
+	case K_GAMEPAD_BACK:
+	case K_GAMEPAD_START:
+	case K_GAMEPAD_B:
 	case K_ESCAPE:
 	case 'n':
 	case 'N':
 		UI_PopMenu ();
 		break;
 
-	case K_XBOXA:
+	case K_GAMEPAD_A:
 	case 'Y':
 	case 'y':
 		cls.key_dest = key_console;
