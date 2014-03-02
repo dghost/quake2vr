@@ -27,29 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sdl2quake.h"
 //#include "zmouse.h"
 
-
-#ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL (WM_MOUSELAST+1)  // message that will be supported by the OS 
-#endif
-
-static UINT MSH_MOUSEWHEEL;
-
 //PGM
 int	vidref_val;
 //PGM
-
-// Backslash's Mouse buttons 4 & 5 support
-/* These are #ifdefed out for non-Win2K in the February 2001 version of
-   MS's platform SDK, but we need them for compilation. . . */
-#ifndef WM_XBUTTONDOWN
-   #define WM_XBUTTONDOWN      0x020B
-   #define WM_XBUTTONUP      0x020C
-#endif
-#ifndef MK_XBUTTON1
-   #define MK_XBUTTON1         0x0020
-   #define MK_XBUTTON2         0x0040
-#endif
-// end Mouse buttons 4 & 5 support
 
 // Logitech mouse support
 //#define WM_MWHOOK (WM_USER + 1)
@@ -68,9 +48,9 @@ cvar_t		*vid_fullscreen;
 viddef_t	viddef;				// global video state; used by other modules
 qboolean	kmgl_active = 0;
 
+#ifdef _WIN32
 HWND        cl_hwnd;            // Main window handle for life of program
-
-LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#endif
 
 static qboolean s_alttab_disabled;
 
