@@ -21,9 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ui_options_controls.c -- the controls options menu
 
 #include <ctype.h>
-#ifdef _WIN32
-#include <io.h>
-#endif
 #include "../client/client.h"
 #include "ui_local.h"
 
