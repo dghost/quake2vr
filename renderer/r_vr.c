@@ -50,6 +50,18 @@ void R_VR_StartFrame()
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
 
+
+	if (vr_hud_fov->modified)
+	{
+		// clamp value from 30-90 degrees
+		if (vr_hud_fov->value < 30)
+			Cvar_SetValue("vr_hud_fov",30.0f);
+		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
+			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
+		vr_hud_fov->modified = false;
+		resolutionChanged = true;
+	}
+
 	if (resolutionChanged)
 	{
 		Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
@@ -61,6 +73,7 @@ void R_VR_StartFrame()
 
 }
 
+void R_Clear (void);
 void R_VR_BindView(vr_eye_t eye)
 {
 	int clear = 0;
@@ -87,8 +100,12 @@ void R_VR_BindView(vr_eye_t eye)
 		}
 	}
 
-	if (clear)
+	if (clear && eye != EYE_HUD)
 	{
+		glClearColor(0.0,0.0,0.0,0.0);
+		R_Clear();
+		glClearColor (1,0, 0.5, 0.5);
+	} else if (clear) {
 		glClearColor(0.0,0.0,0.0,0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glClearColor (1,0, 0.5, 0.5);
@@ -226,7 +243,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 		QuatToRotation(q,mat);
 		glMultMatrixf((const GLfloat *) mat);
 
-
 		/* depriciated as of 9/30/2013 - consider removing later
 		// convert to euler angles and rotate
 		vec3_t orientation;
@@ -298,6 +314,7 @@ void R_VR_Enable()
 		// TODO: conditional this shit up
 		if (hud.valid)
 			R_DelFBO(&hud);
+
 		if (offscreen.valid)
 			R_DelFBO(&offscreen);
 
@@ -321,8 +338,6 @@ void R_VR_Enable()
 			Cmd_ExecuteString("vr_disable");
 		}
 	}
-
-
 
 	R_VR_StartFrame();
 }

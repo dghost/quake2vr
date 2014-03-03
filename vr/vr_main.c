@@ -310,16 +310,6 @@ void VR_Frame()
 
 	hmd->frame();
 
-	if (vr_hud_fov->modified)
-	{
-		// clamp value from 30-90 degrees
-		if (vr_hud_fov->value < 30)
-			Cvar_SetValue("vr_hud_fov",30.0f);
-		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
-			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
-		vr_hud_fov->modified = false;
-	}
-
 // 	only flag as stale after a frame is rendered
 	stale = 1;
 
