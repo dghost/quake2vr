@@ -638,7 +638,10 @@ void GL_SetDefaultState (void)
 	glState.depthFunc = GL_LEQUAL;
 	glState.depthMask = GL_TRUE;
 	glState.matrixMode = GL_MODELVIEW;
+	glState.currentFBO = 0;
 
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+	
 	// Set default state
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
