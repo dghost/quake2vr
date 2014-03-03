@@ -322,7 +322,13 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 	if (glowPass) {	// just redraw with existing arrays for glow
 		glDisableClientState (GL_COLOR_ARRAY);
 		glColor4f(1.0, 1.0, 1.0, alpha);
+		GL_Enable(GL_POLYGON_OFFSET_FILL);
+
+		GL_PolygonOffset(-0.75,-1.0);
+
 		RB_DrawTexGlow (glow);
+		GL_Disable(GL_POLYGON_OFFSET_FILL);
+
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glEnableClientState (GL_COLOR_ARRAY);
 	}
