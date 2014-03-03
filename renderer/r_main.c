@@ -171,6 +171,7 @@ cvar_t	*r_saturation;	//** DMP
 
 cvar_t  *r_drawnullmodel;
 cvar_t  *r_fencesync;
+cvar_t  *r_directstate;
 
 /*
 =================
@@ -210,7 +211,7 @@ void R_PolyBlend (void)
 	GL_Disable (GL_DEPTH_TEST);
 	GL_DisableTexture(0);
 
-    glLoadIdentity ();
+	GL_LoadIdentity (GL_MODELVIEW);
 
 	// FIXME: get rid of these
     glRotatef (-90,  1, 0, 0);	    // put Z going up
@@ -448,17 +449,13 @@ void R_SetupGL(void)
 	// set up projection matrix
 	//
 	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
 	//Knightmare- 12/26/2001- increase back clipping plane distance
 	R_VR_Perspective(r_newrefdef.fov_y, (double) r_newrefdef.width / r_newrefdef.height, 1, farz); //was 4096
 	//end Knightmare
 
-	GL_CullFace(GL_FRONT);
 
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity ();
+	GL_LoadIdentity(GL_MODELVIEW);
 
     glRotatef (-90,  1, 0, 0);	    // put Z going up
     glRotatef (90,  0, 0, 1);	    // put Z going up
@@ -467,6 +464,7 @@ void R_SetupGL(void)
 	glRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
 	glRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
 	
+	GL_CullFace(GL_FRONT);
 
 	VectorCopy(r_newrefdef.vieworg,vieworigin);
 	/*
@@ -838,11 +836,9 @@ void R_SetGL2D (void)
 {
 	// set 2D virtual screen size
 	glViewport (0,0, vid.width, vid.height);
-	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity ();
-	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity ();
+	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -99999, 99999);
+	GL_LoadIdentity(GL_MODELVIEW);
+
 	GL_Disable (GL_DEPTH_TEST);
 	GL_Disable (GL_CULL_FACE);
 	GL_Disable (GL_BLEND);
@@ -1115,7 +1111,7 @@ void R_Register (void)
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
 	r_fencesync = Cvar_Get("r_fencesync","1",CVAR_ARCHIVE );
-
+	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
 	Cmd_AddCommand ("screenshot_silent", R_ScreenShot_Silent_f);
@@ -1426,6 +1422,17 @@ qboolean R_Init ( char *reason )
 			Cvar_SetInteger("r_fencesync",0);
 	}
 
+	glConfig.ext_direct_state_access = false;
+	if (GLEW_EXT_direct_state_access)
+	{
+			VID_Printf (PRINT_ALL, "...using GL_EXT_direct_state_access\n" );
+			glConfig.ext_direct_state_access = true;
+	} else {
+			VID_Printf (PRINT_ALL, "...GL_EXT_direct_state_access not found\n" );
+			glConfig.ext_direct_state_access = false;
+			Cvar_SetInteger("r_directstate",0);
+	}
+
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);
 	err = glGetError();
@@ -1433,6 +1440,7 @@ qboolean R_Init ( char *reason )
 		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
 
 
+	
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
 	Com_Printf( "Size of entities: %i\n", sizeof (entity_t)*MAX_ENTITIES );
@@ -1703,11 +1711,8 @@ void R_BeginFrame()
 	// go into 2D mode
 	//
 	glViewport (0,0, vid.width, vid.height);
-	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity ();
-	glOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity ();
+	GL_SetIdentityOrtho( GL_PROJECTION , 0, vid.width, vid.height, 0, -99999, 99999);
+	GL_LoadIdentity(GL_MODELVIEW);
 
 	GL_Disable (GL_DEPTH_TEST);
 	GL_Disable (GL_CULL_FACE);

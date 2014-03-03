@@ -211,12 +211,9 @@ void R_VR_DrawHud(vr_eye_t eye)
 	if (!vr_enabled->value)
 		return;
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	R_PerspectiveOffset(vrState.viewFovY, vrState.aspect, 0.24, 251.0, eye * vrState.projOffset);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	GL_LoadIdentity(GL_MODELVIEW);
 
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int) vr_aimmode->value > 0))
@@ -272,11 +269,9 @@ void R_VR_Present()
 {
 	if (!hmd)
 		return;
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	GL_SetIdentity(GL_PROJECTION);
+	GL_SetIdentity(GL_MODELVIEW);
 
 	// tell the HMD renderer to draw composited scene
 	hmd->present();

@@ -136,8 +136,8 @@ void R_ShadowBlend (float shadowalpha)
 	if (r_shadows->value != 3)
 		return;
 
-	glPushMatrix();
-    glLoadIdentity ();
+	GL_PushMatrix(GL_MODELVIEW);
+	GL_LoadIdentity (GL_MODELVIEW);
 
 	// FIXME: get rid of these
     glRotatef (-90,  1, 0, 0);	    // put Z going up
@@ -173,7 +173,7 @@ void R_ShadowBlend (float shadowalpha)
 	rb_vertex++;
 	RB_RenderMeshGeneric (false);
 
-	glPopMatrix();
+	GL_PopMatrix(GL_MODELVIEW);
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_Disable (GL_BLEND);

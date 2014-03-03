@@ -365,11 +365,8 @@ void R_Bloom_GeneratexCross (void)
 
 	// set up sample size workspace
 	glViewport( 0, 0, sample_width, sample_height );
-	glMatrixMode( GL_PROJECTION );
-    glLoadIdentity ();
-	glOrtho(0, sample_width, sample_height, 0, -10, 100);
-	glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity ();
+	GL_SetIdentityOrtho ( GL_PROJECTION,0, sample_width, sample_height, 0, -10, 100);
+	GL_LoadIdentity( GL_MODELVIEW );
 
 	// copy small scene into r_bloomeffecttexture
 	GL_Bind(0, r_bloomeffecttexture);
@@ -436,11 +433,8 @@ void R_Bloom_GeneratexCross (void)
 	
 	// restore full screen workspace
 	glViewport( 0, 0, glState.width, glState.height );
-	glMatrixMode( GL_PROJECTION );
-    glLoadIdentity ();
-	glOrtho(0, glState.width, glState.height, 0, -10, 100);
-	glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity ();
+	GL_SetIdentityOrtho ( GL_PROJECTION, 0, glState.width, glState.height, 0, -10, 100);
+	GL_LoadIdentity( GL_MODELVIEW );
 }
 #endif
 
@@ -457,11 +451,8 @@ void R_Bloom_GeneratexDiamonds (void)
 
 	// set up sample size workspace
 	glViewport( 0, 0, sample_width, sample_height );
-	glMatrixMode( GL_PROJECTION );
-    glLoadIdentity ();
-	glOrtho(0, sample_width, sample_height, 0, -10, 100);
-	glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity ();
+	GL_SetIdentityOrtho ( GL_PROJECTION, 0, sample_width, sample_height, 0, -10, 100);
+	GL_LoadIdentity( GL_MODELVIEW );
 
 	// copy small scene into r_bloomeffecttexture
 	GL_Bind(r_bloomeffecttexture->texnum);
@@ -535,11 +526,8 @@ void R_Bloom_GeneratexDiamonds (void)
 
 	//restore full screen workspace
 	glViewport( 0, 0, vid.width, vid.height );
-	glMatrixMode( GL_PROJECTION );
-    glLoadIdentity ();
-	glOrtho(0, vid.width, vid.height, 0, -10, 100);
-	glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity ();
+	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -10, 100);
+	GL_LoadIdentity( GL_MODELVIEW );
 }											
 
 /*
@@ -611,11 +599,9 @@ void R_BloomBlend ( refdef_t *fd )
 	glViewport ( 0, 0, vid.width, vid.height );
 	GL_TexEnv (GL_REPLACE); // Knightmare added
 	GL_Disable (GL_DEPTH_TEST);
-	glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-	glOrtho(0, vid.width, vid.height, 0, -10, 100);
-	glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
+	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -10, 100);
+	GL_LoadIdentity (GL_MODELVIEW);
+
 	GL_Disable (GL_CULL_FACE);
 
 	GL_Disable (GL_BLEND);

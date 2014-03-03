@@ -988,7 +988,7 @@ void R_DrawAliasModel (entity_t *e)
 	for (i=0; i < paliashdr->num_meshes; i++)
 		c_alias_polys += paliashdr->meshes[i].num_tris;
 
-	glPushMatrix ();
+	GL_PushMatrix(GL_MODELVIEW);
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();		// roll is backwards
 	R_RotateForEntity (e, true);
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();		// roll is backwards
@@ -1025,7 +1025,7 @@ void R_DrawAliasModel (entity_t *e)
 	if (mirrorview || mirrormodel)
 		R_FlipModel (false, mirrormodel);
 
-		glPopMatrix ();
+		GL_PopMatrix(GL_MODELVIEW);
 
 
 	// show model bounding box
@@ -1041,7 +1041,7 @@ void R_DrawAliasModel (entity_t *e)
 		&& !( (e->flags & RF_MASK_SHELL) && (e->flags & RF_TRANSLUCENT) )
 		&& r_shadows->value >= 1 && aliasShadowAlpha >= DIV255)
 	{
- 		glPushMatrix ();
+ 		GL_PushMatrix(GL_MODELVIEW);
 		GL_DisableTexture(0);
 		GL_Enable (GL_BLEND);
 
@@ -1058,7 +1058,7 @@ void R_DrawAliasModel (entity_t *e)
 
 		GL_Disable (GL_BLEND);
 		GL_EnableTexture(0);
-		glPopMatrix ();
+		GL_PopMatrix(GL_MODELVIEW);
 	}
 }
 
@@ -1126,7 +1126,7 @@ void R_DrawAliasModelShadow (entity_t *e)
 
 	R_DrawAliasMeshes (paliashdr, e, true, mirrormodel);
 
-	qglPushMatrix ();
+	qGL_PushMatrix(GL_MODELVIEW);
 
 	GL_DisableTexture(0);
 	GL_Enable (GL_BLEND);
@@ -1144,7 +1144,7 @@ void R_DrawAliasModelShadow (entity_t *e)
 
 	GL_Disable (GL_BLEND);
 	GL_EnableTexture(0);
-	glPopMatrix ();
+	GL_PopMatrix(GL_MODELVIEW);
 
 	// mirroring support
 //	if (mirrormodel)

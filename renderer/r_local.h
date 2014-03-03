@@ -307,6 +307,7 @@ extern	cvar_t	*r_gamma;
 
 extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;
+extern	cvar_t  *r_directstate;
 
 extern	int		gl_lightmap_format;
 extern	int		gl_solid_format;
@@ -743,7 +744,7 @@ typedef struct
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;
-
+	qboolean	ext_direct_state_access;
 	// anisotropic filtering
 	qboolean	anisotropic;
 	float		max_anisotropy;
@@ -802,6 +803,7 @@ typedef struct
 	GLenum			depthFunc;
 	GLboolean		depthMask;
 
+	GLenum			matrixMode;
 
 	unsigned char	originalRedGammaTable[256];
 	unsigned char	originalGreenGammaTable[256];
@@ -840,6 +842,13 @@ void	GL_Bind (int texnum);
 void	GL_MBind (unsigned tmu, int texnum);
 void	GL_BindFBO (unsigned fbo);
 void	GL_SetDefaultState (void);
+void	GL_MatrixMode(GLenum matrixMode);
+void	GL_SetIdentity(GLenum matrixMode);
+void	GL_LoadIdentity(GLenum matrixMode);
+void	GL_SetIdentityOrtho(GLenum matrixMode, double l, double r, double b, double t, double n, double f);
+void	GL_LoadMatrix(GLenum matrixMode, const double *m);
+void	GL_PushMatrix(GLenum matrixMode);
+void	GL_PopMatrix(GLenum matrixMode);
 
 /*
 ====================================================================

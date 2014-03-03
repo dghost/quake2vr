@@ -893,7 +893,7 @@ void R_DrawAliasMD2Model (entity_t *e)
 		R_FlipModel (true, false);
 
 
-    glPushMatrix ();
+    GL_PushMatrix(GL_MODELVIEW);
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();	// roll is backwards
 	R_RotateForEntity (e, true);
 	e->angles[ROLL] = e->angles[ROLL] * R_RollMult();	// roll is backwards
@@ -947,7 +947,7 @@ void R_DrawAliasMD2Model (entity_t *e)
 	if (mirrormodel)
 		R_FlipModel (false, false);
 
-	glPopMatrix ();
+	GL_PopMatrix(GL_MODELVIEW);
 	// show model bounding box
 	R_DrawAliasModelBBox (bbox, e);
 
@@ -964,7 +964,7 @@ void R_DrawAliasMD2Model (entity_t *e)
 		&& !( (e->flags & RF_MASK_SHELL) && (e->flags & RF_TRANSLUCENT) ) 
 		&& r_shadows->value >= 1 && shadowalpha_md2 >= DIV255)
 	{
- 		glPushMatrix ();
+ 		GL_PushMatrix(GL_MODELVIEW);
 		R_RotateForEntity (e, false);
 		GL_DisableTexture(0);
 		GL_Enable (GL_BLEND);
@@ -976,7 +976,7 @@ void R_DrawAliasMD2Model (entity_t *e)
 
 		GL_Disable (GL_BLEND);
 		GL_EnableTexture(0);
-		glPopMatrix ();
+		GL_PopMatrix(GL_MODELVIEW);
 	}
 }
 
@@ -1057,7 +1057,7 @@ void R_DrawAliasMD2ModelShadow (entity_t *e)
 		R_ShadowLight (e->origin, shadevector);
 	default:
 		{*/
-			glPushMatrix ();
+			GL_PushMatrix(GL_MODELVIEW);
 			R_RotateForEntity (e, false);
 			GL_DisableTexture(0);
 			GL_Enable (GL_BLEND);
@@ -1069,7 +1069,7 @@ void R_DrawAliasMD2ModelShadow (entity_t *e)
 			
 			GL_Disable (GL_BLEND);
 			GL_EnableTexture(0);
-			glPopMatrix ();
+			GL_PopMatrix(GL_MODELVIEW);
 	/*	}
 		break;
 	}*/

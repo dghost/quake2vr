@@ -68,7 +68,7 @@ void R_DrawNullModel (void)
 	if (!r_drawnullmodel->value)
 		return;
 
-    glPushMatrix ();
+    GL_PushMatrix(GL_MODELVIEW);
 	R_RotateForEntity (currententity, true);
 	GL_DisableTexture (0);
 
@@ -89,7 +89,7 @@ void R_DrawNullModel (void)
 	glEnd();
 
 	GL_EnableTexture (0);
-	glPopMatrix ();
+	GL_PopMatrix(GL_MODELVIEW);
 	glColor4f (1,1,1,1);
 }
 

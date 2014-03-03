@@ -514,6 +514,104 @@ void GL_BindFBO (unsigned fbo)
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo);
 }
 
+void GL_MatrixMode(GLenum matrixMode)
+{
+	if (glState.matrixMode == matrixMode)
+		return;
+
+	glMatrixMode(matrixMode);
+	glState.matrixMode = matrixMode;
+}
+
+void GL_SetIdentity(GLenum matrixMode)
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glLoadIdentity();
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixLoadIdentityEXT(matrixMode);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glLoadIdentity();
+		GL_MatrixMode(currentMode);
+	}
+}
+
+void GL_LoadIdentity(GLenum matrixMode)
+{
+	GL_MatrixMode(matrixMode);
+	glLoadIdentity();
+}
+
+void GL_SetIdentityOrtho(GLenum matrixMode, double l, double r, double b, double t, double n, double f)
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glLoadIdentity();
+		glOrtho(l, r, b, t, n ,f);
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixLoadIdentityEXT(matrixMode);
+		glMatrixOrthoEXT(matrixMode, l, r, b, t, n ,f);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glLoadIdentity();
+		glOrtho(l, r, b, t, n ,f);
+		GL_MatrixMode(currentMode);
+	}
+}
+
+void GL_LoadMatrix(GLenum matrixMode, const double *m)
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glLoadMatrixd(m);
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixLoaddEXT(matrixMode, m);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glLoadMatrixd(m);
+		GL_MatrixMode(currentMode);
+	}
+}
+
+void GL_PushMatrix(GLenum matrixMode)
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glPushMatrix();
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixPushEXT(matrixMode);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glPushMatrix();
+		GL_MatrixMode(currentMode);
+	}
+}
+
+void GL_PopMatrix(GLenum matrixMode)
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glPopMatrix();
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixPopEXT(matrixMode);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glPopMatrix();
+		GL_MatrixMode(currentMode);
+	}
+}
+
 /*
 =================
 GL_SetDefaultState
@@ -546,6 +644,7 @@ void GL_SetDefaultState (void)
 	glState.blendDst = GL_ONE_MINUS_SRC_ALPHA;
 	glState.depthFunc = GL_LEQUAL;
 	glState.depthMask = GL_TRUE;
+	glState.matrixMode = GL_MODELVIEW;
 
 	// Set default state
 	glDisable(GL_TEXTURE_GEN_S);
@@ -567,6 +666,8 @@ void GL_SetDefaultState (void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
+
+	glMatrixMode(GL_MODELVIEW);
 
 	glClearColor (1,0, 0.5, 0.5);
 	glClearDepth(1.0);

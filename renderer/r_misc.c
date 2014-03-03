@@ -715,5 +715,5 @@ void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdoubl
 	out[14] = (2.0f * zFar * zNear) * nf;
 	out[15] = 0;
 
-	glMultMatrixd(out);
+	GL_LoadMatrix(GL_PROJECTION,out);
 }

@@ -80,10 +80,8 @@ void R_AntialiasEndFrame(void)
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Disable(GL_ALPHA_TEST);
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		GL_SetIdentity(GL_PROJECTION);
+		GL_SetIdentity(GL_MODELVIEW);
 
 		GL_Bind(offscreen.texture);
 

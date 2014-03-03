@@ -340,7 +340,7 @@ void R_DrawSkyBox (void)
 			return;		// nothing visible
 	}
 
-	glPushMatrix ();
+	GL_PushMatrix(GL_MODELVIEW);
 	glTranslatef (r_origin[0], r_origin[1], r_origin[2]);
 	glRotatef (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
 
@@ -374,7 +374,7 @@ void R_DrawSkyBox (void)
 		RB_RenderMeshGeneric (true);
 	}
 
-	glPopMatrix ();
+	GL_PopMatrix(GL_MODELVIEW);
 }
 
 

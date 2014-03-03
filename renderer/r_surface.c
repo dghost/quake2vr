@@ -640,12 +640,12 @@ void R_DrawAlphaSurfaces (void)
 	// so scale it back down
 
 	rb_vertex = rb_index = 0;
-	glPushMatrix();
+	GL_PushMatrix(GL_MODELVIEW);
 	for (s = r_alpha_surfaces; s; s = s->texturechain)
 	{
 		// go back to the world matrix
 //		glLoadMatrixf (r_world_matrix);
-		glPushMatrix();
+		GL_PushMatrix(GL_MODELVIEW);
 
 		R_BuildVertexLight (s);
 		GL_Enable (GL_BLEND);
@@ -678,12 +678,12 @@ void R_DrawAlphaSurfaces (void)
 		else
 			R_DrawGLPoly (s, !R_SurfsAreBatchable (s, s->texturechain));// true);
 
-		glPopMatrix();
+		GL_PopMatrix(GL_MODELVIEW);
 	}
 
 	// go back to the world matrix after shifting trans faces
 //	glLoadMatrixf (r_world_matrix);
-	glPopMatrix();
+	GL_PopMatrix(GL_MODELVIEW);
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_TexEnv (GL_REPLACE);
@@ -1547,7 +1547,7 @@ void R_DrawBrushModel (entity_t *e)
 		}
 	}
 
-    glPushMatrix ();
+    GL_PushMatrix(GL_MODELVIEW);
 	R_RotateForEntity (e, true);
 
 	GL_EnableMultitexture (true);
@@ -1557,7 +1557,7 @@ void R_DrawBrushModel (entity_t *e)
 
 	GL_EnableMultitexture (false);
 
-	glPopMatrix ();
+	GL_PopMatrix(GL_MODELVIEW);
 }
 
 /*
