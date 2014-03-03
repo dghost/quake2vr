@@ -269,12 +269,13 @@ void R_SetFrustum (void)
 	float	fov_x = r_newrefdef.fov_x;
 	float	fov_y = r_newrefdef.fov_y;
 
-	// hack to keep objects from disappearing at the edges
+	// hack to keep objects from disappearing at the edges when projection matrix is offset
 	if (vr_enabled->value)
 	{
-		fov_y += 20;
+//		fov_y *= 1.30;
 		fov_x += 20;
 	}
+	
 #if 0
 	//
 	// this code is wrong, since it presume a 90 degree FOV both in the
@@ -467,27 +468,9 @@ void R_SetupGL(void)
 	GL_CullFace(GL_FRONT);
 
 	VectorCopy(r_newrefdef.vieworg,vieworigin);
-	/*
-	// Neckmodel stuff
-	if (vr_enabled->value && vr_neckmodel->value)
-	{
-		vec3_t forward, up, out;
-		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		AngleVectors(r_newrefdef.viewangles,forward,NULL,up);
-		VectorNormalize(forward);
-		VectorNormalize(up);
-		VectorScale(forward, eyeDist ,forward);
-		VectorScale(up,neckLength,up);
-		VectorAdd(forward,up,out);
-		vieworigin[2] -= neckLength;
-		VectorAdd(vieworigin,out,vieworigin); 
-	}
-	*/
-    glTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
 
-//	if ( glState.camera_separation != 0 && glState.stereo_enabled )
-//		glTranslatef ( glState.camera_separation, 0, 0 );
+	glTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
+
 
 	
 	//glGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
@@ -572,13 +555,26 @@ void R_DrawLastElements (void)
 
 void VR_DrawCrosshair()
 {
+	GLenum src, dst;
+	qboolean blend, depth, alpha;
 
 	if (!vr_enabled->value)
 		return;
 
-	GL_Disable(GL_DEPTH_TEST);
-	GL_Disable(GL_ALPHA_TEST);
-	GL_Enable(GL_BLEND);
+	blend = glState.blend;
+	depth = glState.depthTest;
+	alpha = glState.alphaTest;
+	src = glState.blendSrc;
+	dst = glState.blendDst;
+
+
+	if (depth)
+		GL_Disable(GL_DEPTH_TEST);
+	if (alpha)
+		GL_Disable(GL_ALPHA_TEST);
+	if (!blend)
+		GL_Enable(GL_BLEND);
+
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	GL_MBind(0,0);
 	glColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
@@ -601,8 +597,14 @@ void VR_DrawCrosshair()
 		glEnd ();
 	}
 
-	GL_Enable(GL_DEPTH_TEST);
-	GL_Disable(GL_BLEND);
+	if (depth)
+		GL_Enable(GL_DEPTH_TEST);
+	if (alpha)
+		GL_Enable(GL_ALPHA_TEST);
+	if (!blend)
+		GL_Disable(GL_BLEND);
+
+	GL_BlendFunc(src,dst);
 }
 
 /*
@@ -685,9 +687,9 @@ void VR_RenderView (refdef_t *fd)
 		}
 
 		R_DrawAllParticles ();
-
+	
 		VR_DrawCrosshair();
-		
+
 		R_DrawEntitiesOnList(ents_viewweaps);
 
 		if (r_particle_overdraw->value)
@@ -702,6 +704,8 @@ void VR_RenderView (refdef_t *fd)
 			R_DrawAllParticles ();
 			R_ParticleStencil (3);
 		}
+
+
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
@@ -805,13 +809,14 @@ void R_RenderView (refdef_t *fd)
 		R_DrawAllParticles ();
 
 		VR_DrawCrosshair();
-		
+
 		R_DrawEntitiesOnList(ents_viewweaps);
 
 		if (r_particle_overdraw->value)
 		{
 			R_ParticleStencil (1);
 		}
+
 		R_DrawAlphaSurfaces ();
 
 		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
@@ -1448,22 +1453,22 @@ qboolean R_Init ( char *reason )
 		VID_Printf (PRINT_ALL, "R_Init: glGetError() = 0x%x\n", err);
 
 
-	
 /*
 	Com_Printf( "Size of dlights: %i\n", sizeof (dlight_t)*MAX_DLIGHTS );
 	Com_Printf( "Size of entities: %i\n", sizeof (entity_t)*MAX_ENTITIES );
 	Com_Printf( "Size of particles: %i\n", sizeof (particle_t)*MAX_PARTICLES );
 	Com_Printf( "Size of decals: %i\n", sizeof (particle_t)*MAX_DECAL_FRAGS );
 */
+	GL_SetDefaultState();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "GL_SetDefaultState: glGetError() = 0x%x\n", err);
+
 	R_ShaderObjectsInit();
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_ShaderObjectsInit: glGetError() = 0x%x\n", err);
 
-	GL_SetDefaultState();
-	err = glGetError();
-	if ( err != GL_NO_ERROR )
-		VID_Printf (PRINT_ALL, "GL_SetDefaultState: glGetError() = 0x%x\n", err);
 
 	R_InitAntialias();
 	err = glGetError();
@@ -1474,11 +1479,6 @@ qboolean R_Init ( char *reason )
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_VR_Init: glGetError() = 0x%x\n", err);
-
-	// draw our stereo patterns
-#if 0 // commented out until H3D pays us the money they owe us
-	GL_DrawStereoPattern();
-#endif
 
 	R_InitImages ();
 	err = glGetError();

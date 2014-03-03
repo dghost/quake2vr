@@ -1025,7 +1025,7 @@ void R_DrawAliasModel (entity_t *e)
 	if (mirrorview || mirrormodel)
 		R_FlipModel (false, mirrormodel);
 
-		GL_PopMatrix(GL_MODELVIEW);
+	GL_PopMatrix(GL_MODELVIEW);
 
 
 	// show model bounding box
