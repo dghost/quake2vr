@@ -142,7 +142,7 @@ void GL_Stencil (qboolean enable, qboolean shell)
 
 		GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 2);
-		glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP,GL_KEEP,GL_INCR);
 	}
 	else
 	{
@@ -167,9 +167,6 @@ particles only over trans surfaces
 extern	cvar_t	*r_particle_overdraw;
 void R_ParticleStencil (int passnum)
 {
-	if (!glConfig.have_stencil || !r_particle_overdraw->value) 
-		return;
-
 	if (passnum == 1) // write area of trans surfaces to stencil buffer
 	{
 		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
@@ -178,19 +175,15 @@ void R_ParticleStencil (int passnum)
 
 		GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc( GL_ALWAYS, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_INCR);
 	}
-	else if (passnum == 2) // turn off writing
+	else if (passnum == 2) // enable drawing only to affected area
 	{
-		GL_Disable(GL_STENCIL_TEST);
-	}
-	else if (passnum == 3) // enable drawing only to affected area
-	{
-		GL_Enable(GL_STENCIL_TEST);
+		//GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
 	}
-	else if (passnum == 4) // turn off and restore
+	else if (passnum == 3) // turn off and restore
 	{
 		GL_Disable(GL_STENCIL_TEST);
 		glPopAttrib(); // restore stencil buffer

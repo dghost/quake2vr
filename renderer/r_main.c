@@ -690,14 +690,18 @@ void VR_RenderView (refdef_t *fd)
 		
 		R_DrawEntitiesOnList(ents_viewweaps);
 
-		R_ParticleStencil (1);
+		if (r_particle_overdraw->value)
+		{
+			R_ParticleStencil (1);
+		}
 		R_DrawAlphaSurfaces ();
-		R_ParticleStencil (2);
 
-		R_ParticleStencil (3);
 		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
+		{
+			R_ParticleStencil (2);
 			R_DrawAllParticles ();
-		R_ParticleStencil (4);
+			R_ParticleStencil (3);
+		}
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
@@ -804,14 +808,18 @@ void R_RenderView (refdef_t *fd)
 		
 		R_DrawEntitiesOnList(ents_viewweaps);
 
-		R_ParticleStencil (1);
+		if (r_particle_overdraw->value)
+		{
+			R_ParticleStencil (1);
+		}
 		R_DrawAlphaSurfaces ();
-		R_ParticleStencil (2);
 
-		R_ParticleStencil (3);
 		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
+		{
+			R_ParticleStencil (2);
 			R_DrawAllParticles ();
-		R_ParticleStencil (4);
+			R_ParticleStencil (3);
+		}
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);

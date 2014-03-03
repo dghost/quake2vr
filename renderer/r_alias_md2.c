@@ -537,22 +537,22 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 	{	// increment stencil if backface is behind depthbuffer
 		if (zfail) { // Carmack reverse
 			GL_CullFace(GL_BACK); // quake is backwards, this culls front faces
-			glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+			glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_INCR, GL_KEEP);
 		}
 		else { // Z-Pass
 			GL_CullFace(GL_FRONT); // quake is backwards, this culls back faces
-			glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+			glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_INCR);
 		}
 		glDrawRangeElements(GL_TRIANGLES, 0, md2shadow_va, md2shadow_index, GL_UNSIGNED_INT, indexArray);
 
 		// decrement stencil if frontface is behind depthbuffer
 		if (zfail) { // Carmack reverse
 			GL_CullFace(GL_FRONT); // quake is backwards, this culls back faces
-			glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+			glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_DECR, GL_KEEP);
 		}
 		else { // Z-Pass
 			GL_CullFace(GL_BACK); // quake is backwards, this culls front faces
-			glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
+			glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_DECR);
 		}
 	}
 
@@ -597,12 +597,12 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 		
 		// increment stencil if backface is behind depthbuffer
 		GL_CullFace(GL_BACK); // quake is backwards, this culls front faces
-		glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_INCR, GL_KEEP);
 		CastMD2VolumeShadow(paliashdr, light, projected_distance);
 		
 		// decrement stencil if frontface is behind depthbuffer
 		GL_CullFace(GL_FRONT); // quake is backwards, this culls back faces
-		glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_DECR, GL_KEEP);
 		CastMD2VolumeShadow(paliashdr, light, projected_distance);
 		
 		dl++; // increment dl 
