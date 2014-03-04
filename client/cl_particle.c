@@ -464,8 +464,11 @@ void CL_CalcPartVelocity (cparticle_t *p, float scale, float *time, vec3_t veloc
 	velocity[0] = scale * (p->vel[0]*time1 + (p->accel[0])*time2);
 	velocity[1] = scale * (p->vel[1]*time1 + (p->accel[1])*time2);
 
-	if (p->flags & PART_GRAVITY)
-		velocity[2] = scale * (p->vel[2]*time1 + (p->accel[2]-(PARTICLE_GRAVITY))*time2);
+	if (p->flags & PART_GRAVITY_LIGHT)
+		velocity[2] = scale * (p->vel[2]*time1 + (p->accel[2]-(PARTICLE_GRAVITY_DEFAULT))*time2);
+	else if (p->flags & PART_GRAVITY_HEAVY)
+		velocity[2] = scale * (p->vel[2]*time1 + (p->accel[2]-(PARTICLE_GRAVITY_HEAVY))*time2);
+
 	else
 		velocity[2] = scale * (p->vel[2]*time1 + (p->accel[2])*time2);
 }
@@ -521,8 +524,8 @@ void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 
 		p->start = p->time = CL_NewParticleTime();
 
-		if (p->flags&PART_GRAVITY && VectorLength(p->vel)<2)
-			p->flags &= ~PART_GRAVITY;
+		if (p->flags&PART_GRAVITY_LIGHT && VectorLength(p->vel)<2)
+			p->flags &= ~PART_GRAVITY_LIGHT;
 	}
 
 	p->thinknext = true;
@@ -636,8 +639,11 @@ void CL_AddParticles (void)
 			org[i] = p->org[i] + p->vel[i]*time + p->accel[i]*time2;
 		}
 
-		if (p->flags&PART_GRAVITY)
-			org[2]+=time2*-PARTICLE_GRAVITY;
+		if (p->flags&PART_GRAVITY_LIGHT)
+			org[2]+=time2*-PARTICLE_GRAVITY_DEFAULT;
+		else if (p->flags&PART_GRAVITY_HEAVY)
+			org[2]+=time2*-PARTICLE_GRAVITY_HEAVY;
+
 
 		size = p->size + p->sizevel*time;
 

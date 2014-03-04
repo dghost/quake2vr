@@ -369,7 +369,7 @@ void CL_ParticleExplosionSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, 
 
 		for (i=0;i<2;i++)
 			angle[i] = 0.25*(p->vel[i]*time1 + (p->accel[i])*time2);
-		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY)*time2);
+		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY_DEFAULT)*time2);
 	}
 
 	p->thinknext = true;
@@ -397,7 +397,7 @@ void CL_Explosion_Sparks (vec3_t org, int size, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			size,		size*-1.5f,		// was 6, -9
 			particle_solid,
-			PART_GRAVITY|PART_SPARK,
+			PART_GRAVITY_LIGHT|PART_SPARK,
 			CL_ParticleExplosionSparksThink, true);
 	}
 }
@@ -498,7 +498,7 @@ void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alp
 			if (p->color[1] > 0 && p->color[2] > 0)
 				greenblood = true;
 			// time cutoff for gib trails
-			if (p->flags & PART_GRAVITY && !(p->flags & PART_DIRECTION))
+			if (p->flags & PART_GRAVITY_LIGHT && !(p->flags & PART_DIRECTION))
 			{	// gekk gibs go flyin faster...
 				if ((greenblood) && (cl.time - p->time)*0.001 > 1.0F)
 					timedout = true;
@@ -614,7 +614,7 @@ void CL_BloodBleed (vec3_t org, vec3_t dir, int count)
 			GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 			MAXBLEEDSIZE*0.5,		0,			
 			particle_blooddrip,
-			PART_SHADED|PART_DIRECTION|PART_GRAVITY|PART_OVERBRIGHT,
+			PART_SHADED|PART_DIRECTION|PART_GRAVITY_LIGHT|PART_OVERBRIGHT,
 			CL_ParticleBloodDropThink,true);
 
 		if (p && i == 0 && random() < BLOOD_DECAL_CHANCE)
@@ -741,7 +741,7 @@ void CL_ParticleEffect (vec3_t org, vec3_t dir, int color8, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			1,			0,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 	}
 }
@@ -773,7 +773,7 @@ void CL_ParticleEffect2 (vec3_t org, vec3_t dir, int color8, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			1,			0,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 	}
 }
@@ -805,7 +805,7 @@ void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int color8, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			2,			-0.25,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL, false);
 	}
 }
@@ -836,7 +836,7 @@ void CL_ParticleSplashThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 
 		for (i=0;i<2;i++)
 			angle[i] = 0.5*(p->vel[i]*time1 + (p->accel[i])*time2);
-		angle[2] = 0.5*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY)*time2);
+		angle[2] = 0.5*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY_DEFAULT)*time2);
 	}
 
 	p->thinknext = true;
@@ -869,7 +869,7 @@ void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, int color8, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			5,			-7,			
 			particle_smoke,
-			PART_GRAVITY|PART_DIRECTION   /*|PART_TRANS|PART_SHADED*/,
+			PART_GRAVITY_LIGHT|PART_DIRECTION   /*|PART_TRANS|PART_SHADED*/,
 			CL_ParticleSplashThink,true);
 	}
 }
@@ -893,7 +893,7 @@ void CL_ParticleSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 
 		for (i=0;i<2;i++)
 			angle[i] = 0.25*(p->vel[i]*time1 + (p->accel[i])*time2);
-		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY)*time2);
+		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY_DEFAULT)*time2);
 	}
 
 	p->thinknext = true;
@@ -924,7 +924,7 @@ void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count)
 			GL_SRC_ALPHA, GL_ONE,
 			4,			0, //Knightmare- increase size
 			particle_solid,
-			PART_GRAVITY|PART_SPARK,
+			PART_GRAVITY_LIGHT|PART_SPARK,
 			CL_ParticleSparksThink,true);
 	}
 	if (p) // added light effect
@@ -1204,7 +1204,7 @@ void CL_TeleporterParticles (entity_state_t *ent)
 			GL_SRC_ALPHA, GL_ONE,
 			2,		0,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 	}
 }
@@ -1252,7 +1252,7 @@ void CL_LogoutEffect (vec3_t org, int type)
 			GL_SRC_ALPHA, GL_ONE,
 			1,			0,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 	}
 }
@@ -1263,6 +1263,7 @@ void CL_LogoutEffect (vec3_t org, int type)
 CL_ItemRespawnParticles
 ===============
 */
+void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time);
 void CL_ItemRespawnParticles (vec3_t org)
 {
 	int			i;
@@ -1272,16 +1273,16 @@ void CL_ItemRespawnParticles (vec3_t org)
 		CL_SetupParticle (
 			0,	0,	0,
 			org[0] + crand()*8,	org[1] + crand()*8,	org[2] + crand()*8,
-			crand()*8,			crand()*8,			crand()*8,
-			0,		0,		PARTICLE_GRAVITY*0.2,
+			crand()*40,			crand()*40,			crand()*40,
+			0,		0,		PARTICLE_GRAVITY_DEFAULT*0.2,
 			0,		150+rand()*25,		0,
 			0,	0,	0,
 			1,		-1.0 / (1.0 + frand()*0.3),
 			GL_SRC_ALPHA, GL_ONE,
 			1,			0,			
 			particle_generic,
-			PART_GRAVITY,
-			NULL,0);
+			PART_GRAVITY_HEAVY,
+			CL_ParticleBlasterThink,true);
 	}
 }
 
@@ -1309,7 +1310,7 @@ void CL_BigTeleportParticles (vec3_t org)
 			0,	0,	0,
 			org[0]+cos(angle)*dist,	org[1] + sin(angle)*dist,org[2] + 8 + (rand()%90),
 			cos(angle)*(70+(rand()&63)),sin(angle)*(70+(rand()&63)),-100 + (rand()&31),
-			-cos(angle)*100,	-sin(angle)*100,PARTICLE_GRAVITY*4,
+			-cos(angle)*100,	-sin(angle)*100,PARTICLE_GRAVITY_DEFAULT*4,
 			colortable0[index],	colortable1[index],	colortable2[index],
 			0,	0,	0,
 			1,		-0.1 / (0.5 + frand()*0.3),
@@ -1401,7 +1402,7 @@ void CL_BlasterParticles (vec3_t org, vec3_t dir, int count, float size,
 			GL_SRC_ALPHA, GL_ONE,
 			size,	size*-0.125,		// was 4, -0.5
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_HEAVY,
 			CL_ParticleBlasterThink,true);
 	
 	/*	d = rand()&5;
@@ -1416,7 +1417,7 @@ void CL_BlasterParticles (vec3_t org, vec3_t dir, int count, float size,
 			GL_SRC_ALPHA, GL_ONE,
 			4,		-1.0,
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			CL_ParticleBlasterThink,true);*/
 	}
 	if (p) // added light effect
@@ -1775,7 +1776,7 @@ void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int flags)
 							GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 							3 + random()*2,			0,			
 							particle_blooddrop,
-							PART_OVERBRIGHT|PART_GRAVITY|PART_SHADED,
+							PART_OVERBRIGHT|PART_GRAVITY_LIGHT|PART_SHADED,
 							CL_ParticleBloodThink,true);
 							//NULL,0);
 					else
@@ -1790,7 +1791,7 @@ void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int flags)
 							GL_SRC_ALPHA, GL_ONE,
 							5,			-1,			
 							particle_blood,
-							PART_GRAVITY|PART_SHADED,
+							PART_GRAVITY_LIGHT|PART_SHADED,
 							CL_ParticleBloodThink,true);
 							//NULL,0);
 					if ( p && (crand() < (double)0.0001F) )
@@ -1809,7 +1810,7 @@ void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int flags)
 						GL_SRC_ALPHA, GL_ONE,
 						5,			-1,			
 						particle_blood,
-						PART_OVERBRIGHT|PART_GRAVITY|PART_SHADED,
+						PART_OVERBRIGHT|PART_GRAVITY_LIGHT|PART_SHADED,
 						CL_ParticleBloodThink,true);
 						//NULL,0);
 					if ( p && (crand() < (double)0.0001F) ) 
@@ -1919,7 +1920,7 @@ void CL_RocketTrail (vec3_t start, vec3_t end, centity_t *old)
 				GL_SRC_ALPHA, GL_ONE,
 				2,			-2,			
 				particle_blaster,
-				PART_GRAVITY,
+				PART_GRAVITY_LIGHT,
 				NULL,0);
 		}
 		VectorAdd (move, vec, move);
@@ -2229,7 +2230,7 @@ void CL_ParticleDevRailThink (cparticle_t *p, vec3_t org, vec3_t angle, float *a
 
 		for (i=0;i<2;i++)
 			angle[i] = 3*(p->vel[i]*time1 + (p->accel[i])*time2);
-		angle[2] = 3*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY)*time2);
+		angle[2] = 3*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY_DEFAULT)*time2);
 	}
 
 	p->thinknext = true;
@@ -2312,7 +2313,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 			GL_SRC_ALPHA, GL_ONE,
 			2,			-0.25,			
 			particle_solid,
-			PART_GRAVITY|PART_SPARK,
+			PART_GRAVITY_LIGHT|PART_SPARK,
 			CL_ParticleDevRailThink,true);
 		
 		CL_SetupParticle (
@@ -2326,7 +2327,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 			GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 			5,			10,			
 			particle_smoke,
-			PART_TRANS|PART_GRAVITY|PART_OVERBRIGHT,
+			PART_TRANS|PART_GRAVITY_LIGHT|PART_OVERBRIGHT,
 			CL_ParticleRotateThink, true);
 
 		VectorAdd (move, vec, move);
@@ -2816,7 +2817,7 @@ void CL_TrapParticles (entity_t *ent)
 			0,	0,	0,
 			move[0] + crand(),	move[1] + crand(),	move[2] + crand(),
 			crand()*15,	crand()*15,	crand()*15,
-			0,	0,	PARTICLE_GRAVITY,
+			0,	0,	PARTICLE_GRAVITY_DEFAULT,
 			230+crand()*25,	125+crand()*25,	25+crand()*25,
 			0,		0,		0,
 			1,		-1.0 / (0.3+frand()*0.2),
@@ -2863,7 +2864,7 @@ void CL_TrapParticles (entity_t *ent)
 					GL_SRC_ALPHA, GL_ONE,
 					1,			1,			
 					particle_generic,
-					PART_GRAVITY,
+					PART_GRAVITY_LIGHT,
 					NULL,0);
 
 			}
@@ -2894,7 +2895,7 @@ void CL_BFGExplosionParticles (vec3_t org)
 			GL_SRC_ALPHA, GL_ONE,
 			10,			-10,			
 			particle_generic,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 	}
 }
@@ -2933,7 +2934,7 @@ void CL_TeleportParticles (vec3_t org)
 					GL_SRC_ALPHA, GL_ONE,
 					1,			3,			
 					particle_generic,
-					PART_GRAVITY,
+					PART_GRAVITY_LIGHT,
 					NULL,0);
 			}
 }
@@ -3299,7 +3300,7 @@ void CL_ParticleSteamEffect2 (cl_sustain_t *self)
 			GL_SRC_ALPHA, GL_ONE,
 			4,			0,			
 			particle_smoke,
-			PART_GRAVITY,
+			PART_GRAVITY_LIGHT,
 			NULL,0);
 
 		if (!p)
@@ -3751,7 +3752,7 @@ void CL_ParticleElectricSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, f
 
 		for (i=0;i<2;i++)
 			angle[i] = 0.25*(p->vel[i]*time1 + (p->accel[i])*time2);
-		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY)*time2);
+		angle[2] = 0.25*(p->vel[2]*time1 + (p->accel[2]-PARTICLE_GRAVITY_DEFAULT)*time2);
 	}
 
 	p->thinknext = true;
@@ -3779,14 +3780,14 @@ void CL_ElectricParticles (vec3_t org, vec3_t dir, int count)
 			0,			0,			0,
 			start[0],	start[1],	start[2],
 			crand()*20,	crand()*20,	crand()*20,
-			0,			0,			-PARTICLE_GRAVITY,
+			0,			0,			-PARTICLE_GRAVITY_DEFAULT,
 			25,			100,		255,
 			50,			50,			50,
 			1,		-1.0 / (0.5 + frand()*0.3),
 			GL_SRC_ALPHA, GL_ONE,
 			6,		-3,			
 			particle_solid,
-			PART_GRAVITY|PART_SPARK,
+			PART_GRAVITY_LIGHT|PART_SPARK,
 			CL_ParticleElectricSparksThink, true);
 	}
 }
@@ -3878,7 +3879,7 @@ void CL_FlameEffects (centity_t *ent, vec3_t origin)
 			p->vel[j] = crand()*5;
 		}
 		p->vel[2] = crand() * -10;
-		p->accel[2] = -PARTICLE_GRAVITY;
+		p->accel[2] = -PARTICLE_GRAVITY_DEFAULT;
 	}
 
 	count = rand() & 0x7;
@@ -3942,7 +3943,7 @@ void CL_GenericParticleEffect (vec3_t org, vec3_t dir, int color, int count, int
 		}
 
 		p->accel[0] = p->accel[1] = 0;
-		p->accel[2] = -PARTICLE_GRAVITY;
+		p->accel[2] = -PARTICLE_GRAVITY_DEFAULT;
 //		VectorCopy (accel, p->accel);
 		p->alpha = 1.0;
 

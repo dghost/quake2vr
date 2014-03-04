@@ -550,7 +550,9 @@ typedef struct particle_s
 	qboolean	thinknext;
 } cparticle_t;
 
-#define	PARTICLE_GRAVITY	40
+#define	PARTICLE_GRAVITY_DEFAULT	40
+#define PARTICLE_GRAVITY_HEAVY		160
+
 #define BLASTER_PARTICLE_COLOR		0xe0
 // PMM
 #define INSTANT_PARTICLE	-10000.0
