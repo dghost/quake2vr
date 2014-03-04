@@ -873,7 +873,35 @@ void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, int color8, int count)
 			CL_ParticleSplashThink,true);
 	}
 }
+void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time);
 
+void CL_ParticleEffectSplashSpark (vec3_t org, vec3_t dir, int color8, int count)
+{
+	int			i;
+	float		d;
+	float speed = 0.75;
+	vec3_t color = {color8red(color8), color8green(color8), color8blue(color8)};
+
+	for (i=0 ; i<count ; i++)
+	{
+		d = rand()&5;
+		CL_SetupParticle (
+			org[0],	org[1],	org[2],
+			org[0]+d*dir[0],	org[1]+d*dir[1],	org[2]+d*dir[2],
+			(dir[0]*75 + crand()*60)*speed,	(dir[1]*75 + crand()*60)*speed,	(dir[2]*75 + crand()*60)*speed,
+			0,		0,		0,
+			color[0],	color[1],	color[2],
+			0,	0,	0,
+			1,		-0.75 / (0.5 + frand()*0.3),
+			GL_SRC_ALPHA, GL_ONE,
+			2,	2*-0.125,		// was 4, -0.5
+			particle_generic,
+			PART_GRAVITY_HEAVY,
+			CL_ParticleBlasterThink,true);
+	}
+}
+
+	
 /*
 ===============
 CL_ParticleSparksThink
@@ -913,6 +941,8 @@ void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count)
 	for (i=0 ; i<count ; i++)
 	{
 		d = rand()&7;
+
+
 		p = CL_SetupParticle (
 			0,	0,	0,
 			org[0]+((rand()&3)-2),	org[1]+((rand()&3)-2),	org[2]+((rand()&3)-2),
@@ -926,6 +956,7 @@ void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count)
 			particle_solid,
 			PART_GRAVITY_LIGHT|PART_SPARK,
 			CL_ParticleSparksThink,true);
+
 	}
 	if (p) // added light effect
 		CL_AddParticleLight (p, (count>8)?130:65, 0, color[0]/255, color[1]/255, color[2]/255);
@@ -1273,7 +1304,7 @@ void CL_ItemRespawnParticles (vec3_t org)
 		CL_SetupParticle (
 			0,	0,	0,
 			org[0] + crand()*8,	org[1] + crand()*8,	org[2] + crand()*8,
-			crand()*40,			crand()*40,			crand()*40,
+			crand()*40,			crand()*40,			crand()*120,
 			0,		0,		PARTICLE_GRAVITY_DEFAULT*0.2,
 			0,		150+rand()*25,		0,
 			0,	0,	0,
@@ -1330,7 +1361,7 @@ CL_ParticleBlasterThink
 Wall impact puffs
 ===============
 */
-#define pBlasterMaxVelocity 100
+#define pBlasterMaxVelocity 400
 #define pBlasterMinSize 1.0
 #define pBlasterMaxSize 5.0
 

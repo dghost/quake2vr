@@ -481,6 +481,7 @@ void CL_ParticleEffect2 (vec3_t org, vec3_t dir, int color, int count);
 void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int color, int count);
 
 void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, int color, int count);
+void CL_ParticleEffectSplashSpark (vec3_t org, vec3_t dir, int color, int count);
 void CL_ElectricParticles (vec3_t org, vec3_t dir, int count);
 
 // Psychospaz's mod detector
@@ -551,7 +552,7 @@ typedef struct particle_s
 } cparticle_t;
 
 #define	PARTICLE_GRAVITY_DEFAULT	40
-#define PARTICLE_GRAVITY_HEAVY		160
+#define PARTICLE_GRAVITY_HEAVY		200
 
 #define BLASTER_PARTICLE_COLOR		0xe0
 // PMM

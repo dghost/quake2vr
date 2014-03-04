@@ -849,9 +849,9 @@ void CL_ParseTEnt (void)
 		else
 			color = splash_color[r];
 		// Psychospaz's enhanced particle code
-		CL_ParticleEffectSplash (pos, dir, color, cnt);
 		if (r == SPLASH_SPARKS)
 		{
+			CL_ParticleEffectSplashSpark (pos, dir, color, cnt);
 			r = rand() & 3;
 			if (r == 0)
 				S_StartSound (pos, 0, 0, clMedia.sfx_spark[0], 1, ATTN_STATIC, 0);
@@ -859,6 +859,8 @@ void CL_ParseTEnt (void)
 				S_StartSound (pos, 0, 0, clMedia.sfx_spark[1], 1, ATTN_STATIC, 0);
 			else
 				S_StartSound (pos, 0, 0, clMedia.sfx_spark[2], 1, ATTN_STATIC, 0);
+		} else {
+			CL_ParticleEffectSplash (pos, dir, color, cnt);
 		}
 		break;
 

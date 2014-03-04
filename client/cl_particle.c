@@ -483,7 +483,7 @@ void CL_ClipParticleVelocity (vec3_t in, vec3_t normal, vec3_t out)
 	float	backoff, change;
 	int		i;
 	
-	backoff = VectorLength(in)*0.25 + DotProduct (in, normal) * 3.0f;
+	backoff = DotProduct (in, normal) * 2.0f;
 
 	for (i=0; i<3; i++)
 	{
@@ -525,7 +525,14 @@ void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 		p->start = p->time = CL_NewParticleTime();
 
 		if (p->flags&PART_GRAVITY_LIGHT && VectorLength(p->vel)<2)
+		{
+			VectorSet(p->vel,0,0,0);
 			p->flags &= ~PART_GRAVITY_LIGHT;
+		}else if (p->flags&PART_GRAVITY_HEAVY && VectorLength(p->vel)<8)
+		{
+			VectorSet(p->vel,0,0,0);
+			p->flags &= ~PART_GRAVITY_HEAVY;
+		}
 	}
 
 	p->thinknext = true;
