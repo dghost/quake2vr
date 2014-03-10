@@ -37,7 +37,7 @@ static vec3_t r_avertexnormals[NUMVERTEXNORMALS] = {
 
 void VLight_InitAnormTable (void)
 {
-	int x, y;
+	Sint32 x, y;
 	float angle;
 	float sp, sy, cp, cy;
 	
@@ -62,7 +62,7 @@ void VLight_InitAnormTable (void)
 
 float VLight_GetLightValue ( vec3_t normal, vec3_t dir, float apitch, float ayaw, qboolean dlight )
 {
-	int pitchofs, yawofs;
+	Sint32 pitchofs, yawofs;
 	float angle1, angle2, light;
 
 	if ( normal[1] == 0 && normal[0] == 0 )
@@ -127,7 +127,7 @@ float VLight_GetLightValue ( vec3_t normal, vec3_t dir, float apitch, float ayaw
 	
 }
 
-float VLight_LerpLight ( int index1, int index2, float ilerp, vec3_t dir, vec3_t angles, qboolean dlight )
+float VLight_LerpLight ( Sint32 index1, Sint32 index2, float ilerp, vec3_t dir, vec3_t angles, qboolean dlight )
 {
 	vec3_t normal;
 

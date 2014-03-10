@@ -34,9 +34,9 @@ CREDITS MENU
 
 =============================================================================
 */
-static int credits_start_time;
+static Sint32 credits_start_time;
 // Knigthtmare added- allow credits to scroll past top of screen
-static int credits_start_line;
+static Sint32 credits_start_line;
 static const char **credits;
 static char *creditsIndex[256];
 //static char *creditsBuffer;
@@ -387,11 +387,11 @@ static const char *roguecredits[] =
 };
 
 
-int stringLengthExtra (const char *string);
+Sint32 stringLengthExtra (const char *string);
 void M_Credits_MenuDraw (void)
 {
 	float		alpha, time = (cls.realtime - credits_start_time) * 0.05;
-	int			i, y, x, len, stringoffset;
+	Sint32			i, y, x, len, stringoffset;
 	qboolean	bold;
 
 	if ((SCREEN_HEIGHT - ((cls.realtime - credits_start_time)/40.0F)
@@ -462,7 +462,7 @@ void M_Credits_MenuDraw (void)
 }
 
 
-const char *M_Credits_Key (int key)
+const char *M_Credits_Key (Sint32 key)
 {
 	char *sound = NULL;
 
@@ -483,8 +483,8 @@ const char *M_Credits_Key (int key)
 
 void M_Menu_Credits_f (void)
 {
-	int		n;
-	int		count;
+	Sint32		n;
+	Sint32		count;
 	char	*p;
 
 	creditsBuffer = NULL;

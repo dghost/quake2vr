@@ -48,9 +48,9 @@ typedef struct
 	vec3_t		mins, maxs;
 	vec3_t		origin;		// for sounds or lights
 	float		radius;
-	int			headnode;
-	int			visleafs;		// not including the solid leaf 0
-	int			firstface, numfaces;
+	Sint32			headnode;
+	Sint32			visleafs;		// not including the solid leaf 0
+	Sint32			firstface, numfaces;
 } mmodel_t;
 
 
@@ -74,17 +74,17 @@ typedef struct
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
 {
-	unsigned short	v[2];
-	unsigned int	cachededgeoffset;
+	Uint16	v[2];
+	Uint32	cachededgeoffset;
 } medge_t;
 
 typedef struct mtexinfo_s
 {
 	float		vecs[2][4];
-	int			texWidth;	// added Q2E hack
-	int			texHeight;	// added Q2E hack
-	int			flags;
-	int			numframes;
+	Sint32			texWidth;	// added Q2E hack
+	Sint32			texHeight;	// added Q2E hack
+	Sint32			flags;
+	Sint32			numframes;
 	struct mtexinfo_s	*next;		// animation chain
 	image_t		*image;
 	image_t		*glow;		// glow overlay
@@ -107,34 +107,34 @@ typedef struct glpoly_s
 {
 	struct	glpoly_s	*next;
 	struct	glpoly_s	*chain;
-	int		numverts;
+	Sint32		numverts;
 
 	qboolean	vertexlightset;
 	byte		*vertexlightbase;
 	byte		*vertexlight;
 	vec3_t		center;
 
-	int			flags;			// for SURF_UNDERWATER (not needed anymore?)
+	Sint32			flags;			// for SURF_UNDERWATER (not needed anymore?)
 	float		verts[4][VERTEXSIZE];	// variable sized (xyz s1t1 s2t2)
 //	mpolyvertex_t	verts[4];			// variable sized (xyz s1t1 s2t2 rgb rgba)
 } glpoly_t;
 
 typedef struct msurface_s
 {
-	int			visframe;		// should be drawn when node is crossed
+	Sint32			visframe;		// should be drawn when node is crossed
 
 	cplane_t	*plane;
-	int			flags;
+	Sint32			flags;
 
-	int			firstedge;	// look up in model->surfedges[], negative numbers
-	int			numedges;	// are backwards edges
+	Sint32			firstedge;	// look up in model->surfedges[], negative numbers
+	Sint32			numedges;	// are backwards edges
 	
-	short		texturemins[2];
-	short		extents[2];
+	Sint16		texturemins[2];
+	Sint16		extents[2];
 
-	int			light_s, light_t;	// gl lightmap coordinates
-	int			light_smax, light_tmax;
-	int			dlight_s, dlight_t; // gl lightmap coordinates for dynamic lightmaps
+	Sint32			light_s, light_t;	// gl lightmap coordinates
+	Sint32			light_smax, light_tmax;
+	Sint32			dlight_s, dlight_t; // gl lightmap coordinates for dynamic lightmaps
 
 	glpoly_t	*polys;				// multiple if warped
 	struct	msurface_s	*texturechain;
@@ -143,11 +143,11 @@ typedef struct msurface_s
 	mtexinfo_t	*texinfo;
 	
 // lighting info
-	int			dlightframe;
-	int			dlightbits[(MAX_DLIGHTS+31)>>5];	// derived from MAX_DLIGHTS
+	Sint32			dlightframe;
+	Sint32			dlightbits[(MAX_DLIGHTS+31)>>5];	// derived from MAX_DLIGHTS
 	qboolean	cached_dlight;
 
-	int			lightmaptexturenum;
+	Sint32			lightmaptexturenum;
 	byte		styles[MAXLIGHTMAPS];
 	float		cached_light[MAXLIGHTMAPS];	// values currently used in lightmap
 	byte		*samples;		// [numstyles*surfsize]
@@ -156,7 +156,7 @@ typedef struct msurface_s
 	void		*chain_part;
 	void		*chain_ent;
 
-	int			checkCount;
+	Sint32			checkCount;
 	entity_t	*entity;		// entity pointer
 } msurface_t;
 
@@ -172,8 +172,8 @@ typedef struct malphasurface_s
 typedef struct mnode_s
 {
 // common with leaf
-	int			contents;		// -1, to differentiate from leafs
-	int			visframe;		// node needs to be traversed if current
+	Sint32			contents;		// -1, to differentiate from leafs
+	Sint32			visframe;		// node needs to be traversed if current
 	
 	float		minmaxs[6];		// for bounding box culling
 
@@ -183,8 +183,8 @@ typedef struct mnode_s
 	cplane_t	*plane;
 	struct mnode_s	*children[2];	
 
-	unsigned short		firstsurface;
-	unsigned short		numsurfaces;
+	Uint16		firstsurface;
+	Uint16		numsurfaces;
 } mnode_t;
 
 
@@ -192,19 +192,19 @@ typedef struct mnode_s
 typedef struct mleaf_s
 {
 // common with node
-	int			contents;		// wil be a negative contents number
-	int			visframe;		// node needs to be traversed if current
+	Sint32			contents;		// wil be a negative contents number
+	Sint32			visframe;		// node needs to be traversed if current
 
 	float		minmaxs[6];		// for bounding box culling
 
 	struct mnode_s	*parent;
 
 // leaf specific
-	int			cluster;
-	int			area;
+	Sint32			cluster;
+	Sint32			area;
 
 	msurface_t	**firstmarksurface;
-	int			nummarksurfaces;
+	Sint32			nummarksurfaces;
 } mleaf_t;
 
 
@@ -222,12 +222,12 @@ typedef struct model_s
 {
 	char		name[MAX_QPATH];
 
-	int			registration_sequence;
+	Sint32			registration_sequence;
 
 	modtype_t	type;
-	int			numframes;
+	Sint32			numframes;
 	
-	int			flags;
+	Sint32			flags;
 
 //
 // volume occupied by the model graphics
@@ -244,38 +244,38 @@ typedef struct model_s
 //
 // brush model
 //
-	int			firstmodelsurface, nummodelsurfaces;
-	int			lightmap;		// only for submodels
+	Sint32			firstmodelsurface, nummodelsurfaces;
+	Sint32			lightmap;		// only for submodels
 
-	int			numsubmodels;
+	Sint32			numsubmodels;
 	mmodel_t	*submodels;
 
-	int			numplanes;
+	Sint32			numplanes;
 	cplane_t	*planes;
 
-	int			numleafs;		// number of visible leafs, not counting 0
+	Sint32			numleafs;		// number of visible leafs, not counting 0
 	mleaf_t		*leafs;
 
-	int			numvertexes;
+	Sint32			numvertexes;
 	mvertex_t	*vertexes;
 
-	int			numedges;
+	Sint32			numedges;
 	medge_t		*edges;
 
-	int			numnodes;
-	int			firstnode;
+	Sint32			numnodes;
+	Sint32			firstnode;
 	mnode_t		*nodes;
 
-	int			numtexinfo;
+	Sint32			numtexinfo;
 	mtexinfo_t	*texinfo;
 
-	int			numsurfaces;
+	Sint32			numsurfaces;
 	msurface_t	*surfaces;
 
-	int			numsurfedges;
-	int			*surfedges;
+	Sint32			numsurfedges;
+	Sint32			*surfedges;
 
-	int			nummarksurfaces;
+	Sint32			nummarksurfaces;
 	msurface_t	**marksurfaces;
 
 	dvis_t		*vis;
@@ -287,14 +287,14 @@ typedef struct model_s
 	image_t      *skins[MD3_MAX_MESHES][MAX_MD2SKINS];
 	//image_t		*skins[MAX_MD2SKINS];
 
-	int			extradatasize;
+	Sint32			extradatasize;
 	void		*extradata;
 
 	qboolean	hasAlpha; // if model has scripted transparency
 
 #ifdef PROJECTION_SHADOWS // projection shadows from BeefQuake R6
-	//signed int	edge_tri[MAX_TRIANGLES][3]; // make this dynamically allocated?
-	int			*edge_tri;
+	//Sint32	edge_tri[MAX_TRIANGLES][3]; // make this dynamically allocated?
+	Sint32			*edge_tri;
 #endif // end projection shadows from BeefQuake R6
 } model_t;
 
@@ -304,13 +304,13 @@ void	Mod_Init (void);
 void	Mod_ClearAll (void);
 model_t *Mod_ForName (char *name, qboolean crash);
 mleaf_t *Mod_PointInLeaf (float *p, model_t *model);
-byte	*Mod_ClusterPVS (int cluster, model_t *model);
+byte	*Mod_ClusterPVS (Sint32 cluster, model_t *model);
 
 void	Mod_Modellist_f (void);
 
-void	*Hunk_Begin (int maxsize);
-void	*Hunk_Alloc (int size);
-int		Hunk_End (void);
+void	*Hunk_Begin (Sint32 maxsize);
+void	*Hunk_Alloc (Sint32 size);
+Sint32		Hunk_End (void);
 void	Hunk_Free (void *base);
 
 void	Mod_FreeAll (void);

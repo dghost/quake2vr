@@ -44,7 +44,7 @@ R_LightAliasModel
 */
 void R_LightAliasModel (vec3_t baselight, vec3_t normal, vec3_t lightOut, byte normalindex, qboolean shaded)
 {
-	int		i;
+	Sint32		i;
 	float	l;
 
 	if (r_fullbright->value != 0) {
@@ -97,7 +97,7 @@ qboolean R_AliasMeshesAreBatchable (maliasmodel_t *paliashdr, unsigned meshnum1,
 {
 	maliasmesh_t	*mesh1, *mesh2;
 	renderparms_t	*skinParms1, *skinParms2;
-	int				skinnum1, skinnum2;
+	Sint32				skinnum1, skinnum2;
 
 	if (!paliashdr)
 		return false;
@@ -155,7 +155,7 @@ void RB_RenderAliasMesh (maliasmodel_t *paliashdr, unsigned meshnum, unsigned sk
 	entity_t		*e = currententity;
 	maliasmesh_t	*mesh;
 	renderparms_t	skinParms;
-	int				i;
+	Sint32				i;
 	float			thisalpha = colorArray[0][3];
 	qboolean		shellModel = e->flags & RF_MASK_SHELL;
 
@@ -259,7 +259,7 @@ R_DrawAliasMeshes
 */
 void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly, qboolean mirrored)
 {
-	int				i, k, meshnum, skinnum, baseindex;	// numCalls
+	Sint32				i, k, meshnum, skinnum, baseindex;	// numCalls
 	maliasframe_t	*frame, *oldframe;
 	maliasmesh_t	mesh;
 	maliasvertex_t	*v, *ov;
@@ -446,9 +446,9 @@ R_BuildShadowVolume
 based on code from BeefQuake R6
 =============
 */
-void R_BuildShadowVolume (maliasmodel_t *hdr, int meshnum, vec3_t light, float projectdistance, qboolean nocap)
+void R_BuildShadowVolume (maliasmodel_t *hdr, Sint32 meshnum, vec3_t light, float projectdistance, qboolean nocap)
 {
-	int				i, j;
+	Sint32				i, j;
 	BOOL			triangleFacingLight[MD3_MAX_TRIANGLES];
 	vec3_t			v0, v1, v2, v3;
 	float			thisAlpha;
@@ -648,7 +648,7 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 	vec3_t		light, temp, vecAdd;
 	float		dist, highest, lowest, projected_distance;
 	float		angle, cosp, sinp, cosy, siny, cosr, sinr, ix, iy, iz;
-	int			i, lnum, skinnum;
+	Sint32			i, lnum, skinnum;
 	//GLenum		incr, decr;
 	dlight_t	*dl;
 
@@ -784,7 +784,7 @@ void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 	maliasmesh_t	mesh;
 	float	height, lheight, thisAlpha;
 	vec3_t	point, shadevector;
-	int		i, j, skinnum;
+	Sint32		i, j, skinnum;
 
 	R_ShadowLight (currententity->origin, shadevector);
 
@@ -843,12 +843,12 @@ R_CullAliasModel
 */
 static qboolean R_CullAliasModel ( vec3_t bbox[8], entity_t *e )
 {
-	int			i, j;
+	Sint32			i, j;
 	vec3_t		mins, maxs, tmp; //angles;
 	vec3_t		vectors[3];
 	maliasmodel_t	*paliashdr;
 	maliasframe_t	*pframe, *poldframe;
-	int			mask, aggregatemask = ~0;			
+	Sint32			mask, aggregatemask = ~0;			
 
 	paliashdr = (maliasmodel_t *)currentmodel->extradata;
 
@@ -938,7 +938,7 @@ void R_DrawAliasModel (entity_t *e)
 	maliasmodel_t	*paliashdr;
 	vec3_t		bbox[8];
 	qboolean	mirrorview = false, mirrormodel = false;
-	int			i;
+	Sint32			i;
 
 	// also skip this for viewermodels and cameramodels
 	if ( !(e->flags & RF_WEAPONMODEL || e->flags & RF_VIEWERMODEL || e->renderfx & RF2_CAMERAMODEL) )

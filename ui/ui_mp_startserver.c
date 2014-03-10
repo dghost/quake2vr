@@ -61,7 +61,7 @@ typedef enum {
 } maptype_t;
 
 typedef struct {
-	int		index;
+	Sint32		index;
 	char	*tokens;
 } gametype_names_t;
 
@@ -77,11 +77,11 @@ gametype_names_t gametype_names[] =
 #define MAX_ARENAS_TEXT 8192
 
 static maptype_t ui_svr_maptype;
-static int	ui_svr_nummaps;
+static Sint32	ui_svr_nummaps;
 static char **ui_svr_mapnames;
-static int	ui_svr_listfile_nummaps;
+static Sint32	ui_svr_listfile_nummaps;
 static char **ui_svr_listfile_mapnames;
-static int	ui_svr_arena_nummaps[NUM_MAPTYPES];
+static Sint32	ui_svr_arena_nummaps[NUM_MAPTYPES];
 static char **ui_svr_arena_mapnames[NUM_MAPTYPES];
 
 //=============================================================================
@@ -94,7 +94,7 @@ Partially from Q3 source
 */
 qboolean UI_ParseArenaFromFile (char *filename, char *shortname, char *longname, char *gametypes)
 {
-	int				len;
+	Sint32				len;
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 	char			*s, *token, *dest;
@@ -176,9 +176,9 @@ qboolean UI_ParseArenaFromFile (char *filename, char *shortname, char *longname,
 UI_SortArenas
 ===============
 */
-void UI_SortArenas (char **list, int len)
+void UI_SortArenas (char **list, Sint32 len)
 {
-	int			i, j;
+	Sint32			i, j;
 	char		*temp, *s1, *s2;
 	qboolean	moved;
 
@@ -216,7 +216,7 @@ void UI_LoadArenas (void)
 	char		*p, *s, *s2, *tok, *tok2;
 	char		**arenafiles;
 	char		**tmplist = 0;
-	int			i, j, narenas = 0, narenanames = 0;
+	Sint32			i, j, narenas = 0, narenanames = 0;
 	qboolean	type_supported[NUM_MAPTYPES];
 
 	//
@@ -318,7 +318,7 @@ void UI_LoadMapList (void)
 {
 	char	*buffer, *s;
 	char	mapsname[1024];
-	int		i, length;
+	Sint32		i, length;
 	FILE	*fp;
 
 	//
@@ -406,7 +406,7 @@ UI_BuildMapList
 */
 void UI_BuildMapList (maptype_t maptype)
 {
-	int		i;
+	Sint32		i;
 
 	if (ui_svr_mapnames)	free (ui_svr_mapnames);
 	ui_svr_nummaps = ui_svr_listfile_nummaps + ui_svr_arena_nummaps[maptype];
@@ -435,7 +435,7 @@ UI_RefreshMapList
 */
 void UI_RefreshMapList (maptype_t maptype)
 {
-	int		i;
+	Sint32		i;
 
 	if (maptype == ui_svr_maptype) // no change
 		return;
@@ -522,9 +522,9 @@ void RulesChangeFunc (void *self)
 void StartServerActionFunc (void *self)
 {
 	char	startmap[1024];
-	int		timelimit;
-	int		fraglimit;
-	int		maxclients;
+	Sint32		timelimit;
+	Sint32		fraglimit;
+	Sint32		maxclients;
 	char	*spot;
 
 	strcpy( startmap, strchr( ui_svr_mapnames[s_startmap_list.curvalue], '\n' ) + 1 );
@@ -600,7 +600,7 @@ void StartServer_MenuInit (void)
 		0
 	};
 
-	int y = 0;
+	Sint32 y = 0;
 	
 	//UI_LoadMapList (); // moved to UI_Init
 	UI_BuildMapList (ui_svr_maptype); // was MAP_DM
@@ -747,7 +747,7 @@ void DrawStartSeverLevelshot (void)
 {	
 	char startmap[MAX_QPATH];
 	char mapshotname [MAX_QPATH];
-	int i = s_startmap_list.curvalue;
+	Sint32 i = s_startmap_list.curvalue;
 	strcpy( startmap, strchr( ui_svr_mapnames[i], '\n' ) + 1 );
 
 	SCR_DrawFill (SCREEN_WIDTH/2+44, SCREEN_HEIGHT/2-70, 244, 184, ALIGN_CENTER, 60,60,60,255);
@@ -778,7 +778,7 @@ void StartServer_MenuDraw (void)
 	DrawStartSeverLevelshot (); // added levelshots
 }
 
-const char *StartServer_MenuKey (int key)
+const char *StartServer_MenuKey (Sint32 key)
 {
 	/*if ( key == K_ESCAPE )
 	{

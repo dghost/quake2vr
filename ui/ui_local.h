@@ -58,11 +58,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct _tag_menuframework
 {
-	int x, y;
-	int	cursor;
+	Sint32 x, y;
+	Sint32	cursor;
 
-	int	nitems;
-	int nslots;
+	Sint32	nitems;
+	Sint32 nslots;
 	void *items[64];
 
 	const char *statusbar;
@@ -73,12 +73,12 @@ typedef struct _tag_menuframework
 
 typedef struct
 {
-	int type;
+	Sint32 type;
 	const char *name;
-	int x, y;
+	Sint32 x, y;
 	menuframework_s *parent;
-	int cursor_offset;
-	int	localdata[4];
+	Sint32 cursor_offset;
+	Sint32	localdata[4];
 	unsigned flags;
 
 	const char *statusbar;
@@ -94,10 +94,10 @@ typedef struct
 	menucommon_s generic;
 
 	char		buffer[80];
-	int			cursor;
-	int			length;
-	int			visible_length;
-	int			visible_offset;
+	Sint32			cursor;
+	Sint32			length;
+	Sint32			visible_length;
+	Sint32			visible_offset;
 } menufield_s;
 
 typedef struct 
@@ -115,10 +115,10 @@ typedef struct
 {
 	menucommon_s	generic;
 
-	int			curvalue;
+	Sint32			curvalue;
 
 	const char	**itemnames;
-	int			numitemnames;
+	Sint32			numitemnames;
 } menulist_s;
 
 typedef struct
@@ -148,50 +148,50 @@ typedef struct
 
 	listboxtype_t	type;
 	scrolltype_t	scrolltype;
-	int			items_x;
-	int			items_y;
-	int			item_width;
-	int			item_height;
-	int			scrollpos;
-	int			curvalue;
+	Sint32			items_x;
+	Sint32			items_y;
+	Sint32			item_width;
+	Sint32			item_height;
+	Sint32			scrollpos;
+	Sint32			curvalue;
 
 	const char	**itemnames;
-	int			numitemnames;
+	Sint32			numitemnames;
 } menulistbox_s;
 
 typedef struct
 {
 	float	min[2];
 	float max[2];
-	int index;
+	Sint32 index;
 } buttonmenuobject_t;
 
 typedef struct
 {
-	int	min[2];
-	int max[2];
+	Sint32	min[2];
+	Sint32 max[2];
 	void (*OpenMenu)(void);
 } mainmenuobject_t;
 
-qboolean Field_Key( menufield_s *field, int key );
+qboolean Field_Key( menufield_s *field, Sint32 key );
 
 void	Menu_AddItem (menuframework_s *menu, void *item);
-void	Menu_AdjustCursor (menuframework_s *menu, int dir);
+void	Menu_AdjustCursor (menuframework_s *menu, Sint32 dir);
 void	Menu_Center (menuframework_s *menu);
 void	Menu_Draw (menuframework_s *menu);
 void	*Menu_ItemAtCursor (menuframework_s *m);
 qboolean Menu_SelectItem (menuframework_s *s);
 qboolean Menu_MouseSelectItem (menucommon_s *item);
 void	Menu_SetStatusBar (menuframework_s *s, const char *string);
-void	Menu_SlideItem (menuframework_s *s, int dir);
-int		Menu_TallySlots (menuframework_s *menu);
+void	Menu_SlideItem (menuframework_s *s, Sint32 dir);
+Sint32		Menu_TallySlots (menuframework_s *menu);
 
-void	Menu_DrawString (int x, int y, const char *string, int alpha);
-void	Menu_DrawStringDark (int x, int y, const char *string, int alpha);
-void	Menu_DrawStringR2L (int x, int y, const char *string, int alpha);
-void	Menu_DrawStringR2LDark (int x, int y, const char *string, int alpha);
+void	Menu_DrawString (Sint32 x, Sint32 y, const char *string, Sint32 alpha);
+void	Menu_DrawStringDark (Sint32 x, Sint32 y, const char *string, Sint32 alpha);
+void	Menu_DrawStringR2L (Sint32 x, Sint32 y, const char *string, Sint32 alpha);
+void	Menu_DrawStringR2LDark (Sint32 x, Sint32 y, const char *string, Sint32 alpha);
 
-void	Menu_DrawTextBox (int x, int y, int width, int lines);
+void	Menu_DrawTextBox (Sint32 x, Sint32 y, Sint32 width, Sint32 lines);
 void	Menu_DrawBanner (char *name);
 
 void	UI_Draw_Cursor (void);
@@ -227,7 +227,7 @@ static char *menu_out_sound		= "misc/menu3.wav";
 qboolean	m_entersound;		// play after drawing a frame, so caching
 								// won't disrupt the sound
 
-int MainMenuMouseHover;
+Sint32 MainMenuMouseHover;
 
 
 cursor_t cursor;
@@ -267,16 +267,16 @@ static char *creditsBuffer;
 void ActionStartMod (char *mod);
 
 // ui_subsystem.c
-void UI_AddButton (buttonmenuobject_t *thisObj, int index, float x, float y, float w, float h);
-void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name);
+void UI_AddButton (buttonmenuobject_t *thisObj, Sint32 index, float x, float y, float w, float h);
+void UI_AddMainButton (mainmenuobject_t *thisObj, Sint32 index, Sint32 x, Sint32 y, char *name);
 void UI_RefreshCursorMenu (void);
 void UI_RefreshCursorLink (void);
 void UI_RefreshCursorButtons (void);
-void UI_PushMenu ( void (*draw) (void), const char *(*key) (int k) );
+void UI_PushMenu ( void (*draw) (void), const char *(*key) (Sint32 k) );
 void UI_ForceMenuOff (void);
 void UI_PopMenu (void);
 void UI_BackMenu (void *unused);
-const char *Default_MenuKey( menuframework_s *m, int key );
+const char *Default_MenuKey( menuframework_s *m, Sint32 key );
 
 // ui_main.c
 void M_Main_Draw (void);

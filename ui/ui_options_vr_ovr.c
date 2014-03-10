@@ -218,7 +218,7 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
-	int y = 3*MENU_LINE_SIZE;
+	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_ovr_menu.x = SCREEN_WIDTH*0.5;
 	s_options_vr_ovr_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -375,7 +375,7 @@ void Options_VR_OVR_MenuDraw (void)
 	Menu_Draw( &s_options_vr_ovr_menu );
 }
 
-const char *Options_VR_OVR_MenuKey( int key )
+const char *Options_VR_OVR_MenuKey( Sint32 key )
 {
 	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
 		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START

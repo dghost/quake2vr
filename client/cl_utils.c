@@ -30,19 +30,19 @@ const byte default_pal[768] = {
 };
 
 
-int	color8red (int color8)
+Sint32	color8red (Sint32 color8)
 { 
 	return (default_pal[color8*3+0]);
 }
 
 
-int	color8green (int color8)
+Sint32	color8green (Sint32 color8)
 {
 	return (default_pal[color8*3+1]);;
 }
 
 
-int	color8blue (int color8)
+Sint32	color8blue (Sint32 color8)
 {
 	return (default_pal[color8*3+2]);;
 }
@@ -130,7 +130,7 @@ ColorLookup
 Returns RGB values for color type, can be called from anywhere
 ================
 */
-void ColorLookup (color_t colornum, int *red, int *green, int *blue)
+void ColorLookup (color_t colornum, Sint32 *red, Sint32 *green, Sint32 *blue)
 {
 	switch (colornum)
 	{

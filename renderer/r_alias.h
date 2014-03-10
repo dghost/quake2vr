@@ -11,7 +11,7 @@ typedef struct maliascoord_s
 
 typedef struct maliasvertex_s
 {
-	short			xyz[3];
+	Sint16			xyz[3];
 	byte			normal[2];
 	byte			lightnormalindex; // used for ye olde quantized normal shading
 } maliasvertex_t;
@@ -77,32 +77,32 @@ typedef struct
 	char			glowname[MD3_MAX_PATH];
 	image_t			*glowimage;
 	renderparms_t	renderparms;
-	//int				shader;
+	//Sint32				shader;
 } maliasskin_t;
 
 typedef struct
 {
-    int				num_verts;
+    Sint32				num_verts;
 	char			name[MD3_MAX_PATH];
 	maliasvertex_t	*vertexes;
 	maliascoord_t	*stcoords;
 
-    int				num_tris;
+    Sint32				num_tris;
     index_t			*indexes;
-	int				*trneighbors;
+	Sint32				*trneighbors;
 
-    int				num_skins;
+    Sint32				num_skins;
 	maliasskin_t	*skins;
 } maliasmesh_t;
 
 typedef struct maliasmodel_s
 {
-    int				num_frames;
+    Sint32				num_frames;
 	maliasframe_t	*frames;
 
-    int				num_tags;
+    Sint32				num_tags;
 	maliastag_t		*tags;
 
-    int				num_meshes;
+    Sint32				num_meshes;
 	maliasmesh_t	*meshes;
 } maliasmodel_t;

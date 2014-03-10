@@ -29,16 +29,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //===============================================================================
 
-int		hunkcount;
+Sint32		hunkcount;
 
 
 byte	*membase;
-int		hunkmaxsize;
-int		cursize;
+Sint32		hunkmaxsize;
+Sint32		cursize;
 
 #define	VIRTUAL_ALLOC
 
-void *Hunk_Begin (int maxsize)
+void *Hunk_Begin (Sint32 maxsize)
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	cursize = 0;
@@ -54,7 +54,7 @@ void *Hunk_Begin (int maxsize)
 	return (void *)membase;
 }
 
-void *Hunk_Alloc (int size)
+void *Hunk_Alloc (Sint32 size)
 {
 	void	*buf;
 
@@ -78,7 +78,7 @@ void *Hunk_Alloc (int size)
 	return (void *)(membase+cursize-size);
 }
 
-int Hunk_End (void)
+Sint32 Hunk_End (void)
 {
 
 	// free the remaining unused virtual memory
@@ -145,7 +145,7 @@ char *Sys_GetCurrentDirectory (void)
 
 char	findbase[MAX_OSPATH];
 char	findpath[MAX_OSPATH];
-int		findhandle;
+Sint32		findhandle;
 
 static qboolean CompareAttributes( unsigned found, unsigned musthave, unsigned canthave )
 {

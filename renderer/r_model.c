@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 
 model_t	*loadmodel;
-int		modfilelen;
+Sint32		modfilelen;
 
 void Mod_LoadSpriteModel (model_t *mod, void *buffer);
 void Mod_LoadBrushModel (model_t *mod, void *buffer);
@@ -41,12 +41,12 @@ byte	mod_novis[MAX_MAP_LEAFS/8];
 
 #define	MAX_MOD_KNOWN	512
 model_t	mod_known[MAX_MOD_KNOWN];
-int		mod_numknown;
+Sint32		mod_numknown;
 
 // the inline * models from the current map are kept seperate
 model_t	mod_inline[MAX_MOD_KNOWN];
 
-int		registration_sequence;
+Sint32		registration_sequence;
 qboolean	registration_active;	// map registration flag
 
 /*
@@ -88,9 +88,9 @@ Mod_DecompressVis
 byte *Mod_DecompressVis (byte *in, model_t *model)
 {
 	static byte	decompressed[MAX_MAP_LEAFS/8];
-	int		c;
+	Sint32		c;
 	byte	*out;
-	int		row;
+	Sint32		row;
 
 	row = (model->vis->numclusters+7)>>3;	
 	out = decompressed;
@@ -130,7 +130,7 @@ byte *Mod_DecompressVis (byte *in, model_t *model)
 Mod_ClusterPVS
 ==============
 */
-byte *Mod_ClusterPVS (int cluster, model_t *model)
+byte *Mod_ClusterPVS (Sint32 cluster, model_t *model)
 {
 	if (cluster == -1 || !model->vis)
 		return mod_novis;
@@ -148,9 +148,9 @@ Mod_Modellist_f
 */
 void Mod_Modellist_f (void)
 {
-	int		i;
+	Sint32		i;
 	model_t	*mod;
-	int		total;
+	Sint32		total;
 
 	total = 0;
 	VID_Printf (PRINT_ALL,"Loaded models:\n");
@@ -189,7 +189,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 {
 	model_t	*mod;
 	unsigned *buf;
-	int		i;
+	Sint32		i;
 	
 	if (!name[0])
 		VID_Error (ERR_DROP, "Mod_ForName: NULL name");
@@ -327,7 +327,7 @@ Mod_LoadVisibility
 */
 void Mod_LoadVisibility (lump_t *l)
 {
-	int		i;
+	Sint32		i;
 
 	if (!l->filelen)
 	{
@@ -355,7 +355,7 @@ void Mod_LoadVertexes (lump_t *l)
 {
 	dvertex_t	*in;
 	mvertex_t	*out;
-	int			i, count;
+	Sint32			i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -381,7 +381,7 @@ RadiusFromBounds
 */
 float RadiusFromBounds (vec3_t mins, vec3_t maxs)
 {
-	int		i;
+	Sint32		i;
 	vec3_t	corner;
 
 	for (i=0 ; i<3 ; i++)
@@ -402,7 +402,7 @@ void Mod_LoadSubmodels (lump_t *l)
 {
 	dmodel_t	*in;
 	mmodel_t	*out;
-	int			i, j, count;
+	Sint32			i, j, count;
 
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -437,7 +437,7 @@ void Mod_LoadEdges (lump_t *l)
 {
 	dedge_t *in;
 	medge_t *out;
-	int 	i, count;
+	Sint32 	i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -450,8 +450,8 @@ void Mod_LoadEdges (lump_t *l)
 
 	for ( i=0 ; i<count ; i++, in++, out++)
 	{
-		out->v[0] = (unsigned short)LittleShort(in->v[0]);
-		out->v[1] = (unsigned short)LittleShort(in->v[1]);
+		out->v[0] = (Uint16)LittleShort(in->v[0]);
+		out->v[1] = (Uint16)LittleShort(in->v[1]);
 	}
 }
 
@@ -470,7 +470,7 @@ Mod_InitFailedTexList
 */
 void Mod_InitFailedTexList (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0; i<NUM_FAIL_TEXTURES; i++) {
 		Com_sprintf(lastFailedTexture[i], sizeof(lastFailedTexture[i]), "\0");
@@ -487,7 +487,7 @@ Mod_CheckTexFailed
 */
 qboolean Mod_CheckTexFailed (char *name)
 {
-	int		i;
+	Sint32		i;
 	long	hash;
 
 	hash = Com_HashFileName(name, 0, false);
@@ -550,8 +550,8 @@ typedef struct walsize_s
 {
 	char	name[MAX_OSPATH];
 	long	hash;
-	int		width;
-	int		height;
+	Sint32		width;
+	Sint32		height;
 } walsize_t;
 
 #define NUM_WALSIZES 256
@@ -565,7 +565,7 @@ Mod_InitWalSizeList
 */
 void Mod_InitWalSizeList (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0; i<NUM_WALSIZES; i++) {
 		Com_sprintf(walSizeList[i].name, sizeof(walSizeList[i].name), "\0");
@@ -581,9 +581,9 @@ void Mod_InitWalSizeList (void)
 Mod_CheckWalSizeList
 ===============
 */
-qboolean Mod_CheckWalSizeList (const char *name, int *width, int *height)
+qboolean Mod_CheckWalSizeList (const char *name, Sint32 *width, Sint32 *height)
 {
-	int		i;
+	Sint32		i;
 	long	hash;
 
 	hash = Com_HashFileName(name, 0, false);
@@ -609,7 +609,7 @@ qboolean Mod_CheckWalSizeList (const char *name, int *width, int *height)
 Mod_AddToWalSizeList
 ===============
 */
-void Mod_AddToWalSizeList (const char *name, int width, int height)
+void Mod_AddToWalSizeList (const char *name, Sint32 width, Sint32 height)
 {
 	Com_sprintf(walSizeList[walSizeListIndex].name, sizeof(walSizeList[walSizeListIndex].name), "%s", name);
 	walSizeList[walSizeListIndex].hash = Com_HashFileName(name, 0, false);
@@ -627,7 +627,7 @@ Mod_GetWalSize
 Adapted from Q2E
 =================
 */
-static void Mod_GetWalSize (const char *name, int *width, int *height)
+static void Mod_GetWalSize (const char *name, Sint32 *width, Sint32 *height)
 {
 	char			path[MAX_QPATH];
 	miptex_t		*mt;
@@ -661,9 +661,9 @@ void Mod_LoadTexinfo (lump_t *l)
 {
 	texinfo_t *in;
 	mtexinfo_t *out, *step;
-	int 	i, j, count;
+	Sint32 	i, j, count;
 	char	name[MAX_QPATH];
-	int		next;
+	Sint32		next;
 
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -735,10 +735,10 @@ Fills in s->texturemins[] and s->extents[]
 void CalcSurfaceExtents (msurface_t *s)
 {
 	float	mins[2], maxs[2], val;
-	int		i,j, e;
+	Sint32		i,j, e;
 	mvertex_t	*v;
 	mtexinfo_t	*tex;
-	int		bmins[2], bmaxs[2];
+	Sint32		bmins[2], bmaxs[2];
 
 	mins[0] = mins[1] = 999999;
 	maxs[0] = maxs[1] = -99999;
@@ -794,9 +794,9 @@ void Mod_LoadFaces (lump_t *l)
 {
 	dface_t		*in;
 	msurface_t 	*out;
-	int			i, count, surfnum;
-	int			planenum, side;
-	int			ti;
+	Sint32			i, count, surfnum;
+	Sint32			planenum, side;
+	Sint32			ti;
 
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -898,7 +898,7 @@ Mod_LoadNodes
 */
 void Mod_LoadNodes (lump_t *l)
 {
-	int			i, j, count, p;
+	Sint32			i, j, count, p;
 	dnode_t		*in;
 	mnode_t 	*out;
 
@@ -948,7 +948,7 @@ void Mod_LoadLeafs (lump_t *l)
 {
 	dleaf_t 	*in;
 	mleaf_t 	*out;
-	int			i, j, count, p;
+	Sint32			i, j, count, p;
 	glpoly_t	*poly;
 
 	in = (void *)(mod_base + l->fileofs);
@@ -981,7 +981,7 @@ void Mod_LoadLeafs (lump_t *l)
 		// underwater flag for caustics
 		//if (out->contents & (CONTENTS_WATER|CONTENTS_SLIME) )
 		if (out->contents & (MASK_WATER) )
-		{	unsigned int flag;
+		{	Uint32 flag;
 			if (out->contents & CONTENTS_LAVA)
 				flag = SURF_UNDERLAVA;
 			else if (out->contents & CONTENTS_SLIME)
@@ -1005,8 +1005,8 @@ Mod_LoadMarksurfaces
 */
 void Mod_LoadMarksurfaces (lump_t *l)
 {	
-	int		i, j, count;
-	short		*in;
+	Sint32		i, j, count;
+	Sint16		*in;
 	msurface_t **out;
 	
 	in = (void *)(mod_base + l->fileofs);
@@ -1034,8 +1034,8 @@ Mod_LoadSurfedges
 */
 void Mod_LoadSurfedges (lump_t *l)
 {	
-	int		i, count;
-	int		*in, *out;
+	Sint32		i, count;
+	Sint32		*in, *out;
 	
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -1062,11 +1062,11 @@ Mod_LoadPlanes
 */
 void Mod_LoadPlanes (lump_t *l)
 {
-	int			i, j;
+	Sint32			i, j;
 	cplane_t	*out;
 	dplane_t 	*in;
-	int			count;
-	int			bits;
+	Sint32			count;
+	Sint32			bits;
 	
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -1103,7 +1103,7 @@ Mod_LoadBrushModel
 */
 void Mod_LoadBrushModel (model_t *mod, void *buffer)
 {
-	int			i;
+	Sint32			i;
 	dheader_t	*header;
 	mmodel_t 	*bm;
 	
@@ -1121,7 +1121,7 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer)
 	mod_base = (byte *)header;
 
 	for (i=0 ; i<sizeof(dheader_t)/4 ; i++)
-		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
+		((Sint32 *)header)[i] = LittleLong ( ((Sint32 *)header)[i]);
 
 	// load into heap	
 	Mod_LoadVertexes (&header->lumps[LUMP_VERTEXES]);
@@ -1305,11 +1305,11 @@ Mod_ParseModelScript
 skin protoshaders
 =================
 */
-void Mod_ParseModelScript (maliasskin_t *skin, char **data, char *dataStart, int dataSize, char *meshname, int skinnum, char *scriptname)
+void Mod_ParseModelScript (maliasskin_t *skin, char **data, char *dataStart, Sint32 dataSize, char *meshname, Sint32 skinnum, char *scriptname)
 {
 	char	*token=NULL, *token2=NULL;
 	char	glowname[MD3_MAX_PATH];
-	int		i;
+	Sint32		i;
 	renderparms_t *skinParms = &skin->renderparms;
 
 	// get the opening curly brace
@@ -1555,7 +1555,7 @@ void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 {
 	char		scriptname[MAX_QPATH];
 	char		*buf, *parse_data, *token=NULL, *token2=NULL;
-	int			buf_size, i, j; //, k;
+	Sint32			buf_size, i, j; //, k;
 	qboolean	skinname_found;
 	renderparms_t	*skinParms;
 
@@ -1620,10 +1620,10 @@ void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 Mod_FindMD2TriangleWithEdge
 =================
 */
-signed int Mod_FindMD2TriangleWithEdge (short p1, short p2, dtriangle_t *ignore, dmdl_t *hdr)
+Sint32 Mod_FindMD2TriangleWithEdge (Sint16 p1, Sint16 p2, dtriangle_t *ignore, dmdl_t *hdr)
 {
-	dtriangle_t *tris = (dtriangle_t *)((unsigned char*)hdr + hdr->ofs_tris);
-	int i, match, count;
+	dtriangle_t *tris = (dtriangle_t *)((Uint8*)hdr + hdr->ofs_tris);
+	Sint32 i, match, count;
 
 	count = 0;
 	match = -1;
@@ -1656,8 +1656,8 @@ Mod_BuildMD2TriangleNeighbors
 void Mod_BuildMD2TriangleNeighbors (model_t *mod)
 {
 	dmdl_t		*hdr = (dmdl_t *)mod->extradata;
-	dtriangle_t *tris = (dtriangle_t *)((unsigned char*)hdr + hdr->ofs_tris);
-	int			i, *n;
+	dtriangle_t *tris = (dtriangle_t *)((Uint8*)hdr + hdr->ofs_tris);
+	Sint32			i, *n;
 
 	for (i=0, n=mod->edge_tri; i<hdr->num_tris; i++, n+=3, tris++)
 	{
@@ -1675,13 +1675,13 @@ Mod_LoadAliasMD2Model
 */
 void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 {
-	int					i, j;
+	Sint32					i, j;
 	dmdl_t				*pinmodel, *pheader;
 	dstvert_t			*pinst, *poutst;
 	dtriangle_t			*pintri, *pouttri;
 	daliasframe_t		*pinframe, *poutframe;
-	int					*pincmd, *poutcmd;
-	int					version;
+	Sint32					*pincmd, *poutcmd;
+	Sint32					version;
 
 	pinmodel = (dmdl_t *)buffer;
 
@@ -1694,7 +1694,7 @@ void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 	
 	// byte swap the header fields and sanity check
 	for (i=0; i<sizeof(dmdl_t)/4; i++)
-		((int *)pheader)[i] = LittleLong (((int *)buffer)[i]);
+		((Sint32 *)pheader)[i] = LittleLong (((Sint32 *)buffer)[i]);
 
 	if (pheader->skinheight > MAX_LBM_HEIGHT)
 		VID_Error (ERR_DROP, "model %s has a skin taller than %d", mod->name,
@@ -1766,8 +1766,8 @@ void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 	//
 	// load the glcmds
 	//
-	pincmd = (int *) ((byte *)pinmodel + pheader->ofs_glcmds);
-	poutcmd = (int *) ((byte *)pheader + pheader->ofs_glcmds);
+	pincmd = (Sint32 *) ((byte *)pinmodel + pheader->ofs_glcmds);
+	poutcmd = (Sint32 *) ((byte *)pheader + pheader->ofs_glcmds);
 	for (i=0; i<pheader->num_glcmds; i++)
 		poutcmd[i] = LittleLong (pincmd[i]);
 
@@ -1787,7 +1787,7 @@ void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 	mod->maxs[2] = 32;
 
 #ifdef PROJECTION_SHADOWS // projection shadows from BeefQuake R6
-	mod->edge_tri = malloc(sizeof(int) * pheader->num_tris * 3);
+	mod->edge_tri = malloc(sizeof(Sint32) * pheader->num_tris * 3);
 	Mod_BuildMD2TriangleNeighbors (mod);
 #endif // end projection shadows from BeefQuake R6
 
@@ -1810,9 +1810,9 @@ void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 Mod_FindTriangleWithEdge
 ===============
 */
-int Mod_FindTriangleWithEdge (maliasmesh_t *mesh, index_t p1, index_t p2, int ignore)
+Sint32 Mod_FindTriangleWithEdge (maliasmesh_t *mesh, index_t p1, index_t p2, Sint32 ignore)
 {
-	int		i, match, count;
+	Sint32		i, match, count;
 	index_t *indexes;
 
 	count = 0;
@@ -1847,7 +1847,7 @@ Mod_BuildTriangleNeighbors
 */
 void Mod_BuildTriangleNeighbors (maliasmesh_t *mesh)
 {
-	int		i, *n;
+	Sint32		i, *n;
 	index_t	*index;
 
 	for (i=0, n=mesh->trneighbors, index=mesh->indexes; i<mesh->num_tris; i++, n+=3, index+=3)
@@ -1867,7 +1867,7 @@ NormalToLatLong
 */
 void NormalToLatLong (const vec3_t normal, byte bytes[2])
 {
-	int		lat, lng;
+	Sint32		lat, lng;
 
 	if (normal[0] == 0 && normal[1] == 0){
 		if (normal[2] > 0){
@@ -1898,8 +1898,8 @@ Based on md2 loading code in Q2E 0.40
 */
 void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 {
-	int					i, j;
-	int					version;
+	Sint32					i, j;
+	Sint32					version;
 	dmdl_t				*pinmodel;
 	daliasframe_t		*pinframe;
 	dtriangle_t			*pintri;
@@ -1912,9 +1912,9 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	maliascoord_t		*poutcoord;
 	index_t				*poutindex;
 	char				name[MD3_MAX_PATH];
-	int					indRemap[MAX_TRIANGLES*3];
+	Sint32					indRemap[MAX_TRIANGLES*3];
 	unsigned			tempIndex[MAX_TRIANGLES*3], tempStIndex[MAX_TRIANGLES*3];
-	int					numIndices, numVertices;
+	Sint32					numIndices, numVertices;
 	double				skinWidth, skinHeight;
 	vec3_t				normal;
 
@@ -1979,7 +1979,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 
 	poutindex = poutmesh->indexes = Hunk_Alloc( sizeof(index_t) * poutmesh->num_tris * 3 );
 
-	memset(indRemap, -1, MAX_TRIANGLES * 3 * sizeof(int));
+	memset(indRemap, -1, MAX_TRIANGLES * 3 * sizeof(Sint32));
 
 	for (i=0; i < numIndices; i++)
 	{
@@ -2060,9 +2060,9 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 		//
 		for (j=0; j < numIndices; j++)
 		{
-			poutvert[poutindex[j]].xyz[0] = (short)pinframe->verts[tempIndex[indRemap[j]]].v[0];
-			poutvert[poutindex[j]].xyz[1] = (short)pinframe->verts[tempIndex[indRemap[j]]].v[1];
-			poutvert[poutindex[j]].xyz[2] = (short)pinframe->verts[tempIndex[indRemap[j]]].v[2];
+			poutvert[poutindex[j]].xyz[0] = (Sint16)pinframe->verts[tempIndex[indRemap[j]]].v[0];
+			poutvert[poutindex[j]].xyz[1] = (Sint16)pinframe->verts[tempIndex[indRemap[j]]].v[1];
+			poutvert[poutindex[j]].xyz[2] = (Sint16)pinframe->verts[tempIndex[indRemap[j]]].v[2];
 
 			poutvert[poutindex[j]].lightnormalindex = pinframe->verts[tempIndex[indRemap[j]]].lightnormalindex;
 
@@ -2077,7 +2077,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	// build triangle neighbors
 	//
-	poutmesh->trneighbors = Hunk_Alloc ( sizeof(int) * poutmesh->num_tris * 3 );
+	poutmesh->trneighbors = Hunk_Alloc ( sizeof(Sint32) * poutmesh->num_tris * 3 );
 	Mod_BuildTriangleNeighbors (poutmesh);
 
 	//
@@ -2126,7 +2126,7 @@ Mod_LoadAliasMD3Model
 */
 void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 {
-	int					version, maxdotindex, i, j, l, k;
+	Sint32					version, maxdotindex, i, j, l, k;
 	dmd3_t				*pinmodel;
 	dmd3frame_t			*pinframe;
 	dmd3tag_t			*pintag;
@@ -2242,7 +2242,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		if ( strncmp ((const char *)pinmesh->id, "IDP3", 4))
 		{
 			VID_Error ( ERR_DROP, "mesh %s in model %s has wrong id (%i should be %i)",
-					 poutmesh->name, mod->name, LittleLong((int)pinmesh->id), IDMD3HEADER );
+					 poutmesh->name, mod->name, LittleLong((Sint32)pinmesh->id), IDMD3HEADER );
 		}
 
 		poutmesh->num_tris = LittleLong ( pinmesh->num_tris );
@@ -2354,7 +2354,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		//
 		// build triangle neighbors
 		//
-		poutmesh->trneighbors = Hunk_Alloc (sizeof(int) * poutmesh->num_tris * 3);
+		poutmesh->trneighbors = Hunk_Alloc (sizeof(Sint32) * poutmesh->num_tris * 3);
 		Mod_BuildTriangleNeighbors (poutmesh);
 	}
 
@@ -2385,7 +2385,7 @@ Mod_LoadSpriteModel
 void Mod_LoadSpriteModel (model_t *mod, void *buffer)
 {
 	dsprite_t	*sprin, *sprout;
-	int			i;
+	Sint32			i;
 
 	sprin = (dsprite_t *)buffer;
 	sprout = Hunk_Alloc (modfilelen);
@@ -2464,7 +2464,7 @@ R_RegisterModel
 struct model_s *R_RegisterModel (char *name)
 {
 	model_t	*mod;
-	int		i;
+	Sint32		i;
 	dsprite_t	*sprout;
 	dmdl_t		*pheader;
 // Harven++ MD3
@@ -2472,7 +2472,7 @@ struct model_s *R_RegisterModel (char *name)
 // Harven-- MD3
 
 	// Knightmare- MD3 autoreplace code
-	int len = strlen(name);
+	Sint32 len = strlen(name);
 	if (!strcmp(name+len-4, ".md2")) // look if we have a .md2 file
 	{
 		char s[128];
@@ -2506,7 +2506,7 @@ struct model_s *R_RegisterModel (char *name)
 		// Harven++ MD3
 		else if (mod->type == mod_alias)
 		{
-			int	k;
+			Sint32	k;
 
 			pheader3 = (maliasmodel_t *)mod->extradata;
 
@@ -2541,7 +2541,7 @@ R_EndRegistration
 */
 void R_EndRegistration (void)
 {
-	int		i;
+	Sint32		i;
 	model_t	*mod;
 
 	for (i=0, mod=mod_known ; i<mod_numknown ; i++, mod++)
@@ -2587,7 +2587,7 @@ Mod_FreeAll
 */
 void Mod_FreeAll (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<mod_numknown ; i++)
 	{

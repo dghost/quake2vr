@@ -49,21 +49,22 @@
 /*                                                                  */
 
 #include <stdio.h>
+#include <SDL_stdinc.h>
 
 #include "wildcard.h"
 
-int set (char **wildcard, char **test);
+Sint32 set (char **wildcard, char **test);
 /* Scans a set of characters and returns 0 if the set mismatches at this */
 /* position in the teststring and 1 if it is matching                    */
 /* wildcard is set to the closing ] and test is unmodified if mismatched */
 /* and otherwise the char pointer is pointing to the next character      */
 
-int asterisk (char **wildcard, char **test);
+Sint32 asterisk (char **wildcard, char **test);
 /* scans an asterisk */
 
-int wildcardfit (char *wildcard, char *test)
+Sint32 wildcardfit (char *wildcard, char *test)
 {
-   int fit = 1;
+   Sint32 fit = 1;
 
    for (; ('\000' != *wildcard) && (1 == fit) && ('\000' != *test); wildcard++)
      {
@@ -85,7 +86,7 @@ int wildcardfit (char *wildcard, char *test)
   wildcard--;
            break;
          default:
-           fit = (int) (*wildcard == *test);
+           fit = (Sint32) (*wildcard == *test);
            test++;
          }
      }
@@ -93,14 +94,14 @@ int wildcardfit (char *wildcard, char *test)
      /* here the teststring is empty otherwise you cannot */
      /* leave the previous loop */
      wildcard++;
-   return (int) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
+   return (Sint32) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
 }
 
-int set (char **wildcard, char **test)
+Sint32 set (char **wildcard, char **test)
 {
-   int fit = 0;
-   int negation = 0;
-   int at_beginning = 1;
+   Sint32 fit = 0;
+   Sint32 negation = 0;
+   Sint32 at_beginning = 1;
 
    if ('!' == **wildcard)
      {
@@ -140,10 +141,10 @@ int set (char **wildcard, char **test)
    return (fit);
 }
 
-int asterisk (char **wildcard, char **test)
+Sint32 asterisk (char **wildcard, char **test)
 {
    /* Warning: uses multiple returns */
-   int fit = 1;
+   Sint32 fit = 1;
 
    /* erase the leading asterisk */
    (*wildcard)++;

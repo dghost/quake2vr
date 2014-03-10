@@ -288,18 +288,18 @@ typedef enum {
 #define MAX_KEYEVENTS 512
 
 extern char		*keybindings[MAX_KEYEVENTS];
-extern	int		key_repeats[MAX_KEYEVENTS];
+extern	Sint32		key_repeats[MAX_KEYEVENTS];
 
-extern	int	anykeydown;
+extern	Sint32	anykeydown;
 extern char chat_buffer[];
-extern	int chat_bufferlen;
-extern	int chat_backedit;
+extern	Sint32 chat_bufferlen;
+extern	Sint32 chat_backedit;
 extern	qboolean	chat_team;
 
-void Key_Event (int key, qboolean down, unsigned time);
+void Key_Event (Sint32 key, qboolean down, unsigned time);
 void Key_Init (void);
 void Key_WriteBindings (FILE *f);
-void Key_SetBinding (int keynum, char *binding);
+void Key_SetBinding (Sint32 keynum, char *binding);
 void Key_ClearStates (void);
-int Key_GetKey (void);
+Sint32 Key_GetKey (void);
 

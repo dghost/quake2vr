@@ -45,7 +45,7 @@ qboolean	scr_hidehud;
 
 qboolean	scr_initialized;		// ready to draw
 
-int			scr_draw_loading;
+Sint32			scr_draw_loading;
 
 vrect_t		scr_vrect;		// position of render window on screen
 
@@ -87,7 +87,7 @@ cvar_t		*cl_demomessage;
 cvar_t		*cl_loadpercent;
 
 char		crosshair_pic[MAX_QPATH];
-int			crosshair_width, crosshair_height;
+Sint32			crosshair_width, crosshair_height;
 
 void SCR_TimeRefresh_f (void);
 void SCR_Loading_f (void);
@@ -307,7 +307,7 @@ SCR_DrawFill
 Coordinates are 640*480 virtual values
 =================
 */
-void SCR_DrawFill (float x, float y, float width, float height, scralign_t align, int red, int green, int blue, int alpha)
+void SCR_DrawFill (float x, float y, float width, float height, scralign_t align, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha)
 {
 	SCR_AdjustFrom640 (&x, &y, &width, &height, align);
 	R_DrawFill (x, y, width, height, red, green, blue, alpha);
@@ -331,7 +331,7 @@ SCR_DrawChar
 Coordinates are 640*480 virtual values
 =================
 */
-void SCR_DrawChar (float x, float y, scralign_t align, int num, int red, int green, int blue, int alpha, qboolean italic, qboolean last)
+void SCR_DrawChar (float x, float y, scralign_t align, Sint32 num, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha, qboolean italic, qboolean last)
 {
 	SCR_AdjustFrom640 (&x, &y, NULL, NULL, align);
 	R_DrawChar(x, y, num, screenScale.avg, red, green, blue, alpha, italic, last);
@@ -343,7 +343,7 @@ SCR_DrawString
 Coordinates are 640*480 virtual values
 =================
 */
-void SCR_DrawString (float x, float y, scralign_t align, const char *string, int alpha)
+void SCR_DrawString (float x, float y, scralign_t align, const char *string, Sint32 alpha)
 {
 	SCR_AdjustFrom640 (&x, &y, NULL, NULL, align);
 	DrawStringGeneric (x, y, string, alpha, SCALETYPE_MENU, false);
@@ -357,7 +357,7 @@ void SCR_DrawString (float x, float y, scralign_t align, const char *string, int
 Hud_DrawString
 ================
 */
-void Hud_DrawString (int x, int y, const char *string, int alpha, qboolean isStatusBar)
+void Hud_DrawString (Sint32 x, Sint32 y, const char *string, Sint32 alpha, qboolean isStatusBar)
 {
 	DrawStringGeneric (x, y, string, alpha, (isStatusBar) ? SCALETYPE_HUD : SCALETYPE_MENU, false);
 }
@@ -368,7 +368,7 @@ void Hud_DrawString (int x, int y, const char *string, int alpha, qboolean isSta
 Hud_DrawStringAlt
 ================
 */
-void Hud_DrawStringAlt (int x, int y, const char *string, int alpha, qboolean isStatusBar)
+void Hud_DrawStringAlt (Sint32 x, Sint32 y, const char *string, Sint32 alpha, qboolean isStatusBar)
 {
 	DrawStringGeneric (x, y, string, alpha, (isStatusBar) ? SCALETYPE_HUD : SCALETYPE_MENU, true);
 }
@@ -383,10 +383,10 @@ FPS counter, code combined from BramBo and Q2E
 #define FPS_FRAMES		4
 static void SCR_ShowFPS (void)
 {
-	static int	previousTimes[FPS_FRAMES];
-	static int	previousTime, index, fpscounter;
+	static Sint32	previousTimes[FPS_FRAMES];
+	static Sint32	previousTime, index, fpscounter;
 	static char	fpsText[32];
-	int			i, time, total, fps, x, y, fragsSize;
+	Sint32			i, time, total, fps, x, y, fragsSize;
 
 	if ((cls.state != ca_active) || !(cl_drawfps->value))
 		return;
@@ -441,12 +441,12 @@ A new packet was just parsed
 ==============
 */
 
-int currentping;
+Sint32 currentping;
 void CL_AddNetgraph (void)
 {
-	int		i;
-	int		in;
-	int		ping;
+	Sint32		i;
+	Sint32		in;
+	Sint32		ping;
 
 	in = cls.netchan.incoming_acknowledged & (CMD_BACKUP-1);
 	currentping = cls.realtime - cl.cmd_time[in];
@@ -475,10 +475,10 @@ void CL_AddNetgraph (void)
 typedef struct
 {
 	float	value;
-	int		color;
+	Sint32		color;
 } graphsamp_t;
 
-static	int			current;
+static	Sint32			current;
 static	graphsamp_t	values[1024];
 
 /*
@@ -486,7 +486,7 @@ static	graphsamp_t	values[1024];
 SCR_DebugGraph
 ==============
 */
-void SCR_DebugGraph (float value, int color)
+void SCR_DebugGraph (float value, Sint32 color)
 {
 	values[current&1023].value = value;
 	values[current&1023].color = color;
@@ -500,11 +500,11 @@ SCR_DrawDebugGraph
 */
 void SCR_DrawDebugGraph (void)
 {
-	int		a, x, y, w, i, h, min, max;
+	Sint32		a, x, y, w, i, h, min, max;
 	float	v;
-	int		color;
+	Sint32		color;
 	static	float lasttime = 0;
-	static	int fps, ping;
+	static	Sint32 fps, ping;
 
 	h = (2*FONT_SIZE > 40)?60+2*FONT_SIZE:100;
 	w = (9*FONT_SIZE>100)?9*FONT_SIZE:100;
@@ -531,9 +531,9 @@ void SCR_DrawDebugGraph (void)
 		v = v*scr_graphscale->value;
 		
 		if (v < 1)
-			v += h * (1+(int)(-v/h));
+			v += h * (1+(Sint32)(-v/h));
 
-		max = (int)v % h + 1;
+		max = (Sint32)v % h + 1;
 		min = y + h - max - scr_graphshift->value;
 
 		// bind to box!
@@ -574,8 +574,8 @@ char		scr_centerstring[1024];
 float		scr_centertime_start;	// for slow victory printing
 float		scr_centertime_off;
 float		scr_centertime_end;
-int			scr_center_lines;
-int			scr_erase_center;
+Sint32			scr_center_lines;
+Sint32			scr_erase_center;
 
 /*
 ==============
@@ -617,7 +617,7 @@ void SCR_CenterPrint (char *str)
 {
 	char	*s;
 	char	line[64];
-	int		i, j, l;
+	Sint32		i, j, l;
 
 	// print it to the screen
 	SCR_CenterAlert(str);
@@ -659,12 +659,12 @@ void SCR_CenterPrint (char *str)
 void SCR_DrawCenterString (void)
 {
 	char	*start, line[512];
-	int		l;
-	int		j;
-	int		y; //, x;
-	int		remaining;
+	Sint32		l;
+	Sint32		j;
+	Sint32		y; //, x;
+	Sint32		remaining;
 	// added Psychospaz's fading centerstrings
-	int		alpha = 255 * ( 1 - (((cl.time + (scr_centertime->value-1) - scr_centertime_start) / 1000.0) / (scr_centertime_end)));		
+	Sint32		alpha = 255 * ( 1 - (((cl.time + (scr_centertime->value-1) - scr_centertime_start) / 1000.0) / (scr_centertime_end)));		
 
 	// the finale prints the characters one at a time
 	remaining = 9999;
@@ -693,7 +693,7 @@ void SCR_DrawCenterString (void)
 			if (!remaining--)
 				return;
 		}
-		DrawStringGeneric ( (int)((viddef.width-strlen(line)*FONT_SIZE)*0.5), y, line, alpha, SCALETYPE_CONSOLE, false);
+		DrawStringGeneric ( (Sint32)((viddef.width-strlen(line)*FONT_SIZE)*0.5), y, line, alpha, SCALETYPE_CONSOLE, false);
 		y += FONT_SIZE;
 
 		while (*start && *start != '\n')
@@ -726,7 +726,7 @@ Sets scr_vrect, the coordinates of the rendered window
 */
 static void SCR_CalcVrect (void)
 {
-	int		size;
+	Sint32		size;
 
 	// bound viewsize
 	if (scr_viewsize->value < 40)
@@ -764,7 +764,7 @@ void SCR_SizeUp_f (void)
 	Cvar_SetValue ("hud_alpha", hudalpha);
 */
 	// now handle HUD scale
-	int hudscale = Cvar_VariableValue("hud_scale")+1;
+	Sint32 hudscale = Cvar_VariableValue("hud_scale")+1;
 	if (hudscale > 6) hudscale = 6;
 	Cvar_SetValue ("hud_scale", hudscale);
 }
@@ -782,7 +782,7 @@ void SCR_SizeDown_f (void)
 	//Cvar_SetValue ("viewsize",scr_viewsize->value-10);
 
 	// now handle HUD scale
-	int hudscale = Cvar_VariableValue("hud_scale")-1;
+	Sint32 hudscale = Cvar_VariableValue("hud_scale")-1;
 	if (hudscale < 1) hudscale = 1;
 	Cvar_SetValue ("hud_scale", hudscale);
 }
@@ -928,8 +928,8 @@ void SCR_DrawCrosshair (void)
 	pulsealpha = crosshair_alpha->value * crosshair_pulse->value;
 	alpha = max(min(crosshair_alpha->value - pulsealpha + pulsealpha*sin(anglemod(cl.time*0.005)), 1.0), 0.0);
 
-//	R_DrawScaledPic (scr_vrect.x + (int)(((float)scr_vrect.width - scale*(float)crosshair_width)*0.5), // x
-//					scr_vrect.y + (int)(((float)scr_vrect.height - scale*(float)crosshair_height)*0.5),	// y
+//	R_DrawScaledPic (scr_vrect.x + (Sint32)(((float)scr_vrect.width - scale*(float)crosshair_width)*0.5), // x
+//					scr_vrect.y + (Sint32)(((float)scr_vrect.height - scale*(float)crosshair_height)*0.5),	// y
 //					scale, alpha, crosshair_pic);
 	SCR_DrawPic ( ((float)SCREEN_WIDTH - scaledSize)*0.5, ((float)SCREEN_HEIGHT - scaledSize)*0.5,
 					scaledSize, scaledSize, ALIGN_CENTER, crosshair_pic, alpha);
@@ -956,10 +956,10 @@ void SCR_DrawNet (void)
 SCR_DrawAlertMessagePicture
 ==============
 */
-void SCR_DrawAlertMessagePicture (char *name, qboolean center, int yOffset)
+void SCR_DrawAlertMessagePicture (char *name, qboolean center, Sint32 yOffset)
 {
 	float ratio;//, scale;
-	int w, h;
+	Sint32 w, h;
 
 	//scale = SCR_VideoScale();
 
@@ -989,7 +989,7 @@ SCR_DrawPause
 */
 void SCR_DrawPause (void)
 {
-	int		w, h;
+	Sint32		w, h;
 
 	if (!scr_showpause->value)		// turn off for screenshots
 		return;
@@ -1013,9 +1013,9 @@ SCR_DrawLoadingTagProgress
 */
 #define LOADBAR_TIC_SIZE_X 4
 #define LOADBAR_TIC_SIZE_Y 4
-void SCR_DrawLoadingTagProgress (char *picName, int yOffset, int percent)
+void SCR_DrawLoadingTagProgress (char *picName, Sint32 yOffset, Sint32 percent)
 {
-	int		w, h, x, y, i, barPos;
+	Sint32		w, h, x, y, i, barPos;
 
 	w = 160;	// size of loading_bar.tga = 320x80
 	h = 40;
@@ -1036,13 +1036,13 @@ void SCR_DrawLoadingTagProgress (char *picName, int yOffset, int percent)
 SCR_DrawLoadingBar
 ==============
 */
-void SCR_DrawLoadingBar (float x, float y, float w, float h, int percent, float sizeRatio)
+void SCR_DrawLoadingBar (float x, float y, float w, float h, Sint32 percent, float sizeRatio)
 {	
-	int		red, green, blue;
+	Sint32		red, green, blue;
 	float	iRatio, hiRatio;
 
 	// changeable download/map load bar color
-	ColorLookup((int)alt_text_color->value, &red, &green, &blue);
+	ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
 	iRatio = 1 - fabs(sizeRatio);
 	hiRatio = iRatio * 0.5;
 
@@ -1055,8 +1055,8 @@ void SCR_DrawLoadingBar (float x, float y, float w, float h, int percent, float 
 
 
 char *load_saveshot;
-//void Menu_DrawString( int x, int y, const char *string, int alpha );
-int stringLen (char *string);
+//void Menu_DrawString( Sint32 x, Sint32 y, const char *string, Sint32 alpha );
+Sint32 stringLen (char *string);
 
 /*
 ==============
@@ -1065,7 +1065,7 @@ SCR_DrawLoading
 */
 void SCR_DrawLoading (void)
 {
-	int			plaqueOffset;
+	Sint32			plaqueOffset;
 	char		mapfile[32];
 	char		*loadMsg;
 	qboolean	isMap = false, haveMapPic = false, widescreen;
@@ -1180,15 +1180,15 @@ void SCR_DrawLoading (void)
 		}
 
 		if (simplePlaque)
-			SCR_DrawLoadingTagProgress ("loading_bar", plaqueOffset, (int)loadingPercent);
+			SCR_DrawLoadingTagProgress ("loading_bar", plaqueOffset, (Sint32)loadingPercent);
 		else {
-			SCR_DrawLoadingBar (SCREEN_WIDTH*0.5 - 180, SCREEN_HEIGHT - 20, 360, 15, (int)loadingPercent, 0.6);
+			SCR_DrawLoadingBar (SCREEN_WIDTH*0.5 - 180, SCREEN_HEIGHT - 20, 360, 15, (Sint32)loadingPercent, 0.6);
 			SCR_DrawAlertMessagePicture("loading", false, plaqueOffset);
 		}
 	}
 	else {// just a plain old loading plaque
 		if (simplePlaque)
-			SCR_DrawLoadingTagProgress ("loading_bar", 0, (int)loadingPercent);
+			SCR_DrawLoadingTagProgress ("loading_bar", 0, (Sint32)loadingPercent);
 		else
 			SCR_DrawAlertMessagePicture("loading", true, 0);
 	}
@@ -1261,7 +1261,7 @@ SCR_DrawLetterbox
 */
 void SCR_DrawLetterbox (void)
 {
-	int boxheight, boxalpha;
+	Sint32 boxheight, boxalpha;
 
 	if (!scr_letterbox_active)
 		return;
@@ -1437,25 +1437,25 @@ void SCR_Loading_f (void)
 SCR_TimeRefresh_f
 ================
 */
-int entitycmpfnc( const entity_t *a, const entity_t *b )
+Sint32 entitycmpfnc( const entity_t *a, const entity_t *b )
 {
 	/*
 	** all other models are sorted by model then skin
 	*/
 	if ( a->model == b->model )
 	{
-		return ( ( int ) a->skin - ( int ) b->skin );
+		return ( ( Sint32 ) a->skin - ( Sint32 ) b->skin );
 	}
 	else
 	{
-		return ( ( int ) a->model - ( int ) b->model );
+		return ( ( Sint32 ) a->model - ( Sint32 ) b->model );
 	}
 }
 
 void SCR_TimeRefresh_f (void)
 {
-	int		i;
-	int		start, stop;
+	Sint32		i;
+	Sint32		start, stop;
 	float	time;
 
 	if ( cls.state != ca_active )
@@ -1500,8 +1500,8 @@ Clear around a sized down screen
 */
 void SCR_TileClear (void)
 {
-	int		top, bottom, left, right;
-	int		w, h;
+	Sint32		top, bottom, left, right;
+	Sint32		w, h;
 
 	if (scr_con_current == 1.0)
 		return;		// full screen console
@@ -1562,7 +1562,7 @@ float HudScale (void)
 
 void InitHudScale (void)
 {
-	switch ((int)hud_scale->value)
+	switch ((Sint32)hud_scale->value)
 	{
 	case 0:
 		Cvar_SetValue( "hud_width", 0);
@@ -1622,9 +1622,9 @@ SizeHUDString
 Allow embedded \n in the string
 ================
 */
-void SizeHUDString (char *string, int *w, int *h, qboolean isStatusBar)
+void SizeHUDString (char *string, Sint32 *w, Sint32 *h, qboolean isStatusBar)
 {
-	int		lines, width, current;
+	Sint32		lines, width, current;
 	float	(*scaleForScreen)(float in);
 
 	// Get our scaling function
@@ -1659,12 +1659,12 @@ void SizeHUDString (char *string, int *w, int *h, qboolean isStatusBar)
 	*h = lines * scaleForScreen(8);
 }
 
-void _DrawHUDString (char *string, int x, int y, int centerwidth, int xor, qboolean isStatusBar)
+void _DrawHUDString (char *string, Sint32 x, Sint32 y, Sint32 centerwidth, Sint32 xor, qboolean isStatusBar)
 {
-	int		margin;
+	Sint32		margin;
 	char	line[1024];
-	int		width;
-	//int		i, len;
+	Sint32		width;
+	//Sint32		i, len;
 	float	(*scaleForScreen)(float in);
 
 	// Get our scaling function
@@ -1717,10 +1717,10 @@ void _DrawHUDString (char *string, int x, int y, int centerwidth, int xor, qbool
 SCR_DrawField
 ==============
 */
-void SCR_DrawField (int x, int y, int color, int width, int value, qboolean flash, qboolean isStatusBar)
+void SCR_DrawField (Sint32 x, Sint32 y, Sint32 color, Sint32 width, Sint32 value, qboolean flash, qboolean isStatusBar)
 {
 	char		num[16], *ptr;
-	int			l, frame;
+	Sint32			l, frame;
 	float		digitWidth, digitOffset, fieldScale;
 	float		flash_x, flashWidth;
 	float		(*scaleForScreen)(float in);
@@ -1795,7 +1795,7 @@ Allows rendering code to cache all needed sbar graphics
 */
 void SCR_TouchPics (void)
 {
-	int		i, j;
+	Sint32		i, j;
 
 	for (i=0 ; i<2 ; i++)
 		for (j=0 ; j<11 ; j++)
@@ -1806,7 +1806,7 @@ void SCR_TouchPics (void)
 		if (crosshair->value > 100 || crosshair->value < 0) //Knightmare increased
 			crosshair->value = 1;
 
-		Com_sprintf (crosshair_pic, sizeof(crosshair_pic), "ch%i", (int)(crosshair->value));
+		Com_sprintf (crosshair_pic, sizeof(crosshair_pic), "ch%i", (Sint32)(crosshair->value));
 		R_DrawGetPicSize (&crosshair_width, &crosshair_height, crosshair_pic);
 		if (!crosshair_width)
 			crosshair_pic[0] = 0;
@@ -1821,12 +1821,12 @@ SCR_ExecuteLayoutString
 */
 void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 {
-	int		x, y;
-	int		value;
+	Sint32		x, y;
+	Sint32		value;
 	char	*token;
 	char	string[1024];
-	int		width;
-	int		index;
+	Sint32		width;
+	Sint32		index;
 	clientinfo_t	*ci;
 	float			(*scaleForScreen)(float in);
 	float			(*getScreenScale)(void);
@@ -1931,7 +1931,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "client"))
 		{	// draw a deathmatch client block
-			int		score, ping, time;
+			Sint32		score, ping, time;
 
 			token = COM_Parse (&s);
 			x = viddef.width/2 - scaleForScreen(160) + scaleForScreen(atoi(token));
@@ -1967,7 +1967,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "ctf"))
 		{	// draw a ctf client block
-			int		score, ping;
+			Sint32		score, ping;
 			char	block[80];
 
 			token = COM_Parse (&s);
@@ -2000,7 +2000,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 		
 		if (!strcmp(token, "3tctf")) // Knightmare- 3Team CTF block
 		{	// draw a 3Team CTF client block
-			int		score, ping;
+			Sint32		score, ping;
 			char	block[80];
 
 			token = COM_Parse (&s);
@@ -2050,7 +2050,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "hnum"))
 		{	// health number
-			int		color;
+			Sint32		color;
 
 			width = 3;
 			value = cl.frame.playerstate.stats[STAT_HEALTH];
@@ -2070,7 +2070,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "anum"))
 		{	// ammo number
-			int		color;
+			Sint32		color;
 
 			width = 3;
 			value = cl.frame.playerstate.stats[STAT_AMMO];
@@ -2090,7 +2090,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "rnum"))
 		{	// armor number
-			int		color;
+			Sint32		color;
 
 			width = 3;
 			value = cl.frame.playerstate.stats[STAT_ARMOR];
@@ -2212,7 +2212,7 @@ void DrawDemoMessage (void)
 	// running demo message
 	if ( cl.attractloop && !(cl.cinematictime > 0 && cls.realtime - cl.cinematictime > 1000))
 	{
-		int len;
+		Sint32 len;
 		char *message = "Running Demo";
 		len = strlen(message);
 

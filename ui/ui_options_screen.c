@@ -98,7 +98,7 @@ Crosshair loading
 
 #define MAX_CROSSHAIRS 100
 char **crosshair_names;
-int	numcrosshairs;
+Sint32	numcrosshairs;
 
 /*static void OldCrosshairFunc( void *unused )
 {
@@ -115,13 +115,13 @@ static void CrosshairFunc( void *unused )
 
 void SetCrosshairCursor (void)
 {
-	int i;
+	Sint32 i;
 	s_options_screen_crosshair_box.curvalue = 0;
 
 	if (numcrosshairs > 1)
 		for (i=0; crosshair_names[i]; i++)
 		{
-			if (!Q_strcasecmp(va("ch%i", (int)Cvar_VariableValue("crosshair")), crosshair_names[i]))
+			if (!Q_strcasecmp(va("ch%i", (Sint32)Cvar_VariableValue("crosshair")), crosshair_names[i]))
 			{
 				s_options_screen_crosshair_box.curvalue = i;
 				return;
@@ -129,9 +129,9 @@ void SetCrosshairCursor (void)
 		}
 }
 
-void sortCrosshairs (char **list, int len)
+void sortCrosshairs (char **list, Sint32 len)
 {
-	int			i, j;
+	Sint32			i, j;
 	char		*temp;
 	qboolean	moved;
 
@@ -168,10 +168,10 @@ char **SetCrosshairNames (void)
 	char *curCrosshair;
 	char **list = 0, *p;
 	char findname[1024];
-	int ncrosshairs = 0, ncrosshairnames;
+	Sint32 ncrosshairs = 0, ncrosshairnames;
 	char **crosshairfiles;
 	char *path = NULL;
-	int i;
+	Sint32 i;
 
 	list = malloc( sizeof( char * ) * MAX_CROSSHAIRS+1 );
 	memset( list, 0, sizeof( char * ) * MAX_CROSSHAIRS+1 );
@@ -187,7 +187,7 @@ char **SetCrosshairNames (void)
 
 		for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
 		{
-			int num, namelen;
+			Sint32 num, namelen;
 
 			if (!crosshairfiles || !crosshairfiles[i])
 				continue;
@@ -240,7 +240,7 @@ char **SetCrosshairNames (void)
 	{
 		for (i=0; i<ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
 		{
-			int num, namelen;
+			Sint32 num, namelen;
 
 			if (!crosshairfiles || !crosshairfiles[i])
 				continue;
@@ -346,7 +346,7 @@ void Options_Screen_MenuInit ( void )
 		0
 	};
 
-	int y = 3*MENU_LINE_SIZE;
+	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_screen_menu.x = SCREEN_WIDTH*0.5;
 	s_options_screen_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -463,8 +463,8 @@ void MenuCrosshair_MouseClick ( void )
 {
 	char *sound = NULL;
 	buttonmenuobject_t crosshairbutton;
-	int button_x, button_y;
-	int button_size;
+	Sint32 button_x, button_y;
+	Sint32 button_size;
 
 	button_size = 36;
 
@@ -528,7 +528,7 @@ void Options_Screen_MenuDraw (void)
 	DrawMenuCrosshair();
 }
 
-const char *Options_Screen_MenuKey( int key )
+const char *Options_Screen_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_options_screen_menu, key );
 }

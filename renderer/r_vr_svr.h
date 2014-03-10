@@ -6,13 +6,13 @@
 #include "r_local.h"
 
 /*
-void SVR_FrameStart(int changeBackBuffers);
+void SVR_FrameStart(Sint32 changeBackBuffers);
 void SVR_BindView(vr_eye_t eye);
 void SVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
 void SVR_Present();
-int SVR_Enable();
+Sint32 SVR_Enable();
 void SVR_Disable();
-int SVR_Init();
+Sint32 SVR_Init();
 */
 
 

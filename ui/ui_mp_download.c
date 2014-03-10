@@ -91,7 +91,7 @@ void DownloadOptions_MenuInit( void )
 	{
 		"no", "yes", 0
 	};
-	int y = 0;
+	Sint32 y = 0;
 
 	s_downloadoptions_menu.x = SCREEN_WIDTH*0.5;
 //	s_downloadoptions_menu.x = viddef.width * 0.50;
@@ -186,7 +186,7 @@ void DownloadOptions_MenuDraw(void)
 	Menu_Draw( &s_downloadoptions_menu );
 }
 
-const char *DownloadOptions_MenuKey( int key )
+const char *DownloadOptions_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_downloadoptions_menu, key );
 }

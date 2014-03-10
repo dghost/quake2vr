@@ -96,7 +96,7 @@ Font loading
 cvar_t *con_font;
 #define MAX_FONTS 32
 char **font_names;
-int	numfonts;
+Sint32	numfonts;
 
 static void FontSizeFunc( void *unused )
 {
@@ -110,7 +110,7 @@ static void FontFunc( void *unused )
 
 void SetFontCursor (void)
 {
-	int i;
+	Sint32 i;
 	s_options_interface_font_box.curvalue = 0;
 
 	if (!con_font)
@@ -128,9 +128,9 @@ void SetFontCursor (void)
 }
 
 
-void insertFont (char **list, char *insert, int len )
+void insertFont (char **list, char *insert, Sint32 len )
 {
-	int i, j;
+	Sint32 i, j;
 	if (!list) return;
 
 	//i=1 so default stays first!
@@ -156,10 +156,10 @@ char **SetFontNames (void)
 	char *curFont;
 	char **list = 0, *p;//, *s;
 	char findname[1024];
-	int nfonts = 0, nfontnames;
+	Sint32 nfonts = 0, nfontnames;
 	char **fontfiles;
 	char *path = NULL;
-	int i;//, j;
+	Sint32 i;//, j;
 
 	list = malloc( sizeof( char * ) * MAX_FONTS );
 	memset( list, 0, sizeof( char * ) * MAX_FONTS );
@@ -176,7 +176,7 @@ char **SetFontNames (void)
 
 		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
 		{
-			int num;
+			Sint32 num;
 
 			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
 				continue;
@@ -215,7 +215,7 @@ char **SetFontNames (void)
 	{
 		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
 		{
-			int num;
+			Sint32 num;
 
 			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
 				continue;
@@ -315,7 +315,7 @@ void Options_Interface_MenuInit ( void )
 		0
 	};
 
-	int y = 3*MENU_LINE_SIZE;
+	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_interface_menu.x = SCREEN_WIDTH*0.5;
 	s_options_interface_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -443,7 +443,7 @@ void Options_Interface_MenuDraw (void)
 	Menu_Draw( &s_options_interface_menu );
 }
 
-const char *Options_Interface_MenuKey( int key )
+const char *Options_Interface_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_options_interface_menu, key );
 }

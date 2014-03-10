@@ -79,12 +79,12 @@ typedef struct image_s
 	char		name[MAX_QPATH];			// game path, including extension
 	long		hash;						// to speed up searching
 	imagetype_t	type;
-	int			width, height;				// source image
-	int			upload_width, upload_height;	// after power of two and picmip
-	int			registration_sequence;		// 0 = free
+	Sint32			width, height;				// source image
+	Sint32			upload_width, upload_height;	// after power of two and picmip
+	Sint32			registration_sequence;		// 0 = free
 	struct		msurface_s	*texturechain;	// for sort-by-texture world drawing
 	struct		msurface_s	*warp_texturechain;	// same as above, for warp surfaces
-	int			texnum;						// gl texture binding
+	Sint32			texnum;						// gl texture binding
 	float		sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
 	qboolean	scrap;
 	qboolean	has_alpha;
@@ -124,7 +124,7 @@ typedef enum
 
 #include "r_model.h"
 
-void GL_BeginRendering (int *x, int *y, int *width, int *height);
+void GL_BeginRendering (Sint32 *x, Sint32 *y, Sint32 *width, Sint32 *height);
 void GL_EndRendering (void);
 
 void GL_UpdateSwapInterval( void );
@@ -147,7 +147,7 @@ typedef struct
 //====================================================
 
 extern	image_t		gltextures[MAX_GLTEXTURES];
-extern	int			numgltextures;
+extern	Sint32			numgltextures;
 
 
 #define PARTICLE_TYPES 256
@@ -182,18 +182,18 @@ typedef struct glmedia_s {
 extern	glmedia_t	glMedia;
 
 extern	entity_t	*currententity;
-extern	int			r_worldframe; // Knightmare added for trans animations
+extern	Sint32			r_worldframe; // Knightmare added for trans animations
 extern	model_t		*currentmodel;
-extern	int			r_visframecount;
-extern	int			r_framecount;
+extern	Sint32			r_visframecount;
+extern	Sint32			r_framecount;
 extern	cplane_t	frustum[4];
-extern	int			c_brush_calls, c_brush_surfs, c_brush_polys, c_alias_polys, c_part_polys;
+extern	Sint32			c_brush_calls, c_brush_surfs, c_brush_polys, c_alias_polys, c_part_polys;
 
 // Knightmare- saveshot buffer
 extern	byte	*saveshotdata;
 
 
-extern	int			gl_filter_min, gl_filter_max;
+extern	Sint32			gl_filter_min, gl_filter_max;
 
 //
 // view origin
@@ -207,7 +207,7 @@ extern	vec3_t	r_origin;
 // screen size info
 //
 extern	refdef_t	r_newrefdef;
-extern	int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
+extern	Sint32		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern  cvar_t  *gl_driver;
 
@@ -308,14 +308,14 @@ extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;
 extern	cvar_t  *r_directstate;
 
-extern	int		gl_lightmap_format;
-extern	int		gl_solid_format;
-extern	int		gl_alpha_format;
-extern	int		gl_tex_solid_format;
-extern	int		gl_tex_alpha_format;
+extern	Sint32		gl_lightmap_format;
+extern	Sint32		gl_solid_format;
+extern	Sint32		gl_alpha_format;
+extern	Sint32		gl_tex_solid_format;
+extern	Sint32		gl_tex_alpha_format;
 
-extern	int		c_visible_lightmaps;
-extern	int		c_visible_textures;
+extern	Sint32		c_visible_lightmaps;
+extern	Sint32		c_visible_textures;
 
 //extern	float	r_world_matrix[16];
 
@@ -333,11 +333,11 @@ typedef struct sortedelement_s
 //
 // r_image.c
 //
-void R_TranslatePlayerSkin (int playernum);
+void R_TranslatePlayerSkin (Sint32 playernum);
 
 // Knightmare- added some of Psychospaz's shortcuts
 void ElementAddNode (sortedelement_t *base, sortedelement_t *thisElement);
-int transCompare (const void *arg1, const void *arg2);
+Sint32 transCompare (const void *arg1, const void *arg2);
 
 void R_MaxColorVec (vec3_t color);
 
@@ -385,22 +385,22 @@ void R_DrawAllDecals (void);
 
 typedef struct
 {
-	unsigned int	left;
-	unsigned int	right;
-	unsigned int	top;
-	unsigned int	bottom;
+	Uint32	left;
+	Uint32	right;
+	Uint32	top;
+	Uint32	bottom;
 } rect_t;
 
 typedef struct
 {
-	int			internal_format;
-	int			format;
-	int			type;
-	int			current_lightmap_texture;
+	Sint32			internal_format;
+	Sint32			format;
+	Sint32			type;
+	Sint32			current_lightmap_texture;
 
 	msurface_t	*lightmap_surfaces[MAX_LIGHTMAPS];
 
-	int			allocated[LM_BLOCK_WIDTH];
+	Sint32			allocated[LM_BLOCK_WIDTH];
 
 	// the lightmap texture data needs to be kept in
 	// main memory so texsubimage can update properly
@@ -417,10 +417,10 @@ extern gllightmapstate_t gl_lms;
 
 //void R_LightPoint (vec3_t p, vec3_t color);
 void R_LightPoint (vec3_t p, vec3_t color, qboolean isEnt);
-void R_LightPointDynamics (vec3_t p, vec3_t color, m_dlight_t *list, int *amount, int max);
+void R_LightPointDynamics (vec3_t p, vec3_t color, m_dlight_t *list, Sint32 *amount, Sint32 max);
 void R_PushDlights (void);
 void R_ShadowLight (vec3_t pos, vec3_t lightAdd);
-void R_MarkLights (dlight_t *light, int bit, mnode_t *node);
+void R_MarkLights (dlight_t *light, Sint32 bit, mnode_t *node);
 
 //====================================================================
 
@@ -429,7 +429,7 @@ extern	model_t	*r_worldmodel;
 extern	unsigned	d_8to24table[256];
 extern	float		d_8to24tablef[256][3]; //Knightmare added
 
-extern	int		registration_sequence;
+extern	Sint32		registration_sequence;
 
 
 void V_AddBlend (float r, float g, float b, float a, float *v_blend);
@@ -443,8 +443,8 @@ void R_Shutdown (void);
 void R_RenderView (refdef_t *fd);
 void R_BeginFrame();
 void R_EndFrame ( void );
-void R_SwapBuffers( int );
-void R_SetPalette ( const unsigned char *palette);
+void R_SwapBuffers( Sint32 );
+void R_SetPalette ( const Uint8 *palette);
 
 void VR_RenderView (refdef_t *fd);
 void VR_RenderScreenEffects (refdef_t *fd);
@@ -455,7 +455,7 @@ void VR_RenderScreenEffects (refdef_t *fd);
 void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
-int R_FrameSync (void);
+Sint32 R_FrameSync (void);
 void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset);
 
 //
@@ -479,7 +479,7 @@ void R_DrawInitLocal (void);
 void R_SubdivideSurface (msurface_t *fa);
 qboolean R_CullBox (vec3_t mins, vec3_t maxs);
 void R_RotateForEntity (entity_t *e, qboolean full);
-int R_RollMult (void);
+Sint32 R_RollMult (void);
 void R_MarkLeaves (void);
 
 //
@@ -496,7 +496,7 @@ extern	float	*shadedots;
 
 #define MAX_MODEL_DLIGHTS 32
 extern	m_dlight_t	model_dlights[MAX_MODEL_DLIGHTS];
-extern	int			model_dlights_num;
+extern	Sint32			model_dlights_num;
 
 extern	vec3_t	shadelight;
 extern	vec3_t	lightspot;
@@ -543,8 +543,8 @@ extern unsigned rb_vertex, rb_index;
 
 void RB_InitBackend (void);
 float RB_CalcGlowColor (renderparms_t parms);
-void RB_ModifyTextureCoords (float *inArray, float *vertexArray, int numVerts, renderparms_t parms);
-qboolean RB_CheckArrayOverflow (int numVerts, int numIndex);
+void RB_ModifyTextureCoords (float *inArray, float *vertexArray, Sint32 numVerts, renderparms_t parms);
+qboolean RB_CheckArrayOverflow (Sint32 numVerts, Sint32 numIndex);
 void RB_RenderMeshGeneric (qboolean drawTris);
 void RB_DrawArrays (void);
 void RB_DrawMeshTris (void);
@@ -579,9 +579,9 @@ void R_InitBloomTextures( void );
 
 
 #if 0
-short LittleShort (short l);
-short BigShort (short l);
-int	LittleLong (int l);
+Sint16 LittleShort (Sint16 l);
+Sint16 BigShort (Sint16 l);
+Sint32	LittleLong (Sint32 l);
 float LittleFloat (float f);
 
 char	*va(char *format, ...);
@@ -594,41 +594,41 @@ void COM_StripExtension (char *in, char *out);
 //
 // r_draw.c
 //
-void	R_DrawGetPicSize (int *w, int *h, char *name);
-void	R_DrawPic (int x, int y, char *name);
+void	R_DrawGetPicSize (Sint32 *w, Sint32 *h, char *name);
+void	R_DrawPic (Sint32 x, Sint32 y, char *name);
 // added alpha for Psychospaz's transparent console
-void	R_DrawStretchPic (int x, int y, int w, int h, char *name, float alpha);
+void	R_DrawStretchPic (Sint32 x, Sint32 y, Sint32 w, Sint32 h, char *name, float alpha);
 // Psychospaz's scaled crosshair support
-void	R_DrawScaledPic (int x, int y, float scale, float alpha, char *pic);
+void	R_DrawScaledPic (Sint32 x, Sint32 y, float scale, float alpha, char *pic);
 void	R_InitChars (void);
 void	R_FlushChars (void);
-void	R_DrawChar (float x, float y, int num, float scale, 
-			int red, int green, int blue, int alpha, qboolean italic, qboolean last);
-void	R_DrawTileClear (int x, int y, int w, int h, char *name);
-void	R_DrawFill (int x, int y, int w, int h, int red, int green, int blue, int alpha);
+void	R_DrawChar (float x, float y, Sint32 num, float scale, 
+			Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha, qboolean italic, qboolean last);
+void	R_DrawTileClear (Sint32 x, Sint32 y, Sint32 w, Sint32 h, char *name);
+void	R_DrawFill (Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha);
 float	R_CharMapScale (void);
 
 #ifdef ROQ_SUPPORT
-void	R_DrawStretchRaw (int x, int y, int w, int h, const byte *raw, int rawWidth, int rawHeight);
+void	R_DrawStretchRaw (Sint32 x, Sint32 y, Sint32 w, Sint32 h, const byte *raw, Sint32 rawWidth, Sint32 rawHeight);
 #else // old 8-bit, 256x256 version
-void	r_DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data);
+void	r_DrawStretchRaw (Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 cols, Sint32 rows, byte *data);
 #endif // ROQ_SUPPORT
 
 
 //
 // r_image.c
 //
-int		Draw_GetPalette (void);
-//void GL_ResampleTexture (unsigned *in, int inwidth, int inheight, unsigned *out,  int outwidth, int outheight);
-void GL_ResampleTexture (void *indata, int inwidth, int inheight, void *outdata,  int outwidth, int outheight);
+Sint32		Draw_GetPalette (void);
+//void GL_ResampleTexture (unsigned *in, Sint32 inwidth, Sint32 inheight, unsigned *out,  Sint32 outwidth, Sint32 outheight);
+void GL_ResampleTexture (void *indata, Sint32 inwidth, Sint32 inheight, void *outdata,  Sint32 outwidth, Sint32 outheight);
 struct image_s *R_RegisterSkin (char *name);
 
-void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *height);
+void LoadPCX (char *filename, byte **pic, byte **palette, Sint32 *width, Sint32 *height);
 //Knightmare added
-void LoadTGA (char *name, byte **pic, int *width, int *height);
-void LoadJPG (char *filename, byte **pic, int *width, int *height);
+void LoadTGA (char *name, byte **pic, Sint32 *width, Sint32 *height);
+void LoadJPG (char *filename, byte **pic, Sint32 *width, Sint32 *height);
 
-image_t *R_LoadPic (char *name, byte *pic, int width, int height, imagetype_t type, int bits);
+image_t *R_LoadPic (char *name, byte *pic, Sint32 width, Sint32 height, imagetype_t type, Sint32 bits);
 image_t	*R_FindImage (char *name, imagetype_t type);
 void	GL_TextureMode( char *string );
 void	R_ImageList_f (void);
@@ -643,15 +643,15 @@ void GL_TextureSolidMode( char *string );
 /*
 ** GL extension emulation functions
 */
-void GL_DrawParticles( int num_particles );
+void GL_DrawParticles( Sint32 num_particles );
 
 //
 // r_fog.c
 //
 void R_SetFog (void);
 void R_InitFogVars (void);
-void R_SetFogVars (qboolean enable, int model, int density,
-				   int start, int end, int red, int green, int blue);
+void R_SetFogVars (qboolean enable, Sint32 model, Sint32 density,
+				   Sint32 start, Sint32 end, Sint32 red, Sint32 green, Sint32 blue);
 
 /*
 ** GL config stuff
@@ -714,24 +714,24 @@ enum {
 
 typedef struct
 {
-	int         rendType;
+	Sint32         rendType;
 	const char	*renderer_string;
 	const char	*vendor_string;
 	const char	*version_string;
 	const char	*extensions_string;
 
 	// for parsing newer OpenGL versions
-	int			version_major;
-	int			version_minor;
-	int			version_release;
+	Sint32			version_major;
+	Sint32			version_minor;
+	Sint32			version_release;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;
 	qboolean	ext_swap_control_tear;
 
 	// max texture size
-	int			max_texsize;
-	int			max_texunits;
+	Sint32			max_texsize;
+	Sint32			max_texunits;
 
 	qboolean	vertexBufferObject;
 //	qboolean	multitexture;
@@ -757,21 +757,21 @@ typedef struct
 	float			inverse_intensity;
 	qboolean		fullscreen;
 
-	unsigned char	*d_16to8table;
+	Uint8	*d_16to8table;
 
-	int				lightmap_textures;
+	Sint32				lightmap_textures;
 
-	int				currenttextures[MAX_TEXTURE_UNITS];
-	unsigned int	currenttmu;
+	Sint32				currenttextures[MAX_TEXTURE_UNITS];
+	Uint32	currenttmu;
 	qboolean		activetmu[MAX_TEXTURE_UNITS];
 
-	unsigned int	currentFBO;
+	Uint32	currentFBO;
 	
 	// advanced state manager - MrG
 	qboolean		texgen;
 
 	qboolean		regCombiners;
-	unsigned int	dst_texture;
+	Uint32	dst_texture;
 
 	qboolean		envAdd;
 	qboolean		stencilEnabled;
@@ -804,9 +804,9 @@ typedef struct
 
 	GLenum			matrixMode;
 
-	unsigned char	originalRedGammaTable[256];
-	unsigned char	originalGreenGammaTable[256];
-	unsigned char	originalBlueGammaTable[256];
+	Uint8	originalRedGammaTable[256];
+	Uint8	originalGreenGammaTable[256];
+	Uint8	originalBlueGammaTable[256];
 
 } glstate_t;
 
@@ -817,7 +817,7 @@ extern glstate_t   glState;
 // r_glstate.c
 //
 void	GL_Stencil (qboolean enable, qboolean shell);
-void	R_ParticleStencil (int passnum);
+void	R_ParticleStencil (Sint32 passnum);
 qboolean GL_HasStencil (void);
 
 void	GL_Enable (GLenum cap);
@@ -831,14 +831,14 @@ void	GL_BlendFunc (GLenum src, GLenum dst);
 void	GL_DepthFunc (GLenum func);
 void	GL_DepthMask (GLboolean mask);
 void	GL_DepthRange (GLfloat rMin, GLfloat rMax);
-void	GL_LockArrays (int numVerts);
+void	GL_LockArrays (Sint32 numVerts);
 void	GL_UnlockArrays (void);
 void	GL_EnableTexture (unsigned tmu);
 void	GL_DisableTexture (unsigned tmu);
 void	GL_EnableMultitexture(qboolean enable);
 void	GL_SelectTexture (unsigned tmu);
-void	GL_Bind (int texnum);
-void	GL_MBind (unsigned tmu, int texnum);
+void	GL_Bind (Sint32 texnum);
+void	GL_MBind (unsigned tmu, Sint32 texnum);
 void	GL_BindFBO (unsigned fbo);
 void	GL_SetDefaultState (void);
 void	GL_MatrixMode(GLenum matrixMode);
@@ -857,39 +857,39 @@ IMPORTED FUNCTIONS
 ====================================================================
 */
 
-void	VID_Error (int err_level, char *str, ...);
+void	VID_Error (Sint32 err_level, char *str, ...);
 
 void	CL_SetParticleImages (void);
 
 void	Cmd_AddCommand (char *name, void(*cmd)(void));
 void	Cmd_RemoveCommand (char *name);
-int		Cmd_Argc (void);
-char	*Cmd_Argv (int i);
-void	Cbuf_ExecuteText (int exec_when, char *text);
+Sint32		Cmd_Argc (void);
+char	*Cmd_Argv (Sint32 i);
+void	Cbuf_ExecuteText (Sint32 exec_when, char *text);
 
-void	VID_Printf (int print_level, char *str, ...);
+void	VID_Printf (Sint32 print_level, char *str, ...);
 
 // files will be memory mapped read only
 // the returned buffer may be part of a larger pak file,
 // or a discrete file from anywhere in the quake search path
 // a -1 return means the file does not exist
 // NULL can be passed for buf to just determine existance
-char	**FS_ListPak (char *find, int *num);
-int		FS_LoadFile (char *name, void **buf);
+char	**FS_ListPak (char *find, Sint32 *num);
+Sint32		FS_LoadFile (char *name, void **buf);
 void	FS_FreeFile (void *buf);
 
 // gamedir will be the current directory that generated
 // files should be stored to, ie: "f:\quake\id1"
 char	*FS_Gamedir (void);
 
-cvar_t	*Cvar_Get (char *name, char *value, int flags);
+cvar_t	*Cvar_Get (char *name, char *value, Sint32 flags);
 cvar_t	*Cvar_Set (char *name, char *value );
 void	 Cvar_SetValue (char *name, float value);
 
-qboolean	VID_GetModeInfo (int *width, int *height, int mode);
-void		VID_NewWindow (int width, int height);
+qboolean	VID_GetModeInfo (Sint32 *width, Sint32 *height, Sint32 mode);
+void		VID_NewWindow (Sint32 width, Sint32 height);
 // Knightmare- added import of text color for renderer
-void		ColorLookup (int colornum, int *red, int *green, int *blue);
+void		ColorLookup (Sint32 colornum, Sint32 *red, Sint32 *green, Sint32 *blue);
 
 /*
 ====================================================================
@@ -901,9 +901,9 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 void		GLimp_BeginFrame( );
 void		GLimp_EndFrame( void );
-int 		GLimp_Init( );
+Sint32 		GLimp_Init( );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int *pwidth, int *pheight );
+Sint32     	GLimp_SetMode( Sint32 *pwidth, Sint32 *pheight );
 void		GLimp_AppActivate( qboolean active );
 
 
@@ -919,13 +919,13 @@ typedef struct {
 	GLuint framebuffer;
 	GLuint texture;
 	GLuint depthbuffer;
-	int width, height;
-	int valid;
+	Sint32 width, height;
+	Sint32 valid;
 } fbo_t;
 
-int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO);
-int R_ResizeFBO(int width, int height, int bilinear, fbo_t *FBO);
-void R_SetFBOFilter(int bilinear, fbo_t *FBO);
+Sint32 R_GenFBO(Sint32 width, Sint32 height, Sint32 bilinear, fbo_t *FBO);
+Sint32 R_ResizeFBO(Sint32 width, Sint32 height, Sint32 bilinear, fbo_t *FBO);
+void R_SetFBOFilter(Sint32 bilinear, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);
 void R_InitFBO(fbo_t *FBO);
 void R_BindFBO(fbo_t *FBO);

@@ -179,7 +179,7 @@ Dumps the current net message, prefixed by the length
 */
 void CL_WriteDemoMessage (void)
 {
-	int		len, swlen;
+	Sint32		len, swlen;
 
 	// the first eight bytes are just packet sequencing stuff
 	len = net_message.cursize-8;
@@ -198,7 +198,7 @@ stop recording a demo
 */
 void CL_Stop_f (void)
 {
-	int		len;
+	Sint32		len;
 
 	if (!cls.demorecording)
 	{
@@ -229,8 +229,8 @@ void CL_Record_f (void)
 	char	name[MAX_OSPATH];
 	char	buf_data[MAX_MSGLEN];
 	sizebuf_t	buf;
-	int		i;
-	int		len;
+	Sint32		i;
+	Sint32		len;
 	entity_state_t	*ent;
 	entity_state_t	nullstate;
 
@@ -370,12 +370,12 @@ void Cmd_ForwardToServer (void)
 
 void CL_Setenv_f( void )
 {
-	int argc = Cmd_Argc();
+	Sint32 argc = Cmd_Argc();
 
 	if ( argc > 2 )
 	{
 		char buffer[1000];
-		int i;
+		Sint32 i;
 
 		strcpy( buffer, Cmd_Argv(1) );
 		strcat( buffer, "=" );
@@ -489,7 +489,7 @@ connect.
 void CL_SendConnectPacket (void)
 {
 	netadr_t	adr;
-	int		port;
+	Sint32		port;
 
 	if (!NET_StringToAdr (cls.servername, &adr))
 	{
@@ -608,7 +608,7 @@ CL_Rcon_f
 void CL_Rcon_f (void)
 {
 	char	message[1024];
-	int		i;
+	Sint32		i;
 	netadr_t	to;
 
 	if (!rcon_client_password->string)
@@ -702,7 +702,7 @@ void CL_Disconnect (void)
 
 	if (cl_timedemo && cl_timedemo->value)
 	{
-		int	time;
+		Sint32	time;
 		
 		time = Sys_Milliseconds () - cl.timedemo_start;
 		if (time > 0)
@@ -761,7 +761,7 @@ Contents allows \n escape character
 void CL_Packet_f (void)
 {
 	char	send[2048];
-	int		i, l;
+	Sint32		i, l;
 	char	*in, *out;
 	netadr_t	adr;
 
@@ -887,14 +887,14 @@ CL_PingServers_f
 */
 #if 1
 //<serverping> Added code for compute ping time of server broadcasted
-extern int      global_udp_server_time;
-extern int      global_ipx_server_time;
-extern int      global_adr_server_time[16];
+extern Sint32      global_udp_server_time;
+extern Sint32      global_ipx_server_time;
+extern Sint32      global_adr_server_time[16];
 extern netadr_t global_adr_server_netadr[16];
 
 void CL_PingServers_f (void)
 {
-	int			i;
+	Sint32			i;
 	netadr_t	adr;
 	char		name[32];
 	char		*adrstring;
@@ -969,7 +969,7 @@ void CL_PingServers_f (void)
 #else
 void CL_PingServers_f (void)
 {
-	int			i;
+	Sint32			i;
 	netadr_t	adr;
 	char		name[32];
 	char		*adrstring;
@@ -1042,7 +1042,7 @@ Load or download any custom player skins and models
 */
 void CL_Skins_f (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<MAX_CLIENTS ; i++)
 	{
@@ -1200,7 +1200,7 @@ void CL_ReadPackets (void)
 		//
 		// remote command packet
 		//
-		if (*(int *)net_message.data == -1)
+		if (*(Sint32 *)net_message.data == -1)
 		{
 			CL_ConnectionlessPacket ();
 			continue;
@@ -1310,12 +1310,12 @@ void CL_Snd_Restart_f (void)
 }
 
 
-extern	int precache_check; // for autodownload of precache items
-extern	int precache_spawncount;
-//extern	int precache_tex;
-extern	int precache_model_skin;
+extern	Sint32 precache_check; // for autodownload of precache items
+extern	Sint32 precache_spawncount;
+//extern	Sint32 precache_tex;
+extern	Sint32 precache_model_skin;
 extern	byte *precache_model; // used for skin checking in alias models
-extern	int	precache_pak;	// Knightmare added
+extern	Sint32	precache_pak;	// Knightmare added
 
 /*
 =================
@@ -1677,11 +1677,11 @@ CL_Frame
 ==================
 */
 extern cvar_t *r_fencesync;
-extern int R_FrameSync(void);
-void CL_Frame (int msec)
+extern Sint32 R_FrameSync(void);
+void CL_Frame (Sint32 msec)
 {
-	static int	extratime;
-	static int  lasttimecalled;
+	static Sint32	extratime;
+	static Sint32  lasttimecalled;
 
 	if (dedicated->value)
 		return;
@@ -1702,7 +1702,7 @@ void CL_Frame (int msec)
 
 		if (r_fencesync->value)
 		{ 
-			int timeWaited = R_FrameSync();
+			Sint32 timeWaited = R_FrameSync();
 			if (!timeWaited)
 				return;
 			else if (r_fencesync->value == 2)
@@ -1714,7 +1714,7 @@ void CL_Frame (int msec)
 #ifdef _WIN32 // Pooy's CPU usage fix
 			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )
 			{
-				int temptime = 1000/cl_maxfps->value-extratime;
+				Sint32 temptime = 1000/cl_maxfps->value-extratime;
 				if (temptime > 1)
 					SDL_Delay(1);
 			}
@@ -1810,7 +1810,7 @@ void CL_Frame (int msec)
 			}
 			else
 			{
-				int now = Sys_Milliseconds();
+				Sint32 now = Sys_Milliseconds();
 
 				if ( log_stats_file )
 					fprintf( log_stats_file, "%d\n", now - lasttimecalled );
@@ -1877,7 +1877,7 @@ to run quit through here before the final handoff to the sys code.
 void CL_Shutdown (void)
 {
 	static qboolean isdown = false;
-	int sec, base; 	// zaphster's delay variables
+	Sint32 sec, base; 	// zaphster's delay variables
 
 	if (isdown)
 	{

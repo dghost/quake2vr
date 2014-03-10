@@ -37,7 +37,7 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	vec3_t		vert[4], ang_up, ang_right, vdelta;
 	vec2_t		texCoord[4];
 	vec4_t		beamColor;
-	int			oldrender=0, rendertype=0, i;
+	Sint32			oldrender=0, rendertype=0, i;
 
 	c_alias_polys += 2;
 

@@ -48,7 +48,7 @@ typedef struct
 	qboolean	loadgame;			// client begins should reuse existing entity
 
 	unsigned	time;				// always sv.framenum * 100 msec
-	int			framenum;
+	Sint32			framenum;
 
 	char		name[MAX_QPATH];			// map name, or cinematic name
 	struct cmodel_s		*models[MAX_MODELS];
@@ -81,12 +81,12 @@ typedef enum
 
 typedef struct
 {
-	int					areabytes;
+	Sint32					areabytes;
 	byte				areabits[MAX_MAP_AREAS/8];		// portalarea visibility bits
 	player_state_t		ps;
-	int					num_entities;
-	int					first_entity;		// into the circular sv_packet_entities[]
-	int					senttime;			// for ping calculations
+	Sint32					num_entities;
+	Sint32					first_entity;		// into the circular sv_packet_entities[]
+	Sint32					senttime;			// for ping calculations
 } client_frame_t;
 
 #define	LATENCY_COUNTS	16
@@ -98,22 +98,22 @@ typedef struct client_s
 
 	char			userinfo[MAX_INFO_STRING];		// name, etc
 
-	int				lastframe;			// for delta compression
+	Sint32				lastframe;			// for delta compression
 	usercmd_t		lastcmd;			// for filling in big drops
 
-	int				commandMsec;		// every seconds this is reset, if user
+	Sint32				commandMsec;		// every seconds this is reset, if user
 										// commands exhaust it, assume time cheating
 
-	int				frame_latency[LATENCY_COUNTS];
-	int				ping;
+	Sint32				frame_latency[LATENCY_COUNTS];
+	Sint32				ping;
 
-	int				message_size[RATE_MESSAGES];	// used to rate drop packets
-	int				rate;
-	int				surpressCount;		// number of messages rate supressed
+	Sint32				message_size[RATE_MESSAGES];	// used to rate drop packets
+	Sint32				rate;
+	Sint32				surpressCount;		// number of messages rate supressed
 
 	edict_t			*edict;				// EDICT_NUM(clientnum+1)
 	char			name[32];			// extracted from userinfo, high bits masked
-	int				messagelevel;		// for filtering printed messages
+	Sint32				messagelevel;		// for filtering printed messages
 
 	// The datagram is written to by sound calls, prints, temp ents, etc.
 	// It can be harmlessly overflowed.
@@ -123,13 +123,13 @@ typedef struct client_s
 	client_frame_t	frames[UPDATE_BACKUP];	// updates can be delta'd from here
 
 	byte			*download;			// file being downloaded
-	int				downloadsize;		// total bytes (can't use EOF because of paks)
-	int				downloadcount;		// bytes sent
+	Sint32				downloadsize;		// total bytes (can't use EOF because of paks)
+	Sint32				downloadcount;		// bytes sent
 
-	int				lastmessage;		// sv.framenum when packet was last received
-	int				lastconnect;
+	Sint32				lastmessage;		// sv.framenum when packet was last received
+	Sint32				lastconnect;
 
-	int				challenge;			// challenge of this user, randomly generated
+	Sint32				challenge;			// challenge of this user, randomly generated
 
 	netchan_t		netchan;
 } client_t;
@@ -150,27 +150,27 @@ typedef struct client_s
 typedef struct
 {
 	netadr_t	adr;
-	int			challenge;
-	int			time;
+	Sint32			challenge;
+	Sint32			time;
 } challenge_t;
 
 
 typedef struct
 {
 	qboolean	initialized;				// sv_init has completed
-	int			realtime;					// always increasing, no clamping, etc
+	Sint32			realtime;					// always increasing, no clamping, etc
 
 	char		mapcmd[MAX_TOKEN_CHARS];	// ie: *intro.cin+base 
 
-	int			spawncount;					// incremented each server start
+	Sint32			spawncount;					// incremented each server start
 											// used to check late spawns
 
 	client_t	*clients;					// [maxclients->value];
-	int			num_client_entities;		// maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES
-	int			next_client_entities;		// next client_entity to use
+	Sint32			num_client_entities;		// maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES
+	Sint32			next_client_entities;		// next client_entity to use
 	entity_state_t	*client_entities;		// [num_client_entities]
 
-	int			last_heartbeat;
+	Sint32			last_heartbeat;
 
 	challenge_t	challenges[MAX_CHALLENGES];	// to prevent invalid IPs from connecting
 
@@ -219,9 +219,9 @@ client_t *GetClientFromAdr (netadr_t address); //Knightmare added
 void SV_DropClient (client_t *drop);
 void SV_DropClientFromAdr (netadr_t address); // Knightmare added
 
-int SV_ModelIndex (char *name);
-int SV_SoundIndex (char *name);
-int SV_ImageIndex (char *name);
+Sint32 SV_ModelIndex (char *name);
+Sint32 SV_SoundIndex (char *name);
+Sint32 SV_ImageIndex (char *name);
 
 void SV_WriteClientdataToMessage (client_t *client, sizebuf_t *msg);
 
@@ -255,17 +255,17 @@ typedef enum {RD_NONE, RD_CLIENT, RD_PACKET} redirect_t;
 
 extern	char	sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
-void SV_FlushRedirect (int sv_redirected, char *outputbuf);
+void SV_FlushRedirect (Sint32 sv_redirected, char *outputbuf);
 
 void SV_DemoCompleted (void);
 void SV_SendClientMessages (void);
 
 void SV_Multicast (vec3_t origin, multicast_t to);
-void SV_StartSound (vec3_t origin, edict_t *entity, int channel,
-					int soundindex, float volume,
+void SV_StartSound (vec3_t origin, edict_t *entity, Sint32 channel,
+					Sint32 soundindex, float volume,
 					float attenuation, float timeofs);
-void SV_ClientPrintf (client_t *cl, int level, char *fmt, ...);
-void SV_BroadcastPrintf (int level, char *fmt, ...);
+void SV_ClientPrintf (client_t *cl, Sint32 level, char *fmt, ...);
+void SV_BroadcastPrintf (Sint32 level, char *fmt, ...);
 void SV_BroadcastCommand (char *fmt, ...);
 
 //
@@ -321,7 +321,7 @@ void SV_LinkEdict (edict_t *ent);
 // sets ent->leafnums[] for pvs determination even if the entity
 // is not solid
 
-int SV_AreaEdicts (vec3_t mins, vec3_t maxs, edict_t **list, int maxcount, int areatype);
+Sint32 SV_AreaEdicts (vec3_t mins, vec3_t maxs, edict_t **list, Sint32 maxcount, Sint32 areatype);
 // fills in a table of edict pointers with edicts that have bounding boxes
 // that intersect the given area.  It is possible for a non-axial bmodel
 // to be returned that doesn't actually intersect the area on an exact
@@ -334,12 +334,12 @@ int SV_AreaEdicts (vec3_t mins, vec3_t maxs, edict_t **list, int maxcount, int a
 //
 // functions that interact with everything apropriate
 //
-int SV_PointContents (vec3_t p);
+Sint32 SV_PointContents (vec3_t p);
 // returns the CONTENTS_* value from the world at the given point.
 // Quake 2 extends this to also check entities, to allow moving liquids
 
 
-trace_t SV_Trace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, edict_t *passedict, int contentmask);
+trace_t SV_Trace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, edict_t *passedict, Sint32 contentmask);
 
 // mins and maxs are relative
 

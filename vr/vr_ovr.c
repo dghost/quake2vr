@@ -3,14 +3,14 @@
 #include "vr_libovr.h"
 
 
-void VR_OVR_GetHMDPos(int *xpos, int *ypos);
+void VR_OVR_GetHMDPos(Sint32 *xpos, Sint32 *ypos);
 void VR_OVR_GetState(vr_param_t *state);
 void VR_OVR_Frame();
-int VR_OVR_Enable();
+Sint32 VR_OVR_Enable();
 void VR_OVR_Disable();
-int VR_OVR_Init();
+Sint32 VR_OVR_Init();
 void VR_OVR_Shutdown();
-int VR_OVR_getOrientation(float euler[3]);
+Sint32 VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
 
 
@@ -64,7 +64,7 @@ void VR_OVR_GetFOV(float *fovx, float *fovy)
 }
 
 
-void VR_OVR_GetHMDPos(int *xpos, int *ypos)
+void VR_OVR_GetHMDPos(Sint32 *xpos, Sint32 *ypos)
 {
 	if (vr_ovr_settings.initialized)
 	{
@@ -74,7 +74,7 @@ void VR_OVR_GetHMDPos(int *xpos, int *ypos)
 }
 
 
-int VR_OVR_getOrientation(float euler[3])
+Sint32 VR_OVR_getOrientation(float euler[3])
 {
 	if (vr_ovr_latencytest->value)
 		LibOVR_ProcessLatencyInputs();
@@ -86,7 +86,7 @@ void VR_OVR_ResetHMDOrientation()
 	LibOVR_ResetHMDOrientation();
 }
 
-int VR_OVR_RenderLatencyTest(vec4_t color) 
+Sint32 VR_OVR_RenderLatencyTest(vec4_t color) 
 {
 	return (vr_ovr_latencytest->value && LibOVR_GetLatencyTestColor(color));
 }
@@ -139,7 +139,7 @@ float VR_OVR_GetDistortionScale()
 	if (!vr_ovr_distortion->value)
 		return 1.0f;
 
-	switch ((int) vr_ovr_autoscale->value)
+	switch ((Sint32) vr_ovr_autoscale->value)
 	{
 	case 1:
 		return ovrConfig.minScale;
@@ -191,9 +191,9 @@ void VR_OVR_Frame()
 	} 
 }
 
-int VR_OVR_GetSettings(ovr_settings_t *settings)
+Sint32 VR_OVR_GetSettings(ovr_settings_t *settings)
 {
-	int result = LibOVR_GetSettings(settings);
+	Sint32 result = LibOVR_GetSettings(settings);
 	Com_Printf("VR_OVR: Getting HMD settings:");
 	if (result)
 	{
@@ -204,7 +204,7 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 	Com_Printf(" failed!\n");
 	if (vr_ovr_debug->value)
 	{
-		int riftType = (int) vr_ovr_debug->value;
+		Sint32 riftType = (Sint32) vr_ovr_debug->value;
 		Com_Printf("VR_OVR: Falling back to debug parameters...\n");
 
 		switch (riftType)
@@ -254,10 +254,10 @@ int VR_OVR_GetSettings(ovr_settings_t *settings)
 	return 0;
 }
 
-int VR_OVR_Enable()
+Sint32 VR_OVR_Enable()
 {
 	char string[6];
-	int failure = 0;
+	Sint32 failure = 0;
 	if (!LibOVR_DeviceInit())
 	{
 		Com_Printf("VR_OVR: Error, no HMD detected!\n");
@@ -323,9 +323,9 @@ void VR_OVR_Disable()
 }
 
 
-int VR_OVR_Init()
+Sint32 VR_OVR_Init()
 {
-	int init = LibOVR_Init();
+	Sint32 init = LibOVR_Init();
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);

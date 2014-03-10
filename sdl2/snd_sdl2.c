@@ -30,17 +30,17 @@
 #include "../client/client.h"
 #include "../client/snd_loc.h"
 
-static int  snd_inited;
+static Sint32  snd_inited;
 static dma_t *shm;
 
 static void
-paint_audio (void *unused, Uint8 * stream, int len)
+paint_audio (void *unused, Uint8 * stream, Sint32 len)
 {
 
 	SDL_memset(stream,0,len)
 		;
 	if (shm) {
-		int posOffset = (shm->samplebits / 4);
+		Sint32 posOffset = (shm->samplebits / 4);
 		if (posOffset > 0)
 			posOffset = len / posOffset;
 		else
@@ -56,7 +56,7 @@ qboolean
 SNDDMA_Init (void)
 {
 	SDL_AudioSpec desired, obtained;
-	int desired_bits, freq;
+	Sint32 desired_bits, freq;
 	char reqdriver[128];
 	cvar_t *s_sdldriver;
 
@@ -187,7 +187,7 @@ SNDDMA_Init (void)
 	return 1;
 }
 
-int
+Sint32
 SNDDMA_GetDMAPos (void)
 {
 	return shm->samplepos;

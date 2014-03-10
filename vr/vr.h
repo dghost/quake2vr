@@ -32,15 +32,15 @@ typedef enum {
 
 typedef struct {
 	hmd_t type;
-	int (*init)();
+	Sint32 (*init)();
 	void (*shutdown)();
-	int (*enable)();
+	Sint32 (*enable)();
 	void (*disable)();
-	void (*getPos)(int *xpos, int *ypos);
+	void (*getPos)(Sint32 *xpos, Sint32 *ypos);
 	void (*frame)();
 	void (*resetOrientation)();
-	int (*getOrientation)(float euler[3]);
-	int (*getHeadOffset)(float offset[3]);
+	Sint32 (*getOrientation)(float euler[3]);
+	Sint32 (*getHeadOffset)(float offset[3]);
 } hmd_interface_t;
 
 
@@ -96,7 +96,7 @@ enum {
 
 void VR_Startup();
 void VR_Teardown();
-int VR_Enable();
+Sint32 VR_Enable();
 void VR_Disable();
 void VR_Frame();
 void VR_GetRenderParam(vr_param_t *settings);
@@ -104,8 +104,8 @@ void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
-int VR_GetHeadOffset(vec3_t offset);
+Sint32 VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
-void VR_GetHMDPos(int *xpos, int *ypos);
+void VR_GetHMDPos(Sint32 *xpos, Sint32 *ypos);
 
 #endif

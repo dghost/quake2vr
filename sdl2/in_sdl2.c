@@ -63,11 +63,11 @@ void IN_MLookUp (void) {
 		IN_CenterView ();
 }
 
-int			mouse_buttons;
-int			mouse_oldbuttonstate;
-int			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
+Sint32			mouse_buttons;
+Sint32			mouse_oldbuttonstate;
+Sint32			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
 
-int			window_center_x, window_center_y;
+Sint32			window_center_x, window_center_y;
 
 qboolean	mouseactive;	// false when not focus app
 
@@ -85,7 +85,7 @@ Called when the window gains focus or changes in some way
 void IN_ActivateMouse (void)
 {
 	
-	int		width, height;
+	Sint32		width, height;
 
 	if (!mouseinitialized)
 		return;
@@ -175,9 +175,9 @@ IN_MouseEvent
 ===========
 */
 void UI_Think_MouseCursor (void);
-void IN_MouseEvent (int mstate)
+void IN_MouseEvent (Sint32 mstate)
 {
-	int		i;
+	Sint32		i;
 
 	if (!mouseinitialized)
 		return;
@@ -201,8 +201,8 @@ void IN_MouseEvent (int mstate)
 	//set menu cursor buttons
 	if (cls.key_dest == key_menu)
 	{
-		int multiclicktime = 750;
-		int max = mouse_buttons;
+		Sint32 multiclicktime = 750;
+		Sint32 max = mouse_buttons;
 		if (max > MENU_CURSOR_BUTTON_MAX) max = MENU_CURSOR_BUTTON_MAX;
 
 		for (i=0 ; i<max ; i++)
@@ -243,7 +243,7 @@ IN_MouseMove
 */
 void IN_MouseMove (usercmd_t *cmd)
 {
-	int		mx, my;
+	Sint32		mx, my;
 
 	if (!autosensitivity)
 		autosensitivity = Cvar_Get ("autosensitivity", "1", CVAR_ARCHIVE);
@@ -452,7 +452,7 @@ void IN_Move (usercmd_t *cmd)
 		UI_Think_MouseCursor();
 
 
-	switch((int) in_controller->value)
+	switch((Sint32) in_controller->value)
 	{
 	case ControllerSDLController:
 		IN_ControllerMove (cmd);
@@ -486,7 +486,7 @@ IN_Commands
 */
 void IN_Commands (void)
 {
-	switch((int) in_controller->value)
+	switch((Sint32) in_controller->value)
 	{
 	case ControllerSDLController:
 		IN_ControllerCommands ();

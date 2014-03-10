@@ -40,7 +40,7 @@ Specify a list of master servers
 */
 void SV_SetMaster_f (void)
 {
-	int		i, slot;
+	Sint32		i, slot;
 
 	// only dedicated servers send heartbeats
 	if (!dedicated->value)
@@ -93,8 +93,8 @@ Sets sv_client and sv_player to the player with idnum Cmd_Argv(1)
 qboolean SV_SetPlayer (void)
 {
 	client_t	*cl;
-	int			i;
-	int			idnum;
+	Sint32			i;
+	Sint32			idnum;
 	char		*s;
 
 	if (Cmd_Argc() < 2)
@@ -200,7 +200,7 @@ CopyFile
 void CopyFile (char *src, char *dst)
 {
 	FILE	*f1, *f2;
-	int		l;
+	Sint32		l;
 	byte	buffer[65536];
 
 	Com_DPrintf ("CopyFile (%s, %s)\n", src, dst);
@@ -236,7 +236,7 @@ SV_CopySaveGame
 void SV_CopySaveGame (char *src, char *dst)
 {
 	char	name[MAX_OSPATH], name2[MAX_OSPATH];
-	int		l, len;
+	Sint32		l, len;
 	char	*found;
 
 	Com_DPrintf("SV_CopySaveGame(%s, %s)\n", src, dst);
@@ -530,7 +530,7 @@ goes to map jail.bsp.
 void SV_GameMap_f (void)
 {
 	char		*map;
-	int			i, l;
+	Sint32			i, l;
 	client_t	*cl;
 	qboolean	*savedInuse;
 
@@ -820,10 +820,10 @@ SV_Status_f
 */
 void SV_Status_f (void)
 {
-	int			i, j, l;
+	Sint32			i, j, l;
 	client_t	*cl;
 	char		*s;
-	int			ping;
+	Sint32			ping;
 	if (!svs.clients)
 	{
 		Com_Printf ("No server running.\n");
@@ -878,7 +878,7 @@ SV_ConSay_f
 void SV_ConSay_f(void)
 {
 	client_t *client;
-	int		j;
+	Sint32		j;
 	char	*p;
 	char	text[1024];
 
@@ -1003,8 +1003,8 @@ void SV_ServerRecord_f (void)
 	char	name[MAX_OSPATH];
 	char	buf_data[32768];
 	sizebuf_t	buf;
-	int		len;
-	int		i;
+	Sint32		len;
+	Sint32		i;
 
 	if (Cmd_Argc() != 2)
 	{

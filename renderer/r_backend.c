@@ -49,7 +49,7 @@ RB_BuildTables
 */
 static void RB_BuildTables (void)
 {
-	int		i;
+	Sint32		i;
 	float	f;
 
 	for (i = 0; i < TABLE_SIZE; i++)
@@ -128,7 +128,7 @@ float RB_CalcGlowColor (renderparms_t parms)
 	{
 		table = RB_TableForFunc(&parms.glow);
 		rad = parms.glow.params[2] + parms.glow.params[3] * r_newrefdef.time;
-		out = table[((int)(rad * TABLE_SIZE)) & TABLE_MASK] * parms.glow.params[1] + parms.glow.params[0];
+		out = table[((Sint32)(rad * TABLE_SIZE)) & TABLE_MASK] * parms.glow.params[1] + parms.glow.params[0];
 		out = max(min(out, 1.0f), 0.0f); // clamp
 	}
 	return out;
@@ -140,9 +140,9 @@ RB_ModifyTextureCoords
 borrowed from EGL & Q2E
 =================
 */
-void RB_ModifyTextureCoords (float *inArray, float *inVerts, int numVerts, renderparms_t parms)
+void RB_ModifyTextureCoords (float *inArray, float *inVerts, Sint32 numVerts, renderparms_t parms)
 {
-	int		i;
+	Sint32		i;
 	float	t1, t2, sint, cost, rad;
 	float	*tcArray, *vertArray, *table;
 
@@ -171,7 +171,7 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int numVerts, rende
 	{
 		table = RB_TableForFunc(&parms.stretch);
 		rad = parms.stretch.params[2] + parms.stretch.params[3] * r_newrefdef.time;
-		t1 = table[((int)(rad * TABLE_SIZE)) & TABLE_MASK] * parms.stretch.params[1] + parms.stretch.params[0];
+		t1 = table[((Sint32)(rad * TABLE_SIZE)) & TABLE_MASK] * parms.stretch.params[1] + parms.stretch.params[0];
 		
 		t1 = (t1) ? 1.0 / t1 : 1.0;
 		t2 = 0.5 - 0.5 * t1;
@@ -195,8 +195,8 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int numVerts, rende
 		t1 = parms.turb.params[2] + parms.turb.params[3] * r_newrefdef.time;
 
 		for (tcArray=inArray, vertArray=inVerts, i=0; i<numVerts; i++, tcArray+=2, vertArray+=3) {
-			tcArray[0] += (table[((int)(((vertArray[0] + vertArray[2]) * 1.0/128 * 0.125 + t1) * TABLE_SIZE)) & TABLE_MASK] * parms.turb.params[1] + parms.turb.params[0]);
-			tcArray[1] += (table[((int)(((vertArray[1]) * 1.0/128 * 0.125 + t1) * TABLE_SIZE)) & TABLE_MASK] * parms.turb.params[1] + parms.turb.params[0]);
+			tcArray[0] += (table[((Sint32)(((vertArray[0] + vertArray[2]) * 1.0/128 * 0.125 + t1) * TABLE_SIZE)) & TABLE_MASK] * parms.turb.params[1] + parms.turb.params[0]);
+			tcArray[1] += (table[((Sint32)(((vertArray[1]) * 1.0/128 * 0.125 + t1) * TABLE_SIZE)) & TABLE_MASK] * parms.turb.params[1] + parms.turb.params[0]);
 		}
 
 	}
@@ -214,7 +214,7 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int numVerts, rende
 RB_CheckArrayOverflow
 =================
 */
-qboolean RB_CheckArrayOverflow (int numVerts, int numIndex)
+qboolean RB_CheckArrayOverflow (Sint32 numVerts, Sint32 numIndex)
 {
 	if (rb_vertex == 0 || rb_index == 0)	return false;  // nothing to purge
 
@@ -252,7 +252,7 @@ Re-draws a mesh in outline mode
 */
 void RB_DrawMeshTris (void)
 {
-	int i, numTMUs = 0;
+	Sint32 i, numTMUs = 0;
 
 	if (!r_showtris->value)
 		return;

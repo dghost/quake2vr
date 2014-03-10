@@ -156,7 +156,7 @@ void Options_MenuDraw (void)
 	Menu_Draw( &s_options_menu );
 }
 
-const char *Options_MenuKey( int key )
+const char *Options_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_options_menu, key );
 }

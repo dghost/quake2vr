@@ -59,8 +59,8 @@ char *bindnames[][2] =
 { 0, 0 }
 };
 
-int				keys_cursor;
-static int		bind_grab;
+Sint32				keys_cursor;
+static Sint32		bind_grab;
 
 static menuframework_s	s_keys_menu;
 static menuaction_s s_keys_binds[64];
@@ -68,8 +68,8 @@ static menuaction_s		s_keys_back_action;
 
 static void M_UnbindCommand (char *command)
 {
-	int		j;
-	int		l;
+	Sint32		j;
+	Sint32		l;
 	char	*b;
 
 	l = strlen(command);
@@ -87,11 +87,11 @@ static void M_UnbindCommand (char *command)
 	}
 }
 
-static void M_FindKeysForCommand (char *command, int *twokeys)
+static void M_FindKeysForCommand (char *command, Sint32 *twokeys)
 {
-	int		count;
-	int		j;
-	int	 	l;
+	Sint32		count;
+	Sint32		j;
+	Sint32	 	l;
 	char	*b;
 
 	twokeys[0] = twokeys[1] = -1;
@@ -116,9 +116,9 @@ static void M_FindKeysForCommand (char *command, int *twokeys)
 	}
 }
 
-int listSize (char* list[][2])
+Sint32 listSize (char* list[][2])
 {
-	int i=0;
+	Sint32 i=0;
 	while (list[i][1])
 		i++;
 
@@ -129,7 +129,7 @@ int listSize (char* list[][2])
 static void KeysBackCursorDrawFunc ( menuaction_s *self ) // back action
 {
 	SCR_DrawChar (SCREEN_WIDTH*0.5 - 24, s_keys_menu.y + self->generic.y, ALIGN_CENTER,
-					12+((int)(Sys_Milliseconds()/250)&1), 255,255,255,255, false, true);
+					12+((Sint32)(Sys_Milliseconds()/250)&1), 255,255,255,255, false, true);
 }
 
 static void KeyCursorDrawFunc( menuframework_s *menu )
@@ -139,12 +139,12 @@ static void KeyCursorDrawFunc( menuframework_s *menu )
 						'=', 255,255,255,255, false, true);
 	else
 		SCR_DrawChar (menu->x, menu->y + menu->cursor * MENU_LINE_SIZE, ALIGN_CENTER,
-						12+((int)(Sys_Milliseconds()/250)&1), 255,255,255,255, false, true);
+						12+((Sint32)(Sys_Milliseconds()/250)&1), 255,255,255,255, false, true);
 }
 
 static void DrawKeyBindingFunc( void *self )
 {
-	int keys[2];
+	Sint32 keys[2];
 	menuaction_s *a = ( menuaction_s * ) self;
 
 	M_FindKeysForCommand( bindnames[a->generic.localdata[0]][0], keys);
@@ -156,7 +156,7 @@ static void DrawKeyBindingFunc( void *self )
 	}
 	else
 	{
-		int x;
+		Sint32 x;
 		const char *name;
 
 		name = Key_KeynumToString (keys[0]);
@@ -179,7 +179,7 @@ static void DrawKeyBindingFunc( void *self )
 static void KeyBindingFunc( void *self )
 {
 	menuaction_s *a = ( menuaction_s * ) self;
-	int keys[2];
+	Sint32 keys[2];
 
 	M_FindKeysForCommand( bindnames[a->generic.localdata[0]][0], keys );
 
@@ -191,7 +191,7 @@ static void KeyBindingFunc( void *self )
 	Menu_SetStatusBar( &s_keys_menu, "press a key or button for this action" );
 }
 
-void addBindOption (int i, char* list[][2])
+void addBindOption (Sint32 i, char* list[][2])
 {		
 	s_keys_binds[i].generic.type	= MTYPE_ACTION;
 	s_keys_binds[i].generic.flags  = QMF_GRAYED;
@@ -208,8 +208,8 @@ void addBindOption (int i, char* list[][2])
 
 static void Keys_MenuInit( void )
 {
-	int BINDS_MAX;
-	int i = 0;
+	Sint32 BINDS_MAX;
+	Sint32 i = 0;
 
 	s_keys_menu.x = SCREEN_WIDTH*0.5;
 	s_keys_menu.y = SCREEN_HEIGHT*0.5 - 72;
@@ -245,7 +245,7 @@ static void Keys_MenuDraw (void)
 	Menu_Draw( &s_keys_menu );
 }
 
-static const char *Keys_MenuKey( int key )
+static const char *Keys_MenuKey( Sint32 key )
 {
 	menuaction_s *item = ( menuaction_s * ) Menu_ItemAtCursor( &s_keys_menu );
 

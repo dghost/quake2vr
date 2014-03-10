@@ -37,7 +37,7 @@ float		*shadedots = r_avertexnormal_dots[0];
 vec3_t		shadelight;
 
 m_dlight_t	model_dlights[MAX_MODEL_DLIGHTS];
-int			model_dlights_num;
+Sint32			model_dlights_num;
 
 float		shellFlowH, shellFlowV;
 
@@ -193,7 +193,7 @@ capColorVec
 */
 void capColorVec (vec3_t color)
 {
-	int i;
+	Sint32 i;
 
 	for (i=0;i<3;i++)
 		color[i] = max(min(color[i], 1.0f), 0.0f);
@@ -380,7 +380,7 @@ R_SetShadeLight
 */
 void R_SetShadeLight (void)
 {
-	int		i;
+	Sint32		i;
 
 	if (currententity->flags & RF_MASK_SHELL)
 	{
@@ -413,7 +413,7 @@ void R_SetShadeLight (void)
 		// Set up basic lighting...
 		if (r_model_shading->value && r_model_dlights->value)
 		{
-			int max = r_model_dlights->value;
+			Sint32 max = r_model_dlights->value;
 
 			if (max<0) max=0;
 			if (max>MAX_MODEL_DLIGHTS) max=MAX_MODEL_DLIGHTS;
@@ -505,7 +505,7 @@ void R_SetShadeLight (void)
 		}
 	}*/
 
-	shadedots = r_avertexnormal_dots[((int)(currententity->angles[1] * (SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
+	shadedots = r_avertexnormal_dots[((Sint32)(currententity->angles[1] * (SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
 }
 
 /*

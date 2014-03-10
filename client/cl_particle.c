@@ -82,7 +82,7 @@ void CL_SetParticleImages (void)
 CL_GetRandomBloodParticle
 ===============
 */
-int CL_GetRandomBloodParticle (void)
+Sint32 CL_GetRandomBloodParticle (void)
 {
 	return particle_blooddecal1 + rand()%5;
 }
@@ -98,11 +98,11 @@ PARTICLE MANAGEMENT
 
 cparticle_t	*active_particles, *free_particles;
 cparticle_t	particles[MAX_PARTICLES];
-int	cl_numparticles = MAX_PARTICLES;
+Sint32	cl_numparticles = MAX_PARTICLES;
 
 decalpolys_t	*active_decals, *free_decals;
 decalpolys_t	decalfrags[MAX_DECAL_FRAGS];
-int		cl_numdecalfrags = MAX_DECAL_FRAGS;
+Sint32		cl_numdecalfrags = MAX_DECAL_FRAGS;
 
 
 /*
@@ -164,7 +164,7 @@ Clears all decal polys
 */
 void CL_ClearAllDecalPolys (void)
 {
-	int		i;
+	Sint32		i;
 	free_decals = &decalfrags[0];
 	active_decals = NULL;
 
@@ -185,9 +185,9 @@ CL_NumFreeDecalPolys
 Retuns number of available decalpoly_t fields
 ===============
 */
-int CL_NumFreeDecalPolys (void)
+Sint32 CL_NumFreeDecalPolys (void)
 {
-	int count = 0;
+	Sint32 count = 0;
 	decalpolys_t *d = NULL;
 	for (d = free_decals; d; d = d->next)
 		count++;
@@ -223,7 +223,7 @@ CL_ClipDecal
 void CL_ClipDecal (cparticle_t *part, float radius, float orient, vec3_t origin, vec3_t dir)
 {
 	vec3_t	axis[3], verts[MAX_DECAL_VERTS];
-	int		numfragments, j, i;
+	Sint32		numfragments, j, i;
 	markFragment_t *fr, fragments[MAX_FRAGMENTS_PER_DECAL];
 	
 	// invalid decal
@@ -297,14 +297,14 @@ cparticle_t *CL_SetupParticle (
 			float color0,		float color1,		float color2,
 			float colorvel0,	float colorvel1,	float colorvel2,
 			float alpha,		float alphavel,
-			int	blendfunc_src,	int blendfunc_dst,
+			Sint32	blendfunc_src,	Sint32 blendfunc_dst,
 			float size,			float sizevel,			
-			int	image,
-			int flags,
-			void (*think)(cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time),
+			Sint32	image,
+			Sint32 flags,
+			void (*think)(cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time),
 			qboolean thinknext)
 {
-	int j;
+	Sint32 j;
 	cparticle_t	*p = NULL;
 
 	if (!free_particles)
@@ -401,7 +401,7 @@ void CL_AddParticleLight (cparticle_t *p,
 				  float light, float lightvel,
 				  float lcol0, float lcol1, float lcol2)
 {
-	int i;
+	Sint32 i;
 
 	for (i=0; i<P_LIGHTS_MAX; i++)
 	{
@@ -427,7 +427,7 @@ CL_ClearParticles
 */
 void CL_ClearParticles (void)
 {
-	int		i;
+	Sint32		i;
 	
 	free_particles = &particles[0];
 	active_particles = NULL;
@@ -481,7 +481,7 @@ CL_ClipParticleVelocity
 void CL_ClipParticleVelocity (vec3_t in, vec3_t normal, vec3_t out)
 {
 	float	backoff, change;
-	int		i;
+	Sint32		i;
 	
 	backoff = DotProduct (in, normal) * 2.0f;
 
@@ -499,7 +499,7 @@ void CL_ClipParticleVelocity (vec3_t in, vec3_t normal, vec3_t out)
 CL_ParticleBounceThink
 ===============
 */
-void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time)
+void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
 {
 	float clipsize;
 	trace_t tr;
@@ -543,7 +543,7 @@ void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 CL_ParticleRotateThink
 ===============
 */
-void CL_ParticleRotateThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time)
+void CL_ParticleRotateThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
 {
 	angle[2] =	angle[0] + *time*angle[1] + *time**time*angle[2];
 	p->thinknext=true;
@@ -554,7 +554,7 @@ void CL_ParticleRotateThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 CL_DecalAlphaThink
 ===============
 */
-void CL_DecalAlphaThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time)
+void CL_DecalAlphaThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
 {
 	*alpha = pow(*alpha, 0.1);
 	p->thinknext = true;
@@ -574,7 +574,7 @@ void CL_AddParticles (void)
 	float			alpha, size, light;
 	float			time=0, time2;
 	vec3_t			org, color, angle;
-	int				i, image, flags, decals;
+	Sint32				i, image, flags, decals;
 	cparticle_t		*active, *tail;
 
 	active = NULL;

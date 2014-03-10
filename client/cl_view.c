@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // development tools for weapons
 //
-int			gun_frame;
+Sint32			gun_frame;
 struct		model_s	*gun_model;
 
 //=============
@@ -42,22 +42,22 @@ cvar_t		*cl_stats;
 cvar_t		*hand;
 
 
-int			r_numdlights;
+Sint32			r_numdlights;
 dlight_t	r_dlights[MAX_DLIGHTS];
 
-int			r_numentities;
+Sint32			r_numentities;
 entity_t	r_entities[MAX_ENTITIES];
 
-int			r_numparticles;
+Sint32			r_numparticles;
 particle_t	r_particles[MAX_PARTICLES];
 
-int			r_numdecalfrags;
+Sint32			r_numdecalfrags;
 particle_t	r_decalfrags[MAX_DECAL_FRAGS];
 
 lightstyle_t	r_lightstyles[MAX_LIGHTSTYLES];
 
 char		cl_weaponmodels[MAX_CLIENTWEAPONMODELS][MAX_QPATH];
-int			num_cl_weaponmodels;
+Sint32			num_cl_weaponmodels;
 
 /*
 ====================
@@ -87,7 +87,7 @@ float viewermodelalpha;
 
 void ClipCam (vec3_t start, vec3_t end, vec3_t newpos)
 {
-	int i;
+	Sint32 i;
 
 	trace_t tr = CL_Trace (start, end, 5, MASK_SOLID);
 	for (i=0;i<3;i++)
@@ -129,7 +129,7 @@ void V_AddEntity (entity_t *ent)
 {
 	// Knightmare- added Psychospaz's chasecam
 	if (ent->flags & RF_VIEWERMODEL) //here is our client
-	{	int i; 
+	{	Sint32 i; 
 
 		// what was i thinking before!?
 		for (i=0;i<3;i++)
@@ -160,9 +160,9 @@ V_AddParticle
 */
 //Knightmare- Psychospaz's enhanced particle code
 void V_AddParticle (vec3_t org, vec3_t angle, vec3_t color, float alpha,
-				int alpha_src, int alpha_dst, float size, int image, int flags)
+				Sint32 alpha_src, Sint32 alpha_dst, float size, Sint32 image, Sint32 flags)
 {
-	int i;
+	Sint32 i;
 	particle_t	*p;
 
 	if (r_numparticles >= MAX_PARTICLES)
@@ -193,9 +193,9 @@ V_AddDecal
 =====================
 */
 void V_AddDecal (vec3_t org, vec3_t angle, vec3_t color, float alpha,
-				int alpha_src, int alpha_dst, float size, int image, int flags, decalpolys_t *decal)
+				Sint32 alpha_src, Sint32 alpha_dst, float size, Sint32 image, Sint32 flags, decalpolys_t *decal)
 {
-	int i;
+	Sint32 i;
 	particle_t	*d;
 
 	if (r_numdecalfrags >= MAX_DECAL_FRAGS)
@@ -271,7 +271,7 @@ V_AddLightStyle
 
 =====================
 */
-void V_AddLightStyle (int style, float r, float g, float b)
+void V_AddLightStyle (Sint32 style, float r, float g, float b)
 {
 	lightstyle_t	*ls;
 
@@ -295,7 +295,7 @@ If cl_testparticles is set, create 4096 particles in the view
 void V_TestParticles (void)
 {
 	particle_t	*p;
-	int			i, j;
+	Sint32			i, j;
 	float		d, r, u;
 
 	r_numparticles = 4096;
@@ -324,7 +324,7 @@ If cl_testentities is set, create 32 player models
 */
 void V_TestEntities (void)
 {
-	int			i, j;
+	Sint32			i, j;
 	float		f, r;
 	entity_t	*ent;
 
@@ -356,7 +356,7 @@ If cl_testlights is set, create 32 lights models
 */
 void V_TestLights (void)
 {
-	int			i, j;
+	Sint32			i, j;
 	float		f, r;
 	dlight_t	*dl;
 
@@ -394,7 +394,7 @@ qboolean needLoadingPlaque (void);
 void CL_PrepRefresh (void)
 {
 	char		mapname[32];
-	int			i, max;
+	Sint32			i, max;
 	char		pname[MAX_QPATH];
 	float		rotate;
 	vec3_t		axis;
@@ -660,7 +660,7 @@ extern void	R_SetLightLevel ();
 extern void	R_SetGL2D ();
 void VR_RenderStereo ()
 {
-	extern int entitycmpfnc( const entity_t *, const entity_t * );
+	extern Sint32 entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,viewOrig, tmp;
 	float viewOffset = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
@@ -773,7 +773,7 @@ void VR_RenderStereo ()
 		cl.refdef.lightstyles = r_lightstyles;
 
 		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
-        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int (*)(const void *, const void *))entitycmpfnc );
+        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (Sint32 (*)(const void *, const void *))entitycmpfnc );
 	}
 
 		// Neckmodel stuff
@@ -888,7 +888,7 @@ V_RenderView
 */
 void V_RenderView ()
 {
-	extern int entitycmpfnc( const entity_t *, const entity_t * );
+	extern Sint32 entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 
 	if (cls.state != ca_active)
@@ -994,7 +994,7 @@ void V_RenderView ()
 		cl.refdef.lightstyles = r_lightstyles;
 
 		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
-        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int (*)(const void *, const void *))entitycmpfnc );
+        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (Sint32 (*)(const void *, const void *))entitycmpfnc );
 	}
 
 	R_RenderFrame (&cl.refdef);
@@ -1012,9 +1012,9 @@ V_Viewpos_f
 */
 void V_Viewpos_f (void)
 {
-	Com_Printf ("(%i %i %i) : %i\n", (int)cl.refdef.vieworg[0],
-		(int)cl.refdef.vieworg[1], (int)cl.refdef.vieworg[2], 
-		(int)cl.refdef.viewangles[YAW]);
+	Com_Printf ("(%i %i %i) : %i\n", (Sint32)cl.refdef.vieworg[0],
+		(Sint32)cl.refdef.vieworg[1], (Sint32)cl.refdef.vieworg[2], 
+		(Sint32)cl.refdef.viewangles[YAW]);
 }
 
 // Knightmare- diagnostic commands from Lazarus
@@ -1054,7 +1054,7 @@ void V_Surf_f (void)
 {
 	trace_t	tr;
 	vec3_t	forward, start, end;
-	int		s;
+	Sint32		s;
 
 	if (!developer->value) // only works in developer mode
 		return;

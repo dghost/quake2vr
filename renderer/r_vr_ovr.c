@@ -4,13 +4,13 @@
 #include "r_vr.h"
 
 
-void OVR_FrameStart(int changeBackBuffers);
+void OVR_FrameStart(Sint32 changeBackBuffers);
 void OVR_BindView(vr_eye_t eye);
 void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
 void OVR_Present();
-int OVR_Enable();
+Sint32 OVR_Enable();
 void OVR_Disable();
-int OVR_Init();
+Sint32 OVR_Init();
 void OVR_GetState(vr_param_t *state);
 
 hmd_render_t vr_render_ovr = 
@@ -30,7 +30,7 @@ hmd_render_t vr_render_ovr =
 extern void VR_OVR_CalcRenderParam();
 extern float VR_OVR_GetDistortionScale();
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
-extern int VR_OVR_RenderLatencyTest(vec4_t color);
+extern Sint32 VR_OVR_RenderLatencyTest(vec4_t color);
 
 static r_ovr_shader_t ovr_shaders[2];
 static r_ovr_shader_t ovr_bicubic_shaders[2];
@@ -323,13 +323,13 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 
 
 
-void OVR_FrameStart(int changeBackBuffers)
+void OVR_FrameStart(Sint32 changeBackBuffers)
 {
 
 
 	if (vr_ovr_distortion->modified)
 	{
-		Cvar_SetInteger("vr_ovr_distortion", !!(int) vr_ovr_distortion->value);
+		Cvar_SetInteger("vr_ovr_distortion", !!(Sint32) vr_ovr_distortion->value);
 		changeBackBuffers = 1;
 		vr_ovr_distortion->modified = false;
 	}
@@ -351,7 +351,7 @@ void OVR_FrameStart(int changeBackBuffers)
 		else if (vr_ovr_autoscale->value > 2.0)
 			Cvar_SetInteger("vr_ovr_autoscale",2);
 		else
-			Cvar_SetInteger("vr_ovr_autoscale", (int) vr_ovr_autoscale->value);
+			Cvar_SetInteger("vr_ovr_autoscale", (Sint32) vr_ovr_autoscale->value);
 		changeBackBuffers = 1;
 		vr_ovr_autoscale->modified = false;
 	}
@@ -387,7 +387,7 @@ void OVR_FrameStart(int changeBackBuffers)
 
 	if (vr_ovr_filtermode->modified)
 	{
-		switch ((int) vr_ovr_filtermode->value)
+		switch ((Sint32) vr_ovr_filtermode->value)
 		{
 		default:
 		case OVR_FILTER_BILINEAR:
@@ -458,7 +458,7 @@ void OVR_GetState(vr_param_t *state)
 		VR_OVR_GetFOV(&ovrState.viewFovX, &ovrState.viewFovY);
 		ovrState.projOffset = ovrConfig.projOffset;
 		ovrState.ipd = ovrConfig.ipd;
-		ovrState.pixelScale = ovrScale * vid.width / (int) ovrConfig.hmdWidth;
+		ovrState.pixelScale = ovrScale * vid.width / (Sint32) ovrConfig.hmdWidth;
 		ovrState.aspect = ovrConfig.aspect;
 		*state = ovrState;
 }
@@ -474,9 +474,9 @@ void OVR_Present()
 		float superscale = vr_ovr_supersample->value;
 		r_ovr_shader_t *current_shader;
 		if (vr_ovr_filtermode->value)
-			current_shader = &ovr_bicubic_shaders[!!(int) vr_ovr_chromatic->value];
+			current_shader = &ovr_bicubic_shaders[!!(Sint32) vr_ovr_chromatic->value];
 		else
-			current_shader = &ovr_shaders[!!(int) vr_ovr_chromatic->value];
+			current_shader = &ovr_shaders[!!(Sint32) vr_ovr_chromatic->value];
 
 		// draw left eye
 
@@ -556,7 +556,7 @@ void OVR_Present()
 
 }
 
-int OVR_Enable()
+Sint32 OVR_Enable()
 {
 	if (left.valid)
 		R_DelFBO(&left);
@@ -586,7 +586,7 @@ void OVR_Disable()
 		R_DelFBO(&right);
 }
 
-int OVR_Init()
+Sint32 OVR_Init()
 {
 	R_InitFBO(&left);
 	R_InitFBO(&right);

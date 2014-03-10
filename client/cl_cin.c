@@ -25,29 +25,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct
 {
 	byte	*data;
-	int		count;
+	Sint32		count;
 } cblock_t;
 
 typedef struct
 {
 	qboolean	restart_sound;
-	int		s_rate;
-	int		s_width;
-	int		s_channels;
+	Sint32		s_rate;
+	Sint32		s_width;
+	Sint32		s_channels;
 
-	int		width;
-	int		height;
+	Sint32		width;
+	Sint32		height;
 	byte	*pic;
 	byte	*pic_pending;
 	qboolean	isStaticPic;	// Knightmare added
 	char	picName[MAX_OSPATH];// Knightmare added
 
 	// order 1 huffman stuff
-	int		*hnodes1;	// [256][256][2];
-	int		numhnodes1[256];
+	Sint32		*hnodes1;	// [256][256][2];
+	Sint32		numhnodes1[256];
 
-	int		h_used[512];
-	int		h_count[512];
+	Sint32		h_used[512];
+	Sint32		h_count[512];
 } cinematics_t;
 
 cinematics_t	cin;
@@ -66,13 +66,13 @@ PCX LOADING
 SCR_LoadPCX
 ==============
 */
-void SCR_LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *height)
+void SCR_LoadPCX (char *filename, byte **pic, byte **palette, Sint32 *width, Sint32 *height)
 {
 	byte	*raw;
 	pcx_t	*pcx;
-	int		x, y;
-	int		len;
-	int		dataByte, runLength;
+	Sint32		x, y;
+	Sint32		len;
+	Sint32		dataByte, runLength;
 	byte	*out, *pix;
 
 	*pic = NULL;
@@ -216,10 +216,10 @@ void SCR_FinishCinematic (void)
 SmallestNode1
 ==================
 */
-int	SmallestNode1 (int numhnodes)
+Sint32	SmallestNode1 (Sint32 numhnodes)
 {
-	int		i;
-	int		best, bestnode;
+	Sint32		i;
+	Sint32		best, bestnode;
 
 	best = 99999999;
 	bestnode = -1;
@@ -253,11 +253,11 @@ Reads the 64k counts table and initializes the node trees
 */
 void Huff1TableInit (void)
 {
-	int		prev;
-	int		j;
-	int		*node, *nodebase;
+	Sint32		prev;
+	Sint32		j;
+	Sint32		*node, *nodebase;
 	byte	counts[256];
-	int		numhnodes;
+	Sint32		numhnodes;
 
 	cin.hnodes1 = Z_Malloc (256*256*2*4);
 	memset (cin.hnodes1, 0, 256*256*2*4);
@@ -306,12 +306,12 @@ cblock_t Huff1Decompress (cblock_t in)
 {
 	byte		*input;
 	byte		*out_p;
-	int			nodenum;
-	int			count;
+	Sint32			nodenum;
+	Sint32			count;
 	cblock_t	out;
-	int			inbyte;
-	int			*hnodes, *hnodesbase;
-	//int		i;
+	Sint32			inbyte;
+	Sint32			*hnodes, *hnodesbase;
+	//Sint32		i;
 
 	// get decompressed count
 	count = in.data[0] + (in.data[1]<<8) + (in.data[2]<<16) + (in.data[3]<<24);
@@ -433,14 +433,14 @@ SCR_ReadNextFrame
 */
 byte *SCR_ReadNextFrame (void)
 {
-	int		r;
-	int		command;
+	Sint32		r;
+	Sint32		command;
 	byte	samples[22050/14*4];
 	byte	compressed[0x20000];
-	int		size;
+	Sint32		size;
 	byte	*pic;
 	cblock_t	in, huf1;
-	int		start, end, count;
+	Sint32		start, end, count;
 
 	// read the next frame
 	r = FS_FRead (&command, 4, 1, cl.cinematic_file);
@@ -497,7 +497,7 @@ SCR_RunCinematic
 */
 void SCR_RunCinematic (void)
 {
-	int		frame;
+	Sint32		frame;
 
 	if (cl.cinematictime <= 0)
 	{
@@ -591,10 +591,10 @@ SCR_PlayCinematic
 */
 void SCR_PlayCinematic (char *arg)
 {
-	int		width, height;
+	Sint32		width, height;
 	byte	*palette;
 	char	name[MAX_OSPATH], *dot;
-	int		old_khz;
+	Sint32		old_khz;
 
 	// make sure CD isn't playing music
 	CDAudio_Stop();

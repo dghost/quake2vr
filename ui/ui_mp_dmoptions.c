@@ -87,8 +87,8 @@ qboolean CTF_menumode (void)
 static void DMFlagCallback ( void *self )
 {
 	menulist_s *f = ( menulist_s * ) self;
-	int flags;
-	int bit = 0;
+	Sint32 flags;
+	Sint32 bit = 0;
 
 	flags = Cvar_VariableValue( "dmflags" );
 
@@ -259,8 +259,8 @@ void DMOptions_MenuInit( void )
 	{
 		"disabled", "by skin", "by model", 0
 	};
-	int dmflags = Cvar_VariableValue( "dmflags" );
-	int y = 0;
+	Sint32 dmflags = Cvar_VariableValue( "dmflags" );
+	Sint32 y = 0;
 
 	s_dmoptions_menu.x = SCREEN_WIDTH*0.5;
 //	s_dmoptions_menu.x = viddef.width * 0.50;
@@ -523,7 +523,7 @@ void DMOptions_MenuDraw(void)
 	Menu_Draw( &s_dmoptions_menu );
 }
 
-const char *DMOptions_MenuKey( int key )
+const char *DMOptions_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_dmoptions_menu, key );
 }

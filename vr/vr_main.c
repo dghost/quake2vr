@@ -68,7 +68,7 @@ static const char *hmd_names[] =
 // General functions
 //
 
-int VR_GetSensorOrientation()
+Sint32 VR_GetSensorOrientation()
 {
 	vec3_t euler;
 	vec4_t currentPos;
@@ -148,7 +148,7 @@ void VR_GetOrientationEMA(vec3_t angle)
 }
 
 // returns head offset using X forward, Y left, Z up
-int VR_GetHeadOffset(vec3_t offset)
+Sint32 VR_GetHeadOffset(vec3_t offset)
 {
 	vec3_t headOffset;
 
@@ -170,7 +170,7 @@ int VR_GetHeadOffset(vec3_t offset)
 
 }
 
-void VR_GetHMDPos(int *xpos, int *ypos)
+void VR_GetHMDPos(Sint32 *xpos, Sint32 *ypos)
 {
 	if (hmd)
 		hmd->getPos(xpos,ypos);
@@ -210,7 +210,7 @@ void VR_Frame()
 		else if (vr_aimmode->value >= NUM_VR_AIMMODE)
 			Cvar_SetInteger("vr_aimmode",NUM_VR_AIMMODE - 1);
 		else
-			Cvar_SetInteger("vr_aimmode",(int) vr_aimmode->value);
+			Cvar_SetInteger("vr_aimmode",(Sint32) vr_aimmode->value);
 		VectorAdd(cl.bodyangles,cl.viewangles,cl.bodyangles);
 		VectorSet(cl.aimdelta,0,0,0);
 		VectorSet(cl.viewangles,0,0,0);
@@ -224,7 +224,7 @@ void VR_Frame()
 		else if (vr_aimmode_deadzone_pitch->value > 360)
 			Cvar_SetInteger("vr_aimmode_deadzone_pitch",360);
 		else
-			Cvar_SetInteger("vr_aimmode_deadzone_pitch",(int) vr_aimmode_deadzone_pitch->value);
+			Cvar_SetInteger("vr_aimmode_deadzone_pitch",(Sint32) vr_aimmode_deadzone_pitch->value);
 		vr_aimmode_deadzone_pitch->modified = false;
 	}
 
@@ -235,7 +235,7 @@ void VR_Frame()
 		else if (vr_aimmode_deadzone_yaw->value > 360)
 			Cvar_SetInteger("vr_aimmode_deadzone_yaw",360);
 		else
-			Cvar_SetInteger("vr_aimmode_deadzone_yaw",(int) vr_aimmode_deadzone_yaw->value);
+			Cvar_SetInteger("vr_aimmode_deadzone_yaw",(Sint32) vr_aimmode_deadzone_yaw->value);
 		vr_aimmode_deadzone_yaw->modified = false;
 	}
 
@@ -246,7 +246,7 @@ void VR_Frame()
 		else if (vr_crosshair->value > 2)
 			Cvar_SetInteger("vr_crosshair",2);
 		else
-			Cvar_SetInteger("vr_crosshair",(int) vr_crosshair->value);
+			Cvar_SetInteger("vr_crosshair",(Sint32) vr_crosshair->value);
 		vr_crosshair->modified = false;
 	}
 
@@ -257,7 +257,7 @@ void VR_Frame()
 		else if (vr_crosshair_brightness->value > 100)
 			Cvar_SetInteger("vr_crosshair_brightness",100);
 		else
-			Cvar_SetInteger("vr_crosshair_brightness",(int) vr_crosshair_brightness->value);
+			Cvar_SetInteger("vr_crosshair_brightness",(Sint32) vr_crosshair_brightness->value);
 		vr_crosshair_brightness->modified = false;
 	}
 
@@ -337,11 +337,11 @@ void VR_ResetOrientation( void )
 // possible to support other HMD's in the future without having to rewrite other portions of the engine.
 // -dghost 08/17/13
 
-int VR_Enable()
+Sint32 VR_Enable()
 {
 	char string[6];
 	char hmd_type[3];
-	int i;
+	Sint32 i;
 	hmd = NULL;
 	for(i = 1 ; i < NUM_HMD_TYPES; i++)
 	{
@@ -384,7 +384,7 @@ void VR_Disable()
 
 void VR_Teardown()
 {
-	int i = 0;
+	Sint32 i = 0;
 	if (vr_enabled->value)
 		VR_Disable();
 
@@ -422,7 +422,7 @@ void VR_Disable_f(void)
 // launch-time initialization for Rift support
 void VR_Startup(void)
 {
-	int i = 0;
+	Sint32 i = 0;
 	Com_Printf("Quake II VR Version v%4.2f%s\n", VERSION,PATCH);
 
 	available_hmds[HMD_NONE] = hmd_none;

@@ -80,7 +80,7 @@ typedef struct {
 
 typedef struct fsLink_s {
 	char			*from;
-	int				length;
+	Sint32				length;
 	char			*to;
 	struct fsLink_s	*next;
 } fsLink_t;
@@ -88,8 +88,8 @@ typedef struct fsLink_s {
 typedef struct {
 	char			name[MAX_QPATH];
 	long			hash;				// To speed up searching
-	int				size;
-	int				offset;				// This is ignored in PK3 files
+	Sint32				size;
+	Sint32				offset;				// This is ignored in PK3 files
 	qboolean		ignore;				// Whether this file should be ignored
 } fsPackFile_t;
 
@@ -97,9 +97,9 @@ typedef struct {
 	char			name[MAX_OSPATH];
 	FILE			*pak;
 	unzFile			*pk3;
-	int				numFiles;
+	Sint32				numFiles;
 	fsPackFile_t	*files;
-	unsigned int	contentFlags;
+	Uint32	contentFlags;
 } fsPack_t;
 
 typedef struct fsSearchPath_s {
@@ -119,8 +119,8 @@ static char		fs_currentGame[MAX_QPATH];
 static char				fs_fileInPath[MAX_OSPATH];
 static qboolean			fs_fileInPack;
 
-int		file_from_pak = 0;		// This is set by FS_FOpenFile
-int		file_from_pk3 = 0;		// This is set by FS_FOpenFile
+Sint32		file_from_pak = 0;		// This is set by FS_FOpenFile
+Sint32		file_from_pk3 = 0;		// This is set by FS_FOpenFile
 char	last_pk3_name[MAX_QPATH];	// This is set by FS_FOpenFile
 
 cvar_t	*fs_homepath;
@@ -131,7 +131,7 @@ cvar_t	*fs_debug;
 
 
 void CDAudio_Stop (void);
-void Com_FileExtension (const char *path, char *dst, int dstSize);
+void Com_FileExtension (const char *path, char *dst, Sint32 dstSize);
 
 
 /*
@@ -141,7 +141,7 @@ Com_FilePath
 Returns the path up to, but not including the last /
 =================
 */
-void Com_FilePath (const char *path, char *dst, int dstSize){
+void Com_FilePath (const char *path, char *dst, Sint32 dstSize){
 
 	const char	*s, *last;
 
@@ -192,9 +192,9 @@ FS_TypeFlagForPakItem
 Returns bit flag based on pak item's extension.
 =================
 */
-unsigned int FS_TypeFlagForPakItem (char *itemName)
+Uint32 FS_TypeFlagForPakItem (char *itemName)
 {
-	int		i;	
+	Sint32		i;	
 	char	extension[8];
 
 	Com_FileExtension (itemName, extension, sizeof(extension));
@@ -211,9 +211,9 @@ unsigned int FS_TypeFlagForPakItem (char *itemName)
 FS_FileLength
 =================
 */
-int FS_FileLength (FILE *f)
+Sint32 FS_FileLength (FILE *f)
 {
-	int cur, end;
+	Sint32 cur, end;
 
 	cur = ftell(f);
 	fseek(f, 0, SEEK_END);
@@ -229,10 +229,10 @@ int FS_FileLength (FILE *f)
 FS_Filelength
 ================
 */
-int FS_Filelength (FILE *f)
+Sint32 FS_Filelength (FILE *f)
 {
-	int		pos;
-	int		end;
+	Sint32		pos;
+	Sint32		end;
 
 	pos = ftell (f);
 	fseek (f, 0, SEEK_END);
@@ -389,7 +389,7 @@ Finds a free fileHandle_t
 fsHandle_t *FS_HandleForFile (const char *path, fileHandle_t *f)
 {
 	fsHandle_t	*handle;
-	int			i;
+	Sint32			i;
 
 	handle = fs_handles;
 	for (i = 0; i < MAX_HANDLES; i++, handle++)
@@ -431,10 +431,10 @@ Performs a binary search by hashed filename
 to find pack items in a sorted pack
 =================
 */
-int FS_FindPackItem (fsPack_t *pack, char *itemName, long itemHash)
+Sint32 FS_FindPackItem (fsPack_t *pack, char *itemName, long itemHash)
 {
-	int		smax, smin, smidpt;	//, counter = 0;
-	int		i;	//, matchStart, matchEnd;
+	Sint32		smax, smin, smidpt;	//, counter = 0;
+	Sint32		i;	//, matchStart, matchEnd;
 
 	// catch null pointers
 	if ( !pack || !itemName )
@@ -481,7 +481,7 @@ FS_FOpenFileAppend
 Returns file size or -1 on error
 =================
 */
-int FS_FOpenFileAppend (fsHandle_t *handle)
+Sint32 FS_FOpenFileAppend (fsHandle_t *handle)
 {
 	char	path[MAX_OSPATH];
 
@@ -512,7 +512,7 @@ FS_FOpenFileWrite
 Always returns 0 or -1 on error
 =================
 */
-int FS_FOpenFileWrite (fsHandle_t *handle)
+Sint32 FS_FOpenFileWrite (fsHandle_t *handle)
 {
 	char	path[MAX_OSPATH];
 
@@ -544,14 +544,14 @@ Can open separate files as well as files inside pack files (both PAK
 and PK3).
 =================
 */
-int FS_FOpenFileRead (fsHandle_t *handle)
+Sint32 FS_FOpenFileRead (fsHandle_t *handle)
 {
 	fsSearchPath_t	*search;
 	fsPack_t		*pack;
 	char			path[MAX_OSPATH];
 	long			hash;
-	int				i;
-	unsigned int	typeFlag;
+	Sint32				i;
+	Uint32	typeFlag;
 
 	// Knightmare- hack global vars for autodownloads
 	file_from_pak = 0;
@@ -668,10 +668,10 @@ Can open separate files as well as files inside pack files (both PAK
 and PK3).
 =================
 */
-int FS_FOpenFile (const char *name, fileHandle_t *f, fsMode_t mode)
+Sint32 FS_FOpenFile (const char *name, fileHandle_t *f, fsMode_t mode)
 {
 	fsHandle_t	*handle;
-	int			size;
+	Sint32			size;
 
 	handle = FS_HandleForFile(name, f);
 
@@ -732,10 +732,10 @@ FS_Read
 Properly handles partial reads
 =================
 */
-int FS_Read (void *buffer, int size, fileHandle_t f)
+Sint32 FS_Read (void *buffer, Sint32 size, fileHandle_t f)
 {
 	fsHandle_t	*handle;
-	int			remaining, r;
+	Sint32			remaining, r;
 	byte		*buf;
 	qboolean	tried = false;
 
@@ -787,10 +787,10 @@ Properly handles partial reads of size up to count times
 No error if it can't read
 =================
 */
-int FS_FRead (void *buffer, int size, int count, fileHandle_t f)
+Sint32 FS_FRead (void *buffer, Sint32 size, Sint32 count, fileHandle_t f)
 {
 	fsHandle_t	*handle;
-	int			loops, remaining, r;
+	Sint32			loops, remaining, r;
 	byte		*buf;
 	qboolean	tried = false;
 
@@ -843,10 +843,10 @@ FS_Write
 Properly handles partial writes
 =================
 */
-int FS_Write (const void *buffer, int size, fileHandle_t f){
+Sint32 FS_Write (const void *buffer, Sint32 size, fileHandle_t f){
 
 	fsHandle_t	*handle;
-	int			remaining, w;
+	Sint32			remaining, w;
 	byte		*buf;
 
 	handle = FS_GetFileByHandle(f);
@@ -884,7 +884,7 @@ int FS_Write (const void *buffer, int size, fileHandle_t f){
 FS_FTell
 =================
 */
-int FS_FTell (fileHandle_t f)
+Sint32 FS_FTell (fileHandle_t f)
 {
 
 	fsHandle_t *handle;
@@ -906,15 +906,15 @@ FS_ListPak
 Generates a listing of the contents of a pak file
 =================
 */
-char **FS_ListPak (char *find, int *num)
+char **FS_ListPak (char *find, Sint32 *num)
 {
 	fsSearchPath_t	*search;
 	//char			netpath[MAX_OSPATH];
 	fsPack_t		*pak;
 
-	int nfiles = 0, nfound = 0;
+	Sint32 nfiles = 0, nfound = 0;
 	char **list = 0;
-	int i;
+	Sint32 i;
 
 	// now check pak files
 	for (search = fs_searchPaths; search; search = search->next)
@@ -962,11 +962,11 @@ char **FS_ListPak (char *find, int *num)
 FS_Seek
 =================
 */
-void FS_Seek (fileHandle_t f, int offset, fsOrigin_t origin)
+void FS_Seek (fileHandle_t f, Sint32 offset, fsOrigin_t origin)
 {
 	fsHandle_t		*handle;
 	unz_file_info	info;
-	int				remaining, r, len;
+	Sint32				remaining, r, len;
 	byte			dummy[0x8000];
 
 	handle = FS_GetFileByHandle(f);
@@ -1034,7 +1034,7 @@ FS_Tell
 Returns -1 if an error occurs
 =================
 */
-int FS_Tell (fileHandle_t f)
+Sint32 FS_Tell (fileHandle_t f)
 {
 	fsHandle_t *handle;
 
@@ -1099,11 +1099,11 @@ Returns file size or -1 if the file is not found.
 A NULL buffer will just return the file size without loading.
 =================
 */
-int FS_LoadFile (char *path, void **buffer)
+Sint32 FS_LoadFile (char *path, void **buffer)
 {
 	fileHandle_t	f;
 	byte			*buf;
-	int				size;
+	Sint32				size;
 
 	buf = NULL;
 
@@ -1165,7 +1165,7 @@ should not be loaded from a pak.
 */
 qboolean FS_FileInPakBlacklist (char *filename, qboolean isPk3)
 {
-	int			i;
+	Sint32			i;
 	char		*compare;
 	qboolean	ignore = false;
 
@@ -1198,12 +1198,12 @@ Used for sorting pak entries by hash
 =================
 */
 long *nameHashes = NULL;
-int FS_PakFileCompare (const void *f1, const void *f2)
+Sint32 FS_PakFileCompare (const void *f1, const void *f2)
 {
 	if (!nameHashes)
 		return 1;
 
-	return (nameHashes[*((int *)(f1))] - nameHashes[*((int *)(f2))]);
+	return (nameHashes[*((Sint32 *)(f1))] - nameHashes[*((Sint32 *)(f2))]);
 }
 #endif	// BINARY_PACK_SEARCH
 
@@ -1220,7 +1220,7 @@ the list so they override previous pack files.
 */
 fsPack_t *FS_LoadPAK (const char *packPath)
 {
-	int				numFiles, i;
+	Sint32				numFiles, i;
 	fsPackFile_t	*files;
 	fsPack_t		*pack;
 	FILE			*handle;
@@ -1228,7 +1228,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	dpackfile_t		info[MAX_FILES_IN_PACK];
 	unsigned		contentFlags = 0;
 #ifdef BINARY_PACK_SEARCH
-	int				*sortIndices;
+	Sint32				*sortIndices;
 	long			*sortHashes;
 #endif	// BINARY_PACK_SEARCH
 
@@ -1261,7 +1261,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
-	sortIndices = Z_Malloc(numFiles * sizeof(int));
+	sortIndices = Z_Malloc(numFiles * sizeof(Sint32));
 	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
 	nameHashes = sortHashes;
 	for (i = 0; i < numFiles; i++)
@@ -1269,7 +1269,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 		sortIndices[i] = i;
 		sortHashes[i] = Com_HashFileName(info[i].name, 0, false);
 	}
-	qsort((void *)sortIndices, numFiles, sizeof(int), FS_PakFileCompare);
+	qsort((void *)sortIndices, numFiles, sizeof(Sint32), FS_PakFileCompare);
 
 	// Parse the directory
 	for (i = 0; i < numFiles; i++)
@@ -1344,18 +1344,18 @@ the list so they override previous pack files.
 */
 fsPack_t *FS_LoadPK3 (const char *packPath)
 {
-	int				numFiles, i = 0;
+	Sint32				numFiles, i = 0;
 	fsPackFile_t	*files;
 	fsPack_t		*pack;
 	unzFile			*handle;
 	unz_global_info	global;
 	unz_file_info	info;
-	int				status;
+	Sint32				status;
 	unsigned		contentFlags = 0;
 	char			fileName[MAX_QPATH];
 #ifdef BINARY_PACK_SEARCH
 	fsPackFile_t	*tmpFiles;
-	int				*sortIndices;
+	Sint32				*sortIndices;
 	long			*sortHashes;
 #endif	// BINARY_PACK_SEARCH
 
@@ -1379,7 +1379,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
 	tmpFiles = Z_Malloc(numFiles * sizeof(fsPackFile_t));
-	sortIndices = Z_Malloc(numFiles * sizeof(int));
+	sortIndices = Z_Malloc(numFiles * sizeof(Sint32));
 	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
 	nameHashes = sortHashes;	
 
@@ -1402,7 +1402,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	}
 
 	// sort by hash and copy to final file table
-	qsort((void *)sortIndices, numFiles, sizeof(int), FS_PakFileCompare);
+	qsort((void *)sortIndices, numFiles, sizeof(Sint32), FS_PakFileCompare);
 	for (i=0; i < numFiles; i++)
 	{
 		strcpy(files[i].name, tmpFiles[sortIndices[i]].name);
@@ -1484,12 +1484,12 @@ void FS_AddGameDirectory (const char *dir)
 	fsSearchPath_t	*search;
 //	fsPack_t		*pack;
 	char			packPath[MAX_OSPATH];
-	int				i, j;
+	Sint32				i, j;
 	// VoiD -S- *.pak support
 	char *path = NULL;
 	char findname[1024];
 	char **dirnames;
-	int ndirs;
+	Sint32 ndirs;
 	char *tmp;
 	// VoiD -E- *.pak support
 
@@ -1547,7 +1547,7 @@ void FS_AddGameDirectory (const char *dir)
         {
             for ( j=0; j < ndirs-1; j++ )
             {	// don't reload numbered pak files
-				int		k;
+				Sint32		k;
 				char	buf[16];
 				char	buf2[16];
 				qboolean numberedpak = false;
@@ -1617,7 +1617,7 @@ void FS_Path_f (void)
 	fsSearchPath_t	*search;
 	fsHandle_t		*handle;
 	fsLink_t		*link;
-	int				totalFiles = 0, i;
+	Sint32				totalFiles = 0, i;
 
 	Com_Printf("Current search path:\n");
 
@@ -1763,7 +1763,7 @@ void FS_Shutdown (void)
 	fsHandle_t		*handle;
 	fsSearchPath_t	*next;
 	fsPack_t		*pack;
-	int				i;
+	Sint32				i;
 
 	Cmd_RemoveCommand("dir");
 	//Cmd_RemoveCommand("fdir");
@@ -1936,10 +1936,10 @@ void FS_ExecAutoexec (void)
 FS_ListFiles
 ================
 */
-char **FS_ListFiles (char *findname, int *numfiles, unsigned musthave, unsigned canthave)
+char **FS_ListFiles (char *findname, Sint32 *numfiles, unsigned musthave, unsigned canthave)
 {
 	char *s;
-	int nfiles = 0;
+	Sint32 nfiles = 0;
 	char **list = 0;
 
 	s = Sys_FindFirst( findname, musthave, canthave );
@@ -1988,9 +1988,9 @@ char **FS_ListFiles (char *findname, int *numfiles, unsigned musthave, unsigned 
 FS_FreeFileList
 =================
 */
-void FS_FreeFileList (char **list, int n)
+void FS_FreeFileList (char **list, Sint32 n)
 {
-	int i;
+	Sint32 i;
 
 	for (i = 0; i < n; i++)
 	{
@@ -2008,9 +2008,9 @@ void FS_FreeFileList (char **list, int n)
 FS_ItemInList
 =================
 */
-qboolean FS_ItemInList (char *check, int num, char **list)
+qboolean FS_ItemInList (char *check, Sint32 num, char **list)
 {
-	int i;
+	Sint32 i;
 	for (i=0;i<num;i++)
 		if (!Q_strcasecmp(check, list[i]))
 			return true;
@@ -2022,9 +2022,9 @@ qboolean FS_ItemInList (char *check, int num, char **list)
 FS_InsertInList
 =================
 */
-void FS_InsertInList (char **list, char *insert, int len, int start)
+void FS_InsertInList (char **list, char *insert, Sint32 len, Sint32 start)
 {
-	int i;
+	Sint32 i;
 	if (!list) return;
 
 	for (i=start; i<len; i++)
@@ -2049,7 +2049,7 @@ void FS_Dir_f (void)
 	char	findname[1024];
 	char	wildcard[1024] = "*.*";
 	char	**dirnames;
-	int		ndirs;
+	Sint32		ndirs;
 
 	if ( Cmd_Argc() != 1 )
 	{
@@ -2073,7 +2073,7 @@ void FS_Dir_f (void)
 
 		if ( ( dirnames = FS_ListFiles( findname, &ndirs, 0, 0 ) ) != 0 )
 		{
-			int i;
+			Sint32 i;
 
 			for ( i = 0; i < ndirs-1; i++ )
 			{

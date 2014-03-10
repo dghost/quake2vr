@@ -11,8 +11,8 @@ typedef enum {
 } rift_t;
 
 typedef struct {
-	unsigned int hmdHeight;
-	unsigned int hmdWidth;
+	Uint32 hmdHeight;
+	Uint32 hmdWidth;
 	float aspect;
 	float ipd;
 	float projOffset;

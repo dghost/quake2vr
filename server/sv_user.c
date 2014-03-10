@@ -58,7 +58,7 @@ This will be sent on the initial connection and upon each server load.
 void SV_New_f (void)
 {
 	char		*gamedir;
-	int			playernum;
+	Sint32			playernum;
 	edict_t		*ent;
 
 	Com_DPrintf ("New() from %s\n", sv_client->name);
@@ -123,7 +123,7 @@ SV_Configstrings_f
 */
 void SV_Configstrings_f (void)
 {
-	int			startPos, start;
+	Sint32			startPos, start;
 
 	Com_DPrintf ("Configstrings() from %s\n", sv_client->name);
 
@@ -186,7 +186,7 @@ SV_Baselines_f
 */
 void SV_Baselines_f (void)
 {
-	int				startPos, start;
+	Sint32				startPos, start;
 	entity_state_t	nullstate;
 	entity_state_t	*base;
 
@@ -304,9 +304,9 @@ SV_NextDownload_f
 */
 void SV_NextDownload_f (void)
 {
-	int		r;
-	int		percent;
-	int		size;
+	Sint32		r;
+	Sint32		percent;
+	Sint32		size;
 
 	if (!sv_client->download)
 		return;
@@ -344,9 +344,9 @@ void SV_BeginDownload_f(void)
 	char		*name, *p;
 	size_t		length;
 	qboolean	valid;
-//	extern int	file_from_pak; // ZOID did file come from pak?
+//	extern Sint32	file_from_pak; // ZOID did file come from pak?
 
-	int offset = 0;
+	Sint32 offset = 0;
 
 	name = Cmd_Argv(1);
 
@@ -500,7 +500,7 @@ void SV_ShowServerinfo_f (void)
 	// r1ch: this is a client issued command !
 	char *s;
 	char *p;
-	int flip;
+	Sint32 flip;
 
 	s = Cvar_Serverinfo();
 
@@ -671,17 +671,17 @@ The current net_message is parsed for the given client
 */
 void SV_ExecuteClientMessage (client_t *cl)
 {
-	int		c;
+	Sint32		c;
 	char	*s;
 
 	usercmd_t	nullcmd;
 	usercmd_t	oldest, oldcmd, newcmd;
-	int		net_drop;
-	int		stringCmdCount;
-	int		checksum, calculatedChecksum;
-	int		checksumIndex;
+	Sint32		net_drop;
+	Sint32		stringCmdCount;
+	Sint32		checksum, calculatedChecksum;
+	Sint32		checksumIndex;
 	qboolean	move_issued;
-	int		lastframe;
+	Sint32		lastframe;
 
 	sv_client = cl;
 	sv_player = sv_client->edict;

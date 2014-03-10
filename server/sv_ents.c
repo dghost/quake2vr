@@ -34,7 +34,7 @@ Encode a client frame onto the network channel
 // network protocol for them
 #define	MAX_PROJECTILES		64
 edict_t	*projectiles[MAX_PROJECTILES];
-int		numprojs;
+Sint32		numprojs;
 cvar_t  *sv_projectiles;
 
 qboolean SV_AddProjectileUpdate (edict_t *ent)
@@ -57,10 +57,10 @@ qboolean SV_AddProjectileUpdate (edict_t *ent)
 void SV_EmitProjectileUpdate (sizebuf_t *msg)
 {
 	byte	bits[16];	// [modelindex] [48 bits] xyz p y 12 12 12 8 8 [entitynum] [e2]
-	int		n, i;
+	Sint32		n, i;
 	edict_t	*ent;
-	int		x, y, z, p, yaw;
-	int len;
+	Sint32		x, y, z, p, yaw;
+	Sint32 len;
 
 	if (!numprojs)
 		return;
@@ -70,11 +70,11 @@ void SV_EmitProjectileUpdate (sizebuf_t *msg)
 	for (n=0 ; n<numprojs ; n++)
 	{
 		ent = projectiles[n];
-		x = (int)(ent->s.origin[0]+4096)>>1;
-		y = (int)(ent->s.origin[1]+4096)>>1;
-		z = (int)(ent->s.origin[2]+4096)>>1;
-		p = (int)(256*ent->s.angles[0]/360)&255;
-		yaw = (int)(256*ent->s.angles[1]/360)&255;
+		x = (Sint32)(ent->s.origin[0]+4096)>>1;
+		y = (Sint32)(ent->s.origin[1]+4096)>>1;
+		z = (Sint32)(ent->s.origin[2]+4096)>>1;
+		p = (Sint32)(256*ent->s.angles[0]/360)&255;
+		yaw = (Sint32)(256*ent->s.angles[1]/360)&255;
 
 		len = 0;
 		bits[len++] = x;
@@ -89,9 +89,9 @@ void SV_EmitProjectileUpdate (sizebuf_t *msg)
 			ent->s.old_origin[1] != ent->s.origin[1] ||
 			ent->s.old_origin[2] != ent->s.origin[2]) {
 			bits[len-1] |= 128;
-			x = (int)(ent->s.old_origin[0]+4096)>>1;
-			y = (int)(ent->s.old_origin[1]+4096)>>1;
-			z = (int)(ent->s.old_origin[2]+4096)>>1;
+			x = (Sint32)(ent->s.old_origin[0]+4096)>>1;
+			y = (Sint32)(ent->s.old_origin[1]+4096)>>1;
+			z = (Sint32)(ent->s.old_origin[2]+4096)>>1;
 			bits[len++] = x;
 			bits[len++] = (x>>8) | (y<<4);
 			bits[len++] = (y>>4);
@@ -125,10 +125,10 @@ Writes a delta update of an entity_state_t list to the message.
 void SV_EmitPacketEntities (client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 {
 	entity_state_t	*oldent, *newent;
-	int		oldindex, newindex;
-	int		oldnum, newnum;
-	int		from_num_entities;
-	int		bits;
+	Sint32		oldindex, newindex;
+	Sint32		oldnum, newnum;
+	Sint32		from_num_entities;
+	Sint32		bits;
 
 #if 0
 	if (numprojs)
@@ -219,11 +219,11 @@ SV_WritePlayerstateToClient
 */
 void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 {
-	int				i;
-	int				pflags;
+	Sint32				i;
+	Sint32				pflags;
 	player_state_t	*ps, *ops;
 	player_state_t	dummy;
-	int				statbits;
+	Sint32				statbits;
 
 	ps = &to->ps;
 	if (!from)
@@ -402,7 +402,7 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 		MSG_WriteChar (msg, ps->kick_angles[2]*4);
 	}
 
-	if (pflags & PS_WEAPONINDEX)	//Knightmare- 12/23/2001- send as short
+	if (pflags & PS_WEAPONINDEX)	//Knightmare- 12/23/2001- send as Sint16
 		MSG_WriteShort (msg, ps->gunindex);
 
 #ifdef NEW_PLAYER_STATE_MEMBERS	//Knightmare added
@@ -484,7 +484,7 @@ SV_WriteFrameToClient
 void SV_WriteFrameToClient (client_t *client, sizebuf_t *msg)
 {
 	client_frame_t		*frame, *oldframe;
-	int					lastframe;
+	Sint32					lastframe;
 
 	//Com_Printf ("%i -> %i\n", client->lastframe, sv.framenum);
 	// this is the frame we are creating
@@ -545,9 +545,9 @@ so we can't use a single PVS point
 */
 void SV_FatPVS (vec3_t org)
 {
-	int		leafs[64];
-	int		i, j, count;
-	int		longs;
+	Sint32		leafs[64];
+	Sint32		i, j, count;
+	Sint32		longs;
 	byte	*src;
 	vec3_t	mins, maxs;
 
@@ -592,16 +592,16 @@ copies off the playerstat and areabits.
 */
 void SV_BuildClientFrame (client_t *client)
 {
-	int		e, i;
+	Sint32		e, i;
 	vec3_t	org;
 	edict_t	*ent;
 	edict_t	*clent;
 	client_frame_t	*frame;
 	entity_state_t	*state;
-	int		l;
-	int		clientarea, clientcluster;
-	int		leafnum;
-	int		c_fullsend;
+	Sint32		l;
+	Sint32		clientarea, clientcluster;
+	Sint32		leafnum;
+	Sint32		c_fullsend;
 	byte	*clientphs;
 	byte	*bitvector;
 
@@ -757,12 +757,12 @@ Used for recording footage for merged or assembled demos
 */
 void SV_RecordDemoMessage (void)
 {
-	int			e;
+	Sint32			e;
 	edict_t		*ent;
 	entity_state_t	nostate;
 	sizebuf_t	buf;
 	byte		buf_data[32768];
-	int			len;
+	Sint32			len;
 
 	if (!svs.demofile)
 		return;

@@ -59,7 +59,7 @@ char		m_mapname[MAX_QPATH];
 
 void Load_Savestrings (qboolean update)
 {
-	int		i;
+	Sint32		i;
 	FILE	*fp;
 	fileHandle_t	f;
 	char	name[MAX_OSPATH];
@@ -124,7 +124,7 @@ void Load_Savestrings (qboolean update)
 
 void ValidateSaveshots (void)
 {
-	int i;
+	Sint32 i;
 	char shotname [MAX_QPATH];
 //	char mapshotname [MAX_QPATH];
 
@@ -179,7 +179,7 @@ void UI_UpdateSavegameData (void)
 
 void UI_InitSavegameData (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0; i<MAX_SAVEGAMES; i++) {
 		m_savetimestamps[i] = 0;
@@ -201,7 +201,7 @@ void DrawSaveshot (qboolean loadmenu)
 {
 	char shotname [MAX_QPATH];
 	char mapshotname [MAX_QPATH];
-	int i;
+	Sint32 i;
 
 	
 	if (loadmenu)
@@ -267,7 +267,7 @@ void LoadGameCallback( void *self )
 
 void LoadGame_MenuInit ( void )
 {
-	int i;
+	Sint32 i;
 
 	UI_UpdateSavegameData ();
 
@@ -314,7 +314,7 @@ void LoadGame_MenuDraw( void )
 	DrawSaveshot (true);
 }
 
-const char *LoadGame_MenuKey( int key )
+const char *LoadGame_MenuKey( Sint32 key )
 {
 	if ( key == K_ESCAPE || key == K_ENTER )
 	{
@@ -358,7 +358,7 @@ void SaveGame_MenuDraw( void )
 
 void SaveGame_MenuInit( void )
 {
-	int i;
+	Sint32 i;
 
 	UI_UpdateSavegameData ();
 
@@ -395,7 +395,7 @@ void SaveGame_MenuInit( void )
 //	ValidateSaveshots (false);
 }
 
-const char *SaveGame_MenuKey( int key )
+const char *SaveGame_MenuKey( Sint32 key )
 {
 	if ( key == K_ENTER || key == K_ESCAPE )
 	{

@@ -41,6 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <SDL_stdinc.h>
+
 #include <time.h>
 
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY
@@ -49,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define id386	0
 #endif
 
-typedef unsigned char 		byte;
+typedef Uint8 		byte;
 typedef enum {false, true}	qboolean;
 
 
@@ -67,8 +69,8 @@ typedef enum {false, true}	qboolean;
 // from Quake3 source
 #ifdef WIN32
 //#define Q_vsnprintf _vsnprintf
-__inline int Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_list Args) {
-	int ret = _vsnprintf(Dest, Count, Format, Args);
+__inline Sint32 Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_list Args) {
+	Sint32 ret = _vsnprintf(Dest, Count, Format, Args);
 	Dest[Count-1] = 0;	// null terminate
 	return ret;
 }
@@ -200,9 +202,9 @@ typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
-typedef	int	fixed4_t;
-typedef	int	fixed8_t;
-typedef	int	fixed16_t;
+typedef	Sint32	fixed4_t;
+typedef	Sint32	fixed8_t;
+typedef	Sint32	fixed16_t;
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
@@ -226,7 +228,7 @@ extern vec3_t vec3_origin;
 
 #define	nanmask (255<<23)
 
-#define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
+#define	IS_NAN(x) (((*(Sint32 *)&x)&nanmask)==nanmask)
 
 // microsoft's fabs seems to be ungodly slow...
 //float Q_fabs (float f);
@@ -255,14 +257,14 @@ void _VectorCopy (vec3_t in, vec3_t out);
 
 void ClearBounds (vec3_t mins, vec3_t maxs);
 void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs);
-int VectorCompare (vec3_t v1, vec3_t v2);
+Sint32 VectorCompare (vec3_t v1, vec3_t v2);
 vec_t VectorLength (vec3_t v);
 void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross);
 vec_t VectorNormalize (vec3_t v);		// returns vector length
 vec_t VectorNormalize2 (vec3_t v, vec3_t out);
 void VectorInverse (vec3_t v);
 void VectorScale (vec3_t in, vec_t scale, vec3_t out);
-int Q_log2(int val);
+Sint32 Q_log2(Sint32 val);
 
 // From Q2E
 void VectorRotate (const vec3_t v, const vec3_t matrix[3], vec3_t out);
@@ -298,7 +300,7 @@ void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
 void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void MakeNormalVectors (vec3_t forward, vec3_t right, vec3_t up);
 void VecToAngleRolled (vec3_t value1, float angleyaw, vec3_t angles);
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
+Sint32 BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
 float	anglemod(float a);
 float LerpAngle (float a1, float a2, float frac);
 
@@ -336,10 +338,10 @@ char *COM_Parse (char **data_p);
 // data is an in/out parm, returns a parsed out token
 char *COM_ParseExt (char **data_p, qboolean allowNewLines);
 
-void Com_sprintf (char *dest, int size, char *fmt, ...);
-long Com_HashFileName (const char *fname, int hashSize, qboolean sized);
+void Com_sprintf (char *dest, Sint32 size, char *fmt, ...);
+long Com_HashFileName (const char *fname, Sint32 hashSize, qboolean sized);
 
-void Com_PageInMemory (byte *buffer, int size);
+void Com_PageInMemory (byte *buffer, Sint32 size);
 
 //=============================================
 
@@ -390,16 +392,16 @@ typedef enum {
 //=============================================
 
 // portable case insensitive compare
-int Q_stricmp (char *s1, char *s2);
-int Q_strcasecmp (char *s1, char *s2);
-int Q_strncasecmp (char *s1, char *s2, int n);
+Sint32 Q_stricmp (char *s1, char *s2);
+Sint32 Q_strcasecmp (char *s1, char *s2);
+Sint32 Q_strncasecmp (char *s1, char *s2, Sint32 n);
 
 //=============================================
 
-short	BigShort(short l);
-short	LittleShort(short l);
-int		BigLong (int l);
-int		LittleLong (int l);
+Sint16	BigShort(Sint16 l);
+Sint16	LittleShort(Sint16 l);
+Sint32		BigLong (Sint32 l);
+Sint32		LittleLong (Sint32 l);
 float	BigFloat (float l);
 float	LittleFloat (float l);
 
@@ -428,17 +430,17 @@ SYSTEM SPECIFIC
 ==============================================================
 */
 
-extern	int	curtime;		// time returned by last Sys_Milliseconds
+extern	Sint32	curtime;		// time returned by last Sys_Milliseconds
 
-int		Sys_Milliseconds (void);
+Sint32		Sys_Milliseconds (void);
 void	Sys_Mkdir (char *path);
 void	Sys_Rmdir (char *path);
 
 // large block stack allocation routines
-void	*Hunk_Begin (int maxsize);
-void	*Hunk_Alloc (int size);
+void	*Hunk_Begin (Sint32 maxsize);
+void	*Hunk_Alloc (Sint32 size);
 void	Hunk_Free (void *buf);
-int		Hunk_End (void);
+Sint32		Hunk_End (void);
 
 // directory searching
 #define SFF_ARCH    0x01
@@ -486,14 +488,14 @@ typedef struct cvar_s
 	char		*name;
 	char		*string;
 	char		*latched_string;	// for CVAR_LATCH vars
-	int			flags;
+	Sint32			flags;
 	qboolean	modified;	// set each time the cvar is changed
 	float		value;
 	struct cvar_s *next;
 	// Knightmare- added cvar defaults
 #ifdef KMQUAKE2_ENGINE_MOD
 	char		*default_string;
-	int			integer;
+	Sint32			integer;
 #endif
 } cvar_t;
 
@@ -629,14 +631,14 @@ typedef struct cmodel_s
 {
 	vec3_t		mins, maxs;
 	vec3_t		origin;		// for sounds or lights
-	int			headnode;
+	Sint32			headnode;
 } cmodel_t;
 
 typedef struct csurface_s
 {
 	char		name[16];
-	int			flags;
-	int			value;
+	Sint32			flags;
+	Sint32			value;
 } csurface_t;
 
 typedef struct mapsurface_s  // used internally due to name len probs //ZOID
@@ -654,7 +656,7 @@ typedef struct
 	vec3_t		endpos;		// final position
 	cplane_t	plane;		// surface normal at impact
 	csurface_t	*surface;	// surface hit
-	int			contents;	// contents on other side of surface hit
+	Sint32			contents;	// contents on other side of surface hit
 	struct edict_s	*ent;		// not set by CM_*() functions
 } trace_t;
 
@@ -692,15 +694,15 @@ typedef struct
 	pmtype_t	pm_type;
 
 #ifdef LARGE_MAP_SIZE
-	int			origin[3];		// 20.3
+	Sint32			origin[3];		// 20.3
 #else
-	short		origin[3];		// 12.3
+	Sint16		origin[3];		// 12.3
 #endif
-	short		velocity[3];	// 12.3
+	Sint16		velocity[3];	// 12.3
 	byte		pm_flags;		// ducked, jump_held, etc
 	byte		pm_time;		// each unit = 8 ms
-	short		gravity;
-	short		delta_angles[3];	// add to command angles to get view direction
+	Sint16		gravity;
+	Sint16		delta_angles[3];	// add to command angles to get view direction
 									// changed by spawns, rotating objects, and teleporters
 } pmove_state_t;
 
@@ -720,8 +722,8 @@ typedef struct usercmd_s
 {
 	byte	msec;
 	byte	buttons;
-	short	angles[3];
-	short	forwardmove, sidemove, upmove;
+	Sint16	angles[3];
+	Sint16	forwardmove, sidemove, upmove;
 	byte	impulse;		// remove?
 	byte	lightlevel;		// light level the player is standing on
 } usercmd_t;
@@ -738,7 +740,7 @@ typedef struct
 	qboolean		snapinitial;	// if s has been changed outside pmove
 
 	// results (out)
-	int			numtouch;
+	Sint32			numtouch;
 	struct edict_s	*touchents[MAXTOUCH];
 
 	vec3_t		viewangles;			// clamped
@@ -747,12 +749,12 @@ typedef struct
 	vec3_t		mins, maxs;			// bounding box size
 
 	struct edict_s	*groundentity;
-	int			watertype;
-	int			waterlevel;
+	Sint32			watertype;
+	Sint32			waterlevel;
 
 	// callbacks to test the world
 	trace_t		(*trace) (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
-	int			(*pointcontents) (vec3_t point);
+	Sint32			(*pointcontents) (vec3_t point);
 } pmove_t;
 
 
@@ -1356,7 +1358,7 @@ ROGUE - VERSIONS
 ==========================================================
 */
 
-#define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
+#define	ANGLE2SHORT(x)	((Sint32)((x)*65536/360) & 65535)
 #define	SHORT2ANGLE(x)	((x)*(360.0/65536))
 
 
@@ -1431,36 +1433,36 @@ typedef enum
 // need to render in some way
 typedef struct entity_state_s
 {
-	int		number;			// edict index
+	Sint32		number;			// edict index
 
 	vec3_t	origin;
 	vec3_t	angles;
 	vec3_t	old_origin;		// for lerping
-	int		modelindex;
-	int		modelindex2, modelindex3, modelindex4;	// weapons, CTF flags, etc
+	Sint32		modelindex;
+	Sint32		modelindex2, modelindex3, modelindex4;	// weapons, CTF flags, etc
 #ifdef NEW_ENTITY_STATE_MEMBERS // Knightmare- Privater wanted this
-	int		modelindex5, modelindex6; 	// more attached models
+	Sint32		modelindex5, modelindex6; 	// more attached models
 #ifndef LOOP_SOUND_ATTENUATION
-	int		modelindex7, modelindex8;
+	Sint32		modelindex7, modelindex8;
 #endif
 #endif
-	int		frame;
-	int		skinnum;
+	Sint32		frame;
+	Sint32		skinnum;
 #ifdef NEW_ENTITY_STATE_MEMBERS // Knightmare- allow the server to set this
 	float	alpha;	//entity transparency
 #endif
-	unsigned int		effects;		// PGM - we're filling it, so it needs to be unsigned
-	int		renderfx;
-	int		solid;			// for client side prediction, 8*(bits 0-4) is x/y radius
+	Uint32		effects;		// PGM - we're filling it, so it needs to be unsigned
+	Sint32		renderfx;
+	Sint32		solid;			// for client side prediction, 8*(bits 0-4) is x/y radius
 							// 8*(bits 5-9) is z down distance, 8(bits10-15) is z up
 							// gi.linkentity sets this properly
-	int		sound;			// for looping sounds, to guarantee shutoff
+	Sint32		sound;			// for looping sounds, to guarantee shutoff
 #ifdef NEW_ENTITY_STATE_MEMBERS // Knightmare- allow the server to set this
 #ifdef LOOP_SOUND_ATTENUATION // Knightmare- added sound attenuation
 	float	attenuation;
 #endif
 #endif
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	Sint32		event;			// impulse events -- muzzle flashes, footsteps, etc
 							// events only go out for a single frame, they
 							// are automatically cleared each frame
 } entity_state_t;
@@ -1485,30 +1487,30 @@ typedef struct
 
 	vec3_t		gunangles;
 	vec3_t		gunoffset;
-	int			gunindex;
-	int			gunframe;
+	Sint32			gunindex;
+	Sint32			gunframe;
 
 #ifdef NEW_PLAYER_STATE_MEMBERS // Knightmare added
-	int			gunskin;		// for animated weapon skins
-	int			gunindex2;		// for a second weapon model (boot)
-	int			gunframe2;
-	int			gunskin2;
+	Sint32			gunskin;		// for animated weapon skins
+	Sint32			gunindex2;		// for a second weapon model (boot)
+	Sint32			gunframe2;
+	Sint32			gunskin2;
 
 	// server-side speed control!
-	int			maxspeed;
-	int			duckspeed;
-	int			waterspeed;
-	int			accel;
-	int			stopspeed;
+	Sint32			maxspeed;
+	Sint32			duckspeed;
+	Sint32			waterspeed;
+	Sint32			accel;
+	Sint32			stopspeed;
 #endif							//end Knightmare
 
 	float		blend[4];		// rgba full screen effect
 	
 	float		fov;			// horizontal field of view
 
-	int			rdflags;		// refdef flags
+	Sint32			rdflags;		// refdef flags
 
-	short		stats[MAX_STATS];		// fast status bar updates
+	Sint16		stats[MAX_STATS];		// fast status bar updates
 } player_state_t;
 
 
@@ -1518,7 +1520,7 @@ typedef struct
 #define VIDREF_SOFT		2
 #define VIDREF_OTHER	3
 
-extern int vidref_val;
+extern Sint32 vidref_val;
 // PGM
 // ==================
 

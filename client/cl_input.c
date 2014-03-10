@@ -47,7 +47,7 @@ state bit 1 is edge triggered on the up to down transition
 state bit 2 is edge triggered on the down to up transition
 
 
-Key_Event (int key, qboolean down, unsigned time);
+Key_Event (Sint32 key, qboolean down, unsigned time);
 
   +mlook src time
 
@@ -61,12 +61,12 @@ kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
 kbutton_t	in_strafe, in_speed, in_use, in_attack, in_attack2;
 kbutton_t	in_up, in_down;
 
-int			in_impulse;
+Sint32			in_impulse;
 
 
 void KeyDown (kbutton_t *b)
 {
-	int		k;
+	Sint32		k;
 	char	*c;
 	
 	c = Cmd_Argv(1);
@@ -102,7 +102,7 @@ void KeyDown (kbutton_t *b)
 
 void KeyUp (kbutton_t *b)
 {
-	int		k;
+	Sint32		k;
 	char	*c;
 	unsigned	uptime;
 
@@ -191,7 +191,7 @@ Returns the fraction of the frame that the key was down
 float CL_KeyState (kbutton_t *key)
 {
 	float		val;
-	int			msec;
+	Sint32			msec;
 
 	key->state &= 1;		// clear impulses
 
@@ -307,7 +307,7 @@ void CL_BaseMove (usercmd_t *cmd)
 //
 // adjust for speed key / running
 //
-	if ( (in_speed.state & 1) ^ (int)(cl_run->value) )
+	if ( (in_speed.state & 1) ^ (Sint32)(cl_run->value) )
 	{
 		cmd->forwardmove *= 2;
 		cmd->sidemove *= 2;
@@ -351,8 +351,8 @@ CL_FinishMove
 */
 void CL_FinishMove (usercmd_t *cmd)
 {
-	int		ms;
-	int		i;
+	Sint32		ms;
+	Sint32		i;
 //
 // figure button bits
 //	
@@ -396,8 +396,8 @@ void VR_Move (usercmd_t *cmd)
 	vec3_t predAngles, predDelta, view;
 	vec3_t orientation, orientationDelta;
 	qboolean viewmove;
-	int i;
-	int mode = (int) vr_aimmode->value;
+	Sint32 i;
+	Sint32 mode = (Sint32) vr_aimmode->value;
 
 	if (mode == 6)
 		viewmove = true;
@@ -720,10 +720,10 @@ void CL_SendCmd (void)
 {
 	sizebuf_t	buf;
 	byte		data[128];
-	int			i;
+	Sint32			i;
 	usercmd_t	*cmd, *oldcmd;
 	usercmd_t	nullcmd;
-	int			checksumIndex;
+	Sint32			checksumIndex;
 
 	// clear buffer
 	memset (&buf, 0, sizeof(buf));

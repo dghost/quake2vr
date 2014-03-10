@@ -35,9 +35,9 @@ FRAME PARSING
 
 typedef struct
 {
-	int		modelindex;
-	int		num; // entity number
-	int		effects;
+	Sint32		modelindex;
+	Sint32		num; // entity number
+	Sint32		effects;
 	vec3_t	origin;
 	vec3_t	oldorigin;
 	vec3_t	angles;
@@ -49,7 +49,7 @@ projectile_t	cl_projectiles[MAX_PROJECTILES];
 
 void CL_ClearProjectiles (void)
 {
-	int i;
+	Sint32 i;
 
 	for (i = 0; i < MAX_PROJECTILES; i++) {
 //		if (cl_projectiles[i].present)
@@ -67,11 +67,11 @@ Flechettes are passed as efficient temporary entities
 */
 void CL_ParseProjectiles (void)
 {
-	int		i, c, j;
+	Sint32		i, c, j;
 	byte	bits[8];
 	byte	b;
 	projectile_t	pr;
-	int lastempty = -1;
+	Sint32 lastempty = -1;
 	qboolean old = false;
 
 	c = MSG_ReadByte (&net_message);
@@ -150,7 +150,7 @@ CL_LinkProjectiles
 */
 void CL_AddProjectiles (void)
 {
-	int		i, j;
+	Sint32		i, j;
 	projectile_t	*pr;
 	entity_t		ent;
 
@@ -193,12 +193,12 @@ CL_ParseEntityBits
 Returns the entity number and the header bits
 =================
 */
-int	bitcounts[32];	/// just for protocol profiling
-int CL_ParseEntityBits (unsigned *bits)
+Sint32	bitcounts[32];	/// just for protocol profiling
+Sint32 CL_ParseEntityBits (unsigned *bits)
 {
 	unsigned	b, total;
-	int			i;
-	int			number;
+	Sint32			i;
+	Sint32			number;
 
 	total = MSG_ReadByte (&net_message);
 	if (total & U_MOREBITS1)
@@ -239,7 +239,7 @@ CL_ParseDelta
 Can go from either a baseline or a previous packet_entity
 ==================
 */
-void CL_ParseDelta (entity_state_t *from, entity_state_t *to, int number, int bits)
+void CL_ParseDelta (entity_state_t *from, entity_state_t *to, Sint32 number, Sint32 bits)
 {
 	// set everything to the state we are delta'ing from
 	*to = *from;
@@ -318,7 +318,7 @@ void CL_ParseDelta (entity_state_t *from, entity_state_t *to, int number, int bi
 	else //new CL_ParseDelta code
 	{
 	#ifndef NEW_ENTITY_STATE_MEMBERS
-		int ignore;	// holder for messages to be ignored
+		Sint32 ignore;	// holder for messages to be ignored
 	#endif
 		// Knightmare- 12/23/2001- read model indices as shorts 
 		if (bits & U_MODEL)
@@ -437,7 +437,7 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity (frame_t *frame, int newnum, entity_state_t *old, int bits)
+void CL_DeltaEntity (frame_t *frame, Sint32 newnum, entity_state_t *old, Sint32 bits)
 {
 	centity_t	*ent;
 	entity_state_t	*state;
@@ -509,10 +509,10 @@ rest of the data stream.
 */
 void CL_ParsePacketEntities (frame_t *oldframe, frame_t *newframe)
 {
-	int			newnum;
-	int			bits;
+	Sint32			newnum;
+	Sint32			bits;
 	entity_state_t	*oldstate;
-	int			oldindex, oldnum;
+	Sint32			oldindex, oldnum;
 
 	newframe->parse_entities = cl.parse_entities;
 	newframe->num_entities = 0;
@@ -636,10 +636,10 @@ CL_ParsePlayerstate
 */
 void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 {
-	int			flags;
+	Sint32			flags;
 	player_state_t	*state;
-	int			i;
-	int			statbits;
+	Sint32			i;
+	Sint32			statbits;
 
 
 	state = &newframe->playerstate;
@@ -829,7 +829,7 @@ void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 			state->kick_angles[2] = MSG_ReadChar (&net_message) * 0.25;
 		}
 
-		//Knightmare 4/5/2002- read as short
+		//Knightmare 4/5/2002- read as Sint16
 		if (flags & PS_WEAPONINDEX)
 			state->gunindex = MSG_ReadShort (&net_message);
 
@@ -922,7 +922,7 @@ CL_FireEntityEvents
 void CL_FireEntityEvents (frame_t *frame)
 {
 	entity_state_t		*s1;
-	int					pnum, num;
+	Sint32					pnum, num;
 
 	for (pnum = 0 ; pnum<frame->num_entities ; pnum++)
 	{
@@ -948,8 +948,8 @@ CL_ParseFrame
 */
 void CL_ParseFrame (void)
 {
-	int			cmd;
-	int			len;
+	Sint32			cmd;
+	Sint32			len;
 	frame_t		*old;
 
 	memset (&cl.frame, 0, sizeof(cl.frame));
@@ -1068,7 +1068,7 @@ INTERPOLATE BETWEEN FRAMES TO GET RENDERING PARMS
 
 struct model_s *S_RegisterSexedModel (entity_state_t *ent, char *base)
 {
-	int				n;
+	Sint32				n;
 	char			*p;
 	struct model_s	*mdl;
 	char			model[MAX_QPATH];
@@ -1136,12 +1136,12 @@ void CL_AddPacketEntities (frame_t *frame)
 	entity_t			ent;
 	entity_state_t		*s1;
 	float				autorotate;
-	int					i;
-	int					pnum;
+	Sint32					i;
+	Sint32					pnum;
 	centity_t			*cent;
-	int					autoanim;
+	Sint32					autoanim;
 	clientinfo_t		*ci;
-	unsigned int		effects, renderfx;
+	Uint32		effects, renderfx;
 
 	// bonus items rotate at a fixed rate
 	autorotate = anglemod(cl.time/10);
@@ -1729,7 +1729,7 @@ void CL_AddPacketEntities (frame_t *frame)
 			}
 			else if (effects & EF_BFG)
 			{
-				static int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
+				static Sint32 bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
 
 				if (effects & EF_ANIM_ALLFAST)
 				{
@@ -1844,7 +1844,7 @@ CL_AddViewWeapon
 void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 {
 	entity_t	gun;		// view model
-	int			i;
+	Sint32			i;
 #ifdef NEW_PLAYER_STATE_MEMBERS //Knightmare- second gun model
 	entity_t	gun2;		// view model
 #endif
@@ -1919,13 +1919,13 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		//add shells for viewweaps (all of em!)
 		if (cl_weapon_shells->value)
 		{
-			int oldeffects = gun.flags, pnum;
+			Sint32 oldeffects = gun.flags, pnum;
 			entity_state_t	*s1;
 
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int effects = s1->renderfx;
+					Sint32 effects = s1->renderfx;
 
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
@@ -2004,13 +2004,13 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		//add shells for viewweaps (all of em!)
 		if (cl_weapon_shells->value)
 		{
-			int oldeffects = gun2.flags, pnum;
+			Sint32 oldeffects = gun2.flags, pnum;
 			entity_state_t	*s1;
 
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int effects = s1->renderfx;
+					Sint32 effects = s1->renderfx;
 
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
@@ -2179,7 +2179,7 @@ Sets cl.refdef view values
 
 void CL_CalcViewValues (void)
 {
-	int			i;
+	Sint32			i;
 	float		lerp, backlerp;
 	centity_t	*ent;
 	frame_t		*oldframe;
@@ -2303,7 +2303,7 @@ void CL_CalcViewValues (void)
 		vec3_t gun_origin;
 		vec3_t gun_angles;
 		trace_t trace;
-		int i;
+		Sint32 i;
 
 		for (i = 0; i < 3; i++)
 		{
@@ -2314,7 +2314,7 @@ void CL_CalcViewValues (void)
 		VectorCopy(cl.refdef.aimangles, gun_angles);
 
 		/*
-		if ((int) vr_crosshair->value == VR_CROSSHAIR_LASER)
+		if ((Sint32) vr_crosshair->value == VR_CROSSHAIR_LASER)
 		{
 			for (i = 0; i < 3; i++)
 			{
@@ -2326,13 +2326,13 @@ void CL_CalcViewValues (void)
 		AngleVectors(gun_angles,forward,right,NULL);
 	
 		// right handed
-		if ((int) hand->value == 0)
+		if ((Sint32) hand->value == 0)
 			VectorSet(distance,8,8,-8);
 		// left handed
-		else if ((int) hand->value == 1)
+		else if ((Sint32) hand->value == 1)
 			VectorSet(distance,8,-8,-8);
 		// center
-		else if ((int) hand->value == 2)
+		else if ((Sint32) hand->value == 2)
 			VectorSet(distance,8,0,-8);
 			
 		CL_ProjectSource(gun_origin,distance,forward,right,cl.refdef.aimstart);
@@ -2414,7 +2414,7 @@ CL_GetEntitySoundOrigin
 Called to get the sound spatialization origin
 ===============
 */
-void CL_GetEntitySoundOrigin (int ent, vec3_t org)
+void CL_GetEntitySoundOrigin (Sint32 ent, vec3_t org)
 {
 	centity_t	*old;
 

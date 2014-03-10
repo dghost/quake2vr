@@ -62,7 +62,7 @@ char *currentweaponmodel;
 
 typedef struct
 {
-	int		nskins;
+	Sint32		nskins;
 	char	**skindisplaynames;
 	char	displayname[MAX_DISPLAYNAME];
 	char	directory[MAX_QPATH];
@@ -70,9 +70,9 @@ typedef struct
 
 static playermodelinfo_s s_pmi[MAX_PLAYERMODELS];
 static char *s_pmnames[MAX_PLAYERMODELS];
-static int s_numplayermodels;
+static Sint32 s_numplayermodels;
 
-static int rate_tbl[] = { 2500, 3200, 5000, 10000, 25000, 0 };
+static Sint32 rate_tbl[] = { 2500, 3200, 5000, 10000, 25000, 0 };
 static const char *rate_names[] = { "28.8 Modem", "33.6 Modem", "Single ISDN",
 	"Dual ISDN/Cable", "T1/LAN", "User defined", 0 };
 
@@ -128,9 +128,9 @@ static void SkinCallback (void *unused)
 	playerskin = R_RegisterSkin(scratch);
 }
 
-static qboolean IconOfSkinExists (char *skin, char **files, int nfiles, char *suffix)
+static qboolean IconOfSkinExists (char *skin, char **files, Sint32 nfiles, char *suffix)
 {
-	int i;
+	Sint32 i;
 	char scratch[1024];
 
 	strcpy(scratch, skin);
@@ -149,9 +149,9 @@ static qboolean IconOfSkinExists (char *skin, char **files, int nfiles, char *su
 
 
 // adds menu support for TGA and JPG skins
-static qboolean IsValidSkin (char **filelist, int numFiles, int index)
+static qboolean IsValidSkin (char **filelist, Sint32 numFiles, Sint32 index)
 {
-	int		len = strlen(filelist[index]);
+	Sint32		len = strlen(filelist[index]);
 
 	if (	!strcmp (filelist[index]+max(len-4,0), ".pcx")
 		||  !strcmp (filelist[index]+max(len-4,0), ".jpg")
@@ -174,12 +174,12 @@ static qboolean PlayerConfig_ScanDirectories (void)
 {
 	char findname[1024];
 	char scratch[1024];
-	int ndirs = 0, npms = 0;
+	Sint32 ndirs = 0, npms = 0;
 	char **dirnames;
 	char *path = NULL;
-	int i;
+	Sint32 i;
 
-	//extern char **FS_ListFiles (char *, int *, unsigned, unsigned);
+	//extern char **FS_ListFiles (char *, Sint32 *, unsigned, unsigned);
 
 	s_numplayermodels = 0;
 
@@ -212,12 +212,12 @@ static qboolean PlayerConfig_ScanDirectories (void)
 
 		for (i = 0; i < npms; i++)
 		{
-			int			k, s;
+			Sint32			k, s;
 			char		*a, *b, *c;
 			char		**skinnames;
 			char		**imagenames;
-			int			nimagefiles;
-			int			nskins = 0;
+			Sint32			nimagefiles;
+			Sint32			nskins = 0;
 			qboolean	already_added = false;	
 
 			if (dirnames[i] == 0)
@@ -295,7 +295,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
 			s_pmi[s_numplayermodels].nskins = nskins;
 			s_pmi[s_numplayermodels].skindisplaynames = skinnames;
 
-			// make short name for the model
+			// make Sint16 name for the model
 			a = strrchr(dirnames[i], '/');
 			b = strrchr(dirnames[i], '\\');
 
@@ -320,7 +320,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
 }
 
 
-static int pmicmpfnc (const void *_a, const void *_b)
+static Sint32 pmicmpfnc (const void *_a, const void *_b)
 {
 	const playermodelinfo_s *a = (const playermodelinfo_s *) _a;
 	const playermodelinfo_s *b = (const playermodelinfo_s *) _b;
@@ -343,7 +343,7 @@ static int pmicmpfnc (const void *_a, const void *_b)
 
 void PConfigAccept (void)
 {
-	int i;
+	Sint32 i;
 	char scratch[1024];
 
 	Cvar_Set( "name", s_player_name_field.buffer );
@@ -356,7 +356,7 @@ void PConfigAccept (void)
 
 	for ( i = 0; i < s_numplayermodels; i++ )
 	{
-		int j;
+		Sint32 j;
 
 		for ( j = 0; j < s_pmi[i].nskins; j++ )
 		{
@@ -385,11 +385,11 @@ qboolean PlayerConfig_MenuInit (void)
 	char currentdirectory[1024];
 	char currentskin[1024];
 	char scratch[MAX_QPATH];
-	int i = 0;
-	int y = 0;
+	Sint32 i = 0;
+	Sint32 y = 0;
 
-	int currentdirectoryindex = 0;
-	int currentskinindex = 0;
+	Sint32 currentdirectoryindex = 0;
+	Sint32 currentskinindex = 0;
 
 	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 
@@ -429,7 +429,7 @@ qboolean PlayerConfig_MenuInit (void)
 		s_pmnames[i] = s_pmi[i].displayname;
 		if ( Q_stricmp( s_pmi[i].directory, currentdirectory ) == 0 )
 		{
-			int j;
+			Sint32 j;
 
 			currentdirectoryindex = i;
 
@@ -571,7 +571,7 @@ qboolean PlayerConfig_MenuInit (void)
 }
 
 
-qboolean PlayerConfig_CheckIncerement (int dir, float x, float y, float w, float h)
+qboolean PlayerConfig_CheckIncerement (Sint32 dir, float x, float y, float w, float h)
 {
 	float min[2], max[2], x1, y1, w1, h1;
 	char *sound = NULL;
@@ -616,7 +616,7 @@ void PlayerConfig_MouseClick (void)
 	float	icon_x = SCREEN_WIDTH*0.5 - 5, //width - 325
 			icon_y = SCREEN_HEIGHT - 108,
 			icon_offset = 0;
-	int		i, count;
+	Sint32		i, count;
 	char	*sound = NULL;
 	buttonmenuobject_t buttons[NUM_SKINBOX_ITEMS];
 
@@ -683,9 +683,9 @@ void PlayerConfig_DrawSkinSelection (void)
 	float	icon_y = SCREEN_HEIGHT - 108;
 	float	icon_offset = 0;
 	float	x, y, w, h;
-	int		i, count, color[3];
+	Sint32		i, count, color[3];
 
-	ColorLookup((int)Cvar_VariableValue("alt_text_color"), &color[0], &color[1], &color[2]);
+	ColorLookup((Sint32)Cvar_VariableValue("alt_text_color"), &color[0], &color[1], &color[2]);
 
 	if (s_pmi[s_player_model_box.curvalue].nskins<NUM_SKINBOX_ITEMS || s_player_skin_box.curvalue<4)
 		i=0;
@@ -706,7 +706,7 @@ void PlayerConfig_DrawSkinSelection (void)
 	if (R_DrawFindPic("/gfx/ui/listbox_background.pcx")) {
 		x = icon_x-2;	y = icon_y-2;	w = NUM_SKINBOX_ITEMS*34+2;	h = 36;
 		SCR_AdjustFrom640 (&x, &y, &w, &h, ALIGN_CENTER);
-		R_DrawTileClear ((int)x, (int)y, (int)w, (int)h, "/gfx/ui/listbox_background.pcx");
+		R_DrawTileClear ((Sint32)x, (Sint32)y, (Sint32)w, (Sint32)h, "/gfx/ui/listbox_background.pcx");
 	}
 	else
 		SCR_DrawFill (icon_x-2, icon_y-2, NUM_SKINBOX_ITEMS*34+2, 36, ALIGN_CENTER, 60,60,60,255);
@@ -756,8 +756,8 @@ void PlayerConfig_MenuDraw (void)
  
 	if ( s_pmi[s_player_model_box.curvalue].skindisplaynames )
 	{
-		int			yaw;
-		int			maxframe = 29;
+		Sint32			yaw;
+		Sint32			maxframe = 29;
 		vec3_t		modelOrg;
 		// Psychopspaz's support for showing weapon model
 		entity_t	entity[2], *ent;
@@ -846,7 +846,7 @@ void PlayerConfig_MenuDraw (void)
 }
 
 
-const char *PlayerConfig_MenuKey (int key)
+const char *PlayerConfig_MenuKey (Sint32 key)
 {
 	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
 		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START

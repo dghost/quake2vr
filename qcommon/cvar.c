@@ -79,7 +79,7 @@ float Cvar_VariableValue (char *var_name)
 Cvar_VariableInteger
 =================
 */
-int Cvar_VariableInteger (char *var_name)
+Sint32 Cvar_VariableInteger (char *var_name)
 {
 	cvar_t	*var;
 
@@ -148,7 +148,7 @@ Cvar_CompleteVariable
 char *Cvar_CompleteVariable (char *partial)
 {
 	cvar_t		*cvar;
-	int			len;
+	Sint32			len;
 	
 	len = strlen(partial);
 	
@@ -177,7 +177,7 @@ If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get (char *var_name, char *var_value, int flags)
+cvar_t *Cvar_Get (char *var_name, char *var_value, Sint32 flags)
 {
 	cvar_t	*var;
 	
@@ -365,7 +365,7 @@ cvar_t *Cvar_SetToDefault (char *var_name)
 Cvar_FullSet
 ============
 */
-cvar_t *Cvar_FullSet (char *var_name, char *value, int flags)
+cvar_t *Cvar_FullSet (char *var_name, char *value, Sint32 flags)
 {
 	cvar_t	*var;
 	
@@ -399,8 +399,8 @@ void Cvar_SetValue (char *var_name, float value)
 {
 	char	val[32];
 
-	if (value == (int)value)
-		Com_sprintf (val, sizeof(val), "%i",(int)value);
+	if (value == (Sint32)value)
+		Com_sprintf (val, sizeof(val), "%i",(Sint32)value);
 	else
 		Com_sprintf (val, sizeof(val), "%f",value);
 	Cvar_Set (var_name, val);
@@ -412,7 +412,7 @@ void Cvar_SetValue (char *var_name, float value)
 Cvar_SetInteger
 =================
 */
-void Cvar_SetInteger (char *var_name, int integer)
+void Cvar_SetInteger (char *var_name, Sint32 integer)
 {
 	char	val[32];
 
@@ -523,8 +523,8 @@ Allows setting and defining of arbitrary cvars from console
 */
 void Cvar_Set_f (void)
 {
-	int		c;
-	int		flags;
+	Sint32		c;
+	Sint32		flags;
 
 	c = Cmd_Argc();
 	if (c != 3 && c != 4)
@@ -638,7 +638,7 @@ Cvar_List_f
 void Cvar_List_f (void)
 {
 	cvar_t	*var;
-	int		i, j, c;
+	Sint32		i, j, c;
 	char	*wc;
 
 	// RIOT's Quake3-sytle cvarlist
@@ -704,7 +704,7 @@ void Cvar_List_f (void)
 qboolean userinfo_modified;
 
 
-char	*Cvar_BitInfo (int bit)
+char	*Cvar_BitInfo (Sint32 bit)
 {
 	static char	info[MAX_INFO_STRING];
 	cvar_t	*var;

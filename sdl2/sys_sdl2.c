@@ -35,8 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
-int			starttime;
-int			ActiveApp;
+Sint32			starttime;
+Sint32			ActiveApp;
 qboolean	Minimized;
 
 static HANDLE		hinput, houtput;
@@ -50,7 +50,7 @@ unsigned	sys_frame_time;
 
 
 #define	MAX_NUM_ARGVS	128
-int			argc;
+Sint32			argc;
 char		*argv[MAX_NUM_ARGVS];
 
 /*
@@ -58,10 +58,10 @@ char		*argv[MAX_NUM_ARGVS];
 Sys_Milliseconds
 ================
 */
-int	curtime;
-int Sys_Milliseconds (void)
+Sint32	curtime;
+Sint32 Sys_Milliseconds (void)
 {
-	static int		base;
+	static Sint32		base;
 	static qboolean	initialized = false;
 
 	if (!initialized)
@@ -82,7 +82,7 @@ DEDICATED CONSOLE
 ===============================================================================
 */
 static char	console_text[256];
-static int	console_textlen;
+static Sint32	console_textlen;
 
 /*
 ================
@@ -112,8 +112,8 @@ Sys_ConsoleInput
 char *Sys_ConsoleInput (void)
 {
 	INPUT_RECORD	recs[1024];
-	int		dummy;
-	int		ch, numread, numevents;
+	Sint32		dummy;
+	Sint32		ch, numread, numevents;
 
 	if (!dedicated || !dedicated->value)
 		return NULL;
@@ -187,7 +187,7 @@ Print text to the dedicated console
 */
 void Sys_ConsoleOutput (char *string)
 {
-	int		dummy;
+	Sint32		dummy;
 	char	text[256];
 
 	if (!dedicated || !dedicated->value)
@@ -327,7 +327,7 @@ char *Sys_ScanForCD (void)
 	FILE		*f;
 	char		test[MAX_QPATH];
 	qboolean	missionpack = false; // Knightmare added
-	int			i; // Knightmare added
+	Sint32			i; // Knightmare added
 
 	if (done)		// don't re-check
 		return cddir;
@@ -393,7 +393,7 @@ Sys_DetectCPU
 Fixed to not be so clever
 =================
 */
-static qboolean Sys_DetectCPU (char *cpuString, int maxSize)
+static qboolean Sys_DetectCPU (char *cpuString, Sint32 maxSize)
 {
 
 #ifdef _WIN32
@@ -410,7 +410,7 @@ static qboolean Sys_DetectCPU (char *cpuString, int maxSize)
 	return (succeeded == ERROR_SUCCESS);
 
 #else
-	int numCores = SDL_GetCPUCount();
+	Sint32 numCores = SDL_GetCPUCount();
 	Q_strncpyz(cpuString, "Unknown processor with %d logical cores\n",numCores);
 	return true;
 #endif
@@ -526,7 +526,7 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
-	int i = 0;
+	Sint32 i = 0;
 	//Knightmare- changed DLL name for better cohabitation
 #ifdef _WIN32
 	const char *dllnames[2] = {"vrgamex86.dll", "kmq2gamex86.dll"};
@@ -613,14 +613,14 @@ WinMain
 ==================
 */
 
-int main(int argc, char *argv[])
+Sint32 main(Sint32 argc, char *argv[])
 {
-	int				time, oldtime, newtime;
+	Sint32				time, oldtime, newtime;
 	qboolean		cdscan = false; // Knightmare added
 
 	
 	/*
-	int				i; // Knightmare added
+	Sint32				i; // Knightmare added
 	char			*cddir;
 
 
@@ -637,7 +637,7 @@ int main(int argc, char *argv[])
 		cddir = Sys_ScanForCD ();
 		if (cddir && argc < MAX_NUM_ARGVS - 3)
 		{
-			int		i;
+			Sint32		i;
 
 			// don't override a cddir on the command line
 			for (i=0 ; i<argc ; i++)

@@ -19,4 +19,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 void  VLight_Init (void);
 float VLight_GetLightValue (vec3_t normal, vec3_t dir, float apitch, float ayaw, qboolean dlight);
-float VLight_LerpLight ( int index1, int index2, float ilerp, vec3_t dir, vec3_t angles, qboolean dlight );
+float VLight_LerpLight ( Sint32 index1, Sint32 index2, float ilerp, vec3_t dir, vec3_t angles, qboolean dlight );

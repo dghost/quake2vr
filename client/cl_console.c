@@ -34,11 +34,11 @@ qboolean	halfconback = false;	// whether to draw Q3-style console
 
 
 extern	char	key_lines[32][MAXCMDLINE];
-extern	int		edit_line;
-extern	int		key_linepos;
+extern	Sint32		edit_line;
+extern	Sint32		key_linepos;
 		
-int stringLengthExtra (const char *string);
-int stringLen (const char *string)
+Sint32 stringLengthExtra (const char *string);
+Sint32 stringLen (const char *string)
 {
 	return strlen(string) - stringLengthExtra(string);
 }
@@ -49,7 +49,7 @@ int stringLen (const char *string)
 Con_DrawString
 ================
 */
-void Con_DrawString (int x, int y, char *string, int alpha)
+void Con_DrawString (Sint32 x, Sint32 y, char *string, Sint32 alpha)
 {
 	DrawStringGeneric (x, y, string, alpha, SCALETYPE_CONSOLE, false);
 }
@@ -157,7 +157,7 @@ Save the console contents out to a file
 */
 void Con_Dump_f (void)
 {
-	int		l, x;
+	Sint32		l, x;
 	char	*line;
 	FILE	*f;
 	char	buffer[1024];
@@ -221,7 +221,7 @@ Con_ClearNotify
 */
 void Con_ClearNotify (void)
 {
-	int		i;
+	Sint32		i;
 	
 	for (i=0 ; i<NUM_CON_TIMES ; i++)
 		con.times[i] = 0;
@@ -261,7 +261,7 @@ If the line width has changed, reformat the buffer.
 */
 void Con_CheckResize (void)
 {
-	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
+	Sint32		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	char	tbuf[CON_TEXTSIZE];
 
 	if (con_font_size)
@@ -383,10 +383,10 @@ If no console is visible, the text will appear at the top of the game window
 */
 void Con_Print (char *txt)
 {
-	int		y;
-	int		c, l;
-	static int	cr;
-	int		mask;
+	Sint32		y;
+	Sint32		c, l;
+	static Sint32	cr;
+	Sint32		mask;
 
 	if (!con.initialized)
 		return;
@@ -459,7 +459,7 @@ Con_CenteredPrint
 */
 void Con_CenteredPrint (char *text)
 {
-	int		l;
+	Sint32		l;
 	char	buffer[1024];
 
 	l = strlen(text);
@@ -489,8 +489,8 @@ The input line scrolls horizontally if typing goes beyond the right edge
 */
 void Con_DrawInput (void)
 {
-	int		y;
-	int		i;
+	Sint32		y;
+	Sint32		i;
 	char	*text, output[2048];
 
 	if (!cls.consoleActive && cls.state == ca_active)
@@ -507,7 +507,7 @@ void Con_DrawInput (void)
 	if (con.backedit)
 		text[key_linepos] = ' ';
 	else
-		text[key_linepos] = 10+((int)(cls.realtime>>8)&1);
+		text[key_linepos] = 10+((Sint32)(cls.realtime>>8)&1);
 	
 // fill out remainder with spaces
 	for (i=key_linepos+1 ; i< con.linewidth ; i++)
@@ -523,12 +523,12 @@ void Con_DrawInput (void)
 	Com_sprintf (output, sizeof(output), "");
 	for (i=0; i<con.linewidth; i++)
 	{
-		if (con.backedit == key_linepos-i && ((int)(cls.realtime>>8)&1))
+		if (con.backedit == key_linepos-i && ((Sint32)(cls.realtime>>8)&1))
 			Com_sprintf (output, sizeof(output), "%s%c", output, 11 );
 		else
 			Com_sprintf (output, sizeof(output), "%s%c", output, text[i]);
 	}
-	Con_DrawString ( FONT_SIZE/2, con.vislines - (int)(2.75*FONT_SIZE), output, 255);
+	Con_DrawString ( FONT_SIZE/2, con.vislines - (Sint32)(2.75*FONT_SIZE), output, 255);
 
 // remove cursor
 	key_lines[edit_line][key_linepos] = 0;
@@ -543,12 +543,12 @@ Draws the last few lines of output transparently over the game top
 */
 void Con_DrawNotify (void)
 {
-	int		x;
+	Sint32		x;
 	char	*text, output[2048];
-	int		i, j;
-	//int		time;
+	Sint32		i, j;
+	//Sint32		time;
 	char	*s;
-	int		alpha, lines;
+	Sint32		alpha, lines;
 	float	v, time;
 
 	lines = 0;
@@ -568,11 +568,11 @@ void Con_DrawNotify (void)
 		s = chat_buffer;
 		x = 0;
 		if (chat_bufferlen > (viddef.width/FONT_SIZE)-(strlen(output)+1))
-			x += chat_bufferlen - (int)((viddef.width/FONT_SIZE)-(strlen(output)+1));
+			x += chat_bufferlen - (Sint32)((viddef.width/FONT_SIZE)-(strlen(output)+1));
 
 		while(s[x])
 		{
-			if (chat_backedit && chat_backedit == chat_bufferlen-x && ((int)(cls.realtime>>8)&1))
+			if (chat_backedit && chat_backedit == chat_bufferlen-x && ((Sint32)(cls.realtime>>8)&1))
 				Com_sprintf (output, sizeof(output), "%s%c", output, 11 );
 			else
 				Com_sprintf (output, sizeof(output), "%s%c", output, (char)s[x]);
@@ -581,7 +581,7 @@ void Con_DrawNotify (void)
 		}
 
 		if (!chat_backedit)
-			Com_sprintf (output, sizeof(output), "%s%c", output, 10+((int)(cls.realtime>>8)&1) );		
+			Com_sprintf (output, sizeof(output), "%s%c", output, 10+((Sint32)(cls.realtime>>8)&1) );		
 
 		Con_DrawString (0, v, output, 255);
 
@@ -642,18 +642,18 @@ Draws the console with the solid background
 
 void Con_DrawConsole (float frac, qboolean trans)
 {
-	int				i, j, x, y, len;
-	int				rows;
+	Sint32				i, j, x, y, len;
+	Sint32				rows;
 	char			*text, output[1024];
-	int				row;
-	int				lines;
+	Sint32				row;
+	Sint32				lines;
 	char			version[64];
 	char			dlbar[1024];
 	float			alpha, barwidth, barheight; //Knightmare added
 	// changeable download bar color
-	int				red, green, blue;
+	Sint32				red, green, blue;
 
-	ColorLookup((int)alt_text_color->value, &red, &green, &blue);
+	ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
 	barwidth = SCREEN_WIDTH;	barheight = 2;
 	SCR_AdjustFrom640 (NULL, NULL, &barwidth, &barheight, ALIGN_STRETCH);
 
@@ -676,7 +676,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 	else if (halfconback)
 		R_DrawStretchPic (0, 0, viddef.width, lines-barheight, "halfconback", alpha);
 	else
-		R_DrawStretchPic (0, lines-viddef.height-(int)barheight, viddef.width, viddef.height, "conback", alpha);
+		R_DrawStretchPic (0, lines-viddef.height-(Sint32)barheight, viddef.width, viddef.height, "conback", alpha);
 
 	// changed to "Quake II VR vx.x.x"
 #ifdef ERASER_COMPAT_BUILD
@@ -693,13 +693,13 @@ void Con_DrawConsole (float frac, qboolean trans)
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
 
-	Con_DrawString (viddef.width-FONT_SIZE*(stringLen((const char *)&version))-3, y-(int)(1.25*FONT_SIZE), version, 255);
+	Con_DrawString (viddef.width-FONT_SIZE*(stringLen((const char *)&version))-3, y-(Sint32)(1.25*FONT_SIZE), version, 255);
 	R_DrawFill (0, y, barwidth, barheight, red, green, blue, 255); // bottom line
 
 	// draw the text
 	con.vislines = lines;
-	rows = (lines-(int)(2.75*FONT_SIZE))/FONT_SIZE;		// rows of text to draw
-	y = lines - (int)(3.75*FONT_SIZE);
+	rows = (lines-(Sint32)(2.75*FONT_SIZE))/FONT_SIZE;		// rows of text to draw
+	y = lines - (Sint32)(3.75*FONT_SIZE);
 
 	// draw from the bottom up
 	if (con.display != con.current)
@@ -731,7 +731,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 //ZOID- draw the download bar
 	if (cls.download)
 	{
-		int graph_x, graph_y, graph_h, graph_w;
+		Sint32 graph_x, graph_y, graph_h, graph_w;
 
 		if ((text = strrchr(cls.downloadname, '/')) != NULL)
 			text++;
@@ -759,7 +759,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 		
 		// init solid color download bar
 		graph_x = (i+1)*FONT_SIZE;
-		graph_y = con.vislines - (int)(FONT_SIZE*1.5) - (int)barheight; // was -12
+		graph_y = con.vislines - (Sint32)(FONT_SIZE*1.5) - (Sint32)barheight; // was -12
 		graph_w = y*FONT_SIZE;
 		graph_h = FONT_SIZE;
 
@@ -777,8 +777,8 @@ void Con_DrawConsole (float frac, qboolean trans)
 		// new solid color download bar
 		graph_x--; graph_y--; graph_w+=2; graph_h +=2;
 		R_DrawFill (graph_x, graph_y, graph_w, graph_h, 255, 255, 255, 90);
-		R_DrawFill ((int)(graph_x+graph_h*0.2), (int)(graph_y+graph_h*0.2),
-			(int)((graph_w-graph_h*0.4)*cls.downloadpercent*0.01), (int)(graph_h*0.6),
+		R_DrawFill ((Sint32)(graph_x+graph_h*0.2), (Sint32)(graph_y+graph_h*0.2),
+			(Sint32)((graph_w-graph_h*0.4)*cls.downloadpercent*0.01), (Sint32)(graph_h*0.6),
 			red, green, blue, 255);
 	}
 //ZOID

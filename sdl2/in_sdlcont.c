@@ -35,8 +35,8 @@ cvar_t  *gamepad_stick_toggle;
 static SDL_GameController *currentController;
 
 static struct {
-	int repeatCount;
-	int lastSendTime;
+	Sint32 repeatCount;
+	Sint32 lastSendTime;
 }  gamepad_repeatstatus[K_GAMEPAD_RIGHT - K_GAMEPAD_LSTICK_UP + 1];
 
 Sint16 oldAxisState[SDL_CONTROLLER_AXIS_MAX];
@@ -52,7 +52,7 @@ static qboolean gamepad_sticktoggle[2];
 
 void IN_ControllerInit (void)
 {
-	int i;
+	Sint32 i;
 	cvar_t		*cv;
 
 
@@ -149,8 +149,8 @@ void Gamepad_ParseDirection(vec3_t dir, dir_t *out)
 
 void Gamepad_HandleRepeat(keynum_t key)
 {
-	int index = key - K_GAMEPAD_LSTICK_UP;
-	int delay = 0;
+	Sint32 index = key - K_GAMEPAD_LSTICK_UP;
+	Sint32 delay = 0;
 	qboolean send = false;
 
 	if (index < 0 || index > (K_GAMEPAD_RIGHT - K_GAMEPAD_LSTICK_UP))
@@ -176,7 +176,7 @@ void Gamepad_HandleRepeat(keynum_t key)
 
 void Gamepad_SendKeyup(keynum_t key)
 {
-	int index = key - K_GAMEPAD_LSTICK_UP;
+	Sint32 index = key - K_GAMEPAD_LSTICK_UP;
 
 	if (index < 0 || index > (K_GAMEPAD_RIGHT - K_GAMEPAD_LSTICK_UP))
 		return;
@@ -191,9 +191,9 @@ void IN_ControllerCommands (void)
 	Sint16 newAxisState[SDL_CONTROLLER_AXIS_MAX];
 	Uint8 newButtonState[SDL_CONTROLLER_BUTTON_MAX];
 
-	unsigned int i = 0;
+	Uint32 i = 0;
 	
-	unsigned int triggerThreshold = ClampCvar(0.04,0.96,gamepad_trigger_threshold->value) * 255.0f;
+	Uint32 triggerThreshold = ClampCvar(0.04,0.96,gamepad_trigger_threshold->value) * 255.0f;
 
 
 	if (currentController && SDL_GameControllerGetAttached(currentController) != SDL_TRUE)
@@ -208,7 +208,7 @@ void IN_ControllerCommands (void)
 
 	if (!currentController)
 	{
-		int i;
+		Sint32 i;
 
 		for (i = 0; i < SDL_NumJoysticks(); i++)
 		{
@@ -252,7 +252,7 @@ void IN_ControllerCommands (void)
 	{
 		vec3_t oldStick, newStick;
 		dir_t oldDir, newDir;
-		unsigned int j = 0;
+		Uint32 j = 0;
 		Gamepad_ParseThumbStick(newAxisState[SDL_CONTROLLER_AXIS_LEFTX],newAxisState[SDL_CONTROLLER_AXIS_LEFTY],LEFT_THUMB_DEADZONE,newStick);
 		Gamepad_ParseThumbStick(oldAxisState[SDL_CONTROLLER_AXIS_LEFTX],oldAxisState[SDL_CONTROLLER_AXIS_LEFTY],LEFT_THUMB_DEADZONE,oldStick);
 
@@ -284,7 +284,7 @@ void IN_ControllerCommands (void)
 
 		for (j = SDL_CONTROLLER_BUTTON_DPAD_UP ; j <= SDL_CONTROLLER_BUTTON_DPAD_RIGHT ; j++)
 		{
-			unsigned int k = j - SDL_CONTROLLER_BUTTON_DPAD_UP;
+			Uint32 k = j - SDL_CONTROLLER_BUTTON_DPAD_UP;
 
 			if (newButtonState[j])
 				Gamepad_HandleRepeat(K_GAMEPAD_UP + k);
@@ -293,10 +293,10 @@ void IN_ControllerCommands (void)
 				Gamepad_SendKeyup(K_GAMEPAD_UP + k);
 		}
 	}  else {
-		unsigned int j;
+		Uint32 j;
 		for (j = SDL_CONTROLLER_BUTTON_DPAD_UP ; j <= SDL_CONTROLLER_BUTTON_DPAD_RIGHT ; j++)
 		{
-			unsigned int k = j - SDL_CONTROLLER_BUTTON_DPAD_UP;
+			Uint32 k = j - SDL_CONTROLLER_BUTTON_DPAD_UP;
 
 
 			if ((newButtonState[j]) && (!oldButtonState[j]))
@@ -312,7 +312,7 @@ void IN_ControllerCommands (void)
 
 	for (i = SDL_CONTROLLER_BUTTON_A ; i <= SDL_CONTROLLER_BUTTON_START ; i++)
 	{
-		int j = i - SDL_CONTROLLER_BUTTON_A;
+		Sint32 j = i - SDL_CONTROLLER_BUTTON_A;
 		if ((newButtonState[i]) && (!oldButtonState[i]))
 			Key_Event (K_GAMEPAD_A + j, true, 0);
 
@@ -328,7 +328,7 @@ void IN_ControllerCommands (void)
 
 		for (i = SDL_CONTROLLER_BUTTON_LEFTSTICK ; i <= SDL_CONTROLLER_BUTTON_RIGHTSTICK ; i++)
 		{
-			int j = i - SDL_CONTROLLER_BUTTON_LEFTSTICK;
+			Sint32 j = i - SDL_CONTROLLER_BUTTON_LEFTSTICK;
 			if ((newButtonState[i]) && (!oldButtonState[i]))
 				Key_Event (K_GAMEPAD_LEFT_STICK + j, true, 0);
 
@@ -340,7 +340,7 @@ void IN_ControllerCommands (void)
 
 		for (i = SDL_CONTROLLER_BUTTON_LEFTSTICK ; i <= SDL_CONTROLLER_BUTTON_RIGHTSTICK ; i++)
 		{
-			int j = i - SDL_CONTROLLER_BUTTON_LEFTSTICK;
+			Sint32 j = i - SDL_CONTROLLER_BUTTON_LEFTSTICK;
 			if ((newButtonState[i]) && (!oldButtonState[i]))
 			{
 				gamepad_sticktoggle[j] = !gamepad_sticktoggle[j];
@@ -354,7 +354,7 @@ void IN_ControllerCommands (void)
 
 	for (i = SDL_CONTROLLER_BUTTON_LEFTSHOULDER ; i <= SDL_CONTROLLER_BUTTON_RIGHTSHOULDER ; i++)
 	{
-		int j = i - SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+		Sint32 j = i - SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
 		if ((newButtonState[i]) && (!oldButtonState[i]))
 			Key_Event (K_GAMEPAD_LS + j, true, 0);
 
@@ -368,7 +368,7 @@ void IN_ControllerCommands (void)
 
 	for (i = SDL_CONTROLLER_AXIS_TRIGGERLEFT ; i <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT ; i++)
 	{
-		int j = i - SDL_CONTROLLER_AXIS_TRIGGERLEFT;
+		Sint32 j = i - SDL_CONTROLLER_AXIS_TRIGGERLEFT;
 		if ((newAxisState[i] >= triggerThreshold) && (oldAxisState[i] < triggerThreshold))
 			Key_Event (K_GAMEPAD_LT + j, true, 0);
 
@@ -392,7 +392,7 @@ void IN_ControllerMove (usercmd_t *cmd)
 		return;
 
 
-	if ( (in_speed.state & 1) ^ (int)cl_run->value)
+	if ( (in_speed.state & 1) ^ (Sint32)cl_run->value)
 		speed = 2;
 	else
 		speed = 1;
@@ -400,7 +400,7 @@ void IN_ControllerMove (usercmd_t *cmd)
 	if (autosensitivity->value)
 		aspeed *= (cl.refdef.fov_x/90.0);
 
-	switch((int) gamepad_stick_mode->value)
+	switch((Sint32) gamepad_stick_mode->value)
 	{
 	case Gamepad_StickSwap:
 		view = leftPos;

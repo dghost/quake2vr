@@ -46,7 +46,7 @@ void R_RotateForEntity (entity_t *e, qboolean full)
 R_RollMult
 =================
 */
-int R_RollMult (void)
+Sint32 R_RollMult (void)
 {
 	if (r_entity_fliproll->value)
 		return -1;
@@ -99,7 +99,7 @@ void R_DrawNullModel (void)
 	TREE BUILDING AND USAGE
 ==================================================================================
 */
-int entstosort;
+Sint32 entstosort;
 sortedelement_t theents[MAX_ENTITIES];
 // Is this really used at all?
 //sortedelement_t *ents_prerender;
@@ -193,7 +193,7 @@ AddEntViewWeapTree
 */
 void AddEntViewWeapTree (entity_t *ent, qboolean trans)
 {
-	int closer = 0;
+	Sint32 closer = 0;
 	sortedelement_t *thisEnt;
 
 	thisEnt = NewSortEnt(ent);
@@ -226,7 +226,7 @@ AddEntTransTree
 */
 void AddEntTransTree (entity_t *ent)
 {
-	int closer = 0;
+	Sint32 closer = 0;
 	sortedelement_t *thisEnt;
 
 	thisEnt = NewSortEnt(ent);
@@ -319,7 +319,7 @@ R_DrawAllEntities
 void R_DrawAllEntities (qboolean addViewWeaps)
 {
 	qboolean alpha;
-	int i;
+	Sint32 i;
 	
 	if (!r_drawentities->value)
 		return;
@@ -388,7 +388,7 @@ R_DrawSolidEntities
 void R_DrawSolidEntities ()
 {
 	qboolean alpha;
-	int		i;
+	Sint32		i;
 
 	if (!r_drawentities->value)
 		return;
@@ -469,7 +469,7 @@ void ParseRenderEntityShadow (entity_t *ent)
 
 void R_DrawAllEntityShadows (void)
 {
-	int i;
+	Sint32 i;
 	
 	if (!r_drawentities->value)
 		return;

@@ -28,10 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAX_NUM_ARGVS	50
 
 
-int		com_argc;
+Sint32		com_argc;
 char	*com_argv[MAX_NUM_ARGVS+1];
 
-int		realtime;
+Sint32		realtime;
 
 jmp_buf abortframe;		// an ERR_DROP occured, exit the entire frame
 
@@ -53,13 +53,13 @@ cvar_t *sv_engine_version;
 
 FILE	*logfile;
 
-int			server_state;
+Sint32			server_state;
 
 // host_speeds times
-int		time_before_game;
-int		time_after_game;
-int		time_before_ref;
-int		time_after_ref;
+Sint32		time_before_game;
+Sint32		time_after_game;
+Sint32		time_before_ref;
+Sint32		time_after_ref;
 
 /*
 ============================================================================
@@ -69,12 +69,12 @@ CLIENT / SERVER interactions
 ============================================================================
 */
 
-static int	rd_target;
+static Sint32	rd_target;
 static char	*rd_buffer;
-static int	rd_buffersize;
-static void	(*rd_flush)(int target, char *buffer);
+static Sint32	rd_buffersize;
+static void	(*rd_flush)(Sint32 target, char *buffer);
 
-void Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush))
+void Com_BeginRedirect (Sint32 target, char *buffer, Sint32 buffersize, void (*flush))
 {
 	if (!target || !buffer || !buffersize || !flush)
 		return;
@@ -184,7 +184,7 @@ Both client and server can use this, and it will
 do the apropriate things.
 =============
 */
-void Com_Error (int code, char *fmt, ...)
+void Com_Error (Sint32 code, char *fmt, ...)
 {
 	va_list		argptr;
 	static char		msg[MAXPRINTMSG];
@@ -259,7 +259,7 @@ void Com_Quit (void)
 Com_ServerState
 ==================
 */
-int Com_ServerState (void)
+Sint32 Com_ServerState (void)
 {
 	return server_state;
 }
@@ -269,7 +269,7 @@ int Com_ServerState (void)
 Com_SetServerState
 ==================
 */
-void Com_SetServerState (int state)
+void Com_SetServerState (Sint32 state)
 {
 	server_state = state;
 }
@@ -293,7 +293,7 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 // writing functions
 //
 
-void MSG_WriteChar (sizebuf_t *sb, int c)
+void MSG_WriteChar (sizebuf_t *sb, Sint32 c)
 {
 	byte	*buf;
 	
@@ -306,7 +306,7 @@ void MSG_WriteChar (sizebuf_t *sb, int c)
 	buf[0] = c;
 }
 
-void MSG_WriteByte (sizebuf_t *sb, int c)
+void MSG_WriteByte (sizebuf_t *sb, Sint32 c)
 {
 	byte	*buf;
 	
@@ -319,12 +319,12 @@ void MSG_WriteByte (sizebuf_t *sb, int c)
 	buf[0] = c;
 }
 
-void MSG_WriteShort (sizebuf_t *sb, int c)
+void MSG_WriteShort (sizebuf_t *sb, Sint32 c)
 {
 	byte	*buf;
 	
 #ifdef PARANOID
-	if (c < ((short)0x8000) || c > (short)0x7fff)
+	if (c < ((Sint16)0x8000) || c > (Sint16)0x7fff)
 		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
@@ -333,7 +333,7 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
 	buf[1] = c>>8;
 }
 
-void MSG_WriteLong (sizebuf_t *sb, int c)
+void MSG_WriteLong (sizebuf_t *sb, Sint32 c)
 {
 	byte	*buf;
 	
@@ -349,7 +349,7 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 	union
 	{
 		float	f;
-		int	l;
+		Sint32	l;
 	} dat;
 	
 	
@@ -377,9 +377,9 @@ qboolean LegacyProtocol (void);
 
 void MSG_WriteCoordNew (sizebuf_t *sb, float f)
 {
-	int tmp;
+	Sint32 tmp;
 	byte trans1;
-	unsigned short trans2;
+	Uint16 trans2;
 
 	tmp = f*8;			// 1/8 granulation, leaves bounds of +/-1M in signed 24-bit form
 	trans1 = tmp >>16;	// bits 16-23
@@ -393,9 +393,9 @@ void MSG_WriteCoordNew (sizebuf_t *sb, float f)
 
 float MSG_ReadCoordNew (sizebuf_t *msg_read)
 {
-	int tmp;
+	Sint32 tmp;
 	byte trans1;
-	unsigned short trans2;
+	Uint16 trans2;
 
 	trans1 = MSG_ReadByte(msg_read);
 	trans2 = MSG_ReadShort(msg_read);
@@ -412,10 +412,10 @@ float MSG_ReadCoordNew (sizebuf_t *msg_read)
 }
 
 // Player movement coords are already in 1/8 precision integer form
-void MSG_WritePMCoordNew (sizebuf_t *sb, int in)
+void MSG_WritePMCoordNew (sizebuf_t *sb, Sint32 in)
 {
 	byte trans1;
-	unsigned short trans2;
+	Uint16 trans2;
 
 	trans1 = in >>16;	// bits 16-23
 	trans2 = in;		// bits 0-15
@@ -424,11 +424,11 @@ void MSG_WritePMCoordNew (sizebuf_t *sb, int in)
 	MSG_WriteShort (sb, trans2);
 }
 
-int MSG_ReadPMCoordNew (sizebuf_t *msg_read)
+Sint32 MSG_ReadPMCoordNew (sizebuf_t *msg_read)
 {
-	int tmp;
+	Sint32 tmp;
 	byte trans1;
-	unsigned short trans2;
+	Uint16 trans2;
 
 	trans1 = MSG_ReadByte(msg_read);
 	trans2 = MSG_ReadShort(msg_read);
@@ -458,7 +458,7 @@ void MSG_WriteCoord (sizebuf_t *sb, float f)
 
 void MSG_WriteCoord (sizebuf_t *sb, float f)
 {
-	MSG_WriteShort (sb, (int)(f*8));
+	MSG_WriteShort (sb, (Sint32)(f*8));
 }
 
 #endif // LARGE_MAP_SIZE
@@ -477,9 +477,9 @@ void MSG_WritePos (sizebuf_t *sb, vec3_t pos)
 
 void MSG_WritePos (sizebuf_t *sb, vec3_t pos)
 {
-	MSG_WriteShort (sb, (int)(pos[0]*8));
-	MSG_WriteShort (sb, (int)(pos[1]*8));
-	MSG_WriteShort (sb, (int)(pos[2]*8));
+	MSG_WriteShort (sb, (Sint32)(pos[0]*8));
+	MSG_WriteShort (sb, (Sint32)(pos[1]*8));
+	MSG_WriteShort (sb, (Sint32)(pos[2]*8));
 }
 
 #endif // LARGE_MAP_SIZE
@@ -487,7 +487,7 @@ void MSG_WritePos (sizebuf_t *sb, vec3_t pos)
 
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
-	MSG_WriteByte (sb, (int)(f*256/360) & 255);
+	MSG_WriteByte (sb, (Sint32)(f*256/360) & 255);
 }
 
 void MSG_WriteAngle16 (sizebuf_t *sb, float f)
@@ -498,7 +498,7 @@ void MSG_WriteAngle16 (sizebuf_t *sb, float f)
 
 void MSG_WriteDeltaUsercmd (sizebuf_t *buf, usercmd_t *from, usercmd_t *cmd)
 {
-	int		bits;
+	Sint32		bits;
 
 //
 // send the movement message
@@ -549,7 +549,7 @@ void MSG_WriteDeltaUsercmd (sizebuf_t *buf, usercmd_t *from, usercmd_t *cmd)
 
 void MSG_WriteDir (sizebuf_t *sb, vec3_t dir)
 {
-	int		i, best;
+	Sint32		i, best;
 	float	d, bestd;
 	
 	if (!dir)
@@ -575,7 +575,7 @@ void MSG_WriteDir (sizebuf_t *sb, vec3_t dir)
 
 void MSG_ReadDir (sizebuf_t *sb, vec3_t dir)
 {
-	int		b;
+	Sint32		b;
 
 	b = MSG_ReadByte (sb);
 	if (b >= NUMVERTEXNORMALS)
@@ -594,7 +594,7 @@ Can delta from either a baseline or a previous packet_entity
 */
 void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *msg, qboolean force, qboolean newentity)
 {
-	int		bits;
+	Sint32		bits;
 
 	if (!to->number)
 		Com_Error (ERR_FATAL, "Unset entity number");
@@ -710,7 +710,7 @@ void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *
 		to->alpha = 1.0;
 	// Since the floating point value is never quite the same,
 	// compare the new and the old as what they will be sent as
-	if ((int)(to->alpha*255) != (int)(from->alpha*255))
+	if ((Sint32)(to->alpha*255) != (Sint32)(from->alpha*255))
 		bits |= U_ALPHA;
 #endif
 
@@ -837,14 +837,14 @@ void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *
 #endif
 
 	//Knightmare- 12/23/2001
-	//changed this to short
+	//changed this to Sint16
 	if (bits & U_SOUND)
 		MSG_WriteShort (msg, to->sound);
 
 #ifdef NEW_ENTITY_STATE_MEMBERS
 #ifdef LOOP_SOUND_ATTENUATION
 	if (bits & U_ATTENUAT)
-		MSG_WriteByte (msg, (int)(min(max(to->attenuation, 0.0f), 4.0f)*64.0));
+		MSG_WriteByte (msg, (Sint32)(min(max(to->attenuation, 0.0f), 4.0f)*64.0));
 #endif
 #endif
 
@@ -867,40 +867,40 @@ void MSG_BeginReading (sizebuf_t *msg)
 }
 
 // returns -1 if no more characters are available
-int MSG_ReadChar (sizebuf_t *msg_read)
+Sint32 MSG_ReadChar (sizebuf_t *msg_read)
 {
-	int	c;
+	Sint32	c;
 	
 	if (msg_read->readcount+1 > msg_read->cursize)
 		c = -1;
 	else
-		c = (signed char)msg_read->data[msg_read->readcount];
+		c = (Sint8)msg_read->data[msg_read->readcount];
 	msg_read->readcount++;
 	
 	return c;
 }
 
-int MSG_ReadByte (sizebuf_t *msg_read)
+Sint32 MSG_ReadByte (sizebuf_t *msg_read)
 {
-	int	c;
+	Sint32	c;
 	
 	if (msg_read->readcount+1 > msg_read->cursize)
 		c = -1;
 	else
-		c = (unsigned char)msg_read->data[msg_read->readcount];
+		c = (Uint8)msg_read->data[msg_read->readcount];
 	msg_read->readcount++;
 	
 	return c;
 }
 
-int MSG_ReadShort (sizebuf_t *msg_read)
+Sint32 MSG_ReadShort (sizebuf_t *msg_read)
 {
-	int	c;
+	Sint32	c;
 	
 	if (msg_read->readcount+2 > msg_read->cursize)
 		c = -1;
 	else		
-		c = (short)(msg_read->data[msg_read->readcount]
+		c = (Sint16)(msg_read->data[msg_read->readcount]
 		+ (msg_read->data[msg_read->readcount+1]<<8));
 	
 	msg_read->readcount += 2;
@@ -908,9 +908,9 @@ int MSG_ReadShort (sizebuf_t *msg_read)
 	return c;
 }
 
-int MSG_ReadLong (sizebuf_t *msg_read)
+Sint32 MSG_ReadLong (sizebuf_t *msg_read)
 {
-	int	c;
+	Sint32	c;
 	
 	if (msg_read->readcount+4 > msg_read->cursize)
 		c = -1;
@@ -931,7 +931,7 @@ float MSG_ReadFloat (sizebuf_t *msg_read)
 	{
 		byte	b[4];
 		float	f;
-		int	l;
+		Sint32	l;
 	} dat;
 	
 	if (msg_read->readcount+4 > msg_read->cursize)
@@ -953,7 +953,7 @@ float MSG_ReadFloat (sizebuf_t *msg_read)
 char *MSG_ReadString (sizebuf_t *msg_read)
 {
 	static char	string[2048];
-	int		l,c;
+	Sint32		l,c;
 	
 	l = 0;
 	do
@@ -973,7 +973,7 @@ char *MSG_ReadString (sizebuf_t *msg_read)
 char *MSG_ReadStringLine (sizebuf_t *msg_read)
 {
 	static char	string[2048];
-	int		l,c;
+	Sint32		l,c;
 	
 	l = 0;
 	do
@@ -1053,7 +1053,7 @@ float MSG_ReadAngle16 (sizebuf_t *msg_read)
 
 void MSG_ReadDeltaUsercmd (sizebuf_t *msg_read, usercmd_t *from, usercmd_t *move)
 {
-	int bits;
+	Sint32 bits;
 
 	memcpy (move, from, sizeof(*move));
 
@@ -1090,9 +1090,9 @@ void MSG_ReadDeltaUsercmd (sizebuf_t *msg_read, usercmd_t *from, usercmd_t *move
 }
 
 
-void MSG_ReadData (sizebuf_t *msg_read, void *data, int len)
+void MSG_ReadData (sizebuf_t *msg_read, void *data, Sint32 len)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<len ; i++)
 		((byte *)data)[i] = MSG_ReadByte (msg_read);
@@ -1101,7 +1101,7 @@ void MSG_ReadData (sizebuf_t *msg_read, void *data, int len)
 
 //===========================================================================
 
-void SZ_Init (sizebuf_t *buf, byte *data, int length)
+void SZ_Init (sizebuf_t *buf, byte *data, Sint32 length)
 {
 	memset (buf, 0, sizeof(*buf));
 	buf->data = data;
@@ -1114,7 +1114,7 @@ void SZ_Clear (sizebuf_t *buf)
 	buf->overflowed = false;
 }
 
-void *SZ_GetSpace (sizebuf_t *buf, int length)
+void *SZ_GetSpace (sizebuf_t *buf, Sint32 length)
 {
 	void	*data;
 	
@@ -1137,14 +1137,14 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
 	return data;
 }
 
-void SZ_Write (sizebuf_t *buf, void *data, int length)
+void SZ_Write (sizebuf_t *buf, void *data, Sint32 length)
 {
 	memcpy (SZ_GetSpace(buf,length),data,length);		
 }
 
 void SZ_Print (sizebuf_t *buf, char *data)
 {
-	int		len;
+	Sint32		len;
 	
 	len = strlen(data)+1;
 
@@ -1171,9 +1171,9 @@ Returns the position (1 to argc-1) in the program's argument list
 where the given parameter apears, or 0 if not present
 ================
 */
-int COM_CheckParm (char *parm)
+Sint32 COM_CheckParm (char *parm)
 {
-	int		i;
+	Sint32		i;
 	
 	for (i=1 ; i<com_argc ; i++)
 	{
@@ -1184,19 +1184,19 @@ int COM_CheckParm (char *parm)
 	return 0;
 }
 
-int COM_Argc (void)
+Sint32 COM_Argc (void)
 {
 	return com_argc;
 }
 
-char *COM_Argv (int arg)
+char *COM_Argv (Sint32 arg)
 {
 	if (arg < 0 || arg >= com_argc || !com_argv[arg])
 		return "";
 	return com_argv[arg];
 }
 
-void COM_ClearArgv (int arg)
+void COM_ClearArgv (Sint32 arg)
 {
 	if (arg < 0 || arg >= com_argc || !com_argv[arg])
 		return;
@@ -1209,9 +1209,9 @@ void COM_ClearArgv (int arg)
 COM_InitArgv
 ================
 */
-void COM_InitArgv (int argc, char **argv)
+void COM_InitArgv (Sint32 argc, char **argv)
 {
-	int		i;
+	Sint32		i;
 
 	if (argc > MAX_NUM_ARGVS)
 		Com_Error (ERR_FATAL, "argc > MAX_NUM_ARGVS");
@@ -1243,9 +1243,9 @@ void COM_AddParm (char *parm)
 
 
 /// just for debugging
-int	memsearch (byte *start, int count, int search)
+Sint32	memsearch (byte *start, Sint32 count, Sint32 search)
 {
-	int		i;
+	Sint32		i;
 	
 	for (i=0 ; i<count ; i++)
 		if (start[i] == search)
@@ -1269,7 +1269,7 @@ void Info_Print (char *s)
 	char	key[512];
 	char	value[512];
 	char	*o;
-	int		l;
+	Sint32		l;
 
 	if (*s == '\\')
 		s++;
@@ -1324,13 +1324,13 @@ just cleared malloc with counters now...
 typedef struct zhead_s
 {
 	struct zhead_s	*prev, *next;
-	short	magic;
-	short	tag;			// for group free
-	int		size;
+	Sint16	magic;
+	Sint16	tag;			// for group free
+	Sint32		size;
 } zhead_t;
 
 zhead_t		z_chain;
-int		z_count, z_bytes;
+Sint32		z_count, z_bytes;
 
 /*
 ========================
@@ -1370,7 +1370,7 @@ void Z_Stats_f (void)
 Z_FreeTags
 ========================
 */
-void Z_FreeTags (int tag)
+void Z_FreeTags (Sint32 tag)
 {
 	zhead_t	*z, *next;
 
@@ -1387,7 +1387,7 @@ void Z_FreeTags (int tag)
 Z_TagMalloc
 ========================
 */
-void *Z_TagMalloc (int size, int tag)
+void *Z_TagMalloc (Sint32 size, Sint32 tag)
 {
 	zhead_t	*z;
 	
@@ -1416,7 +1416,7 @@ void *Z_TagMalloc (int size, int tag)
 Z_Malloc
 ========================
 */
-void *Z_Malloc (int size)
+void *Z_Malloc (Sint32 size)
 {
 	return Z_TagMalloc (size, 0);
 }
@@ -1436,12 +1436,12 @@ For proxy protecting
 
 ====================
 */
-byte	COM_BlockSequenceCheckByte (byte *base, int length, int sequence, int challenge)
+byte	COM_BlockSequenceCheckByte (byte *base, Sint32 length, Sint32 sequence, Sint32 challenge)
 {
 	Sys_Error("COM_BlockSequenceCheckByte called\n");
 
 #if 0
-	int		checksum;
+	Sint32		checksum;
 	byte	buf[68];
 	byte	*p;
 	float temp;
@@ -1554,13 +1554,13 @@ COM_BlockSequenceCRCByte
 For proxy protecting
 ====================
 */
-byte	COM_BlockSequenceCRCByte (byte *base, int length, int sequence)
+byte	COM_BlockSequenceCRCByte (byte *base, Sint32 length, Sint32 sequence)
 {
-	int		n;
+	Sint32		n;
 	byte	*p;
-	int		x;
+	Sint32		x;
 	byte chkb[60 + 4];
-	unsigned short crc;
+	Uint16 crc;
 
 
 	if (sequence < 0)
@@ -1623,7 +1623,7 @@ void Com_Error_f (void)
 Qcommon_Init
 =================
 */
-void Qcommon_Init (int argc, char **argv)
+void Qcommon_Init (Sint32 argc, char **argv)
 {
 	char	*s;
 	//char	*cfgfile; // Knightmare added
@@ -1754,10 +1754,10 @@ void Qcommon_Init (int argc, char **argv)
 Qcommon_Frame
 =================
 */
-void Qcommon_Frame (int msec)
+void Qcommon_Frame (Sint32 msec)
 {
 	char	*s;
-	int		time_before, time_between, time_after;
+	Sint32		time_before, time_between, time_after;
 
 	if (setjmp (abortframe) )
 		return;			// an ERR_DROP was thrown
@@ -1797,8 +1797,8 @@ void Qcommon_Frame (int msec)
 
 	if (showtrace->value)
 	{
-		extern	int c_traces, c_brush_traces;
-		extern	int	c_pointcontents;
+		extern	Sint32 c_traces, c_brush_traces;
+		extern	Sint32	c_pointcontents;
 
 		Com_Printf ("%4i traces  %4i points\n", c_traces, c_pointcontents);
 		c_traces = 0;
@@ -1831,7 +1831,7 @@ void Qcommon_Frame (int msec)
 
 	if (host_speeds->value)
 	{
-		int			all, sv, gm, cl, rf;
+		Sint32			all, sv, gm, cl, rf;
 
 		all = time_after - time_before;
 		sv = time_between - time_before;
@@ -1863,7 +1863,7 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =================
 */
-void Q_strncpyz (char *dst, const char *src, int dstSize)
+void Q_strncpyz (char *dst, const char *src, Sint32 dstSize)
 {
 	if (!dst) {
 	//	Com_Error (ERR_FATAL, "Q_strncpyz: NULL dst");
@@ -1892,7 +1892,7 @@ Q_strncatz
 Safe strncat that ensures a trailing zero
 =================
 */
-void Q_strncatz (char *dst, const char *src, int dstSize)
+void Q_strncatz (char *dst, const char *src, Sint32 dstSize)
 {
 	if (!dst) {
 	//	Com_Error (ERR_FATAL, "Q_strncatz: NULL dst");
@@ -1929,7 +1929,7 @@ Q_snprintfz
 Safe snprintf that ensures a trailing zero
 =================
 */
-void Q_snprintfz (char *dst, int dstSize, const char *fmt, ...)
+void Q_snprintfz (char *dst, Sint32 dstSize, const char *fmt, ...)
 {
 	va_list	argPtr;
 
@@ -1993,7 +1993,7 @@ StripHighBits
 String parsing function from r1q2
 =================
 */
-void StripHighBits (char *string, int highbits)
+void StripHighBits (char *string, Sint32 highbits)
 {
 	byte		high;
 	byte		c;
@@ -2025,7 +2025,7 @@ IsValidChar
 Security function from r1q2
 =================
 */
-qboolean IsValidChar (int c)
+qboolean IsValidChar (Sint32 c)
 {
 	if (!isalnum(c) && c != '_' && c != '-')
 		return false;
@@ -2104,7 +2104,7 @@ String parsing function from r1q2
 */
 const char *MakePrintable (const void *subject, size_t numchars)
 {
-	int			len;
+	Sint32			len;
 	static char printable[4096];
 	char		tmp[8];
 	char		*p;

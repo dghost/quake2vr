@@ -212,7 +212,7 @@ void Options_Controls_MenuInit ( void )
 		0
 	};
 
-	int y = 3*MENU_LINE_SIZE;
+	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_controls_menu.x = SCREEN_WIDTH*0.5;
 	s_options_controls_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -349,7 +349,7 @@ void Options_Controls_MenuDraw (void)
 	Menu_Draw( &s_options_controls_menu );
 }
 
-const char *Options_Controls_MenuKey( int key )
+const char *Options_Controls_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_options_controls_menu, key );
 }

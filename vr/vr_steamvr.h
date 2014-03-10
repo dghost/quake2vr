@@ -2,6 +2,8 @@
 #define __VR_STEAMVR_H
 #ifndef NO_STEAM
 
+#include <SDL_stdinc.h>
+
 typedef struct
 {
 	float rfRed[2];
@@ -14,8 +16,8 @@ typedef struct
 extern "C" {
 #endif
 
-	int SteamVR_Init();
-	int SteamVR_Enable();
+	Sint32 SteamVR_Init();
+	Sint32 SteamVR_Enable();
 	void SteamVR_Disable();
 	void SteamVR_Shutdown();
 

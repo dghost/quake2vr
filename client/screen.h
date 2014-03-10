@@ -63,7 +63,7 @@ void	SCR_CenterPrint (char *str);
 void	SCR_BeginLoadingPlaque (void);
 void	SCR_EndLoadingPlaque (void);
 
-void	SCR_DebugGraph (float value, int color);
+void	SCR_DebugGraph (float value, Sint32 color);
 
 void	SCR_TouchPics (void);
 
@@ -76,10 +76,10 @@ float	SCR_ScaledVideo (float param);
 float	SCR_VideoScale (void);
 
 void	SCR_AdjustFrom640 (float *x, float *y, float *w, float *h, scralign_t align);
-void	SCR_DrawFill (float x, float y, float width, float height, scralign_t align, int red, int green, int blue, int alpha);
+void	SCR_DrawFill (float x, float y, float width, float height, scralign_t align, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha);
 void	SCR_DrawPic (float x, float y, float width, float height, scralign_t align, char *pic, float alpha);
-void	SCR_DrawChar (float x, float y, scralign_t align, int num, int red, int green, int blue, int alpha, qboolean italic, qboolean last);
-void	SCR_DrawString (float x, float y, scralign_t align, const char *string, int alpha);
+void	SCR_DrawChar (float x, float y, scralign_t align, Sint32 num, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha, qboolean italic, qboolean last);
+void	SCR_DrawString (float x, float y, scralign_t align, const char *string, Sint32 alpha);
 void	SCR_DrawCrosshair (void);
 
 
@@ -91,7 +91,7 @@ extern	float		scr_letterbox_lines;		// lines of letterbox to display
 extern	qboolean	scr_letterbox_active;
 extern	qboolean	scr_hidehud;
 
-extern	int			sb_lines;
+extern	Sint32			sb_lines;
 
 extern	cvar_t		*scr_viewsize;
 extern	cvar_t		*crosshair;
@@ -102,7 +102,7 @@ extern	cvar_t		*crosshair_pulse;
 extern	vrect_t		scr_vrect;		// position of render window
 
 extern	char		crosshair_pic[MAX_QPATH];
-extern	int			crosshair_width, crosshair_height;
+extern	Sint32			crosshair_width, crosshair_height;
 
 // Psychospaz's scaled menu stuff
 #define SCREEN_WIDTH	640.0f

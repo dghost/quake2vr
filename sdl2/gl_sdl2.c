@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../win32/resource.h"
 #endif
 
-static qboolean GLimp_SwitchFullscreen( int width, int height );
+static qboolean GLimp_SwitchFullscreen( Sint32 width, Sint32 height );
 qboolean GLimp_InitGL (void);
 
 SDL_GLContext glcontext;
@@ -75,16 +75,16 @@ qboolean modType (char *name);
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
+rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 {
-	int width, height;
+	Sint32 width, height;
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED;
 	SDL_DisplayMode targetMode;
 	const char *win_fs[] = { "W", "FS" };
 	char *title = NULL;
 
-	int xpos = Cvar_VariableInteger("vid_xpos");
-	int ypos = Cvar_VariableInteger("vid_ypos");
+	Sint32 xpos = Cvar_VariableInteger("vid_xpos");
+	Sint32 ypos = Cvar_VariableInteger("vid_ypos");
 	qboolean fullscreen = Cvar_VariableInteger("vid_fullscreen");
 
 	if (vr_enabled->value)
@@ -110,10 +110,10 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 	if ( fullscreen )
 	{
 		SDL_Rect displayBounds;
-		int numDisplays = SDL_GetNumVideoDisplays();
-		int targetDisplay = 0;
-		int i = 0;
-		int refresh = vid_refresh->value;
+		Sint32 numDisplays = SDL_GetNumVideoDisplays();
+		Sint32 targetDisplay = 0;
+		Sint32 i = 0;
+		Sint32 refresh = vid_refresh->value;
 		SDL_DisplayMode idealMode;
 
 		for (i = 0; i < numDisplays; i++)
@@ -157,7 +157,7 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight )
 
 	if ( r_bitdepth->value > 0 ) {
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, r_bitdepth->value);
-		VID_Printf( PRINT_ALL, "...using r_bitdepth of %d\n", ( int ) r_bitdepth->value );
+		VID_Printf( PRINT_ALL, "...using r_bitdepth of %d\n", ( Sint32 ) r_bitdepth->value );
 	} else {
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	}
@@ -312,7 +312,7 @@ fail:
 void UpdateGammaRamp (qboolean enable)
 {
 	float gamma;
-	int ret;
+	Sint32 ret;
 
 	if (enable)
 		gamma =  r_gamma->value;

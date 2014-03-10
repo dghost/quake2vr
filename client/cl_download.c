@@ -31,11 +31,11 @@ extern	cvar_t *allow_download_maps;
 // Knightmare- whether to allow downloading 24-bit textures
 extern	cvar_t *allow_download_textures_24bit;
 
-int precache_check; // for autodownload of precache items
-int precache_spawncount;
-int precache_tex;
-int precache_model_skin;
-int precache_pak;	// Knightmare added
+Sint32 precache_check; // for autodownload of precache items
+Sint32 precache_spawncount;
+Sint32 precache_tex;
+Sint32 precache_model_skin;
+Sint32 precache_pak;	// Knightmare added
 
 byte *precache_model; // used for skin checking in alias models
 
@@ -186,7 +186,7 @@ void CL_RequestNextDownload (void)
 			{
 				while (precache_check < OLD_CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT)
 				{
-					int i, n;
+					Sint32 i, n;
 					char model[MAX_QPATH], skin[MAX_QPATH], *p;
 
 					i = (precache_check - OLD_CS_PLAYERSKINS)/PLAYER_MULT;
@@ -278,7 +278,7 @@ void CL_RequestNextDownload (void)
 		if (precache_check > OLD_ENV_CNT && precache_check < OLD_TEXTURE_CNT) {
 			if (allow_download->value && allow_download_maps->value) {
 				while (precache_check < OLD_TEXTURE_CNT) {
-					int n = precache_check++ - OLD_ENV_CNT - 1;
+					Sint32 n = precache_check++ - OLD_ENV_CNT - 1;
 
 					if (n & 1)
 						Com_sprintf(fn, sizeof(fn), "env/%s%s.pcx", 
@@ -301,7 +301,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .wal textures, download any that don't exist
 		if (precache_check == OLD_TEXTURE_CNT+1) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value)
@@ -336,7 +336,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .jpg textures, try to download any that don't exist
 		if (precache_check == OLD_TEXTURE_CNT+2) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value)
@@ -357,7 +357,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .tga textures, try to download any that don't exist
 		if (precache_check == OLD_TEXTURE_CNT+3) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value)
@@ -496,7 +496,7 @@ void CL_RequestNextDownload (void)
 		if (precache_check >= CS_PLAYERSKINS && precache_check < CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT) {
 			if (allow_download_players->value) {
 				while (precache_check < CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT) {
-					int i, n;
+					Sint32 i, n;
 					char model[MAX_QPATH], skin[MAX_QPATH], *p;
 
 					i = (precache_check - CS_PLAYERSKINS)/PLAYER_MULT;
@@ -588,7 +588,7 @@ void CL_RequestNextDownload (void)
 		if (precache_check > ENV_CNT && precache_check < TEXTURE_CNT) {
 			if (allow_download->value && allow_download_maps->value) {
 				while (precache_check < TEXTURE_CNT) {
-					int n = precache_check++ - ENV_CNT - 1;
+					Sint32 n = precache_check++ - ENV_CNT - 1;
 
 					if (n & 1)
 						Com_sprintf(fn, sizeof(fn), "env/%s%s.pcx", 
@@ -610,7 +610,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .wal textures, download any that don't exist
 		if (precache_check == TEXTURE_CNT+1) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value && !Com_ServerState())
@@ -632,7 +632,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .jpg textures, try to download any that don't exist
 		if (precache_check == TEXTURE_CNT+2) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value && allow_download_textures_24bit->value && !Com_ServerState())
@@ -653,7 +653,7 @@ void CL_RequestNextDownload (void)
 		// confirm existance of .tga textures, try to download any that don't exist
 		if (precache_check == TEXTURE_CNT+3) {
 			// from qcommon/cmodel.c
-			extern int			numtexinfo;
+			extern Sint32			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
 
 			if (allow_download->value && allow_download_maps->value && allow_download_textures_24bit->value && !Com_ServerState())
@@ -682,7 +682,7 @@ void CL_RequestNextDownload (void)
 
 //=============================================================================
 
-void CL_DownloadFileName(char *dest, int destlen, char *fn)
+void CL_DownloadFileName(char *dest, Sint32 destlen, char *fn)
 {
 	if (strncmp(fn, "players", 7) == 0)
 		Com_sprintf (dest, destlen, "%s/%s", BASEDIRNAME, fn);
@@ -703,7 +703,7 @@ CL_InitFailedDownloadList
 */
 void CL_InitFailedDownloadList (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		Com_sprintf(lastfaileddownload[i], sizeof(lastfaileddownload[i]), "\0");
@@ -718,7 +718,7 @@ CL_CheckDownloadFailed
 */
 qboolean CL_CheckDownloadFailed (char *name)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
@@ -737,7 +737,7 @@ CL_AddToFailedDownloadList
 */
 void CL_AddToFailedDownloadList (char *name)
 {
-	int			i;
+	Sint32			i;
 	qboolean	found = false;
 	qboolean	added = false;
 
@@ -773,9 +773,9 @@ qboolean CL_CheckOrDownloadFile (char *filename)
 {
 	FILE *fp;
 	char	name[MAX_OSPATH];
-	int len; // Knightmare added
+	Sint32 len; // Knightmare added
 	char s[128];
-	//int i;
+	//Sint32 i;
 
 	if (strstr (filename, ".."))
 	{
@@ -819,7 +819,7 @@ qboolean CL_CheckOrDownloadFile (char *filename)
 
 	fp = fopen (name, "r+b");
 	if (fp) { // it exists
-		int len;
+		Sint32 len;
 		fseek(fp, 0, SEEK_END);
 		len = ftell(fp);
 
@@ -897,9 +897,9 @@ A download message has been received from the server
 */
 void CL_ParseDownload (void)
 {
-	int		size, percent;
+	Sint32		size, percent;
 	char	name[MAX_OSPATH];
-	int		r;//, i;
+	Sint32		r;//, i;
 
 	// read the data
 	size = MSG_ReadShort (&net_message);

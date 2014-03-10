@@ -1,9 +1,9 @@
 #include "r_local.h"
 
-int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
+Sint32 R_GenFBO(Sint32 width, Sint32 height, Sint32 bilinear, fbo_t *FBO)
 {
 	GLuint fbo, tex, dep;
-	int err;
+	Sint32 err;
 	glGetError();
 
 	glGenFramebuffersEXT(1, &fbo);
@@ -52,7 +52,7 @@ int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
 		return 0;
 	}
 	else {
-		int err;
+		Sint32 err;
 		err = glGetError();
 		if (err != GL_NO_ERROR)
 			VID_Printf(PRINT_ALL, "R_GenFBO: glGetError() = 0x%x\n", err);
@@ -67,9 +67,9 @@ int R_GenFBO(int width, int height, int bilinear, fbo_t *FBO)
 	}
 }
 
-int R_ResizeFBO(int width, int height,  int bilinear, fbo_t *FBO)
+Sint32 R_ResizeFBO(Sint32 width, Sint32 height,  Sint32 bilinear, fbo_t *FBO)
 {
-	int err;
+	Sint32 err;
 	
 	
 	if (!FBO->valid)
@@ -113,7 +113,7 @@ int R_ResizeFBO(int width, int height,  int bilinear, fbo_t *FBO)
 	return 1;
 }
 
-void R_SetFBOFilter(int bilinear, fbo_t *FBO)
+void R_SetFBOFilter(Sint32 bilinear, fbo_t *FBO)
 {
 	if (!FBO->framebuffer)
 		return;

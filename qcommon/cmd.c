@@ -37,7 +37,7 @@ cmdalias_t	*cmd_alias;
 qboolean	cmd_wait;
 
 #define	ALIAS_LOOP_COUNT	16
-int		alias_count;		// for detecting runaway loops
+Sint32		alias_count;		// for detecting runaway loops
 
 
 //=============================================================================
@@ -89,7 +89,7 @@ Adds command text at the end of the buffer
 */
 void Cbuf_AddText (char *text)
 {
-	int		l;
+	Sint32		l;
 	
 	l = strlen (text);
 
@@ -114,7 +114,7 @@ FIXME: actually change the command buffer to do less copying
 void Cbuf_InsertText (char *text)
 {
 	char	*temp;
-	int		templen;
+	Sint32		templen;
 
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
@@ -168,7 +168,7 @@ void Cbuf_InsertFromDefer (void)
 Cbuf_ExecuteText
 ============
 */
-void Cbuf_ExecuteText (int exec_when, char *text)
+void Cbuf_ExecuteText (Sint32 exec_when, char *text)
 {
 	switch (exec_when)
 	{
@@ -193,10 +193,10 @@ Cbuf_Execute
 */
 void Cbuf_Execute (void)
 {
-	int		i;
+	Sint32		i;
 	char	*text;
 	char	line[1024];
-	int		quotes;
+	Sint32		quotes;
 
 	alias_count = 0;		// don't allow infinite alias loops
 
@@ -264,7 +264,7 @@ Other commands are added late, after all initialization is complete.
 */
 void Cbuf_AddEarlyCommands (qboolean clear)
 {
-	int		i;
+	Sint32		i;
 	char	*s;
 
 	for (i=0 ; i<COM_Argc() ; i++)
@@ -297,10 +297,10 @@ will keep the demoloop from immediately starting
 */
 qboolean Cbuf_AddLateCommands (void)
 {
-	int		i, j;
-	int		s;
+	Sint32		i, j;
+	Sint32		s;
 	char	*text, *build, c;
-	int		argc;
+	Sint32		argc;
 	qboolean	ret;
 
 // build the combined string to parse from
@@ -373,7 +373,7 @@ Cmd_Exec_f
 void Cmd_Exec_f (void)
 {
 	char	*f, *f2;
-	int		len;
+	Sint32		len;
 
 	if (Cmd_Argc () != 2)
 	{
@@ -411,7 +411,7 @@ Just prints the rest of the line to the console
 */
 void Cmd_Echo_f (void)
 {
-	int		i;
+	Sint32		i;
 	
 	for (i=1 ; i<Cmd_Argc() ; i++)
 		Com_Printf ("%s ",Cmd_Argv(i));
@@ -429,7 +429,7 @@ void Cmd_Alias_f (void)
 {
 	cmdalias_t	*a;
 	char		cmd[1024];
-	int			i, c;
+	Sint32			i, c;
 	char		*s;
 
 	if (Cmd_Argc() == 1)
@@ -495,7 +495,7 @@ typedef struct cmd_function_s
 } cmd_function_t;
 
 
-static	int			cmd_argc;
+static	Sint32			cmd_argc;
 static	char		*cmd_argv[MAX_STRING_TOKENS];
 static	char		*cmd_null_string = "";
 static	char		cmd_args[MAX_STRING_CHARS];
@@ -507,7 +507,7 @@ static	cmd_function_t	*cmd_functions;		// possible commands to execute
 Cmd_Argc
 ============
 */
-int		Cmd_Argc (void)
+Sint32		Cmd_Argc (void)
 {
 	return cmd_argc;
 }
@@ -517,7 +517,7 @@ int		Cmd_Argc (void)
 Cmd_Argv
 ============
 */
-char	*Cmd_Argv (int arg)
+char	*Cmd_Argv (Sint32 arg)
 {
 	if ( (unsigned)arg >= cmd_argc )
 		return cmd_null_string;
@@ -544,7 +544,7 @@ Cmd_MacroExpandString
 */
 char *Cmd_MacroExpandString (char *text)
 {
-	int		i, j, count, len;
+	Sint32		i, j, count, len;
 	qboolean	inquote;
 	char	*scan;
 	static	char	expanded[MAX_STRING_CHARS];
@@ -622,7 +622,7 @@ $Cvars will be expanded unless they are in a quoted token
 */
 void Cmd_TokenizeString (char *text, qboolean macroExpand)
 {
-	int		i;
+	Sint32		i;
 	char	*com_token;
 
 // clear the args from the last string
@@ -658,7 +658,7 @@ void Cmd_TokenizeString (char *text, qboolean macroExpand)
 		// set cmd_args to everything after the first arg
 		if (cmd_argc == 1)
 		{
-			int		l;
+			Sint32		l;
 
 			// [SkulleR]'s fix for overflow vulnerability
 			//strcpy (cmd_args, text);
@@ -781,7 +781,7 @@ Cmd_CompleteCommand
 /*char *Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	int				len;
+	Sint32				len;
 	cmdalias_t		*a;
 	
 	len = strlen(partial);
@@ -813,7 +813,7 @@ char			retval[256];
 char *Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	int				len,i,o,p;
+	Sint32				len,i,o,p;
 	cmdalias_t		*a;
 	cvar_t			*cvar;
 	char			*pmatch[1024];
@@ -969,7 +969,7 @@ Cmd_List_f
 void Cmd_List_f (void)
 {
 	cmd_function_t	*cmd;
-	int				i;
+	Sint32				i;
 
 	i = 0;
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next, i++)

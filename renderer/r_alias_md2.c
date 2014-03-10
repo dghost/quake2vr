@@ -44,9 +44,9 @@ float	shadowalpha_md2;
 R_LerpMD2Verts
 =================
 */
-void R_LerpMD2Verts (int nverts, dtrivertx_t *v, dtrivertx_t *ov, dtrivertx_t *verts, float *lerp, float move[3], float frontv[3], float backv[3], float normalscale)
+void R_LerpMD2Verts (Sint32 nverts, dtrivertx_t *v, dtrivertx_t *ov, dtrivertx_t *verts, float *lerp, float move[3], float frontv[3], float backv[3], float normalscale)
 {
-	int i;
+	Sint32 i;
 
 	for (i=0 ; i < nverts; i++, v++, ov++, lerp+=4 )
 	{
@@ -66,7 +66,7 @@ R_LightAliasMD2Model
 */
 void R_LightAliasMD2Model (vec3_t baselight, dtrivertx_t *verts, dtrivertx_t *ov, float backlerp, vec3_t lightOut)
 {
-	int		i;
+	Sint32		i;
 	float	l; // tmp;
 
 	if (r_model_shading->value)
@@ -111,8 +111,8 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 {
 	daliasframe_t	*frame, *oldframe;
 	dtrivertx_t		*v, *ov, *verts;
-	int				*order; 
-	int				i, count, index_xyz, vertcount, baseindex;
+	Sint32				*order; 
+	Sint32				i, count, index_xyz, vertcount, baseindex;
 	float			*lerp;
 	float			frontlerp, alpha, thisalpha;
 	GLenum			mode;
@@ -132,7 +132,7 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 		+ currententity->oldframe * paliashdr->framesize);
 	ov = oldframe->verts;
 
-	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
+	order = (Sint32 *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
 	if (currententity->flags & RF_TRANSLUCENT)
 		alpha = currententity->alpha;
@@ -261,7 +261,7 @@ projection shadows from BeefQuake R6
 */
 void R_BuildMD2ShadowVolume (dmdl_t *hdr, vec3_t light, float projectdistance, qboolean nocap)
 {
-	int				i, j;
+	Sint32				i, j;
 	BOOL			trianglefacinglight[MAX_TRIANGLES];
 	vec3_t			v0, v1, v2, v3;
 	float			thisAlpha;
@@ -276,7 +276,7 @@ void R_BuildMD2ShadowVolume (dmdl_t *hdr, vec3_t light, float projectdistance, q
 		+ currententity->frame * hdr->framesize);
 	verts = frame->verts;
 
-	ot = tris = (dtriangle_t *)((unsigned char*)hdr + hdr->ofs_tris);
+	ot = tris = (dtriangle_t *)((Uint8*)hdr + hdr->ofs_tris);
 
 	thisAlpha = shadowalpha_md2; // was r_shadowalpha->value
 
@@ -457,7 +457,7 @@ projection shadows from BeefQuake R6
 void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 {
 	vec3_t		light, temp, vecAdd;//, static_offset;
-	int			i, lnum;
+	Sint32			i, lnum;
 	float		projected_distance = 1;
 	float		cost, sint, is, it, dist, highest, lowest;//, maxdist = 384;
 	qboolean	zfail = true;
@@ -631,11 +631,11 @@ R_DrawAliasMD2PlanarShadow
 */
 void R_DrawAliasMD2PlanarShadow (dmdl_t *paliashdr, qboolean mirrored)
 {
-	int		*order;
+	Sint32		*order;
 	vec3_t	point, shadevector;
 	float	height, lheight, thisAlpha;//, an;
 	GLenum	mode;
-	int		i, count, /*va, index,*/ vertcount, baseindex;
+	Sint32		i, count, /*va, index,*/ vertcount, baseindex;
 
 	//if (r_shadows->value == 2) // dynamic lighted shadows - psychospaz
 		R_ShadowLight (currententity->origin, shadevector);
@@ -647,7 +647,7 @@ void R_DrawAliasMD2PlanarShadow (dmdl_t *paliashdr, qboolean mirrored)
 		VectorNormalize (shadevector);
 	}*/
 
-	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
+	order = (Sint32 *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 	lheight = currententity->origin[2] - lightspot[2];
 	height = -lheight + 0.1f; // 12/24/2001- lowered shadows to ground
 	if (currententity->flags & RF_TRANSLUCENT)
@@ -732,13 +732,13 @@ R_CullAliasMD2Model
 */
 static qboolean R_CullAliasMD2Model (vec3_t bbox[8], entity_t *e)
 {
-	int			i;
+	Sint32			i;
 	vec3_t		mins, maxs;
 	dmdl_t		*paliashdr;
 	vec3_t		vectors[3];
 	vec3_t		tmp, thismins, oldmins, thismaxs, oldmaxs;//, angles;
 	daliasframe_t *pframe, *poldframe;
-	int			p, f, mask, aggregatemask = ~0;
+	Sint32			p, f, mask, aggregatemask = ~0;
 
 	paliashdr = (dmdl_t *)currentmodel->extradata;
 
@@ -1048,7 +1048,7 @@ void R_DrawAliasMD2ModelShadow (entity_t *e)
 	shadevector[1] = sin(-an);
 	shadevector[2] = 1;
 	VectorNormalize (shadevector);
-	switch ((int)(r_shadows->value))
+	switch ((Sint32)(r_shadows->value))
 	{
 	case 0:
 		break;

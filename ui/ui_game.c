@@ -35,7 +35,7 @@ GAME MENU
 =============================================================================
 */
 
-static int		m_game_cursor;
+static Sint32		m_game_cursor;
 
 static menuframework_s	s_game_menu;
 static menuaction_s		s_easy_game_action;
@@ -112,7 +112,7 @@ void Game_MenuInit( void )
 		"hard",
 		0
 	};
-	int y = 0;
+	Sint32 y = 0;
 
 	s_game_menu.x = SCREEN_WIDTH*0.5 - 24;
 	//s_game_menu.y = 0;
@@ -202,7 +202,7 @@ void Game_MenuDraw( void )
 	Menu_Draw( &s_game_menu );
 }
 
-const char *Game_MenuKey( int key )
+const char *Game_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_game_menu, key );
 }

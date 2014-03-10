@@ -55,7 +55,7 @@ static float Diamond4x[4][4] = {
 		0.3f, 0.4f, 0.4f, 0.3f };
 
 
-static int		BLOOM_SIZE;
+static Sint32		BLOOM_SIZE;
 
 cvar_t		*r_bloom_alpha;
 cvar_t		*r_bloom_diamond_size;
@@ -70,23 +70,23 @@ image_t		*r_bloomeffecttexture;
 image_t		*r_bloombackuptexture;
 image_t		*r_bloomdownsamplingtexture;
 
-static int		r_screendownsamplingtexture_size;
-static int		screen_texture_width, screen_texture_height;
-//static int		r_screenbackuptexture_size;
-static int      r_screenbackuptexture_width, r_screenbackuptexture_height;
+static Sint32		r_screendownsamplingtexture_size;
+static Sint32		screen_texture_width, screen_texture_height;
+//static Sint32		r_screenbackuptexture_size;
+static Sint32      r_screenbackuptexture_width, r_screenbackuptexture_height;
 
 //current refdef size:
-static int	curView_x;
-static int	curView_y;
-static int	curView_width;
-static int	curView_height;
+static Sint32	curView_x;
+static Sint32	curView_y;
+static Sint32	curView_width;
+static Sint32	curView_height;
 
 // texture coordinates of screen data inside screentexture
 static float screenText_tcw;
 static float screenText_tch;
 
-static int	sample_width;
-static int	sample_height;
+static Sint32	sample_width;
+static Sint32	sample_height;
 
 // texture coordinates of adjusted textures
 static float sampleText_tcw;
@@ -157,7 +157,7 @@ static float sampleText_tch;
 R_Bloom_InitBackUpTexture
 =================
 */
-void R_Bloom_InitBackUpTexture (int width, int height)
+void R_Bloom_InitBackUpTexture (Sint32 width, Sint32 height)
 {
 	byte	*data;
 
@@ -183,17 +183,17 @@ void R_Bloom_InitEffectTexture (void)
 	byte	*data;
 	float	bloomsizecheck;
 	
-	if( (int)r_bloom_sample_size->value < 32 )
+	if( (Sint32)r_bloom_sample_size->value < 32 )
 		Cvar_SetValue ("r_bloom_sample_size", 32);
 
 	//make sure bloom size is a power of 2
-	BLOOM_SIZE = (int)r_bloom_sample_size->value;
+	BLOOM_SIZE = (Sint32)r_bloom_sample_size->value;
 	bloomsizecheck = (float)BLOOM_SIZE;
 	while(bloomsizecheck > 1.0f) bloomsizecheck /= 2.0f;
 	if( bloomsizecheck != 1.0f )
 	{
 		BLOOM_SIZE = 32;
-		while( BLOOM_SIZE < (int)r_bloom_sample_size->value )
+		while( BLOOM_SIZE < (Sint32)r_bloom_sample_size->value )
 			BLOOM_SIZE *= 2;
 	}
 
@@ -202,7 +202,7 @@ void R_Bloom_InitEffectTexture (void)
 		BLOOM_SIZE > screen_texture_height )
 		BLOOM_SIZE = min( screen_texture_width, screen_texture_height );
 
-	if( BLOOM_SIZE != (int)r_bloom_sample_size->value )
+	if( BLOOM_SIZE != (Sint32)r_bloom_sample_size->value )
 		Cvar_SetValue ("r_bloom_sample_size", BLOOM_SIZE);
 
 	data = malloc( BLOOM_SIZE * BLOOM_SIZE * 4 );
@@ -221,7 +221,7 @@ R_Bloom_InitTextures
 void R_Bloom_InitTextures (void)
 {
 	byte	*data;
-	int		size;
+	Sint32		size;
 
 	if (vr_enabled->value)
 	{
@@ -266,7 +266,7 @@ void R_Bloom_InitTextures (void)
 	r_screendownsamplingtexture_size = 0;
 	if( vid.width > (BLOOM_SIZE * 2) && !r_bloom_fast_sample->value )
 	{
-		r_screendownsamplingtexture_size = (int)(BLOOM_SIZE * 2);
+		r_screendownsamplingtexture_size = (Sint32)(BLOOM_SIZE * 2);
 		data = malloc( r_screendownsamplingtexture_size * r_screendownsamplingtexture_size * 4 );
 		memset( data, 0, r_screendownsamplingtexture_size * r_screendownsamplingtexture_size * 4 );
 		r_bloomdownsamplingtexture = R_LoadPic( "***r_bloomdownsamplingtexture***", (byte *)data, r_screendownsamplingtexture_size, r_screendownsamplingtexture_size, it_pic, 3 );
@@ -356,8 +356,8 @@ R_Bloom_GeneratexCross - alternative bluring method
 */
 void R_Bloom_GeneratexCross (void)
 {
-	int				i;
-	static int		BLOOM_BLUR_RADIUS = 8;
+	Sint32				i;
+	static Sint32		BLOOM_BLUR_RADIUS = 8;
 	//static float	BLOOM_BLUR_INTENSITY = 2.5f;
 	float			BLOOM_BLUR_INTENSITY;
 	static float	intensity;
@@ -446,7 +446,7 @@ R_Bloom_GeneratexDiamonds
 */
 void R_Bloom_GeneratexDiamonds (void)
 {
-	int				i, j;
+	Sint32				i, j;
 	static float	intensity;
 
 	// set up sample size workspace
@@ -481,7 +481,7 @@ void R_Bloom_GeneratexDiamonds (void)
 	
 	if ( r_bloom_diamond_size->value > 7 || r_bloom_diamond_size->value <= 3)
 	{
-		if ( (int)r_bloom_diamond_size->value != 8 ) Cvar_SetValue( "r_bloom_diamond_size", 8 );
+		if ( (Sint32)r_bloom_diamond_size->value != 8 ) Cvar_SetValue( "r_bloom_diamond_size", 8 );
 
 		R_Bloom_DrawStart
 		for (i=0; i<r_bloom_diamond_size->value; i++) {
@@ -509,7 +509,7 @@ void R_Bloom_GeneratexDiamonds (void)
 	}
 	else if ( r_bloom_diamond_size->value > 3 )
 	{
-		if ( (int)r_bloom_diamond_size->value != 4 ) Cvar_SetValue( "r_bloom_diamond_size", 4 );
+		if ( (Sint32)r_bloom_diamond_size->value != 4 ) Cvar_SetValue( "r_bloom_diamond_size", 4 );
 
 		R_Bloom_DrawStart
 		for (i=0; i<r_bloom_diamond_size->value; i++) {
@@ -542,8 +542,8 @@ void R_Bloom_DownsampleView (void)
 	// stepped downsample
 	if ( r_screendownsamplingtexture_size )
 	{
-		int		midsample_width = r_screendownsamplingtexture_size * sampleText_tcw;
-		int		midsample_height = r_screendownsamplingtexture_size * sampleText_tch;
+		Sint32		midsample_width = r_screendownsamplingtexture_size * sampleText_tcw;
+		Sint32		midsample_height = r_screendownsamplingtexture_size * sampleText_tch;
 		
 		// copy the screen and draw resized
 		GL_Bind(r_bloomscreentexture->texnum);

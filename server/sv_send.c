@@ -31,7 +31,7 @@ Com_Printf redirection
 
 char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
-void SV_FlushRedirect (int sv_redirected, char *outputbuf)
+void SV_FlushRedirect (Sint32 sv_redirected, char *outputbuf)
 {
 	if (sv_redirected == RD_PACKET)
 	{
@@ -62,7 +62,7 @@ SV_ClientPrintf
 Sends text across to be displayed if the level passes
 =================
 */
-void SV_ClientPrintf (client_t *cl, int level, char *fmt, ...)
+void SV_ClientPrintf (client_t *cl, Sint32 level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[1024];
@@ -87,12 +87,12 @@ SV_BroadcastPrintf
 Sends text to all active clients
 =================
 */
-void SV_BroadcastPrintf (int level, char *fmt, ...)
+void SV_BroadcastPrintf (Sint32 level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[2048];
 	client_t	*cl;
-	int			i;
+	Sint32			i;
 
 	va_start (argptr, fmt);
 //	vsprintf (string, fmt, argptr);
@@ -103,7 +103,7 @@ void SV_BroadcastPrintf (int level, char *fmt, ...)
 	if (dedicated->value)
 	{
 		char	copy[1024];
-		int		i;
+		Sint32		i;
 		
 		// mask off high bits
 		for (i=0 ; i<1023 && string[i] ; i++)
@@ -165,10 +165,10 @@ void SV_Multicast (vec3_t origin, multicast_t to)
 {
 	client_t	*client;
 	byte		*mask;
-	int			leafnum, cluster;
-	int			j;
+	Sint32			leafnum, cluster;
+	Sint32			j;
 	qboolean	reliable;
-	int			area1, area2;
+	Sint32			area1, area2;
 
 	reliable = false;
 
@@ -272,14 +272,14 @@ If origin is NULL, the origin is determined from the entity origin
 or the midpoint of the entity box for bmodels.
 ==================
 */  
-void SV_StartSound (vec3_t origin, edict_t *entity, int channel,
-					int soundindex, float volume,
+void SV_StartSound (vec3_t origin, edict_t *entity, Sint32 channel,
+					Sint32 soundindex, float volume,
 					float attenuation, float timeofs)
 {       
-	int			sendchan;
-    int			flags;
-    int			i;
-	int			ent;
+	Sint32			sendchan;
+    Sint32			flags;
+    Sint32			i;
+	Sint32			ent;
 	vec3_t		origin_v;
 	qboolean	use_phs;
 
@@ -344,7 +344,7 @@ void SV_StartSound (vec3_t origin, edict_t *entity, int channel,
 	MSG_WriteByte (&sv.multicast, svc_sound);
 	MSG_WriteByte (&sv.multicast, flags);
 
-	//Knightmare- 12/23/2001- changed to short
+	//Knightmare- 12/23/2001- changed to Sint16
 	MSG_WriteShort (&sv.multicast, soundindex);
 		
 	if (flags & SND_VOLUME)
@@ -463,8 +463,8 @@ bandwidth estimation and should not be sent another packet
 */
 qboolean SV_RateDrop (client_t *c)
 {
-	int		total;
-	int		i;
+	Sint32		total;
+	Sint32		i;
 
 	// never drop over the loopback
 	if (c->netchan.remote_address.type == NA_LOOPBACK)
@@ -494,11 +494,11 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages (void)
 {
-	int			i;
+	Sint32			i;
 	client_t	*c;
-	int			msglen;
+	Sint32			msglen;
 	byte		msgbuf[MAX_MSGLEN];
-	int			r;
+	Sint32			r;
 
 	msglen = 0;
 

@@ -31,7 +31,7 @@ void Menu_Video_Init (void);
 typedef struct vidmode_s
 {
 	const char *description;
-	int         width, height;
+	Sint32         width, height;
 } vidmode_t;
 
 /*
@@ -92,7 +92,7 @@ static void BrightnessCallback( void *s )
 
 static void VsyncCallback ( void *unused )
 {
-	int mode = s_vsync_box.curvalue;
+	Sint32 mode = s_vsync_box.curvalue;
 
 	Cvar_SetValue( "r_swapinterval", (mode >= 1));
 	Cvar_SetValue( "r_adaptivevsync", (mode >= 2));
@@ -163,7 +163,7 @@ static void prepareVideoRefresh( void )
 
 static void ApplyChanges( void *unused )
 {
-	int		temp;
+	Sint32		temp;
 
 	temp = ClampCvar(0,NUM_VIDEO_MODES,s_mode_list.curvalue);
 	if (temp != NUM_VIDEO_MODES)
@@ -219,7 +219,7 @@ static void ApplyChanges( void *unused )
 	else if (s_texfilter_box.curvalue == 1)
 		Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 
-	switch ((int)s_aniso_box.curvalue)
+	switch ((Sint32)s_aniso_box.curvalue)
 	{
 		case 1: Cvar_SetValue( "r_anisotropic", 2.0 ); break;
 		case 2: Cvar_SetValue( "r_anisotropic", 4.0 ); break;
@@ -243,7 +243,7 @@ static void ApplyChanges( void *unused )
 
 
 // Knightmare added
-int texfilter_box_setval (void)
+Sint32 texfilter_box_setval (void)
 {
 	char *texmode = Cvar_VariableString("r_texturemode");
 	if (!Q_strcasecmp(texmode, "GL_LINEAR_MIPMAP_NEAREST"))
@@ -253,9 +253,9 @@ int texfilter_box_setval (void)
 }
 
 // Knightmare- refresh rate option
-int refresh_box_setval (void)
+Sint32 refresh_box_setval (void)
 {
-	int refreshVar = (int)Cvar_VariableValue ("vid_refresh");
+	Sint32 refreshVar = (Sint32)Cvar_VariableValue ("vid_refresh");
 
 	if (refreshVar == 150)
 		return 9;
@@ -438,11 +438,11 @@ void Menu_Video_Init (void)
 		0
 	};
 
-	int		y = 0;
+	Sint32		y = 0;
 	float	temp;
 
-	int i;
-	int j = sizeof(vid_modes) / sizeof(vidmode_t);
+	Sint32 i;
+	Sint32 j = sizeof(vid_modes) / sizeof(vidmode_t);
 	for (i = 0; i < NUM_VIDEO_MODES; i++)
 	{
 		if (vid_modes[i].width == Cvar_VariableInteger("vid_width") 
@@ -542,7 +542,7 @@ void Menu_Video_Init (void)
 
 	if (glConfig.ext_swap_control_tear)
 	{
-		int temp = !!Cvar_VariableInteger("r_swapinterval");
+		Sint32 temp = !!Cvar_VariableInteger("r_swapinterval");
 		temp += temp ? !!Cvar_VariableInteger("r_adaptivevsync") : 0;
 		s_vsync_box.curvalue			= temp;
 		s_vsync_box.itemnames			= vsync_names;
@@ -632,7 +632,7 @@ Menu_Video_Draw
 */
 void Menu_Video_Draw (void)
 {
-	//int w, h;
+	//Sint32 w, h;
 
 	// draw the banner
 	Menu_DrawBanner("m_banner_video");
@@ -649,7 +649,7 @@ void Menu_Video_Draw (void)
 Video_MenuKey
 ================
 */
-const char *Video_MenuKey( int key )
+const char *Video_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_video_menu, key );
 }

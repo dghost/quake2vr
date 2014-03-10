@@ -23,10 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if id386
 
-static unsigned long bias;
-static unsigned long *histogram;
-static unsigned long start, range;
-static unsigned long bias;
+static Uint32 bias;
+static Uint32 *histogram;
+static Uint32 start, range;
+static Uint32 bias;
 
 __declspec( naked ) void x86_TimerStart( void )
 {
@@ -55,7 +55,7 @@ discard:
 }
 
 #pragma warning( disable: 4035 )
-static __declspec( naked ) unsigned long x86_TimerStopBias( void )
+static __declspec( naked ) Uint32 x86_TimerStopBias( void )
 {
 	__asm push edi
 	__asm mov edi, histogram
@@ -67,10 +67,10 @@ static __declspec( naked ) unsigned long x86_TimerStopBias( void )
 }
 #pragma warning( default:4035 )
 
-void x86_TimerInit( unsigned long smallest, unsigned length )
+void x86_TimerInit( Uint32 smallest, unsigned length )
 {
-	int i;
-	unsigned long biastable[100];
+	Sint32 i;
+	Uint32 biastable[100];
 
 	range = length;
 	bias = 10000;
@@ -85,10 +85,10 @@ void x86_TimerInit( unsigned long smallest, unsigned length )
 	}
 
 	bias += smallest;
-	histogram = Z_Malloc( range * sizeof( unsigned long ) );
+	histogram = Z_Malloc( range * sizeof( Uint32 ) );
 }
 
-unsigned long *x86_TimerGetHistogram( void )
+Uint32 *x86_TimerGetHistogram( void )
 {
 	return histogram;
 }

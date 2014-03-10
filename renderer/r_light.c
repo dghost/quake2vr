@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "r_local.h"
 
-int	r_dlightframecount;
+Sint32	r_dlightframecount;
 
 void vectoangles (vec3_t value1, vec3_t angles);
 
@@ -45,7 +45,7 @@ R_AddDlight
 */
 void R_AddDlight (dlight_t *light)
 {
-	int		i, j;
+	Sint32		i, j;
 	float	a;
 	vec3_t	v;
 	float	rad;
@@ -89,7 +89,7 @@ R_RenderDlights
 */
 void R_RenderDlights (void)
 {
-	int		i;
+	Sint32		i;
 	dlight_t	*l;
 
 	if (!r_flashblend->value)
@@ -133,13 +133,13 @@ R_MarkLights
 =============
 */
 extern cvar_t *r_dlights_normal;
-void R_MarkLights (dlight_t *light, int num, mnode_t *node)
+void R_MarkLights (dlight_t *light, Sint32 num, mnode_t *node)
 {
 	cplane_t	*splitplane;
 	float		dist;
 	msurface_t	*surf;
-	int			i;
-	int			sidebit; //Knightmare added
+	Sint32			i;
+	Sint32			sidebit; //Knightmare added
 
 	if (node->contents != -1)
 		return;
@@ -200,7 +200,7 @@ R_PushDlights
 */
 void R_PushDlights (void)
 {
-	int		i;
+	Sint32		i;
 	dlight_t	*l;
 
 	if (r_flashblend->value)
@@ -231,19 +231,19 @@ vec3_t			lightspot;
 RecursiveLightPoint
 ===============
 */
-int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
+Sint32 RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 {
 	float		front, back, frac;
-	int			side;
+	Sint32			side;
 	cplane_t	*plane;
 	vec3_t		mid;
 	msurface_t	*surf;
-	int			s, t, ds, dt;
-	int			i;
+	Sint32			s, t, ds, dt;
+	Sint32			i;
 	mtexinfo_t	*tex;
 	byte		*lightmap;
-	int			maps;
-	int			r;
+	Sint32			maps;
+	Sint32			r;
 
 	if (node->contents != -1)
 		return -1;		// didn't hit anything
@@ -343,7 +343,7 @@ Psychospaz's lighting on alpha surfaces
 */
 void R_MaxColorVec (vec3_t color)
 {
-	int j;
+	Sint32 j;
 	float lightest = 0.0f;
 
 	for (j=0;j<3;j++)
@@ -370,7 +370,7 @@ void R_LightPoint (vec3_t p, vec3_t color, qboolean isEnt)
 {
 	vec3_t		end;
 	float		r;
-	int			lnum, i;
+	Sint32			lnum, i;
 	dlight_t	*dl;
 	float		light;
 	vec3_t		dist;
@@ -431,11 +431,11 @@ void R_LightPoint (vec3_t p, vec3_t color, qboolean isEnt)
 R_LightPointDynamics
 ===============
 */
-void R_LightPointDynamics (vec3_t p, vec3_t color, m_dlight_t *list, int *amount, int max)
+void R_LightPointDynamics (vec3_t p, vec3_t color, m_dlight_t *list, Sint32 *amount, Sint32 max)
 {
 	vec3_t		end;
 	float		r;
-	int			lnum, i, m_dl;
+	Sint32			lnum, i, m_dl;
 	dlight_t	*dl;
 	vec3_t		dist, dlColor;
 	float		add;
@@ -497,7 +497,7 @@ void R_LightPointDynamics (vec3_t p, vec3_t color, m_dlight_t *list, int *amount
 			else
 			{
 				float	least_val = 10;
-				int		least_index = 0;
+				Sint32		least_index = 0;
 
 				for (i=0;i<m_dl;i++)
 					if (list[i].strength<least_val)
@@ -531,7 +531,7 @@ void R_SurfLightPoint (msurface_t *surf, vec3_t p, vec3_t color, qboolean baseli
 	vec3_t		dlorigin, temp, forward, right, up;
 	vec3_t		startOffset[4] = { {0,0,0}, {-1,0,0}, {0,-1,0}, {-1,-1,0} };
 	float		r, light, add;
-	int			lnum, i;
+	Sint32			lnum, i;
 	dlight_t	*dl;
 	// Knightmare- fix for moving surfaces
 	qboolean	rotated = false;
@@ -632,7 +632,7 @@ R_ShadowLight
 */
 void R_ShadowLight (vec3_t pos, vec3_t lightAdd)
 {
-	int			lnum;
+	Sint32			lnum;
 	dlight_t	*dl;
 	vec3_t		dist, angle;
 	float		add, shadowdist;
@@ -711,13 +711,13 @@ R_AddDynamicLights
 */
 void R_AddDynamicLights (msurface_t *surf)
 {
-	int			lnum;
-	int			sd, td;
+	Sint32			lnum;
+	Sint32			sd, td;
 	float		fdist, frad, fminlight;
 	vec3_t		impact, local, dlorigin, temp, entOrigin, entAngles;
-	int			s, t;
-	int			i;
-	int			smax, tmax;
+	Sint32			s, t;
+	Sint32			i;
+	Sint32			smax, tmax;
 	mtexinfo_t	*tex;
 	dlight_t	*dl;
 	float		*pfBL;
@@ -835,7 +835,7 @@ R_SetCacheState
 */
 void R_SetCacheState (msurface_t *surf)
 {
-	int maps;
+	Sint32 maps;
 
 	for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 		 maps++)
@@ -856,14 +856,14 @@ R_BuildLightMap
 Combine and scale multiple lightmaps into the floating format in blocklights
 ===============
 */
-void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
+void R_BuildLightMap (msurface_t *surf, byte *dest, Sint32 stride)
 {
-	int			smax, tmax;
-	int			r, g, b, a, max;
-	int			i, j, size;
+	Sint32			smax, tmax;
+	Sint32			r, g, b, a, max;
+	Sint32			i, j, size;
 	byte		*lightmap;
 	float		scale[4];
-	int			nummaps;
+	Sint32			nummaps;
 	float		*bl;
 	lightstyle_t	*style;
 
@@ -881,7 +881,7 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 	// set to full bright if no light data
 	if (!surf->samples)
 	{
-		int maps;
+		Sint32 maps;
 
 		for (i=0 ; i<size*3 ; i++)
 			s_blocklights[i] = 255;
@@ -903,7 +903,7 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 	// add all the lightmaps
 	if ( nummaps == 1 )
 	{
-		int maps;
+		Sint32 maps;
 
 		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 			 maps++)
@@ -938,7 +938,7 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 	}
 	else
 	{
-		int maps;
+		Sint32 maps;
 
 		memset( s_blocklights, 0, sizeof( s_blocklights[0] ) * size * 3 );
 

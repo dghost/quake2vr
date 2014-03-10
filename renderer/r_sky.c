@@ -36,10 +36,10 @@ vec3_t	skyclip[6] = {
 	{1,0,1},
 	{-1,0,1} 
 };
-int	c_sky;
+Sint32	c_sky;
 
 // 1 = s, 2 = t, 3 = 2048
-int	st_to_vec[6][3] =
+Sint32	st_to_vec[6][3] =
 {
 	{3,-1,2},
 	{-3,1,2},
@@ -55,7 +55,7 @@ int	st_to_vec[6][3] =
 };
 
 // s = [0]/[2], t = [1]/[2]
-int	vec_to_st[6][3] =
+Sint32	vec_to_st[6][3] =
 {
 	{-2,3,1},
 	{2,3,-1},
@@ -73,12 +73,12 @@ int	vec_to_st[6][3] =
 float	skymins[2][6], skymaxs[2][6];
 float	sky_min, sky_max;
 
-void DrawSkyPolygon (int nump, vec3_t vecs)
+void DrawSkyPolygon (Sint32 nump, vec3_t vecs)
 {
-	int		i,j;
+	Sint32		i,j;
 	vec3_t	v, av;
 	float	s, t, dv;
-	int		axis;
+	Sint32		axis;
 	float	*vp;
 
 	c_sky++;
@@ -148,17 +148,17 @@ void DrawSkyPolygon (int nump, vec3_t vecs)
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 #define	MAX_CLIP_VERTS	64
-void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
+void ClipSkyPolygon (Sint32 nump, vec3_t vecs, Sint32 stage)
 {
 	float	*norm;
 	float	*v;
 	qboolean	front, back;
 	float	d, e;
 	float	dists[MAX_CLIP_VERTS];
-	int		sides[MAX_CLIP_VERTS];
+	Sint32		sides[MAX_CLIP_VERTS];
 	vec3_t	newv[2][MAX_CLIP_VERTS];
-	int		newc[2];
-	int		i, j;
+	Sint32		newc[2];
+	Sint32		i, j;
 
 	if (nump > MAX_CLIP_VERTS-2)
 		VID_Error (ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS");
@@ -246,7 +246,7 @@ R_AddSkySurface
 */
 void R_AddSkySurface (msurface_t *fa)
 {
-	int			i;
+	Sint32			i;
 	vec3_t		verts[MAX_CLIP_VERTS];
 	glpoly_t	*p;
 
@@ -269,7 +269,7 @@ R_ClearSkyBox
 */
 void R_ClearSkyBox (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<6 ; i++)
 	{
@@ -279,10 +279,10 @@ void R_ClearSkyBox (void)
 }
 
 
-void MakeSkyVec (float s, float t, int axis)
+void MakeSkyVec (float s, float t, Sint32 axis)
 {
 	vec3_t		v, b;
-	int			j, k;
+	Sint32			j, k;
 
 	//Knightmare- 12/26/2001- variable back clipping plane distance
 	b[0] = s * r_skydistance->value;
@@ -325,10 +325,10 @@ void MakeSkyVec (float s, float t, int axis)
 R_DrawSkyBox
 ==============
 */
-int	skytexorder[6] = {0,2,1,3,4,5};
+Sint32	skytexorder[6] = {0,2,1,3,4,5};
 void R_DrawSkyBox (void)
 {
-	int		i;
+	Sint32		i;
 
 	if (skyrotate)
 	{	// check for no sky at all
@@ -387,7 +387,7 @@ R_SetSky
 char	*suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 void R_SetSky (char *name, float rotate, vec3_t axis)
 {
-	int		i;
+	Sint32		i;
 	char	pathname[MAX_QPATH];
 	float	imagesize;
 

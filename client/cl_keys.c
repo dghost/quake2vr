@@ -28,27 +28,27 @@ key up events are sent even if in console mode
 
 #define		MAXCMDLINE	256
 char	key_lines[32][MAXCMDLINE];
-int		key_linepos;
-int		shift_down=false;
-int	anykeydown;
+Sint32		key_linepos;
+Sint32		shift_down=false;
+Sint32	anykeydown;
 
-int		edit_line=0;
-int		history_line=0;
+Sint32		edit_line=0;
+Sint32		history_line=0;
 
-int		key_waiting;
+Sint32		key_waiting;
 
 #define MAX_KEYEVENTS 512
 char		*keybindings[MAX_KEYEVENTS];
 qboolean	consolekeys[MAX_KEYEVENTS];	// if true, can't be rebound while in console
 qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
 keynum_t	keyshift[MAX_KEYEVENTS];		// key to map to if shift held down in console
-int			key_repeats[MAX_KEYEVENTS];	// if > 1, it is autorepeating
+Sint32			key_repeats[MAX_KEYEVENTS];	// if > 1, it is autorepeating
 qboolean	keydown[MAX_KEYEVENTS];
 
 typedef struct
 {
 	char	*name;
-	int		keynum;
+	Sint32		keynum;
 } keyname_t;
 
 keyname_t keynames[] =
@@ -203,9 +203,9 @@ Key_Console
 Interactive line editing and console scrollback
 ====================
 */
-void Key_Console (int key)
+void Key_Console (Sint32 key)
 {
-	int i;
+	Sint32 i;
 
 	switch ( key )
 	{
@@ -260,7 +260,7 @@ void Key_Console (int key)
 		
 		if ( ( cbd = Sys_GetClipboardData() ) != 0 )
 		{
-			int i;
+			Sint32 i;
 
 			strtok( cbd, "\n\r\b" );
 
@@ -472,12 +472,12 @@ void Key_Console (int key)
 
 qboolean	chat_team;
 char		chat_buffer[MAXCMDLINE];
-int			chat_bufferlen = 0;
-int			chat_backedit = 0;
+Sint32			chat_bufferlen = 0;
+Sint32			chat_backedit = 0;
 
-void Key_Message (int key)
+void Key_Message (Sint32 key)
 {
-	int i;
+	Sint32 i;
 
 	if ( key == K_ENTER || key == K_KP_ENTER )
 	{
@@ -603,7 +603,7 @@ the given string.  Single ascii characters return themselves, while
 the K_* names are matched up.
 ===================
 */
-int Key_StringToKeynum (char *str)
+Sint32 Key_StringToKeynum (char *str)
 {
 	keyname_t	*kn;
 	
@@ -629,7 +629,7 @@ given keynum.
 FIXME: handle quote special (general escape sequence?)
 ===================
 */
-char *Key_KeynumToString (int keynum)
+char *Key_KeynumToString (Sint32 keynum)
 {
 	keyname_t	*kn;	
 	static	char	tinystr[2];
@@ -656,10 +656,10 @@ char *Key_KeynumToString (int keynum)
 Key_SetBinding
 ===================
 */
-void Key_SetBinding (int keynum, char *binding)
+void Key_SetBinding (Sint32 keynum, char *binding)
 {
 	char	*new;
-	int		l;
+	Sint32		l;
 			
 	if (keynum == -1)
 		return;
@@ -686,7 +686,7 @@ Key_Unbind_f
 */
 void Key_Unbind_f (void)
 {
-	int		b;
+	Sint32		b;
 
 	if (Cmd_Argc() != 2)
 	{
@@ -706,7 +706,7 @@ void Key_Unbind_f (void)
 
 void Key_Unbindall_f (void)
 {
-	int		i;
+	Sint32		i;
 	
 	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i])
@@ -721,7 +721,7 @@ Key_Bind_f
 */
 void Key_Bind_f (void)
 {
-	int			i, c, b;
+	Sint32			i, c, b;
 	char		cmd[1024];
 	
 	c = Cmd_Argc();
@@ -768,7 +768,7 @@ Writes lines containing "bind key value"
 */
 void Key_WriteBindings (FILE *f)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i] && keybindings[i][0])
@@ -784,7 +784,7 @@ Key_Bindlist_f
 */
 void Key_Bindlist_f (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i] && keybindings[i][0])
@@ -799,7 +799,7 @@ Key_Init
 */
 void Key_Init (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<32 ; i++)
 	{
@@ -896,9 +896,9 @@ Called by the system between frames for both key up and key down events
 Should NOT be called during an interrupt!
 ===================
 */
-extern int scr_draw_loading;
+extern Sint32 scr_draw_loading;
 
-void Key_Event (int key, qboolean down, unsigned time)
+void Key_Event (Sint32 key, qboolean down, unsigned time)
 {
 	char	*kb;
 	char	cmd[1024];
@@ -1116,7 +1116,7 @@ Key_ClearStates
 */
 void Key_ClearStates (void)
 {
-	int		i;
+	Sint32		i;
 
 	anykeydown = false;
 
@@ -1135,7 +1135,7 @@ void Key_ClearStates (void)
 Key_GetKey
 ===================
 */
-int Key_GetKey (void)
+Sint32 Key_GetKey (void)
 {
 	key_waiting = -1;
 

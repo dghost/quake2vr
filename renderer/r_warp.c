@@ -26,9 +26,9 @@ msurface_t	*warpface;
 
 #define	SUBDIVIDE_SIZE	64
 
-void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
+void BoundPoly (Sint32 numverts, float *verts, vec3_t mins, vec3_t maxs)
 {
-	int		i, j;
+	Sint32		i, j;
 	float	*v;
 
 	mins[0] = mins[1] = mins[2] = 999999;
@@ -44,14 +44,14 @@ void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
 		}
 }
 
-void SubdividePolygon (int numverts, float *verts)
+void SubdividePolygon (Sint32 numverts, float *verts)
 {
-	int		i, j, k;
+	Sint32		i, j, k;
 	vec3_t	mins, maxs;
 	float	m;
 	float	*v;
 	vec3_t	front[64], back[64];
-	int		f, b, size;
+	Sint32		f, b, size;
 	float	dist[64];
 	float	frac;
 	glpoly_t	*poly;
@@ -168,9 +168,9 @@ can be done reasonably.
 void R_SubdivideSurface (msurface_t *fa)
 {
 	vec3_t		verts[64];
-	int			numverts;
-	int			i;
-	int			lindex;
+	Sint32			numverts;
+	Sint32			i;
+	Sint32			lindex;
 	float		*vec;
 
 	warpface = fa;
@@ -209,7 +209,7 @@ float	r_turbsin[] =
 
 // MrG - texture shader stuffs
 #define DST_SIZE 16
-unsigned int dst_texture;
+Uint32 dst_texture;
 
 /*
 ===============
@@ -220,8 +220,8 @@ Create the texture which warps texture shaders
 */
 void CreateDSTTex (void)
 {
-	unsigned char	dist[DST_SIZE][DST_SIZE][4];
-	int				x,y;
+	Uint8	dist[DST_SIZE][DST_SIZE][4];
+	Sint32				x,y;
 
 	srand(GetTickCount());
 	for (x=0; x<DST_SIZE; x++)
@@ -347,15 +347,15 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 	glpoly_t	*p, *bp;
 	float		*v, s, t, scroll, dstscroll, rdt = r_newrefdef.time;
 	vec3_t		point;
-	int			i;
+	Sint32			i;
 	qboolean	light = r_warp_lighting->value && !r_fullbright->value && !(fa->texinfo->flags & SURF_NOLIGHTENV);
 
 	c_brush_surfs++;
 
-	dstscroll = -64 * ( (r_newrefdef.time*0.15) - (int)(r_newrefdef.time*0.15) );
+	dstscroll = -64 * ( (r_newrefdef.time*0.15) - (Sint32)(r_newrefdef.time*0.15) );
 
 	if (fa->texinfo->flags & SURF_FLOWING)
-		scroll = -64 * ( (r_newrefdef.time*0.5) - (int)(r_newrefdef.time*0.5) );
+		scroll = -64 * ( (r_newrefdef.time*0.5) - (Sint32)(r_newrefdef.time*0.5) );
 	else
 		scroll = 0.0f;
 
@@ -374,8 +374,8 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 		for (i=0, v=p->verts[0]; i<p->numverts; i++, v+=VERTEXSIZE)
 		{
 		#if !id386
-			s = v[3] + r_turbsin[(int)((v[4]*0.125+rdt) * TURBSCALE) & 255];
-			t = v[4] + r_turbsin[(int)((v[3]*0.125+rdt) * TURBSCALE) & 255];
+			s = v[3] + r_turbsin[(Sint32)((v[4]*0.125+rdt) * TURBSCALE) & 255];
+			t = v[4] + r_turbsin[(Sint32)((v[3]*0.125+rdt) * TURBSCALE) & 255];
 		#else
 			s = v[3] + r_turbsin[Q_ftol( ((v[4]*0.125+rdt) * TURBSCALE) ) & 255];
 			t = v[4] + r_turbsin[Q_ftol( ((v[3]*0.125+rdt) * TURBSCALE) ) & 255];

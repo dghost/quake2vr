@@ -242,7 +242,7 @@ void Menu_Video_Advanced_Init (void)
 		0
 	};
 
-	int y = 0;
+	Sint32 y = 0;
 
 	r_intensity = Cvar_Get ("r_intensity", "1", 0);
 
@@ -424,7 +424,7 @@ Menu_Video_Advanced_Draw
 */
 void Menu_Video_Advanced_Draw (void)
 {
-	//int w, h;
+	//Sint32 w, h;
 
 	// draw the banner
 	Menu_DrawBanner("m_banner_video");
@@ -441,7 +441,7 @@ void Menu_Video_Advanced_Draw (void)
 Video_Advanced_MenuKey
 ================
 */
-const char *Video_Advanced_MenuKey( int key )
+const char *Video_Advanced_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_video_advanced_menu, key );
 

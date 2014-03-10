@@ -38,7 +38,7 @@ typedef enum {
 } ogg_seek_t;
 
 // snd_stream.c
-extern int sound_started;
+extern Sint32 sound_started;
 
 void S_UpdateBackgroundTrack (void);
 void S_StartBackgroundTrack (const char *introTrack, const char *loopTrack);

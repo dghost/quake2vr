@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "client.h"
 #include "snd_loc.h"
 
-int			cache_full_cycle;
+Sint32			cache_full_cycle;
 
-byte *S_Alloc (int size);
+byte *S_Alloc (Sint32 size);
 
 /*
 ================
@@ -34,7 +34,7 @@ ResampleSfx
 // Knightmare
 /*void New_ResampleSfx (sfxcache_t *sc, byte *data, char *name)
 {
-	int i, outcount, srcsample, srclength, samplefrac, fracstep;
+	Sint32 i, outcount, srcsample, srclength, samplefrac, fracstep;
 	float scale = (float) sc->speed / (float) dma.speed;
 
 	// this is usually 0.5 (128), 1 (256), or 2 (512)
@@ -54,10 +54,10 @@ ResampleSfx
 	{
 		if (sc->width == 1) // 8bit
 			for (i = 0;i < srclength;i++)
-				((signed char *)sc->data)[i] = ((unsigned char *)data)[i] - 128;
+				((Sint8 *)sc->data)[i] = ((Uint8 *)data)[i] - 128;
 		else
 			for (i = 0;i < srclength;i++)
-				((short *)sc->data)[i] = LittleShort (((short *)data)[i]); //crashes here
+				((Sint16 *)sc->data)[i] = LittleShort (((Sint16 *)data)[i]); //crashes here
 	}
 	else
 	{
@@ -71,7 +71,7 @@ ResampleSfx
 			fracstep >>= 8;
 			if (sc->width == 2)
 			{
-				short *out = (void *)sc->data, *in = (void *)data;
+				Sint16 *out = (void *)sc->data, *in = (void *)data;
 				if (sc->stereo)
 				{
 					fracstep <<= 1;
@@ -93,8 +93,8 @@ ResampleSfx
 			}
 			else
 			{
-				signed char *out = (void *)sc->data;
-				unsigned char *in = (void *)data;
+				Sint8 *out = (void *)sc->data;
+				Uint8 *in = (void *)data;
 
 				if (sc->stereo)
 				{
@@ -118,11 +118,11 @@ ResampleSfx
 		}
 		else
 		{
-			int sample;
-			int a, b;
+			Sint32 sample;
+			Sint32 a, b;
 			if (sc->width == 2)
 			{
-				short *out = (void *)sc->data, *in = (void *)data;
+				Sint16 *out = (void *)sc->data, *in = (void *)data;
 
 				if (sc->stereo)
 				{
@@ -135,14 +135,14 @@ ResampleSfx
 						else
 							b = in[srcsample+2];
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (short) sample;
+						*out++ = (Sint16) sample;
 						a = in[srcsample+1];
 						if (srcsample+2 >= srclength)
 							b = 0;
 						else
 							b = in[srcsample+3];
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (short) sample;
+						*out++ = (Sint16) sample;
 						samplefrac += fracstep;
 					}
 				}
@@ -157,34 +157,34 @@ ResampleSfx
 						else
 							b = in[srcsample+1];
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (short) sample;
+						*out++ = (Sint16) sample;
 						samplefrac += fracstep;
 					}
 				}
 			}
 			else
 			{
-				signed char *out = (void *)sc->data;
-				unsigned char *in = (void *)data;
+				Sint8 *out = (void *)sc->data;
+				Uint8 *in = (void *)data;
 				if (sc->stereo) // LordHavoc: stereo sound support
 				{
 					for (i=0 ; i<outcount ; i++)
 					{
 						srcsample = (samplefrac >> 8) << 1;
-						a = (int) in[srcsample  ] - 128;
+						a = (Sint32) in[srcsample  ] - 128;
 						if (srcsample+2 >= srclength)
 							b = 0;
 						else
-							b = (int) in[srcsample+2] - 128;
+							b = (Sint32) in[srcsample+2] - 128;
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (signed char) sample;
-						a = (int) in[srcsample+1] - 128;
+						*out++ = (Sint8) sample;
+						a = (Sint32) in[srcsample+1] - 128;
 						if (srcsample+2 >= srclength)
 							b = 0;
 						else
-							b = (int) in[srcsample+3] - 128;
+							b = (Sint32) in[srcsample+3] - 128;
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (signed char) sample;
+						*out++ = (Sint8) sample;
 						samplefrac += fracstep;
 					}
 				}
@@ -193,13 +193,13 @@ ResampleSfx
 					for (i=0 ; i<outcount ; i++)
 					{
 						srcsample = samplefrac >> 8;
-						a = (int) in[srcsample  ] - 128;
+						a = (Sint32) in[srcsample  ] - 128;
 						if (srcsample+1 >= srclength)
 							b = 0;
 						else
-							b = (int) in[srcsample+1] - 128;
+							b = (Sint32) in[srcsample+1] - 128;
 						sample = (((b - a) * (samplefrac & 255)) >> 8) + a;
-						*out++ = (signed char) sample;
+						*out++ = (Sint8) sample;
 						samplefrac += fracstep;
 					}
 				}
@@ -208,13 +208,13 @@ ResampleSfx
 	}
 }*/
 
-void ResampleSfx (sfx_t *sfx, int inrate, int inwidth, byte *data)
+void ResampleSfx (sfx_t *sfx, Sint32 inrate, Sint32 inwidth, byte *data)
 {
-	int		outcount;
-	int		srcsample;
+	Sint32		outcount;
+	Sint32		srcsample;
 	float	stepscale;
-	int		i;
-	int		sample, samplefrac, fracstep;
+	Sint32		i;
+	Sint32		sample, samplefrac, fracstep;
 	sfxcache_t	*sc;
 	
 	sc = sfx->cache;
@@ -242,8 +242,8 @@ void ResampleSfx (sfx_t *sfx, int inrate, int inwidth, byte *data)
 	{
 // fast special case
 		for (i = 0; i < outcount; i++)
-			((signed char *)sc->data)[i]
-			= (int)( (unsigned char)(data[i]) - 128);
+			((Sint8 *)sc->data)[i]
+			= (Sint32)( (Uint8)(data[i]) - 128);
 	}
 	else
 	{
@@ -255,13 +255,13 @@ void ResampleSfx (sfx_t *sfx, int inrate, int inwidth, byte *data)
 			srcsample = samplefrac >> 8;
 			samplefrac += fracstep;
 			if (inwidth == 2)
-				sample = LittleShort ( ((short *)data)[srcsample] );
+				sample = LittleShort ( ((Sint16 *)data)[srcsample] );
 			else
-				sample = (int)( (unsigned char)(data[srcsample]) - 128) << 8;
+				sample = (Sint32)( (Uint8)(data[srcsample]) - 128) << 8;
 			if (sc->width == 2)
-				((short *)sc->data)[i] = sample;
+				((Sint16 *)sc->data)[i] = sample;
 			else
-				((signed char *)sc->data)[i] = sample >> 8;
+				((Sint8 *)sc->data)[i] = sample >> 8;
 		}
 	}
 }
@@ -278,10 +278,10 @@ sfxcache_t *S_LoadSound (sfx_t *s)
     char	namebuffer[MAX_QPATH];
 	byte	*data;
 	wavinfo_t	info;
-	int		len;
+	Sint32		len;
 	float	stepscale;
 	sfxcache_t	*sc;
-	int		size;
+	Sint32		size;
 	char	*name;
 
 	if (s->name[0] == '*')
@@ -373,21 +373,21 @@ byte	*data_p;
 byte 	*iff_end;
 byte 	*last_chunk;
 byte 	*iff_data;
-int 	iff_chunk_len;
+Sint32 	iff_chunk_len;
 
 
-short GetLittleShort(void)
+Sint16 GetLittleShort(void)
 {
-	short val = 0;
+	Sint16 val = 0;
 	val = *data_p;
 	val = val + (*(data_p+1)<<8);
 	data_p += 2;
 	return val;
 }
 
-int GetLittleLong(void)
+Sint32 GetLittleLong(void)
 {
-	int val = 0;
+	Sint32 val = 0;
 	val = *data_p;
 	val = val + (*(data_p+1)<<8);
 	val = val + (*(data_p+2)<<16);
@@ -442,7 +442,7 @@ void DumpChunks(void)
 		memcpy (str, data_p, 4);
 		data_p += 4;
 		iff_chunk_len = GetLittleLong();
-		Com_Printf ("0x%x : %s (%d)\n", (int)(data_p - 4), str, iff_chunk_len);
+		Com_Printf ("0x%x : %s (%d)\n", (Sint32)(data_p - 4), str, iff_chunk_len);
 		data_p += (iff_chunk_len + 1) & ~1;
 	} while (data_p < iff_end);
 }
@@ -452,12 +452,12 @@ void DumpChunks(void)
 GetWavinfo
 ============
 */
-wavinfo_t GetWavinfo (char *name, byte *wav, int wavlength)
+wavinfo_t GetWavinfo (char *name, byte *wav, Sint32 wavlength)
 {
 	wavinfo_t	info;
-	int     i;
-	int     format;
-	int		samples;
+	Sint32     i;
+	Sint32     format;
+	Sint32		samples;
 
 	memset (&info, 0, sizeof(info));
 

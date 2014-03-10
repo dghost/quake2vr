@@ -44,7 +44,7 @@ void R_DrawSpriteModel (entity_t *e)
 	dsprite_t		*psprite;
 	dsprframe_t		*frame;
 	float			*up, *right;
-	int				i;
+	Sint32				i;
 
 	// don't even bother culling, because it's just a single
 	// polygon without a surface cache

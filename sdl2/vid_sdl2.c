@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sdl2quake.h"
 
 //PGM
-int	vidref_val;
+Sint32	vidref_val;
 //PGM
 
 // Console variables that we need to access from this module
@@ -88,7 +88,7 @@ DLL GLUE
 */
 
 #define	MAXPRINTMSG	8192 // was 4096
-void VID_Printf (int print_level, char *fmt, ...)
+void VID_Printf (Sint32 print_level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
@@ -114,7 +114,7 @@ void VID_Printf (int print_level, char *fmt, ...)
 	}
 }
 
-void VID_Error (int err_level, char *fmt, ...)
+void VID_Error (Sint32 err_level, char *fmt, ...)
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
@@ -135,9 +135,9 @@ MapSDLKey
 Map from SDL to quake keynums
 =======
 */
-int MapSDLKey (SDL_Keysym key)
+Sint32 MapSDLKey (SDL_Keysym key)
 {
-	int result;
+	Sint32 result;
 	if (key.sym > 32 && key.sym < 127)
 	{
 		result = key.sym;
@@ -299,8 +299,8 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		{
-			static int mask = 0;			
-			int temp = 0;
+			static Sint32 mask = 0;			
+			Sint32 temp = 0;
 
 			switch (event->button.button)
 			{
@@ -386,8 +386,8 @@ void VID_Front_f( void )
 typedef struct vidmode_s
 {
 	const char *description;
-	int         width, height;
-	int         mode;
+	Sint32         width, height;
+	Sint32         mode;
 } vidmode_t;
 
 // Knightmare- added 1280x1024, 1400x1050, 856x480, 1024x480 modes
@@ -405,7 +405,7 @@ VID_UpdateWindowPos
 */
 void UpdateGammaRamp (qboolean enable);
 
-void VID_UpdateWindowPos ( int x, int y )
+void VID_UpdateWindowPos ( Sint32 x, Sint32 y )
 {
 	float gamma = Cvar_VariableValue("r_gamma");
 	qboolean useGamma = (qboolean) !Cvar_VariableInteger("r_ignorehwgamma");
@@ -420,7 +420,7 @@ void VID_UpdateWindowPos ( int x, int y )
 VID_NewWindow
 ==============
 */
-void VID_NewWindow ( int width, int height)
+void VID_NewWindow ( Sint32 width, Sint32 height)
 {
 	viddef.width  = width;
 	viddef.height = height;

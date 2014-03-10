@@ -129,7 +129,7 @@ static void UpdateSoundQualityFunc ( void *unused )
 
 static void SoundSetMenuItemValues( void )
 {
-	int i = 0;
+	Sint32 i = 0;
 	qboolean found = false;
 	s_options_sound_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
 	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "s_musicvolume" ) * 10;
@@ -137,7 +137,7 @@ static void SoundSetMenuItemValues( void )
 	s_options_sound_cdvolume_box.curvalue 		= !Cvar_VariableValue("cd_nocd");
 	//s_options_quality_list.curvalue			= !Cvar_VariableValue( "s_loadas8bit" );
 	//**  DMP convert setting into index for option display text
-	switch((int)Cvar_VariableValue("s_khz"))
+	switch((Sint32)Cvar_VariableValue("s_khz"))
 	{
 	case 48:  s_options_sound_quality_list.curvalue = 2;  break;
 	case 44:  s_options_sound_quality_list.curvalue = 1;  break;
@@ -211,7 +211,7 @@ void Options_Sound_MenuInit ( void )
 
 
 
-	int y = 3*MENU_LINE_SIZE;
+	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_sound_menu.x = SCREEN_WIDTH*0.5;
 	s_options_sound_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -311,7 +311,7 @@ void Options_Sound_MenuDraw (void)
 	Menu_Draw( &s_options_sound_menu );
 }
 
-const char *Options_Sound_MenuKey( int key )
+const char *Options_Sound_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_options_sound_menu, key );
 }

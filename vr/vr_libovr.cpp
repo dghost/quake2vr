@@ -12,9 +12,9 @@ static OVR::Util::LatencyTest *latencyUtil = NULL;
 
 static bool initialized = false;
 
-#define M_PI 3.14159265358979323846f
+//#define M_PI 3.14159265358979323846f
 
-int LibOVR_Init()
+Sint32 LibOVR_Init()
 {
 	if (!initialized)
 	{
@@ -27,7 +27,7 @@ int LibOVR_Init()
 	return (manager != NULL);	
 }
 
-int LibOVR_InitHMD(void)
+Sint32 LibOVR_InitHMD(void)
 {
 	if (hmd)
 		return 1;
@@ -41,7 +41,7 @@ int LibOVR_InitHMD(void)
 	return (hmd != NULL);
 }
 
-int LibOVR_InitSensor(void) {
+Sint32 LibOVR_InitSensor(void) {
 	if (fusion)
 		return 1;
 
@@ -62,7 +62,7 @@ int LibOVR_InitSensor(void) {
 	return (sensor != NULL && fusion != NULL);
 }
 
-int LibOVR_IsLatencyTesterAvailable(void) {
+Sint32 LibOVR_IsLatencyTesterAvailable(void) {
 	if (latencyUtil)
 		return 1;
 
@@ -117,7 +117,7 @@ void LibOVR_DeviceRelease(void) {
 	
 }
 
-int LibOVR_DeviceInit(void) {
+Sint32 LibOVR_DeviceInit(void) {
 	return (LibOVR_InitHMD());
 }
 
@@ -141,7 +141,7 @@ void LibOVR_ResetHMDOrientation(void)
 	fusion->Reset();
 }
 
-int LibOVR_GetOrientation(float euler[3])
+Sint32 LibOVR_GetOrientation(float euler[3])
 {
 	if (!LibOVR_InitSensor())
 		return 0;
@@ -152,13 +152,13 @@ int LibOVR_GetOrientation(float euler[3])
 	
 	q.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&euler[1], &euler[0], &euler[2]);
 
-	euler[0] = (-euler[0] * 180.0f) / M_PI;
-	euler[1] = (euler[1] * 180.0f) / M_PI;
-	euler[2] = (-euler[2] * 180.0f) / M_PI;
+	euler[0] = (float ) ((-euler[0] * 180.0f) / M_PI);
+	euler[1] = (float ) ((euler[1] * 180.0f) / M_PI);
+	euler[2] = (float ) ((-euler[2] * 180.0f) / M_PI);
 	return 1;
 }
 
-int LibOVR_GetLatencyTestColor(float color[4])
+Sint32 LibOVR_GetLatencyTestColor(float color[4])
 {
 	OVR::Color colorOVR;
 	if (latencyUtil && latencyUtil->DisplayScreenColor(colorOVR))
@@ -183,7 +183,7 @@ const char* LibOVR_ProcessLatencyResults()
 	return latencyUtil->GetResultsString();
 }
 
-int LibOVR_GetSettings(ovr_settings_t *settings) {
+Sint32 LibOVR_GetSettings(ovr_settings_t *settings) {
 	OVR::HMDInfo hmdInfo;
 	if (!LibOVR_InitHMD() || !hmd->GetDeviceInfo(&hmdInfo))
 		return 0;
@@ -204,7 +204,7 @@ int LibOVR_GetSettings(ovr_settings_t *settings) {
 	return 1;
 }
 
-int LibOVR_SetPredictionTime(float time) {
+Sint32 LibOVR_SetPredictionTime(float time) {
 	float timeInSec = time / 1000.0f;
 	if (!LibOVR_InitSensor())
 		return 0;
@@ -216,13 +216,13 @@ int LibOVR_SetPredictionTime(float time) {
 	return 1;
 }
 
-int LibOVR_IsDriftCorrectionEnabled() {
+Sint32 LibOVR_IsDriftCorrectionEnabled() {
 	
 	return (fusion && fusion->IsYawCorrectionEnabled()) ? 1 : 0;
 }
 
 
-int LibOVR_EnableDriftCorrection() {
+Sint32 LibOVR_EnableDriftCorrection() {
 	if (!LibOVR_InitSensor())
 		return 0;
 	

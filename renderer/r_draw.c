@@ -119,10 +119,10 @@ It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
-void R_DrawChar (float x, float y, int num, float scale, 
-	 int red, int green, int blue, int alpha, qboolean italic, qboolean last)
+void R_DrawChar (float x, float y, Sint32 num, float scale, 
+	 Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha, qboolean italic, qboolean last)
 {
-	int			row, col, i;
+	Sint32			row, col, i;
 	float		frow, fcol, size, cscale, italicAdd;
 	vec2_t		texCoord[4], verts[4];
 	qboolean	addChar = true;
@@ -214,7 +214,7 @@ image_t	*R_DrawFindPic (char *name)
 R_DrawGetPicSize
 =============
 */
-void R_DrawGetPicSize (int *w, int *h, char *pic)
+void R_DrawGetPicSize (Sint32 *w, Sint32 *h, char *pic)
 {
 	image_t *gl;
 
@@ -225,8 +225,8 @@ void R_DrawGetPicSize (int *w, int *h, char *pic)
 		return;
 	}
 	// Factor in replace scale, so tga/jpg replacements are scaled down...
-	*w = (int)((float)gl->width * gl->replace_scale_w);
-	*h = (int)((float)gl->height * gl->replace_scale_w);
+	*w = (Sint32)((float)gl->width * gl->replace_scale_w);
+	*h = (Sint32)((float)gl->height * gl->replace_scale_w);
 }
 
 
@@ -235,10 +235,10 @@ void R_DrawGetPicSize (int *w, int *h, char *pic)
 R_DrawStretchPic
 =============
 */
-void R_DrawStretchPic (int x, int y, int w, int h, char *pic, float alpha)
+void R_DrawStretchPic (Sint32 x, Sint32 y, Sint32 w, Sint32 h, char *pic, float alpha)
 {
 	image_t		*gl;
-	int			i;
+	Sint32			i;
 	vec2_t		texCoord[4], verts[4];
 
 	gl = R_DrawFindPic (pic);
@@ -304,12 +304,12 @@ R_DrawScaledPic
 Psychospaz's code for drawing stretched crosshairs
 =============
 */
-void R_DrawScaledPic (int x, int y, float scale, float alpha, char *pic)
+void R_DrawScaledPic (Sint32 x, Sint32 y, float scale, float alpha, char *pic)
 {
 	float	xoff, yoff;
 	float	scale_x, scale_y;
 	image_t *gl;
-	int		i;
+	Sint32		i;
 	vec2_t	texCoord[4], verts[4];
 
 	gl = R_DrawFindPic (pic);
@@ -380,10 +380,10 @@ void R_DrawScaledPic (int x, int y, float scale, float alpha, char *pic)
 R_DrawPic
 =============
 */
-void R_DrawPic (int x, int y, char *pic)
+void R_DrawPic (Sint32 x, Sint32 y, char *pic)
 {
 	image_t	*gl;
-	int		i;
+	Sint32		i;
 	vec2_t	texCoord[4], verts[4];
 
 	gl = R_DrawFindPic (pic);
@@ -432,10 +432,10 @@ This repeats a 64*64 tile graphic to fill the screen around a sized down
 refresh window.
 =============
 */
-void R_DrawTileClear (int x, int y, int w, int h, char *pic)
+void R_DrawTileClear (Sint32 x, Sint32 y, Sint32 w, Sint32 h, char *pic)
 {
 	image_t	*image;
-	int		i;
+	Sint32		i;
 	vec2_t	texCoord[4], verts[4];
 
 	image = R_DrawFindPic (pic);
@@ -487,9 +487,9 @@ Fills a box of pixels with a
 24-bit color w/ alpha
 ===========================
 */
-void R_DrawFill (int x, int y, int w, int h, int red, int green, int blue, int alpha)
+void R_DrawFill (Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 red, Sint32 green, Sint32 blue, Sint32 alpha)
 {
-	int		i;
+	Sint32		i;
 	vec2_t	verts[4];
 
 	red = min(red, 255);
@@ -545,7 +545,7 @@ void Mod_SetRenderParmsDefaults (renderparms_t *parms);
 void R_DrawCameraEffect (void)
 {
 	image_t			*image[2];
-	int				x, y, w, h, i, j;
+	Sint32				x, y, w, h, i, j;
 	float			texparms[2][4];
 	vec2_t			texCoord[4];
 	vec3_t			verts[4];
@@ -622,9 +622,9 @@ Cinematic streaming
 */
 #ifdef ROQ_SUPPORT
 
-void R_DrawStretchRaw (int x, int y, int w, int h, const byte *raw, int rawWidth, int rawHeight) //qboolean noDraw)
+void R_DrawStretchRaw (Sint32 x, Sint32 y, Sint32 w, Sint32 h, const byte *raw, Sint32 rawWidth, Sint32 rawHeight) //qboolean noDraw)
 {
-	int		i, width = 1, height = 1;
+	Sint32		i, width = 1, height = 1;
 	vec2_t	texCoord[4], verts[4];
 
 	// Make sure everything is flushed if needed
@@ -679,12 +679,12 @@ void R_DrawStretchRaw (int x, int y, int w, int h, const byte *raw, int rawWidth
 
 extern unsigned	r_rawpalette[256];
 
-void R_DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data)
+void R_DrawStretchRaw (Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 cols, Sint32 rows, byte *data)
 {
 	unsigned		image32[256*256];
-	unsigned char	image8[256*256];
-	int				i, j, trows;
-	int				frac, fracstep, row;
+	Uint8	image8[256*256];
+	Sint32				i, j, trows;
+	Sint32				frac, fracstep, row;
 	float			hscale, t;
 	vec2_t			texCoord[4], verts[4];
 	byte			*source;
@@ -712,7 +712,7 @@ void R_DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *dat
 
 		for (i=0 ; i<trows ; i++)
 		{
-			row = (int)(i*hscale);
+			row = (Sint32)(i*hscale);
 			if (row > rows)
 				break;
 			source = data + cols*row;
@@ -730,11 +730,11 @@ void R_DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *dat
 	}
 	else
 	{
-		unsigned char *dest;
+		Uint8 *dest;
 
 		for (i=0 ; i<trows ; i++)
 		{
-			row = (int)(i*hscale);
+			row = (Sint32)(i*hscale);
 			if (row > rows)
 				break;
 			source = data + cols*row;

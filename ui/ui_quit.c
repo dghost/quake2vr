@@ -86,7 +86,7 @@ void Quit_MenuInit ( void )
 #endif // QUITMENU_NOKEY
 
 
-const char *M_Quit_Key (int key)
+const char *M_Quit_Key (Sint32 key)
 {
 #ifdef QUITMENU_NOKEY
 	return Default_MenuKey( &s_quit_menu, key );
@@ -123,7 +123,7 @@ void M_Quit_Draw (void)
 	Menu_AdjustCursor( &s_quit_menu, 1 );
 	Menu_Draw( &s_quit_menu );
 #else // QUITMENU_NOKEY
-	int		w, h;
+	Sint32		w, h;
 
 	R_DrawGetPicSize (&w, &h, "quit");
 	SCR_DrawPic (SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-h/2, w, h, ALIGN_CENTER, "quit", 1.0);

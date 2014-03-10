@@ -24,10 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 
 // global fog vars w/ defaults
-int FogModels[3] = {GL_LINEAR, GL_EXP, GL_EXP2};
+Sint32 FogModels[3] = {GL_LINEAR, GL_EXP, GL_EXP2};
 
 static	qboolean r_fogenable = false;
-static	int		r_fogmodel = GL_LINEAR;
+static	Sint32		r_fogmodel = GL_LINEAR;
 static	float	r_fogdensity = 50.0;
 static	float	r_fognear = 64.0;
 static	float	r_fogfar = 1024.0;
@@ -78,10 +78,10 @@ void R_InitFogVars (void)
 R_SetFogVars
 ================
 */
-void R_SetFogVars (qboolean enable, int model, int density,
-				   int start, int end, int red, int green, int blue)
+void R_SetFogVars (qboolean enable, Sint32 model, Sint32 density,
+				   Sint32 start, Sint32 end, Sint32 red, Sint32 green, Sint32 blue)
 {
-	int	temp;
+	Sint32	temp;
 
 	//VID_Printf( PRINT_ALL, "Setting fog variables: model %i density %i near %i far %i red %i green %i blue %i\n",
 	//	model, density, start, end, red, green, blue );

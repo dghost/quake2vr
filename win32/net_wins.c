@@ -29,13 +29,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct
 {
 	byte	data[MAX_MSGLEN];
-	int		datalen;
+	Sint32		datalen;
 } loopmsg_t;
 
 typedef struct
 {
 	loopmsg_t	msgs[MAX_LOOPBACK];
-	int			get, send;
+	Sint32			get, send;
 } loopback_t;
 
 
@@ -44,8 +44,8 @@ static cvar_t	*noudp;
 static cvar_t	*noipx;
 
 loopback_t	loopbacks[2];
-int			ip_sockets[2];
-int			ipx_sockets[2];
+Sint32			ip_sockets[2];
+Sint32			ipx_sockets[2];
 
 char *NET_ErrorString (void);
 
@@ -65,7 +65,7 @@ void NetadrToSockadr (netadr_t *a, struct sockaddr *s)
 	else if (a->type == NA_IP)
 	{
 		((struct sockaddr_in *)s)->sin_family = AF_INET;
-		((struct sockaddr_in *)s)->sin_addr.s_addr = *(int *)&a->ip;
+		((struct sockaddr_in *)s)->sin_addr.s_addr = *(Sint32 *)&a->ip;
 		((struct sockaddr_in *)s)->sin_port = a->port;
 	}
 	else if (a->type == NA_IPX)
@@ -89,7 +89,7 @@ void SockadrToNetadr (struct sockaddr *s, netadr_t *a)
 	if (s->sa_family == AF_INET)
 	{
 		a->type = NA_IP;
-		*(int *)&a->ip = ((struct sockaddr_in *)s)->sin_addr.s_addr;
+		*(Sint32 *)&a->ip = ((struct sockaddr_in *)s)->sin_addr.s_addr;
 		a->port = ((struct sockaddr_in *)s)->sin_port;
 	}
 	else if (s->sa_family == AF_IPX)
@@ -231,7 +231,7 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 {
 	struct hostent	*h;
 	char	*colon;
-	int		val;
+	Sint32		val;
 	char	copy[128];
 	
 	memset (sadr, 0, sizeof(*sadr));
@@ -251,7 +251,7 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 		DO(17, sa_nodenum[4]);
 		DO(19, sa_nodenum[5]);
 		sscanf (&s[22], "%u", &val);
-		((struct sockaddr_ipx *)sadr)->sa_socket = htons((unsigned short)val);
+		((struct sockaddr_ipx *)sadr)->sa_socket = htons((Uint16)val);
 	}
 	else
 	{
@@ -265,18 +265,18 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 			if (*colon == ':')
 			{
 				*colon = 0;
-				((struct sockaddr_in *)sadr)->sin_port = htons((short)atoi(colon+1));	
+				((struct sockaddr_in *)sadr)->sin_port = htons((Sint16)atoi(colon+1));	
 			}
 		
 		if (copy[0] >= '0' && copy[0] <= '9')
 		{
-			*(int *)&((struct sockaddr_in *)sadr)->sin_addr = inet_addr(copy);
+			*(Sint32 *)&((struct sockaddr_in *)sadr)->sin_addr = inet_addr(copy);
 		}
 		else
 		{
 			if (! (h = gethostbyname(copy)) )
 				return 0;
-			*(int *)&((struct sockaddr_in *)sadr)->sin_addr = *(int *)h->h_addr_list[0];
+			*(Sint32 *)&((struct sockaddr_in *)sadr)->sin_addr = *(Sint32 *)h->h_addr_list[0];
 		}
 	}
 	
@@ -331,7 +331,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
-	int		i;
+	Sint32		i;
 	loopback_t	*loop;
 
 	loop = &loopbacks[sock];
@@ -354,9 +354,9 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_me
 }
 
 
-void NET_SendLoopPacket (netsrc_t sock, int length, void *data, netadr_t to)
+void NET_SendLoopPacket (netsrc_t sock, Sint32 length, void *data, netadr_t to)
 {
-	int		i;
+	Sint32		i;
 	loopback_t	*loop;
 
 	loop = &loopbacks[sock^1];
@@ -373,12 +373,12 @@ void SV_DropClientFromAdr (netadr_t address);
 
 qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
-	int 	ret;
+	Sint32 	ret;
 	struct	sockaddr from;
-	int		fromlen;
-	int		net_socket;
-	int		protocol;
-	int		err;
+	Sint32		fromlen;
+	Sint32		net_socket;
+	Sint32		protocol;
+	Sint32		err;
 
 	if (NET_GetLoopPacket (sock, net_from, net_message))
 		return true;
@@ -445,11 +445,11 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 
 //=============================================================================
 
-void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
+void NET_SendPacket (netsrc_t sock, Sint32 length, void *data, netadr_t to)
 {
-	int		ret;
+	Sint32		ret;
 	struct sockaddr	addr;
-	int		net_socket;
+	Sint32		net_socket;
 
 	if ( to.type == NA_LOOPBACK )
 	{
@@ -489,7 +489,7 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 	ret = sendto (net_socket, data, length, 0, &addr, sizeof(addr) );
 	if (ret == -1)
 	{
-		int err = WSAGetLastError();
+		Sint32 err = WSAGetLastError();
 
 		// wouldblock is silent
 		if (err == WSAEWOULDBLOCK)
@@ -533,13 +533,13 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 NET_Socket
 ====================
 */
-int NET_IPSocket (char *net_interface, int port)
+Sint32 NET_IPSocket (char *net_interface, Sint32 port)
 {
-	int					newsocket;
+	Sint32					newsocket;
 	struct sockaddr_in	address;
 	u_long				_true = true;
-	int					i = 1;
-	int					err;
+	Sint32					i = 1;
+	Sint32					err;
 
 	if ((newsocket = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 	{
@@ -571,7 +571,7 @@ int NET_IPSocket (char *net_interface, int port)
 	if (port == PORT_ANY)
 		address.sin_port = 0;
 	else
-		address.sin_port = htons((short)port);
+		address.sin_port = htons((Sint16)port);
 
 	address.sin_family = AF_INET;
 
@@ -594,8 +594,8 @@ NET_OpenIP
 void NET_OpenIP (void)
 {
 	cvar_t	*ip;
-	int		port;
-	int		dedicated;
+	Sint32		port;
+	Sint32		dedicated;
 
 	ip = Cvar_Get ("ip", "localhost", CVAR_NOSET);
 
@@ -643,12 +643,12 @@ void NET_OpenIP (void)
 IPX_Socket
 ====================
 */
-int NET_IPXSocket (int port)
+Sint32 NET_IPXSocket (Sint32 port)
 {
-	int					newsocket;
+	Sint32					newsocket;
 	struct sockaddr_ipx	address;
-	int					_true = 1;
-	int					err;
+	Sint32					_true = 1;
+	Sint32					err;
 
 	if ((newsocket = socket (PF_IPX, SOCK_DGRAM, NSPROTO_IPX)) == -1)
 	{
@@ -678,7 +678,7 @@ int NET_IPXSocket (int port)
 	if (port == PORT_ANY)
 		address.sa_socket = 0;
 	else
-		address.sa_socket = htons((short)port);
+		address.sa_socket = htons((Sint16)port);
 
 	if( bind (newsocket, (void *)&address, sizeof(address)) == -1)
 	{
@@ -698,8 +698,8 @@ NET_OpenIPX
 */
 void NET_OpenIPX (void)
 {
-	int		port;
-	int		dedicated;
+	Sint32		port;
+	Sint32		dedicated;
 
 	dedicated = Cvar_VariableValue ("dedicated");
 
@@ -746,7 +746,7 @@ A single player game will only use the loopback code
 */
 void	NET_Config (qboolean multiplayer)
 {
-	int		i;
+	Sint32		i;
 	static	qboolean	old_config;
 
 	if (old_config == multiplayer)
@@ -780,12 +780,12 @@ void	NET_Config (qboolean multiplayer)
 }
 
 // sleeps msec or until net socket is ready
-void NET_Sleep(int msec)
+void NET_Sleep(Sint32 msec)
 {
     struct timeval timeout;
 	fd_set	fdset;
 	extern cvar_t *dedicated;
-	int i;
+	Sint32 i;
 
 	if (!dedicated || !dedicated->value)
 		return; // we're not a server, just run full speed
@@ -819,7 +819,7 @@ NET_Init
 void NET_Init (void)
 {
 	WORD	wVersionRequested; 
-	int		r;
+	Sint32		r;
 
 	wVersionRequested = MAKEWORD(1, 1); 
 
@@ -857,7 +857,7 @@ NET_ErrorString
 */
 char *NET_ErrorString (void)
 {
-	int		code;
+	Sint32		code;
 	static char errstr[64];
 
 	code = WSAGetLastError ();

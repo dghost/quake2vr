@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "client.h"
 #include "particles.h"
 
-void CL_LightningBeam(vec3_t start, vec3_t end, int srcEnt, int dstEnt, float size);
+void CL_LightningBeam(vec3_t start, vec3_t end, Sint32 srcEnt, Sint32 dstEnt, float size);
 
 typedef enum
 {
@@ -34,11 +34,11 @@ typedef struct
 	exptype_t	type;
 	entity_t	ent;
 
-	int			frames;
+	Sint32			frames;
 	float		light;
 	vec3_t		lightcolor;
 	float		start;
-	int			baseframe;
+	Sint32			baseframe;
 } explosion_t;
 
 
@@ -49,10 +49,10 @@ explosion_t	cl_explosions[MAX_EXPLOSIONS];
 #define	MAX_BEAMS	512 // was 32
 typedef struct
 {
-	int		entity;
-	int		dest_entity;
+	Sint32		entity;
+	Sint32		dest_entity;
 	struct model_s	*model;
-	int		endtime;
+	Sint32		endtime;
 	vec3_t	offset;
 	vec3_t	start, end;
 } beam_t;
@@ -65,7 +65,7 @@ beam_t		cl_playerbeams[MAX_BEAMS];
 typedef struct
 {
 	entity_t	ent;
-	int			endtime;
+	Sint32			endtime;
 } laser_t;
 laser_t		cl_lasers[MAX_LASERS];
 
@@ -82,13 +82,13 @@ void CL_Explosion_Particle (vec3_t org, float scale, qboolean rocket);
 void CL_Explosion_FlashParticle (vec3_t org, float size, qboolean large);
 void CL_BloodHit (vec3_t org, vec3_t dir);
 void CL_GreenBloodHit (vec3_t org, vec3_t dir);
-void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int count);
+void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, Sint32 count);
 void CL_ParticleBulletDecal(vec3_t org, vec3_t dir, float size);
 void CL_ParticlePlasmaBeamDecal(vec3_t org, vec3_t dir, float size);
-void CL_ParticleBlasterDecal (vec3_t org, vec3_t dir, float size, int red, int green, int blue);
-void CL_Explosion_Decal (vec3_t org, float size, int decalnum);
+void CL_ParticleBlasterDecal (vec3_t org, vec3_t dir, float size, Sint32 red, Sint32 green, Sint32 blue);
+void CL_Explosion_Decal (vec3_t org, float size, Sint32 decalnum);
 
-void CL_Explosion_Sparks (vec3_t org, int size, int count);
+void CL_Explosion_Sparks (vec3_t org, Sint32 size, Sint32 count);
 void CL_BFGExplosionParticles (vec3_t org);
 
 clientMedia_t clMedia;
@@ -102,7 +102,7 @@ CL_RegisterTEntSounds
 */
 void CL_RegisterTEntSounds (void)
 {
-	int		i;
+	Sint32		i;
 	char	name[MAX_QPATH];
 
 	clMedia.sfx_ric[0] = S_RegisterSound ("world/ric1.wav");
@@ -276,9 +276,9 @@ CL_AllocExplosion
 */
 explosion_t *CL_AllocExplosion (void)
 {
-	int		i;
-	int		time;
-	int		index;
+	Sint32		i;
+	Sint32		time;
+	Sint32		index;
 	
 	for (i=0; i<MAX_EXPLOSIONS; i++)
 	{
@@ -303,10 +303,10 @@ explosion_t *CL_AllocExplosion (void)
 }
 
 
-void CL_Explosion_Flash (vec3_t origin, int dist, int size, qboolean plasma)
+void CL_Explosion_Flash (vec3_t origin, Sint32 dist, Sint32 size, qboolean plasma)
 {
-	int i,j,k;
-	int limit = (plasma)?1:2;
+	Sint32 i,j,k;
+	Sint32 limit = (plasma)?1:2;
 	vec3_t org;
 
 	if (cl_particle_scale->value > 1 || plasma)
@@ -352,7 +352,7 @@ CL_ParseParticles
 */
 void CL_ParseParticles (void)
 {
-	int		color, count;
+	Sint32		color, count;
 	vec3_t	pos, dir;
 
 	MSG_ReadPos (&net_message, pos);
@@ -370,12 +370,12 @@ void CL_ParseParticles (void)
 CL_ParseBeam
 =================
 */
-int CL_ParseBeam (struct model_s *model)
+Sint32 CL_ParseBeam (struct model_s *model)
 {
-	int		ent;
+	Sint32		ent;
 	vec3_t	start, end;
 	beam_t	*b;
-	int		i;
+	Sint32		i;
 	
 	ent = MSG_ReadShort (&net_message);
 	
@@ -418,12 +418,12 @@ int CL_ParseBeam (struct model_s *model)
 CL_ParseBeam2
 =================
 */
-int CL_ParseBeam2 (struct model_s *model)
+Sint32 CL_ParseBeam2 (struct model_s *model)
 {
-	int		ent;
+	Sint32		ent;
 	vec3_t	start, end, offset;
 	beam_t	*b;
-	int		i;
+	Sint32		i;
 	
 	ent = MSG_ReadShort (&net_message);
 	
@@ -472,12 +472,12 @@ CL_ParsePlayerBeam
   - adds to the cl_playerbeam array instead of the cl_beams array
 =================
 */
-int CL_ParsePlayerBeam (struct model_s *model)
+Sint32 CL_ParsePlayerBeam (struct model_s *model)
 {
-	int		ent;
+	Sint32		ent;
 	vec3_t	start, end, offset;
 	beam_t	*b;
-	int		i;
+	Sint32		i;
 	
 	ent = MSG_ReadShort (&net_message);
 	
@@ -538,11 +538,11 @@ CL_ParseLightning
 =================
 */
 // Psychspaz's enhanced particles
-int CL_ParseLightning ()
+Sint32 CL_ParseLightning ()
 {
 
 	vec3_t start,end; // ,move,vec;
-	int		srcEnt, dstEnt; // , len, dec;
+	Sint32		srcEnt, dstEnt; // , len, dec;
 	
 	srcEnt = MSG_ReadShort (&net_message);
 	dstEnt = MSG_ReadShort (&net_message);
@@ -563,7 +563,7 @@ CL_ParseLaser
 */
 
 // Psychspaz's enhanced particles
-void CL_ParseLaser (int colors)
+void CL_ParseLaser (Sint32 colors)
 {
 	vec3_t start,end;
 	vec3_t		move;
@@ -611,11 +611,11 @@ void CL_ParseLaser (int colors)
 void CL_ParseSteam (void)
 {
 	vec3_t	pos, dir;
-	int		id, i;
-	int		r;
-	int		cnt;
-	int		color;
-	int		magnitude;
+	Sint32		id, i;
+	Sint32		r;
+	Sint32		cnt;
+	Sint32		color;
+	Sint32		magnitude;
 	cl_sustain_t	*s, *free_sustain;
 
 	id = MSG_ReadShort (&net_message);		// an id of -1 is an instant effect
@@ -676,7 +676,7 @@ void CL_ParseSteam (void)
 void CL_ParseWidow (void)
 {
 	vec3_t	pos;
-	int		id, i;
+	Sint32		id, i;
 	cl_sustain_t	*s, *free_sustain;
 
 	id = MSG_ReadShort (&net_message);
@@ -709,7 +709,7 @@ void CL_ParseWidow (void)
 void CL_ParseNuke (void)
 {
 	vec3_t	pos;
-	int		i;
+	Sint32		i;
 	cl_sustain_t	*s, *free_sustain;
 
 	free_sustain = NULL;
@@ -744,7 +744,7 @@ void CL_ParseNuke (void)
 void CL_GunSmokeEffect (vec3_t org, vec3_t dir)
 {
 	vec3_t		velocity, origin;
-	int			j;
+	Sint32			j;
 
 	for (j=0 ; j<3 ; j++)
 	{
@@ -765,14 +765,14 @@ static byte splash_color[] = {0x00, 0xe0, 0xb0, 0x50, 0xd0, 0xe0, 0xe8};
 
 void CL_ParseTEnt (void)
 {
-	int		type;
+	Sint32		type;
 	vec3_t	pos, pos2, dir;
 	explosion_t	*ex;
-	int		cnt;
-	int		color;
-	int		r, i;
-	int		ent;
-	int		magnitude;
+	Sint32		cnt;
+	Sint32		color;
+	Sint32		r, i;
+	Sint32		ent;
+	Sint32		magnitude;
 
 	type = MSG_ReadByte (&net_message);
 
@@ -1201,7 +1201,7 @@ void CL_ParseTEnt (void)
 		}
 		// Psychospaz's enhanced particle code	
 		{
-			int		red, green, blue, numparts;
+			Sint32		red, green, blue, numparts;
 			float	partsize = (cl_old_explosions->value) ? 2 : 4;
 			numparts = (cl_old_explosions->value) ? 12 : (32 / max(cl_particle_scale->value/2, 1));
 			if (type == TE_BLASTER2) {
@@ -1387,7 +1387,7 @@ CL_AddBeams
  
 void CL_AddBeams (void)
 {
-	int			i,j;
+	Sint32			i,j;
 	beam_t		*b;
 	vec3_t		dist, org;
 	float		d;
@@ -1399,7 +1399,7 @@ void CL_AddBeams (void)
 	frame_t		*oldframe; 	// added
 	player_state_t	*ps, *ops;
 	qboolean	firstperson, chasecam;
-	int			handmult;
+	Sint32			handmult;
 	vec3_t		thirdp_grapple_offset;
 	vec3_t		grapple_offset_dir;
 
@@ -1581,7 +1581,7 @@ CL_AddPlayerBeams
 */
 void CL_AddPlayerBeams (void)
 {
-	int			i,j;
+	Sint32			i,j;
 	beam_t		*b;
 	vec3_t		dist, org;
 	float		d;
@@ -1589,13 +1589,13 @@ void CL_AddPlayerBeams (void)
 	float		yaw, pitch;
 	float		forward;
 	float		len, steps;
-	int			framenum;
+	Sint32			framenum;
 	float		model_length;
 	float		hand_multiplier;
 	frame_t		*oldframe;
 	player_state_t	*ps, *ops;
 	qboolean	firstperson, chasecam;
-	int			newhandmult;
+	Sint32			newhandmult;
 	vec3_t		thirdp_pbeam_offset;
 	vec3_t		pbeam_offset_dir;
 
@@ -1884,10 +1884,10 @@ CL_AddExplosions
 void CL_AddExplosions (void)
 {
 	entity_t	*ent;
-	int			i;
+	Sint32			i;
 	explosion_t	*ex;
 	float		frac;
-	int			f;
+	Sint32			f;
 
 	memset (&ent, 0, sizeof(ent));
 
@@ -1991,7 +1991,7 @@ CL_AddLasers
 void CL_AddLasers (void)
 {
 	laser_t		*l;
-	int			i;
+	Sint32			i;
 
 	for (i=0, l=cl_lasers ; i< MAX_LASERS ; i++, l++)
 	{
@@ -2004,7 +2004,7 @@ void CL_AddLasers (void)
 void CL_ProcessSustain ()
 {
 	cl_sustain_t	*s;
-	int				i;
+	Sint32				i;
 
 	for (i=0, s=cl_sustains; i< MAX_SUSTAINS; i++, s++)
 	{

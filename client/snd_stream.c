@@ -38,9 +38,9 @@ ogg_status_t	ogg_status;		// Status indicator
 
 #define			MAX_OGGLIST 512
 char			**ogg_filelist;		// List of Ogg Vorbis files
-int				ogg_curfile;		// Index of currently played file
-int				ogg_numfiles;		// Number of Ogg Vorbis files
-int				ogg_loopcounter;
+Sint32				ogg_curfile;		// Index of currently played file
+Sint32				ogg_numfiles;		// Number of Ogg Vorbis files
+Sint32				ogg_loopcounter;
 
 cvar_t			*ogg_loopcount;
 cvar_t			*ogg_ambient_track;
@@ -69,7 +69,7 @@ static size_t ovc_read (void *ptr, size_t size, size_t nmemb, void *datasource)
 }
 
 
-static int ovc_seek (void *datasource, ogg_int64_t offset, int whence)
+static Sint32 ovc_seek (void *datasource, ogg_int64_t offset, Sint32 whence)
 {
 	bgTrack_t	*track = (bgTrack_t *)datasource;
 
@@ -77,21 +77,21 @@ static int ovc_seek (void *datasource, ogg_int64_t offset, int whence)
 	{
 	case SEEK_SET:
 #ifdef OGG_DIRECT_FILE
-		fseek(track->file, (int)offset, SEEK_SET);
+		fseek(track->file, (Sint32)offset, SEEK_SET);
 		break;
 	case SEEK_CUR:
-		fseek(track->file, (int)offset, SEEK_CUR);
+		fseek(track->file, (Sint32)offset, SEEK_CUR);
 		break;
 	case SEEK_END:
-		fseek(track->file, (int)offset, SEEK_END);
+		fseek(track->file, (Sint32)offset, SEEK_END);
 #else
-		FS_Seek(track->file, (int)offset, FS_SEEK_SET);
+		FS_Seek(track->file, (Sint32)offset, FS_SEEK_SET);
 		break;
 	case SEEK_CUR:
-		FS_Seek(track->file, (int)offset, FS_SEEK_CUR);
+		FS_Seek(track->file, (Sint32)offset, FS_SEEK_CUR);
 		break;
 	case SEEK_END:
-		FS_Seek(track->file, (int)offset, FS_SEEK_END);
+		FS_Seek(track->file, (Sint32)offset, FS_SEEK_END);
 #endif
 		break;
 	default:
@@ -102,7 +102,7 @@ static int ovc_seek (void *datasource, ogg_int64_t offset, int whence)
 }
 
 
-static int ovc_close (void *datasource)
+static Sint32 ovc_close (void *datasource)
 {
 	return 0;
 }
@@ -222,10 +222,10 @@ S_StreamBackgroundTrack
 void S_StreamBackgroundTrack (void)
 {
 	byte		data[BUFFER_SIZE];
-	int			queued = 0; //, processed, state;
-	int			size, read, dummy;
+	Sint32			queued = 0; //, processed, state;
+	Sint32			size, read, dummy;
 	//unsigned	buffer;
-	int			samples; // Knightmare added
+	Sint32			samples; // Knightmare added
 
 	if (!s_bgTrack.file || !s_musicvolume->value)
 		return;
@@ -315,8 +315,8 @@ S_StreamBackgroundTrack
 */
 void S_StreamBackgroundTrack (void)
 {
-	int		samples, maxSamples;
-	int		read, maxRead, total, dummy;
+	Sint32		samples, maxSamples;
+	Sint32		read, maxRead, total, dummy;
 	float	scale;
 	byte	data[MAX_RAW_SAMPLES*4];
 
@@ -425,7 +425,7 @@ void S_UpdateBackgroundTrack (void)
 
 // =====================================================================
 
-void Q_strncpyz (char *dst, const char *src, int dstSize);
+void Q_strncpyz (char *dst, const char *src, Sint32 dstSize);
 
 /*
 =================
@@ -522,7 +522,7 @@ S_StopStreaming
 */
 void S_StopStreaming (void)
 {
-	//int			processed;
+	//Sint32			processed;
 	//unsigned	buffer;
 
 	if (!ogg_started) // was sound_started
@@ -605,7 +605,7 @@ Based on code by QuDos
 */
 void S_OGG_Shutdown (void)
 {
-	int		i;
+	Sint32		i;
 
 	if (!ogg_started)
 		return;
@@ -654,7 +654,7 @@ void S_OGG_LoadFileList (void)
 	char	**list;			// List of .ogg files
 	char	findname[MAX_OSPATH];
 	char	lastPath[MAX_OSPATH];	// Knightmare added
-	int		i, numfiles = 0;
+	Sint32		i, numfiles = 0;
 
 	ogg_filelist = malloc(sizeof(char *) * MAX_OGGLIST);
 	memset( ogg_filelist, 0, sizeof( char * ) * MAX_OGGLIST );
@@ -786,7 +786,7 @@ Based on code by QuDos
 */
 void S_OGG_ListCmd (void)
 {
-	int i;
+	Sint32 i;
 
 	if (ogg_numfiles <= 0) {
 		Com_Printf("No Ogg Vorbis files to list.\n");
@@ -868,9 +868,9 @@ S_StreamRawSamples
 Cinematic streaming
 =================
 */
-void S_StreamRawSamples (const byte *data, int samples, int rate, int width, int channels)
+void S_StreamRawSamples (const byte *data, Sint32 samples, Sint32 rate, Sint32 width, Sint32 channels)
 {
-	int			processed, state, size;
+	Sint32			processed, state, size;
 	unsigned	format, buffer;
 
 	if (!s_initialized)

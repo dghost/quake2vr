@@ -165,7 +165,7 @@ particles only over trans surfaces
 =================
 */
 extern	cvar_t	*r_particle_overdraw;
-void R_ParticleStencil (int passnum)
+void R_ParticleStencil (Sint32 passnum)
 {
 	if (passnum == 1) // write area of trans surfaces to stencil buffer
 	{
@@ -236,7 +236,7 @@ GL_TexEnv
 */
 void GL_TexEnv (GLenum mode)
 {
-	static int lastmodes[2] = { -1, -1 };
+	static Sint32 lastmodes[2] = { -1, -1 };
 
 	if ( mode != lastmodes[glState.currenttmu] )
 	{
@@ -352,7 +352,7 @@ void GL_DepthRange (GLfloat rMin, GLfloat rMax)
 GL_LockArrays
 =============
 */
-void GL_LockArrays (int numVerts)
+void GL_LockArrays (Sint32 numVerts)
 {
 	if (!glConfig.extCompiledVertArray)
 		return;
@@ -459,7 +459,7 @@ void GL_SelectTexture (unsigned tmu)
 GL_Bind
 =================
 */
-void GL_Bind (int texnum)
+void GL_Bind (Sint32 texnum)
 {
 	extern	image_t	*draw_chars;
 
@@ -477,7 +477,7 @@ void GL_Bind (int texnum)
 GL_MBind
 =================
 */
-void GL_MBind (unsigned tmu, int texnum)
+void GL_MBind (unsigned tmu, Sint32 texnum)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -612,7 +612,7 @@ GL_SetDefaultState
 */
 void GL_SetDefaultState (void)
 {
-	int		i;
+	Sint32		i;
 
 	// Reset the state manager
 	glState.texgen = false;

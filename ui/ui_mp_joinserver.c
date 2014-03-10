@@ -50,7 +50,7 @@ static menuaction_s		s_joinserver_address_book_action;
 static menuaction_s		s_joinserver_server_actions[MAX_LOCAL_SERVERS];
 static menuaction_s		s_joinserver_back_action;
 
-int		m_num_servers;
+Sint32		m_num_servers;
 #define	NO_SERVER_STRING	"<no server>"
 
 // user readable information
@@ -75,15 +75,15 @@ static void ClientCompatibilityFunc( void *unused )
 // "protocol ping hostname mapname nb players/max players"
 // "udp 100ms Pat  q2dm1 2/8"
 
-int      global_udp_server_time;
-int      global_ipx_server_time;
-int      global_adr_server_time[16];
+Sint32      global_udp_server_time;
+Sint32      global_ipx_server_time;
+Sint32      global_adr_server_time[16];
 netadr_t global_adr_server_netadr[16];
 
 void UI_AddToServerList (netadr_t adr, char *info)
 {
-	int		i;
-    int     iPing;
+	Sint32		i;
+    Sint32     iPing;
     char    *pszProtocol;
 
 	if (m_num_servers == MAX_LOCAL_SERVERS)
@@ -134,7 +134,7 @@ void UI_AddToServerList (netadr_t adr, char *info)
 #else
 void UI_AddToServerList (netadr_t adr, char *info)
 {
-	int		i;
+	Sint32		i;
 
 	if (m_num_servers == MAX_LOCAL_SERVERS)
 		return;
@@ -155,7 +155,7 @@ void UI_AddToServerList (netadr_t adr, char *info)
 void JoinServerFunc( void *self )
 {
 	char	buffer[128];
-	int		index;
+	Sint32		index;
 
 	index = ( menuaction_s * ) self - s_joinserver_server_actions;
 
@@ -189,7 +189,7 @@ void NullCursorDraw( void *self )
 
 void SearchLocalGames( void )
 {
-	int		i;
+	Sint32		i;
 
 	m_num_servers = 0;
 	for (i=0 ; i<MAX_LOCAL_SERVERS ; i++)
@@ -215,8 +215,8 @@ void SearchLocalGamesFunc( void *self )
 
 void JoinServer_MenuInit( void )
 {
-	int i;
-	int y = 0;
+	Sint32 i;
+	Sint32 y = 0;
 
 	static const char *compatibility_names[] =
 	{
@@ -314,7 +314,7 @@ void JoinServer_MenuDraw(void)
 }
 
 
-const char *JoinServer_MenuKey( int key )
+const char *JoinServer_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_joinserver_menu, key );
 }

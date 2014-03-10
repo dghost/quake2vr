@@ -34,6 +34,6 @@ extern Uint32 mainWindowID;
 extern qboolean		ActiveApp, Minimized;
 
 void IN_Activate (qboolean active);
-void IN_MouseEvent (int mstate);
+void IN_MouseEvent (Sint32 mstate);
 
-extern int		window_center_x, window_center_y;
+extern Sint32		window_center_x, window_center_y;

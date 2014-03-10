@@ -36,7 +36,7 @@ static r_shaderobject_t warpshader_object = {
 qboolean R_CompileShader(GLuint shader, const char *source)
 {
 	GLint status;
-	int		err;
+	Sint32		err;
 	glGetError();
 
 	glShaderSource(shader, 1, &source, NULL);
@@ -64,7 +64,7 @@ qboolean R_CompileShader(GLuint shader, const char *source)
 
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 {
-	int		err;
+	Sint32		err;
 	qboolean success = false;
 	glGetError();
 

@@ -33,7 +33,7 @@ Sends the contents of the mutlicast buffer to a single client
 */
 void PF_Unicast (edict_t *ent, qboolean reliable)
 {
-	int		p;
+	Sint32		p;
 	client_t	*client;
 
 	if (!ent)
@@ -82,11 +82,11 @@ PF_cprintf
 Print to a single client
 ===============
 */
-void PF_cprintf (edict_t *ent, int level, char *fmt, ...)
+void PF_cprintf (edict_t *ent, Sint32 level, char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
-	int			n;
+	Sint32			n;
 
 	if (ent)
 	{
@@ -118,7 +118,7 @@ void PF_centerprintf (edict_t *ent, char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
-	int			n;
+	Sint32			n;
 	
 	n = NUM_FOR_EDICT(ent);
 	if (n < 1 || n > maxclients->value)
@@ -165,7 +165,7 @@ Also sets mins and maxs for inline bmodels
 */
 void PF_setmodel (edict_t *ent, char *name)
 {
-	int		i;
+	Sint32		i;
 	cmodel_t	*mod;
 
 	if (!name)
@@ -193,7 +193,7 @@ PF_Configstring
 
 ===============
 */
-void PF_Configstring (int index, char *val)
+void PF_Configstring (Sint32 index, char *val)
 {
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
 		Com_Error (ERR_DROP, "configstring: bad index %i\n", index);
@@ -218,10 +218,10 @@ void PF_Configstring (int index, char *val)
 
 
 
-void PF_WriteChar (int c) {MSG_WriteChar (&sv.multicast, c);}
-void PF_WriteByte (int c) {MSG_WriteByte (&sv.multicast, c);}
-void PF_WriteShort (int c) {MSG_WriteShort (&sv.multicast, c);}
-void PF_WriteLong (int c) {MSG_WriteLong (&sv.multicast, c);}
+void PF_WriteChar (Sint32 c) {MSG_WriteChar (&sv.multicast, c);}
+void PF_WriteByte (Sint32 c) {MSG_WriteByte (&sv.multicast, c);}
+void PF_WriteShort (Sint32 c) {MSG_WriteShort (&sv.multicast, c);}
+void PF_WriteLong (Sint32 c) {MSG_WriteLong (&sv.multicast, c);}
 void PF_WriteFloat (float f) {MSG_WriteFloat (&sv.multicast, f);}
 void PF_WriteString (char *s) {MSG_WriteString (&sv.multicast, s);}
 void PF_WritePos (vec3_t pos) {MSG_WritePos (&sv.multicast, pos);}
@@ -238,9 +238,9 @@ Also checks portalareas so that doors block sight
 */
 qboolean PF_inPVS (vec3_t p1, vec3_t p2)
 {
-	int		leafnum;
-	int		cluster;
-	int		area1, area2;
+	Sint32		leafnum;
+	Sint32		cluster;
+	Sint32		area1, area2;
 	byte	*mask;
 
 	leafnum = CM_PointLeafnum (p1);
@@ -268,9 +268,9 @@ Also checks portalareas so that doors block sound
 */
 qboolean PF_inPHS (vec3_t p1, vec3_t p2)
 {
-	int		leafnum;
-	int		cluster;
-	int		area1, area2;
+	Sint32		leafnum;
+	Sint32		cluster;
+	Sint32		area1, area2;
 	byte	*mask;
 
 	leafnum = CM_PointLeafnum (p1);
@@ -289,7 +289,7 @@ qboolean PF_inPHS (vec3_t p1, vec3_t p2)
 	return true;
 }
 
-void PF_StartSound (edict_t *entity, int channel, int sound_num, float volume,
+void PF_StartSound (edict_t *entity, Sint32 channel, Sint32 sound_num, float volume,
     float attenuation, float timeofs)
 {
 	if (!entity)
@@ -323,7 +323,7 @@ SV_InitGameProgs
 Init the game subsystem for a new map
 ===============
 */
-void SCR_DebugGraph (float value, int color);
+void SCR_DebugGraph (float value, Sint32 color);
 
 void SV_InitGameProgs (void)
 {

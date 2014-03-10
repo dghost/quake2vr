@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 cvar_t	*ui_cursor_scale;
 
 void	(*m_drawfunc) (void);
-const char *(*m_keyfunc) (int key);
+const char *(*m_keyfunc) (Sint32 key);
 
 /*
 =======================================================================
@@ -46,9 +46,9 @@ SUPPORT ROUTINES
 FreeFileList
 =================
 */
-void FreeFileList (char **list, int n)
+void FreeFileList (char **list, Sint32 n)
 {
-	int i;
+	Sint32 i;
 
 	for (i = 0; i < n; i++)
 	{
@@ -66,9 +66,9 @@ void FreeFileList (char **list, int n)
 ItemInList
 =================
 */
-qboolean ItemInList (char *check, int num, char **list)
+qboolean ItemInList (char *check, Sint32 num, char **list)
 {
-	int i;
+	Sint32 i;
 	for (i=0;i<num;i++)
 		if (!Q_strcasecmp(check, list[i]))
 			return true;
@@ -80,9 +80,9 @@ qboolean ItemInList (char *check, int num, char **list)
 InsertInList
 =================
 */
-void InsertInList (char **list, char *insert, int len, int start)
+void InsertInList (char **list, char *insert, Sint32 len, Sint32 start)
 {
-	int i;
+	Sint32 i;
 	if (!list) return;
 
 	for (i=start; i<len; i++)
@@ -112,12 +112,12 @@ MENU SUBSYSTEM
 typedef struct
 {
 	void	(*draw) (void);
-	const char *(*key) (int k);
+	const char *(*key) (Sint32 k);
 } menulayer_t;
 
 
 menulayer_t	m_layers[MAX_MENU_DEPTH];
-int		m_menudepth;
+Sint32		m_menudepth;
 
 
 /*
@@ -126,7 +126,7 @@ UI_AddButton
 From Q2max
 =================
 */
-void UI_AddButton (buttonmenuobject_t *thisObj, int index, float x, float y, float w, float h)
+void UI_AddButton (buttonmenuobject_t *thisObj, Sint32 index, float x, float y, float w, float h)
 {
 	float x1, y1, w1, h1;
 
@@ -144,9 +144,9 @@ UI_AddMainButton
 From Q2max
 =============
 */
-void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name)
+void UI_AddMainButton (mainmenuobject_t *thisObj, Sint32 index, Sint32 x, Sint32 y, char *name)
 {
-	int		w, h;
+	Sint32		w, h;
 	float	x1, y1, w1, h1;
 
 	R_DrawGetPicSize (&w, &h, name);
@@ -194,9 +194,9 @@ UI_PushMenu
 =================
 */
 extern cvar_t *vr_enabled;
-void UI_PushMenu ( void (*draw) (void), const char *(*key) (int k) )
+void UI_PushMenu ( void (*draw) (void), const char *(*key) (Sint32 k) )
 {
-	int		i;
+	Sint32		i;
 
 	if (Cvar_VariableValue ("maxclients") == 1 && Com_ServerState () && !cls.consoleActive) // Knightmare added
 		Cvar_Set ("paused", "1");
@@ -293,7 +293,7 @@ void UI_BackMenu (void *unused)
 Default_MenuKey
 =================
 */
-const char *Default_MenuKey ( menuframework_s *m, int key )
+const char *Default_MenuKey ( menuframework_s *m, Sint32 key )
 {
 	const char *sound = NULL;
 	menucommon_s *item;
@@ -438,7 +438,7 @@ UI_Precache
 */
 void UI_Precache (void)
 {
-	int		i;
+	Sint32		i;
 	char	scratch[80];
 
 	// general images
@@ -577,7 +577,7 @@ void UI_Draw (void)
 	else if (R_DrawFindPic("/gfx/ui/menu_background.pcx"))
 		R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.pcx", menu_alpha->value);
 	else
-		R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int)(menu_alpha->value*255));
+		R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(Sint32)(menu_alpha->value*255));
 
 	// Knigthmare- added Psychospaz's mouse support
 	UI_RefreshCursorMenu();
@@ -604,7 +604,7 @@ void UI_Draw (void)
 UI_Keydown
 =================
 */
-void UI_Keydown (int key)
+void UI_Keydown (Sint32 key)
 {
 	const char *s;
 

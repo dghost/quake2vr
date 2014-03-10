@@ -28,17 +28,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // !!! if this is changed, the asm code must change !!!
 typedef struct
 {
-	int			left;
-	int			right;
+	Sint32			left;
+	Sint32			right;
 } portable_samplepair_t;
 
 typedef struct
 {
-	int 		length;
-	int 		loopstart;
-	int 		speed;			// not needed, because converted on load?
-	int 		width;
-	int 		stereo;
+	Sint32 		length;
+	Sint32 		loopstart;
+	Sint32 		speed;			// not needed, because converted on load?
+	Sint32 		width;
+	Sint32 		stereo;
 	qboolean	music;
 	byte		data[1];		// variable sized
 } sfxcache_t;
@@ -46,7 +46,7 @@ typedef struct
 typedef struct sfx_s
 {
 	char 		name[MAX_QPATH];
-	int			registration_sequence;
+	Sint32			registration_sequence;
 	sfxcache_t	*cache;
 	char 		*truename;
 } sfx_t;
@@ -63,10 +63,10 @@ typedef struct {
 #else
 	fileHandle_t		file;
 #endif
-	int					start;
-	int					rate;
-	int					width;
-	int					channels;
+	Sint32					start;
+	Sint32					rate;
+	Sint32					width;
+	Sint32					channels;
 	unsigned			format;
 	void				*vorbisFile;
 } bgTrack_t;
@@ -80,8 +80,8 @@ typedef struct playsound_s
 	sfx_t		*sfx;
 	float		volume;
 	float		attenuation;
-	int			entnum;
-	int			entchannel;
+	Sint32			entnum;
+	Sint32			entchannel;
 	qboolean	fixed_origin;	// use origin field instead of entnum's origin
 	vec3_t		origin;
 	unsigned	begin;			// begin on this sample
@@ -89,12 +89,12 @@ typedef struct playsound_s
 
 typedef struct
 {
-	int			channels;
-	int			samples;				// mono samples in buffer
-	int			submission_chunk;		// don't mix less than this #
-	int			samplepos;				// in mono samples
-	int			samplebits;
-	int			speed;
+	Sint32			channels;
+	Sint32			samples;				// mono samples in buffer
+	Sint32			submission_chunk;		// don't mix less than this #
+	Sint32			samplepos;				// in mono samples
+	Sint32			samplebits;
+	Sint32			speed;
 	byte		*buffer;
 } dma_t;
 
@@ -102,16 +102,16 @@ typedef struct
 typedef struct
 {
 	sfx_t		*sfx;			// sfx number
-	int			leftvol;		// 0-255 volume
-	int			rightvol;		// 0-255 volume
-	int			end;			// end time in global paintsamples
-	int 		pos;			// sample position in sfx
-	int			looping;		// where to loop, -1 = no looping OBSOLETE?
-	int			entnum;			// to allow overriding a specific sound
-	int			entchannel;		//
+	Sint32			leftvol;		// 0-255 volume
+	Sint32			rightvol;		// 0-255 volume
+	Sint32			end;			// end time in global paintsamples
+	Sint32 		pos;			// sample position in sfx
+	Sint32			looping;		// where to loop, -1 = no looping OBSOLETE?
+	Sint32			entnum;			// to allow overriding a specific sound
+	Sint32			entchannel;		//
 	vec3_t		origin;			// only use if fixed_origin is set
 	vec_t		dist_mult;		// distance multiplier (attenuation/clipK)
-	int			master_vol;		// 0-255 master volume
+	Sint32			master_vol;		// 0-255 master volume
 	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
 	qboolean	autosound;		// from an entity->sound, cleared each frame
 #ifdef OGG_SUPPORT
@@ -121,12 +121,12 @@ typedef struct
 
 typedef struct
 {
-	int			rate;
-	int			width;
-	int			channels;
-	int			loopstart;
-	int			samples;
-	int			dataofs;		// chunk starts this many bytes from file start
+	Sint32			rate;
+	Sint32			width;
+	Sint32			channels;
+	Sint32			loopstart;
+	Sint32			samples;
+	Sint32			dataofs;		// chunk starts this many bytes from file start
 } wavinfo_t;
 
 
@@ -142,7 +142,7 @@ typedef struct
 qboolean SNDDMA_Init(void);
 
 // gets the current DMA position
-int		SNDDMA_GetDMAPos(void);
+Sint32		SNDDMA_GetDMAPos(void);
 
 // shutdown the DMA xfer.
 void	SNDDMA_Shutdown(void);
@@ -156,8 +156,8 @@ void	SNDDMA_Submit(void);
 #define	MAX_CHANNELS	64	//<- CDawg changed, was 32
 extern	channel_t   channels[MAX_CHANNELS];
 
-extern	int		paintedtime;
-extern	int		s_rawend;
+extern	Sint32		paintedtime;
+extern	Sint32		s_rawend;
 extern	vec3_t	listener_origin;
 extern	vec3_t	listener_forward;
 extern	vec3_t	listener_right;
@@ -180,7 +180,7 @@ extern cvar_t	*s_primary;
 extern cvar_t	*s_musicvolume; // Q2E
 #endif
 
-wavinfo_t GetWavinfo (char *name, byte *wav, int wavlength);
+wavinfo_t GetWavinfo (char *name, byte *wav, Sint32 wavlength);
 
 void S_InitScaletable (void);
 
@@ -188,10 +188,10 @@ sfxcache_t *S_LoadSound (sfx_t *s);
 
 void S_IssuePlaysound (playsound_t *ps);
 
-void S_PaintChannels(int endtime);
+void S_PaintChannels(Sint32 endtime);
 
 // picks a channel based on priorities, empty slots, number of channels
-channel_t *S_PickChannel(int entnum, int entchannel);
+channel_t *S_PickChannel(Sint32 entnum, Sint32 entchannel);
 
 // spatializes a channel
 void S_Spatialize(channel_t *ch);

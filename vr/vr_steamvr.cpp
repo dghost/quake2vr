@@ -6,9 +6,7 @@
 
 static vr::IHmd *hmd;
 
-#define M_PI 3.14159265358979323846f
-
-int SteamVR_Init()
+Sint32 SteamVR_Init()
 {
 	if (hmd)
 	{
@@ -18,7 +16,7 @@ int SteamVR_Init()
 	return !hmd;
 }
 
-int SteamVR_Enable()
+Sint32 SteamVR_Enable()
 {
 	vr::HmdError error;
 	hmd = vr::VR_Init(&error);

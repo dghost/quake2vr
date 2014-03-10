@@ -33,11 +33,11 @@ static	void	Menu_DrawStatusBar( const char *string );
 static	void	Menulist_DoEnter( menulist_s *l );
 static	void	MenuList_Draw( menulist_s *l );
 static	void	Separator_Draw( menuseparator_s *s );
-static	void	Slider_DoSlide( menuslider_s *s, int dir );
+static	void	Slider_DoSlide( menuslider_s *s, Sint32 dir );
 static	void	Slider_Draw( menuslider_s *s );
 static	void	SpinControl_DoEnter( menulist_s *s );
 static	void	SpinControl_Draw( menulist_s *s );
-static	void	SpinControl_DoSlide( menulist_s *s, int dir );
+static	void	SpinControl_DoSlide( menulist_s *s, Sint32 dir );
 
 #define RCOLUMN_OFFSET  MENU_FONT_SIZE*2	// was 16
 #define LCOLUMN_OFFSET -MENU_FONT_SIZE*2	// was -16
@@ -49,8 +49,8 @@ extern viddef_t viddef;
 
 // added Psychospaz's menu mouse support
 //======================================================
-int stringLen (const char *string);
-int stringLengthExtra (const char *string)
+Sint32 stringLen (const char *string);
+Sint32 stringLengthExtra (const char *string)
 {
 	unsigned i, j;
 	char modifier;
@@ -72,7 +72,7 @@ int stringLengthExtra (const char *string)
 char *unformattedString (const char *string)
 {
 	unsigned i;
-	int len;
+	Sint32 len;
 	char character;
 	char *newstring = "";
 
@@ -96,11 +96,11 @@ char *unformattedString (const char *string)
 	return newstring;
 }
 
-int mouseOverAlpha (menucommon_s *m)
+Sint32 mouseOverAlpha (menucommon_s *m)
 {
 	if (cursor.menuitem == m)
 	{
-		int alpha;
+		Sint32 alpha;
 
 		alpha = 125 + 25 * cos(anglemod(cls.realtime*0.005));
 
@@ -123,7 +123,7 @@ void Action_DoEnter (menuaction_s *a)
 
 void Action_Draw (menuaction_s *a)
 {
-	int alpha = mouseOverAlpha(&a->generic);
+	Sint32 alpha = mouseOverAlpha(&a->generic);
 
 	if (a->generic.flags & QMF_LEFT_JUSTIFY)
 	{
@@ -159,9 +159,9 @@ qboolean Field_DoEnter (menufield_s *f)
 
 void Field_Draw (menufield_s *f)
 {
-	int i, alpha = mouseOverAlpha(&f->generic), xtra;
+	Sint32 i, alpha = mouseOverAlpha(&f->generic), xtra;
 	char tempbuffer[128]="";
-	int offset;
+	Sint32 offset;
 
 	if (f->generic.name)
 		Menu_DrawStringR2LDark (f->generic.x + f->generic.parent->x + LCOLUMN_OFFSET,
@@ -203,16 +203,16 @@ void Field_Draw (menufield_s *f)
 	}
 
 	// add cursor thingie
-	if ( Menu_ItemAtCursor(f->generic.parent)==f  && ((int)(Sys_Milliseconds()/250))&1 )
+	if ( Menu_ItemAtCursor(f->generic.parent)==f  && ((Sint32)(Sys_Milliseconds()/250))&1 )
 		Com_sprintf(tempbuffer, sizeof(tempbuffer),	"%s%c", tempbuffer, 11);
 
 	Menu_DrawString (f->generic.x + f->generic.parent->x + MENU_FONT_SIZE*3,
 					f->generic.y + f->generic.parent->y, tempbuffer, alpha);
 }
 
-qboolean Field_Key (menufield_s *f, int key)
+qboolean Field_Key (menufield_s *f, Sint32 key)
 {
-	extern int keydown[];
+	extern Sint32 keydown[];
 
 	switch ( key )
 	{
@@ -341,7 +341,7 @@ qboolean Field_Key (menufield_s *f, int key)
 
 void Menulist_DoEnter (menulist_s *l)
 {
-	int start;
+	Sint32 start;
 
 	start = l->generic.y / 10 + 1;
 
@@ -354,7 +354,7 @@ void Menulist_DoEnter (menulist_s *l)
 void MenuList_Draw (menulist_s *l)
 {
 	const char **n;
-	int y = 0, alpha = mouseOverAlpha(&l->generic);
+	Sint32 y = 0, alpha = mouseOverAlpha(&l->generic);
 
 	Menu_DrawStringR2LDark (l->generic.x + l->generic.parent->x - 2*MENU_FONT_SIZE,
 						l->generic.y + l->generic.parent->y, l->generic.name, alpha);
@@ -377,14 +377,14 @@ void MenuList_Draw (menulist_s *l)
 
 void Separator_Draw (menuseparator_s *s)
 {
-	int alpha = mouseOverAlpha(&s->generic);
+	Sint32 alpha = mouseOverAlpha(&s->generic);
 
 	if (s->generic.name)
 		Menu_DrawStringR2LDark (s->generic.x + s->generic.parent->x,
 							s->generic.y + s->generic.parent->y, s->generic.name, alpha);
 }
 
-void Slider_DoSlide (menuslider_s *s, int dir)
+void Slider_DoSlide (menuslider_s *s, Sint32 dir)
 {
 	s->curvalue += dir;
 
@@ -401,7 +401,7 @@ void Slider_DoSlide (menuslider_s *s, int dir)
 
 void Slider_Draw (menuslider_s *s)
 {
-	int	i, alpha = mouseOverAlpha(&s->generic);
+	Sint32	i, alpha = mouseOverAlpha(&s->generic);
 
 	Menu_DrawStringR2LDark (s->generic.x + s->generic.parent->x + LCOLUMN_OFFSET,
 							s->generic.y + s->generic.parent->y, s->generic.name, alpha);
@@ -440,7 +440,7 @@ void SpinControl_DoEnter (menulist_s *s)
 		s->generic.callback(s);
 }
 
-void SpinControl_DoSlide (menulist_s *s, int dir)
+void SpinControl_DoSlide (menulist_s *s, Sint32 dir)
 {
 	if (!s->itemnames || !s->numitemnames)
 		return;
@@ -467,7 +467,7 @@ void SpinControl_DoSlide (menulist_s *s, int dir)
  
 void SpinControl_Draw (menulist_s *s)
 {
-	int alpha = mouseOverAlpha (&s->generic);
+	Sint32 alpha = mouseOverAlpha (&s->generic);
 	char buffer[100];
 
 	if (s->generic.name)
@@ -501,7 +501,7 @@ Menu_AddItem
 #pragma warning ( disable : 4789 ) // disable false positive detection
 void Menu_AddItem (menuframework_s *menu, void *item)
 {
-	int			i;
+	Sint32			i;
 	menulist_s	*list;
 
 	if (menu->nitems == 0)
@@ -537,7 +537,7 @@ to adjust the menu's cursor so that it's at the next available
 slot.
 ==========================
 */
-void Menu_AdjustCursor (menuframework_s *m, int dir)
+void Menu_AdjustCursor (menuframework_s *m, Sint32 dir)
 {
 	menucommon_s *citem = Menu_ItemAtCursor(m);
 	
@@ -597,7 +597,7 @@ Menu_Center
 */
 void Menu_Center (menuframework_s *menu)
 {
-	int height = ((menucommon_s *) menu->items[menu->nitems-1])->y + 10;
+	Sint32 height = ((menucommon_s *) menu->items[menu->nitems-1])->y + 10;
 	menu->y = (SCREEN_HEIGHT - height)*0.5;
 }
 
@@ -609,7 +609,7 @@ Menu_Draw
 */
 void Menu_Draw (menuframework_s *menu)
 {
-	int i;
+	Sint32 i;
 	menucommon_s *item;
 
 	//
@@ -653,8 +653,8 @@ void Menu_Draw (menuframework_s *menu)
 
 		for (i = menu->nitems; i >= 0 ; i--)
 		{
-			int		type, len;
-			int		min[2], max[2];
+			Sint32		type, len;
+			Sint32		min[2], max[2];
 			float	x1, y1, w1, h1;
 
 			item = ((menucommon_s * )menu->items[i]);
@@ -705,7 +705,7 @@ void Menu_Draw (menuframework_s *menu)
 				case MTYPE_LIST:
 				case MTYPE_SPINCONTROL:
 					{
-						int len;
+						Sint32 len;
 						menulist_s *spin = menu->items[i];
 
 
@@ -743,7 +743,7 @@ void Menu_Draw (menuframework_s *menu)
 				// new item
 				if (lastitem!=item)
 				{
-					int j;
+					Sint32 j;
 
 					for (j=0; j<MENU_CURSOR_BUTTON_MAX; j++)
 					{
@@ -780,13 +780,13 @@ void Menu_Draw (menuframework_s *menu)
 		if (item->flags & QMF_LEFT_JUSTIFY)
 		{
 			SCR_DrawChar (menu->x+item->x+item->cursor_offset-24, menu->y+item->y,
-						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/320)&1),
+						ALIGN_CENTER, 12+((Sint32)(Sys_Milliseconds()/320)&1),
 						255,255,255,255, false, true);
 		}
 		else
 		{
 			SCR_DrawChar (menu->x+item->cursor_offset, menu->y+item->y,
-						ALIGN_CENTER, 12+((int)(Sys_Milliseconds()/320)&1),
+						ALIGN_CENTER, 12+((Sint32)(Sys_Milliseconds()/320)&1),
 						255,255,255,255, false, true);
 		}
 	}
@@ -808,7 +808,7 @@ void Menu_DrawStatusBar (const char *string)
 {
 	if (string)
 	{
-		int l = strlen( string );
+		Sint32 l = strlen( string );
 
 		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+2), SCREEN_WIDTH, MENU_FONT_SIZE+2, ALIGN_BOTTOM_STRETCH, 60,60,60,255 );
 		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+3), SCREEN_WIDTH, 1, ALIGN_BOTTOM_STRETCH, 0,0,0,255 );
@@ -818,12 +818,12 @@ void Menu_DrawStatusBar (const char *string)
 //		SCR_DrawFill( 0, SCREEN_HEIGHT-(MENU_FONT_SIZE+3), SCREEN_WIDTH, MENU_FONT_SIZE+3, ALIGN_BOTTOM_STRETCH, 0,0,0,255 );
 }
 
-void Menu_DrawString (int x, int y, const char *string, int alpha)
+void Menu_DrawString (Sint32 x, Sint32 y, const char *string, Sint32 alpha)
 {
 	SCR_DrawString (x, y, ALIGN_CENTER, string, alpha);
 }
 
-void Menu_DrawStringDark (int x, int y, const char *string, int alpha)
+void Menu_DrawStringDark (Sint32 x, Sint32 y, const char *string, Sint32 alpha)
 {
 	char	newstring[1024];
 
@@ -831,13 +831,13 @@ void Menu_DrawStringDark (int x, int y, const char *string, int alpha)
 	SCR_DrawString (x, y, ALIGN_CENTER, newstring, alpha);
 }
 
-void Menu_DrawStringR2L (int x, int y, const char *string, int alpha)
+void Menu_DrawStringR2L (Sint32 x, Sint32 y, const char *string, Sint32 alpha)
 {
 	x -= stringLen(string)*MENU_FONT_SIZE;
 	SCR_DrawString (x, y, ALIGN_CENTER, string, alpha);
 }
 
-void Menu_DrawStringR2LDark (int x, int y, const char *string, int alpha)
+void Menu_DrawStringR2LDark (Sint32 x, Sint32 y, const char *string, Sint32 alpha)
 {
 	char	newstring[1024];
 
@@ -852,10 +852,10 @@ void Menu_DrawStringR2LDark (int x, int y, const char *string, int alpha)
 Menu_DrawTextBox
 =============
 */
-void Menu_DrawTextBox (int x, int y, int width, int lines)
+void Menu_DrawTextBox (Sint32 x, Sint32 y, Sint32 width, Sint32 lines)
 {
-	int		cx, cy;
-	int		n;
+	Sint32		cx, cy;
+	Sint32		n;
 
 	// draw left side
 	cx = x;
@@ -900,7 +900,7 @@ Menu_DrawBanner
 */
 void Menu_DrawBanner (char *name)
 {
-	int w, h;
+	Sint32 w, h;
 
 	R_DrawGetPicSize (&w, &h, name );
 	SCR_DrawPic (SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-150, w, h, ALIGN_CENTER, name, 1.0);
@@ -963,7 +963,7 @@ void Menu_SetStatusBar (menuframework_s *m, const char *string)
 	m->statusbar = string;
 }
 
-void Menu_SlideItem (menuframework_s *s, int dir)
+void Menu_SlideItem (menuframework_s *s, Sint32 dir)
 {
 	menucommon_s *item = (menucommon_s *) Menu_ItemAtCursor(s);
 
@@ -981,16 +981,16 @@ void Menu_SlideItem (menuframework_s *s, int dir)
 	}
 }
 
-int Menu_TallySlots (menuframework_s *menu)
+Sint32 Menu_TallySlots (menuframework_s *menu)
 {
-	int i;
-	int total = 0;
+	Sint32 i;
+	Sint32 total = 0;
 
 	for (i = 0; i < menu->nitems; i++)
 	{
 		if ( ((menucommon_s *)menu->items[i])->type == MTYPE_LIST )
 		{
-			int nitems = 0;
+			Sint32 nitems = 0;
 			const char **n = ((menulist_s *)menu->items[i])->itemnames;
 
 			while (*n)
@@ -1014,7 +1014,7 @@ Menu Mouse Cursor - psychospaz
 =======================================================================
 */
 extern	void	(*m_drawfunc) (void);
-extern	const char *(*m_keyfunc) (int key);
+extern	const char *(*m_keyfunc) (Sint32 key);
 
 /*
 =================
@@ -1042,7 +1042,7 @@ void UI_RefreshCursorLink (void)
 Slider_CursorPositionX
 =================
 */
-int Slider_CursorPositionX (menuslider_s *s)
+Sint32 Slider_CursorPositionX (menuslider_s *s)
 {
 	float range;
 
@@ -1053,7 +1053,7 @@ int Slider_CursorPositionX (menuslider_s *s)
 	if (range > 1)
 		range = 1;
 
-	return (int)(SCR_ScaledVideo(MENU_FONT_SIZE) + RCOLUMN_OFFSET + (SLIDER_RANGE)*SCR_ScaledVideo(MENU_FONT_SIZE) * range);
+	return (Sint32)(SCR_ScaledVideo(MENU_FONT_SIZE) + RCOLUMN_OFFSET + (SLIDER_RANGE)*SCR_ScaledVideo(MENU_FONT_SIZE) * range);
 }
 
 /*
@@ -1061,11 +1061,11 @@ int Slider_CursorPositionX (menuslider_s *s)
 NewSliderValueForX
 =================
 */
-int NewSliderValueForX (int x, menuslider_s *s)
+Sint32 NewSliderValueForX (Sint32 x, menuslider_s *s)
 {
 	float	newValue, sliderbase;
-	int		newValueInt;
-	int		pos;
+	Sint32		newValueInt;
+	Sint32		pos;
 	
 	sliderbase = s->generic.x + s->generic.parent->x + MENU_FONT_SIZE + RCOLUMN_OFFSET;
 	SCR_AdjustFrom640 (&sliderbase, NULL, NULL, NULL, ALIGN_CENTER);
@@ -1115,7 +1115,7 @@ Menu_ClickSlideItem
 */
 void Menu_ClickSlideItem (menuframework_s *menu, void *menuitem)
 {
-	int				min, max;
+	Sint32				min, max;
 	float			x, w;
 	menucommon_s	*item = (menucommon_s *) menuitem;
 	menuslider_s	*slider = (menuslider_s *) menuitem;
@@ -1267,7 +1267,7 @@ UI_Draw_Cursor
 #if 1
 void UI_Draw_Cursor (void)
 {
-	int		w, h;
+	Sint32		w, h;
 	float	ofs_x, ofs_y;
 	float	scale = SCR_ScaledVideo(ui_cursor_scale->value); // 0.4
 	char	*cur_img = UI_MOUSECURSOR_PIC;
@@ -1283,7 +1283,7 @@ void UI_Draw_Cursor (void)
 void UI_Draw_Cursor (void)
 {
 	float	alpha = 1, scale = SCR_ScaledVideo(0.66);
-	int		w, h;
+	Sint32		w, h;
 	char	*overlay = NULL;
 	char	*cur_img = NULL;
 
@@ -1353,7 +1353,7 @@ void UI_Draw_Cursor (void)
 
 /*void UI_Draw_Cursor (void)
 {
-	int w,h;
+	Sint32 w,h;
 
 	//get sizing vars
 	R_DrawGetPicSize( &w, &h, "m_mouse_cursor" );

@@ -7,9 +7,9 @@
 #include "vr.h"
 
 
-int VR_SVR_Enable();
+Sint32 VR_SVR_Enable();
 void VR_SVR_Disable();
-int VR_SVR_Init();
+Sint32 VR_SVR_Init();
 void VR_SVR_Shutdown();
 
 /*
@@ -17,11 +17,11 @@ void VR_SVR_Shutdown();
 void VR_SVR_SetFOV();
 void VR_SVR_CalcRenderParam();
 void VR_SVR_Frame();
-int VR_SVR_isDeviceAvailable();
-int VR_SVR_getOrientation(float euler[3]);
+Sint32 VR_SVR_isDeviceAvailable();
+Sint32 VR_SVR_getOrientation(float euler[3]);
 void VR_SVR_ResetHMDOrientation();
 float VR_SVR_GetDistortionScale();
-int VR_SVR_RenderLatencyTest(vec4_t color);
+Sint32 VR_SVR_RenderLatencyTest(vec4_t color);
 */
 
 

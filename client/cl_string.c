@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 StringSetParams
 ================
 */
-qboolean StringSetParams (char modifier, int *red, int *green, int *blue, int *bold, int *shadow, int *italic, int *reset)
+qboolean StringSetParams (char modifier, Sint32 *red, Sint32 *green, Sint32 *blue, Sint32 *bold, Sint32 *shadow, Sint32 *italic, Sint32 *reset)
 {
 	if (!alt_text_color)
 		alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
@@ -75,7 +75,7 @@ qboolean StringSetParams (char modifier, int *red, int *green, int *blue, int *b
 			return true;
 		case 'A':	//alt text color
 		case 'a':
-			ColorLookup((int)alt_text_color->value, red, green, blue);
+			ColorLookup((Sint32)alt_text_color->value, red, green, blue);
 			return true;
 	}
 	
@@ -88,11 +88,11 @@ qboolean StringSetParams (char modifier, int *red, int *green, int *blue, int *b
 DrawStringGeneric
 ================
 */
-void DrawStringGeneric (int x, int y, const char *string, int alpha, textscaletype_t scaleType, qboolean altBit)
+void DrawStringGeneric (Sint32 x, Sint32 y, const char *string, Sint32 alpha, textscaletype_t scaleType, qboolean altBit)
 {
 	unsigned i, j;
 	char modifier, character;
-	int len, red, green, blue, italic, shadow, bold, reset;
+	Sint32 len, red, green, blue, italic, shadow, bold, reset;
 	qboolean modified;
 	float textSize, textScale;
 
@@ -159,12 +159,12 @@ void DrawStringGeneric (int x, int y, const char *string, int alpha, textscalety
 				if (!modified) {
 					character ^= 0x80;
 					if (character & 128)
-						ColorLookup((int)alt_text_color->value, &red, &green, &blue);
+						ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
 				}
 			}
 			else {
 				if (!modified && (character & 128))
-					ColorLookup((int)alt_text_color->value, &red, &green, &blue);
+					ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
 			}
 			break;
 		case SCALETYPE_CONSOLE:
@@ -173,7 +173,7 @@ void DrawStringGeneric (int x, int y, const char *string, int alpha, textscalety
 			textScale = FONT_SIZE/8.0;
 			// hack for alternate text color
 			if (!modified && (character & 128))
-				ColorLookup((int)alt_text_color->value, &red, &green, &blue);
+				ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
 			break;
 		}
 

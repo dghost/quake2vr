@@ -21,7 +21,7 @@ static hmd_render_t available_hmds[NUM_HMD_TYPES];
 
 static hmd_render_t *hmd;
 
-static int leftStale, rightStale, hudStale;
+static Sint32 leftStale, rightStale, hudStale;
 
 static vr_eye_t currenteye;
 
@@ -34,7 +34,7 @@ vr_rect_t screen;
 // executed once per frame
 void R_VR_StartFrame()
 {
-	int resolutionChanged = 0;
+	Sint32 resolutionChanged = 0;
 	
 	if (!hmd)
 		return;
@@ -76,7 +76,7 @@ void R_VR_StartFrame()
 void R_Clear (void);
 void R_VR_BindView(vr_eye_t eye)
 {
-	int clear = 0;
+	Sint32 clear = 0;
 	currenteye = eye;
 	if (eye == EYE_HUD)
 	{
@@ -112,7 +112,7 @@ void R_VR_BindView(vr_eye_t eye)
 	}
 }
 
-void R_VR_GetViewPos(vr_eye_t eye, int *x, int *y)
+void R_VR_GetViewPos(vr_eye_t eye, Sint32 *x, Sint32 *y)
 {
 	if (eye == EYE_HUD)
 	{
@@ -127,7 +127,7 @@ void R_VR_GetViewPos(vr_eye_t eye, int *x, int *y)
 	}
 }
 
-void R_VR_GetViewSize(vr_eye_t eye, int *width, int *height)
+void R_VR_GetViewSize(vr_eye_t eye, Sint32 *width, Sint32 *height)
 {
 	if (eye == EYE_HUD)
 	{
@@ -154,12 +154,12 @@ void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
 		hmd->getViewRect(eye,rect);
 }
 
-void R_VR_CurrentViewPosition(int *x, int *y)
+void R_VR_CurrentViewPosition(Sint32 *x, Sint32 *y)
 {
 	R_VR_GetViewPos(currenteye,x,y);
 }
 
-void R_VR_CurrentViewSize(int *width, int *height)
+void R_VR_CurrentViewSize(Sint32 *width, Sint32 *height)
 {
 	R_VR_GetViewSize(currenteye,width,height);
 }
@@ -223,7 +223,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 	float depth = vr_hud_depth->value;
 	float ipd = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0);
 
-	extern int scr_draw_loading;
+	extern Sint32 scr_draw_loading;
 
 	if (!vr_enabled->value)
 		return;
@@ -233,7 +233,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 	GL_LoadIdentity(GL_MODELVIEW);
 
 	// disable this for the loading screens since they are not at 60fps
-	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int) vr_aimmode->value > 0))
+	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((Sint32) vr_aimmode->value > 0))
 	{
 		// load the quaternion directly into a rotation matrix
 		vec4_t q;
@@ -318,7 +318,7 @@ void R_VR_Enable()
 		if (offscreen.valid)
 			R_DelFBO(&offscreen);
 
-		hmd = &available_hmds[(int) vr_enabled->value];
+		hmd = &available_hmds[(Sint32) vr_enabled->value];
 
 		success = (qboolean) R_GenFBO(640, 480, 1, &hud);
 		success = success && hmd->enable();
@@ -361,7 +361,7 @@ void R_VR_Disable()
 // launch-time initialization for VR support
 void R_VR_Init()
 {
-	int i;
+	Sint32 i;
 	currenteye = EYE_HUD;
 	available_hmds[HMD_NONE] = vr_render_none;
 	available_hmds[HMD_STEAM] = vr_render_svr;

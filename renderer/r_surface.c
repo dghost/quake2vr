@@ -28,8 +28,8 @@ static vec3_t	modelorg;		// relative to viewpoint
 
 msurface_t	*r_alpha_surfaces;
 
-int		c_visible_lightmaps;
-int		c_visible_textures;
+Sint32		c_visible_lightmaps;
+Sint32		c_visible_textures;
 
 
 gllightmapstate_t gl_lms;
@@ -41,10 +41,10 @@ static void R_DrawLightmappedSurface (msurface_t *surf, qboolean render);
 
 static void		LM_InitBlock (void);
 static void		LM_UploadBlock (qboolean dynamic);
-static qboolean	LM_AllocBlock (int w, int h, int *x, int *y);
+static qboolean	LM_AllocBlock (Sint32 w, Sint32 h, Sint32 *x, Sint32 *y);
 
 extern void R_SetCacheState( msurface_t *surf );
-extern void R_BuildLightMap (msurface_t *surf, byte *dest, int stride);
+extern void R_BuildLightMap (msurface_t *surf, byte *dest, Sint32 stride);
 
 void R_BuildVertexLight (msurface_t *surf);
 
@@ -75,7 +75,7 @@ is not valid for the alpha surface pass.
 */
 image_t *R_TextureAnimation (msurface_t *surf)
 {
-	int			c, frame;
+	Sint32			c, frame;
 	mtexinfo_t	*tex = surf->texinfo;
 
 	if (!tex->next)
@@ -110,7 +110,7 @@ Returns the proper glow texture for a given time
 */
 image_t *R_TextureAnimationGlow (msurface_t *surf)
 {
-	int			c, frame;
+	Sint32			c, frame;
 	mtexinfo_t	*tex = surf->texinfo;
 
 	if (!tex->next)
@@ -141,7 +141,7 @@ image_t *R_TextureAnimationGlow (msurface_t *surf)
 R_SetLightingMode
 ===============
 */
-void R_SetLightingMode (int renderflags)
+void R_SetLightingMode (Sint32 renderflags)
 {
 	GL_SelectTexture (0);
 
@@ -194,7 +194,7 @@ void R_SetLightingMode (int renderflags)
 SurfAlphaCalc
 ================
 */
-float SurfAlphaCalc (int flags)
+float SurfAlphaCalc (Sint32 flags)
 {
 	if ((flags & SURF_TRANS33) && (flags & SURF_TRANS66) && r_solidalpha->value)
 //		return DIV254BY255;
@@ -212,9 +212,9 @@ float SurfAlphaCalc (int flags)
 R_SurfIsDynamic
 ================
 */
-qboolean R_SurfIsDynamic (msurface_t *surf, int *mapNum)
+qboolean R_SurfIsDynamic (msurface_t *surf, Sint32 *mapNum)
 {
-	int			map;
+	Sint32			map;
 	qboolean	is_dynamic = false;
 
 	if (!surf)	return false;
@@ -297,7 +297,7 @@ void RB_RenderGLPoly (msurface_t *surf, qboolean light)
 {
 	image_t		*image = R_TextureAnimation (surf);
 	image_t		*glow = R_TextureAnimationGlow(surf);
-	int			i;
+	Sint32			i;
 	float		alpha = colorArray[0][3];
 	qboolean	glowPass, envMap, causticPass;
 
@@ -365,7 +365,7 @@ modified to handle scrolling textures
 void R_DrawGLPoly (msurface_t *surf, qboolean render)
 {
 	glpoly_t	*p;
-	int			nv, i;
+	Sint32			nv, i;
 	float		*v, scroll, alpha;
 	qboolean	light;
 
@@ -375,7 +375,7 @@ void R_DrawGLPoly (msurface_t *surf, qboolean render)
 	c_brush_surfs++;
 
 	if (surf->texinfo->flags & SURF_FLOWING) {
-		scroll = -64 * ( (r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0) );
+		scroll = -64 * ( (r_newrefdef.time / 40.0) - (Sint32)(r_newrefdef.time / 40.0) );
 		if (scroll == 0.0)	scroll = -64.0;
 	}
 	else
@@ -444,7 +444,7 @@ R_DrawGLPolyChain
 void R_DrawGLPolyChain (glpoly_t *p, float soffset, float toffset)
 {
 	float	*v;
-	int		j, nv;
+	Sint32		j, nv;
 
 	rb_vertex = rb_index = 0;
 	for ( ; p != 0; p = p->chain)
@@ -477,7 +477,7 @@ R_RenderBrushPoly
 */
 void R_RenderBrushPoly (msurface_t *fa)
 {
-	int			maps;
+	Sint32			maps;
 //	qboolean	is_dynamic = false;
 
 	if (fa->flags & SURF_DRAWTURB)
@@ -527,7 +527,7 @@ dynamic:
 		if ( (fa->styles[maps] >= 32 || fa->styles[maps] == 0) && (fa->dlightframe != r_framecount) )
 		{
 			unsigned	temp[34*34];
-			int			smax, tmax;
+			Sint32			smax, tmax;
 
 			smax = (fa->extents[0]>>4)+1;
 			tmax = (fa->extents[1]>>4)+1;
@@ -711,7 +711,7 @@ Based on code from MH's experimental Q2 engine
 */
 void R_UpdateSurfaceLightmap (msurface_t *surf)
 {
-	int			map;
+	Sint32			map;
 
 	if (R_SurfIsDynamic (surf, &map))
 	{
@@ -744,7 +744,7 @@ Based on code from MH's experimental Q2 engine
 */
 void R_RebuildLightmaps (void)
 {
-	int			i;
+	Sint32			i;
 	qboolean	storeSet = false;
 
 	for (i=1; i<gl_lms.current_lightmap_texture; i++)
@@ -786,7 +786,7 @@ Draws solid warp surfaces im multitexture mode
 */
 void R_DrawMultiTextureChains (void)
 {
-	int			i;
+	Sint32			i;
 	msurface_t	*s;
 	image_t		*image;
 
@@ -844,7 +844,7 @@ Draws all solid textures in 2-pass mode
 */
 void R_DrawTextureChains (void)
 {
-	int			i;
+	Sint32			i;
 	msurface_t	*s;
 	image_t		*image;
 
@@ -957,10 +957,10 @@ RB_DrawCaustics
 Underwater caustic effect based on code by Kirk Barnes
 ===========================================
 */
-extern unsigned int dst_texture;
+extern Uint32 dst_texture;
 static void RB_DrawCaustics (msurface_t *surf)
 {
-	int			i, vert=0;	// nv
+	Sint32			i, vert=0;	// nv
 	float		scrollh, scrollv, scaleh, scalev, dstscroll;	// *v,
 	image_t		*causticpic = RB_CausticForSurface (surf);
 	qboolean	previousBlend = false;
@@ -974,7 +974,7 @@ static void RB_DrawCaustics (msurface_t *surf)
 	// sin and cos circular drifting
 	scrollh = sin(r_newrefdef.time * 0.08 * M_PI) * 0.45;
 	scrollv = cos(r_newrefdef.time * 0.08 * M_PI) * 0.45;
-	dstscroll = -1.0 * ( (r_newrefdef.time*0.15) - (int)(r_newrefdef.time*0.15) );
+	dstscroll = -1.0 * ( (r_newrefdef.time*0.15) - (Sint32)(r_newrefdef.time*0.15) );
 
 	GL_MBind (0, causticpic->texnum);
 
@@ -1033,12 +1033,12 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 {
 	image_t		*image = R_TextureAnimation (surf);
 	image_t		*glow = R_TextureAnimationGlow (surf);
-	int			i;
+	Sint32			i;
 	float		alpha = colorArray[0][3];
 	unsigned	lmtex = surf->lightmaptexturenum;
 	qboolean	glowLayer, glowPass, envMap, causticPass;
 #ifndef BATCH_LM_UPDATES
-	int			map;
+	Sint32			map;
 #endif
 
 	if (rb_vertex == 0 || rb_index == 0) // nothing to render
@@ -1056,7 +1056,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 	if (R_SurfIsDynamic (surf, &map))
 	{
 		unsigned	temp[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];
-		int			smax, tmax;
+		Sint32			smax, tmax;
 
 		smax = (surf->extents[0]>>4)+1;
 		tmax = (surf->extents[1]>>4)+1;
@@ -1160,7 +1160,7 @@ R_DrawLightmappedSurface
 void R_DrawLightmappedSurface (msurface_t *surf, qboolean render)
 {
 	glpoly_t	*p;
-	int			nv, i;
+	Sint32			nv, i;
 	float		*v, scroll, alpha;
 
 	c_brush_surfs++;
@@ -1172,7 +1172,7 @@ void R_DrawLightmappedSurface (msurface_t *surf, qboolean render)
 	alpha *= SurfAlphaCalc (surf->texinfo->flags);
 
 	if (surf->texinfo->flags & SURF_FLOWING) {
-		scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
+		scroll = -64 * ((r_newrefdef.time / 40.0) - (Sint32)(r_newrefdef.time / 40.0));
 		if (scroll == 0.0) scroll = -64.0;
 	}
 	else
@@ -1255,9 +1255,9 @@ qboolean SurfInFront (msurface_t *surf1, msurface_t *surf2)
 R_DrawInlineBModel
 =================
 */
-void R_DrawInlineBModel (entity_t *e, int causticflag)
+void R_DrawInlineBModel (entity_t *e, Sint32 causticflag)
 {
-	int			i, k;
+	Sint32			i, k;
 	cplane_t	*pplane;
 	float		dot;
 	msurface_t	*psurf, *s;
@@ -1465,12 +1465,12 @@ void R_DrawInlineBModel (entity_t *e, int causticflag)
 R_DrawBrushModel
 =================
 */
-int CL_PMpointcontents (vec3_t point);
-int CL_PMpointcontents2 (vec3_t point, model_t *ignore);
+Sint32 CL_PMpointcontents (vec3_t point);
+Sint32 CL_PMpointcontents2 (vec3_t point, model_t *ignore);
 void R_DrawBrushModel (entity_t *e)
 {
 	vec3_t		mins, maxs, org;
-	int			i, contents[9], contentsAND, contentsOR, causticflag = 0;
+	Sint32			i, contents[9], contentsAND, contentsOR, causticflag = 0;
 	qboolean	rotated, viewInWater;
 
 	if (currentmodel->nummodelsurfaces == 0)
@@ -1581,7 +1581,7 @@ R_RecursiveWorldNode
 */
 void R_RecursiveWorldNode (mnode_t *node)
 {
-	int			c, side, sidebit;
+	Sint32			c, side, sidebit;
 	cplane_t	*plane;
 	msurface_t	*surf, **mark;
 	mleaf_t		*pleaf;
@@ -1731,7 +1731,7 @@ void R_DrawWorld (void)
 	// auto cycle the world frame for texture animation
 	memset (&ent, 0, sizeof(ent));
 	// Knightmare added r_worldframe for trans animations
-	ent.frame = r_worldframe = (int)(r_newrefdef.time*2); 
+	ent.frame = r_worldframe = (Sint32)(r_newrefdef.time*2); 
 	currententity = &ent;
 
 	glState.currenttextures[0] = glState.currenttextures[1] = -1;
@@ -1770,9 +1770,9 @@ void R_MarkLeaves (void)
 	byte	*vis;
 	byte	fatvis[MAX_MAP_LEAFS/8];
 	mnode_t	*node;
-	int		i, c;
+	Sint32		i, c;
 	mleaf_t	*leaf;
-	int		cluster;
+	Sint32		cluster;
 
 	if (r_oldviewcluster == r_viewcluster && r_oldviewcluster2 == r_viewcluster2 && !r_novis->value && r_viewcluster != -1)
 		return;
@@ -1804,7 +1804,7 @@ void R_MarkLeaves (void)
 		vis = Mod_ClusterPVS (r_viewcluster2, r_worldmodel);
 		c = (r_worldmodel->numleafs+31)/32;
 		for (i=0 ; i<c ; i++)
-			((int *)fatvis)[i] |= ((int *)vis)[i];
+			((Sint32 *)fatvis)[i] |= ((Sint32 *)vis)[i];
 		vis = fatvis;
 	}
 	
@@ -1862,7 +1862,7 @@ void R_SurfLightPoint (msurface_t *surf, vec3_t p, vec3_t color, qboolean baseli
 qboolean R_BuildVertexLightBase (msurface_t *surf, glpoly_t *poly)
 {
 	vec3_t		color, point;
-	int			i, j;
+	Sint32			i, j;
 	float		*v;
 	qboolean	lit = false;
 
@@ -1914,7 +1914,7 @@ R_BuildVertexLight
 void R_BuildVertexLight (msurface_t *surf)
 {
 	vec3_t		color, point;
-	int			i;
+	Sint32			i;
 	float		*v;
 	glpoly_t	*poly;
 
@@ -2005,8 +2005,8 @@ LM_UploadBlock
 */
 static void LM_UploadBlock (qboolean dynamic)
 {
-	int texture;
-	int height = 0;
+	Sint32 texture;
+	Sint32 height = 0;
 
 	if ( dynamic )
 	{
@@ -2023,7 +2023,7 @@ static void LM_UploadBlock (qboolean dynamic)
 
 	if ( dynamic )
 	{
-		int i;
+		Sint32 i;
 
 		for ( i = 0; i < LM_BLOCK_WIDTH; i++ )
 		{
@@ -2069,10 +2069,10 @@ LM_AllocBlock
 returns a texture number and the position inside it
 ================
 */
-static qboolean LM_AllocBlock (int w, int h, int *x, int *y)
+static qboolean LM_AllocBlock (Sint32 w, Sint32 h, Sint32 *x, Sint32 *y)
 {
-	int		i, j;
-	int		best, best2;
+	Sint32		i, j;
+	Sint32		best, best2;
 
 	best = LM_BLOCK_HEIGHT;
 
@@ -2111,9 +2111,9 @@ R_BuildPolygonFromSurface
 */
 void R_BuildPolygonFromSurface (msurface_t *fa)
 {
-	int			i, lindex, lnumverts;
+	Sint32			i, lindex, lnumverts;
 	medge_t		*pedges, *r_pedge;
-	int			vertpage;
+	Sint32			vertpage;
 	float		*vec;
 	float		s, t;
 	glpoly_t	*poly;
@@ -2137,7 +2137,7 @@ void R_BuildPolygonFromSurface (msurface_t *fa)
 
 	// alloc vertex light fields
 	if (fa->texinfo->flags & (SURF_TRANS33|SURF_TRANS66)) {
-		int size = lnumverts*3*sizeof(byte);
+		Sint32 size = lnumverts*3*sizeof(byte);
 		poly->vertexlight = Hunk_Alloc(size);
 		poly->vertexlightbase = Hunk_Alloc(size);
 		memset(poly->vertexlight, 0, size);
@@ -2204,7 +2204,7 @@ R_CreateSurfaceLightmap
 */
 void R_CreateSurfaceLightmap (msurface_t *surf)
 {
-	int			smax, tmax;
+	Sint32			smax, tmax;
 	unsigned	*base;
 
 	if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB))
@@ -2254,7 +2254,7 @@ R_BeginBuildingLightmaps
 void R_BeginBuildingLightmaps (model_t *m)
 {
 	static lightstyle_t	lightstyles[MAX_LIGHTSTYLES];
-	int				i;
+	Sint32				i;
 	unsigned		dummy[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];	// 128*128
 
 	memset( gl_lms.allocated, 0, sizeof(gl_lms.allocated) );

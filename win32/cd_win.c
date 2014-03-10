@@ -42,7 +42,7 @@ cvar_t *cd_loopcount;
 cvar_t *cd_looptrack;
 
 UINT	wDeviceID;
-int		loopcounter;
+Sint32		loopcounter;
 
 
 void CDAudio_Pause(void);
@@ -86,7 +86,7 @@ static void CDAudio_CloseDoor (void)
 }
 
 
-static int CDAudio_GetAudioDiskInfo (void)
+static Sint32 CDAudio_GetAudioDiskInfo (void)
 {
 	DWORD				dwReturn;
 	MCI_STATUS_PARMS	mciStatusParms;
@@ -128,7 +128,7 @@ static int CDAudio_GetAudioDiskInfo (void)
 
 
 
-void CDAudio_Play2 (int track, qboolean looping)
+void CDAudio_Play2 (Sint32 track, qboolean looping)
 {
 	DWORD				dwReturn;
     MCI_PLAY_PARMS		mciPlayParms;
@@ -203,7 +203,7 @@ void CDAudio_Play2 (int track, qboolean looping)
 }
 
 
-void CDAudio_Play(int track, qboolean looping)
+void CDAudio_Play(Sint32 track, qboolean looping)
 {
 	// set a loop counter so that this track will change to the
 	// looptrack later
@@ -280,8 +280,8 @@ void CDAudio_Resume (void)
 static void CD_f (void)
 {
 	char	*command;
-	int		ret;
-	int		n;
+	Sint32		ret;
+	Sint32		n;
 
 	if (Cmd_Argc() < 2)
 		return;
@@ -462,12 +462,12 @@ void CDAudio_Update (void)
 }
 
 
-int CDAudio_Init (void)
+Sint32 CDAudio_Init (void)
 {
 	DWORD	dwReturn;
 	MCI_OPEN_PARMS	mciOpenParms;
     MCI_SET_PARMS	mciSetParms;
-	int				n;
+	Sint32				n;
 
 	cd_nocd = Cvar_Get ("cd_nocd", "0", CVAR_ARCHIVE );
 	cd_loopcount = Cvar_Get ("cd_loopcount", "6", CVAR_ARCHIVE);	// Knightmare increased, was 4, added archive flag

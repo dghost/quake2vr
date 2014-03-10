@@ -28,7 +28,7 @@ CL_ParseInventory
 */
 void CL_ParseInventory (void)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=0 ; i<MAX_ITEMS ; i++)
 		cl.inventory[i] = MSG_ReadShort (&net_message);
@@ -40,8 +40,8 @@ void CL_ParseInventory (void)
 Inv_DrawString
 ================
 */
-void Hud_DrawString (int x, int y, const char *string, int alpha, qboolean isStatusBar);
-void Inv_DrawString (int x, int y, char *string)
+void Hud_DrawString (Sint32 x, Sint32 y, const char *string, Sint32 alpha, qboolean isStatusBar);
+void Inv_DrawString (Sint32 x, Sint32 y, char *string)
 {
 	Hud_DrawString(x, y, string, 255, false);
 }
@@ -61,15 +61,15 @@ CL_DrawInventory
 
 void CL_DrawInventory (void)
 {
-	int		i, j;
-	int		num, selected_num, item;
-	int		index[MAX_ITEMS];
+	Sint32		i, j;
+	Sint32		num, selected_num, item;
+	Sint32		index[MAX_ITEMS];
 	char	string[1024];
-	int		x, y;
+	Sint32		x, y;
 	char	binding[1024];
 	char	*bind;
-	int		selected;
-	int		top;
+	Sint32		selected;
+	Sint32		top;
 
 	selected = cl.frame.playerstate.stats[STAT_SELECTED_ITEM];
 

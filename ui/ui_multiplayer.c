@@ -126,7 +126,7 @@ void Multiplayer_MenuInit( void )
 	Menu_Center( &s_multiplayer_menu );
 }
 
-const char *Multiplayer_MenuKey( int key )
+const char *Multiplayer_MenuKey( Sint32 key )
 {
 	return Default_MenuKey( &s_multiplayer_menu, key );
 }

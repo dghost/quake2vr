@@ -33,7 +33,7 @@ R_CreateNullTexture
 image_t * R_CreateNullTexture (void)
 {
 	byte	nulltex[NULLTEX_SIZE][NULLTEX_SIZE][4];
-	int		x;
+	Sint32		x;
 
 	memset (nulltex, 32, sizeof(nulltex));
 	for (x=0; x<NULLTEX_SIZE; x++)
@@ -80,7 +80,7 @@ image_t *LoadPartImg (char *name, imagetype_t type)
 R_SetParticlePicture
 ==================
 */
-void R_SetParticlePicture (int num, char *name)
+void R_SetParticlePicture (Sint32 num, char *name)
 {
 	glMedia.particletextures[num] = LoadPartImg (name, it_part);
 }
@@ -93,7 +93,7 @@ R_InitMedia
 */
 void R_InitMedia (void)
 {
-	int		x;
+	Sint32		x;
 	byte	whitetex[NULLTEX_SIZE][NULLTEX_SIZE][4];
 #ifdef ROQ_SUPPORT
 	byte	data2D[256*256*4]; // Raw texture
@@ -134,11 +134,11 @@ void R_InitMedia (void)
 */ 
 
 typedef struct _TargaHeader {
-	unsigned char 	id_length, colormap_type, image_type;
-	unsigned short	colormap_index, colormap_length;
-	unsigned char	colormap_size;
-	unsigned short	x_origin, y_origin, width, height;
-	unsigned char	pixel_size, attributes;
+	Uint8 	id_length, colormap_type, image_type;
+	Uint16	colormap_index, colormap_length;
+	Uint8	colormap_size;
+	Uint16	x_origin, y_origin, width, height;
+	Uint8	pixel_size, attributes;
 } TargaHeader;
 
 
@@ -148,15 +148,15 @@ R_ResampleShotLerpLine
 from DarkPlaces
 ================
 */
-void R_ResampleShotLerpLine (byte *in, byte *out, int inwidth, int outwidth) 
+void R_ResampleShotLerpLine (byte *in, byte *out, Sint32 inwidth, Sint32 outwidth) 
 { 
-	int j, xi, oldx = 0, f, fstep, l1, l2, endx;
+	Sint32 j, xi, oldx = 0, f, fstep, l1, l2, endx;
 
-	fstep = (int) (inwidth*65536.0f/outwidth); 
+	fstep = (Sint32) (inwidth*65536.0f/outwidth); 
 	endx = (inwidth-1); 
 	for (j = 0,f = 0; j < outwidth; j++, f += fstep) 
 	{ 
-		xi = (int) f >> 16; 
+		xi = (Sint32) f >> 16; 
 		if (xi != oldx) 
 		{ 
 			in += (xi - oldx) * 3; 
@@ -185,13 +185,13 @@ void R_ResampleShotLerpLine (byte *in, byte *out, int inwidth, int outwidth)
 R_ResampleShot
 ================
 */
-void R_ResampleShot (void *indata, int inwidth, int inheight, void *outdata, int outwidth, int outheight) 
+void R_ResampleShot (void *indata, Sint32 inwidth, Sint32 inheight, void *outdata, Sint32 outwidth, Sint32 outheight) 
 { 
-	int i, j, yi, oldy, f, fstep, l1, l2, endy = (inheight-1);
+	Sint32 i, j, yi, oldy, f, fstep, l1, l2, endy = (inheight-1);
 	
 	byte *inrow, *out, *row1, *row2; 
 	out = outdata; 
-	fstep = (int) (inheight*65536.0f/outheight); 
+	fstep = (Sint32) (inheight*65536.0f/outheight); 
 
 	row1 = malloc(outwidth*3); 
 	row2 = malloc(outwidth*3); 
@@ -261,7 +261,7 @@ void R_ScaledScreenshot (char *name)
 	JSAMPROW						s[1];
 	FILE							*file;
 	char							shotname[MAX_OSPATH];
-	int								saveshotWidth, saveshotHeight, offset;
+	Sint32								saveshotWidth, saveshotHeight, offset;
 	byte							*jpgdata;
 
 	if (!saveshotdata)	return;
@@ -376,7 +376,7 @@ void R_ScreenShot_JPG (qboolean silent)
 	JSAMPROW						s[1];
 	FILE							*file;
 	char							picname[80], checkname[MAX_OSPATH];
-	int								i, offset;
+	Sint32								i, offset;
 
 	// Create the scrnshots directory if it doesn't exist
 	Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot", FS_Gamedir());
@@ -390,7 +390,7 @@ void R_ScreenShot_JPG (qboolean silent)
 	{ 
 		//picname[5] = i/10 + '0'; 
 		//picname[6] = i%10 + '0'; 
-		int one, ten, hundred;
+		Sint32 one, ten, hundred;
 
 		hundred = i*0.01;
 		ten = (i - hundred*100)*0.1;
@@ -482,7 +482,7 @@ void R_ScreenShot_TGA (qboolean silent)
 	byte		*buffer;
 	char		picname[80]; 
 	char		checkname[MAX_OSPATH];
-	int			i, c, temp;
+	Sint32			i, c, temp;
 	FILE		*f;
 
 /*	// Heffo - JPEG Screenshots
@@ -507,7 +507,7 @@ void R_ScreenShot_TGA (qboolean silent)
 	{ 
 		//picname[5] = i/10 + '0'; 
 		//picname[6] = i%10 + '0'; 
-		int one, ten, hundred;
+		Sint32 one, ten, hundred;
 
 		hundred = i*0.01;
 		ten = (i - hundred*100)*0.1;
@@ -617,8 +617,8 @@ void GL_UpdateSwapInterval (void)
 	}
 	if ( r_swapinterval->modified )
 	{
-		int sync = 0;
-		int tear = (r_adaptivevsync->value ? -1 : 1);
+		Sint32 sync = 0;
+		Sint32 tear = (r_adaptivevsync->value ? -1 : 1);
 		Cvar_SetInteger("r_swapinterval", abs(r_swapinterval->value));
 		r_swapinterval->modified = false;
 		
@@ -639,7 +639,7 @@ static struct {
 	GLsync sync; 
 	qboolean fenced;
 	GLint64 timeout;
-	int timeStart;
+	Sint32 timeStart;
 } glFence;
 
 void R_FrameFence (void)
@@ -666,7 +666,7 @@ void R_FrameFence (void)
 	}
 }
 
-int R_FrameSync (void)
+Sint32 R_FrameSync (void)
 {
 	if (glConfig.arb_sync && glFence.fenced && r_fencesync->value)
 	{

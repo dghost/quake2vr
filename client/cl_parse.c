@@ -57,7 +57,7 @@ CL_RegisterSounds
 */
 void CL_RegisterSounds (void)
 {
-	int		i;
+	Sint32		i;
 
 	S_BeginRegistration ();
 	CL_RegisterTEntSounds ();
@@ -142,7 +142,7 @@ void CL_ParseServerData (void)
 {
 	extern cvar_t	*fs_gamedirvar;
 	char	*str;
-	int		i;
+	Sint32		i;
 	
 	Com_DPrintf ("Serverdata packet received.\n");
 //
@@ -210,8 +210,8 @@ CL_ParseBaseline
 void CL_ParseBaseline (void)
 {
 	entity_state_t	*es;
-	int				bits;
-	int				newnum;
+	Sint32				bits;
+	Sint32				newnum;
 	entity_state_t	nullstate;
 
 	memset (&nullstate, 0, sizeof(nullstate));
@@ -230,7 +230,7 @@ CL_LoadClientinfo
 */
 void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 {
-	int i;
+	Sint32 i;
 	char		*t;
 	char		model_name[MAX_QPATH];
 	char		skin_name[MAX_QPATH];
@@ -349,7 +349,7 @@ CL_ParseClientinfo
 Load the skin, icon, and model for a client
 ================
 */
-void CL_ParseClientinfo (int player)
+void CL_ParseClientinfo (Sint32 player)
 {
 	char			*s;
 	clientinfo_t	*ci;
@@ -377,7 +377,7 @@ This assumes that the standard Q2 CD was ripped
 as track02-track11, and the Rogue CD as track12-track21.
 ================
 */
-int CL_MissionPackCDTrack (int tracknum)
+Sint32 CL_MissionPackCDTrack (Sint32 tracknum)
 {
 	if (modType("rogue") || cl_rogue_music->value)
 	{
@@ -421,7 +421,7 @@ CL_PlayBackgroundTrack
 void CL_PlayBackgroundTrack (void)
 {
 	char	name[MAX_QPATH];
-	int		track;
+	Sint32		track;
 
 	if (!cl.refresh_prepped)
 		return;
@@ -471,7 +471,7 @@ CL_ParseConfigString
 */
 void CL_ParseConfigString (void)
 {
-	int		i;
+	Sint32		i;
 	char	*s;
 	char	olds[MAX_QPATH];
 
@@ -583,11 +583,11 @@ void CL_ParseStartSoundPacket(void)
 {
     vec3_t  pos_v;
 	float	*pos;
-    int 	channel, ent;
-    int 	sound_num;
+    Sint32 	channel, ent;
+    Sint32 	sound_num;
     float 	volume;
     float 	attenuation;  
-	int		flags;
+	Sint32		flags;
 	float	ofs;
 
 	flags = MSG_ReadByte (&net_message);
@@ -704,7 +704,7 @@ CL_ParseFog
 void CL_ParseFog (void)
 {
 	qboolean fogenable;
-	int model, density, start, end,
+	Sint32 model, density, start, end,
 			red, green, blue, temp;
 
 	temp = MSG_ReadByte (&net_message);
@@ -727,9 +727,9 @@ CL_ParseServerMessage
 */
 void CL_ParseServerMessage (void)
 {
-	int			cmd;
+	Sint32			cmd;
 	char		*s;
-	int			i;
+	Sint32			i;
 
 //
 // if recording demos, copy the message out

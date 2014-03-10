@@ -37,19 +37,19 @@ glstate_t	glState;
 glmedia_t	glMedia;
 
 entity_t	*currententity;
-int			r_worldframe; // added for trans animations
+Sint32			r_worldframe; // added for trans animations
 model_t		*currentmodel;
 
 cplane_t	frustum[4];
 
-int			r_visframecount;	// bumped when going to a new PVS
-int			r_framecount;		// used for dlight push checking
+Sint32			r_visframecount;	// bumped when going to a new PVS
+Sint32			r_framecount;		// used for dlight push checking
 
-int			c_brush_calls, c_brush_surfs, c_brush_polys, c_alias_polys, c_part_polys;
+Sint32			c_brush_calls, c_brush_surfs, c_brush_polys, c_alias_polys, c_part_polys;
 
 float		v_blend[4];			// final blending color
 
-int			maxsize;			// Nexus
+Sint32			maxsize;			// Nexus
 
 void GL_Strings_f( void );
 
@@ -70,7 +70,7 @@ float	r_base_world_matrix[16];
 //
 refdef_t	r_newrefdef;
 
-int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
+Sint32		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 cvar_t  *gl_driver;
 
@@ -180,7 +180,7 @@ Returns true if the box is completely outside the frustom
 */
 qboolean R_CullBox (vec3_t mins, vec3_t maxs)
 {
-	int		i;
+	Sint32		i;
 
 	if (r_nocull->value)
 		return false;
@@ -245,9 +245,9 @@ void R_PolyBlend (void)
 
 //=======================================================================
 
-int SignbitsForPlane (cplane_t *out)
+Sint32 SignbitsForPlane (cplane_t *out)
 {
-	int	bits, j;
+	Sint32	bits, j;
 
 	// for fast box on planeside test
 
@@ -263,7 +263,7 @@ int SignbitsForPlane (cplane_t *out)
 
 void R_SetFrustum (void)
 {
-	int		i;
+	Sint32		i;
 	float	fov_x = r_newrefdef.fov_x;
 	float	fov_y = r_newrefdef.fov_y;
 
@@ -319,7 +319,7 @@ R_SetupFrame
 */
 void R_SetupFrame (void)
 {
-	int i;
+	Sint32 i;
 	mleaf_t	*leaf;
 
 	r_framecount++;
@@ -392,7 +392,7 @@ R_SetupGL
 void R_SetupGL(void)
 {
 	//	float	yfov;
-	int		x, x2, y2, y, w, h;
+	Sint32		x, x2, y2, y, w, h;
 	vec3_t vieworigin;
 	//Knightmare- variable sky range
 	static GLdouble farz;
@@ -403,7 +403,7 @@ void R_SetupGL(void)
 	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
 	{
 		msurface_t *surf;
-		int i;
+		Sint32 i;
 
 		for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
 			surf->cached_light[0] = 0;
@@ -566,7 +566,7 @@ void VR_DrawCrosshair()
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	GL_MBind(0,0);
 	glColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
-	if ((int) vr_crosshair->value == VR_CROSSHAIR_DOT)
+	if ((Sint32) vr_crosshair->value == VR_CROSSHAIR_DOT)
 	{
 		glEnable(GL_POINT_SMOOTH);
 
@@ -575,7 +575,7 @@ void VR_DrawCrosshair()
 		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
 		glEnd();
 		glDisable(GL_POINT_SMOOTH);
-	} else if ((int) vr_crosshair->value == VR_CROSSHAIR_LASER)
+	} else if ((Sint32) vr_crosshair->value == VR_CROSSHAIR_LASER)
 	{
 
 		glLineWidth( vr_crosshair_size->value * vrState.pixelScale );
@@ -829,7 +829,7 @@ void R_RenderView (refdef_t *fd)
 R_SetGL2D
 ================
 */
-void	Con_DrawString (int x, int y, char *string, int alpha);
+void	Con_DrawString (Sint32 x, Sint32 y, char *string, Sint32 alpha);
 float	SCR_ScaledVideo (float param);
 #define	FONT_SIZE		SCR_ScaledVideo(con_font_size->value)
 
@@ -850,7 +850,7 @@ void R_SetGL2D (void)
 	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL) &&!(vr_enabled->value)) // don't do this for options menu
 	{
 		char	S[128];
-		int		lines, i, x, y, n = 0;
+		Sint32		lines, i, x, y, n = 0;
 
 		lines = 5;
 
@@ -891,7 +891,7 @@ static void GL_DrawColoredStereoLinePair (float r, float g, float b, float y)
 
 static void GL_DrawStereoPattern (void)
 {
-	int i;
+	Sint32 i;
 
 	if ( !glState.stereo_enabled )
 		return;
@@ -974,7 +974,7 @@ void AssertCvarRange (cvar_t *var, float min, float max, qboolean isInteger)
 	if (!var)
 		return;
 
-	if (isInteger && ((int)var->value != var->integer))
+	if (isInteger && ((Sint32)var->value != var->integer))
 	{
 		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
 		Cvar_Set (var->name, va("%d", var->integer));
@@ -1125,7 +1125,7 @@ void R_Register (void)
 R_SetMode
 ==================
 */
-//extern void VR_GetHMDPos(int *xpos, int *ypos);
+//extern void VR_GetHMDPos(Sint32 *xpos, Sint32 *ypos);
 qboolean R_SetMode (void)
 {
 	rserr_t err;
@@ -1188,8 +1188,8 @@ qboolean R_Init ( char *reason )
 {	
 	char renderer_buffer[1000];
 	char vendor_buffer[1000];
-	int		err;
-	int		j;
+	Sint32		err;
+	Sint32		j;
 	extern float r_turbsin[256];
 
 	for ( j = 0; j < 256; j++ )
@@ -1637,7 +1637,7 @@ void R_BeginFrame()
 			Cvar_SetValue("r_gamma",0.5);
 		r_gamma->modified = false;
 		
-		UpdateGammaRamp ((int) !r_ignorehwgamma->value);
+		UpdateGammaRamp ((Sint32) !r_ignorehwgamma->value);
 	}
 
 	GLimp_BeginFrame(  );
@@ -1720,7 +1720,7 @@ void R_BeginFrame()
 
 void R_EndFrame(void)
 {
-	int		err;
+	Sint32		err;
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
 
@@ -1749,9 +1749,9 @@ R_SetPalette
 */
 unsigned r_rawpalette[256];
 
-void R_SetPalette ( const unsigned char *palette)
+void R_SetPalette ( const Uint8 *palette)
 {
-	int		i;
+	Sint32		i;
 
 	byte *rp = ( byte * ) r_rawpalette;
 

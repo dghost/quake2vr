@@ -38,20 +38,20 @@ FRAGMENT CLIPPING
 #define MAX_FRAGMENT_POINTS		128
 #define MAX_FRAGMENT_PLANES		6
 
-static int				cm_numMarkPoints;
-static int				cm_maxMarkPoints;
+static Sint32				cm_numMarkPoints;
+static Sint32				cm_maxMarkPoints;
 static vec3_t			*cm_markPoints;
 
-static int				cm_numMarkFragments;
-static int				cm_maxMarkFragments;
+static Sint32				cm_numMarkFragments;
+static Sint32				cm_maxMarkFragments;
 static markFragment_t	*cm_markFragments;
 
 static cplane_t			cm_markPlanes[MAX_FRAGMENT_PLANES];
 
-static int				cm_markCheckCount;
+static Sint32				cm_markCheckCount;
 
 
-int PlaneTypeForNormal (const vec3_t normal)
+Sint32 PlaneTypeForNormal (const vec3_t normal)
 { 
 	if (normal[0] == 1.0)  
 		return 0;//PLANE_X;  
@@ -63,9 +63,9 @@ int PlaneTypeForNormal (const vec3_t normal)
 } 
 
 
-float *worldVert (int i, msurface_t *surf)
+float *worldVert (Sint32 i, msurface_t *surf)
 {
-	int e = r_worldmodel->surfedges[surf->firstedge + i];
+	Sint32 e = r_worldmodel->surfedges[surf->firstedge + i];
 	if (e >= 0)
 		return &r_worldmodel->vertexes[r_worldmodel->edges[e].v[0]].position[0];
 	else
@@ -79,16 +79,16 @@ float *worldVert (int i, msurface_t *surf)
 R_ClipFragment
 =================
 */
-static void R_ClipFragment (int numPoints, vec3_t points, int stage, markFragment_t *mf)
+static void R_ClipFragment (Sint32 numPoints, vec3_t points, Sint32 stage, markFragment_t *mf)
 {
-	int			i;
+	Sint32			i;
 	float		*p;
 	qboolean	frontSide;
 	vec3_t		front[MAX_FRAGMENT_POINTS];
-	int			f;
+	Sint32			f;
 	float		dist;
 	float		dists[MAX_FRAGMENT_POINTS];
-	int			sides[MAX_FRAGMENT_POINTS];
+	Sint32			sides[MAX_FRAGMENT_POINTS];
 	cplane_t	*plane;
 
 	if (numPoints > MAX_FRAGMENT_POINTS-2)
@@ -183,7 +183,7 @@ R_ClipFragmentToSurface
 static void R_ClipFragmentToSurface (msurface_t *surf, const vec3_t normal, mnode_t *node)
 {
 	qboolean planeback = surf->flags & SURF_PLANEBACK;
-	int				i;
+	Sint32				i;
 	float			d;
 	vec3_t			points[MAX_FRAGMENT_POINTS];
 	markFragment_t	*mf;
@@ -230,7 +230,7 @@ R_RecursiveMarkFragments
 static void R_RecursiveMarkFragments (const vec3_t origin, const vec3_t normal, float radius, mnode_t *node)
 {
 
-	int			i;
+	Sint32			i;
 	float		dist;
 	cplane_t	*plane;
 	msurface_t	*surf;
@@ -286,10 +286,10 @@ static void R_RecursiveMarkFragments (const vec3_t origin, const vec3_t normal, 
 R_MarkFragments
 =================
 */
-int R_MarkFragments (const vec3_t origin, const vec3_t axis[3], float radius, int maxPoints, vec3_t *points, int maxFragments, markFragment_t *fragments)
+Sint32 R_MarkFragments (const vec3_t origin, const vec3_t axis[3], float radius, Sint32 maxPoints, vec3_t *points, Sint32 maxFragments, markFragment_t *fragments)
 {
 
-	int		i;
+	Sint32		i;
 	float	dot;
 
 	if (!r_worldmodel || !r_worldmodel->nodes)

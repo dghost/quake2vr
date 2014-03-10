@@ -1,17 +1,17 @@
 #ifndef __VR_LIBOVR_H
 #define __VR_LIBOVR_H
-
+#include <SDL_stdinc.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 	typedef struct {
-		unsigned int initialized;
-		unsigned int h_resolution;
-		unsigned int v_resolution;
-		unsigned int xPos;
-		unsigned int yPos;
+		Uint32 initialized;
+		Uint32 h_resolution;
+		Uint32 v_resolution;
+		Uint32 xPos;
+		Uint32 yPos;
 		float h_screen_size;
 		float v_screen_size;
 		float interpupillary_distance;
@@ -23,20 +23,20 @@ extern "C" {
 		char deviceName[32];
 	} ovr_settings_t;
 
-	int LibOVR_Init(void);
-	int LibOVR_DeviceInit(void);
+	Sint32 LibOVR_Init(void);
+	Sint32 LibOVR_DeviceInit(void);
 	void LibOVR_DeviceRelease(void);
 	void LibOVR_Shutdown(void);
-	int LibOVR_GetOrientation(float euler[3]);
-	int LibOVR_GetSettings(ovr_settings_t *settings);
-	int LibOVR_SetPredictionTime(float time);
-	int LibOVR_EnableDriftCorrection(void);
+	Sint32 LibOVR_GetOrientation(float euler[3]);
+	Sint32 LibOVR_GetSettings(ovr_settings_t *settings);
+	Sint32 LibOVR_SetPredictionTime(float time);
+	Sint32 LibOVR_EnableDriftCorrection(void);
 	void LibOVR_DisableDriftCorrection(void);
-	int LibOVR_IsDriftCorrectionEnabled(void);
+	Sint32 LibOVR_IsDriftCorrectionEnabled(void);
 	void LibOVR_ResetHMDOrientation(void);
-	int LibOVR_IsLatencyTesterAvailable(void);
+	Sint32 LibOVR_IsLatencyTesterAvailable(void);
 	void LibOVR_ProcessLatencyInputs(void);
-	int LibOVR_GetLatencyTestColor(float color[4]);
+	Sint32 LibOVR_GetLatencyTestColor(float color[4]);
 	const char* LibOVR_ProcessLatencyResults();
 
 #ifdef __cplusplus

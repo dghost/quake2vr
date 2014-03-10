@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/client.h"
 #include "ui_local.h"
 
-static int	m_main_cursor;
+static Sint32	m_main_cursor;
 
 // for checking if quad cursor model is available
 #define QUAD_CURSOR_MODEL	"models/ui/quad_cursor.md2"
@@ -60,9 +60,9 @@ char *main_names[] =
 FindMenuCoords
 =============
 */
-void FindMenuCoords (int *xoffset, int *ystart, int *totalheight, int *widest)
+void FindMenuCoords (Sint32 *xoffset, Sint32 *ystart, Sint32 *totalheight, Sint32 *widest)
 {
-	int w, h, i;
+	Sint32 w, h, i;
 
 	*totalheight = 0;
 	*widest = -1;
@@ -89,15 +89,15 @@ x,y.  The pic will extend to the left of x,
 and both above and below y.
 =============
 */
-void UI_DrawMainCursor (int x, int y, int f)
+void UI_DrawMainCursor (Sint32 x, Sint32 y, Sint32 f)
 {
 	char	cursorname[80];
 	static	qboolean cached;
-	int		w,h;
+	Sint32		w,h;
 
 	if (!cached)
 	{
-		int i;
+		Sint32 i;
 
 		for (i = 0; i < NUM_MAINMENU_CURSOR_FRAMES; i++) {
 			Com_sprintf (cursorname, sizeof(cursorname), "m_cursor%d", i);
@@ -119,12 +119,12 @@ UI_DrawMainCursor3D
 Draws a rotating quad damage model.
 =============
 */
-void UI_DrawMainCursor3D (int x, int y)
+void UI_DrawMainCursor3D (Sint32 x, Sint32 y)
 {
 	refdef_t	refdef;
 	entity_t	quadEnt, *ent;
 	float		rx, ry, rw, rh;
-	int			yaw;
+	Sint32			yaw;
 
 	yaw = anglemod(cls.realtime/10);
 
@@ -185,12 +185,12 @@ M_Main_Draw
 */
 void M_Main_Draw (void)
 {
-	int i;
-	int w, h, last_h;
-	int ystart;
-	int	xoffset;
-	int widest = -1;
-	int totalheight = 0;
+	Sint32 i;
+	Sint32 w, h, last_h;
+	Sint32 ystart;
+	Sint32	xoffset;
+	Sint32 widest = -1;
+	Sint32 totalheight = 0;
 	char litname[80];
 
 	FindMenuCoords (&xoffset, &ystart, &totalheight, &widest);
@@ -210,7 +210,7 @@ void M_Main_Draw (void)
 	if (quadModel_loaded)
 		UI_DrawMainCursor3D (xoffset-27, ystart+(m_main_cursor*40+1));
 	else
-		UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (int)(cls.realtime/100)%NUM_MAINMENU_CURSOR_FRAMES);
+		UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (Sint32)(cls.realtime/100)%NUM_MAINMENU_CURSOR_FRAMES);
 
 	R_DrawGetPicSize (&w, &h, "m_main_plaque");
 	SCR_DrawPic (xoffset-(w/2+50), ystart, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
@@ -260,11 +260,11 @@ UI_CheckMainMenuMouse
 */
 void UI_CheckMainMenuMouse (void)
 {
-	int ystart;
-	int	xoffset;
-	int widest;
-	int totalheight;
-	int i, oldhover;
+	Sint32 ystart;
+	Sint32	xoffset;
+	Sint32 widest;
+	Sint32 totalheight;
+	Sint32 i, oldhover;
 	char *sound = NULL;
 	mainmenuobject_t buttons[MAIN_ITEMS];
 
@@ -325,7 +325,7 @@ void UI_CheckMainMenuMouse (void)
 M_Main_Key
 =============
 */
-const char *M_Main_Key (int key)
+const char *M_Main_Key (Sint32 key)
 {
 	const char *sound = menu_move_sound;
 

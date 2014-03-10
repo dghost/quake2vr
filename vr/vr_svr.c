@@ -5,7 +5,7 @@
 
 
 
-int VR_SVR_Enable()
+Sint32 VR_SVR_Enable()
 {
 
 	return SteamVR_Enable();
@@ -17,7 +17,7 @@ void VR_SVR_Disable()
 	SteamVR_Disable();
 }
 
-int VR_SVR_Init()
+Sint32 VR_SVR_Init()
 {
 	Com_Printf("VR_SVR: SteamVR support initialized...\n");
 

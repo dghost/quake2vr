@@ -44,7 +44,7 @@ static menuaction_s		s_addressbook_back_action;
 
 void AddressBook_SaveEntries (void)
 {
-	int index;
+	Sint32 index;
 	char buffer[20];
 
 	for (index = 0; index < NUM_ADDRESSBOOK_ENTRIES; index++)
@@ -62,7 +62,7 @@ static void AddressBookBack (void *unused)
 
 void AddressBook_MenuInit( void )
 {
-	int i;
+	Sint32 i;
 
 	s_addressbook_menu.x = SCREEN_WIDTH*0.5 - 142;
 	s_addressbook_menu.y = SCREEN_HEIGHT*0.5 - 76; // was 58
@@ -102,7 +102,7 @@ void AddressBook_MenuInit( void )
 }
 
 
-const char *AddressBook_MenuKey (int key)
+const char *AddressBook_MenuKey (Sint32 key)
 {
 	if (key == K_ESCAPE)
 		AddressBook_SaveEntries ();

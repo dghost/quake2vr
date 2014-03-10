@@ -5,13 +5,13 @@ fbo_t offscreen;
 viddef_t offscreenBounds;
 viddef_t screenBounds;
 
-static int offscreenStale = 1;
+static Sint32 offscreenStale = 1;
 
 void R_AntialiasStartFrame (void)
 {
 	if (r_antialias->modified)
 	{
-		int aa = r_antialias->value;
+		Sint32 aa = r_antialias->value;
 		if (aa >= NUM_ANTIALIAS_MODES)
 			aa = NUM_ANTIALIAS_MODES - 1;
 		else if (aa < 0)

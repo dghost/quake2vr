@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 BINARY PARTICLE SORT
 ===================================================
 */
-int partstosort;
+Sint32 partstosort;
 sortedelement_t theparts[MAX_PARTICLES];
 sortedelement_t *parts_prerender;
 // Is this really needed?
@@ -104,7 +104,7 @@ void AddPartTransTree( particle_t *p )
 
 void R_BuildParticleList (void)
 {
-	int		i;
+	Sint32		i;
 	resetPartSortList();
 
 	for ( i=0; i < r_newrefdef.num_particles; i++)
@@ -143,14 +143,14 @@ typedef struct sortedpart_s
 
 sortedpart_t sorted_parts[MAX_PARTICLES];
 
-int transCompare (const void *arg1, const void *arg2 ) 
+Sint32 transCompare (const void *arg1, const void *arg2 ) 
 {
 	const sortedpart_t *a1, *a2;
 	a1 = (sortedpart_t *) arg1;
 	a2 = (sortedpart_t *) arg2;
 	if ((r_transrendersort->value == 1) && a1->p && a2->p)
 	{
-		int image1, image2;
+		Sint32 image1, image2;
 		// FIXME: use hash of imagenum, blendfuncs, & critical flags
 	//	image1 = (a1->p->flags & PART_SPARK) ? 0 : a1->p->image;
 	//	image2 = (a2->p->flags & PART_SPARK) ? 0 : a2->p->image;
@@ -177,7 +177,7 @@ sortedpart_t NewSortedPart (particle_t *p)
 
 void R_SortParticlesOnList (void)
 {
-	int i, j=0, rangestart=0, rangecount=1;
+	Sint32 i, j=0, rangestart=0, rangecount=1;
 
 	for (i=0; i<r_newrefdef.num_particles; i++)
 		sorted_parts[i] = NewSortedPart(&r_newrefdef.particles[i]);
@@ -229,12 +229,12 @@ typedef struct particleRenderState_s
 
 	GLenum		blendfunc_src;
 	GLenum		blendfunc_dst;
-	int			imagenum;
-	int			depth_hack;
+	Sint32			imagenum;
+	Sint32			depth_hack;
 };
 particleRenderState_t	currentParticleState;
 
-//int		particle_va, particle_index;
+//Sint32		particle_va, particle_index;
 
 /*
 ===============
@@ -283,7 +283,7 @@ R_CheckParticleRenderState
 Draws array and sets new state if next particle is different
 ===============
 */
-void R_CheckParticleRenderState (particleRenderState_t *check, int numVerts, int numIndex)
+void R_CheckParticleRenderState (particleRenderState_t *check, Sint32 numVerts, Sint32 numIndex)
 {
 	if (!check)	return; // catch bad pointer
 
@@ -424,7 +424,7 @@ void R_FinishParticles (qboolean decals)
 TexParticle
 ===============
 */
-int TexParticle (int type)
+Sint32 TexParticle (Sint32 type)
 {	
 	// check for out of bounds image num
 	type =  max( type, 0 );
@@ -489,7 +489,7 @@ GetParticleLight
 */
 void GetParticleLight (particle_t *p, vec3_t pos, float lighting, vec3_t shadelight)
 {
-	int j;
+	Sint32 j;
 	float lightest = 0;
 
 	if ( (r_fullbright->value != 0) || !lighting )
@@ -531,7 +531,7 @@ R_RenderParticle
 void R_RenderParticle (particle_t *p)
 {
 	float		size, len, lighting = r_particle_lighting->value;
-	int			oldrender=0, rendertype=0, numVerts, numIndex;
+	Sint32			oldrender=0, rendertype=0, numVerts, numIndex;
 	
 	vec3_t		shadelight, move;
 	vec4_t		partColor;
@@ -606,7 +606,7 @@ void R_RenderParticle (particle_t *p)
 	{
 #if 1
 		vec3_t	base, ang_up, ang_right;
-		int		i;
+		Sint32		i;
 
 		VectorMA (p->origin, -size, p->angle, base);
 		SetBeamAngles (base, p->origin, ang_up, ang_right);
@@ -634,7 +634,7 @@ void R_RenderParticle (particle_t *p)
 #else // QMB style particles (8-sided cone)
 		float	angle;
 		vec3_t	v;
-		int		i, j;
+		Sint32		i, j;
 
 		for (i=1; i<9; i++) {
 			j = (i<8) ? i+1 : 0;
@@ -663,7 +663,7 @@ void R_RenderParticle (particle_t *p)
 	else if (p->flags & PART_BEAM) // given start and end positions, will have fun here :)
 	{
 		vec3_t	ang_up, ang_right;
-		int		i;
+		Sint32		i;
 		
 		SetBeamAngles(p->angle, p->origin, ang_up, ang_right);
 		VectorScale(ang_right, size, ang_right);
@@ -692,7 +692,7 @@ void R_RenderParticle (particle_t *p)
 		float	tlen, halflen, dec = size, warpfactor, warpadd, oldwarpadd=0, warpsize, time, i=0, factor;
 		vec3_t	lastvec, thisvec, tempvec;
 		vec3_t	ang_up, ang_right, vdelta;
-		int		j;
+		Sint32		j;
 		
 		warpsize = dec * 0.4; // Knightmare changed
 		warpfactor = M_PI*1.0;
@@ -803,7 +803,7 @@ void R_RenderParticle (particle_t *p)
 	else if (p->flags & PART_DIRECTION) // streched out in direction- beams etc...
 	{
 		vec3_t	ang_up, ang_right, vdelta;
-		int		i;
+		Sint32		i;
 
 		VectorAdd(p->angle, p->origin, vdelta); 
 		SetBeamAngles(vdelta, p->origin, ang_up, ang_right);
@@ -838,7 +838,7 @@ void R_RenderParticle (particle_t *p)
 	else if (p->flags & PART_ANGLED) // facing direction...
 	{
 		vec3_t	ang_up, ang_right, ang_forward;
-		int		j;
+		Sint32		j;
 
 		AngleVectors(p->angle, ang_forward, ang_right, ang_up); 
 		
@@ -872,7 +872,7 @@ void R_RenderParticle (particle_t *p)
 	else // normal sprites
 	{
 		vec3_t	ang_up, ang_right, ang_forward;
-		int		j;
+		Sint32		j;
 
 		if (p->angle[2]) // if we have roll, we do calcs
 		{
@@ -927,7 +927,7 @@ R_DrawAllParticles
 */
 void R_DrawAllParticles (void)
 {
-	int		i;
+	Sint32		i;
 	particle_t	*p;
 
 	R_BeginParticles (false);
@@ -986,8 +986,8 @@ void R_RenderDecal (particle_t *p)
 	vec3_t	angl_coord[4];
 	vec3_t	ang_up, ang_right, ang_forward, color;
 	vec4_t	partColor;
-	int		i, j, numVerts, numIndex;
-	int		mask, aggregatemask = ~0;			
+	Sint32		i, j, numVerts, numIndex;
+	Sint32		mask, aggregatemask = ~0;			
 
 	particleRenderState_t	thisPart;
 
@@ -1106,7 +1106,7 @@ R_DrawAllDecals
 */
 void R_DrawAllDecals (void)
 {
-	int		i;
+	Sint32		i;
 	particle_t *d;
 
 	R_BeginParticles (true);

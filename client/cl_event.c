@@ -29,12 +29,12 @@ void CL_TeleportParticles (vec3_t org);
 #define MAX_TEX_SURF 2048 // was 256
 struct texsurf_s
 {
-	int		step_id;
+	Sint32		step_id;
 	char	tex[32];
 };
 typedef struct texsurf_s texsurf_t;
 texsurf_t tex_surf[MAX_TEX_SURF];
-int	num_texsurfs;
+Sint32	num_texsurfs;
 
 
 /*
@@ -44,7 +44,7 @@ Reads in defintions for footsteps based on texture name.
 ===============
 */
 #if 1
-qboolean buf_gets (char *dest, int destsize, char **f)
+qboolean buf_gets (char *dest, Sint32 destsize, char **f)
 {
 	char *old = *f;
 	*f = strchr (old, '\n');
@@ -55,7 +55,7 @@ qboolean buf_gets (char *dest, int destsize, char **f)
 			return false;	// end of file, nothing else to grab
 	}
 	(*f)++; // advance past EOL
-	strncpy (dest, old, min(destsize-1, (int)(*f-old-1)) );
+	strncpy (dest, old, min(destsize-1, (Sint32)(*f-old-1)) );
 	return true;
 }
 
@@ -115,8 +115,8 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 {
 	trace_t	tr;
 	vec3_t	end;
-	int		r;
-	int		surface;
+	Sint32		r;
+	Sint32		surface;
 	struct	sfx_s	*stepsound = NULL;
 	float	volume = 0.5;
 
@@ -176,7 +176,7 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 	default:
 		if (cl_footstep_override->value && num_texsurfs)
 		{
-			int	i;
+			Sint32	i;
 			for (i=0; i<num_texsurfs; i++)
 				if (strstr(tr.surface->name,tex_surf[i].tex) && tex_surf[i].step_id > 0)
 				{

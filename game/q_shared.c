@@ -38,7 +38,7 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
 	float	zrot[3][3];
 	float	tmpmat[3][3];
 	float	rot[3][3];
-	int	i;
+	Sint32	i;
 	vec3_t vr, vup, vf;
 
 	vf[0] = dir[0];
@@ -151,9 +151,9 @@ void VecToAngleRolled (vec3_t value1, float angleyaw, vec3_t angles)
 {
 	float	forward, yaw, pitch;
 
-	yaw = (int) (atan2(value1[1], value1[0]) * 180 / M_PI);
+	yaw = (Sint32) (atan2(value1[1], value1[0]) * 180 / M_PI);
 	forward = sqrt (value1[0]*value1[0] + value1[1]*value1[1]);
-	pitch = (int) (atan2(value1[2], forward) * 180 / M_PI);
+	pitch = (Sint32) (atan2(value1[2], forward) * 180 / M_PI);
 
 	if (pitch < 0)
 		pitch += 360;
@@ -187,8 +187,8 @@ void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
 */
 void PerpendicularVector( vec3_t dst, const vec3_t src )
 {
-	int	pos;
-	int i;
+	Sint32	pos;
+	Sint32 i;
 	float minelem = 1.0F;
 	vec3_t tempvec;
 
@@ -291,7 +291,7 @@ float Q_fabs (float f)
 		return f;
 	return -f;
 #else
-	int tmp = * ( int * ) &f;
+	Sint32 tmp = * ( Sint32 * ) &f;
 	tmp &= 0x7FFFFFFF;
 	return * ( float * ) &tmp;
 #endif
@@ -301,7 +301,7 @@ float Q_fabs (float f)
 #pragma warning (disable:4035)
 __declspec( naked ) long Q_ftol( float f )
 {
-	static int tmp;
+	static Sint32 tmp;
 	__asm fld dword ptr [esp+4]
 	__asm fistp tmp
 	__asm mov eax, tmp
@@ -330,24 +330,24 @@ float	anglemod(float a)
 {
 #if 0
 	if (a >= 0)
-		a -= 360*(int)(a/360);
+		a -= 360*(Sint32)(a/360);
 	else
-		a += 360*( 1 + (int)(-a/360) );
+		a += 360*( 1 + (Sint32)(-a/360) );
 #endif
-	a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
+	a = (360.0/65536) * ((Sint32)(a*(65536/360.0)) & 65535);
 	return a;
 }
 
-	int		i;
+	Sint32		i;
 	vec3_t	corners[2];
 
 
 // this is the slow, general version
-int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+Sint32 BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
-	int		i;
+	Sint32		i;
 	float	dist1, dist2;
-	int		sides;
+	Sint32		sides;
 	vec3_t	corners[2];
 
 	for (i=0 ; i<3 ; i++)
@@ -381,11 +381,10 @@ BoxOnPlaneSide
 Returns 1, 2, or 1 + 2
 ==================
 */
-#if !id386 || defined __linux__ 
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+Sint32 BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	float	dist1, dist2;
-	int		sides;
+	Sint32		sides;
 
 // fast axial cases
 	if (p->type < 3)
@@ -448,240 +447,6 @@ dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
 
 	return sides;
 }
-#else
-#pragma warning( disable: 4035 )
-
-__declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
-{
-	static int bops_initialized;
-	static int Ljmptab[8];
-
-	__asm {
-
-		push ebx
-			
-		cmp bops_initialized, 1
-		je  initialized
-		mov bops_initialized, 1
-		
-		mov Ljmptab[0*4], offset Lcase0
-		mov Ljmptab[1*4], offset Lcase1
-		mov Ljmptab[2*4], offset Lcase2
-		mov Ljmptab[3*4], offset Lcase3
-		mov Ljmptab[4*4], offset Lcase4
-		mov Ljmptab[5*4], offset Lcase5
-		mov Ljmptab[6*4], offset Lcase6
-		mov Ljmptab[7*4], offset Lcase7
-			
-initialized:
-
-		mov edx,ds:dword ptr[4+12+esp]
-		mov ecx,ds:dword ptr[4+4+esp]
-		xor eax,eax
-		mov ebx,ds:dword ptr[4+8+esp]
-		mov al,ds:byte ptr[17+edx]
-		cmp al,8
-		jge Lerror
-		fld ds:dword ptr[0+edx]
-		fld st(0)
-		jmp dword ptr[Ljmptab+eax*4]
-Lcase0:
-		fmul ds:dword ptr[ebx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ebx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase1:
-		fmul ds:dword ptr[ecx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ebx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase2:
-		fmul ds:dword ptr[ebx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ecx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase3:
-		fmul ds:dword ptr[ecx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ecx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase4:
-		fmul ds:dword ptr[ebx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ebx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase5:
-		fmul ds:dword ptr[ecx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ebx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase6:
-		fmul ds:dword ptr[ebx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ecx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase7:
-		fmul ds:dword ptr[ecx]
-		fld ds:dword ptr[0+4+edx]
-		fxch st(2)
-		fmul ds:dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[4+ecx]
-		fld ds:dword ptr[0+8+edx]
-		fxch st(2)
-		fmul ds:dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul ds:dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul ds:dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-LSetSides:
-		faddp st(2),st(0)
-		fcomp ds:dword ptr[12+edx]
-		xor ecx,ecx
-		fnstsw ax
-		fcomp ds:dword ptr[12+edx]
-		and ah,1
-		xor ah,1
-		add cl,ah
-		fnstsw ax
-		and ah,1
-		add ah,ah
-		add cl,ah
-		pop ebx
-		mov eax,ecx
-		ret
-Lerror:
-		int 3
-	}
-}
-#pragma warning( default: 4035 )
-#endif
 
 void ClearBounds (vec3_t mins, vec3_t maxs)
 {
@@ -691,7 +456,7 @@ void ClearBounds (vec3_t mins, vec3_t maxs)
 
 void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs)
 {
-	int		i;
+	Sint32		i;
 	vec_t	val;
 
 	for (i=0 ; i<3 ; i++)
@@ -705,7 +470,7 @@ void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs)
 }
 
 
-int VectorCompare (vec3_t v1, vec3_t v2)
+Sint32 VectorCompare (vec3_t v1, vec3_t v2)
 {
 	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
 			return 0;
@@ -795,7 +560,7 @@ double sqrt(double x);
 
 vec_t VectorLength(vec3_t v)
 {
-	int		i;
+	Sint32		i;
 	float	length;
 	
 	length = 0;
@@ -820,9 +585,9 @@ void VectorScale (vec3_t in, vec_t scale, vec3_t out)
 	out[2] = in[2]*scale;
 }
 
-int Q_log2(int val)
+Sint32 Q_log2(Sint32 val)
 {
-	int answer=0;
+	Sint32 answer=0;
 	while (val>>=1)
 		answer++;
 	return answer;
@@ -1199,7 +964,7 @@ COM_FileExtension
 char *COM_FileExtension (char *in)
 {
 	static char exten[8];
-	int		i;
+	Sint32		i;
 
 	while (*in && *in != '.')
 		in++;
@@ -1297,21 +1062,21 @@ qboolean	bigendien;
 // can't just use function pointers, or dll linkage can
 // mess up when qcommon is included in multiple places
 // Knightmare- made these static
-static short	(*_BigShort) (short l);
-static short	(*_LittleShort) (short l);
-static int		(*_BigLong) (int l);
-static int		(*_LittleLong) (int l);
+static Sint16	(*_BigShort) (Sint16 l);
+static Sint16	(*_LittleShort) (Sint16 l);
+static Sint32		(*_BigLong) (Sint32 l);
+static Sint32		(*_LittleLong) (Sint32 l);
 static float	(*_BigFloat) (float l);
 static float	(*_LittleFloat) (float l);
 
-short	BigShort(short l){return _BigShort(l);}
-short	LittleShort(short l) {return _LittleShort(l);}
-int		BigLong (int l) {return _BigLong(l);}
-int		LittleLong (int l) {return _LittleLong(l);}
+Sint16	BigShort(Sint16 l){return _BigShort(l);}
+Sint16	LittleShort(Sint16 l) {return _LittleShort(l);}
+Sint32		BigLong (Sint32 l) {return _BigLong(l);}
+Sint32		LittleLong (Sint32 l) {return _LittleLong(l);}
 float	BigFloat (float l) {return _BigFloat(l);}
 float	LittleFloat (float l) {return _LittleFloat(l);}
 
-short   ShortSwap (short l)
+Sint16   ShortSwap (Sint16 l)
 {
 	byte    b1,b2;
 
@@ -1321,12 +1086,12 @@ short   ShortSwap (short l)
 	return (b1<<8) + b2;
 }
 
-short	ShortNoSwap (short l)
+Sint16	ShortNoSwap (Sint16 l)
 {
 	return l;
 }
 
-int    LongSwap (int l)
+Sint32    LongSwap (Sint32 l)
 {
 	byte    b1,b2,b3,b4;
 
@@ -1335,10 +1100,10 @@ int    LongSwap (int l)
 	b3 = (l>>16)&255;
 	b4 = (l>>24)&255;
 
-	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
+	return ((Sint32)b1<<24) + ((Sint32)b2<<16) + ((Sint32)b3<<8) + b4;
 }
 
-int	LongNoSwap (int l)
+Sint32	LongNoSwap (Sint32 l)
 {
 	return l;
 }
@@ -1375,7 +1140,7 @@ void Swap_Init (void)
 	byte	swaptest[2] = {1,0};
 
 // set the byte swapping variables in a portable manner	
-	if ( *(short *)swaptest == 1)
+	if ( *(Sint16 *)swaptest == 1)
 	{
 		bigendien = false;
 		_BigShort = ShortSwap;
@@ -1438,7 +1203,7 @@ COM_SkipWhiteSpace
 */
 char *COM_SkipWhiteSpace (char *data_p, qboolean *hasNewLines)
 {
-	int	c;
+	Sint32	c;
 
 	while ((c = *data_p) <= ' ')
 	{
@@ -1465,7 +1230,7 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-void COM_SkipBracedSection (char **data_p, int depth)
+void COM_SkipBracedSection (char **data_p, Sint32 depth)
 {
 	char	*tok;
 
@@ -1511,8 +1276,8 @@ Parse a token out of a string
 */
 char *COM_Parse (char **data_p)
 {
-	int		c;
-	int		len;
+	Sint32		c;
+	Sint32		len;
 	char	*data;
 
 	data = *data_p;
@@ -1600,7 +1365,7 @@ From Quake2Evolved
 */
 char *COM_ParseExt (char **data_p, qboolean allowNewLines)
 {
-	int			c, len = 0;
+	Sint32			c, len = 0;
 	char		*data;
 	qboolean	hasNewLines = false;
 
@@ -1702,11 +1467,11 @@ Com_PageInMemory
 
 ===============
 */
-int	paged_total;
+Sint32	paged_total;
 
-void Com_PageInMemory (byte *buffer, int size)
+void Com_PageInMemory (byte *buffer, Sint32 size)
 {
-	int		i;
+	Sint32		i;
 
 	for (i=size-1 ; i>0 ; i-=4096)
 		paged_total += buffer[i];
@@ -1723,7 +1488,7 @@ void Com_PageInMemory (byte *buffer, int size)
 */
 
 // FIXME: replace all Q_stricmp with Q_strcasecmp
-int Q_stricmp (char *s1, char *s2)
+Sint32 Q_stricmp (char *s1, char *s2)
 {
 #if defined(WIN32)
 	return _stricmp (s1, s2);
@@ -1733,9 +1498,9 @@ int Q_stricmp (char *s1, char *s2)
 }
 
 
-int Q_strncasecmp (char *s1, char *s2, int n)
+Sint32 Q_strncasecmp (char *s1, char *s2, Sint32 n)
 {
-	int		c1, c2;
+	Sint32		c1, c2;
 	
 	do
 	{
@@ -1759,16 +1524,16 @@ int Q_strncasecmp (char *s1, char *s2, int n)
 	return 0;		// strings are equal
 }
 
-int Q_strcasecmp (char *s1, char *s2)
+Sint32 Q_strcasecmp (char *s1, char *s2)
 {
 	return Q_strncasecmp (s1, s2, 99999);
 }
 
 
 
-void Com_sprintf (char *dest, int size, char *fmt, ...)
+void Com_sprintf (char *dest, Sint32 size, char *fmt, ...)
 {
-	int		len;
+	Sint32		len;
 	va_list		argptr;
 	char	bigbuffer[0x10000];
 
@@ -1786,9 +1551,9 @@ void Com_sprintf (char *dest, int size, char *fmt, ...)
 Com_HashFileName
 =============
 */
-long Com_HashFileName (const char *fname, int hashSize, qboolean sized)
+long Com_HashFileName (const char *fname, Sint32 hashSize, qboolean sized)
 {
-	int		i = 0;
+	Sint32		i = 0;
 	long	hash = 0;
 	char	letter;
 
@@ -1829,7 +1594,7 @@ char *Info_ValueForKey (char *s, char *key)
 	char	pkey[512];
 	static	char value[2][512];	// use two buffers so compares
 								// work without stomping on each other
-	static	int	valueindex;
+	static	Sint32	valueindex;
 	char	*o;
 	
 	valueindex ^= 1;
@@ -1936,8 +1701,8 @@ qboolean Info_Validate (char *s)
 void Info_SetValueForKey (char *s, char *key, char *value)
 {
 	char	newi[MAX_INFO_STRING], *v;
-	int		c;
-	int		maxsize = MAX_INFO_STRING;
+	Sint32		c;
+	Sint32		maxsize = MAX_INFO_STRING;
 
 	if (strstr (key, "\\") || strstr (value, "\\") )
 	{
