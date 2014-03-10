@@ -426,6 +426,8 @@ Sys_Init
 void Sys_Init (void)
 {
 	char			string[64];	// Knightmare added
+	SDL_version compiled;
+	SDL_version linked;
 
 	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0){
 		Sys_Error("SDL_Init failed!");
@@ -454,7 +456,18 @@ void Sys_Init (void)
 	sprintf(string,"%u",SDL_GetSystemRAM());
 	Com_Printf("Memory: %s MB\n", string);
 	Cvar_Get("sys_ramMegs", string, CVAR_NOSET|CVAR_LATCH);
-// end Q2E detection
+	// end Q2E detection
+
+	SDL_VERSION(&compiled);
+	SDL_GetVersion(&linked);
+	sprintf(string,"%d.%d.%d",linked.major, linked.minor, linked.patch);
+	Cvar_Get("sys_sdlString",string,CVAR_NOSET|CVAR_LATCH);
+	Com_Printf("SDL Version: %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
+
+	if (compiled.major != linked.major || compiled.minor != linked.minor || compiled.patch != linked.patch)
+	{
+		Com_Printf("ERROR: The version of SDL in use differs from the intended version.\n");
+	}
 
 	Sys_InitConsole (); // show dedicated console, moved to function
 }
