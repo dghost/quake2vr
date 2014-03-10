@@ -116,15 +116,17 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 		Sint32 refresh = vid_refresh->value;
 		SDL_DisplayMode idealMode;
 
+
+
 		for (i = 0; i < numDisplays; i++)
 		{
 			if (!SDL_GetDisplayBounds(i,&displayBounds) &&
-				(xpos >= displayBounds.x && xpos <= displayBounds.x + displayBounds.w) &&
-				(ypos >= displayBounds.y && ypos <= displayBounds.y + displayBounds.h))
+				(xpos >= displayBounds.x && xpos < displayBounds.x + displayBounds.w) &&
+				(ypos >= displayBounds.y && ypos < displayBounds.y + displayBounds.h))
 			{
 				xpos = displayBounds.x;
 				ypos = displayBounds.y;
-				targetDisplay = 0;
+				targetDisplay = i;
 			}
 		}
 
