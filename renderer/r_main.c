@@ -72,7 +72,6 @@ refdef_t	r_newrefdef;
 
 int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
-cvar_t	*gl_allow_software;
 cvar_t  *gl_driver;
 
 cvar_t	*con_font; // Psychospaz's console font size option
@@ -1003,7 +1002,6 @@ void R_Register (void)
 	scr_netgraph_pos = Cvar_Get ("netgraph_pos", "0", CVAR_ARCHIVE);
 
 	gl_driver = Cvar_Get( "gl_driver", "opengl32", CVAR_NOSET );
-	gl_allow_software = Cvar_Get( "gl_allow_software", "0", 0 );
 
 	r_lefthand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	r_norefresh = Cvar_Get ("r_norefresh", "0", CVAR_CHEAT);
