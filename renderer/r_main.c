@@ -74,7 +74,6 @@ int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 cvar_t	*gl_allow_software;
 cvar_t  *gl_driver;
-cvar_t	*gl_clear;
 
 cvar_t	*con_font; // Psychospaz's console font size option
 cvar_t	*con_font_size;
@@ -498,17 +497,7 @@ R_Clear
 */
 void R_Clear (void)
 {
-	GLbitfield	clearBits = 0;	// bitshifter's consolidation
-
-	if (gl_clear->value)
-		clearBits |= GL_COLOR_BUFFER_BIT;
-
-
-	//	if (gl_clear->value)
-	//		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//	else
-	//		glClear (GL_DEPTH_BUFFER_BIT);
-	clearBits |= GL_DEPTH_BUFFER_BIT;
+	GLbitfield	clearBits = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;	// bitshifter's consolidation
 
 	gldepthmin = 0;
 	gldepthmax = 1;
@@ -1015,7 +1004,6 @@ void R_Register (void)
 
 	gl_driver = Cvar_Get( "gl_driver", "opengl32", CVAR_NOSET );
 	gl_allow_software = Cvar_Get( "gl_allow_software", "0", 0 );
-	gl_clear = Cvar_Get ("gl_clear", "0", 0);
 
 	r_lefthand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	r_norefresh = Cvar_Get ("r_norefresh", "0", CVAR_CHEAT);
