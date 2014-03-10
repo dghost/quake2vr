@@ -51,7 +51,6 @@ static menulist_s		s_particle_overdraw_box;
 static menulist_s		s_lightbloom_box;
 static menulist_s		s_modelshading_box;
 static menulist_s		s_shadows_box;
-static menulist_s  		s_ent_shell_box;
 static menulist_s  		s_glass_envmap_box;
 static menulist_s  		s_screenshotjpeg_box;
 static menuslider_s  	s_screenshotjpegquality_slider;
@@ -100,9 +99,6 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_shadows", ClampCvar( 0, 3, Cvar_VariableValue("r_shadows") ) );
 	s_shadows_box.curvalue	= Cvar_VariableValue("r_shadows");
-
-	Cvar_SetValue( "r_shelltype", ClampCvar( 0, 1, Cvar_VariableValue("r_shelltype") ) );
-	s_ent_shell_box.curvalue = Cvar_VariableValue("r_shelltype");
 
 	Cvar_SetValue( "r_screenshot_jpeg", ClampCvar( 0, 1, Cvar_VariableValue("r_screenshot_jpeg") ) );
 	s_screenshotjpeg_box.curvalue = Cvar_VariableValue("r_screenshot_jpeg");
@@ -172,11 +168,6 @@ static void ModelShadingCallback ( void *unused )
 static void ShadowsCallback ( void *unused )
 {
 	Cvar_SetValue( "r_shadows", s_shadows_box.curvalue);
-}
-
-static void EntShellCallback ( void *unused )
-{
-	Cvar_SetValue( "r_shelltype", s_ent_shell_box.curvalue);
 }
 
 static void JPEGScreenshotCallback ( void *unused )
@@ -251,12 +242,6 @@ void Menu_Video_Advanced_Init (void)
 		0
 	};
 
-	static const char *shell_names[] =
-	{
-		"solid",
-		"animated",
-		0
-	};
 	int y = 0;
 
 	r_intensity = Cvar_Get ("r_intensity", "1", 0);
@@ -368,14 +353,6 @@ void Menu_Video_Advanced_Init (void)
 	s_shadows_box.itemnames					= shadow_names;
 	s_shadows_box.generic.statusbar			= "type of model shadows to draw";
 
-	s_ent_shell_box.generic.type				= MTYPE_SPINCONTROL;
-	s_ent_shell_box.generic.x					= 0;
-	s_ent_shell_box.generic.y					= y += MENU_LINE_SIZE;
-	s_ent_shell_box.generic.name				= "entity shell type";
-	s_ent_shell_box.generic.callback			= EntShellCallback;
-	s_ent_shell_box.itemnames					= shell_names;
-	s_ent_shell_box.generic.statusbar			= "envmap effect may cause instability on ATI cards";
-
 	s_screenshotjpeg_box.generic.type			= MTYPE_SPINCONTROL;
 	s_screenshotjpeg_box.generic.x				= 0;
 	s_screenshotjpeg_box.generic.y				= y += 2*MENU_LINE_SIZE;
@@ -428,7 +405,6 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightbloom_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_modelshading_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_shadows_box );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_ent_shell_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpeg_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpegquality_slider );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &	s_saveshotsize_box );
