@@ -479,7 +479,6 @@ void OVR_Present()
 			current_shader = &ovr_shaders[!!(Sint32) vr_ovr_chromatic->value];
 
 		// draw left eye
-
 		glUseProgram(current_shader->shader->program);
 
 		glUniform4fv(current_shader->uniform.chrom_ab_param, 1, ovrConfig.chrm);
@@ -552,6 +551,8 @@ void OVR_Present()
 		glVertex2f(-0.7, -0.4);
 		glVertex2f(-0.7, 0.4); 
 		glEnd();
+
+		glColor4f(1.0,1.0,1.0,1.0);
 	}
 
 }
