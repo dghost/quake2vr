@@ -78,7 +78,7 @@ qboolean modType (char *name);
 rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 {
 	Sint32 width, height;
-	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED;
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED | SDL_WINDOW_INPUT_FOCUS;
 	SDL_DisplayMode targetMode;
 	const char *win_fs[] = { "W", "FS" };
 	char *title = NULL;
@@ -115,7 +115,7 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 		Sint32 i = 0;
 		Sint32 refresh = vid_refresh->value;
 		SDL_DisplayMode idealMode;
-
+		
 
 
 		for (i = 0; i < numDisplays; i++)
@@ -142,6 +142,7 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 		{
 			return rserr_invalid_fullscreen;
 		}
+		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 	
 	if (modType("xatrix")) { // q2mp1
@@ -180,7 +181,7 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 
 	if (fullscreen)
 	{
-		if (SDL_SetWindowDisplayMode(mainWindow,&targetMode) < 0 || SDL_SetWindowFullscreen(mainWindow,SDL_WINDOW_FULLSCREEN) < 0)
+		if ( SDL_SetWindowDisplayMode(mainWindow,&targetMode) < 0)
 		{
 			SDL_DestroyWindow(mainWindow);
 			mainWindow = NULL;
