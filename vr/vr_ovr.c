@@ -328,7 +328,7 @@ Sint32 VR_OVR_Init()
 	Sint32 init = LibOVR_Init();
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
-	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "40", CVAR_ARCHIVE);
+	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "30", CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
@@ -336,7 +336,7 @@ Sint32 VR_OVR_Init()
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	vr_ovr_filtermode = Cvar_Get("vr_ovr_filtermode","0",CVAR_ARCHIVE);
-	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","2",CVAR_ARCHIVE);
+	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","1",CVAR_ARCHIVE);
 	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
 
 	if (!init)
