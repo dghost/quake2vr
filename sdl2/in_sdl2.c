@@ -350,6 +350,8 @@ IN_Init
 */
 void IN_Init (void)
 {
+	Com_Printf("\n------- Input Initialization -------\n");
+
 	// mouse variables
 	autosensitivity			= Cvar_Get ("autosensitivity",			"1",		CVAR_ARCHIVE);
 	m_noaccel				= Cvar_Get ("m_noaccel",				"0",		CVAR_ARCHIVE); //sul  enables mouse acceleration XP fix?

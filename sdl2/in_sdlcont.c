@@ -5,7 +5,7 @@
 /*
 ============================================================
 
- SDL GAMEPAD CONTROL
+SDL GAMEPAD CONTROL
 
 ============================================================
 */
@@ -53,6 +53,10 @@ static qboolean gamepad_sticktoggle[2];
 void IN_ControllerInit (void)
 {
 	Sint32 i;
+	Sint32 size;
+	fileHandle_t handle;
+	char *name[] = {"gamecontrollerdb.txt","controllers.cfg",0};
+	char *p = NULL;
 	cvar_t		*cv;
 
 
@@ -75,6 +79,40 @@ void IN_ControllerInit (void)
 	}
 	SDL_GameControllerEventState(SDL_IGNORE);
 
+
+	// load additional controller bindings
+	// this will attempt to load them from 'controllers.cfg' and 'gamecontrollerdb.txt'
+	// by default, this will ship with a copy of 'controllers.cfg' in the vrquake2.pk3 file
+	// to add new bindings, the user will have to add a copy of the gamecontrollerdb.txt to the baseq2 dir
+	// see https://github.com/gabomdq/SDL_GameControllerDB for info
+	
+	for (i = 0; name[i] != NULL ; i++)
+	{
+		p = name[i];
+		size = FS_FOpenFile(p,&handle,FS_READ);
+		if (size > 0)
+		{
+			SDL_RWops *rw;
+			void *buffer = NULL;
+			int results = -1;
+			Com_Printf("Loading controller mappings from '%s':\n",p);
+			buffer = malloc(size);
+			if (buffer)
+			{
+				FS_Read(buffer,size,handle);
+				rw = SDL_RWFromMem(buffer,size);
+				results = SDL_GameControllerAddMappingsFromRW(rw, 1);
+			}
+			if (results >= 0)
+			{
+				Com_Printf("...loaded %d additional mappings\n",results);
+			} else {
+				Com_Printf("...error: %s\n",SDL_GetError());
+			}
+			free(buffer);
+			FS_FCloseFile(handle);
+		}
+	}
 	autosensitivity			= Cvar_Get ("autosensitivity",			"1",		CVAR_ARCHIVE);
 	gamepad_yaw_sensitivity	= Cvar_Get ("gamepad_yaw_sensitivity",		"1.75",		CVAR_ARCHIVE);
 	gamepad_pitch_sensitivity	= Cvar_Get ("gamepad_pitch_sensitivity",	"1.75",		CVAR_ARCHIVE);
@@ -155,15 +193,15 @@ void Gamepad_HandleRepeat(keynum_t key)
 
 	if (index < 0 || index > (K_GAMEPAD_RIGHT - K_GAMEPAD_LSTICK_UP))
 		return;
-	
+
 	if (gamepad_repeatstatus[index].repeatCount == 0)
 		delay = INITIAL_REPEAT_DELAY;
 	else
 		delay = REPEAT_DELAY;
-	
+
 	if (cl.time > gamepad_repeatstatus[index].lastSendTime + delay || cl.time < gamepad_repeatstatus[index].lastSendTime)
 		send = true;
-	
+
 	if (send)
 	{
 		gamepad_repeatstatus[index].lastSendTime = cl.time;
@@ -192,7 +230,7 @@ void IN_ControllerCommands (void)
 	Uint8 newButtonState[SDL_CONTROLLER_BUTTON_MAX];
 
 	Uint32 i = 0;
-	
+
 	Uint32 triggerThreshold = ClampCvar(0.04,0.96,gamepad_trigger_threshold->value) * 255.0f;
 
 
