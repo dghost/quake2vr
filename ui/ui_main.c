@@ -31,7 +31,8 @@ static Sint32	m_main_cursor;
 
 // for checking if quad cursor model is available
 #define QUAD_CURSOR_MODEL	"models/ui/quad_cursor.md2"
-qboolean	quadModel_loaded;
+static qboolean	quadModel_loaded;
+static struct model_s *quadModel;
 
 
 /*
@@ -147,7 +148,7 @@ void UI_DrawMainCursor3D (Sint32 x, Sint32 y)
 	refdef.entities = &quadEnt;
 
 	ent = &quadEnt;
-	ent->model = R_RegisterModel (QUAD_CURSOR_MODEL);
+	ent->model = quadModel;
 	ent->flags = RF_FULLBRIGHT|RF_NOSHADOW|RF_DEPTHHACK;
 	VectorSet (ent->origin, 40, 0, -18);
 	VectorCopy( ent->origin, ent->oldorigin );
@@ -168,9 +169,9 @@ UI_CheckQuadModel
 Checks for quad damage model.
 =============
 */
+
 void UI_CheckQuadModel (void)
 {
-	struct model_s *quadModel;
 
 	quadModel = R_RegisterModel (QUAD_CURSOR_MODEL);
 	
