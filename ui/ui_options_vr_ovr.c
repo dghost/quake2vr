@@ -38,9 +38,7 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_drift_box;
-static menulist_s		s_options_vr_ovr_chroma_box;
 static menulist_s		s_options_vr_ovr_filtermode_box;
-static menufield_s		s_options_vr_ovr_prediction_field;
 static menulist_s		s_options_vr_ovr_distortion_box;
 static menulist_s		s_options_vr_ovr_autoscale_box;
 static menufield_s		s_options_vr_ovr_scale_field;
@@ -51,18 +49,12 @@ static menulist_s		s_options_vr_ovr_debug_box;
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
-extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_lensdistance;
 extern cvar_t *vr_ovr_scale;
 
 static void DriftFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_ovr_driftcorrection", s_options_vr_ovr_drift_box.curvalue);
-}
-
-static void ChromaFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_ovr_chromatic", s_options_vr_ovr_chroma_box.curvalue);
 }
 
 static void BicubicFunc( void *unused )
@@ -98,7 +90,6 @@ static void DebugFunc( void *unused)
 static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
-	s_options_vr_ovr_chroma_box.curvalue = ( Cvar_VariableInteger("vr_ovr_chromatic") );
 	s_options_vr_ovr_filtermode_box.curvalue = ( Cvar_VariableInteger("vr_ovr_filtermode") );
 	s_options_vr_ovr_distortion_box.curvalue = ( Cvar_VariableInteger("vr_ovr_distortion") );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
@@ -109,9 +100,6 @@ static void VROVRSetMenuItemValues( void )
 	strcpy( s_options_vr_ovr_lensdistance_field.buffer, vr_ovr_lensdistance->string );
 	s_options_vr_ovr_lensdistance_field.cursor = strlen( vr_ovr_lensdistance->string );
 
-	strcpy( s_options_vr_ovr_prediction_field.buffer, vr_ovr_prediction->string );
-	s_options_vr_ovr_prediction_field.cursor = strlen( vr_ovr_prediction->string );
-
 	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
 	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
 }
@@ -119,14 +107,12 @@ static void VROVRSetMenuItemValues( void )
 static void VROVRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_ovr_driftcorrection");
-	Cvar_SetToDefault ("vr_ovr_chromatic");
 	Cvar_SetToDefault ("vr_ovr_filtermode");
 	Cvar_SetToDefault ("vr_ovr_distortion");
 	Cvar_SetToDefault ("vr_ovr_autoscale");
 	Cvar_SetToDefault ("vr_ovr_scale");
 	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
-	Cvar_SetToDefault ("vr_ovr_prediction");
 	Cvar_SetToDefault ("vr_ovr_autolensdistance");
 	Cvar_SetToDefault ("vr_ovr_lensdistance");
 	VROVRSetMenuItemValues();
@@ -144,15 +130,6 @@ static void CustomScaleFunc(void *unused)
 	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
 }
 
-static void CustomPredictionFunc(void *unused)
-{
-	float temp;
-
-	temp = ClampCvar(0,75,atof(s_options_vr_ovr_prediction_field.buffer));
-	Cvar_SetInteger("vr_ovr_prediction",temp);
-	strcpy( s_options_vr_ovr_prediction_field.buffer, vr_ovr_prediction->string );
-	s_options_vr_ovr_prediction_field.cursor = strlen( vr_ovr_prediction->string );
-}
 
 static void CustomLensFunc(void *unused)
 {
@@ -169,7 +146,6 @@ static void CustomLensFunc(void *unused)
 static void VROVRConfigAccept (void)
 {
 	CustomScaleFunc(NULL);
-	CustomPredictionFunc(NULL);
 	CustomLensFunc(NULL);
 }
 
@@ -238,14 +214,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
 	s_options_vr_ovr_drift_box.generic.statusbar	= "enable magnetic drift correction";
 
-	s_options_vr_ovr_chroma_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_chroma_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_chroma_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_chroma_box.generic.name			= "chromatic correction";
-	s_options_vr_ovr_chroma_box.generic.callback		= ChromaFunc;
-	s_options_vr_ovr_chroma_box.itemnames			= yesno_names;
-	s_options_vr_ovr_chroma_box.generic.statusbar	= "applies chromatic aberration correction to the distortion shader";
-
 	s_options_vr_ovr_filtermode_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_filtermode_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_filtermode_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -253,20 +221,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_filtermode_box.generic.callback	= BicubicFunc;
 	s_options_vr_ovr_filtermode_box.itemnames			= filter_names;
 	s_options_vr_ovr_filtermode_box.generic.statusbar	= "chooses texture filtering mode used with the distortion shader";
-
-	s_options_vr_ovr_prediction_field.generic.type = MTYPE_FIELD;
-	s_options_vr_ovr_prediction_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_ovr_prediction_field.generic.name = "motion prediction";
-	s_options_vr_ovr_prediction_field.generic.statusbar	= "sets the amount of motion prediction to apply in milliseconds";
-	s_options_vr_ovr_prediction_field.generic.callback = CustomPredictionFunc;
-	s_options_vr_ovr_prediction_field.generic.x		= MENU_FONT_SIZE;
-	s_options_vr_ovr_prediction_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_prediction_field.length	= 5;
-	s_options_vr_ovr_prediction_field.visible_length = 5;
-	strcpy( s_options_vr_ovr_prediction_field.buffer, vr_ovr_prediction->string );
-	s_options_vr_ovr_prediction_field.cursor = strlen( vr_ovr_prediction->string );
-
-
 	
 	s_options_vr_ovr_distortion_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_distortion_box.generic.x			= MENU_FONT_SIZE;
@@ -348,9 +302,7 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_header );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_chroma_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_filtermode_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_field );
 	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_distortion_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autoscale_box );

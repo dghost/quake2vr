@@ -118,7 +118,7 @@ void LibOVR_DeviceRelease(void) {
 }
 
 Sint32 LibOVR_DeviceInit(void) {
-	return (LibOVR_InitHMD());
+	return (LibOVR_InitHMD()&&LibOVR_InitSensor());
 }
 
 void LibOVR_Shutdown(void) {
@@ -173,7 +173,6 @@ void LibOVR_ProcessLatencyInputs(void)
 {
 	if (latencyUtil)
 		latencyUtil->ProcessInputs();
-
 }
 
 const char* LibOVR_ProcessLatencyResults()

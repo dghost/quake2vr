@@ -36,7 +36,7 @@ void R_VR_StartFrame()
 {
 	Sint32 resolutionChanged = 0;
 	
-	if (!hmd)
+	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
 	if (vid.width != screen.width || vid.height != screen.height)
@@ -321,7 +321,7 @@ void R_VR_Enable()
 		hmd = &available_hmds[(Sint32) vr_enabled->value];
 
 		success = (qboolean) R_GenFBO(640, 480, 1, &hud);
-		success = success && hmd->enable();
+		success = success && hmd->enable && hmd->enable();
 
 		if (!success)
 		{
@@ -352,7 +352,7 @@ void R_VR_Disable()
 	vid.height = screen.height;
 
 	vrState.pixelScale = 1.0;
-	if (hmd)
+	if (hmd && hmd->disable)
 		hmd->disable();
 	if (hud.valid)
 		R_DelFBO(&hud);

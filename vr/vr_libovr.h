@@ -8,10 +8,10 @@ extern "C" {
 
 	typedef struct {
 		Uint32 initialized;
+		Sint32 xPos;
+		Sint32 yPos;
 		Uint32 h_resolution;
 		Uint32 v_resolution;
-		Uint32 xPos;
-		Uint32 yPos;
 		float h_screen_size;
 		float v_screen_size;
 		float interpupillary_distance;

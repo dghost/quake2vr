@@ -39,6 +39,8 @@ static menuframework_s	s_options_vr_advanced_menu;
 static menuseparator_s	s_options_vr_advanced_header;
 static menulist_s		s_options_vr_advanced_autoenable_box;
 static menulist_s		s_options_vr_advanced_nosleep_box;
+static menulist_s		s_options_vr_advanced_chroma_box;
+static menufield_s		s_options_vr_advanced_prediction_field;
 static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
 static menulist_s		s_options_vr_advanced_hudtrans_box;
@@ -50,6 +52,8 @@ static menufield_s		s_options_vr_advanced_neckmodel_forward_field;
 
 static menuaction_s		s_options_vr_advanced_defaults_action;
 static menuaction_s		s_options_vr_advanced_back_action;
+
+extern cvar_t *vr_prediction;
 
 extern cvar_t *vr_hud_bounce_falloff;
 extern cvar_t *vr_neckmodel_up;
@@ -116,6 +120,21 @@ static void NeckmodelFunc ( void *unused )
 	s_options_vr_advanced_neckmodel_forward_field.cursor = strlen( vr_neckmodel_forward->string );
 }
 
+static void ChromaFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_chromatic", s_options_vr_advanced_chroma_box.curvalue);
+}
+
+static void CustomPredictionFunc(void *unused)
+{
+	float temp;
+
+	temp = ClampCvar(0,75,atof(s_options_vr_advanced_prediction_field.buffer));
+	Cvar_SetInteger("vr_prediction",temp);
+	strcpy( s_options_vr_advanced_prediction_field.buffer, vr_prediction->string );
+	s_options_vr_advanced_prediction_field.cursor = strlen( vr_prediction->string );
+}
+
 static void VRAdvSetMenuItemValues( void )
 {
 	s_options_vr_advanced_autoenable_box.curvalue = ( Cvar_VariableInteger("vr_autoenable") );
@@ -131,18 +150,24 @@ static void VRAdvSetMenuItemValues( void )
 	s_options_vr_advanced_neckmodel_up_field.cursor = strlen( vr_neckmodel_up->string );
 	strcpy( s_options_vr_advanced_neckmodel_forward_field.buffer, vr_neckmodel_forward->string );
 	s_options_vr_advanced_neckmodel_forward_field.cursor = strlen( vr_neckmodel_forward->string );
+	s_options_vr_advanced_chroma_box.curvalue = ( Cvar_VariableInteger("vr_chromatic") );
+
+	strcpy( s_options_vr_advanced_prediction_field.buffer, vr_prediction->string );
+	s_options_vr_advanced_prediction_field.cursor = strlen( vr_prediction->string );
 
 }
 
 static void VRAdvResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault("vr_autoenable");
+	Cvar_SetToDefault("vr_chromatic");
 	Cvar_SetToDefault("vr_nosleep");
 	Cvar_SetToDefault("vr_hud_depth");
 	Cvar_SetToDefault("vr_hud_fov");
 	Cvar_SetToDefault("vr_hud_transparency");
 	Cvar_SetToDefault("vr_hud_bounce");
 	Cvar_SetToDefault("vr_hud_bounce_falloff");
+	Cvar_SetToDefault("vr_prediction");
 	Cvar_SetToDefault("vr_neckmodel");
 	Cvar_SetToDefault("vr_neckmodel_up");
 	Cvar_SetToDefault("vr_neckmodel_forward");
@@ -153,6 +178,7 @@ static void VRAdvancedConfigAccept (void)
 {
 	FalloffFunc(NULL);
 	NeckFunc(NULL);
+	CustomPredictionFunc(NULL);
 }
 
 static void BackFunc ( void *unused )
@@ -204,6 +230,27 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_nosleep_box.generic.callback		= SleepFunc;
 	s_options_vr_advanced_nosleep_box.itemnames				= yesno_names;
 	s_options_vr_advanced_nosleep_box.generic.statusbar		= "prevents stuttering but increases cpu utilization";
+
+	s_options_vr_advanced_chroma_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_chroma_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_advanced_chroma_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_chroma_box.generic.name			= "chromatic correction";
+	s_options_vr_advanced_chroma_box.generic.callback		= ChromaFunc;
+	s_options_vr_advanced_chroma_box.itemnames			= yesno_names;
+	s_options_vr_advanced_chroma_box.generic.statusbar	= "applies chromatic aberration correction to the distortion shader";
+
+
+	s_options_vr_advanced_prediction_field.generic.type = MTYPE_FIELD;
+	s_options_vr_advanced_prediction_field.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_advanced_prediction_field.generic.name = "motion prediction";
+	s_options_vr_advanced_prediction_field.generic.statusbar	= "sets the amount of motion prediction to apply in milliseconds";
+	s_options_vr_advanced_prediction_field.generic.callback = CustomPredictionFunc;
+	s_options_vr_advanced_prediction_field.generic.x		= MENU_FONT_SIZE;
+	s_options_vr_advanced_prediction_field.generic.y		= y+=2*MENU_LINE_SIZE;
+	s_options_vr_advanced_prediction_field.length	= 5;
+	s_options_vr_advanced_prediction_field.visible_length = 5;
+	strcpy( s_options_vr_advanced_prediction_field.buffer, vr_prediction->string );
+	s_options_vr_advanced_prediction_field.cursor = strlen( vr_prediction->string );
 
 
 	s_options_vr_advanced_hud_depth_slider.generic.type		= MTYPE_SLIDER;
@@ -303,8 +350,10 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_header );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autoenable_box );
-
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_nosleep_box );
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_chroma_box );
+
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_prediction_field );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_depth_slider );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_fov_slider );

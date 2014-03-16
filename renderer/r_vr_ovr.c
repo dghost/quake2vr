@@ -32,8 +32,6 @@ extern float VR_OVR_GetDistortionScale();
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 extern Sint32 VR_OVR_RenderLatencyTest(vec4_t color);
 
-static r_ovr_shader_t ovr_shaders[2];
-static r_ovr_shader_t ovr_bicubic_shaders[2];
 
 //static fbo_t world;
 static fbo_t left, right;
@@ -301,6 +299,31 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 
 };
 
+
+typedef struct {
+	r_shaderobject_t *shader;
+	struct {
+		GLuint scale;
+		GLuint scale_in;
+		GLuint lens_center;
+		GLuint screen_center;
+		GLuint texture_size;
+		GLuint hmd_warp_param;
+		GLuint chrom_ab_param;
+	} uniform;
+
+} r_ovr_shader_t;
+
+typedef enum {
+	OVR_FILTER_BILINEAR,
+	OVR_FILTER_WEIGHTED_BILINEAR,
+	OVR_FILTER_BICUBIC,
+	NUM_OVR_FILTER_MODES
+} ovr_filtermode_t;
+
+static r_ovr_shader_t ovr_shaders[2];
+static r_ovr_shader_t ovr_bicubic_shaders[2];
+
 // util function
 void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 {
@@ -474,9 +497,9 @@ void OVR_Present()
 		float superscale = vr_ovr_supersample->value;
 		r_ovr_shader_t *current_shader;
 		if (vr_ovr_filtermode->value)
-			current_shader = &ovr_bicubic_shaders[!!(Sint32) vr_ovr_chromatic->value];
+			current_shader = &ovr_bicubic_shaders[!!(Sint32) vr_chromatic->value];
 		else
-			current_shader = &ovr_shaders[!!(Sint32) vr_ovr_chromatic->value];
+			current_shader = &ovr_shaders[!!(Sint32) vr_chromatic->value];
 
 		// draw left eye
 		glUseProgram(current_shader->shader->program);
@@ -592,5 +615,4 @@ Sint32 OVR_Init()
 	R_InitFBO(&left);
 	R_InitFBO(&right);
 	return true;
-
 }

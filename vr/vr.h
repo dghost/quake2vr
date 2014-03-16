@@ -23,10 +23,11 @@ typedef struct {
 // struct for things that may change from frame to frame
 extern vr_param_t vrState;
 
+// prefer OVR native code path
 typedef enum {
 	HMD_NONE,
-	HMD_STEAM,
 	HMD_RIFT,
+	HMD_STEAM,
 	NUM_HMD_TYPES
 } hmd_t;
 
@@ -36,11 +37,12 @@ typedef struct {
 	void (*shutdown)();
 	Sint32 (*enable)();
 	void (*disable)();
-	void (*getPos)(Sint32 *xpos, Sint32 *ypos);
+	void (*getHMDPos)(Sint32 *xpos, Sint32 *ypos);
 	void (*frame)();
 	void (*resetOrientation)();
 	Sint32 (*getOrientation)(float euler[3]);
 	Sint32 (*getHeadOffset)(float offset[3]);
+	Sint32 (*setPrediction)(float timeInMs);
 } hmd_interface_t;
 
 
@@ -53,6 +55,7 @@ extern cvar_t *vr_ipd;
 extern cvar_t *vr_hud_fov;
 extern cvar_t *vr_hud_depth;
 extern cvar_t *vr_hud_transparency;
+extern cvar_t *vr_chromatic;
 extern cvar_t *vr_crosshair;
 extern cvar_t *vr_crosshair_size;
 extern cvar_t *vr_crosshair_brightness;

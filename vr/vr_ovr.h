@@ -26,7 +26,6 @@ extern ovr_attrib_t ovrConfig;
 
 extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
-extern cvar_t *vr_ovr_chromatic;
 extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_distortion;
 extern cvar_t *vr_ovr_lensdistance;

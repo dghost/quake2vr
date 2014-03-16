@@ -12,16 +12,14 @@ Sint32 VR_OVR_Init();
 void VR_OVR_Shutdown();
 Sint32 VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
-
+Sint32 VR_OVR_SetPredictionTime(float time);
 
 void VR_OVR_CalcRenderParam();
 float VR_OVR_GetDistortionScale();
 
 cvar_t *vr_ovr_driftcorrection;
 cvar_t *vr_ovr_scale;
-cvar_t *vr_ovr_chromatic;
 cvar_t *vr_ovr_debug;
-cvar_t *vr_ovr_prediction;
 cvar_t *vr_ovr_distortion;
 cvar_t *vr_ovr_lensdistance;
 cvar_t *vr_ovr_autoscale;
@@ -48,7 +46,8 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_Frame,
 	VR_OVR_ResetHMDOrientation,
 	VR_OVR_getOrientation,
-	NULL
+	NULL,
+	VR_OVR_SetPredictionTime
 };
 
 
@@ -150,6 +149,14 @@ float VR_OVR_GetDistortionScale()
 	}
 }
 
+Sint32 VR_OVR_SetPredictionTime(float time)
+{
+	Sint32 result = !!LibOVR_SetPredictionTime(time);
+	if (result)
+		Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", time);
+	return result;
+}
+
 void VR_OVR_Frame()
 {
 
@@ -169,18 +176,6 @@ void VR_OVR_Frame()
 			LibOVR_DisableDriftCorrection();
 		}
 		vr_ovr_driftcorrection->modified = false;
-	}
-
-	if (vr_ovr_prediction->modified)
-	{
-		if (vr_ovr_prediction->value < 0.0)
-			Cvar_Set("vr_ovr_prediction", "0.0");
-		else if (vr_ovr_prediction->value > 75.0f)
-			Cvar_Set("vr_ovr_prediction", "75.0");
-		vr_ovr_prediction->modified = false;
-		if (LibOVR_SetPredictionTime(vr_ovr_prediction->value))
-			Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
-
 	}
 
 	if (vr_ovr_latencytest->value && LibOVR_IsLatencyTesterAvailable())
@@ -264,18 +259,8 @@ Sint32 VR_OVR_Enable()
 		failure = 1;
 	}
 	else {
-
 		Com_Printf("VR_OVR: Initializing HMD:");
-
-		// try to initialize LibOVR
-		if (LibOVR_DeviceInit())
-		{
-			Com_Printf(" ok!\n");
-		}
-		else {
-			Com_Printf(" failed!\n");
-			failure = 1;
-		}
+		Com_Printf(" ok!\n");
 	}
 
 	if (failure && !vr_ovr_debug->value)
@@ -289,10 +274,6 @@ Sint32 VR_OVR_Enable()
 
 	Com_Printf("...detected HMD %s with %ux%u resolution\n", vr_ovr_settings.deviceString, vr_ovr_settings.h_resolution, vr_ovr_settings.v_resolution);
 	Com_Printf("...detected IPD %.1fmm\n", vr_ovr_settings.interpupillary_distance * 1000);
-	if (LibOVR_SetPredictionTime(vr_ovr_prediction->value))
-		Com_Printf("...set HMD Prediction time to %.1fms\n", vr_ovr_prediction->value);
-	vr_ovr_prediction->modified = false;
-
 	strncpy(string, va("%.2f", vr_ovr_settings.lens_separation_distance * 1000), sizeof(string));
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance", string, CVAR_ARCHIVE);
 
@@ -328,13 +309,11 @@ Sint32 VR_OVR_Init()
 	Sint32 init = LibOVR_Init();
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
-	vr_ovr_prediction = Cvar_Get("vr_ovr_prediction", "30", CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
-	vr_ovr_chromatic = Cvar_Get("vr_ovr_chromatic","1",CVAR_ARCHIVE);
 	vr_ovr_filtermode = Cvar_Get("vr_ovr_filtermode","0",CVAR_ARCHIVE);
 	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","1",CVAR_ARCHIVE);
 	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
