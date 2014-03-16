@@ -12,6 +12,10 @@ void VR_SVR_Disable();
 Sint32 VR_SVR_Init();
 void VR_SVR_Shutdown();
 
+
+extern cvar_t *vr_svr_distortion;
+extern cvar_t *vr_svr_debug;
+
 /*
 
 void VR_SVR_SetFOV();

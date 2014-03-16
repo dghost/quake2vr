@@ -11,6 +11,20 @@ typedef struct
 	float rfBlue[2];
 } distcoords_t;
 
+typedef enum SVR_Eye
+{
+	SVR_Left = 0,
+	SVR_Right = 1
+} eye_t;
+
+typedef struct {
+	Uint32 initialized;
+	Sint32 xPos;
+	Sint32 yPos;
+	Uint32 width;
+	Uint32 height;
+	char deviceName[128];
+} svr_settings_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +34,17 @@ extern "C" {
 	Sint32 SteamVR_Enable();
 	void SteamVR_Disable();
 	void SteamVR_Shutdown();
+
+
+	Sint32 SteamVR_GetSettings(svr_settings_t *settings);
+	Sint32 SteamVR_GetRenderTargetSize(Uint32 *width, Uint32 *height);
+	distcoords_t SteamVR_GetDistortionCoords(eye_t eye, float u, float v );
+	void SteamVR_GetEyeViewport(eye_t eye, Uint32 *xpos, Uint32 *ypos, Uint32 *width, Uint32 *height);
+	void SteamVR_ResetHMDOrientation(void);
+	void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], float position[3]);
+	float SteamVR_GetIPD();
+	void SteamVR_GetProjectionRaw(float *left, float *right, float *top, float *bottom);
+
 
 #ifdef __cplusplus
 }

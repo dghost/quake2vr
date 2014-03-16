@@ -4,9 +4,15 @@
 #include "../vr/vr.h"
 
 typedef struct {
-	Sint32 x, y;
-	Sint32 width, height;
+	Uint32 x, y;
+	Uint32 width, height;
 } vr_rect_t;
+
+typedef struct {
+	float x, y;
+	float width, height;
+} vr_rectf_t;
+
 
 typedef struct {
 	hmd_t type;
