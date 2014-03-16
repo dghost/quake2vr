@@ -115,6 +115,22 @@ void UI_DrawMainCursor (Sint32 x, Sint32 y, Sint32 f)
 
 /*
 =============
+UI_CheckQuadModel
+
+Checks for quad damage model.
+=============
+*/
+
+void UI_CheckQuadModel (void)
+{
+
+	quadModel = R_RegisterModel (QUAD_CURSOR_MODEL);
+	
+	quadModel_loaded = (quadModel != NULL);
+}
+
+/*
+=============
 UI_DrawMainCursor3D
 
 Draws a rotating quad damage model.
@@ -148,7 +164,7 @@ void UI_DrawMainCursor3D (Sint32 x, Sint32 y)
 	refdef.entities = &quadEnt;
 
 	ent = &quadEnt;
-	ent->model = quadModel;
+	ent->model = R_RegisterModel(QUAD_CURSOR_MODEL);
 	ent->flags = RF_FULLBRIGHT|RF_NOSHADOW|RF_DEPTHHACK;
 	VectorSet (ent->origin, 40, 0, -18);
 	VectorCopy( ent->origin, ent->oldorigin );
@@ -161,22 +177,6 @@ void UI_DrawMainCursor3D (Sint32 x, Sint32 y)
 	R_RenderFrame( &refdef );
 }
 
-
-/*
-=============
-UI_CheckQuadModel
-
-Checks for quad damage model.
-=============
-*/
-
-void UI_CheckQuadModel (void)
-{
-
-	quadModel = R_RegisterModel (QUAD_CURSOR_MODEL);
-	
-	quadModel_loaded = (quadModel != NULL);
-}
 
 
 /*

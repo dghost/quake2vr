@@ -396,7 +396,7 @@ void R_ScreenShot_JPG (qboolean silent)
 		ten = (i - hundred*100)*0.1;
 		one = i - hundred*100 - ten*10;
 
-		Com_sprintf (picname, sizeof(picname), "kmquake2_%i%i%i.jpg", hundred, ten, one);
+		Com_sprintf (picname, sizeof(picname), "q2vr_%i%i%i.jpg", hundred, ten, one);
 		Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot/%s", FS_Gamedir(), picname);
 		file = fopen (checkname, "rb");
 		if (!file)
@@ -513,7 +513,7 @@ void R_ScreenShot_TGA (qboolean silent)
 		ten = (i - hundred*100)*0.1;
 		one = i - hundred*100 - ten*10;
 
-		Com_sprintf (picname, sizeof(picname), "kmquake2_%i%i%i.tga", hundred, ten, one);
+		Com_sprintf (picname, sizeof(picname), "q2vr_%i%i%i.tga", hundred, ten, one);
 		Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot/%s", FS_Gamedir(), picname);
 		f = fopen (checkname, "rb");
 		if (!f)

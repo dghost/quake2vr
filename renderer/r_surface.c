@@ -218,7 +218,7 @@ qboolean R_SurfIsDynamic (msurface_t *surf, Sint32 *mapNum)
 	qboolean	is_dynamic = false;
 
 	if (!surf)	return false;
-	if (r_fullbright->value != 0)
+	if (r_fullbright->value != 0 || !r_newrefdef.lightstyles)
 		return false;
 
 	for (map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++) {
