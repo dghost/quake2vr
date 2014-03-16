@@ -23,6 +23,10 @@ typedef struct {
 	Sint32 yPos;
 	Uint32 width;
 	Uint32 height;
+	Uint32 targetWidth;
+	Uint32 targetHeight;
+	float scaleX;
+	float scaleY;
 	char deviceName[128];
 } svr_settings_t;
 
@@ -37,7 +41,6 @@ extern "C" {
 
 
 	Sint32 SteamVR_GetSettings(svr_settings_t *settings);
-	Sint32 SteamVR_GetRenderTargetSize(Uint32 *width, Uint32 *height);
 	distcoords_t SteamVR_GetDistortionCoords(eye_t eye, float u, float v );
 	void SteamVR_GetEyeViewport(eye_t eye, Uint32 *xpos, Uint32 *ypos, Uint32 *width, Uint32 *height);
 	void SteamVR_ResetHMDOrientation(void);

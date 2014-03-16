@@ -19,6 +19,8 @@ static vr_param_t svrState;
 
 static qboolean chromatic;
 
+extern svr_settings_t svr_settings;
+
 // Default Lens Warp Shader
 static r_shaderobject_t svr_shader_norm = {
 	0, 
@@ -210,12 +212,12 @@ void SVR_FrameStart(Sint32 changeBackBuffers)
 	}
 
 	if (changeBackBuffers)
-	{
-		Uint32 width, height;
+	{	
 		origTargetRect.x = 0;
 		origTargetRect.y = 0;
-		SteamVR_GetRenderTargetSize(&origTargetRect.width,&origTargetRect.height);
-	
+		origTargetRect.width = (Uint32) Cvar_VariableValue("vid_width") * svr_settings.scaleX;
+		origTargetRect.height = (Uint32) Cvar_VariableValue("vid_height") * svr_settings.scaleY;
+
 		renderTargetRect = origTargetRect;
 		if (r_antialias->value == ANTIALIAS_4X_FSAA)
 		{
@@ -258,7 +260,6 @@ void SVR_BindView(vr_eye_t eye)
 	}
 }
 
-extern svr_settings_t svr_settings;
 void SVR_GetState(vr_param_t *state)
 {
 	*state = svrState;
@@ -395,6 +396,7 @@ Sint32 SVR_Enable()
 
 	
 	SteamVR_GetSettings(&svr_settings);
+	
 	
 
 	SteamVR_GetEyeViewport(SVR_Left,&leftRenderRect.x,&leftRenderRect.y,&leftRenderRect.width,&leftRenderRect.height);	

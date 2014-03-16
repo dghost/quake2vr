@@ -48,22 +48,14 @@ Sint32 SteamVR_GetSettings(svr_settings_t *settings)
 	{
 		settings->initialized = 1;
 		hmd->GetWindowBounds(&settings->xPos,&settings->yPos,&settings->width,&settings->height);
+		hmd->GetRecommendedRenderTargetSize(&settings->targetWidth,&settings->targetHeight);
+		settings->scaleX = (float) settings->targetWidth / (float) settings->width;
+		settings->scaleY = (float) settings->targetHeight / (float) settings->height;
 		hmd->GetDriverId(settings->deviceName,128);
 		return 1;
 	}
 	return 0;
 }
-
-Sint32 SteamVR_GetRenderTargetSize(Uint32 *width, Uint32 *height)
-{
-	if (hmd)
-	{
-		hmd->GetRecommendedRenderTargetSize(width,height);
-		return 1;
-	}
-	return 0;
-};
-
 
 distcoords_t SteamVR_GetDistortionCoords(eye_t eye, float u, float v )
 {
