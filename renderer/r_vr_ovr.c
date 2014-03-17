@@ -35,10 +35,82 @@ extern Sint32 VR_OVR_RenderLatencyTest(vec4_t color);
 
 //static fbo_t world;
 static fbo_t left, right;
+static fbo_t leftDistortion, rightDistortion;
 
 static vr_rect_t renderTargetRect;
 
-static unsigned useBilinear;
+static qboolean useBilinear, useChroma;
+
+// Default Lens Warp Shader
+static r_shaderobject_t ovr_shader_dist_norm = {
+	0, 
+	
+	// vertex shader (identity)
+	"varying vec2 texCoords;\n"
+	"void main(void) {\n"
+		"gl_Position = gl_Vertex;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
+	"}\n",
+	// fragment shader
+	"varying vec2 texCoords;\n"
+	"uniform vec2 scale;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scaleIn;\n"
+	"uniform vec4 hmdWarpParam;\n"
+	"vec2 warp(vec2 uv)\n"
+	"{\n"
+		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
+		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
+		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
+		"return (lensCenter + scale * rvector);\n"
+	"}\n"
+	"void main()\n"
+	"{\n"
+		"vec2 tc = warp(texCoords);\n"
+		"gl_FragColor.rg = tc;\n"
+	"}\n"
+
+};
+
+// Lens Warp Shader with Chromatic Aberration 
+static r_shaderobject_t ovr_shader_dist_chrm = {
+	0, 
+	
+	// vertex shader (identity)
+	"varying vec2 theta;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scaleIn;\n"
+	"void main(void) {\n"
+		"gl_Position = gl_Vertex;\n"
+		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
+	"}\n",
+
+	// fragment shader
+	"varying vec2 theta;\n"
+	"uniform vec2 lensCenter;\n"
+	"uniform vec2 scale;\n"
+	"uniform vec4 hmdWarpParam;\n"
+	"uniform vec4 chromAbParam;\n"
+
+	// Scales input texture coordinates for distortion.
+	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
+	// larger due to aspect ratio.
+	"void main()\n"
+	"{\n"
+		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
+		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
+		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
+		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
+		"vec2 thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
+		"vec2 tcRed = lensCenter + scale * thetaRed;\n"
+		"vec4 final;\n"
+		"final.rg = tcRed;\n"
+		"final.ba = tcBlue;\n"
+		"gl_FragColor = final;\n"
+	"}\n"
+};
+
+
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
@@ -52,34 +124,21 @@ static r_shaderobject_t ovr_shader_norm = {
 	"}\n",
 	// fragment shader
 	"varying vec2 texCoords;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform sampler2D texture;\n"
-	"vec2 warp(vec2 uv)\n"
-	"{\n"
-		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"return (lensCenter + scale * rvector);\n"
-	"}\n"
+	"uniform sampler2D tex;\n"
+	"uniform sampler2D dist;\n"
 	"void main()\n"
 	"{\n"
-		"vec2 tc = warp(texCoords);\n"
-		"if (any(bvec2(clamp(tc, screenCenter - vec2(0.5,0.5), screenCenter + vec2(0.5,0.5))-tc)))\n"
+		"vec2 tc = texture2D(dist,texCoords).rg;\n"
+		"if (any(bvec2(clamp(tc, vec2(0.0,0.0), vec2(1.0,1.0))-tc)))\n"
 			"gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
 		"else\n"
-			"gl_FragColor = texture2D(texture, tc);\n"
+			"gl_FragColor = texture2D(tex, tc);\n"
 	"}\n"
-
 };
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_bicubic_norm = {
 	0,
-
 	// vertex shader (identity)
 	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
@@ -89,24 +148,13 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 
 	// fragment shader
 	"varying vec2 texCoords;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
 	"uniform vec4 textureSize;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform sampler2D texture;\n"
+	"uniform sampler2D tex;\n"
+	"uniform sampler2D dist;\n"
 	// hack to fix artifacting with AMD cards
 	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
 	"{\n"
 		"return texture2D(tex,clamp(uv,vec2(0.0),vec2(1.0))).rgb;\n"
-	"}\n"
-	"vec2 warp(vec2 uv)\n"
-	"{\n"
-		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"return (lensCenter + scale * rvector);\n"
 	"}\n"
 	"vec3 filter(sampler2D texture, vec2 texCoord)\n"
 	"{\n"
@@ -138,12 +186,12 @@ static r_shaderobject_t ovr_shader_bicubic_norm = {
 	"}\n"
 	"void main()\n"
 	"{\n"
-		"vec2 tc = warp(texCoords);\n"
-		"if (!all(equal(clamp(tc, screenCenter - vec2(0.5,0.5), screenCenter + vec2(0.5,0.5)),tc)))\n"
+		"vec2 tc = texture2D(dist,texCoords).rg;\n"
+		"if (any(bvec2(clamp(tc, vec2(0.0,0.0), vec2(1.0,1.0))-tc)))\n"
 			"gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n"
 		"else\n"
 			// have to reapply warping for the bicubic sampling
-			"gl_FragColor = vec4(filter(texture, tc),1.0);\n"
+			"gl_FragColor = vec4(filter(tex, tc),1.0);\n"
 	"}\n"
 };
 
@@ -153,87 +201,52 @@ static r_shaderobject_t ovr_shader_chrm = {
 	0, 
 	
 	// vertex shader (identity)
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
+	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
+		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
-
 	// fragment shader
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform vec4 chromAbParam;\n"
-	"uniform sampler2D texture;\n"
-
-	// Scales input texture coordinates for distortion.
-	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
-	// larger due to aspect ratio.
+	"varying vec2 texCoords;\n"
+	"uniform sampler2D tex;\n"
+	"uniform sampler2D dist;\n"
 	"void main()\n"
 	"{\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-
-		// Detect whether blue texture coordinates are out of range since these will scaled out the furthest.
-		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
-		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
-
-		"if (!all(equal(clamp(tcBlue, screenCenter - vec2(0.5,0.5), screenCenter + vec2(0.5,0.5)),tcBlue)))\n"
+		"vec4 vRead = texture2D(dist,texCoords);\n"
+		"vec2 tcGreen = vec2(vRead.r + vRead.b, vRead.g + vRead.a) / 2.0;\n"
+		"if (!all(equal(clamp(tcGreen, vec2(0.0,0.0), vec2(1.0,1.0)),tcGreen)))\n"
 		"{\n"
 			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-			"return;\n"
 		"}\n"
-
-		// Now do blue texture lookup.
-		"float blue = texture2D(texture, tcBlue).b;\n"
-
-		// Do green lookup (no scaling).
-		"vec2  tcGreen = lensCenter + scale * theta1;\n"
-
-		"float green = texture2D(texture, tcGreen).g;\n"
-
-		// Do red scale and lookup.
-		"vec2  thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
-		"vec2  tcRed = lensCenter + scale * thetaRed;\n"
-
-		"float red = texture2D(texture, tcRed).r;\n"
-
-		"gl_FragColor = vec4(red, green, blue, 1.0);\n"
+		"else\n"
+		"{\n"
+			"vec4 final;"
+			"final.r = texture2D(tex, vRead.rg).r;"
+			"final.ga = texture2D(tex, tcGreen).ga;"
+			"final.b = texture2D(tex, vRead.ba).b;"
+			"gl_FragColor = final;\n"
+		"}\n"
 	"}\n"
 };
 
 static r_shaderobject_t ovr_shader_bicubic_chrm = {
 	0,
-	
 	// vertex shader (identity)
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
+	"varying vec2 texCoords;\n"
 	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
+		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
+		"texCoords = gl_MultiTexCoord0.xy;\n"
 	"}\n",
-
 	// fragment shader
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 screenCenter;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform vec4 chromAbParam;\n"
+	"varying vec2 texCoords;\n"
 	"uniform vec4 textureSize;\n"
-	"uniform sampler2D texture;\n"
-	// hack to fix artifacting with AMD cards
-	// not necessary for chromatic
-	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
+	"uniform sampler2D tex;\n"
+	"uniform sampler2D dist;\n"
+	"vec4 sampleClamp(sampler2D tex, vec2 uv)\n"
 	"{\n"
-		"return texture2D(tex,clamp(uv,vec2(0.0),vec2(1.0))).rgb;\n"
+		"return texture2D(tex,clamp(uv,vec2(0.0),vec2(1.0))).rgba;\n"
 	"}\n"
-	"vec3 filter(sampler2D texture, vec2 texCoord)\n"
+	"vec4 filter(sampler2D texture, vec2 texCoord)\n"
 	"{\n"
 		// calculate the center of the texel
 		"texCoord *= textureSize.xy;\n"
@@ -262,41 +275,23 @@ static r_shaderobject_t ovr_shader_bicubic_chrm = {
 			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
 	"}\n"
 
-	// Scales input texture coordinates for distortion.
-	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
-	// larger due to aspect ratio.
-		"void main()\n"
+	"void main()\n"
 	"{\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-
-		// Detect whether blue texture coordinates are out of range since these will scaled out the furthest.
-		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
-		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
-
-		"if (!all(equal(clamp(tcBlue, screenCenter - vec2(0.5,0.5), screenCenter + vec2(0.5,0.5)),tcBlue)))\n"
+		"vec4 vRead = texture2D(dist,texCoords);\n"
+		"vec2 tcGreen = vec2(vRead.r + vRead.b, vRead.g + vRead.a) / 2.0;\n"
+		"if (!all(equal(clamp(tcGreen, vec2(0.0,0.0), vec2(1.0,1.0)),tcGreen)))\n"
 		"{\n"
 			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-			"return;\n"
 		"}\n"
-
-		// Now do blue texture lookup.
-		"float blue = filter(texture, tcBlue).b;\n"
-
-		// Do green lookup (no scaling).
-		"vec2  tcGreen = lensCenter + scale * theta1;\n"
-
-		"float green = filter(texture, tcGreen).g;\n"
-
-		// Do red scale and lookup.
-		"vec2  thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
-		"vec2  tcRed = lensCenter + scale * thetaRed;\n"
-
-		"float red = filter(texture, tcRed).r;\n"
-
-		"gl_FragColor = vec4(red, green, blue, 1.0);\n"
+		"else\n"
+		"{\n"
+			"vec4 final;"
+			"final.r = filter(tex, vRead.rg).r;"
+			"final.ga = filter(tex, tcGreen).ga;"
+			"final.b = filter(tex, vRead.ba).b;"
+			"gl_FragColor = final;\n"
+		"}\n"
 	"}\n"
-
 };
 
 
@@ -306,10 +301,11 @@ typedef struct {
 		GLuint scale;
 		GLuint scale_in;
 		GLuint lens_center;
-		GLuint screen_center;
 		GLuint texture_size;
 		GLuint hmd_warp_param;
 		GLuint chrom_ab_param;
+		GLuint tex;
+		GLuint dist;
 	} uniform;
 
 } r_ovr_shader_t;
@@ -323,6 +319,7 @@ typedef enum {
 
 static r_ovr_shader_t ovr_shaders[2];
 static r_ovr_shader_t ovr_bicubic_shaders[2];
+static r_ovr_shader_t ovr_distortion_shaders[2];
 
 // util function
 void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
@@ -337,14 +334,76 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.scale = glGetUniformLocation(shader->shader->program, "scale");
 	shader->uniform.scale_in = glGetUniformLocation(shader->shader->program, "scaleIn");
 	shader->uniform.lens_center = glGetUniformLocation(shader->shader->program, "lensCenter");
-	shader->uniform.screen_center = glGetUniformLocation(shader->shader->program, "screenCenter");
 	shader->uniform.hmd_warp_param = glGetUniformLocation(shader->shader->program, "hmdWarpParam");
 	shader->uniform.chrom_ab_param = glGetUniformLocation(shader->shader->program, "chromAbParam");
 	shader->uniform.texture_size = glGetUniformLocation(shader->shader->program,"textureSize");
+	shader->uniform.tex = glGetUniformLocation(shader->shader->program,"tex");
+	shader->uniform.dist = glGetUniformLocation(shader->shader->program,"dist");
 	glUseProgram(0);
 }
 
 
+
+void OVR_RenderDistortion()
+{
+	float resScale = (1.0 / pow(2,(vr_ovr_distortion->value >= 0 ? vr_ovr_distortion->value : 0)));
+	Uint32 width = Cvar_VariableInteger("vid_width") * 0.5 * resScale;
+	Uint32 height = Cvar_VariableInteger("vid_height") * resScale;
+	float scale = VR_OVR_GetDistortionScale();
+	r_ovr_shader_t *current = &ovr_distortion_shaders[useChroma];
+	// draw left eye
+
+	Com_Printf("VR_OVR: Generating %dx%d distortion textures.\n",width,height);
+	glUseProgram(current->shader->program);
+
+	glUniform4fv(current->uniform.chrom_ab_param, 1, ovrConfig.chrm);
+	glUniform4fv(current->uniform.hmd_warp_param, 1, ovrConfig.dk);
+	glUniform2f(current->uniform.scale_in, 2.0f, 2.0f / ovrConfig.aspect);
+	glUniform2f(current->uniform.scale, 0.5f / scale, 0.5f * ovrConfig.aspect / scale);
+	glUniform4f(current->uniform.texture_size, width, height, 1.0 / width, 1.0 / height);
+	glUniform2f(current->uniform.lens_center, 0.5 + ovrConfig.projOffset * 0.5, 0.5);
+	
+	R_ResizeFBO(width,height,true,&leftDistortion);
+	GL_MBind(0,leftDistortion.texture);
+	if (useChroma)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	else 
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	GL_MBind(0,0);
+	R_BindFBO(&leftDistortion);
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glTexCoord2f(0, 0); glVertex2f(-1, -1);
+	glTexCoord2f(0, 1); glVertex2f(-1, 1);
+	glTexCoord2f(1, 0); glVertex2f(1, -1);
+	glTexCoord2f(1, 1); glVertex2f(1, 1);
+	glEnd();
+
+	// draw right eye
+	glUniform2f(current->uniform.lens_center, 0.5 - ovrConfig.projOffset * 0.5, 0.5 );
+	
+	R_ResizeFBO(width,height,true,&rightDistortion);
+	
+	GL_MBind(0,rightDistortion.texture);
+	if (useChroma)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	else 
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	GL_MBind(0,0);
+
+
+	R_BindFBO(&rightDistortion);
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glTexCoord2f(0, 0); glVertex2f(-1, -1);
+	glTexCoord2f(0, 1); glVertex2f(-1, 1);
+	glTexCoord2f(1, 0); glVertex2f(1, -1);
+	glTexCoord2f(1, 1); glVertex2f(1, 1);
+	glEnd();
+	glUseProgram(0);
+
+	GL_BindFBO(0);
+}
 
 void OVR_FrameStart(Sint32 changeBackBuffers)
 {
@@ -352,7 +411,10 @@ void OVR_FrameStart(Sint32 changeBackBuffers)
 
 	if (vr_ovr_distortion->modified)
 	{
-		Cvar_SetInteger("vr_ovr_distortion", !!(Sint32) vr_ovr_distortion->value);
+		if (vr_ovr_distortion->value > 3)
+			Cvar_SetInteger("vr_ovr_distortion", 3);
+		else if (vr_ovr_distortion->value < -1)
+			Cvar_SetInteger("vr_ovr_distortion", -1);
 		changeBackBuffers = 1;
 		vr_ovr_distortion->modified = false;
 	}
@@ -407,6 +469,11 @@ void OVR_FrameStart(Sint32 changeBackBuffers)
 		changeBackBuffers = 1;
 		vr_ovr_supersample->modified = false;
 	}
+	if (useChroma != (qboolean) !!vr_chromatic->value)
+	{
+		useChroma = (qboolean) !!vr_chromatic->value;
+		changeBackBuffers = 1;
+	}
 
 	if (vr_ovr_filtermode->modified)
 	{
@@ -433,7 +500,7 @@ void OVR_FrameStart(Sint32 changeBackBuffers)
 		renderTargetRect.width = ovrScale * vid.width * 0.5;
 		renderTargetRect.height = ovrScale  * vid.height;
 		Com_Printf("OVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
-
+		OVR_RenderDistortion();		
 	}
 }
 
@@ -490,10 +557,9 @@ void OVR_Present()
 {
 	vec4_t debugColor;
 
-	if (vr_ovr_distortion->value)
+	if (vr_ovr_distortion->value >= 0)
 	{
 
-		float scale = VR_OVR_GetDistortionScale();
 		float superscale = vr_ovr_supersample->value;
 		r_ovr_shader_t *current_shader;
 		if (vr_ovr_filtermode->value)
@@ -504,15 +570,12 @@ void OVR_Present()
 		// draw left eye
 		glUseProgram(current_shader->shader->program);
 
-		glUniform4fv(current_shader->uniform.chrom_ab_param, 1, ovrConfig.chrm);
-		glUniform4fv(current_shader->uniform.hmd_warp_param, 1, ovrConfig.dk);
-		glUniform2f(current_shader->uniform.scale_in, 2.0f, 2.0f / ovrConfig.aspect);
-		glUniform2f(current_shader->uniform.scale, 0.5f / scale, 0.5f * ovrConfig.aspect / scale);
 		glUniform4f(current_shader->uniform.texture_size, renderTargetRect.width / superscale, renderTargetRect.height / superscale, superscale / renderTargetRect.width, superscale / renderTargetRect.height);
-	
-		glUniform2f(current_shader->uniform.lens_center, 0.5 + vrState.projOffset * 0.5, 0.5);
-		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
+		glUniform1i(current_shader->uniform.tex,0);
+		glUniform1i(current_shader->uniform.dist,1);
+
 		GL_MBind(0,left.texture);
+		GL_MBind(1,leftDistortion.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
@@ -522,9 +585,8 @@ void OVR_Present()
 		glEnd();
 
 		// draw right eye
-		glUniform2f(current_shader->uniform.lens_center, 0.5 - vrState.projOffset * 0.5, 0.5 );
-		glUniform2f(current_shader->uniform.screen_center, 0.5 , 0.5);
 		GL_MBind(0,right.texture);
+		GL_MBind(1,rightDistortion.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(0, -1);
@@ -534,11 +596,11 @@ void OVR_Present()
 		glEnd();
 		glUseProgram(0);
 		
+		GL_MBind(1,0);
 		GL_MBind(0,0);
 
 	} else {
 		GL_MBind(0,left.texture);
-
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
@@ -586,13 +648,19 @@ Sint32 OVR_Enable()
 		R_DelFBO(&left);
 	if (right.valid)
 		R_DelFBO(&right);
+	if (leftDistortion.valid)
+		R_DelFBO(&leftDistortion);
+	if (rightDistortion.valid)
+		R_DelFBO(&rightDistortion);
 
 	VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
 	VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
 	VR_OVR_InitShader(&ovr_bicubic_shaders[0],&ovr_shader_bicubic_norm);
 	VR_OVR_InitShader(&ovr_bicubic_shaders[1],&ovr_shader_bicubic_chrm);
-
-//	OVR_FrameStart(true);
+	
+	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_dist_norm);
+	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_dist_chrm);
+	//OVR_FrameStart(true);
 
 	return true;
 }
@@ -603,16 +671,24 @@ void OVR_Disable()
 	R_DelShaderProgram(&ovr_shader_chrm);
 	R_DelShaderProgram(&ovr_shader_bicubic_norm);
 	R_DelShaderProgram(&ovr_shader_bicubic_chrm);
+	R_DelShaderProgram(&ovr_shader_dist_norm);
+	R_DelShaderProgram(&ovr_shader_dist_chrm);
 
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)
 		R_DelFBO(&right);
+	if (leftDistortion.valid)
+		R_DelFBO(&leftDistortion);
+	if (rightDistortion.valid)
+		R_DelFBO(&rightDistortion);
 }
 
 Sint32 OVR_Init()
 {
 	R_InitFBO(&left);
 	R_InitFBO(&right);
+	R_InitFBO(&leftDistortion);
+	R_InitFBO(&rightDistortion);
 	return true;
 }
