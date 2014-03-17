@@ -44,7 +44,7 @@ Sint32 VR_SVR_Init()
 	if (result)
 		Com_Printf("VR_SVR: SteamVR support initialized...\n");
 
-	vr_svr_distortion = Cvar_Get("vr_svr_distortion","3",CVAR_ARCHIVE);
+	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_ARCHIVE);
 	vr_svr_debug = Cvar_Get("vr_svr_debug","0",0);
 	return result;
 }
