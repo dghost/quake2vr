@@ -64,7 +64,7 @@ static void BicubicFunc( void *unused )
 
 static void DistortionFunc( void *unused )
 {
-	Cvar_SetInteger( "vr_ovr_distortion", s_options_vr_ovr_distortion_box.curvalue);
+	Cvar_SetInteger( "vr_ovr_distortion", 2 - s_options_vr_ovr_distortion_box.curvalue  );
 }
 
 static void ScaleFunc( void *unused )
@@ -91,7 +91,7 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
 	s_options_vr_ovr_filtermode_box.curvalue = ( Cvar_VariableInteger("vr_ovr_filtermode") );
-	s_options_vr_ovr_distortion_box.curvalue = ( Cvar_VariableInteger("vr_ovr_distortion") );
+	s_options_vr_ovr_distortion_box.curvalue = ( 2 - ClampCvar(-1, 2, Cvar_VariableInteger("vr_ovr_distortion")) );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
 	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
@@ -164,6 +164,15 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
+	static const char *distortion_names[] =
+	{
+		"low",
+		"medium",
+		"high",
+		"none",
+		0
+	};
+
 	static const char *scale_names[] = 
 	{
 		"custom",
@@ -227,8 +236,8 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_distortion_box.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_ovr_distortion_box.generic.name			= "distortion";
 	s_options_vr_ovr_distortion_box.generic.callback		= DistortionFunc;
-	s_options_vr_ovr_distortion_box.itemnames			= yesno_names;
-	s_options_vr_ovr_distortion_box.generic.statusbar	= "enables the barrel distortion shader";
+	s_options_vr_ovr_distortion_box.itemnames			= distortion_names;
+	s_options_vr_ovr_distortion_box.generic.statusbar	= "adjusts the quality of distortion applied";
 
 	s_options_vr_ovr_autoscale_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_autoscale_box.generic.x			= MENU_FONT_SIZE;
