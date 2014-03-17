@@ -719,11 +719,13 @@ typedef struct
 	const char	*vendor_string;
 	const char	*version_string;
 	const char	*extensions_string;
-
+	const char  *shader_version_string;
 	// for parsing newer OpenGL versions
-	Sint32			version_major;
-	Sint32			version_minor;
-	Sint32			version_release;
+	Sint32		version_major;
+	Sint32		version_minor;
+	Sint32		version_release;
+	Sint32		shader_version_major;
+	Sint32		shader_version_minor;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;

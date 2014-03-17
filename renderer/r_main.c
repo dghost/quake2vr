@@ -1234,7 +1234,10 @@ qboolean R_Init ( char *reason )
 	glConfig.vendor_string = glGetString (GL_VENDOR);
 	glConfig.renderer_string = glGetString (GL_RENDERER);
 	glConfig.version_string = glGetString (GL_VERSION);
+	glConfig.shader_version_string = glGetString (GL_SHADING_LANGUAGE_VERSION);
+
 	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);	
+	sscanf(glConfig.shader_version_string, "%d.%d", &glConfig.shader_version_major, &glConfig.shader_version_minor);	
 	
 	if (glConfig.version_major < 2)
 	{
@@ -1246,6 +1249,8 @@ qboolean R_Init ( char *reason )
 	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	VID_Printf (PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
+	VID_Printf (PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION: %s\n", glConfig.shader_version_string );
+	VID_Printf (PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION: %d.%d\n", glConfig.shader_version_major,glConfig.shader_version_minor );
 
 #ifdef Q2VR_REGAL
 //	glEnable(GL_LOG_WARNING_REGAL);
