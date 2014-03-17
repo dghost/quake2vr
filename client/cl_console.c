@@ -648,6 +648,7 @@ void Con_DrawConsole (float frac, qboolean trans)
 	Sint32				row;
 	Sint32				lines;
 	char			version[64];
+	char			hmd[64];
 	char			dlbar[1024];
 	float			alpha, barwidth, barheight; //Knightmare added
 	// changeable download bar color
@@ -692,7 +693,8 @@ void Con_DrawConsole (float frac, qboolean trans)
 	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s",VERSION,PATCH);
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
-
+	Com_sprintf (hmd, sizeof(hmd), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"%s",Cvar_VariableString("vr_hmdstring"));
+	Con_DrawString(3, y-(Sint32)(1.25*FONT_SIZE),hmd,255);
 	Con_DrawString (viddef.width-FONT_SIZE*(stringLen((const char *)&version))-3, y-(Sint32)(1.25*FONT_SIZE), version, 255);
 	R_DrawFill (0, y, barwidth, barheight, red, green, blue, 255); // bottom line
 

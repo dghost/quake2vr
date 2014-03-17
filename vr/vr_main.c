@@ -3,7 +3,6 @@
 #include "vr_svr.h"
 #include "vr_ovr.h"
 
-
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
 cvar_t *vr_autoipd;
@@ -29,6 +28,7 @@ cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
 cvar_t *vr_hmdtype;
 cvar_t *vr_prediction;
+cvar_t *vr_hmdstring;
 
 vr_param_t vrState;
 
@@ -398,6 +398,9 @@ void VR_Disable()
 {
 	hmd->disable();
 	hmd = NULL;
+	Cvar_ForceSet("vr_enabled","0");
+	Cvar_ForceSet("vr_hmdstring","VR Disabled");
+
 }
 
 void VR_Teardown()
@@ -433,7 +436,6 @@ void VR_Disable_f(void)
 		return;
 
 	VR_Disable();
-	Cvar_ForceSet("vr_enabled","0");
 	Cmd_ExecuteString("vid_restart");
 }
 
@@ -465,6 +467,7 @@ void VR_Startup(void)
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
+	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
 	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);

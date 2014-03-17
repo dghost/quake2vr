@@ -27,6 +27,7 @@ cvar_t *vr_ovr_autolensdistance;
 cvar_t *vr_ovr_filtermode;
 cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_latencytest;
+cvar_t *vr_ovr_enable;
 
 static ovr_settings_t vr_ovr_settings = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}, "", ""};
 
@@ -127,7 +128,7 @@ void VR_OVR_CalcRenderParam()
 
 		memcpy(ovrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
 		memcpy(ovrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
-
+		strncpy(ovrConfig.deviceString,vr_ovr_settings.deviceString,sizeof(ovrConfig.deviceString));
 		ovrConfig.projOffset = h;
 	}
 }
@@ -253,6 +254,8 @@ Sint32 VR_OVR_Enable()
 {
 	char string[6];
 	Sint32 failure = 0;
+	if (!vr_ovr_enable->value)
+		return 0;
 	if (!LibOVR_DeviceInit())
 	{
 		Com_Printf("VR_OVR: Error, no HMD detected!\n");
@@ -266,9 +269,7 @@ Sint32 VR_OVR_Enable()
 	if (failure && !vr_ovr_debug->value)
 		return 0;
 
-
 	// get info from LibOVR
-
 	if (!VR_OVR_GetSettings(&vr_ovr_settings))
 		return 0;
 
@@ -291,7 +292,6 @@ Sint32 VR_OVR_Enable()
 	if (vr_ovr_settings.v_resolution > 800)
 		Cvar_SetInteger("vr_hud_transparency", 1);
 	*/
-	Com_Printf("...calculated %.2f FOV\n", ovrState.viewFovY);
 	Com_Printf("...calculated %.2f minimum distortion scale\n", ovrConfig.minScale);
 	Com_Printf("...calculated %.2f maximum distortion scale\n", ovrConfig.maxScale);
 
@@ -311,6 +311,7 @@ Sint32 VR_OVR_Init()
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
+	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);

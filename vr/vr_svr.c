@@ -8,10 +8,12 @@ static float predictionTime;
 
 cvar_t *vr_svr_distortion;
 cvar_t *vr_svr_debug;
-
+cvar_t *vr_svr_enable;
 
 Sint32 VR_SVR_Enable()
 {
+	if (!vr_svr_enable->value)
+		return 0;
 	if (!SteamVR_Enable())
 	{
 		Com_Printf("VR_SVR: Error, no HMD detected!\n");
@@ -27,7 +29,8 @@ Sint32 VR_SVR_Enable()
 			return 0;
 		}
 		Com_Printf(" ok!\n");
-		Com_Printf("VR_SVR: found HMD of type: %s\n",svr_settings.deviceName);
+		Com_Printf("...found HMD of type: %s\n",svr_settings.deviceName);
+		Com_Printf("...detected IPD %.1fmm\n",svr_settings.ipd * 1000.0f);
 	}
 	return 1;
 }
@@ -44,6 +47,7 @@ Sint32 VR_SVR_Init()
 	if (result)
 		Com_Printf("VR_SVR: SteamVR support initialized...\n");
 
+	vr_svr_enable = Cvar_Get("vr_svr_enable","1",CVAR_ARCHIVE);
 	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_ARCHIVE);
 	vr_svr_debug = Cvar_Get("vr_svr_debug","0",0);
 	return result;

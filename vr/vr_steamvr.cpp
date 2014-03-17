@@ -46,11 +46,25 @@ Sint32 SteamVR_GetSettings(svr_settings_t *settings)
 {
 	if (hmd)
 	{
+		vr::HmdMatrix44_t mat;
+		float left, right, top, bottom;
+		float centerRight;
+		double f;
 		settings->initialized = 1;
 		hmd->GetWindowBounds(&settings->xPos,&settings->yPos,&settings->width,&settings->height);
 		hmd->GetRecommendedRenderTargetSize(&settings->targetWidth,&settings->targetHeight);
 		settings->scaleX = (float) settings->targetWidth / (float) settings->width;
 		settings->scaleY = (float) settings->targetHeight / (float) settings->height;
+		mat = hmd->GetEyeMatrix(vr::Eye_Right);
+		settings->ipd = (float) SDL_fabs(mat.m[0][3]) * 2.0f;
+		hmd->GetProjectionRaw(vr::Eye_Right,&left,&right,&top,&bottom);
+		centerRight = right - left;
+		centerRight /= 2.0;
+		f = SDL_atan(bottom) * 2.0f;
+		settings->aspect = centerRight / bottom;
+		settings->viewFovY = f *180.0f / M_PI;
+		settings->viewFovX = settings->viewFovY / settings->aspect;
+		settings->projOffset = right - centerRight;
 		hmd->GetDriverId(settings->deviceName,128);
 		return 1;
 	}
@@ -127,25 +141,6 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 		orientation[0] = (float) (-b * 180 / M_PI);
 		orientation[1] = (float) a * 180 / M_PI;
 		orientation[2] = (float) (-c * 180 / M_PI);
-	}
-}
-
-float SteamVR_GetIPD()
-{
-	if (hmd)
-	{
-		vr::HmdMatrix44_t mat;
-		mat = hmd->GetEyeMatrix(vr::Eye_Right);
-		return (float) SDL_fabs(mat.m[0][3]) * 2.0f;
-	}
-	return 0.0f;
-}
-
-void SteamVR_GetProjectionRaw(float *left, float *right, float *top, float *bottom)
-{
-	if (hmd)
-	{
-		hmd->GetProjectionRaw(vr::Eye_Right,left, right, top, bottom);
 	}
 }
 

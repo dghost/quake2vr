@@ -15,8 +15,6 @@ static vr_rect_t leftRenderRect, rightRenderRect;
 
 static GLuint leftDistortion, rightDistortion;
 
-static vr_param_t svrState;
-
 static qboolean chromatic;
 
 extern svr_settings_t svr_settings;
@@ -94,7 +92,6 @@ r_svr_shader_t svr_shaders[2];
 // util function
 void SVR_InitShader(r_svr_shader_t *shader, r_shaderobject_t *object)
 {
-
 	if (!object->program)
 		R_CompileShaderProgram(object);
 
@@ -116,10 +113,8 @@ void SVR_BuildDistortionTextures()
 	
 	width = (int) ((float) width * scale);
 	height = (int) ((float) height * scale);
-
-
-
-	Com_Printf("Generating %dx%d distortion textures...\n",width,height);
+	
+	Com_Printf("VR_SVR: Generating %dx%d distortion textures...\n",width,height);
 	for ( i = 0; i < 2; i++ )
 	{
 		eye_t eye = (eye_t) i;
@@ -170,7 +165,6 @@ void SVR_BuildDistortionTextures()
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGBA,GL_FLOAT,rnDistortionMapData[0]);
 	else
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RG16F,width,height,0,GL_RG,GL_FLOAT,rnDistortionMapData[0]);
-
 
 	GL_MBind(0,rightDistortion);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -224,7 +218,7 @@ void SVR_FrameStart(Sint32 changeBackBuffers)
 			renderTargetRect.width *= 2;
 			renderTargetRect.height *= 2;
 		}
-		Com_Printf("SVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
+		Com_Printf("VR_SVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
 		SVR_BuildDistortionTextures();		
 	}
 }
@@ -239,7 +233,6 @@ void SVR_BindView(vr_eye_t eye)
 		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
 		{
 			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, &left);
-	//		Com_Printf("OVR: Set left render target size to %ux%u\n",left.width,left.height);
 		}
 		vid.height = left.height;
 		vid.width = left.width;
@@ -249,7 +242,6 @@ void SVR_BindView(vr_eye_t eye)
 		if (renderTargetRect.width != right.width || renderTargetRect.height != right.height)
 		{
 			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, &right);
-	//		Com_Printf("OVR: Set right render target size to %ux%u\n",right.width, right.height);
 		}
 		vid.height = right.height;
 		vid.width = right.width;
@@ -262,6 +254,13 @@ void SVR_BindView(vr_eye_t eye)
 
 void SVR_GetState(vr_param_t *state)
 {
+	vr_param_t svrState;
+	svrState.aspect = svr_settings.aspect;
+	svrState.projOffset = svr_settings.projOffset;
+	svrState.viewFovX = svr_settings.viewFovX;
+	svrState.viewFovY = svr_settings.viewFovY;
+	svrState.ipd = svr_settings.ipd;
+	svrState.pixelScale = 3.0;
 	*state = svrState;
 }
 
@@ -360,28 +359,12 @@ void SVR_Disable()
 void SVR_CalculateRenderParams()
 {
 
-	float left, right, top, bottom;
-	float centerRight;
-	double f;
-	SteamVR_GetProjectionRaw(&left,&right,&top,&bottom);
-
-	centerRight = right - left;
-	centerRight /= 2.0;
-	
-	f = atanf(bottom) * 2.0f;
-	
-	svrState.aspect = centerRight / bottom;
-	svrState.viewFovY = f *180.0f / M_PI;
-
-	svrState.viewFovX = svrState.viewFovY / svrState.aspect;
-	svrState.projOffset = right - centerRight;
-	svrState.ipd = SteamVR_GetIPD();
-	svrState.pixelScale = 3.0;
 }
 
 
 Sint32 SVR_Enable()
 {
+	char string[128];
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)
@@ -391,23 +374,16 @@ Sint32 SVR_Enable()
 		glGenTextures(1,&leftDistortion);
 	if (!rightDistortion)
 		glGenTextures(1,&rightDistortion);
-	
-	
 
-	
 	SteamVR_GetSettings(&svr_settings);
 	
-	
-
 	SteamVR_GetEyeViewport(SVR_Left,&leftRenderRect.x,&leftRenderRect.y,&leftRenderRect.width,&leftRenderRect.height);	
 	SteamVR_GetEyeViewport(SVR_Right,&rightRenderRect.x,&rightRenderRect.y,&rightRenderRect.width,&rightRenderRect.height);
 
 	SVR_InitShader(&svr_shaders[0],&svr_shader_norm);
 	SVR_InitShader(&svr_shaders[1],&svr_shader_chrm);
-
-	SVR_CalculateRenderParams();
-//	Com_Printf("VR_SVR: detectined IPD of: %fmm\n",svrState.ipd * 1000.0);
-//	SVR_FrameStart(true);
+	strncpy(string, va("SteamVR-%s", svr_settings.deviceName), sizeof(string));
+	Cvar_ForceSet("vr_hmdstring",string);
 	return true;
 }
 

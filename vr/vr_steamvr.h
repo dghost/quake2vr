@@ -19,6 +19,11 @@ typedef enum SVR_Eye
 
 typedef struct {
 	Uint32 initialized;
+	float ipd;
+	float aspect;
+	float viewFovY;
+	float viewFovX;
+	float projOffset;
 	Sint32 xPos;
 	Sint32 yPos;
 	Uint32 width;
@@ -45,9 +50,7 @@ extern "C" {
 	void SteamVR_GetEyeViewport(eye_t eye, Uint32 *xpos, Uint32 *ypos, Uint32 *width, Uint32 *height);
 	void SteamVR_ResetHMDOrientation(void);
 	void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], float position[3]);
-	float SteamVR_GetIPD();
 	void SteamVR_GetProjectionRaw(float *left, float *right, float *top, float *bottom);
-
 
 #ifdef __cplusplus
 }

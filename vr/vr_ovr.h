@@ -20,6 +20,7 @@ typedef struct {
 	float maxScale;
 	float dk[4];
 	float chrm[4];
+	char deviceString[32];
 } ovr_attrib_t;
 
 extern ovr_attrib_t ovrConfig;

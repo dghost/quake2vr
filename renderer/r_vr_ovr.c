@@ -499,7 +499,7 @@ void OVR_FrameStart(Sint32 changeBackBuffers)
 		float ovrScale = VR_OVR_GetDistortionScale() *  vr_ovr_supersample->value;
 		renderTargetRect.width = ovrScale * vid.width * 0.5;
 		renderTargetRect.height = ovrScale  * vid.height;
-		Com_Printf("OVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
+		Com_Printf("VR_OVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
 		OVR_RenderDistortion();		
 	}
 }
@@ -642,6 +642,7 @@ void OVR_Present()
 
 }
 
+
 Sint32 OVR_Enable()
 {
 	if (left.valid)
@@ -661,7 +662,7 @@ Sint32 OVR_Enable()
 	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_dist_norm);
 	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_dist_chrm);
 	//OVR_FrameStart(true);
-
+	Cvar_ForceSet("vr_hmdstring",ovrConfig.deviceString);
 	return true;
 }
 
