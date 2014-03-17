@@ -13,7 +13,7 @@ static fbo_t left, right;
 static vr_rect_t renderTargetRect, origTargetRect;
 static vr_rect_t leftRenderRect, rightRenderRect;
 
-static GLuint leftDistortion, rightDistortion;
+static GLuint leftDistortion[2], rightDistortion[2];
 
 static qboolean chromatic;
 
@@ -104,86 +104,68 @@ void SVR_InitShader(r_svr_shader_t *shader, r_shaderobject_t *object)
 
 void SVR_BuildDistortionTextures()
 {
-    GLfloat *rnDistortionMapData[ 2 ]; // the memory to put the map into
+	GLfloat *normalTexture, *chromaTexture;
 	int width = origTargetRect.width; // width of the distortion map
 	int height= origTargetRect.height; // height of the distortion map
 	int i;
-	int bitsPerPixel = (!chromatic && glConfig.arb_texture_rg? 2 : 4);
+	int bitsPerPixel = (glConfig.arb_texture_rg? 2 : 4);
 	float scale = (1.0 / pow(2,vr_svr_distortion->value));
 	
 	width = (int) ((float) width * scale);
 	height = (int) ((float) height * scale);
 	
 	Com_Printf("VR_SVR: Generating %dx%d distortion textures...\n",width,height);
-	for ( i = 0; i < 2; i++ )
-	{
-		eye_t eye = (eye_t) i;
-		GLfloat *pData;
 	
-		int x, y;	
-		rnDistortionMapData[i] = (GLfloat *) malloc(sizeof(GLfloat) * width * height * bitsPerPixel);
-		memset(rnDistortionMapData[i],0,sizeof(GLfloat) * width * height * bitsPerPixel);
-		pData = rnDistortionMapData[ i ];
+	normalTexture = malloc(sizeof(GLfloat) * width * height * bitsPerPixel);
+	chromaTexture = malloc(sizeof(GLfloat) * width * height * 4);
 
-		for( y = 0; y < height; y++ )
-		{
-			for( x = 0; x < width; x++ )
-			{
-				int offset = bitsPerPixel * ( x + y * width );
-				distcoords_t coords;
-
-				float u = ( (float)x + 0.5f) / (float)width;
-				float v = ( (float)y + 0.5f) / (float)height;
-				assert( offset < width * height * bitsPerPixel );
-
-
-				coords = SteamVR_GetDistortionCoords( eye, u, v );
-
-				// Put red and green UVs into the texture. We'll estimate the green UV in the shader from
-				// these two.
-
-				if (chromatic)
-				{
-					pData[offset + 0] = (GLfloat)( coords.rfRed[0] );
-					pData[offset + 1] = (GLfloat)( coords.rfRed[1] );
-					pData[offset + 2] = (GLfloat)( coords.rfBlue[0] );
-					pData[offset + 3] = (GLfloat)( coords.rfBlue[1] );
-				} else {
-					pData[offset + 0] = (GLfloat)( coords.rfGreen[0] );
-					pData[offset + 1] = (GLfloat)( coords.rfGreen[1] );
-				}
-			}
-		}
-	}
-
-	GL_MBind(0,leftDistortion);
+	SteamVR_GetDistortionTextures(SVR_Left,width,height,bitsPerPixel,normalTexture,chromaTexture);
+	
+	GL_MBind(0,leftDistortion[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
 	if (bitsPerPixel == 2)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, rnDistortionMapData[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, normalTexture);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, rnDistortionMapData[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, normalTexture);
+
+	GL_MBind(0,leftDistortion[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
-	GL_MBind(0,rightDistortion);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, chromaTexture);
+
+
+	SteamVR_GetDistortionTextures(SVR_Right,width,height,bitsPerPixel,normalTexture,chromaTexture);
+	
+	GL_MBind(0,rightDistortion[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
 	if (bitsPerPixel == 2)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, rnDistortionMapData[1]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, normalTexture);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, rnDistortionMapData[1]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, normalTexture);
+
+	GL_MBind(0,rightDistortion[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, chromaTexture);
 	
 	GL_MBind(0,0);
 
-	for (i = 0; i < 2; i++)
-	{
-		free(rnDistortionMapData[i]);
-	}
+	free(chromaTexture);
+	free(normalTexture);
 }
 
 
@@ -204,7 +186,6 @@ void SVR_FrameStart(Sint32 changeBackBuffers)
 	if (chromatic != (qboolean) !!vr_chromatic->value)
 	{
 		chromatic = (qboolean) !!vr_chromatic->value;
-		changeBackBuffers = 1;
 	}
 
 	if (changeBackBuffers)
@@ -283,7 +264,7 @@ void SVR_Present()
 
 		GL_EnableMultitexture(true);
 		GL_MBind(0,left.texture);
-		GL_MBind(1,leftDistortion);
+		GL_MBind(1,leftDistortion[chromatic]);
 		
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(leftRenderRect.x, leftRenderRect.y + leftRenderRect.height);
@@ -295,7 +276,7 @@ void SVR_Present()
 		// draw right eye
 
 		GL_MBind(0,right.texture);
-		GL_MBind(1,rightDistortion);
+		GL_MBind(1,rightDistortion[chromatic]);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(rightRenderRect.x, rightRenderRect.y + rightRenderRect.height);
@@ -316,7 +297,7 @@ void SVR_Present()
 		glTexCoord2f(1, 1); glVertex2f(leftRenderRect.x + leftRenderRect.width, leftRenderRect.y);
 		glEnd();
 
-		GL_MBind(0,rightDistortion);
+		GL_MBind(0,rightDistortion[chromatic]);
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(rightRenderRect.x, rightRenderRect.y + rightRenderRect.height);
 		glTexCoord2f(0, 1); glVertex2f(rightRenderRect.x, rightRenderRect.y);
@@ -350,12 +331,14 @@ void SVR_Disable()
 		R_DelFBO(&right);
 
 	if (leftDistortion)
-		glDeleteTextures(1,&leftDistortion);
+		glDeleteTextures(2,&leftDistortion[0]);
 	if (rightDistortion)
-		glDeleteTextures(1,&rightDistortion);
+		glDeleteTextures(2,&rightDistortion[0]);
 
-	leftDistortion = 0;
-	rightDistortion = 0;
+	leftDistortion[0] = 0;
+	leftDistortion[1] = 0;
+	rightDistortion[0] = 0;
+	rightDistortion[1] = 0;
 }
 
 void SVR_CalculateRenderParams()
@@ -376,10 +359,10 @@ Sint32 SVR_Enable()
 	if (right.valid)
 		R_DelFBO(&right);
 
-	if (!leftDistortion)
-		glGenTextures(1,&leftDistortion);
-	if (!rightDistortion)
-		glGenTextures(1,&rightDistortion);
+	if (!leftDistortion[0])
+		glGenTextures(2,&leftDistortion[0]);
+	if (!rightDistortion[0])
+		glGenTextures(2,&rightDistortion[0]);
 
 	SteamVR_GetSettings(&svr_settings);
 	

@@ -46,11 +46,11 @@ extern "C" {
 
 
 	Sint32 SteamVR_GetSettings(svr_settings_t *settings);
-	distcoords_t SteamVR_GetDistortionCoords(eye_t eye, float u, float v );
 	void SteamVR_GetEyeViewport(eye_t eye, Uint32 *xpos, Uint32 *ypos, Uint32 *width, Uint32 *height);
 	void SteamVR_ResetHMDOrientation(void);
 	void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], float position[3]);
 	void SteamVR_GetProjectionRaw(float *left, float *right, float *top, float *bottom);
+	Sint32 SteamVR_GetDistortionTextures(eye_t eye, Uint32 width, Uint32 height, Uint32 normalBits, float *normal, float *chroma);
 
 #ifdef __cplusplus
 }

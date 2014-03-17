@@ -23,7 +23,7 @@ Sint32 SteamVR_Enable()
 	hmd = vr::VR_Init(&error);
 	if (hmd)
 	{
-//		SteamVR_Disable();
+		//		SteamVR_Disable();
 	}
 	return !!hmd;
 }
@@ -71,16 +71,41 @@ Sint32 SteamVR_GetSettings(svr_settings_t *settings)
 	return 0;
 }
 
-distcoords_t SteamVR_GetDistortionCoords(eye_t eye, float u, float v )
+Sint32 SteamVR_GetDistortionTextures(eye_t eye, Uint32 width, Uint32 height, Uint32 normalBits, float *normal, float *chroma)
 {
-	distcoords_t output = { { 0, 0 }, {0, 0} , {0, 0}};
-	if (hmd)
+	if (!hmd)
+		return 0;
+	int x, y;	
+	SDL_memset(normal,0,sizeof(float) * width * height * normalBits);
+	SDL_memset(chroma,0,sizeof(float) * width * height * 4);
+
+	for( y = 0; y < height; y++ )
 	{
-		vr::DistortionCoordinates_t coords = hmd->ComputeDistortion((vr::Hmd_Eye) eye, u, v);	
-		SDL_memcpy(&output,&coords,sizeof(output));
-	} 
-	return output;
-};
+		for( x = 0; x < width; x++ )
+		{
+			int offset = normalBits * ( x + y * width );
+			int chromaOffset = 4 * ( x + y * width );
+
+			float u = ( (float)x + 0.5f) / (float)width;
+			float v = ( (float)y + 0.5f) / (float)height;
+			vr::DistortionCoordinates_t coords = hmd->ComputeDistortion( (vr::Hmd_Eye) eye, u, v );
+
+			// Put red and green UVs into the texture. We'll estimate the green UV in the shader from
+			// these two.
+
+			chroma[chromaOffset + 0] = (float)( coords.rfRed[0] );
+			chroma[chromaOffset + 1] = (float)( coords.rfRed[1] );
+			chroma[chromaOffset + 2] = (float)( coords.rfBlue[0] );
+			chroma[chromaOffset + 3] = (float)( coords.rfBlue[1] );
+
+			normal[offset + 0] = (float)( coords.rfGreen[0] );
+			normal[offset + 1] = (float)( coords.rfGreen[1] );
+
+		}
+	}
+	return 1;
+}
+
 
 void SteamVR_GetEyeViewport(eye_t eye, Uint32 *xpos, Uint32 *ypos, Uint32 *width, Uint32 *height)
 {
