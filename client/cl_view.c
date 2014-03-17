@@ -663,7 +663,7 @@ void VR_RenderStereo ()
 	extern Sint32 entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,viewOrig, tmp;
-	float viewOffset = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+	float viewOffset = (vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0)) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 
 
 	if (cls.state != ca_active)
