@@ -31,6 +31,8 @@ typedef enum {
 	NUM_HMD_TYPES
 } hmd_t;
 
+extern const char *hmd_names[];
+
 typedef struct {
 	hmd_t type;
 	Sint32 (*init)();

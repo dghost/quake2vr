@@ -365,10 +365,11 @@ void OVR_RenderDistortion()
 	
 	R_ResizeFBO(width,height,true,&leftDistortion);
 	GL_MBind(0,leftDistortion.texture);
-	if (useChroma)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	else 
+	if (!useChroma && glConfig.arb_texture_rg)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	
 	GL_MBind(0,0);
 	R_BindFBO(&leftDistortion);
 
@@ -385,10 +386,11 @@ void OVR_RenderDistortion()
 	R_ResizeFBO(width,height,true,&rightDistortion);
 	
 	GL_MBind(0,rightDistortion.texture);
-	if (useChroma)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	else 
+	if (!useChroma && glConfig.arb_texture_rg)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	else
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	
 	GL_MBind(0,0);
 
 
@@ -645,6 +647,8 @@ void OVR_Present()
 
 Sint32 OVR_Enable()
 {
+	if (!glConfig.arb_texture_float)
+		return 0;
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)

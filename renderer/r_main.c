@@ -1409,23 +1409,41 @@ qboolean R_Init ( char *reason )
 	glConfig.arb_sync = false;
 	if (GLEW_ARB_sync)
 	{
-			VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
-			glConfig.arb_sync = true;
+		VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
+		glConfig.arb_sync = true;
 	} else {
-			VID_Printf (PRINT_ALL, "...GL_ARB_sync not found\n" );
-			glConfig.arb_sync = false;
-			Cvar_SetInteger("r_fencesync",0);
+		VID_Printf (PRINT_ALL, "...GL_ARB_sync not found\n" );
+		glConfig.arb_sync = false;
+		Cvar_SetInteger("r_fencesync",0);
+	}
+
+	if (GLEW_ARB_texture_float)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_ARB_texture_float\n" );
+		glConfig.arb_texture_float = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_texture_float not found\n" );
+		glConfig.arb_texture_float = false;
+	}
+
+	if (GLEW_ARB_texture_rg)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_ARB_texture_rg\n" );
+		glConfig.arb_texture_rg = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_texture_rg not found\n" );
+		glConfig.arb_texture_rg = false;
 	}
 
 	glConfig.ext_direct_state_access = false;
 	if (GLEW_EXT_direct_state_access)
 	{
-			VID_Printf (PRINT_ALL, "...using GL_EXT_direct_state_access\n" );
-			glConfig.ext_direct_state_access = true;
+		VID_Printf (PRINT_ALL, "...using GL_EXT_direct_state_access\n" );
+		glConfig.ext_direct_state_access = true;
 	} else {
-			VID_Printf (PRINT_ALL, "...GL_EXT_direct_state_access not found\n" );
-			glConfig.ext_direct_state_access = false;
-			Cvar_SetInteger("r_directstate",0);
+		VID_Printf (PRINT_ALL, "...GL_EXT_direct_state_access not found\n" );
+		glConfig.ext_direct_state_access = false;
+		Cvar_SetInteger("r_directstate",0);
 	}
 
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);

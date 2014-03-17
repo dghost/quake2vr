@@ -745,6 +745,8 @@ typedef struct
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;
+	qboolean	arb_texture_float;
+	qboolean	arb_texture_rg;
 	qboolean	ext_direct_state_access;
 	// anisotropic filtering
 	qboolean	anisotropic;

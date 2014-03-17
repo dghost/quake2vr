@@ -57,11 +57,11 @@ static hmd_interface_t hmd_none = {
 	NULL,
 };
 
-static const char *hmd_names[] = 
+const char *hmd_names[] = 
 {
 	"none",
-	"SteamVR",
 	"Oculus Rift",
+	"SteamVR",
 	0
 };
 
@@ -400,7 +400,6 @@ void VR_Disable()
 	hmd = NULL;
 	Cvar_ForceSet("vr_enabled","0");
 	Cvar_ForceSet("vr_hmdstring","VR Disabled");
-
 }
 
 void VR_Teardown()

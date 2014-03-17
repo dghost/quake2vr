@@ -108,7 +108,7 @@ void SVR_BuildDistortionTextures()
 	int width = origTargetRect.width; // width of the distortion map
 	int height= origTargetRect.height; // height of the distortion map
 	int i;
-	int bitsPerPixel = (chromatic ? 4 : 2);
+	int bitsPerPixel = (!chromatic && glConfig.arb_texture_rg? 2 : 4);
 	float scale = (1.0 / pow(2,vr_svr_distortion->value));
 	
 	width = (int) ((float) width * scale);
@@ -161,21 +161,23 @@ void SVR_BuildDistortionTextures()
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	if (chromatic)
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGBA,GL_FLOAT,rnDistortionMapData[0]);
+	
+	if (bitsPerPixel == 2)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, rnDistortionMapData[0]);
 	else
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RG16F,width,height,0,GL_RG,GL_FLOAT,rnDistortionMapData[0]);
-
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, rnDistortionMapData[0]);
+	
 	GL_MBind(0,rightDistortion);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	if (chromatic)
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,width,height,0,GL_RGBA,GL_FLOAT,rnDistortionMapData[1]);
+	
+	if (bitsPerPixel == 2)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, rnDistortionMapData[1]);
 	else
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RG16F,width,height,0,GL_RG,GL_FLOAT,rnDistortionMapData[1]);
-
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, rnDistortionMapData[1]);
+	
 	GL_MBind(0,0);
 
 	for (i = 0; i < 2; i++)
@@ -365,6 +367,10 @@ void SVR_CalculateRenderParams()
 Sint32 SVR_Enable()
 {
 	char string[128];
+
+	if (!glConfig.arb_texture_float)
+		return 0;
+
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)
