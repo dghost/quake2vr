@@ -406,8 +406,8 @@ Sint32 SVR_Enable()
 	SVR_InitShader(&svr_shaders[1],&svr_shader_chrm);
 
 	SVR_CalculateRenderParams();
-	Com_Printf("VR_SVR: detectined IPD of: %fmm\n",svrState.ipd * 1000.0);
-	SVR_FrameStart(true);
+//	Com_Printf("VR_SVR: detectined IPD of: %fmm\n",svrState.ipd * 1000.0);
+//	SVR_FrameStart(true);
 	return true;
 }
 
