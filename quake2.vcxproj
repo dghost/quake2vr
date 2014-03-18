@@ -224,6 +224,7 @@
     <ClCompile Include="ui\ui_options_vr.c" />
     <ClCompile Include="ui\ui_options_vr_advanced.c" />
     <ClCompile Include="ui\ui_options_vr_ovr.c" />
+    <ClCompile Include="ui\ui_options_vr_svr.c" />
     <ClCompile Include="vr\vr_main.c" />
     <ClCompile Include="vr\vr_libovr.cpp" />
     <ClCompile Include="vr\vr_ovr.c" />

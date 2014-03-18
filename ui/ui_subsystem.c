@@ -551,6 +551,7 @@ void UI_Init (void)
 		Cmd_AddCommand ("menu_vr",M_Menu_Options_VR_f);
 			Cmd_AddCommand ("menu_vr_advanced",M_Menu_Options_VR_Advanced_f);
 			Cmd_AddCommand ("menu_vr_ovr",M_Menu_Options_VR_OVR_f);
+			Cmd_AddCommand ("menu_vr_svr",M_Menu_Options_VR_SVR_f);
 	Cmd_AddCommand ("menu_quit", M_Menu_Quit_f);
 }
 

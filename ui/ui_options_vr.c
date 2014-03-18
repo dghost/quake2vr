@@ -51,6 +51,8 @@ static menulist_s		s_options_vr_autofov_box;
 static menuaction_s		s_options_vr_enable_action;
 static menuaction_s		s_options_vr_advanced_action;
 static menuaction_s		s_options_vr_ovr_action;
+static menuaction_s		s_options_vr_svr_action;
+
 static menuaction_s		s_options_vr_defaults_action;
 static menuaction_s		s_options_vr_back_action;
 
@@ -172,6 +174,12 @@ static void OVRFunc ( void *unused )
 	M_Menu_Options_VR_OVR_f();
 }
 
+static void SVRFunc ( void *unused )
+{
+	VRConfigAccept();
+	M_Menu_Options_VR_SVR_f();
+}
+
 
 void BackFunc ( void *unused )
 {
@@ -214,6 +222,13 @@ void Options_VR_MenuInit ( void )
 	{
 		"custom",
 		"auto",
+		0
+	};
+
+	static const char *fov_names[] =
+	{
+		"Quake II",
+		"HMD",
 		0
 	};
 
@@ -295,9 +310,17 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_crosshair_size_slider.maxvalue			= 20;
 	s_options_vr_crosshair_size_slider.generic.statusbar	= "changes size of crosshair";
 
+	s_options_vr_autofov_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_vr_autofov_box.generic.x = MENU_FONT_SIZE;
+	s_options_vr_autofov_box.generic.y = y += 2 * MENU_LINE_SIZE;
+	s_options_vr_autofov_box.generic.name = "field of view";
+	s_options_vr_autofov_box.generic.callback = AutoFOVFunc;
+	s_options_vr_autofov_box.itemnames = fov_names;
+	s_options_vr_autofov_box.generic.statusbar = "choose whether to use auto or custom field of view";
+
 	s_options_vr_autoipd_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_autoipd_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_autoipd_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_autoipd_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_autoipd_box.generic.name			= "interpupillary distance";
 	s_options_vr_autoipd_box.generic.callback		= AutoIPDFunc;
 	s_options_vr_autoipd_box.itemnames			= auto_names;
@@ -315,13 +338,6 @@ void Options_VR_MenuInit ( void )
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 
-	s_options_vr_autofov_box.generic.type = MTYPE_SPINCONTROL;
-	s_options_vr_autofov_box.generic.x = MENU_FONT_SIZE;
-	s_options_vr_autofov_box.generic.y = y += 2 * MENU_LINE_SIZE;
-	s_options_vr_autofov_box.generic.name = "field of view";
-	s_options_vr_autofov_box.generic.callback = AutoFOVFunc;
-	s_options_vr_autofov_box.itemnames = auto_names;
-	s_options_vr_autofov_box.generic.statusbar = "choose whether to use auto or custom field of view";
 
 	s_options_vr_advanced_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_advanced_action.generic.x			= MENU_FONT_SIZE;
@@ -336,6 +352,13 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_ovr_action.generic.name		= "oculus rift options";
 	s_options_vr_ovr_action.generic.callback	= OVRFunc;
 	s_options_vr_ovr_action.generic.statusbar	= "oculus rift configuration";
+
+	s_options_vr_svr_action.generic.type		= MTYPE_ACTION;
+	s_options_vr_svr_action.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_svr_action.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_svr_action.generic.name		= "steam vr options";
+	s_options_vr_svr_action.generic.callback	= SVRFunc;
+	s_options_vr_svr_action.generic.statusbar	= "steam vr configuration";
 
 
 	s_options_vr_enable_action.generic.type		= MTYPE_ACTION;
@@ -367,11 +390,12 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_bright_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_size_slider );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autofov_box);
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autofov_box);
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ovr_action );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_svr_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_enable_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_defaults_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_back_action );

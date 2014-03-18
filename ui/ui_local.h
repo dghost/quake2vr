@@ -258,6 +258,7 @@ void M_Menu_Main_f (void);
 		void M_Menu_Options_VR_f (void);
 			void M_Menu_Options_VR_Advanced_f (void);
 			void M_Menu_Options_VR_OVR_f (void);
+			void M_Menu_Options_VR_SVR_f (void);
 	void M_Menu_Quit_f (void);
 
 	void M_Menu_Credits( void );

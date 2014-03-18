@@ -381,6 +381,9 @@
     <ClCompile Include="sdl2\in_sdlcont.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_options_vr_svr.c">
+      <Filter>Source Files\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
