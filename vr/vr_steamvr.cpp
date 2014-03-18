@@ -62,7 +62,7 @@ Sint32 SteamVR_GetSettings(svr_settings_t *settings)
 		centerRight /= 2.0;
 		f = SDL_atan(bottom) * 2.0f;
 		settings->aspect = centerRight / bottom;
-		settings->viewFovY = f *180.0f / M_PI;
+		settings->viewFovY = (float) (f *180.0f / M_PI);
 		settings->viewFovX = settings->viewFovY / settings->aspect;
 		settings->projOffset = right - centerRight;
 		hmd->GetDriverId(settings->deviceName,128);
@@ -75,13 +75,12 @@ Sint32 SteamVR_GetDistortionTextures(eye_t eye, Uint32 width, Uint32 height, Uin
 {
 	if (!hmd)
 		return 0;
-	int x, y;	
 	SDL_memset(normal,0,sizeof(float) * width * height * normalBits);
 	SDL_memset(chroma,0,sizeof(float) * width * height * 4);
 
-	for( y = 0; y < height; y++ )
+	for(Uint32 y = 0; y < height; y++ )
 	{
-		for( x = 0; x < width; x++ )
+		for(Uint32 x = 0; x < width; x++ )
 		{
 			int offset = normalBits * ( x + y * width );
 			int chromaOffset = 4 * ( x + y * width );
@@ -147,25 +146,25 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 		if (pM < -1.0f + 0.0000001f)
 		{ // South pole singularity
 			a = 0.0f;
-			b = -S*D* M_PI * 0.5;
-			c = S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] );
+			b = (float) (-S*D* M_PI * 0.5);
+			c = (float) (S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] ));
 		}
 		else if (pM > 1.0f - 0.0000001f)
 		{ // North pole singularity
 			a = 0.0f;
-			b = S*D* M_PI * 0.5;
-			c = S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] );
+			b = (float) (S*D* M_PI * 0.5);
+			c = (float) (S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] ));
 		}
 		else
 		{ // Normat.mal case (nonsingular)
-			a = S*D*SDL_atan2( -psign*mat.m[0][2], mat.m[2][2] );
-			b = S*D*SDL_asin(pM);
-			c = S*D*SDL_atan2( -psign*mat.m[1][0], mat.m[1][1] );
+			a = (float) (S*D*SDL_atan2( -psign*mat.m[0][2], mat.m[2][2] ));
+			b = (float) (S*D*SDL_asin(pM));
+			c = (float) (S*D*SDL_atan2( -psign*mat.m[1][0], mat.m[1][1] ));
 		}
 
-		orientation[0] = (float) (-b * 180 / M_PI);
-		orientation[1] = (float) a * 180 / M_PI;
-		orientation[2] = (float) (-c * 180 / M_PI);
+		orientation[0] = (float) (-b * 180.0f / M_PI);
+		orientation[1] = (float) (a * 180.0f / M_PI);
+		orientation[2] = (float) (-c * 180.0f / M_PI);
 	}
 }
 

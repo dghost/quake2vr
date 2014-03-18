@@ -25,11 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __QGL_H__
 
 #ifdef _WIN32
-#  include <windows.h>
+#include <windows.h>
 #endif
 
 #define GLEW_STATIC
-
+#define GLEW_NO_GLU
 
 #include "include/GL/glew.h"
 //#include <GL/gl.h>
