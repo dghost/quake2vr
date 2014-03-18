@@ -37,6 +37,7 @@ INTERFACE MENU
 
 static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
+static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_drift_box;
 static menulist_s		s_options_vr_ovr_filtermode_box;
 static menulist_s		s_options_vr_ovr_distortion_box;
@@ -87,8 +88,14 @@ static void DebugFunc( void *unused)
 	Cvar_SetInteger("vr_ovr_debug",s_options_vr_ovr_debug_box.curvalue);
 }
 
+static void EnableFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_enable", s_options_vr_ovr_enable_box.curvalue);
+
+}
 static void VROVRSetMenuItemValues( void )
 {
+	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
 	s_options_vr_ovr_filtermode_box.curvalue = ( Cvar_VariableInteger("vr_ovr_filtermode") );
 	s_options_vr_ovr_distortion_box.curvalue = ( 2 - ClampCvar(-1, 2, Cvar_VariableInteger("vr_ovr_distortion")) );
@@ -106,6 +113,7 @@ static void VROVRSetMenuItemValues( void )
 
 static void VROVRResetDefaultsFunc ( void *unused )
 {
+	Cvar_SetToDefault ("vr_ovr_enable");
 	Cvar_SetToDefault ("vr_ovr_driftcorrection");
 	Cvar_SetToDefault ("vr_ovr_filtermode");
 	Cvar_SetToDefault ("vr_ovr_distortion");
@@ -166,9 +174,9 @@ void Options_VR_OVR_MenuInit ( void )
 
 	static const char *distortion_names[] =
 	{
-		"low",
-		"medium",
-		"high",
+		"low quality",
+		"medium quality",
+		"high quality",
 		"none",
 		0
 	};
@@ -203,6 +211,13 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
+	static const char *enable_names[] =
+	{
+		"disable",
+		"enable",
+		0
+	};
+
 	Sint32 y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_ovr_menu.x = SCREEN_WIDTH*0.5;
@@ -214,10 +229,19 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_header.generic.x		= MENU_FONT_SIZE/2 * strlen(s_options_vr_ovr_header.generic.name);
 	s_options_vr_ovr_header.generic.y		= 0;
 
+	
+	s_options_vr_ovr_enable_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_enable_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_enable_box.generic.y			= y;
+	s_options_vr_ovr_enable_box.generic.name		= "oculus rift support";
+	s_options_vr_ovr_enable_box.generic.callback	= EnableFunc;
+	s_options_vr_ovr_enable_box.itemnames			= enable_names;
+	s_options_vr_ovr_enable_box.generic.statusbar	= "enable or disable native oculus rift support";
+
 
 	s_options_vr_ovr_drift_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_drift_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_drift_box.generic.y			= y;
+	s_options_vr_ovr_drift_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_drift_box.generic.name			= "drift correction";
 	s_options_vr_ovr_drift_box.generic.callback		= DriftFunc;
 	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
@@ -309,6 +333,8 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_back_action.generic.callback	= BackFunc;
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_header );
+
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_enable_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_filtermode_box );
