@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include "../client/client.h"
 #include <process.h> // Knightmare added
+#include <SDL_syswm.h>
 
-extern	HWND	cl_hwnd;
 
 static qboolean cdValid = false;
 static qboolean	playing = false;
@@ -41,6 +41,7 @@ cvar_t *cd_nocd;
 cvar_t *cd_loopcount;
 cvar_t *cd_looptrack;
 
+HWND	cl_hwnd;
 UINT	wDeviceID;
 Sint32		loopcounter;
 
@@ -461,7 +462,7 @@ void CDAudio_Update (void)
 	}
 }
 
-
+extern SDL_Window *mainWindow;
 Sint32 CDAudio_Init (void)
 {
 	DWORD	dwReturn;
@@ -469,6 +470,11 @@ Sint32 CDAudio_Init (void)
     MCI_SET_PARMS	mciSetParms;
 	Sint32				n;
 
+	SDL_SysWMinfo info;
+	if (SDL_GetWindowWMInfo(mainWindow,&info))
+	{
+		cl_hwnd = info.info.win.window;
+	}
 	cd_nocd = Cvar_Get ("cd_nocd", "0", CVAR_ARCHIVE );
 	cd_loopcount = Cvar_Get ("cd_loopcount", "6", CVAR_ARCHIVE);	// Knightmare increased, was 4, added archive flag
 	cd_looptrack = Cvar_Get ("cd_looptrack", "11", 0);

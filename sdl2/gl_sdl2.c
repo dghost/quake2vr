@@ -36,10 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gl_sdl2.h"
 #include "sdl2quake.h"
 #include "../vr/vr.h"
-#include "SDL_syswm.h"
 
 #ifdef _WIN32
 #include "../win32/resource.h"
+#include <SDL_syswm.h>
 #endif
 
 static qboolean GLimp_SwitchFullscreen( Sint32 width, Sint32 height );
@@ -59,7 +59,7 @@ static qboolean VerifyDriver( void )
 	strcpy( buffer, glGetString( GL_RENDERER ) );
 	strlwr( buffer );
 	if ( strcmp( buffer, "gdi generic" ) == 0 )
-			return false;
+		return false;
 	return true;
 }
 
@@ -115,7 +115,7 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 		Sint32 i = 0;
 		Sint32 refresh = vid_refresh->value;
 		SDL_DisplayMode idealMode;
-		
+
 
 
 		for (i = 0; i < numDisplays; i++)
@@ -144,7 +144,7 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 		}
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
-	
+
 	if (modType("xatrix")) { // q2mp1
 		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON2));
 		title = WINDOW_CLASS_NAME2;
@@ -164,14 +164,14 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 	} else {
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	}
-	
+
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
 
 	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
@@ -188,19 +188,11 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 			return rserr_invalid_fullscreen;
 		}
 	}
-#ifdef _WIN32
-	{
-		SDL_SysWMinfo info;
-		if (SDL_GetWindowWMInfo(mainWindow,&info))
-		{
-			cl_hwnd = info.info.win.window;
-		}
-	}
-#endif
 
 	SDL_RaiseWindow(mainWindow);
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 	mainWindowID = SDL_GetWindowID(mainWindow);
+
 	if (!GLimp_InitGL())
 	{
 		VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
@@ -253,7 +245,7 @@ qboolean GLimp_Init( )
 
 qboolean GLimp_InitGL (void)
 {
- 
+
 
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
@@ -367,8 +359,9 @@ void GLimp_AppActivate( qboolean active )
 		{
 			SDL_RaiseWindow(mainWindow);
 			SDL_ShowWindow(mainWindow);
+
 		}
-		
+
 	}	else
 	{
 		if ( vid_fullscreen->value )

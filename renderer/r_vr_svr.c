@@ -177,8 +177,8 @@ void SVR_FrameStart(Sint32 changeBackBuffers)
 	{
 		if (vr_svr_distortion->value > 3)
 			Cvar_SetInteger("vr_svr_distortion", 3);
-		if (vr_svr_distortion->value <1)
-			Cvar_SetInteger("vr_svr_distortion", 1);
+		if (vr_svr_distortion->value <0)
+			Cvar_SetInteger("vr_svr_distortion", 0);
 		changeBackBuffers = 1;
 		vr_svr_distortion->modified = false;
 	}
@@ -287,6 +287,7 @@ void SVR_Present()
 		glUseProgram(0);
 		GL_MBind(1,0);
 		GL_MBind(0,0);
+		GL_EnableMultitexture(false);
 
 	} else {
 		GL_MBind(0,left.texture);
@@ -305,7 +306,6 @@ void SVR_Present()
 		glTexCoord2f(1, 1); glVertex2f(rightRenderRect.x + rightRenderRect.width, rightRenderRect.y);
 		glEnd();
 		GL_MBind(0,0);
-		GL_EnableMultitexture(false);
 	}
 }
 void SVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)

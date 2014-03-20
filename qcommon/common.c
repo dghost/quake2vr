@@ -127,10 +127,11 @@ void Com_Printf (char *fmt, ...)
 
 	Con_Print (msg);
 		
+#ifdef _WIN32
 	// also echo to debugging console
 	if (msg[strlen(msg)-1] != '\r') // skip overwrittten outputs
 		Sys_ConsoleOutput (msg);
-
+#endif
 	// logfile
 	if (logfile_active && logfile_active->value)
 	{

@@ -396,8 +396,12 @@ between a deactivate and an activate.
 */
 void IN_Activate (qboolean active)
 {
+
+	SDL_SetWindowGrab(mainWindow,active);
 	in_appactive = active;
 	mouseactive = !active;		// force a new window check or turn off
+	if (!active)
+		Key_ClearStates();
 }
 
 

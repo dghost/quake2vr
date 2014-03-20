@@ -907,7 +907,7 @@ void		GLimp_BeginFrame( );
 void		GLimp_EndFrame( void );
 Sint32 		GLimp_Init( );
 void		GLimp_Shutdown( void );
-Sint32     	GLimp_SetMode( Sint32 *pwidth, Sint32 *pheight );
+rserr_t    	GLimp_SetMode( Sint32 *pwidth, Sint32 *pheight );
 void		GLimp_AppActivate( qboolean active );
 
 

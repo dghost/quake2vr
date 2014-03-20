@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef _WIN32
 #include <windows.h>
-extern HWND			cl_hwnd;
 #endif
 
 extern SDL_Window *mainWindow;

@@ -43,14 +43,11 @@ cvar_t		*vid_fullscreen;
 viddef_t	viddef;				// global video state; used by other modules
 qboolean	kmgl_active = 0;
 
-#ifdef _WIN32
-HWND        cl_hwnd;            // Main window handle for life of program
-#endif
-
 static qboolean s_alttab_disabled;
 
 extern	unsigned	sys_msg_time;
 
+#ifdef _WIN32
 /*
 ** WIN32 helper functions
 */
@@ -78,6 +75,7 @@ static void WIN_EnableAltTab( void )
 		s_alttab_disabled = false;
 	}
 }
+#endif
 
 /*
 ==========================================================================
@@ -93,9 +91,9 @@ void VID_Printf (Sint32 print_level, char *fmt, ...)
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 	static qboolean	inupdate;
-	
+
 	va_start (argptr, fmt);
-//	vsprintf (msg, fmt, argptr);
+	//	vsprintf (msg, fmt, argptr);
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
@@ -119,9 +117,9 @@ void VID_Error (Sint32 err_level, char *fmt, ...)
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 	static qboolean	inupdate;
-	
+
 	va_start (argptr, fmt);
-//	vsprintf (msg, fmt,argptr);
+	//	vsprintf (msg, fmt,argptr);
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
@@ -218,20 +216,24 @@ void AppActivate(BOOL fActive, BOOL minimize)
 		CDAudio_Activate (false);
 		S_Activate (false);
 
+#ifdef _WIN32
 		if ( win_noalttab->value )
 		{
 			WIN_EnableAltTab();
 		}
+#endif
 	}
 	else
 	{
 		IN_Activate (true);
 		CDAudio_Activate (true);
 		S_Activate (true);
+#ifdef _WIN32
 		if ( win_noalttab->value )
 		{
 			WIN_DisableAltTab();
 		}
+#endif
 	}
 }
 
@@ -266,18 +268,27 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_WINDOWEVENT:
 		if (event->window.windowID != mainWindowID)
 			break;
+
 		switch (event->window.event)
 		{
+		case SDL_WINDOWEVENT_RESTORED:
+		case SDL_WINDOWEVENT_SHOWN:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_WINDOWEVENT_ENTER:
 			AppActivate(true,false);
+
 			if ( kmgl_active )
 				GLimp_AppActivate ( true );
 			break;
+
+		case SDL_WINDOWEVENT_MINIMIZED:
+		case SDL_WINDOWEVENT_HIDDEN:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
+		case SDL_WINDOWEVENT_LEAVE:
 			AppActivate(false,false);
 			if ( kmgl_active )
 				GLimp_AppActivate ( false );
-		break;
+			break;
 		case SDL_WINDOWEVENT_MOVED:
 			if (!vid_fullscreen->value)
 			{
@@ -348,12 +359,12 @@ void SDL_ProcEvent (SDL_Event *event)
 	/*
 
 	case MM_MCINOTIFY:
-		{
-			LONG CDAudio_MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-			lRet = CDAudio_MessageHandler (hWnd, uMsg, wParam, lParam);
-		}
-		break;
-		*/
+	{
+	LONG CDAudio_MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	lRet = CDAudio_MessageHandler (hWnd, uMsg, wParam, lParam);
+	}
+	break;
+	*/
 }
 
 
@@ -385,9 +396,9 @@ void VID_Front_f( void )
 /*
 typedef struct vidmode_s
 {
-	const char *description;
-	Sint32         width, height;
-	Sint32         mode;
+const char *description;
+Sint32         width, height;
+Sint32         mode;
 } vidmode_t;
 
 // Knightmare- added 1280x1024, 1400x1050, 856x480, 1024x480 modes
@@ -507,7 +518,7 @@ void UpdateVideoRef (void)
 		reclip_decals = false;
 	}
 
- 	vid_reloading = false;
+	vid_reloading = false;
 }
 
 
