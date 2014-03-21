@@ -68,9 +68,39 @@ qboolean modType (char *name);
 /*
 ** VID_CreateWindow
 */
-#define	WINDOW_CLASS_NAME	"Quake II VR" // changed
-#define	WINDOW_CLASS_NAME2	"Quake II VR - The Reckoning" // changed
-#define	WINDOW_CLASS_NAME3	"Quake II VR - Ground Zero" // changed
+#define	WINDOW_TITLE	"Quake II VR" // changed
+#define	WINDOW_TITLE_XATRIX	"Quake II VR - The Reckoning" // changed
+#define	WINDOW_TITLE_ROGUE	"Quake II VR - Ground Zero" // changed
+#define WINDOW_ICON			"icons/q2.bmp"
+#define WINDOW_ICON_XATRIX  "icons/q2mp1.bmp"
+#define WINDOW_ICON_ROGUE	"icons/q2mp2.bmp"
+
+SDL_Surface* GLimp_LoadIcon(const char *name)
+{
+	Sint32 size;
+	fileHandle_t handle;
+	SDL_Surface *result = NULL;
+	size = FS_FOpenFile(name,&handle,FS_READ);
+	if (size > 0)
+	{
+		SDL_RWops *rw;
+		void *buffer = NULL;
+		
+		buffer = malloc(size);
+		if (buffer)
+		{
+			FS_Read(buffer,size,handle);
+			rw = SDL_RWFromMem(buffer,size);
+			if (rw)
+			{
+				result = SDL_LoadBMP_RW(rw,1);
+			}
+			free(buffer);
+		}
+		FS_FCloseFile(handle);
+	}
+	return result;
+}
 
 /*
 ** GLimp_SetMode
@@ -78,8 +108,10 @@ qboolean modType (char *name);
 rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 {
 	Sint32 width, height;
-	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED | SDL_WINDOW_INPUT_FOCUS;
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_BORDERLESS;
 	SDL_DisplayMode targetMode;
+	SDL_Surface *icon = NULL;
+
 	const char *win_fs[] = { "W", "FS" };
 	char *title = NULL;
 
@@ -146,15 +178,16 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 	}
 
 	if (modType("xatrix")) { // q2mp1
-		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON2));
-		title = WINDOW_CLASS_NAME2;
+		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);		
+		title = WINDOW_TITLE_XATRIX;
 	}
 	else if (modType("rogue"))  { // q2mp2
-		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON3));
-		title = WINDOW_CLASS_NAME3;
+		icon = GLimp_LoadIcon(WINDOW_ICON_ROGUE);
+		title = WINDOW_TITLE_ROGUE;
 	}
 	else {
-		title = WINDOW_CLASS_NAME;
+		icon = GLimp_LoadIcon(WINDOW_ICON);
+		title = WINDOW_TITLE;
 		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	}
 
@@ -178,6 +211,12 @@ rserr_t GLimp_SetMode ( Sint32 *pwidth, Sint32 *pheight )
 
 	if (!mainWindow)
 		return rserr_invalid_mode;
+
+	if (icon)
+	{
+		SDL_SetWindowIcon(mainWindow,icon);
+		SDL_FreeSurface(icon);
+	} else
 
 	if (fullscreen)
 	{
