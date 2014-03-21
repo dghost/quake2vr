@@ -130,9 +130,7 @@ cvar_t	*fs_gamedirvar;
 cvar_t	*fs_debug;
 
 
-void CDAudio_Stop (void);
 void Com_FileExtension (const char *path, char *dst, Sint32 dstSize);
-
 
 /*
 =================
@@ -737,7 +735,6 @@ Sint32 FS_Read (void *buffer, Sint32 size, fileHandle_t f)
 	fsHandle_t	*handle;
 	Sint32			remaining, r;
 	byte		*buf;
-	qboolean	tried = false;
 
 	handle = FS_GetFileByHandle(f);
 
@@ -756,17 +753,9 @@ Sint32 FS_Read (void *buffer, Sint32 size, fileHandle_t f)
 
 		if (r == 0)
 		{
-			if (!tried)
-			{	// We might have been trying to read from a CD
-				CDAudio_Stop();
-				tried = true;
-			}
-			else
-			{	// Already tried once
-				//Com_Error(ERR_FATAL, va("FS_Read: 0 bytes read from %s", handle->name));
-				Com_DPrintf(S_COLOR_YELLOW"FS_Read: 0 bytes read from %s\n", handle->name);
-				return size - remaining;
-			}
+			//Com_Error(ERR_FATAL, va("FS_Read: 0 bytes read from %s", handle->name));
+			Com_DPrintf(S_COLOR_YELLOW"FS_Read: 0 bytes read from %s\n", handle->name);
+			return size - remaining;
 		}
 		else if (r == -1)
 			Com_Error(ERR_FATAL, "FS_Read: -1 bytes read from %s", handle->name);
@@ -792,7 +781,6 @@ Sint32 FS_FRead (void *buffer, Sint32 size, Sint32 count, fileHandle_t f)
 	fsHandle_t	*handle;
 	Sint32			loops, remaining, r;
 	byte		*buf;
-	qboolean	tried = false;
 
 	handle = FS_GetFileByHandle(f);
 
@@ -815,15 +803,8 @@ Sint32 FS_FRead (void *buffer, Sint32 size, Sint32 count, fileHandle_t f)
 
 			if (r == 0)
 			{
-				if (!tried)
-				{	// We might have been trying to read from a CD
-					CDAudio_Stop();
-					tried = true;
-				}
-				else {
-					//Com_Printf(S_COLOR_RED"FS_FRead: 0 bytes read from %s\n", handle->name);
-					return size - remaining;
-				}
+				//Com_Printf(S_COLOR_RED"FS_FRead: 0 bytes read from %s\n", handle->name);
+				return size - remaining;
 			}
 			else if (r == -1)
 				Com_Error(ERR_FATAL, "FS_FRead: -1 bytes read from %s", handle->name);

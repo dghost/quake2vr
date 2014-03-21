@@ -1787,8 +1787,6 @@ void CL_Frame (Sint32 msec)
 	// update audio
 	S_Update (cl.refdef.vieworg, cl.v_forward, cl.v_right, cl.v_up);
 	
-	CDAudio_Update();
-
 	// advance local effects for next frame
 	CL_RunDLights ();
 	CL_RunLightStyles ();
@@ -1855,7 +1853,6 @@ void CL_Init (void)
 	SCR_Init ();
 	cls.disable_screen = true;	// don't draw yet
 
-	CDAudio_Init ();
 	CL_InitLocal ();
 	IN_Init ();
 
@@ -1887,8 +1884,6 @@ void CL_Shutdown (void)
 	isdown = true;
 
 	CL_WriteConfiguration ("vrconfig"); 
-
-	CDAudio_Shutdown ();
 
 	// added delay
 	sec = base = Sys_Milliseconds();

@@ -39,9 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="win32\cd_win.c">
-      <Filter>Source Files\sound</Filter>
-    </ClCompile>
     <ClCompile Include="client\snd_dma.c">
       <Filter>Source Files\sound</Filter>
     </ClCompile>

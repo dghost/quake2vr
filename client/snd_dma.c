@@ -386,7 +386,7 @@ void S_EndRegistration (void)
 	// Knightmare added
 	// S_EndRegistration is only called while the refresh is prepped
 	// during a sound resart, so we can use this to restart the music track
-	if (cls.state == ca_active && cl.refresh_prepped && !CDAudio_Active())
+	if (cls.state == ca_active && cl.refresh_prepped)
 		CL_PlayBackgroundTrack ();
 }
 

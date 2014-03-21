@@ -596,9 +596,6 @@ void SCR_PlayCinematic (char *arg)
 	char	name[MAX_OSPATH], *dot;
 	Sint32		old_khz;
 
-	// make sure CD isn't playing music
-	CDAudio_Stop();
-
 	cin.isStaticPic = false; // Knightmare added
 
 	cl.cinematicframe = 0;

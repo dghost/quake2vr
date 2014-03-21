@@ -1545,7 +1545,6 @@ cinHandle_t CIN_PlayCinematic (const char *name, Sint32 x, Sint32 y, Sint32 w, S
 
 	if (cin->flags & CIN_SYSTEM)
 	{
-		CDAudio_Stop();					// Make sure CD audio isn't playing
 		S_StopAllSounds();				// Make sure sound isn't playing
 		//UI_SetActiveMenu(UI_CLOSEMENU);	
 		UI_ForceMenuOff();				// Close the menu

@@ -213,7 +213,6 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	if (!ActiveApp)
 	{
 		IN_Activate (false);
-		CDAudio_Activate (false);
 		S_Activate (false);
 
 #ifdef _WIN32
@@ -226,7 +225,6 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	else
 	{
 		IN_Activate (true);
-		CDAudio_Activate (true);
 		S_Activate (true);
 #ifdef _WIN32
 		if ( win_noalttab->value )
@@ -355,16 +353,6 @@ void SDL_ProcEvent (SDL_Event *event)
 		break;
 	}
 
-
-	/*
-
-	case MM_MCINOTIFY:
-	{
-	LONG CDAudio_MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	lRet = CDAudio_MessageHandler (hWnd, uMsg, wParam, lParam);
-	}
-	break;
-	*/
 }
 
 

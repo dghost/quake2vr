@@ -230,7 +230,6 @@
     <ClCompile Include="vr\vr_ovr.c" />
     <ClCompile Include="vr\vr_steamvr.cpp" />
     <ClCompile Include="vr\vr_svr.c" />
-    <ClCompile Include="win32\cd_win.c" />
     <ClCompile Include="client\snd_dma.c" />
     <ClCompile Include="client\snd_mem.c" />
     <ClCompile Include="client\snd_mix.c" />
