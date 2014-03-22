@@ -26,32 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client/client.h"
 #include "ui_local.h"
-#include "SDL.h"
 
-
-#ifdef _WIN32
-	static const char *drivers[] =
-	{
-		"auto",
-		"xaudio2",
-		"directsound",
-		0
-	};
-#elif __linux__
-	static const char *drivers[] =
-	{
-		"auto",
-		"alsa",
-		"pulse",
-		0
-	};
-#else
-	static const char *drivers[] =
-	{
-		"auto",
-		0
-	}
-#endif
 /*
 =======================================================================
 
@@ -66,7 +41,9 @@ static menuslider_s		s_options_sound_sfxvolume_slider;
 static menuslider_s		s_options_sound_musicvolume_slider;
 static menulist_s		s_options_sound_oggmusic_box;
 static menulist_s		s_options_sound_quality_list;
-static menulist_s		s_options_sound_driver_list;
+#ifdef USE_OPENAL
+static menulist_s		s_options_sound_openal_list;
+#endif
 static menuaction_s		s_options_sound_defaults_action;
 static menuaction_s		s_options_sound_back_action;
 
@@ -108,7 +85,9 @@ static void UpdateSoundQualityFunc ( void *unused )
 	}
 	//** DMP end sound menu changes
 
-	Cvar_Set("s_sdldriver", (char *) drivers[ s_options_sound_driver_list.curvalue]);
+#ifdef USE_OPENAL
+	Cvar_SetInteger("s_openal", s_options_sound_openal_list.curvalue);
+#endif
 
 	Menu_DrawTextBox (168, 192, 36, 3);
 	SCR_DrawString (188, 192+MENU_FONT_SIZE, ALIGN_CENTER, S_COLOR_ALT"Restarting the sound system. This", 255);
@@ -124,7 +103,6 @@ static void UpdateSoundQualityFunc ( void *unused )
 static void SoundSetMenuItemValues( void )
 {
 	Sint32 i = 0;
-	qboolean found = false;
 	s_options_sound_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
 	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "ogg_volume" ) * 10;
 	s_options_sound_oggmusic_box.curvalue			= (Cvar_VariableValue("ogg_enable") > 0);
@@ -139,22 +117,10 @@ static void SoundSetMenuItemValues( void )
 
 	}
 	//** DMP end sound menu changes
+#ifdef USE_OPENAL
+	s_options_sound_openal_list.curvalue = ClampCvar(0,1,Cvar_VariableValue("s_openal"));
+#endif
 
-
-	for (i = 0; drivers[i] != NULL ; i++)
-	{
-		if (strcmp(drivers[i],Cvar_VariableString("s_sdldriver")) == 0)
-		{
-			s_options_sound_driver_list.curvalue = i;
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		Cvar_SetToDefault("s_sdldriver");
-		s_options_sound_driver_list.curvalue = 0;
-	}
 }
 
 static void SoundResetDefaultsFunc ( void *unused )
@@ -165,6 +131,12 @@ static void SoundResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("s_khz");
 	Cvar_SetToDefault ("s_loadas8bit");
 	Cvar_SetToDefault ("s_sdldriver");
+
+#ifdef USE_OPENAL
+	Cvar_SetToDefault ("s_openal");
+	Cvar_SetToDefault ("al_driver");
+	Cvar_SetToDefault ("al_device");
+#endif
 
 	Menu_DrawTextBox (168, 192, 36, 3);
 	SCR_DrawString (188, 192+MENU_FONT_SIZE, ALIGN_CENTER, S_COLOR_ALT"Restarting the sound system. This", 255);
@@ -187,7 +159,7 @@ void Options_Sound_MenuBack (void *unused)
 
 void Options_Sound_MenuInit ( void )
 {
-	static const char *cd_music_items[] =
+	static const char *enabled_items[] =
 	{
 		"disabled",
 		"enabled",
@@ -240,7 +212,7 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_oggmusic_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_sound_oggmusic_box.generic.name		= "ogg vorbis music";
 	s_options_sound_oggmusic_box.generic.callback	= UpdateOggMusicFunc;
-	s_options_sound_oggmusic_box.itemnames			= cd_music_items;
+	s_options_sound_oggmusic_box.itemnames			= enabled_items;
 	s_options_sound_oggmusic_box.curvalue 			= (Cvar_VariableValue("ogg_enable") > 0);
 	s_options_sound_oggmusic_box.generic.statusbar	= "enable ogg music subsystem";
 
@@ -252,15 +224,15 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_quality_list.itemnames			= quality_items;
 	s_options_sound_quality_list.curvalue			= !Cvar_VariableValue( "s_loadas8bit" );
 	s_options_sound_quality_list.generic.statusbar	= "changes quality of sound";
-
-	s_options_sound_driver_list.generic.type			= MTYPE_SPINCONTROL;
-	s_options_sound_driver_list.generic.x			= 0;
-	s_options_sound_driver_list.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_sound_driver_list.generic.name			= "sound driver";
-	s_options_sound_driver_list.generic.callback		= UpdateSoundQualityFunc;
-	s_options_sound_driver_list.itemnames			= drivers;
-	s_options_sound_driver_list.generic.statusbar	= "changes the audio driver used to output sound";
-
+#ifdef USE_OPENAL
+	s_options_sound_openal_list.generic.type			= MTYPE_SPINCONTROL;
+	s_options_sound_openal_list.generic.x			= 0;
+	s_options_sound_openal_list.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_sound_openal_list.generic.name			= "openal support";
+	s_options_sound_openal_list.generic.callback		= UpdateSoundQualityFunc;
+	s_options_sound_openal_list.itemnames			= enabled_items;
+	s_options_sound_openal_list.generic.statusbar	= "enables or disables support for openal audio";
+#endif
 	s_options_sound_defaults_action.generic.type		= MTYPE_ACTION;
 	s_options_sound_defaults_action.generic.x			= MENU_FONT_SIZE;
 	s_options_sound_defaults_action.generic.y			= 18*MENU_LINE_SIZE;
@@ -279,7 +251,10 @@ void Options_Sound_MenuInit ( void )
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_musicvolume_slider );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_oggmusic_box );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_quality_list );
-	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_driver_list );
+
+#ifdef USE_OPENAL
+	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_openal_list );
+#endif
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_defaults_action );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_back_action );
 

@@ -34,8 +34,8 @@
  #if defined (__APPLE__)
  #include <OpenAL/al.h>
  #else
- #include <AL/al.h>
- #include <AL/efx.h>
+ #include "AL/al.h"
+ #include "AL/efx.h"
  #endif
 
 /* Function pointers used to tie

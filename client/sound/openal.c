@@ -34,8 +34,8 @@
 
 #ifdef USE_OPENAL
 
-#include "../header/client.h"
-#include "../../backends/generic/header/qal.h"
+#include "../client.h"
+#include "header/qal.h"
 #include "header/local.h"
 #include "header/vorbis.h"
 
@@ -55,11 +55,8 @@ static ALuint s_srcnums[MAX_CHANNELS - 1];
 static ALuint streamSource;
 static int s_framecount;
 
-/* Apple crappy OpenAL implementation
-   has no support for filters. */
-#ifndef __APPLE__
+static qboolean filterSupport;
 static ALuint underwaterFilter;
-#endif
 
 /* ----------------------------------------------------------------- */
 
@@ -236,7 +233,7 @@ AL_PlayChannel(channel_t *ch)
 	/* Debug */
 	if (s_show->value > 1)
 	{
-		Com_Printf("%s: %s\n", __func__, ch->sfx->name);
+		Com_Printf("AL_PlayChannel: %s\n", ch->sfx->name);
 	}
 
 	/* Clamp volume */
@@ -281,7 +278,7 @@ AL_StopChannel(channel_t *ch)
 	/* Debug output */
 	if (s_show->value > 1)
 	{
-		Com_Printf("%s: %s\n", __func__, ch->sfx->name);
+		Com_Printf("AL_StopChannel: %s\n", ch->sfx->name);
 	}
 
 	/* stop it */
@@ -615,10 +612,9 @@ AL_Update(void)
 void
 AL_Underwater()
 {
-#if !defined (__APPLE__)
 	int i;
 
-	if (sound_started != SS_OAL)
+	if (!filterSupport || sound_started != SS_OAL)
 	{
 		return;
 	}
@@ -628,7 +624,7 @@ AL_Underwater()
 	{
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, underwaterFilter);
 	}
-#endif
+
 }
 
 /*
@@ -637,10 +633,10 @@ AL_Underwater()
 void
 AL_Overwater()
 {
-#if !defined (__APPLE__)
 	int i;
 
-	if (sound_started != SS_OAL)
+
+	if (!filterSupport || sound_started != SS_OAL)
 	{
 		return;
 	}
@@ -650,7 +646,6 @@ AL_Overwater()
 	{
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, 0);
 	}
-#endif
 }
 
 /* ----------------------------------------------------------------- */
@@ -676,13 +671,19 @@ AL_InitStreamSource()
 static void
 AL_InitUnderwaterFilter()
 {
-#if !defined (__APPLE__)
+	if (!qalGenFilters || !qalFilteri || !qalFilterf || !qalDeleteFilters)
+	{
+		Com_Printf("No OpenAL filter support!\n");
+		filterSupport = false;
+		return;
+	}
 	/* Generate a filter */
 	qalGenFilters(1, &underwaterFilter);
 
 	if (qalGetError() != AL_NO_ERROR)
 	{
 		Com_Printf("Couldn't generate an OpenAL filter!\n");
+		filterSupport = false;
 		return;
 	}
 
@@ -692,13 +693,16 @@ AL_InitUnderwaterFilter()
 	if (qalGetError() != AL_NO_ERROR)
 	{
 		Com_Printf("Low pass filter is not supported!\n");
+		filterSupport = false;
 		return;
 	}
 
 	/* The effect */
 	qalFilterf(underwaterFilter, AL_LOWPASS_GAIN, 1.5);
 	qalFilterf(underwaterFilter, AL_LOWPASS_GAINHF, 0.25);
-#endif
+
+	filterSupport = true;
+
 }
 
 /*
@@ -760,9 +764,7 @@ AL_Init(void)
 	s_numchannels = i;
 	AL_InitStreamSource();
 
-#ifndef __APPLE__
 	AL_InitUnderwaterFilter();
-#endif
 
 	Com_Printf("Number of OpenAL sources: %d\n\n", s_numchannels);
 	return true;
@@ -779,9 +781,9 @@ AL_Shutdown(void)
 	AL_StreamDie();
 
 	qalDeleteSources(1, &streamSource);
-#if !defined (__APPLE__)
-	qalDeleteFilters(1, &underwaterFilter);
-#endif
+	if (filterSupport)
+		qalDeleteFilters(1, &underwaterFilter);
+
 	if (s_numchannels)
 	{
 		/* delete source names */

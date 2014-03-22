@@ -32,18 +32,26 @@
 
 #ifdef USE_OPENAL
 
+#ifdef _WIN32
+#define DEFAULT_OPENAL_DRIVER "soft_oal.dll"
+#else
+#define DEFAULT_OPENAL_DRIVER "soft_oal.so"
+#endif
+
 #if defined (__APPLE__)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #else
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+#include "header/AL/al.h"
+#include "header/AL/alc.h"
+#include "header/AL/alext.h"
 #endif
 
-#include "../../common/header/common.h"
-#include "../../client/sound/header/local.h"
+#include "../../qcommon/qcommon.h"
+#include "header/local.h"
 #include "header/qal.h"
+
+#include <SDL.h>
 
 static ALCcontext *context;
 static ALCdevice *device;
@@ -324,15 +332,13 @@ QAL_Shutdown()
 	qalDopplerVelocity = NULL;
 	qalSpeedOfSound = NULL;
 	qalDistanceModel = NULL;
-#if !defined (__APPLE__)	
 	qalGenFilters = NULL;
 	qalFilteri = NULL;
 	qalFilterf = NULL;
 	qalDeleteFilters = NULL;
-#endif
 
 	/* Unload the shared lib */
-	Sys_FreeLibrary(handle);
+	SDL_UnloadObject(handle);
     handle = NULL;
 }
 
@@ -343,6 +349,8 @@ QAL_Shutdown()
 qboolean
 QAL_Init()
 {
+	char *libraries[] = {"soft_oal.dll","openal32.dll",0};
+	int i = 0;
 	/* DEFAULT_OPENAL_DRIVER is defined at compile time via the compiler */
 	al_driver = Cvar_Get("al_driver", DEFAULT_OPENAL_DRIVER, CVAR_ARCHIVE);
 	al_device = Cvar_Get("al_device", "", CVAR_ARCHIVE);
@@ -350,7 +358,14 @@ QAL_Init()
 	Com_Printf("LoadLibrary(%s)\n", al_driver->string);
 
 	/* Load the library */
-	Sys_LoadLibrary(al_driver->string, NULL, &handle);
+	handle = SDL_LoadObject(al_driver->string);
+	
+	// prevent the user from screwing themselves by setting an invalid library
+	for (i = 0; !handle && libraries[i] != NULL ; i++)
+	{
+		Com_Printf("LoadLibrary(%s)\n", libraries[i]);
+		handle = SDL_LoadObject(libraries[i]);
+	}
 
 	if (!handle)
 	{
@@ -359,113 +374,128 @@ QAL_Init()
 	}
 
 	/* Connect function pointers to management functions */
-	qalcCreateContext = Sys_GetProcAddress(handle, "alcCreateContext");
-	qalcMakeContextCurrent = Sys_GetProcAddress(handle, "alcMakeContextCurrent");
-	qalcProcessContext = Sys_GetProcAddress(handle, "alcProcessContext");
-	qalcSuspendContext = Sys_GetProcAddress(handle, "alcSuspendContext");
-	qalcDestroyContext = Sys_GetProcAddress(handle, "alcDestroyContext");
-	qalcGetCurrentContext = Sys_GetProcAddress(handle, "alcGetCurrentContext");
-	qalcGetContextsDevice = Sys_GetProcAddress(handle, "alcGetContextsDevice");
-	qalcOpenDevice = Sys_GetProcAddress(handle, "alcOpenDevice");
-	qalcCloseDevice = Sys_GetProcAddress(handle, "alcCloseDevice");
-	qalcGetError = Sys_GetProcAddress(handle, "alcGetError");
-	qalcIsExtensionPresent = Sys_GetProcAddress(handle, "alcIsExtensionPresent");
-	qalcGetProcAddress = Sys_GetProcAddress(handle, "alcGetProcAddress");
-	qalcGetEnumValue = Sys_GetProcAddress(handle, "alcGetEnumValue");
-	qalcGetString = Sys_GetProcAddress(handle, "alcGetString");
-	qalcGetIntegerv = Sys_GetProcAddress(handle, "alcGetIntegerv");
-	qalcCaptureOpenDevice = Sys_GetProcAddress(handle, "alcCaptureOpenDevice");
-	qalcCaptureCloseDevice = Sys_GetProcAddress(handle, "alcCaptureCloseDevice");
-	qalcCaptureStart = Sys_GetProcAddress(handle, "alcCaptureStart");
-	qalcCaptureStop = Sys_GetProcAddress(handle, "alcCaptureStop");
-	qalcCaptureSamples = Sys_GetProcAddress(handle, "alcCaptureSamples");
+	qalcCreateContext = SDL_LoadFunction(handle, "alcCreateContext");
+	qalcMakeContextCurrent = SDL_LoadFunction(handle, "alcMakeContextCurrent");
+	qalcProcessContext = SDL_LoadFunction(handle, "alcProcessContext");
+	qalcSuspendContext = SDL_LoadFunction(handle, "alcSuspendContext");
+	qalcDestroyContext = SDL_LoadFunction(handle, "alcDestroyContext");
+	qalcGetCurrentContext = SDL_LoadFunction(handle, "alcGetCurrentContext");
+	qalcGetContextsDevice = SDL_LoadFunction(handle, "alcGetContextsDevice");
+	qalcOpenDevice = SDL_LoadFunction(handle, "alcOpenDevice");
+	qalcCloseDevice = SDL_LoadFunction(handle, "alcCloseDevice");
+	qalcGetError = SDL_LoadFunction(handle, "alcGetError");
+	qalcIsExtensionPresent = SDL_LoadFunction(handle, "alcIsExtensionPresent");
+	qalcGetProcAddress = SDL_LoadFunction(handle, "alcGetProcAddress");
+	qalcGetEnumValue = SDL_LoadFunction(handle, "alcGetEnumValue");
+	qalcGetString = SDL_LoadFunction(handle, "alcGetString");
+	qalcGetIntegerv = SDL_LoadFunction(handle, "alcGetIntegerv");
+	qalcCaptureOpenDevice = SDL_LoadFunction(handle, "alcCaptureOpenDevice");
+	qalcCaptureCloseDevice = SDL_LoadFunction(handle, "alcCaptureCloseDevice");
+	qalcCaptureStart = SDL_LoadFunction(handle, "alcCaptureStart");
+	qalcCaptureStop = SDL_LoadFunction(handle, "alcCaptureStop");
+	qalcCaptureSamples = SDL_LoadFunction(handle, "alcCaptureSamples");
 
 	/* Connect function pointers to
 	   to OpenAL API functions */
-	qalEnable = Sys_GetProcAddress(handle, "alEnable");
-	qalDisable = Sys_GetProcAddress(handle, "alDisable");
-	qalIsEnabled = Sys_GetProcAddress(handle, "alIsEnabled");
-	qalGetString = Sys_GetProcAddress(handle, "alGetString");
-	qalGetBooleanv = Sys_GetProcAddress(handle, "alGetBooleanv");
-	qalGetIntegerv = Sys_GetProcAddress(handle, "alGetIntegerv");
-	qalGetFloatv = Sys_GetProcAddress(handle, "alGetFloatv");
-	qalGetDoublev = Sys_GetProcAddress(handle, "alGetDoublev");
-	qalGetBoolean = Sys_GetProcAddress(handle, "alGetBoolean");
-	qalGetInteger = Sys_GetProcAddress(handle, "alGetInteger");
-	qalGetFloat = Sys_GetProcAddress(handle, "alGetFloat");
-	qalGetDouble = Sys_GetProcAddress(handle, "alGetDouble");
-	qalGetError = Sys_GetProcAddress(handle, "alGetError");
-	qalIsExtensionPresent = Sys_GetProcAddress(handle, "alIsExtensionPresent");
-	qalGetProcAddress = Sys_GetProcAddress(handle, "alGetProcAddress");
-	qalGetEnumValue = Sys_GetProcAddress(handle, "alGetEnumValue");
-	qalListenerf = Sys_GetProcAddress(handle, "alListenerf");
-	qalListener3f = Sys_GetProcAddress(handle, "alListener3f");
-	qalListenerfv = Sys_GetProcAddress(handle, "alListenerfv");
-	qalListeneri = Sys_GetProcAddress(handle, "alListeneri");
-	qalListener3i = Sys_GetProcAddress(handle, "alListener3i");
-	qalListeneriv = Sys_GetProcAddress(handle, "alListeneriv");
-	qalGetListenerf = Sys_GetProcAddress(handle, "alGetListenerf");
-	qalGetListener3f = Sys_GetProcAddress(handle, "alGetListener3f");
-	qalGetListenerfv = Sys_GetProcAddress(handle, "alGetListenerfv");
-	qalGetListeneri = Sys_GetProcAddress(handle, "alGetListeneri");
-	qalGetListener3i = Sys_GetProcAddress(handle, "alGetListener3i");
-	qalGetListeneriv = Sys_GetProcAddress(handle, "alGetListeneriv");
-	qalGenSources = Sys_GetProcAddress(handle, "alGenSources");
-	qalDeleteSources = Sys_GetProcAddress(handle, "alDeleteSources");
-	qalIsSource = Sys_GetProcAddress(handle, "alIsSource");
-	qalSourcef = Sys_GetProcAddress(handle, "alSourcef");
-	qalSource3f = Sys_GetProcAddress(handle, "alSource3f");
-	qalSourcefv = Sys_GetProcAddress(handle, "alSourcefv");
-	qalSourcei = Sys_GetProcAddress(handle, "alSourcei");
-	qalSource3i = Sys_GetProcAddress(handle, "alSource3i");
-	qalSourceiv = Sys_GetProcAddress(handle, "alSourceiv");
-	qalGetSourcef = Sys_GetProcAddress(handle, "alGetSourcef");
-	qalGetSource3f = Sys_GetProcAddress(handle, "alGetSource3f");
-	qalGetSourcefv = Sys_GetProcAddress(handle, "alGetSourcefv");
-	qalGetSourcei = Sys_GetProcAddress(handle, "alGetSourcei");
-	qalGetSource3i = Sys_GetProcAddress(handle, "alGetSource3i");
-	qalGetSourceiv = Sys_GetProcAddress(handle, "alGetSourceiv");
-	qalSourcePlayv = Sys_GetProcAddress(handle, "alSourcePlayv");
-	qalSourceStopv = Sys_GetProcAddress(handle, "alSourceStopv");
-	qalSourceRewindv = Sys_GetProcAddress(handle, "alSourceRewindv");
-	qalSourcePausev = Sys_GetProcAddress(handle, "alSourcePausev");
-	qalSourcePlay = Sys_GetProcAddress(handle, "alSourcePlay");
-	qalSourceStop = Sys_GetProcAddress(handle, "alSourceStop");
-	qalSourceRewind = Sys_GetProcAddress(handle, "alSourceRewind");
-	qalSourcePause = Sys_GetProcAddress(handle, "alSourcePause");
-	qalSourceQueueBuffers = Sys_GetProcAddress(handle, "alSourceQueueBuffers");
-	qalSourceUnqueueBuffers = Sys_GetProcAddress(handle, "alSourceUnqueueBuffers");
-	qalGenBuffers = Sys_GetProcAddress(handle, "alGenBuffers");
-	qalDeleteBuffers = Sys_GetProcAddress(handle, "alDeleteBuffers");
-	qalIsBuffer = Sys_GetProcAddress(handle, "alIsBuffer");
-	qalBufferData = Sys_GetProcAddress(handle, "alBufferData");
-	qalBufferf = Sys_GetProcAddress(handle, "alBufferf");
-	qalBuffer3f = Sys_GetProcAddress(handle, "alBuffer3f");
-	qalBufferfv = Sys_GetProcAddress(handle, "alBufferfv");
-	qalBufferi = Sys_GetProcAddress(handle, "alBufferi");
-	qalBuffer3i = Sys_GetProcAddress(handle, "alBuffer3i");
-	qalBufferiv = Sys_GetProcAddress(handle, "alBufferiv");
-	qalGetBufferf = Sys_GetProcAddress(handle, "alGetBufferf");
-	qalGetBuffer3f = Sys_GetProcAddress(handle, "alGetBuffer3f");
-	qalGetBufferfv = Sys_GetProcAddress(handle, "alGetBufferfv");
-	qalGetBufferi = Sys_GetProcAddress(handle, "alGetBufferi");
-	qalGetBuffer3i = Sys_GetProcAddress(handle, "alGetBuffer3i");
-	qalGetBufferiv = Sys_GetProcAddress(handle, "alGetBufferiv");
-	qalDopplerFactor = Sys_GetProcAddress(handle, "alDopplerFactor");
-	qalDopplerVelocity = Sys_GetProcAddress(handle, "alDopplerVelocity");
-	qalSpeedOfSound = Sys_GetProcAddress(handle, "alSpeedOfSound");
-	qalDistanceModel = Sys_GetProcAddress(handle, "alDistanceModel");
-#if !defined (__APPLE__)	
-	qalGenFilters = Sys_GetProcAddress(handle, "alGenFilters");
-	qalFilteri = Sys_GetProcAddress(handle, "alFilteri");
-	qalFilterf = Sys_GetProcAddress(handle, "alFilterf");
-	qalDeleteFilters = Sys_GetProcAddress(handle, "alDeleteFilters");
-#endif
+	qalEnable = SDL_LoadFunction(handle, "alEnable");
+	qalDisable = SDL_LoadFunction(handle, "alDisable");
+	qalIsEnabled = SDL_LoadFunction(handle, "alIsEnabled");
+	qalGetString = SDL_LoadFunction(handle, "alGetString");
+	qalGetBooleanv = SDL_LoadFunction(handle, "alGetBooleanv");
+	qalGetIntegerv = SDL_LoadFunction(handle, "alGetIntegerv");
+	qalGetFloatv = SDL_LoadFunction(handle, "alGetFloatv");
+	qalGetDoublev = SDL_LoadFunction(handle, "alGetDoublev");
+	qalGetBoolean = SDL_LoadFunction(handle, "alGetBoolean");
+	qalGetInteger = SDL_LoadFunction(handle, "alGetInteger");
+	qalGetFloat = SDL_LoadFunction(handle, "alGetFloat");
+	qalGetDouble = SDL_LoadFunction(handle, "alGetDouble");
+	qalGetError = SDL_LoadFunction(handle, "alGetError");
+	qalIsExtensionPresent = SDL_LoadFunction(handle, "alIsExtensionPresent");
+	qalGetProcAddress = SDL_LoadFunction(handle, "alGetProcAddress");
+	qalGetEnumValue = SDL_LoadFunction(handle, "alGetEnumValue");
+	qalListenerf = SDL_LoadFunction(handle, "alListenerf");
+	qalListener3f = SDL_LoadFunction(handle, "alListener3f");
+	qalListenerfv = SDL_LoadFunction(handle, "alListenerfv");
+	qalListeneri = SDL_LoadFunction(handle, "alListeneri");
+	qalListener3i = SDL_LoadFunction(handle, "alListener3i");
+	qalListeneriv = SDL_LoadFunction(handle, "alListeneriv");
+	qalGetListenerf = SDL_LoadFunction(handle, "alGetListenerf");
+	qalGetListener3f = SDL_LoadFunction(handle, "alGetListener3f");
+	qalGetListenerfv = SDL_LoadFunction(handle, "alGetListenerfv");
+	qalGetListeneri = SDL_LoadFunction(handle, "alGetListeneri");
+	qalGetListener3i = SDL_LoadFunction(handle, "alGetListener3i");
+	qalGetListeneriv = SDL_LoadFunction(handle, "alGetListeneriv");
+	qalGenSources = SDL_LoadFunction(handle, "alGenSources");
+	qalDeleteSources = SDL_LoadFunction(handle, "alDeleteSources");
+	qalIsSource = SDL_LoadFunction(handle, "alIsSource");
+	qalSourcef = SDL_LoadFunction(handle, "alSourcef");
+	qalSource3f = SDL_LoadFunction(handle, "alSource3f");
+	qalSourcefv = SDL_LoadFunction(handle, "alSourcefv");
+	qalSourcei = SDL_LoadFunction(handle, "alSourcei");
+	qalSource3i = SDL_LoadFunction(handle, "alSource3i");
+	qalSourceiv = SDL_LoadFunction(handle, "alSourceiv");
+	qalGetSourcef = SDL_LoadFunction(handle, "alGetSourcef");
+	qalGetSource3f = SDL_LoadFunction(handle, "alGetSource3f");
+	qalGetSourcefv = SDL_LoadFunction(handle, "alGetSourcefv");
+	qalGetSourcei = SDL_LoadFunction(handle, "alGetSourcei");
+	qalGetSource3i = SDL_LoadFunction(handle, "alGetSource3i");
+	qalGetSourceiv = SDL_LoadFunction(handle, "alGetSourceiv");
+	qalSourcePlayv = SDL_LoadFunction(handle, "alSourcePlayv");
+	qalSourceStopv = SDL_LoadFunction(handle, "alSourceStopv");
+	qalSourceRewindv = SDL_LoadFunction(handle, "alSourceRewindv");
+	qalSourcePausev = SDL_LoadFunction(handle, "alSourcePausev");
+	qalSourcePlay = SDL_LoadFunction(handle, "alSourcePlay");
+	qalSourceStop = SDL_LoadFunction(handle, "alSourceStop");
+	qalSourceRewind = SDL_LoadFunction(handle, "alSourceRewind");
+	qalSourcePause = SDL_LoadFunction(handle, "alSourcePause");
+	qalSourceQueueBuffers = SDL_LoadFunction(handle, "alSourceQueueBuffers");
+	qalSourceUnqueueBuffers = SDL_LoadFunction(handle, "alSourceUnqueueBuffers");
+	qalGenBuffers = SDL_LoadFunction(handle, "alGenBuffers");
+	qalDeleteBuffers = SDL_LoadFunction(handle, "alDeleteBuffers");
+	qalIsBuffer = SDL_LoadFunction(handle, "alIsBuffer");
+	qalBufferData = SDL_LoadFunction(handle, "alBufferData");
+	qalBufferf = SDL_LoadFunction(handle, "alBufferf");
+	qalBuffer3f = SDL_LoadFunction(handle, "alBuffer3f");
+	qalBufferfv = SDL_LoadFunction(handle, "alBufferfv");
+	qalBufferi = SDL_LoadFunction(handle, "alBufferi");
+	qalBuffer3i = SDL_LoadFunction(handle, "alBuffer3i");
+	qalBufferiv = SDL_LoadFunction(handle, "alBufferiv");
+	qalGetBufferf = SDL_LoadFunction(handle, "alGetBufferf");
+	qalGetBuffer3f = SDL_LoadFunction(handle, "alGetBuffer3f");
+	qalGetBufferfv = SDL_LoadFunction(handle, "alGetBufferfv");
+	qalGetBufferi = SDL_LoadFunction(handle, "alGetBufferi");
+	qalGetBuffer3i = SDL_LoadFunction(handle, "alGetBuffer3i");
+	qalGetBufferiv = SDL_LoadFunction(handle, "alGetBufferiv");
+	qalDopplerFactor = SDL_LoadFunction(handle, "alDopplerFactor");
+	qalDopplerVelocity = SDL_LoadFunction(handle, "alDopplerVelocity");
+	qalSpeedOfSound = SDL_LoadFunction(handle, "alSpeedOfSound");
+	qalDistanceModel = SDL_LoadFunction(handle, "alDistanceModel");
+	qalGenFilters = SDL_LoadFunction(handle, "alGenFilters");
+	qalFilteri = SDL_LoadFunction(handle, "alFilteri");
+	qalFilterf = SDL_LoadFunction(handle, "alFilterf");
+	qalDeleteFilters = SDL_LoadFunction(handle, "alDeleteFilters");
 
 	/* Open the OpenAL device */
-    Com_Printf("...opening OpenAL device:");
+	{
+		char* devices = (char*)qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+		while(!device && devices && (void *) *devices != NULL)
+		{
+			Com_Printf("...found OpenAL device: %s\n",devices);
+			devices += strlen(devices) + 1; //next device
+		}
+	}
 
-	device = qalcOpenDevice(al_device->string[0] ? al_device->string : NULL);
+	{
+		const char *dev = al_device->string[0] ? al_device->string : qalcGetString(NULL,ALC_DEFAULT_DEVICE_SPECIFIER);
+		Com_Printf("...attempting to open OpenAL device '%s': ",dev);
+		device = qalcOpenDevice(dev);
+	}
+
+	if (!device)
+	{
+		Com_Printf("failed!\n...attempting to open default OpenAL device: ");
+		device = qalcOpenDevice(qalcGetString(NULL,ALC_DEFAULT_DEVICE_SPECIFIER));
+	}
 
 	if(!device)
 	{
