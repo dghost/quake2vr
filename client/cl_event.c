@@ -193,11 +193,11 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 	if (loud)
 	{
 		if (volume == 1.0)
-			S_StartSound (NULL, ent->number, CHAN_AUTO, stepsound, 1.0, ATTN_NORM, 0);
+			S_StartSound (ent->origin, ent->number, CHAN_AUTO, stepsound, 1.0, ATTN_NORM, 0);
 		else
 			volume = 1.0;
 	}
-	S_StartSound (NULL, ent->number, CHAN_BODY, stepsound, volume, ATTN_NORM, 0);
+	S_StartSound (ent->origin, ent->number, CHAN_BODY, stepsound, volume, ATTN_NORM, 0);
 }
 //end Knightmare
 
@@ -216,11 +216,11 @@ void CL_EntityEvent (entity_state_t *ent)
 	switch (ent->event)
 	{
 	case EV_ITEM_RESPAWN:
-		S_StartSound (NULL, ent->number, CHAN_WEAPON, S_RegisterSound("items/respawn1.wav"), 1, ATTN_IDLE, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_WEAPON, S_RegisterSound("items/respawn1.wav"), 1, ATTN_IDLE, 0);
 		CL_ItemRespawnParticles (ent->origin);
 		break;
 	case EV_PLAYER_TELEPORT:
-		S_StartSound (NULL, ent->number, CHAN_WEAPON, S_RegisterSound("misc/tele1.wav"), 1, ATTN_IDLE, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_WEAPON, S_RegisterSound("misc/tele1.wav"), 1, ATTN_IDLE, 0);
 		CL_TeleportParticles (ent->origin);
 		break;
 	case EV_FOOTSTEP:
@@ -235,26 +235,26 @@ void CL_EntityEvent (entity_state_t *ent)
 		break;
 //end Knightmare
 	case EV_FALLSHORT:
-		S_StartSound (NULL, ent->number, CHAN_AUTO, S_RegisterSound ("player/land1.wav"), 1, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_AUTO, S_RegisterSound ("player/land1.wav"), 1, ATTN_NORM, 0);
 		break;
 	case EV_FALL:
-		S_StartSound (NULL, ent->number, CHAN_AUTO, S_RegisterSound ("*fall2.wav"), 1, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_AUTO, S_RegisterSound ("*fall2.wav"), 1, ATTN_NORM, 0);
 		break;
 	case EV_FALLFAR:
-		S_StartSound (NULL, ent->number, CHAN_AUTO, S_RegisterSound ("*fall1.wav"), 1, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_AUTO, S_RegisterSound ("*fall1.wav"), 1, ATTN_NORM, 0);
 		break;
 //Knightmare- more Lazarus sounds
 	case EV_SLOSH:
-		S_StartSound (NULL, ent->number, CHAN_BODY, clMedia.sfx_slosh[rand()&3], 0.5, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_BODY, clMedia.sfx_slosh[rand()&3], 0.5, ATTN_NORM, 0);
 		break;
 	case EV_WADE:
-		S_StartSound (NULL, ent->number, CHAN_BODY, clMedia.sfx_wade[rand()&3], 0.5, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_BODY, clMedia.sfx_wade[rand()&3], 0.5, ATTN_NORM, 0);
 		break;
 	case EV_WADE_MUD:
-		S_StartSound (NULL, ent->number, CHAN_BODY, clMedia.sfx_mud_wade[rand()&1], 0.5, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_BODY, clMedia.sfx_mud_wade[rand()&1], 0.5, ATTN_NORM, 0);
 		break;
 	case EV_CLIMB_LADDER:
-		S_StartSound (NULL, ent->number, CHAN_BODY, clMedia.sfx_ladder[rand()&3], 0.5, ATTN_NORM, 0);
+		S_StartSound (ent->origin, ent->number, CHAN_BODY, clMedia.sfx_ladder[rand()&3], 0.5, ATTN_NORM, 0);
 		break;
 //end Knightmare
 	}
