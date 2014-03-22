@@ -20,7 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcommon.h"
 
-
+void AL_Underwater();
+void AL_Overwater();
 
 #define	STEPSIZE	18
 
@@ -1321,6 +1322,10 @@ Can be called by either the server or the client
 */
 void Pmove (pmove_t *pmove)
 {
+#if !defined(DEDICATED_ONLY) && defined(USE_OPENAL)
+	static int underwater;
+#endif
+
 	pm = pmove;
 
 	// Knightmare- set speed controls here
@@ -1439,6 +1444,20 @@ void Pmove (pmove_t *pmove)
 
 	// set groundentity, watertype, and waterlevel for final spot
 	PM_CatagorizePosition ();
+
+#if !defined(DEDICATED_ONLY) && defined(USE_OPENAL)
+	if ((pm->waterlevel == 3) && !underwater)
+	{
+		underwater = 1;
+		AL_Underwater();
+	}
+
+	if (((pm->waterlevel < 3) && underwater))
+	{
+		underwater = 0;
+		AL_Overwater();
+	}
+#endif
 
 	PM_SnapPosition ();
 }
