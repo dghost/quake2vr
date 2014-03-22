@@ -93,6 +93,8 @@ void R_AntialiasEndFrame(void)
 		glEnd();
 
 		GL_Bind(0);
+		vid.width = screenBounds.width;
+		vid.height = screenBounds.height;
 	}
 }
 
