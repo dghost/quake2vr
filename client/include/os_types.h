@@ -48,7 +48,7 @@
 #  include <sys/types.h>
    typedef SInt16 ogg_int16_t;
    typedef UInt16 ogg_uint16_t;
-   typedef SInt32 ogg_int32_t;
+   typedef int32_t ogg_int32_t;
    typedef UInt32 ogg_uint32_t;
    typedef SInt64 ogg_int64_t;
 

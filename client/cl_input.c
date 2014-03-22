@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl.input.c  -- builds an intended movement command to send to the server
 
 #include "client.h"
-#include "../vr/vr.h"
 
 cvar_t	*cl_nodelta;
 
@@ -47,7 +46,7 @@ state bit 1 is edge triggered on the up to down transition
 state bit 2 is edge triggered on the down to up transition
 
 
-Key_Event (Sint32 key, qboolean down, unsigned time);
+Key_Event (int32_t key, qboolean down, unsigned time);
 
   +mlook src time
 
@@ -61,12 +60,12 @@ kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
 kbutton_t	in_strafe, in_speed, in_use, in_attack, in_attack2;
 kbutton_t	in_up, in_down;
 
-Sint32			in_impulse;
+int32_t			in_impulse;
 
 
 void KeyDown (kbutton_t *b)
 {
-	Sint32		k;
+	int32_t		k;
 	char	*c;
 	
 	c = Cmd_Argv(1);
@@ -102,7 +101,7 @@ void KeyDown (kbutton_t *b)
 
 void KeyUp (kbutton_t *b)
 {
-	Sint32		k;
+	int32_t		k;
 	char	*c;
 	unsigned	uptime;
 
@@ -191,7 +190,7 @@ Returns the fraction of the frame that the key was down
 float CL_KeyState (kbutton_t *key)
 {
 	float		val;
-	Sint32			msec;
+	int32_t			msec;
 
 	key->state &= 1;		// clear impulses
 
@@ -307,7 +306,7 @@ void CL_BaseMove (usercmd_t *cmd)
 //
 // adjust for speed key / running
 //
-	if ( (in_speed.state & 1) ^ (Sint32)(cl_run->value) )
+	if ( (in_speed.state & 1) ^ (int32_t)(cl_run->value) )
 	{
 		cmd->forwardmove *= 2;
 		cmd->sidemove *= 2;
@@ -351,8 +350,8 @@ CL_FinishMove
 */
 void CL_FinishMove (usercmd_t *cmd)
 {
-	Sint32		ms;
-	Sint32		i;
+	int32_t		ms;
+	int32_t		i;
 //
 // figure button bits
 //	
@@ -396,8 +395,8 @@ void VR_Move (usercmd_t *cmd)
 	vec3_t predAngles, predDelta, view;
 	vec3_t orientation, orientationDelta;
 	qboolean viewmove;
-	Sint32 i;
-	Sint32 mode = (Sint32) vr_aimmode->value;
+	int32_t i;
+	int32_t mode = (int32_t) vr_aimmode->value;
 
 	if (mode == 6)
 		viewmove = true;
@@ -720,10 +719,10 @@ void CL_SendCmd (void)
 {
 	sizebuf_t	buf;
 	byte		data[128];
-	Sint32			i;
+	int32_t			i;
 	usercmd_t	*cmd, *oldcmd;
 	usercmd_t	nullcmd;
-	Sint32			checksumIndex;
+	int32_t			checksumIndex;
 
 	// clear buffer
 	memset (&buf, 0, sizeof(buf));

@@ -29,9 +29,9 @@
  */
 
 #include "../client.h"
-#include "header/qal.h"
-#include "header/local.h"
-#include "header/vorbis.h"
+#include "include/qal.h"
+#include "include/local.h"
+#include "include/vorbis.h"
 
 /* During registration it is possible to have more sounds
    than could actually be referenced during gameplay,

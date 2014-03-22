@@ -39,7 +39,7 @@ typedef struct
 
 	csurface_t	*groundsurface;
 	cplane_t	groundplane;
-	Sint32			groundcontents;
+	int32_t			groundcontents;
 
 	vec3_t		previous_origin;
 	qboolean	ladder;
@@ -129,7 +129,7 @@ void PM_ClipVelocity (vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float	backoff;
 	float	change;
-	Sint32		i;
+	int32_t		i;
 	
 	backoff = DotProduct (in, normal) * overbounce;
 
@@ -160,13 +160,13 @@ Does not modify any world state?
 #define	MAX_CLIP_PLANES	5
 void PM_StepSlideMove_ (void)
 {
-	Sint32			bumpcount, numbumps;
+	int32_t			bumpcount, numbumps;
 	vec3_t		dir;
 	float		d;
-	Sint32			numplanes;
+	int32_t			numplanes;
 	vec3_t		planes[MAX_CLIP_PLANES];
 	vec3_t		primal_velocity;
-	Sint32			i, j;
+	int32_t			i, j;
 	trace_t	trace;
 	vec3_t		end;
 	float		time_left;
@@ -443,7 +443,7 @@ Handles user intended acceleration
 */
 void PM_Accelerate (vec3_t wishdir, float wishspeed, float accel)
 {
-	Sint32			i;
+	int32_t			i;
 	float		addspeed, accelspeed, currentspeed;
 
 	currentspeed = DotProduct (pml.velocity, wishdir);
@@ -460,7 +460,7 @@ void PM_Accelerate (vec3_t wishdir, float wishspeed, float accel)
 
 void PM_AirAccelerate (vec3_t wishdir, float wishspeed, float accel)
 {
-	Sint32			i;
+	int32_t			i;
 	float		addspeed, accelspeed, currentspeed, wishspd = wishspeed;
 		
 	if (wishspd > 30)
@@ -579,7 +579,7 @@ PM_WaterMove
 */
 void PM_WaterMove (void)
 {
-	Sint32		i;
+	int32_t		i;
 	vec3_t	wishvel;
 	float	wishspeed;
 	vec3_t	wishdir;
@@ -621,7 +621,7 @@ PM_AirMove
 */
 void PM_AirMove (void)
 {
-	Sint32			i;
+	int32_t			i;
 	vec3_t		wishvel;
 	float		fmove, smove;
 	vec3_t		wishdir;
@@ -718,10 +718,10 @@ PM_CatagorizePosition
 void PM_CatagorizePosition (void)
 {
 	vec3_t		point;
-	Sint32			cont;
+	int32_t			cont;
 	trace_t		trace;
-	Sint32			sample1;
-	Sint32			sample2;
+	int32_t			sample1;
+	int32_t			sample2;
 
 // if the player hull point one unit down is solid, the player
 // is on ground
@@ -904,7 +904,7 @@ PM_CheckSpecialMovement
 void PM_CheckSpecialMovement (void)
 {
 	vec3_t	spot;
-	Sint32		cont;
+	int32_t		cont;
 	vec3_t	flatforward;
 	trace_t	trace;
 
@@ -956,7 +956,7 @@ void PM_FlyMove (qboolean doclip)
 {
 	float	speed, drop, friction, control, newspeed;
 	float	currentspeed, addspeed, accelspeed;
-	Sint32			i;
+	int32_t			i;
 	vec3_t		wishvel;
 	float		fmove, smove;
 	vec3_t		wishdir;
@@ -1131,7 +1131,7 @@ qboolean	PM_GoodPosition (void)
 {
 	trace_t	trace;
 	vec3_t	origin, end;
-	Sint32		i;
+	int32_t		i;
 
 	if (pm->s.pm_type == PM_SPECTATOR)
 		return true;
@@ -1153,20 +1153,20 @@ precision of the network channel and in a valid position.
 */
 void PM_SnapPosition (void)
 {
-	Sint32		sign[3];
-	Sint32		i, j, bits;
+	int32_t		sign[3];
+	int32_t		i, j, bits;
 #ifdef LARGE_MAP_SIZE // Knightmare- larger precision needed
-	Sint32		base[3];
+	int32_t		base[3];
 #else
-	Sint16	base[3];
+	int16_t	base[3];
 #endif
 
 	// try all single bits first
-	static Sint32 jitterbits[8] = {0,4,1,2,3,5,6,7};
+	static int32_t jitterbits[8] = {0,4,1,2,3,5,6,7};
 
 	// snap velocity to eigths
 	for (i=0 ; i<3 ; i++)
-		pm->s.velocity[i] = (Sint32)(pml.velocity[i]*8);
+		pm->s.velocity[i] = (int32_t)(pml.velocity[i]*8);
 
 	for (i=0 ; i<3 ; i++)
 	{
@@ -1174,7 +1174,7 @@ void PM_SnapPosition (void)
 			sign[i] = 1;
 		else 
 			sign[i] = -1;
-		pm->s.origin[i] = (Sint32)(pml.origin[i]*8);
+		pm->s.origin[i] = (int32_t)(pml.origin[i]*8);
 		if (pm->s.origin[i]*0.125 == pml.origin[i])
 			sign[i] = 0;
 	}
@@ -1208,8 +1208,8 @@ PM_InitialSnapPosition
 */
 void PM_InitialSnapPosition (void)
 {
-	Sint32		x, y, z;
-	Sint16	base[3];
+	int32_t		x, y, z;
+	int16_t	base[3];
 
 	VectorCopy (pm->s.origin, base);
 
@@ -1245,13 +1245,13 @@ PM_InitialSnapPosition
 */
 void PM_InitialSnapPosition(void)
 {
-	Sint32        x, y, z;
+	int32_t        x, y, z;
 #ifdef LARGE_MAP_SIZE // Knightmare- larger precision needed
-	Sint32		base[3];
+	int32_t		base[3];
 #else
-	Sint16	base[3];
+	int16_t	base[3];
 #endif
-	static Sint32 offset[3] = { 0, -1, 1 };
+	static int32_t offset[3] = { 0, -1, 1 };
 
 	VectorCopy (pm->s.origin, base);
 
@@ -1285,8 +1285,8 @@ PM_ClampAngles
 */
 void PM_ClampAngles (void)
 {
-	Sint16	temp;
-	Sint32		i;
+	int16_t	temp;
+	int32_t		i;
 
 	if (pm->s.pm_flags & PMF_TIME_TELEPORT)
 	{
@@ -1387,7 +1387,7 @@ void Pmove (pmove_t *pmove)
 	// drop timing counter
 	if (pm->s.pm_time)
 	{
-		Sint32		msec;
+		int32_t		msec;
 
 		msec = pm->cmd.msec >> 3;
 		if (!msec)

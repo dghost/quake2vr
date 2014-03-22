@@ -35,8 +35,8 @@
 #include "../include/vorbisfile.h"
 
 #include "../client.h"
-#include "header/local.h"
-#include "header/vorbis.h"
+#include "include/local.h"
+#include "include/vorbis.h"
 
 qboolean ogg_first_init = true; /* First initialization flag. */
 qboolean ogg_started = false;   /* Initialization flag. */

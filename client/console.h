@@ -30,19 +30,19 @@ typedef struct
 	qboolean	initialized;
 
 	char	text[CON_TEXTSIZE];
-	Sint32		current;		// line where next message will be printed
-	Sint32		x;				// offset in current line for next print
-	Sint32		display;		// bottom of console displays this line
+	int32_t		current;		// line where next message will be printed
+	int32_t		x;				// offset in current line for next print
+	int32_t		display;		// bottom of console displays this line
 
-	Sint32		ormask;			// high bit mask for colored characters
+	int32_t		ormask;			// high bit mask for colored characters
 
-	Sint32 	linewidth;		// characters across screen
-	Sint32		totallines;		// total lines in console scrollback
-	Sint32		backedit;
+	int32_t 	linewidth;		// characters across screen
+	int32_t		totallines;		// total lines in console scrollback
+	int32_t		backedit;
 
 	float	cursorspeed;
 
-	Sint32		vislines;
+	int32_t		vislines;
 
 	float	times[NUM_CON_TIMES];	// cls.realtime time the line was generated
 								// for transparent notify lines
@@ -52,7 +52,7 @@ extern	console_t	con;
 
 extern	qboolean	halfconback;	// whether to draw Q3-style console
 
-void Con_DrawCharacter (Sint32 cx, Sint32 line, Sint32 num);
+void Con_DrawCharacter (int32_t cx, int32_t line, int32_t num);
 
 void Con_CheckResize (void);
 void Con_Init (void);

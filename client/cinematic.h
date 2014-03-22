@@ -30,20 +30,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CIN_SILENT		4	// Don't play audio
 #define CIN_SHADER		8	// Used in a shader by the renderer
 
-typedef Sint32 cinHandle_t;
+typedef int32_t cinHandle_t;
 
 // Will run a frame of the cinematic but will not draw it. Will return
 // false if the end of the cinematic has been reached.
 qboolean	CIN_RunCinematic (cinHandle_t handle);
 
 // Allows you to resize the animation dynamically
-void		CIN_SetExtents (cinHandle_t handle, Sint32 x, Sint32 y, Sint32 width, Sint32 height);
+void		CIN_SetExtents (cinHandle_t handle, int32_t x, int32_t y, int32_t width, int32_t height);
 
 // Draws the current frame
 void		CIN_DrawCinematic (cinHandle_t handle);
 
 // Returns a handle to the cinematic
-cinHandle_t	CIN_PlayCinematic (const char *name, Sint32 x, Sint32 y, Sint32 width, Sint32 height, Sint32 flags);
+cinHandle_t	CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t width, int32_t height, int32_t flags);
 
 // Stops playing the cinematic
 void		CIN_StopCinematic (cinHandle_t handle);

@@ -91,7 +91,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Midl>
@@ -114,7 +114,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB ;MSVCRT.LIB</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -134,7 +134,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -159,7 +159,7 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -178,7 +178,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -203,39 +203,84 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\Win32\;win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\LibOVR\Lib\win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="client\renderer\r_alias.c" />
+    <ClCompile Include="client\renderer\r_alias_md2.c" />
+    <ClCompile Include="client\renderer\r_alias_misc.c" />
+    <ClCompile Include="client\renderer\r_antialias.c" />
+    <ClCompile Include="client\renderer\r_backend.c" />
+    <ClCompile Include="client\renderer\r_beam.c" />
+    <ClCompile Include="client\renderer\r_bloom.c" />
+    <ClCompile Include="client\renderer\r_draw.c" />
+    <ClCompile Include="client\renderer\r_entity.c" />
+    <ClCompile Include="client\renderer\r_fbo.c" />
+    <ClCompile Include="client\renderer\r_fog.c" />
+    <ClCompile Include="client\renderer\r_fragment.c" />
+    <ClCompile Include="client\renderer\r_glstate.c" />
+    <ClCompile Include="client\renderer\r_image.c" />
+    <ClCompile Include="client\renderer\r_light.c" />
+    <ClCompile Include="client\renderer\r_main.c" />
+    <ClCompile Include="client\renderer\r_misc.c" />
+    <ClCompile Include="client\renderer\r_model.c" />
+    <ClCompile Include="client\renderer\r_particle.c" />
+    <ClCompile Include="client\renderer\r_shaderobjects.c" />
+    <ClCompile Include="client\renderer\r_sky.c" />
+    <ClCompile Include="client\renderer\r_sprite.c" />
+    <ClCompile Include="client\renderer\r_surface.c" />
+    <ClCompile Include="client\renderer\r_vlights.c" />
+    <ClCompile Include="client\renderer\r_vr.c" />
+    <ClCompile Include="client\renderer\r_vr_ovr.c" />
+    <ClCompile Include="client\renderer\r_vr_svr.c" />
+    <ClCompile Include="client\renderer\r_warp.c" />
     <ClCompile Include="client\sound\ogg.c" />
     <ClCompile Include="client\sound\openal.c" />
     <ClCompile Include="client\sound\qal.c" />
     <ClCompile Include="client\sound\sound.c" />
     <ClCompile Include="client\sound\wave.c" />
+    <ClCompile Include="client\ui\ui_backend.c" />
+    <ClCompile Include="client\ui\ui_game.c" />
+    <ClCompile Include="client\ui\ui_game_credits.c" />
+    <ClCompile Include="client\ui\ui_game_saveload.c" />
+    <ClCompile Include="client\ui\ui_main.c" />
+    <ClCompile Include="client\ui\ui_mp_addressbook.c" />
+    <ClCompile Include="client\ui\ui_mp_dmoptions.c" />
+    <ClCompile Include="client\ui\ui_mp_download.c" />
+    <ClCompile Include="client\ui\ui_mp_joinserver.c" />
+    <ClCompile Include="client\ui\ui_mp_playersetup.c" />
+    <ClCompile Include="client\ui\ui_mp_startserver.c" />
+    <ClCompile Include="client\ui\ui_multiplayer.c" />
+    <ClCompile Include="client\ui\ui_options.c" />
+    <ClCompile Include="client\ui\ui_options_controls.c" />
+    <ClCompile Include="client\ui\ui_options_effects.c" />
+    <ClCompile Include="client\ui\ui_options_interface.c" />
+    <ClCompile Include="client\ui\ui_options_keys.c" />
+    <ClCompile Include="client\ui\ui_options_screen.c" />
+    <ClCompile Include="client\ui\ui_options_sound.c" />
+    <ClCompile Include="client\ui\ui_options_vr.c" />
+    <ClCompile Include="client\ui\ui_options_vr_advanced.c" />
+    <ClCompile Include="client\ui\ui_options_vr_ovr.c" />
+    <ClCompile Include="client\ui\ui_options_vr_svr.c" />
+    <ClCompile Include="client\ui\ui_quit.c" />
+    <ClCompile Include="client\ui\ui_subsystem.c" />
+    <ClCompile Include="client\ui\ui_video.c" />
+    <ClCompile Include="client\ui\ui_video_advanced.c" />
+    <ClCompile Include="client\vr\vr_libovr.cpp" />
+    <ClCompile Include="client\vr\vr_main.c" />
+    <ClCompile Include="client\vr\vr_ovr.c" />
+    <ClCompile Include="client\vr\vr_steamvr.cpp" />
+    <ClCompile Include="client\vr\vr_svr.c" />
     <ClCompile Include="qcommon\glob.c" />
-    <ClCompile Include="renderer\r_antialias.c" />
-    <ClCompile Include="renderer\r_fbo.c" />
-    <ClCompile Include="renderer\r_shaderobjects.c" />
-    <ClCompile Include="renderer\r_vr.c" />
-    <ClCompile Include="renderer\r_vr_ovr.c" />
-    <ClCompile Include="renderer\r_vr_svr.c" />
-    <ClCompile Include="sdl2\gl_sdl2.c" />
-    <ClCompile Include="sdl2\in_sdl2.c" />
-    <ClCompile Include="sdl2\in_sdlcont.c" />
-    <ClCompile Include="sdl2\snd_sdl2.c" />
-    <ClCompile Include="sdl2\sys_sdl2.c" />
-    <ClCompile Include="sdl2\vid_sdl2.c" />
-    <ClCompile Include="ui\ui_options_vr.c" />
-    <ClCompile Include="ui\ui_options_vr_advanced.c" />
-    <ClCompile Include="ui\ui_options_vr_ovr.c" />
-    <ClCompile Include="ui\ui_options_vr_svr.c" />
-    <ClCompile Include="vr\vr_main.c" />
-    <ClCompile Include="vr\vr_libovr.cpp" />
-    <ClCompile Include="vr\vr_ovr.c" />
-    <ClCompile Include="vr\vr_steamvr.cpp" />
-    <ClCompile Include="vr\vr_svr.c" />
+    <ClCompile Include="backends\sdl2\gl_sdl2.c" />
+    <ClCompile Include="backends\sdl2\in_sdl2.c" />
+    <ClCompile Include="backends\sdl2\in_sdlcont.c" />
+    <ClCompile Include="backends\sdl2\snd_sdl2.c" />
+    <ClCompile Include="backends\sdl2\sys_sdl2.c" />
+    <ClCompile Include="backends\sdl2\vid_sdl2.c" />
     <ClCompile Include="client\cl_cin.c" />
     <ClCompile Include="client\cl_cinematic.c" />
     <ClCompile Include="client\cl_console.c" />
@@ -277,73 +322,20 @@
     <ClCompile Include="server\sv_send.c" />
     <ClCompile Include="server\sv_user.c" />
     <ClCompile Include="server\sv_world.c" />
-    <ClCompile Include="win32\conproc.c" />
-    <ClCompile Include="win32\net_wins.c" />
-    <ClCompile Include="win32\q_shwin.c" />
-    <ClCompile Include="renderer\r_alias.c" />
-    <ClCompile Include="renderer\r_alias_md2.c" />
-    <ClCompile Include="renderer\r_alias_misc.c" />
-    <ClCompile Include="renderer\r_backend.c" />
-    <ClCompile Include="renderer\r_beam.c" />
-    <ClCompile Include="renderer\r_bloom.c" />
-    <ClCompile Include="renderer\r_draw.c" />
-    <ClCompile Include="renderer\r_entity.c" />
-    <ClCompile Include="renderer\r_fog.c" />
-    <ClCompile Include="renderer\r_fragment.c" />
-    <ClCompile Include="renderer\r_glstate.c" />
-    <ClCompile Include="renderer\r_image.c" />
-    <ClCompile Include="renderer\r_light.c" />
-    <ClCompile Include="renderer\r_main.c" />
-    <ClCompile Include="renderer\r_misc.c" />
-    <ClCompile Include="renderer\r_model.c" />
-    <ClCompile Include="renderer\r_particle.c" />
-    <ClCompile Include="renderer\r_sky.c" />
-    <ClCompile Include="renderer\r_sprite.c" />
-    <ClCompile Include="renderer\r_surface.c" />
-    <ClCompile Include="renderer\r_vlights.c" />
-    <ClCompile Include="renderer\r_warp.c" />
-    <ClCompile Include="ui\ui_backend.c" />
-    <ClCompile Include="ui\ui_game.c" />
-    <ClCompile Include="ui\ui_game_credits.c" />
-    <ClCompile Include="ui\ui_game_saveload.c" />
-    <ClCompile Include="ui\ui_main.c" />
-    <ClCompile Include="ui\ui_mp_addressbook.c" />
-    <ClCompile Include="ui\ui_mp_dmoptions.c" />
-    <ClCompile Include="ui\ui_mp_download.c" />
-    <ClCompile Include="ui\ui_mp_joinserver.c" />
-    <ClCompile Include="ui\ui_mp_playersetup.c" />
-    <ClCompile Include="ui\ui_mp_startserver.c" />
-    <ClCompile Include="ui\ui_multiplayer.c" />
-    <ClCompile Include="ui\ui_options.c" />
-    <ClCompile Include="ui\ui_options_controls.c" />
-    <ClCompile Include="ui\ui_options_effects.c" />
-    <ClCompile Include="ui\ui_options_interface.c" />
-    <ClCompile Include="ui\ui_options_keys.c" />
-    <ClCompile Include="ui\ui_options_screen.c" />
-    <ClCompile Include="ui\ui_options_sound.c" />
-    <ClCompile Include="ui\ui_quit.c" />
-    <ClCompile Include="ui\ui_subsystem.c" />
-    <ClCompile Include="ui\ui_video.c" />
-    <ClCompile Include="ui\ui_video_advanced.c" />
+    <ClCompile Include="backends\win32\conproc.c" />
+    <ClCompile Include="backends\win32\net_wins.c" />
+    <ClCompile Include="backends\win32\q_shwin.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h" />
+    <ClInclude Include="client\ui\include\ui_local.h" />
     <ClInclude Include="renderer\anorms.h" />
     <ClInclude Include="renderer\anormtab.h" />
     <ClInclude Include="qcommon\bspfile.h" />
-    <ClInclude Include="client\cdaudio.h" />
     <ClInclude Include="client\cinematic.h" />
     <ClInclude Include="client\client.h" />
-    <ClInclude Include="renderer\r_vr.h" />
-    <ClInclude Include="renderer\r_vr_ovr.h" />
-    <ClInclude Include="renderer\r_vr_svr.h" />
-    <ClInclude Include="sdl2\sdl2quake.h" />
-    <ClInclude Include="vr\vr.h" />
-    <ClInclude Include="vr\vr_libovr.h" />
-    <ClInclude Include="vr\vr_ovr.h" />
-    <ClInclude Include="vr\vr_steamvr.h" />
-    <ClInclude Include="vr\vr_svr.h" />
-    <ClInclude Include="win32\conproc.h" />
+    <ClInclude Include="backends\sdl2\sdl2quake.h" />
+    <ClInclude Include="backends\win32\conproc.h" />
     <ClInclude Include="client\console.h" />
     <ClInclude Include="game\game.h" />
     <ClInclude Include="client\input.h" />
@@ -354,36 +346,32 @@
     <ClInclude Include="qcommon\qcommon.h" />
     <ClInclude Include="qcommon\qfiles.h" />
     <ClInclude Include="renderer\qgl.h" />
-    <ClInclude Include="renderer\r_alias.h" />
-    <ClInclude Include="renderer\r_local.h" />
-    <ClInclude Include="renderer\r_model.h" />
     <ClInclude Include="client\ref.h" />
     <ClInclude Include="client\screen.h" />
     <ClInclude Include="server\server.h" />
     <ClInclude Include="client\snd_loc.h" />
     <ClInclude Include="client\snd_ogg.h" />
     <ClInclude Include="client\sound.h" />
-    <ClInclude Include="ui\ui_local.h" />
     <ClInclude Include="client\vid.h" />
     <ClInclude Include="renderer\vlights.h" />
     <ClInclude Include="renderer\warpsin.h" />
     <ClInclude Include="qcommon\wildcard.h" />
-    <ClInclude Include="win32\winnewerror.h" />
+    <ClInclude Include="backends\win32\winnewerror.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="win32\q2.ico" />
-    <CustomBuild Include="win32\q2mp1.ico" />
-    <CustomBuild Include="win32\q2mp2.ico" />
+    <CustomBuild Include="backends\win32\q2.ico" />
+    <CustomBuild Include="backends\win32\q2mp1.ico" />
+    <CustomBuild Include="backends\win32\q2mp2.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="win32\q2.rc">
+    <ResourceCompile Include="backends\win32\q2.rc">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release - No SteamVR|Win32'">win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="external\LibOVR\Projects\Win32\LibOVR_Msvc2010.vcxproj">
+    <ProjectReference Include="external\LibOVR\Projects\win32\LibOVR_Msvc2010.vcxproj">
       <Project>{934b40c7-f40a-4e4c-97a7-b9659be0a441}</Project>
     </ProjectReference>
     <ProjectReference Include="game\lazarus.vcxproj">

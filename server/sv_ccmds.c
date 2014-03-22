@@ -40,7 +40,7 @@ Specify a list of master servers
 */
 void SV_SetMaster_f (void)
 {
-	Sint32		i, slot;
+	int32_t		i, slot;
 
 	// only dedicated servers send heartbeats
 	if (!dedicated->value)
@@ -93,8 +93,8 @@ Sets sv_client and sv_player to the player with idnum Cmd_Argv(1)
 qboolean SV_SetPlayer (void)
 {
 	client_t	*cl;
-	Sint32			i;
-	Sint32			idnum;
+	int32_t			i;
+	int32_t			idnum;
 	char		*s;
 
 	if (Cmd_Argc() < 2)
@@ -200,7 +200,7 @@ CopyFile
 void CopyFile (char *src, char *dst)
 {
 	FILE	*f1, *f2;
-	Sint32		l;
+	int32_t		l;
 	byte	buffer[65536];
 
 	Com_DPrintf ("CopyFile (%s, %s)\n", src, dst);
@@ -236,7 +236,7 @@ SV_CopySaveGame
 void SV_CopySaveGame (char *src, char *dst)
 {
 	char	name[MAX_OSPATH], name2[MAX_OSPATH];
-	Sint32		l, len;
+	int32_t		l, len;
 	char	*found;
 
 	Com_DPrintf("SV_CopySaveGame(%s, %s)\n", src, dst);
@@ -530,7 +530,7 @@ goes to map jail.bsp.
 void SV_GameMap_f (void)
 {
 	char		*map;
-	Sint32			i, l;
+	int32_t			i, l;
 	client_t	*cl;
 	qboolean	*savedInuse;
 
@@ -820,10 +820,10 @@ SV_Status_f
 */
 void SV_Status_f (void)
 {
-	Sint32			i, j, l;
+	int32_t			i, j, l;
 	client_t	*cl;
 	char		*s;
-	Sint32			ping;
+	int32_t			ping;
 	if (!svs.clients)
 	{
 		Com_Printf ("No server running.\n");
@@ -878,7 +878,7 @@ SV_ConSay_f
 void SV_ConSay_f(void)
 {
 	client_t *client;
-	Sint32		j;
+	int32_t		j;
 	char	*p;
 	char	text[1024];
 
@@ -1003,8 +1003,8 @@ void SV_ServerRecord_f (void)
 	char	name[MAX_OSPATH];
 	char	buf_data[32768];
 	sizebuf_t	buf;
-	Sint32		len;
-	Sint32		i;
+	int32_t		len;
+	int32_t		i;
 
 	if (Cmd_Argc() != 2)
 	{

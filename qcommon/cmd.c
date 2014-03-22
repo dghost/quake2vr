@@ -37,7 +37,7 @@ cmdalias_t	*cmd_alias;
 qboolean	cmd_wait;
 
 #define	ALIAS_LOOP_COUNT	16
-Sint32		alias_count;		// for detecting runaway loops
+int32_t		alias_count;		// for detecting runaway loops
 
 
 //=============================================================================
@@ -89,7 +89,7 @@ Adds command text at the end of the buffer
 */
 void Cbuf_AddText (char *text)
 {
-	Sint32		l;
+	int32_t		l;
 	
 	l = strlen (text);
 
@@ -114,7 +114,7 @@ FIXME: actually change the command buffer to do less copying
 void Cbuf_InsertText (char *text)
 {
 	char	*temp;
-	Sint32		templen;
+	int32_t		templen;
 
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
@@ -168,7 +168,7 @@ void Cbuf_InsertFromDefer (void)
 Cbuf_ExecuteText
 ============
 */
-void Cbuf_ExecuteText (Sint32 exec_when, char *text)
+void Cbuf_ExecuteText (int32_t exec_when, char *text)
 {
 	switch (exec_when)
 	{
@@ -193,10 +193,10 @@ Cbuf_Execute
 */
 void Cbuf_Execute (void)
 {
-	Sint32		i;
+	int32_t		i;
 	char	*text;
 	char	line[1024];
-	Sint32		quotes;
+	int32_t		quotes;
 
 	alias_count = 0;		// don't allow infinite alias loops
 
@@ -264,7 +264,7 @@ Other commands are added late, after all initialization is complete.
 */
 void Cbuf_AddEarlyCommands (qboolean clear)
 {
-	Sint32		i;
+	int32_t		i;
 	char	*s;
 
 	for (i=0 ; i<COM_Argc() ; i++)
@@ -297,10 +297,10 @@ will keep the demoloop from immediately starting
 */
 qboolean Cbuf_AddLateCommands (void)
 {
-	Sint32		i, j;
-	Sint32		s;
+	int32_t		i, j;
+	int32_t		s;
 	char	*text, *build, c;
-	Sint32		argc;
+	int32_t		argc;
 	qboolean	ret;
 
 // build the combined string to parse from
@@ -373,7 +373,7 @@ Cmd_Exec_f
 void Cmd_Exec_f (void)
 {
 	char	*f, *f2;
-	Sint32		len;
+	int32_t		len;
 
 	if (Cmd_Argc () != 2)
 	{
@@ -411,7 +411,7 @@ Just prints the rest of the line to the console
 */
 void Cmd_Echo_f (void)
 {
-	Sint32		i;
+	int32_t		i;
 	
 	for (i=1 ; i<Cmd_Argc() ; i++)
 		Com_Printf ("%s ",Cmd_Argv(i));
@@ -429,7 +429,7 @@ void Cmd_Alias_f (void)
 {
 	cmdalias_t	*a;
 	char		cmd[1024];
-	Sint32			i, c;
+	int32_t			i, c;
 	char		*s;
 
 	if (Cmd_Argc() == 1)
@@ -495,7 +495,7 @@ typedef struct cmd_function_s
 } cmd_function_t;
 
 
-static	Sint32			cmd_argc;
+static	int32_t			cmd_argc;
 static	char		*cmd_argv[MAX_STRING_TOKENS];
 static	char		*cmd_null_string = "";
 static	char		cmd_args[MAX_STRING_CHARS];
@@ -507,7 +507,7 @@ static	cmd_function_t	*cmd_functions;		// possible commands to execute
 Cmd_Argc
 ============
 */
-Sint32		Cmd_Argc (void)
+int32_t		Cmd_Argc (void)
 {
 	return cmd_argc;
 }
@@ -517,7 +517,7 @@ Sint32		Cmd_Argc (void)
 Cmd_Argv
 ============
 */
-char	*Cmd_Argv (Sint32 arg)
+char	*Cmd_Argv (int32_t arg)
 {
 	if ( (unsigned)arg >= cmd_argc )
 		return cmd_null_string;
@@ -544,7 +544,7 @@ Cmd_MacroExpandString
 */
 char *Cmd_MacroExpandString (char *text)
 {
-	Sint32		i, j, count, len;
+	int32_t		i, j, count, len;
 	qboolean	inquote;
 	char	*scan;
 	static	char	expanded[MAX_STRING_CHARS];
@@ -622,7 +622,7 @@ $Cvars will be expanded unless they are in a quoted token
 */
 void Cmd_TokenizeString (char *text, qboolean macroExpand)
 {
-	Sint32		i;
+	int32_t		i;
 	char	*com_token;
 
 // clear the args from the last string
@@ -658,7 +658,7 @@ void Cmd_TokenizeString (char *text, qboolean macroExpand)
 		// set cmd_args to everything after the first arg
 		if (cmd_argc == 1)
 		{
-			Sint32		l;
+			int32_t		l;
 
 			// [SkulleR]'s fix for overflow vulnerability
 			//strcpy (cmd_args, text);
@@ -781,7 +781,7 @@ Cmd_CompleteCommand
 /*char *Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	Sint32				len;
+	int32_t				len;
 	cmdalias_t		*a;
 	
 	len = strlen(partial);
@@ -813,7 +813,7 @@ char			retval[256];
 char *Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	Sint32				len,i,o,p;
+	int32_t				len,i,o,p;
 	cmdalias_t		*a;
 	cvar_t			*cvar;
 	char			*pmatch[1024];
@@ -969,7 +969,7 @@ Cmd_List_f
 void Cmd_List_f (void)
 {
 	cmd_function_t	*cmd;
-	Sint32				i;
+	int32_t				i;
 
 	i = 0;
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next, i++)

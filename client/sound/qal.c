@@ -42,14 +42,14 @@
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #else
-#include "header/AL/al.h"
-#include "header/AL/alc.h"
-#include "header/AL/alext.h"
+#include "include/AL/al.h"
+#include "include/AL/alc.h"
+#include "include/AL/alext.h"
 #endif
 
 #include "../../qcommon/qcommon.h"
-#include "header/local.h"
-#include "header/qal.h"
+#include "include/local.h"
+#include "include/qal.h"
 
 #include <SDL.h>
 

@@ -90,7 +90,7 @@ Netchan_Init
 */
 void Netchan_Init (void)
 {
-	Sint32		port;
+	int32_t		port;
 
 	// pick a port value that should be nice and random
 	port = Sys_Milliseconds() & 0xffff;
@@ -107,7 +107,7 @@ Netchan_OutOfBand
 Sends an out-of-band datagram
 ================
 */
-void Netchan_OutOfBand (Sint32 net_socket, netadr_t adr, Sint32 length, byte *data)
+void Netchan_OutOfBand (int32_t net_socket, netadr_t adr, int32_t length, byte *data)
 {
 	sizebuf_t	send;
 	byte		send_buf[MAX_MSGLEN];
@@ -129,7 +129,7 @@ Netchan_OutOfBandPrint
 Sends a text message in an out-of-band datagram
 ================
 */
-void Netchan_OutOfBandPrint (Sint32 net_socket, netadr_t adr, char *format, ...)
+void Netchan_OutOfBandPrint (int32_t net_socket, netadr_t adr, char *format, ...)
 {
 	va_list		argptr;
 	static char		string[MAX_MSGLEN - 4];
@@ -150,7 +150,7 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, Sint32 qport)
+void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int32_t qport)
 {
 	memset (chan, 0, sizeof(*chan));
 	
@@ -211,7 +211,7 @@ transmition / retransmition of the reliable messages.
 A 0 length will still generate a packet and deal with the reliable messages.
 ================
 */
-void Netchan_Transmit (netchan_t *chan, Sint32 length, byte *data)
+void Netchan_Transmit (netchan_t *chan, int32_t length, byte *data)
 {
 	sizebuf_t	send;
 	byte		send_buf[MAX_MSGLEN];
@@ -300,7 +300,7 @@ qboolean Netchan_Process (netchan_t *chan, sizebuf_t *msg)
 {
 	unsigned	sequence, sequence_ack;
 	unsigned	reliable_ack, reliable_message;
-	Sint32			qport;
+	int32_t			qport;
 
 // get sequence numbers		
 	MSG_BeginReading (msg);

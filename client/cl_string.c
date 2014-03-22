@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 StringSetParams
 ================
 */
-qboolean StringSetParams (char modifier, Sint32 *red, Sint32 *green, Sint32 *blue, Sint32 *bold, Sint32 *shadow, Sint32 *italic, Sint32 *reset)
+qboolean StringSetParams (char modifier, int32_t *red, int32_t *green, int32_t *blue, int32_t *bold, int32_t *shadow, int32_t *italic, int32_t *reset)
 {
 	if (!alt_text_color)
 		alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
@@ -75,7 +75,7 @@ qboolean StringSetParams (char modifier, Sint32 *red, Sint32 *green, Sint32 *blu
 			return true;
 		case 'A':	//alt text color
 		case 'a':
-			ColorLookup((Sint32)alt_text_color->value, red, green, blue);
+			ColorLookup((int32_t)alt_text_color->value, red, green, blue);
 			return true;
 	}
 	
@@ -88,11 +88,11 @@ qboolean StringSetParams (char modifier, Sint32 *red, Sint32 *green, Sint32 *blu
 DrawStringGeneric
 ================
 */
-void DrawStringGeneric (Sint32 x, Sint32 y, const char *string, Sint32 alpha, textscaletype_t scaleType, qboolean altBit)
+void DrawStringGeneric (int32_t x, int32_t y, const char *string, int32_t alpha, textscaletype_t scaleType, qboolean altBit)
 {
 	unsigned i, j;
 	char modifier, character;
-	Sint32 len, red, green, blue, italic, shadow, bold, reset;
+	int32_t len, red, green, blue, italic, shadow, bold, reset;
 	qboolean modified;
 	float textSize, textScale;
 
@@ -159,12 +159,12 @@ void DrawStringGeneric (Sint32 x, Sint32 y, const char *string, Sint32 alpha, te
 				if (!modified) {
 					character ^= 0x80;
 					if (character & 128)
-						ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
+						ColorLookup((int32_t)alt_text_color->value, &red, &green, &blue);
 				}
 			}
 			else {
 				if (!modified && (character & 128))
-					ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
+					ColorLookup((int32_t)alt_text_color->value, &red, &green, &blue);
 			}
 			break;
 		case SCALETYPE_CONSOLE:
@@ -173,7 +173,7 @@ void DrawStringGeneric (Sint32 x, Sint32 y, const char *string, Sint32 alpha, te
 			textScale = FONT_SIZE/8.0;
 			// hack for alternate text color
 			if (!modified && (character & 128))
-				ColorLookup((Sint32)alt_text_color->value, &red, &green, &blue);
+				ColorLookup((int32_t)alt_text_color->value, &red, &green, &blue);
 			break;
 		}
 

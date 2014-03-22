@@ -35,9 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef	ROQ_SUPPORT
 
 typedef struct {
-	Uint16	id;
-	Uint32	size;
-	Uint16	argument;
+	uint16_t	id;
+	uint32_t	size;
+	uint16_t	argument;
 } roqChunk_t;
 
 typedef struct {
@@ -54,32 +54,32 @@ typedef struct {
 	char			name[MAX_QPATH];
 	qboolean		playing;
 	fileHandle_t	file;
-	Sint32				size;
-	Sint32				start;
-	Sint32				remaining;
+	int32_t				size;
+	int32_t				start;
+	int32_t				remaining;
 	qboolean		isRoQ;
-	Sint32				rate;
+	int32_t				rate;
 	
-	Sint32				x;
-	Sint32				y;
-	Sint32				w;
-	Sint32				h;
-	Sint32				flags;
+	int32_t				x;
+	int32_t				y;
+	int32_t				w;
+	int32_t				h;
+	int32_t				flags;
 
-	Sint32				sndRate;
-	Sint32				sndWidth;
-	Sint32				sndChannels;
+	int32_t				sndRate;
+	int32_t				sndWidth;
+	int32_t				sndChannels;
 
-	Sint32				vidWidth;
-	Sint32				vidHeight;
+	int32_t				vidWidth;
+	int32_t				vidHeight;
 	byte			*vidBuffer;
 
-	Sint32				rawWidth;
-	Sint32				rawHeight;
+	int32_t				rawWidth;
+	int32_t				rawHeight;
 	byte			*rawBuffer;
 
-	Sint32				frameCount;
-	Sint32				frameTime;
+	int32_t				frameCount;
+	int32_t				frameTime;
 
 	unsigned		palette[256];
 
@@ -87,11 +87,11 @@ typedef struct {
 	byte			*pcxBuffer;
 
 	// Order 1 Huffman stuff
-	Sint32				*hNodes1;
-	Sint32				hNumNodes1[256];
+	int32_t				*hNodes1;
+	int32_t				hNumNodes1[256];
 
-	Sint32				hUsed[512];
-	Sint32				hCount[512];
+	int32_t				hUsed[512];
+	int32_t				hCount[512];
 
 	byte			*hBuffer;
 
@@ -100,7 +100,7 @@ typedef struct {
 	roqCell_t		roqCells[256];
 	roqQCell_t		roqQCells[256];
 
-	Sint16			roqSndSqrTable[256];
+	int16_t			roqSndSqrTable[256];
 
 	byte			*roqBuffer;
 	byte			*roqBufferPtr[2];
@@ -108,29 +108,29 @@ typedef struct {
 
 static cinematic_t	cinematics[MAX_CINEMATICS];
 
-void Q_strncpyz (char *dst, const char *src, Sint32 dstSize);
+void Q_strncpyz (char *dst, const char *src, int32_t dstSize);
 
 
 typedef struct
 {
-	Sint32         rendType;
+	int32_t         rendType;
 	const char	*renderer_string;
 	const char	*vendor_string;
 	const char	*version_string;
 	const char	*extensions_string;
 
 	// for parsing newer OpenGL versions
-	Sint32			version_major;
-	Sint32			version_minor;
-	Sint32			version_release;
+	int32_t			version_major;
+	int32_t			version_minor;
+	int32_t			version_release;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;
 	qboolean	ext_swap_control_tear;
 
 	// max texture size
-	Sint32			max_texsize;
-	Sint32			max_texunits;
+	int32_t			max_texsize;
+	int32_t			max_texunits;
 
 	qboolean	vertexBufferObject;
 //	qboolean	multitexture;
@@ -158,9 +158,9 @@ Q_strcat
 Never goes past bounds or leaves without a terminating 0
 =================
 */
-void Q_strcat (char *dst, const char *src, Sint32 dstSize)
+void Q_strcat (char *dst, const char *src, int32_t dstSize)
 {
-	Sint32	len;
+	int32_t	len;
 
 	len = strlen(dst);
 	if (len >= dstSize)
@@ -177,7 +177,7 @@ Com_FileExtension
 Returns the extension, if any (does not include the .)
 =================
 */
-void Com_FileExtension (const char *path, char *dst, Sint32 dstSize)
+void Com_FileExtension (const char *path, char *dst, int32_t dstSize)
 {
 	const char	*s, *last;
 
@@ -202,7 +202,7 @@ If path doesn't have a .EXT, append newExtension (newExtension should
 include the .)
 =================
 */
-void Com_DefaultExtension (char *path, Sint32 maxSize, const char *newExtension)
+void Com_DefaultExtension (char *path, int32_t maxSize, const char *newExtension)
 {
 	char	*s;
 
@@ -225,7 +225,7 @@ If path doesn't have a / or \\, append newPath (newPath should not
 include the /)
 =================
 */
-void Com_DefaultPath (char *path, Sint32 maxSize, const char *newPath)
+void Com_DefaultPath (char *path, int32_t maxSize, const char *newPath)
 {
 	char    oldPath[MAX_OSPATH], *s;
 		
@@ -248,7 +248,7 @@ void Com_DefaultPath (char *path, Sint32 maxSize, const char *newPath)
 CIN_Skip
 =================
 */
-static void CIN_Skip (cinematic_t *cin, Sint32 count)
+static void CIN_Skip (cinematic_t *cin, int32_t count)
 {
 	FS_Seek(cin->file, count, FS_SEEK_CUR);
 	cin->remaining -= count;
@@ -262,7 +262,7 @@ CIN_SoundSqrTableInit
 */
 static void CIN_SoundSqrTableInit (cinematic_t *cin)
 {
-	Sint32		i;
+	int32_t		i;
 
 	for (i = 0; i < 128; i++){
 		cin->roqSndSqrTable[i] = i * i;
@@ -302,7 +302,7 @@ CIN_ReadInfo
 static void CIN_ReadInfo (cinematic_t *cin)
 {
 	roqChunk_t	*chunk = &cin->roqChunk;
-	Sint16		data[4];
+	int16_t		data[4];
 
 	FS_Read(data, sizeof(data), cin->file);
 	cin->remaining -= sizeof(data);
@@ -338,7 +338,7 @@ CIN_ReadCodebook
 static void CIN_ReadCodebook (cinematic_t *cin)
 {
 	roqChunk_t	*chunk = &cin->roqChunk;
-	Sint32			nv1, nv2;
+	int32_t			nv1, nv2;
 
 	nv1 = (chunk->argument >> 8) & 0xff;
 	if (!nv1)
@@ -360,7 +360,7 @@ CIN_DecodeBlock
 */
 static void CIN_DecodeBlock (byte *dst0, byte *dst1, const byte *src0, const byte *src1, float u, float v)
 {
-	Sint32		rgb[3];
+	int32_t		rgb[3];
 
 	// Convert YCbCr to RGB
 	rgb[0] = 1.402 * v;
@@ -397,14 +397,14 @@ static void CIN_DecodeBlock (byte *dst0, byte *dst1, const byte *src0, const byt
 CIN_ApplyVector2x2
 =================
 */
-static void CIN_ApplyVector2x2 (cinematic_t *cin, Sint32 x, Sint32 y, const roqCell_t *cell)
+static void CIN_ApplyVector2x2 (cinematic_t *cin, int32_t x, int32_t y, const roqCell_t *cell)
 {
 	byte	*dst0, *dst1;
 
 	dst0 = cin->roqBufferPtr[0] + (y * cin->vidWidth + x) * 4;
 	dst1 = dst0 + cin->vidWidth * 4;
 
-	CIN_DecodeBlock(dst0, dst1, cell->y, cell->y+2, (float)((Sint32)cell->u - 128), (float)((Sint32)cell->v - 128));
+	CIN_DecodeBlock(dst0, dst1, cell->y, cell->y+2, (float)((int32_t)cell->u - 128), (float)((int32_t)cell->v - 128));
 }
 
 /*
@@ -412,14 +412,14 @@ static void CIN_ApplyVector2x2 (cinematic_t *cin, Sint32 x, Sint32 y, const roqC
 CIN_ApplyVector4x4
 =================
 */
-static void CIN_ApplyVector4x4 (cinematic_t *cin, Sint32 x, Sint32 y, const roqCell_t *cell)
+static void CIN_ApplyVector4x4 (cinematic_t *cin, int32_t x, int32_t y, const roqCell_t *cell)
 {
 	byte	*dst0, *dst1;
 	byte	yp[4];
 	float	u, v;
 
-	u = (float)((Sint32)cell->u - 128);
-	v = (float)((Sint32)cell->v - 128);
+	u = (float)((int32_t)cell->u - 128);
+	v = (float)((int32_t)cell->v - 128);
 
 	yp[0] = yp[1] = cell->y[0];
 	yp[2] = yp[3] = cell->y[1];
@@ -445,11 +445,11 @@ static void CIN_ApplyVector4x4 (cinematic_t *cin, Sint32 x, Sint32 y, const roqC
 CIN_ApplyMotion4x4
 =================
 */
-static void CIN_ApplyMotion4x4 (cinematic_t *cin, Sint32 x, Sint32 y, byte mv, char meanX, char meanY)
+static void CIN_ApplyMotion4x4 (cinematic_t *cin, int32_t x, int32_t y, byte mv, char meanX, char meanY)
 {
 	byte	*src, *dst;
-	Sint32		x1, y1;
-	Sint32		i;
+	int32_t		x1, y1;
+	int32_t		i;
 
 	x1 = x + 8 - (mv >> 4) - meanX;
 	y1 = y + 8 - (mv & 15) - meanY;
@@ -471,11 +471,11 @@ static void CIN_ApplyMotion4x4 (cinematic_t *cin, Sint32 x, Sint32 y, byte mv, c
 CIN_ApplyMotion8x8
 =================
 */
-static void CIN_ApplyMotion8x8 (cinematic_t *cin, Sint32 x, Sint32 y, byte mv, char meanX, char meanY)
+static void CIN_ApplyMotion8x8 (cinematic_t *cin, int32_t x, int32_t y, byte mv, char meanX, char meanY)
 {
 	byte	*src, *dst;
-	Sint32		x1, y1;
-	Sint32		i;
+	int32_t		x1, y1;
+	int32_t		i;
 
 	x1 = x + 8 - (mv >> 4) - meanX;
 	y1 = y + 8 - (mv & 15) - meanY;
@@ -497,10 +497,10 @@ static void CIN_ApplyMotion8x8 (cinematic_t *cin, Sint32 x, Sint32 y, byte mv, c
 CIN_SmallestNode1
 =================
 */
-static Sint32 CIN_SmallestNode1 (cinematic_t *cin, Sint32 numNodes)
+static int32_t CIN_SmallestNode1 (cinematic_t *cin, int32_t numNodes)
 {
-	Sint32		i;
-	Sint32		best, bestNode;
+	int32_t		i;
+	int32_t		best, bestNode;
 
 	best = 99999999;
 	bestNode = -1;
@@ -532,11 +532,11 @@ Reads the 64k counts table and initializes the node trees
 */
 static void CIN_Huff1TableInit (cinematic_t *cin)
 {
-	Sint32		prev;
-	Sint32		j;
-	Sint32		*node, *nodeBase;
+	int32_t		prev;
+	int32_t		j;
+	int32_t		*node, *nodeBase;
 	byte	counts[256];
-	Sint32		numNodes;
+	int32_t		numNodes;
 
 	if (!cin->hNodes1)
 		cin->hNodes1 = Z_Malloc(256 * 256 * 4 * 2);
@@ -583,14 +583,14 @@ static void CIN_Huff1TableInit (cinematic_t *cin)
 CIN_Huff1Decompress
 =================
 */
-static void CIN_Huff1Decompress (cinematic_t *cin, const byte *data, Sint32 size)
+static void CIN_Huff1Decompress (cinematic_t *cin, const byte *data, int32_t size)
 {
 	const byte	*input;
 	unsigned	*out;
-	Sint32			count;
-	Sint32			in;
-	Sint32			nodeNum;
-	Sint32			*nodes, *nodesBase;
+	int32_t			count;
+	int32_t			in;
+	int32_t			nodeNum;
+	int32_t			*nodes, *nodesBase;
 
 	if (!cin->hBuffer)
 		cin->hBuffer = Z_Malloc(cin->vidWidth * cin->vidHeight * 4);
@@ -709,7 +709,7 @@ CIN_ReadPalette
 */
 static void CIN_ReadPalette (cinematic_t *cin)
 {
-	Sint32		i;
+	int32_t		i;
 	byte	palette[768], *pal;
 
 	FS_Read(palette, sizeof(palette), cin->file);
@@ -732,9 +732,9 @@ CIN_ResampleFrame
 */
 static void CIN_ResampleFrame (cinematic_t *cin)
 {
-	Sint32			i, j;
+	int32_t			i, j;
 	unsigned	*src, *dst;
-	Sint32			frac, fracStep;
+	int32_t			frac, fracStep;
 
 	if (cin->rawWidth == cin->vidWidth && cin->rawHeight == cin->vidHeight)
 		return;
@@ -765,7 +765,7 @@ static void CIN_ReadVideoFrame (cinematic_t *cin)
 	if (!cin->isRoQ)
 	{
 		byte		compressed[0x20000];
-		Sint32			size;
+		int32_t			size;
 
 		FS_Read(&size, sizeof(size), cin->file);
 		cin->remaining -= sizeof(size);
@@ -785,8 +785,8 @@ static void CIN_ReadVideoFrame (cinematic_t *cin)
 	{
 		roqChunk_t	*chunk = &cin->roqChunk;
 		roqQCell_t	*qcell;
-		Sint32			i, vqFlgPos, vqId, pos, xPos, yPos, x, y, xp, yp;
-		Sint16		vqFlg;
+		int32_t			i, vqFlgPos, vqId, pos, xPos, yPos, x, y, xp, yp;
+		int16_t		vqFlg;
 		byte		c[4], *tmp;
 
 		vqFlg = 0;
@@ -942,12 +942,12 @@ CIN_ReadAudioFrame
 static void CIN_ReadAudioFrame (cinematic_t *cin)
 {
 	byte	data[0x40000];
-	Sint32		samples;
+	int32_t		samples;
 
 	if (!cin->isRoQ)
 	{
 		byte		*p;
-		Sint32			start, end, len;
+		int32_t			start, end, len;
 
 		start = cin->frameCount*cin->sndRate/14;
 		end = (cin->frameCount+1)*cin->sndRate/14;
@@ -982,8 +982,8 @@ static void CIN_ReadAudioFrame (cinematic_t *cin)
 	{
 		roqChunk_t	*chunk = &cin->roqChunk;
 		byte		compressed[0x20000];
-		Sint16		l, r;
-		Sint32			i;
+		int16_t		l, r;
+		int32_t			i;
 
 		if (cin->flags & CIN_SILENT)
 		{
@@ -1004,7 +1004,7 @@ static void CIN_ReadAudioFrame (cinematic_t *cin)
 			{
 				l += cin->roqSndSqrTable[compressed[i]];
 
-				((Sint16 *)&data)[i] = l;
+				((int16_t *)&data)[i] = l;
 			}
 
 			samples = chunk->size;
@@ -1021,8 +1021,8 @@ static void CIN_ReadAudioFrame (cinematic_t *cin)
 				l += cin->roqSndSqrTable[compressed[i+0]];
 				r += cin->roqSndSqrTable[compressed[i+1]];
 
-				((Sint16 *)&data)[i+0] = l;
-				((Sint16 *)&data)[i+1] = r;
+				((int16_t *)&data)[i+0] = l;
+				((int16_t *)&data)[i+1] = r;
 			}
 
 			samples = chunk->size / 2;
@@ -1043,7 +1043,7 @@ static qboolean CIN_ReadNextFrame (cinematic_t *cin)
 {
 	if (!cin->isRoQ)
 	{
-		Sint32			command;
+		int32_t			command;
 		
 		while (cin->remaining > 0)
 		{
@@ -1114,10 +1114,10 @@ static qboolean CIN_StaticCinematic (cinematic_t *cin, const char *name)
 	byte		*buffer;
 	byte		*in, *out;
 	pcx_t		*pcx;
-	Sint32			x, y, len;
-	Sint32			dataByte, runLength;
+	int32_t			x, y, len;
+	int32_t			dataByte, runLength;
 	byte		palette[768], *pal;
-	Sint32			i;
+	int32_t			i;
 
 	// Load the file
 	len = FS_LoadFile((char *)name, (void **)&buffer);
@@ -1233,7 +1233,7 @@ CIN_HandleForVideo
 static cinematic_t *CIN_HandleForVideo (cinHandle_t *handle)
 {
 	cinematic_t	*cin;
-	Sint32			i;
+	int32_t			i;
 
 	for (i = 0, cin = cinematics; i < MAX_CINEMATICS; i++, cin++)
 	{
@@ -1280,7 +1280,7 @@ CIN_RunCinematic
 qboolean CIN_RunCinematic (cinHandle_t handle)
 {
 	cinematic_t	*cin;
-	Sint32			frame;
+	int32_t			frame;
 
 	cin = CIN_GetVideoByHandle(handle);
 
@@ -1335,7 +1335,7 @@ qboolean CIN_RunCinematic (cinHandle_t handle)
 CIN_SetExtents
 =================
 */
-void CIN_SetExtents (cinHandle_t handle, Sint32 x, Sint32 y, Sint32 w, Sint32 h)
+void CIN_SetExtents (cinHandle_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
 {
 	cinematic_t	*cin;
 	float		realx, realy, realw, realh;
@@ -1498,11 +1498,11 @@ void CIN_DrawCinematic (cinHandle_t handle){
 CIN_PlayCinematic
 =================
 */
-cinHandle_t CIN_PlayCinematic (const char *name, Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 flags)
+cinHandle_t CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flags)
 {
 	cinematic_t	*cin;
 	cinHandle_t	handle;
-	Sint32			i;
+	int32_t			i;
 	char		extension[8];
 	float		realx, realy, realw, realh;
 
@@ -1521,7 +1521,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, Sint32 x, Sint32 y, Sint32 w, S
 	if (!Q_stricmp(extension, "cin")) // RoQ autoreplace hack
 	{
 		char s[MAX_QPATH];
-		Sint32 len;
+		int32_t len;
 		len = strlen(name);
 		strcpy (s, name);
 		s[len-3]='r'; s[len-2]='o'; s[len-1]='q';

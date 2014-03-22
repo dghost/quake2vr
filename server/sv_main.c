@@ -113,7 +113,7 @@ Given an netadr_t, returns the matching client.
 client_t *GetClientFromAdr (netadr_t address)
 {
 	client_t	*cl;
-	Sint32			i;
+	int32_t			i;
 	qboolean	found = false;
 
 	for (i = 0; i < maxclients->value; i++)
@@ -204,10 +204,10 @@ char	*SV_StatusString (void)
 {
 	char	player[1024];
 	static char	status[MAX_MSGLEN - 16];
-	Sint32		i;
+	int32_t		i;
 	client_t	*cl;
-	Sint32		statusLength;
-	Sint32		playerLength;
+	int32_t		statusLength;
+	int32_t		playerLength;
 
 	strcpy (status, Cvar_Serverinfo());
 	strcat (status, "\n");
@@ -263,15 +263,15 @@ void SVC_Ack (void)
 ================
 SVC_Info
 
-Responds with Sint16 info for broadcast scans
+Responds with int16_t info for broadcast scans
 The second parameter should be the current protocol version number.
 ================
 */
 void SVC_Info (void)
 {
 	char	string[64];
-	Sint32		i, count;
-	Sint32		version;
+	int32_t		i, count;
+	int32_t		version;
 
 	if (maxclients->value == 1)
 		return;		// ignore in single player
@@ -290,7 +290,7 @@ void SVC_Info (void)
 			if (svs.clients[i].state >= cs_connected)
 				count++;
 
-		Com_sprintf (string, sizeof(string), "%16s %8s %2i/%2i\n", hostname->string, sv.name, count, (Sint32)maxclients->value);
+		Com_sprintf (string, sizeof(string), "%16s %8s %2i/%2i\n", hostname->string, sv.name, count, (int32_t)maxclients->value);
 	}
 
 	Netchan_OutOfBandPrint (NS_SERVER, net_from, "info\n%s", string);
@@ -322,9 +322,9 @@ challenge, they must give a valid IP address.
 */
 void SVC_GetChallenge (void)
 {
-	Sint32		i;
-	Sint32		oldest;
-	Sint32		oldestTime;
+	int32_t		i;
+	int32_t		oldest;
+	int32_t		oldestTime;
 
 	oldest = 0;
 	oldestTime = 0x7fffffff;
@@ -365,15 +365,15 @@ void SVC_DirectConnect (void)
 {
 	char		userinfo[MAX_INFO_STRING];
 	netadr_t	adr;
-	Sint32			i;
+	int32_t			i;
 	client_t	*cl, *newcl;
 	client_t	temp;
 	edict_t		*ent;
-	Sint32			edictnum;
-	Sint32			version;
-	Sint32			qport;
-	Sint32			challenge;
-	Sint32			previousclients;	// rich: connection limit per IP
+	int32_t			edictnum;
+	int32_t			version;
+	int32_t			qport;
+	int32_t			challenge;
+	int32_t			previousclients;	// rich: connection limit per IP
 
 	adr = net_from;
 
@@ -393,7 +393,7 @@ void SVC_DirectConnect (void)
 
 	// r1ch: limit connections from a single IP
 	previousclients = 0;
-	for (i=0,cl=svs.clients; i<(Sint32)maxclients->value; i++,cl++)
+	for (i=0,cl=svs.clients; i<(int32_t)maxclients->value; i++,cl++)
 	{
 		if (cl->state == cs_free)
 			continue;
@@ -406,7 +406,7 @@ void SVC_DirectConnect (void)
 				previousclients += 2;
 		}
 	}
-	if (previousclients >= (Sint32)sv_iplimit->value * 2)
+	if (previousclients >= (int32_t)sv_iplimit->value * 2)
 	{
 		Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nToo many connections from your host.\n");
 		Com_DPrintf ("    too many connections\n");
@@ -463,7 +463,7 @@ void SVC_DirectConnect (void)
 			&& ( cl->netchan.qport == qport 
 			|| adr.port == cl->netchan.remote_address.port ) )
 		{
-			if (!NET_IsLocalAddress (adr) && (svs.realtime - cl->lastconnect) < ((Sint32)sv_reconnect_limit->value * 1000))
+			if (!NET_IsLocalAddress (adr) && (svs.realtime - cl->lastconnect) < ((int32_t)sv_reconnect_limit->value * 1000))
 			{
 				Com_DPrintf ("%s:reconnect rejected : too soon\n", NET_AdrToString (adr));
 				return;
@@ -546,7 +546,7 @@ gotnewcl:
 	newcl->lastconnect = svs.realtime;
 }
 
-Sint32 Rcon_Validate (void)
+int32_t Rcon_Validate (void)
 {
 	if (!strlen (rcon_password->string))
 		return 0;
@@ -568,7 +568,7 @@ Redirect all printfs
 */
 void SVC_RemoteCommand (void)
 {
-	Sint32		i;
+	int32_t		i;
 	char	remaining[1024];
 
 	i = Rcon_Validate ();
@@ -664,9 +664,9 @@ Updates the cl->ping variables
 */
 void SV_CalcPings (void)
 {
-	Sint32			i, j;
+	int32_t			i, j;
 	client_t	*cl;
-	Sint32			total, count;
+	int32_t			total, count;
 
 	for (i=0 ; i<maxclients->value ; i++)
 	{
@@ -716,7 +716,7 @@ for their command moves.  If they exceed it, assume cheating.
 */
 void SV_GiveMsec (void)
 {
-	Sint32			i;
+	int32_t			i;
 	client_t	*cl;
 
 	if (sv.framenum & 15)
@@ -740,14 +740,14 @@ SV_ReadPackets
 */
 void SV_ReadPackets (void)
 {
-	Sint32			i;
+	int32_t			i;
 	client_t	*cl;
-	Sint32			qport;
+	int32_t			qport;
 
 	while (NET_GetPacket (NS_SERVER, &net_from, &net_message))
 	{
 		// check for connectionless packet (0xffffffff) first
-		if (*(Sint32 *)net_message.data == -1)
+		if (*(int32_t *)net_message.data == -1)
 		{
 			SV_ConnectionlessPacket ();
 			continue;
@@ -806,10 +806,10 @@ if necessary
 */
 void SV_CheckTimeouts (void)
 {
-	Sint32		i;
+	int32_t		i;
 	client_t	*cl;
-	Sint32			droppoint;
-	Sint32			zombiepoint;
+	int32_t			droppoint;
+	int32_t			zombiepoint;
 
 	droppoint = svs.realtime - 1000*timeout->value;
 	zombiepoint = svs.realtime - 1000*zombietime->value;
@@ -850,7 +850,7 @@ player processing happens outside RunWorldFrame
 void SV_PrepWorldFrame (void)
 {
 	edict_t	*ent;
-	Sint32		i;
+	int32_t		i;
 
 	for (i=0 ; i<ge->num_edicts ; i++, ent++)
 	{
@@ -904,7 +904,7 @@ SV_Frame
 
 ==================
 */
-void SV_Frame (Sint32 msec)
+void SV_Frame (int32_t msec)
 {
 	time_before_game = time_after_game = 0;
 
@@ -974,7 +974,7 @@ let it know we are alive, and log information
 void Master_Heartbeat (void)
 {
 	char		*string;
-	Sint32			i;
+	int32_t			i;
 
 	// pgm post 3.19 change, cvar pointer not validated before dereferencing
 	if (!dedicated || !dedicated->value)
@@ -1014,7 +1014,7 @@ Informs all masters that this server is going down
 */
 void Master_Shutdown (void)
 {
-	Sint32			i;
+	int32_t			i;
 
 	// pgm post3.19 change, cvar pointer not validated before dereferencing
 	if (!dedicated || !dedicated->value)
@@ -1048,7 +1048,7 @@ into a more C freindly form.
 void SV_UserinfoChanged (client_t *cl)
 {
 	char	*val;
-	Sint32		i;
+	int32_t		i;
 
 	// call prog code to allow overrides
 	ge->ClientUserinfoChanged (cl->edict, cl->userinfo);
@@ -1150,7 +1150,7 @@ to totally exit after returning from this function.
 */
 void SV_FinalMessage (char *message, qboolean reconnect)
 {
-	Sint32			i;
+	int32_t			i;
 	client_t	*cl;
 	
 	SZ_Clear (&net_message);

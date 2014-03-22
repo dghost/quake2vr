@@ -53,18 +53,18 @@
 
 #include "wildcard.h"
 
-Sint32 set (char **wildcard, char **test);
+int32_t set (char **wildcard, char **test);
 /* Scans a set of characters and returns 0 if the set mismatches at this */
 /* position in the teststring and 1 if it is matching                    */
 /* wildcard is set to the closing ] and test is unmodified if mismatched */
 /* and otherwise the char pointer is pointing to the next character      */
 
-Sint32 asterisk (char **wildcard, char **test);
+int32_t asterisk (char **wildcard, char **test);
 /* scans an asterisk */
 
-Sint32 wildcardfit (char *wildcard, char *test)
+int32_t wildcardfit (char *wildcard, char *test)
 {
-   Sint32 fit = 1;
+   int32_t fit = 1;
 
    for (; ('\000' != *wildcard) && (1 == fit) && ('\000' != *test); wildcard++)
      {
@@ -86,7 +86,7 @@ Sint32 wildcardfit (char *wildcard, char *test)
   wildcard--;
            break;
          default:
-           fit = (Sint32) (*wildcard == *test);
+           fit = (int32_t) (*wildcard == *test);
            test++;
          }
      }
@@ -94,14 +94,14 @@ Sint32 wildcardfit (char *wildcard, char *test)
      /* here the teststring is empty otherwise you cannot */
      /* leave the previous loop */
      wildcard++;
-   return (Sint32) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
+   return (int32_t) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
 }
 
-Sint32 set (char **wildcard, char **test)
+int32_t set (char **wildcard, char **test)
 {
-   Sint32 fit = 0;
-   Sint32 negation = 0;
-   Sint32 at_beginning = 1;
+   int32_t fit = 0;
+   int32_t negation = 0;
+   int32_t at_beginning = 1;
 
    if ('!' == **wildcard)
      {
@@ -141,10 +141,10 @@ Sint32 set (char **wildcard, char **test)
    return (fit);
 }
 
-Sint32 asterisk (char **wildcard, char **test)
+int32_t asterisk (char **wildcard, char **test)
 {
    /* Warning: uses multiple returns */
-   Sint32 fit = 1;
+   int32_t fit = 1;
 
    /* erase the leading asterisk */
    (*wildcard)++;

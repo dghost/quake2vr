@@ -57,7 +57,7 @@ CL_RegisterSounds
 */
 void CL_RegisterSounds (void)
 {
-	Sint32		i;
+	int32_t		i;
 
 	S_BeginRegistration ();
 	CL_RegisterTEntSounds ();
@@ -142,7 +142,7 @@ void CL_ParseServerData (void)
 {
 	extern cvar_t	*fs_gamedirvar;
 	char	*str;
-	Sint32		i;
+	int32_t		i;
 	
 	Com_DPrintf ("Serverdata packet received.\n");
 //
@@ -210,8 +210,8 @@ CL_ParseBaseline
 void CL_ParseBaseline (void)
 {
 	entity_state_t	*es;
-	Sint32				bits;
-	Sint32				newnum;
+	int32_t				bits;
+	int32_t				newnum;
 	entity_state_t	nullstate;
 
 	memset (&nullstate, 0, sizeof(nullstate));
@@ -230,7 +230,7 @@ CL_LoadClientinfo
 */
 void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 {
-	Sint32 i;
+	int32_t i;
 	char		*t;
 	char		model_name[MAX_QPATH];
 	char		skin_name[MAX_QPATH];
@@ -349,7 +349,7 @@ CL_ParseClientinfo
 Load the skin, icon, and model for a client
 ================
 */
-void CL_ParseClientinfo (Sint32 player)
+void CL_ParseClientinfo (int32_t player)
 {
 	char			*s;
 	clientinfo_t	*ci;
@@ -377,7 +377,7 @@ This assumes that the standard Q2 CD was ripped
 as track02-track11, and the Rogue CD as track12-track21.
 ================
 */
-Sint32 CL_MissionPackCDTrack (Sint32 tracknum)
+int32_t CL_MissionPackCDTrack (int32_t tracknum)
 {
 	if (modType("rogue") || cl_rogue_music->value)
 	{
@@ -414,12 +414,12 @@ Sint32 CL_MissionPackCDTrack (Sint32 tracknum)
 CL_PlayBackgroundTrack
 =================
 */
-#include "sound/header/vorbis.h"
+#include "sound/include/vorbis.h"
 
 void CL_PlayBackgroundTrack (void)
 {
 	char	name[MAX_QPATH];
-	Sint32		track;
+	int32_t		track;
 
 	if (!cl.refresh_prepped)
 		return;
@@ -454,7 +454,7 @@ CL_ParseConfigString
 */
 void CL_ParseConfigString (void)
 {
-	Sint32		i;
+	int32_t		i;
 	char	*s;
 	char	olds[MAX_QPATH];
 
@@ -566,11 +566,11 @@ void CL_ParseStartSoundPacket(void)
 {
     vec3_t  pos_v;
 	float	*pos;
-    Sint32 	channel, ent;
-    Sint32 	sound_num;
+    int32_t 	channel, ent;
+    int32_t 	sound_num;
     float 	volume;
     float 	attenuation;  
-	Sint32		flags;
+	int32_t		flags;
 	float	ofs;
 
 	flags = MSG_ReadByte (&net_message);
@@ -687,7 +687,7 @@ CL_ParseFog
 void CL_ParseFog (void)
 {
 	qboolean fogenable;
-	Sint32 model, density, start, end,
+	int32_t model, density, start, end,
 			red, green, blue, temp;
 
 	temp = MSG_ReadByte (&net_message);
@@ -710,9 +710,9 @@ CL_ParseServerMessage
 */
 void CL_ParseServerMessage (void)
 {
-	Sint32			cmd;
+	int32_t			cmd;
 	char		*s;
-	Sint32			i;
+	int32_t			i;
 
 //
 // if recording demos, copy the message out

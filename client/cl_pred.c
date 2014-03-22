@@ -28,10 +28,10 @@ CL_CheckPredictionError
 */
 void CL_CheckPredictionError (void)
 {
-	Sint32		frame;
-	Sint32		delta[3];
-	Sint32		i;
-	Sint32		len;
+	int32_t		frame;
+	int32_t		delta[3];
+	int32_t		i;
+	int32_t		len;
 
 	if (!cl_predict->value || (cl.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 		return;
@@ -71,12 +71,12 @@ CL_ClipMoveToEntities
 */
 void CL_ClipMoveToEntities (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, trace_t *tr)
 {
-	Sint32			i, x, zd, zu;
+	int32_t			i, x, zd, zu;
 	trace_t		trace;
-	Sint32			headnode;
+	int32_t			headnode;
 	float		*angles;
 	entity_state_t	*ent;
-	Sint32			num;
+	int32_t			num;
 	cmodel_t		*cmodel;
 	vec3_t		bmins, bmaxs;
 
@@ -144,14 +144,14 @@ CL_ClipMoveToEntities2
 Similar to above, but uses entnum as reference.
 ====================
 */
-void CL_ClipMoveToEntities2 (Sint32 entnum, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, trace_t *tr)
+void CL_ClipMoveToEntities2 (int32_t entnum, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, trace_t *tr)
 {
-	Sint32			i, x, zd, zu;
+	int32_t			i, x, zd, zu;
 	trace_t		trace;
-	Sint32			headnode;
+	int32_t			headnode;
 	float		*angles;
 	entity_state_t	*ent;
-	Sint32			num;
+	int32_t			num;
 	cmodel_t		*cmodel;
 	vec3_t		bmins, bmaxs;
 
@@ -223,12 +223,12 @@ but only checks against brush models.
 */
 void CL_ClipMoveToBrushEntities ( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, trace_t *tr )
 {
-	Sint32			i;
+	int32_t			i;
 	trace_t		trace;
-	Sint32			headnode;
+	int32_t			headnode;
 	float		*angles;
 	entity_state_t	*ent;
-	Sint32			num;
+	int32_t			num;
 	cmodel_t		*cmodel;
 
 	for (i=0 ; i<cl.frame.num_entities ; i++)
@@ -276,7 +276,7 @@ void CL_ClipMoveToBrushEntities ( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t
 CL_Trace
 ====================
 */
-trace_t CL_Trace (vec3_t start, vec3_t end, float size,  Sint32 contentmask)
+trace_t CL_Trace (vec3_t start, vec3_t end, float size,  int32_t contentmask)
 {
 	vec3_t maxs, mins;
 
@@ -294,7 +294,7 @@ Similar to CL_Trace, but also
 clips against brush models.
 ====================
 */
-trace_t CL_BrushTrace (vec3_t start, vec3_t end, float size,  Sint32 contentmask)
+trace_t CL_BrushTrace (vec3_t start, vec3_t end, float size,  int32_t contentmask)
 {
 	vec3_t maxs, mins;
 	trace_t	t;
@@ -344,7 +344,7 @@ trace_t CL_PMTrace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 CL_PMSurfaceTrace
 ================
 */
-trace_t CL_PMSurfaceTrace (Sint32 playernum, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, Sint32 contentmask)
+trace_t CL_PMSurfaceTrace (int32_t playernum, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int32_t contentmask)
 {
 	trace_t	t;
 
@@ -364,13 +364,13 @@ trace_t CL_PMSurfaceTrace (Sint32 playernum, vec3_t start, vec3_t mins, vec3_t m
 	return t;
 }
 
-Sint32 CL_PMpointcontents (vec3_t point)
+int32_t CL_PMpointcontents (vec3_t point)
 {
-	Sint32			i;
+	int32_t			i;
 	entity_state_t	*ent;
-	Sint32			num;
+	int32_t			num;
 	cmodel_t		*cmodel;
-	Sint32			contents;
+	int32_t			contents;
 
 	contents = CM_PointContents (point, 0);
 
@@ -395,13 +395,13 @@ Sint32 CL_PMpointcontents (vec3_t point)
 
 // Modified version of above for ignoring bmodels by Berserker
 typedef struct model_s model_t;
-Sint32 CL_PMpointcontents2 (vec3_t point, model_t *ignore)
+int32_t CL_PMpointcontents2 (vec3_t point, model_t *ignore)
 {
-	Sint32			i;
+	int32_t			i;
 	entity_state_t	*ent;
-	Sint32			num;
+	int32_t			num;
 	cmodel_t		*cmodel;
-	Sint32			contents;
+	int32_t			contents;
 
 	contents = CM_PointContents (point, 0);
 
@@ -436,14 +436,14 @@ Sets cl.predicted_origin and cl.predicted_angles
 */
 void CL_PredictMovement (void)
 {
-	Sint32			ack, current;
-	Sint32			frame;
-	Sint32			oldframe;
+	int32_t			ack, current;
+	int32_t			frame;
+	int32_t			oldframe;
 	usercmd_t	*cmd;
 	pmove_t		pm;
-	Sint32			i;
-	Sint32			step;
-	Sint32			oldz;
+	int32_t			i;
+	int32_t			step;
+	int32_t			oldz;
 
 	if (cls.state != ca_active)
 		return;

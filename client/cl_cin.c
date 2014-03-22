@@ -25,29 +25,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct
 {
 	byte	*data;
-	Sint32		count;
+	int32_t		count;
 } cblock_t;
 
 typedef struct
 {
 	qboolean	restart_sound;
-	Sint32		s_rate;
-	Sint32		s_width;
-	Sint32		s_channels;
+	int32_t		s_rate;
+	int32_t		s_width;
+	int32_t		s_channels;
 
-	Sint32		width;
-	Sint32		height;
+	int32_t		width;
+	int32_t		height;
 	byte	*pic;
 	byte	*pic_pending;
 	qboolean	isStaticPic;	// Knightmare added
 	char	picName[MAX_OSPATH];// Knightmare added
 
 	// order 1 huffman stuff
-	Sint32		*hnodes1;	// [256][256][2];
-	Sint32		numhnodes1[256];
+	int32_t		*hnodes1;	// [256][256][2];
+	int32_t		numhnodes1[256];
 
-	Sint32		h_used[512];
-	Sint32		h_count[512];
+	int32_t		h_used[512];
+	int32_t		h_count[512];
 } cinematics_t;
 
 cinematics_t	cin;
@@ -66,13 +66,13 @@ PCX LOADING
 SCR_LoadPCX
 ==============
 */
-void SCR_LoadPCX (char *filename, byte **pic, byte **palette, Sint32 *width, Sint32 *height)
+void SCR_LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_t *height)
 {
 	byte	*raw;
 	pcx_t	*pcx;
-	Sint32		x, y;
-	Sint32		len;
-	Sint32		dataByte, runLength;
+	int32_t		x, y;
+	int32_t		len;
+	int32_t		dataByte, runLength;
 	byte	*out, *pix;
 
 	*pic = NULL;
@@ -216,10 +216,10 @@ void SCR_FinishCinematic (void)
 SmallestNode1
 ==================
 */
-Sint32	SmallestNode1 (Sint32 numhnodes)
+int32_t	SmallestNode1 (int32_t numhnodes)
 {
-	Sint32		i;
-	Sint32		best, bestnode;
+	int32_t		i;
+	int32_t		best, bestnode;
 
 	best = 99999999;
 	bestnode = -1;
@@ -253,11 +253,11 @@ Reads the 64k counts table and initializes the node trees
 */
 void Huff1TableInit (void)
 {
-	Sint32		prev;
-	Sint32		j;
-	Sint32		*node, *nodebase;
+	int32_t		prev;
+	int32_t		j;
+	int32_t		*node, *nodebase;
 	byte	counts[256];
-	Sint32		numhnodes;
+	int32_t		numhnodes;
 
 	cin.hnodes1 = Z_Malloc (256*256*2*4);
 	memset (cin.hnodes1, 0, 256*256*2*4);
@@ -306,12 +306,12 @@ cblock_t Huff1Decompress (cblock_t in)
 {
 	byte		*input;
 	byte		*out_p;
-	Sint32			nodenum;
-	Sint32			count;
+	int32_t			nodenum;
+	int32_t			count;
 	cblock_t	out;
-	Sint32			inbyte;
-	Sint32			*hnodes, *hnodesbase;
-	//Sint32		i;
+	int32_t			inbyte;
+	int32_t			*hnodes, *hnodesbase;
+	//int32_t		i;
 
 	// get decompressed count
 	count = in.data[0] + (in.data[1]<<8) + (in.data[2]<<16) + (in.data[3]<<24);
@@ -433,14 +433,14 @@ SCR_ReadNextFrame
 */
 byte *SCR_ReadNextFrame (void)
 {
-	Sint32		r;
-	Sint32		command;
+	int32_t		r;
+	int32_t		command;
 	byte	samples[22050/14*4];
 	byte	compressed[0x20000];
-	Sint32		size;
+	int32_t		size;
 	byte	*pic;
 	cblock_t	in, huf1;
-	Sint32		start, end, count;
+	int32_t		start, end, count;
 
 	// read the next frame
 	r = FS_FRead (&command, 4, 1, cl.cinematic_file);
@@ -497,7 +497,7 @@ SCR_RunCinematic
 */
 void SCR_RunCinematic (void)
 {
-	Sint32		frame;
+	int32_t		frame;
 
 	if (cl.cinematictime <= 0)
 	{
@@ -591,10 +591,10 @@ SCR_PlayCinematic
 */
 void SCR_PlayCinematic (char *arg)
 {
-	Sint32		width, height;
+	int32_t		width, height;
 	byte	*palette;
 	char	name[MAX_OSPATH], *dot;
-	Sint32		old_khz;
+	int32_t		old_khz;
 
 	cin.isStaticPic = false; // Knightmare added
 

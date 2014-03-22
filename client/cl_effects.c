@@ -34,7 +34,7 @@ extern	unsigned	d_8to24table[256];
 CL_LightningBeam
 ===============
 */
-/*void CL_LightningBeam(vec3_t start, vec3_t end, Sint32 srcEnt, Sint32 dstEnt, float size)
+/*void CL_LightningBeam(vec3_t start, vec3_t end, int32_t srcEnt, int32_t dstEnt, float size)
 {
 	cparticle_t *list;
 	cparticle_t *p=NULL;
@@ -104,7 +104,7 @@ CL_LightningBeam
 		PART_BEAM,
 		NULL,0);
 }*/
-void CL_LightningBeam (vec3_t start, vec3_t end, Sint32 srcEnt, Sint32 dstEnt, float size)
+void CL_LightningBeam (vec3_t start, vec3_t end, int32_t srcEnt, int32_t dstEnt, float size)
 {
 	cparticle_t *list;
 	cparticle_t *p=NULL;
@@ -147,11 +147,11 @@ void CL_LightningBeam (vec3_t start, vec3_t end, Sint32 srcEnt, Sint32 dstEnt, f
 CL_Explosion_Decal
 ===============
 */
-void CL_Explosion_Decal (vec3_t org, float size, Sint32 decalnum)
+void CL_Explosion_Decal (vec3_t org, float size, int32_t decalnum)
 {
 	if (r_decals->value)
 	{
-		Sint32			i, j, offset=8;	//size/2
+		int32_t			i, j, offset=8;	//size/2
 		cparticle_t	*p;
 		vec3_t		angle[6], ang;
 		trace_t		trace1, trace2;
@@ -225,7 +225,7 @@ void CL_Explosion_Decal (vec3_t org, float size, Sint32 decalnum)
 CL_ExplosionThink
 ===============
 */
-void CL_ExplosionThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ExplosionThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	if (*alpha>.85)
 		*image = particle_rexplosion1;
@@ -255,7 +255,7 @@ void CL_ExplosionThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, 
 CL_ExplosionBubbleThink
 ===============
 */
-void CL_ExplosionBubbleThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ExplosionBubbleThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 
 	if (CM_PointContents(org,0) & MASK_WATER)
@@ -356,9 +356,9 @@ void CL_Explosion_FlashParticle (vec3_t org, float size, qboolean large)
 CL_ParticleExplosionSparksThink
 ===============
 */
-void CL_ParticleExplosionSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleExplosionSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
-	Sint32 i;
+	int32_t i;
 
 	//setting up angle for sparks
 	{
@@ -380,9 +380,9 @@ void CL_ParticleExplosionSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, 
 CL_Explosion_Sparks
 ===============
 */
-void CL_Explosion_Sparks (vec3_t org, Sint32 size, Sint32 count)
+void CL_Explosion_Sparks (vec3_t org, int32_t size, int32_t count)
 {
-	Sint32	i;
+	int32_t	i;
 
 	for (i=0; i < (count/cl_particle_scale->value); i++) // was 256
 	{
@@ -410,8 +410,8 @@ Blood effects
 
 =====================
 */
-void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time);
-void CL_BloodPuff (vec3_t org, vec3_t dir, Sint32 count);
+void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time);
+void CL_BloodPuff (vec3_t org, vec3_t dir, int32_t count);
 
 #define MAXBLEEDSIZE 5
 #define TIMEBLOODGROW 2.5f
@@ -422,7 +422,7 @@ void CL_BloodPuff (vec3_t org, vec3_t dir, Sint32 count);
 CL_ParticleBloodDecalThink
 ===============
 */
-void CL_ParticleBloodDecalThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBloodDecalThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {	// This REALLY slows things down
 	/*if (*time<TIMEBLOODGROW)
 	{
@@ -444,7 +444,7 @@ void CL_ParticleBloodDecalThink (cparticle_t *p, vec3_t org, vec3_t angle, float
 CL_ParticleBloodDropThink
 ===============
 */
-void CL_ParticleBloodDropThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBloodDropThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	float length;
 	vec3_t len;
@@ -467,7 +467,7 @@ void CL_ParticleBloodDropThink (cparticle_t *p, vec3_t org, vec3_t angle, float 
 CL_ParticleBloodPuffThink
 ===============
 */
-void CL_ParticleBloodPuffThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBloodPuffThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	angle[2] =	angle[0] + *time*angle[1] + *time**time*angle[2];
 
@@ -480,7 +480,7 @@ void CL_ParticleBloodPuffThink (cparticle_t *p, vec3_t org, vec3_t angle, float 
 CL_ParticleBloodThink
 ===============
 */
-void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	trace_t	trace = CL_Trace (p->oldorg, org, 0, CONTENTS_SOLID); // was 0.1
 	qboolean became_decal = false;
@@ -492,7 +492,7 @@ void CL_ParticleBloodThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alp
 			&& !(CM_PointContents(p->oldorg,0) & MASK_WATER)) // no blood splatters underwater...
 		{
 			vec3_t	normal, dir;
-			Sint32		i;
+			int32_t		i;
 			qboolean greenblood = false;
 			qboolean timedout = false;
 			if (p->color[1] > 0 && p->color[2] > 0)
@@ -588,11 +588,11 @@ void CL_BloodSmack (vec3_t org, vec3_t dir)
 CL_BloodBleed
 ===============
 */
-void CL_BloodBleed (vec3_t org, vec3_t dir, Sint32 count)
+void CL_BloodBleed (vec3_t org, vec3_t dir, int32_t count)
 {
 	cparticle_t *p;
 	vec3_t	pos;
-	Sint32		i;
+	int32_t		i;
 
 	VectorScale(dir, 10, pos);
 	for (i=0; i<count; i++)
@@ -628,10 +628,10 @@ void CL_BloodBleed (vec3_t org, vec3_t dir, Sint32 count)
 CL_BloodPuff
 ===============
 */
-void CL_BloodPuff (vec3_t org, vec3_t dir, Sint32 count)
+void CL_BloodPuff (vec3_t org, vec3_t dir, int32_t count)
 {
 	cparticle_t *p;
-	Sint32		i;
+	int32_t		i;
 	float	d;
 
 	for (i=0; i<count; i++)
@@ -685,7 +685,7 @@ green blood spray
 void CL_GreenBloodHit (vec3_t org, vec3_t dir)
 {
 	cparticle_t *p;
-	Sint32		i;
+	int32_t		i;
 	float	d;
 
 	if (cl_blood->value < 1) // disable blood option
@@ -721,9 +721,9 @@ CL_ParticleEffect
 Wall impact puffs
 ===============
 */
-void CL_ParticleEffect (vec3_t org, vec3_t dir, Sint32 color8, Sint32 count)
+void CL_ParticleEffect (vec3_t org, vec3_t dir, int32_t color8, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	vec3_t color = { color8red(color8), color8green(color8), color8blue(color8)};
 
@@ -753,9 +753,9 @@ CL_ParticleEffect2
 */
 
 #define colorAdd 25
-void CL_ParticleEffect2 (vec3_t org, vec3_t dir, Sint32 color8, Sint32 count)
+void CL_ParticleEffect2 (vec3_t org, vec3_t dir, int32_t color8, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	vec3_t color = { color8red(color8), color8green(color8), color8blue(color8)};
 
@@ -785,9 +785,9 @@ CL_ParticleEffect3
 ===============
 */
 
-void CL_ParticleEffect3 (vec3_t org, vec3_t dir, Sint32 color8, Sint32 count)
+void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int32_t color8, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	vec3_t color = { color8red(color8), color8green(color8), color8blue(color8)};
 
@@ -817,9 +817,9 @@ CL_ParticleSplashThink
 ===============
 */
 #define SplashSize 7.5
-void CL_ParticleSplashThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleSplashThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
-	Sint32 i;
+	int32_t i;
 	vec3_t len;
 	VectorSubtract(p->angle, org, len);
 	
@@ -849,9 +849,9 @@ CL_ParticleEffectSplash
 Water Splashing
 ===============
 */
-void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, Sint32 color8, Sint32 count)
+void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, int32_t color8, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	vec3_t color = {color8red(color8), color8green(color8), color8blue(color8)};
 
@@ -873,11 +873,11 @@ void CL_ParticleEffectSplash (vec3_t org, vec3_t dir, Sint32 color8, Sint32 coun
 			CL_ParticleSplashThink,true);
 	}
 }
-void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time);
+void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time);
 
-void CL_ParticleEffectSplashSpark (vec3_t org, vec3_t dir, Sint32 color8, Sint32 count)
+void CL_ParticleEffectSplashSpark (vec3_t org, vec3_t dir, int32_t color8, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	float speed = 0.75;
 	vec3_t color = {color8red(color8), color8green(color8), color8blue(color8)};
@@ -907,10 +907,10 @@ void CL_ParticleEffectSplashSpark (vec3_t org, vec3_t dir, Sint32 color8, Sint32
 CL_ParticleSparksThink
 ===============
 */
-void CL_ParticleSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	//vec3_t dir;
-	Sint32 i;
+	int32_t i;
 
 	//setting up angle for sparks
 	{
@@ -932,9 +932,9 @@ void CL_ParticleSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 CL_ParticleEffectSparks
 ===============
 */
-void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, Sint32 count)
+void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		d;
 	cparticle_t *p = NULL;
 
@@ -1018,7 +1018,7 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 {
 	vec3_t		ang, angle, end, origin;
 	trace_t		tr;
-	Sint32 beamred, beamgreen, beamblue;
+	int32_t beamred, beamgreen, beamblue;
 
 	if (!r_decals->value)
 		return;
@@ -1045,7 +1045,7 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 		} 
 		else 
 		{
-			Uint32 temp = 0x74 + (rand() & 7);
+			uint32_t temp = 0x74 + (rand() & 7);
 			beamred = color8red(temp);
 			beamgreen = color8green(temp);
 			beamblue = color8blue(temp);
@@ -1104,7 +1104,7 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 CL_ParticleBlasterDecal
 ===============
 */
-void CL_ParticleBlasterDecal (vec3_t org, vec3_t dir, float size, Sint32 red, Sint32 green, Sint32 blue)
+void CL_ParticleBlasterDecal (vec3_t org, vec3_t dir, float size, int32_t red, int32_t green, int32_t blue)
 {
 	cparticle_t	*p;
 	vec3_t		ang, angle, end, origin;
@@ -1220,7 +1220,7 @@ CL_TeleporterParticles
 */
 void CL_TeleporterParticles (entity_state_t *ent)
 {
-	Sint32			i;
+	int32_t			i;
 
 	for (i = 0; i < 8; i++)
 	{
@@ -1246,9 +1246,9 @@ void CL_TeleporterParticles (entity_state_t *ent)
 CL_LogoutEffect
 ===============
 */
-void CL_LogoutEffect (vec3_t org, Sint32 type)
+void CL_LogoutEffect (vec3_t org, int32_t type)
 {
-	Sint32			i;
+	int32_t			i;
 	vec3_t	color;
 
 	for (i=0 ; i<500 ; i++)
@@ -1294,10 +1294,10 @@ void CL_LogoutEffect (vec3_t org, Sint32 type)
 CL_ItemRespawnParticles
 ===============
 */
-void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time);
+void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time);
 void CL_ItemRespawnParticles (vec3_t org)
 {
-	Sint32			i;
+	int32_t			i;
 
 	for (i=0 ; i<64 ; i++)
 	{
@@ -1325,11 +1325,11 @@ CL_BigTeleportParticles
 */
 void CL_BigTeleportParticles (vec3_t org)
 {
-	Sint32			i, index;
+	int32_t			i, index;
 	float		angle, dist;
-	static Sint32 colortable0[4] = {10,50,150,50};
-	static Sint32 colortable1[4] = {150,150,50,10};
-	static Sint32 colortable2[4] = {50,10,10,150};
+	static int32_t colortable0[4] = {10,50,150,50};
+	static int32_t colortable1[4] = {150,150,50,10};
+	static int32_t colortable2[4] = {50,10,10,150};
 
 	for (i=0; i<(1024/cl_particle_scale->value); i++) // was 4096
 	{
@@ -1365,7 +1365,7 @@ Wall impact puffs
 #define pBlasterMinSize 1.0
 #define pBlasterMaxSize 5.0
 
-void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	vec_t  length;
 	vec3_t len;
@@ -1406,10 +1406,10 @@ CL_BlasterParticles
 Wall impact puffs
 ===============
 */
-void CL_BlasterParticles (vec3_t org, vec3_t dir, Sint32 count, float size,
-		Sint32 red, Sint32 green, Sint32 blue, Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta)
+void CL_BlasterParticles (vec3_t org, vec3_t dir, int32_t count, float size,
+		int32_t red, int32_t green, int32_t blue, int32_t reddelta, int32_t greendelta, int32_t bluedelta)
 {
-	Sint32			i;
+	int32_t			i;
 	float		speed = .75;
 	cparticle_t *p = NULL;
 	vec3_t		origin;
@@ -1461,13 +1461,13 @@ void CL_BlasterParticles (vec3_t org, vec3_t dir, Sint32 count, float size,
 CL_BlasterTrail
 ===============
 */
-void CL_BlasterTrail (vec3_t start, vec3_t end, Sint32 red, Sint32 green, Sint32 blue,
-									Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta)
+void CL_BlasterTrail (vec3_t start, vec3_t end, int32_t red, int32_t green, int32_t blue,
+									int32_t reddelta, int32_t greendelta, int32_t bluedelta)
 {
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			dec;
+	int32_t			dec;
 
 	VectorCopy (start, move);
 //	VectorSubtract (end, start, vec);
@@ -1510,12 +1510,12 @@ Hyperblaster particle glow effect
 ===============
 */
 #if 1
-void CL_HyperBlasterGlow (vec3_t start, vec3_t end, Sint32 red, Sint32 green, Sint32 blue,
-										Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta)
+void CL_HyperBlasterGlow (vec3_t start, vec3_t end, int32_t red, int32_t green, int32_t blue,
+										int32_t reddelta, int32_t greendelta, int32_t bluedelta)
 {
 	vec3_t		move, vec;
 	float		len, dec, size;
-	Sint32			i;
+	int32_t			i;
 
 	VectorCopy (start, move);
 	VectorSubtract (start, end, vec);
@@ -1547,14 +1547,14 @@ void CL_HyperBlasterGlow (vec3_t start, vec3_t end, Sint32 red, Sint32 green, Si
 	}
 }
 #else
-void CL_HyperBlasterTrail (vec3_t start, vec3_t end, Sint32 red, Sint32 green, Sint32 blue,
-										Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta)
+void CL_HyperBlasterTrail (vec3_t start, vec3_t end, int32_t red, int32_t green, int32_t blue,
+										int32_t reddelta, int32_t greendelta, int32_t bluedelta)
 {
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			dec;
-	Sint32			i;
+	int32_t			dec;
+	int32_t			i;
 
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -1592,9 +1592,9 @@ void CL_HyperBlasterTrail (vec3_t start, vec3_t end, Sint32 red, Sint32 green, S
 CL_BlasterTracer 
 ===============
 */
-void CL_BlasterTracer (vec3_t origin, vec3_t angle, Sint32 red, Sint32 green, Sint32 blue, float len, float size)
+void CL_BlasterTracer (vec3_t origin, vec3_t angle, int32_t red, int32_t green, int32_t blue, float len, float size)
 {
-//	Sint32		i;
+//	int32_t		i;
 	vec3_t	dir;
 	
 	AngleVectors (angle, dir, NULL, NULL);
@@ -1616,8 +1616,8 @@ void CL_BlasterTracer (vec3_t origin, vec3_t angle, Sint32 red, Sint32 green, Si
 		NULL,0);
 }
 
-void CL_HyperBlasterEffect (vec3_t start, vec3_t end, vec3_t angle, Sint32 red, Sint32 green, Sint32 blue,
-										Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta, float len, float size)
+void CL_HyperBlasterEffect (vec3_t start, vec3_t end, vec3_t angle, int32_t red, int32_t green, int32_t blue,
+										int32_t reddelta, int32_t greendelta, int32_t bluedelta, float len, float size)
 {
 	if (cl_particle_scale->value < 2)
 	//	CL_HyperBlasterTrail (start, end, red, green, blue, reddelta, greendelta, bluedelta);
@@ -1637,7 +1637,7 @@ void CL_QuadTrail (vec3_t start, vec3_t end)
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			dec;
+	int32_t			dec;
 
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -1679,7 +1679,7 @@ void CL_FlagTrail (vec3_t start, vec3_t end, qboolean isred, qboolean isgreen)
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			dec;
+	int32_t			dec;
 
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -1716,7 +1716,7 @@ void CL_FlagTrail (vec3_t start, vec3_t end, qboolean isred, qboolean isgreen)
 CL_DiminishingTrail
 ===============
 */
-void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, Sint32 flags)
+void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int32_t flags)
 {
 	cparticle_t	*p;
 	vec3_t		move;
@@ -2026,7 +2026,7 @@ void CL_RailSprial (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	Sint32 beamred, beamgreen, beamblue;
+	int32_t beamred, beamgreen, beamblue;
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2096,7 +2096,7 @@ void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	Sint32 beamred, beamgreen, beamblue;
+	int32_t beamred, beamgreen, beamblue;
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2163,9 +2163,9 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 	vec3_t		move, last;
 	vec3_t		vec, point;
 	//vec3_t	right, up;
-	Sint32			i;
-	Sint32 j;
-	Sint32			beamred, beamgreen, beamblue;
+	int32_t			i;
+	int32_t j;
+	int32_t			beamred, beamgreen, beamblue;
 	float		len;//, dec;
 
 	// Draw from closest point
@@ -2242,9 +2242,9 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 CL_ParticleDevRailThink
 ===============
 */
-void CL_ParticleDevRailThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleDevRailThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
-	Sint32 i;
+	int32_t i;
 	vec3_t len;
 	VectorSubtract(p->angle, org, len);
 	
@@ -2277,9 +2277,9 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	vec3_t		move;
 	vec3_t		vec, point;
 	float		len;
-	Sint32			dec, i=0;
+	int32_t			dec, i=0;
 	
-	Sint32 beamred, beamgreen, beamblue;
+	int32_t beamred, beamgreen, beamblue;
 
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
@@ -2375,8 +2375,8 @@ void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	vec3_t		move;
 	vec3_t		vec, point;
 	float		len, dec;
-	Sint32			i=0;
-	Sint32			beamred, beamgreen, beamblue;
+	int32_t			i=0;
+	int32_t			beamred, beamgreen, beamblue;
 
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
@@ -2399,7 +2399,7 @@ void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	// FIXME: this is a really silly way to have a loop
 	while (len > 0)
 	{
-		Uint32 temp = (rand() & 15);
+		uint32_t temp = (rand() & 15);
 		beamred = color8red(temp);
 		beamgreen = color8green(temp);
 		beamblue = color8blue(temp);
@@ -2441,7 +2441,7 @@ void CL_ClassicRailSprial (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	Sint32			beamred, beamgreen, beamblue;
+	int32_t			beamred, beamgreen, beamblue;
 
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
@@ -2475,7 +2475,7 @@ void CL_ClassicRailSprial (vec3_t start, vec3_t end, qboolean isRed)
 			beamblue = 20;
 		} else 
 		{
-			Uint32 temp = 0x74 + (rand() & 7);
+			uint32_t temp = 0x74 + (rand() & 7);
 			beamred = color8red(temp);
 			beamgreen = color8green(temp);
 			beamblue = color8blue(temp);
@@ -2513,7 +2513,7 @@ void CL_RailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	VectorNormalize(vec);
 	CL_ParticleRailDecal (end, vec, 7, isRed);
 
-	switch((Sint32) cl_railtype->value)
+	switch((int32_t) cl_railtype->value)
 	{
 	default:
 	case 0:
@@ -2551,8 +2551,8 @@ void CL_IonripperTrail (vec3_t start, vec3_t ent)
 	vec3_t	vec;
 	vec3_t  leftdir,up;
 	float	len;
-	Sint32		dec;
-	Sint32     left = 0;
+	int32_t		dec;
+	int32_t     left = 0;
 
 	VectorCopy (start, move);
 	VectorSubtract (ent, start, vec);
@@ -2597,7 +2597,7 @@ void CL_BubbleTrail (vec3_t start, vec3_t end)
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			i;
+	int32_t			i;
 	float		dec, size;
 
 	VectorCopy (start, move);
@@ -2638,9 +2638,9 @@ CL_FlyParticles
 #define	BEAMLENGTH			16
 
 
-void CL_FlyParticles (vec3_t origin, Sint32 count)
+void CL_FlyParticles (vec3_t origin, int32_t count)
 {
-	Sint32			i;
+	int32_t			i;
 	float		angle;
 	float		sr, sp, sy, cr, cp, cy;
 	vec3_t		forward;
@@ -2701,9 +2701,9 @@ CL_FlyEffect
 */
 void CL_FlyEffect (centity_t *ent, vec3_t origin)
 {
-	Sint32		n;
-	Sint32		count;
-	Sint32		starttime;
+	int32_t		n;
+	int32_t		count;
+	int32_t		starttime;
 
 	if (ent->fly_stoptime < cl.time)
 	{
@@ -2736,7 +2736,7 @@ void CL_FlyEffect (centity_t *ent, vec3_t origin)
 CL_ParticleBFGThink
 ===============
 */
-void CL_ParticleBFGThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleBFGThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
 	vec3_t len;
 	VectorSubtract(p->angle, p->org, len);
@@ -2753,7 +2753,7 @@ CL_BfgParticles
 */
 void CL_BfgParticles (entity_t *ent)
 {
-	Sint32			i;
+	int32_t			i;
 	cparticle_t	*p;
 	float		angle;
 	float		sr, sp, sy, cr, cp, cy;
@@ -2825,7 +2825,7 @@ void CL_TrapParticles (entity_t *ent)
 	vec3_t		vec;
 	vec3_t		start, end;
 	float		len;
-	Sint32			dec;
+	int32_t			dec;
 
 	ent->origin[2]-=14;
 	VectorCopy (ent->origin, start);
@@ -2862,7 +2862,7 @@ void CL_TrapParticles (entity_t *ent)
 	}
 
 	{
-	Sint32			i, j, k;
+	int32_t			i, j, k;
 	float		vel;
 	vec3_t		dir;
 	vec3_t		org;
@@ -2911,7 +2911,7 @@ CL_BFGExplosionParticles
 //FIXME combined with CL_ExplosionParticles
 void CL_BFGExplosionParticles (vec3_t org)
 {
-	Sint32			i;
+	int32_t			i;
 
 	for (i=0 ; i<256 ; i++)
 	{
@@ -2939,7 +2939,7 @@ CL_TeleportParticles
 */
 void CL_TeleportParticles (vec3_t org)
 {
-	Sint32			i, j, k;
+	int32_t			i, j, k;
 	float		vel;
 	vec3_t		dir;
 
@@ -2976,7 +2976,7 @@ void CL_TeleportParticles (vec3_t org)
 CL_Flashlight
 ===============
 */
-void CL_Flashlight (Sint32 ent, vec3_t pos)
+void CL_Flashlight (int32_t ent, vec3_t pos)
 {
 	cdlight_t	*dl;
 
@@ -2996,7 +2996,7 @@ void CL_Flashlight (Sint32 ent, vec3_t pos)
 CL_ColorFlash - flash of light
 ===============
 */
-void CL_ColorFlash (vec3_t pos, Sint32 ent, Sint32 intensity, float r, float g, float b)
+void CL_ColorFlash (vec3_t pos, int32_t ent, int32_t intensity, float r, float g, float b)
 {
 	cdlight_t	*dl;
 
@@ -3062,7 +3062,7 @@ void CL_DebugTrail (vec3_t start, vec3_t end)
 CL_ForceWall
 ===============
 */
-void CL_ForceWall (vec3_t start, vec3_t end, Sint32 color8)
+void CL_ForceWall (vec3_t start, vec3_t end, int32_t color8)
 {
 	vec3_t		move;
 	vec3_t		vec;
@@ -3105,12 +3105,12 @@ void CL_ForceWall (vec3_t start, vec3_t end, Sint32 color8)
 CL_BubbleTrail2 (lets you control the # of bubbles by setting the distance between the spawns)
 ===============
 */
-void CL_BubbleTrail2 (vec3_t start, vec3_t end, Sint32 dist)
+void CL_BubbleTrail2 (vec3_t start, vec3_t end, int32_t dist)
 {
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			i;
+	int32_t			i;
 	float		dec, size;
 
 	VectorCopy (start, move);
@@ -3153,7 +3153,7 @@ void CL_HeatbeamParticles (vec3_t start, vec3_t forward)
 	vec3_t		vec;
 	float		len;
 	vec3_t		right, up;
-	Sint32			i;
+	int32_t			i;
 	float		c, s;
 	vec3_t		dir;
 	float		ltime;
@@ -3162,7 +3162,7 @@ void CL_HeatbeamParticles (vec3_t start, vec3_t forward)
 	float		rot;
 	float		variance;
 	float		size;
-	Sint32			maxsteps;
+	int32_t			maxsteps;
 	vec3_t		end;
 
 	VectorMA (start, 4096, forward, end);
@@ -3252,10 +3252,10 @@ CL_ParticleSteamEffect
 Puffs with velocity along direction, with some randomness thrown in
 ===============
 */
-void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, Sint32 red, Sint32 green, Sint32 blue,
-							 Sint32 reddelta, Sint32 greendelta, Sint32 bluedelta, Sint32 count, Sint32 magnitude)
+void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, int32_t red, int32_t green, int32_t blue,
+							 int32_t reddelta, int32_t greendelta, int32_t bluedelta, int32_t count, int32_t magnitude)
 {
-	Sint32			i;
+	int32_t			i;
 	cparticle_t	*p;
 	float		d;
 	vec3_t		r, u;
@@ -3302,14 +3302,14 @@ Puffs with velocity along direction, with some randomness thrown in
 ===============
 */
 void CL_ParticleSteamEffect2 (cl_sustain_t *self)
-//vec3_t org, vec3_t dir, Sint32 color, Sint32 count, Sint32 magnitude)
+//vec3_t org, vec3_t dir, int32_t color, int32_t count, int32_t magnitude)
 {
-	Sint32			i;
+	int32_t			i;
 	cparticle_t	*p;
 	float		d;
 	vec3_t		r, u;
 	vec3_t		dir;
-	Sint32			color8 = self->color + (rand()&7);
+	int32_t			color8 = self->color + (rand()&7);
 	vec3_t color = { color8red(color8), color8green(color8), color8blue(color8)};
 
 	//vectoangles2 (dir, angle_dir);
@@ -3359,7 +3359,7 @@ void CL_TrackerTrail (vec3_t start, vec3_t end)
 	vec3_t		forward,right,up,angle_dir;
 	float		len;
 	cparticle_t	*p;
-	Sint32			dec;
+	int32_t			dec;
 	float		dist;
 
 	VectorCopy (start, move);
@@ -3411,7 +3411,7 @@ CL_TrackerShell
 void CL_Tracker_Shell(vec3_t origin)
 {
 	vec3_t			dir;
-	Sint32				i;
+	int32_t				i;
 	cparticle_t		*p;
 
 	for(i=0; i < (300/cl_particle_scale->value); i++)
@@ -3450,7 +3450,7 @@ CL_MonsterPlasma_Shell
 void CL_MonsterPlasma_Shell(vec3_t origin)
 {
 	vec3_t			dir;
-	Sint32				i;
+	int32_t				i;
 	cparticle_t		*p;
 
 	for(i=0; i<40; i++)
@@ -3490,13 +3490,13 @@ CL_Widowbeamout
 void CL_Widowbeamout (cl_sustain_t *self)
 {
 	vec3_t			dir;
-	Sint32				i;
-	static Sint32 colortable0[6] = {125,	255,	185,	125,	185,	255};
-	static Sint32 colortable1[6] = {185,	125,	255,	255,	125,	185};
-	static Sint32 colortable2[6] = {255,	185,	125,	185,	255,	125};
+	int32_t				i;
+	static int32_t colortable0[6] = {125,	255,	185,	125,	185,	255};
+	static int32_t colortable1[6] = {185,	125,	255,	255,	125,	185};
+	static int32_t colortable2[6] = {255,	185,	125,	185,	255,	125};
 	cparticle_t		*p;
 	float			ratio;
-	Sint32				index;
+	int32_t				index;
 
 	ratio = 1.0 - (((float)self->endtime - (float)cl.time)/2100.0);
 
@@ -3538,13 +3538,13 @@ CL_Nukeblast
 void CL_Nukeblast (cl_sustain_t *self)
 {
 	vec3_t			dir;
-	Sint32				i;
+	int32_t				i;
 	cparticle_t		*p;
-	static Sint32 colortable0[4] = {185,	155,	125,	95};
-	static Sint32 colortable1[4] = {185,	155,	125,	95};
-	static Sint32 colortable2[4] = {255,	255,	255,	255};
+	static int32_t colortable0[4] = {185,	155,	125,	95};
+	static int32_t colortable1[4] = {185,	155,	125,	95};
+	static int32_t colortable2[4] = {255,	255,	255,	255};
 	float			ratio, size;
-	Sint32				index;
+	int32_t				index;
 
 	ratio = 1.0 - (((float)self->endtime - (float)cl.time)/1000.0);
 	size = ratio*ratio;
@@ -3589,8 +3589,8 @@ CL_WidowSplash
 */
 void CL_WidowSplash (vec3_t org)
 {
-	static Sint32 colortable[4] = {2*8,13*8,21*8,18*8};
-	Sint32			i;
+	static int32_t colortable[4] = {2*8,13*8,21*8,18*8};
+	int32_t			i;
 	cparticle_t	*p;
 	vec3_t		dir;
 
@@ -3631,7 +3631,7 @@ CL_Tracker_Explode
 void CL_Tracker_Explode (vec3_t	origin)
 {
 	vec3_t			dir, backdir;
-	Sint32				i;
+	int32_t				i;
 	cparticle_t		*p;
 
 	for (i=0; i<(300/cl_particle_scale->value); i++)
@@ -3672,12 +3672,12 @@ void CL_Tracker_Explode (vec3_t	origin)
 CL_TagTrail
 ===============
 */
-void CL_TagTrail (vec3_t start, vec3_t end, Sint32 color8)
+void CL_TagTrail (vec3_t start, vec3_t end, int32_t color8)
 {
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			dec;
+	int32_t			dec;
 	vec3_t color = { color8red(color8), color8green(color8), color8blue(color8)};
 
 	VectorCopy (start, move);
@@ -3715,9 +3715,9 @@ void CL_TagTrail (vec3_t start, vec3_t end, Sint32 color8)
 CL_ColorExplosionParticles
 ==========================
 */
-void CL_ColorExplosionParticles (vec3_t org, Sint32 color8, Sint32 run)
+void CL_ColorExplosionParticles (vec3_t org, int32_t color8, int32_t run)
 {
-	Sint32			i;
+	int32_t			i;
 	vec3_t color = {color8red(color8), color8green(color8), color8blue(color8)};
 
 	for (i=0 ; i<128 ; i++)
@@ -3770,9 +3770,9 @@ void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, float size)
 CL_ParticleElectricSparksThink
 ===============
 */
-void CL_ParticleElectricSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, Sint32 *image, float *time)
+void CL_ParticleElectricSparksThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
-	Sint32 i;
+	int32_t i;
 
 	//setting up angle for sparks
 	{
@@ -3796,9 +3796,9 @@ CL_ElectricParticles
 new sparks for Rogue turrets
 ===============
 */
-void CL_ElectricParticles (vec3_t org, vec3_t dir, Sint32 count)
+void CL_ElectricParticles (vec3_t org, vec3_t dir, int32_t count)
 {
-	Sint32			i, j;
+	int32_t			i, j;
 	vec3_t		start;
 	float d;
 
@@ -3831,12 +3831,12 @@ void CL_ElectricParticles (vec3_t org, vec3_t dir, Sint32 count)
 CL_SmokeTrail
 ===============
 */
-void CL_SmokeTrail (vec3_t start, vec3_t end, Sint32 colorStart, Sint32 colorRun, Sint32 spacing)
+void CL_SmokeTrail (vec3_t start, vec3_t end, int32_t colorStart, int32_t colorRun, int32_t spacing)
 {
 	vec3_t		move;
 	vec3_t		vec;
 	float		len;
-	Sint32			j;
+	int32_t			j;
 	cparticle_t	*p;
 
 	VectorCopy (start, move);
@@ -3882,8 +3882,8 @@ CL_FlameEffects
 */
 void CL_FlameEffects (centity_t *ent, vec3_t origin)
 {
-	Sint32			n, count;
-	Sint32			j;
+	int32_t			n, count;
+	int32_t			j;
 	cparticle_t	*p;
 
 	count = rand() & 0xF;
@@ -3945,9 +3945,9 @@ void CL_FlameEffects (centity_t *ent, vec3_t origin)
 CL_GenericParticleEffect
 ===============
 */
-void CL_GenericParticleEffect (vec3_t org, vec3_t dir, Sint32 color, Sint32 count, Sint32 numcolors, Sint32 dirspread, float alphavel)
+void CL_GenericParticleEffect (vec3_t org, vec3_t dir, int32_t color, int32_t count, int32_t numcolors, int32_t dirspread, float alphavel)
 {
-	Sint32			i, j;
+	int32_t			i, j;
 	cparticle_t	*p;
 	float		d;
 

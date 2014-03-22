@@ -73,24 +73,24 @@ typedef struct entity_s
 
 	// most recent data
 	float				origin[3];		// also used as RF_BEAM's "from"
-	Sint32					frame;			// also used as RF_BEAM's diameter
+	int32_t					frame;			// also used as RF_BEAM's diameter
 
 	// previous data for lerping
 	float				oldorigin[3];	// also used as RF_BEAM's "to"
-	Sint32					oldframe;
+	int32_t					oldframe;
 
 	// misc
 	float	backlerp;				// 0.0 = current, 1.0 = old
-	Sint32		skinnum;				// also used as RF_BEAM's palette index
+	int32_t		skinnum;				// also used as RF_BEAM's palette index
 
-	Sint32		lightstyle;				// for flashing entities
+	int32_t		lightstyle;				// for flashing entities
 	float	alpha;					// ignore if RF_TRANSLUCENT isn't set
 
 	float	scale;
 
 	struct image_s	*skin;			// NULL for inline skin
-	Sint32		flags;
-	Sint32		renderfx;
+	int32_t		flags;
+	int32_t		renderfx;
 
 } entity_t;
 
@@ -145,8 +145,8 @@ typedef struct
 
 typedef struct
 {
-	Sint32 numPoints;
-	Sint32	firstPoint;
+	int32_t numPoints;
+	int32_t	firstPoint;
 	struct mnode_s	*node;
 } markFragment_t;
 
@@ -156,7 +156,7 @@ struct decalpolys_s
 	decalpolys_t *next; // for allocation linked list
 	decalpolys_t *nextpoly; // for linked list
 	qboolean	clearflag;
-	Sint32		numpolys;
+	int32_t		numpolys;
 	vec3_t	polys[MAX_VERTS_PER_FRAGMENT];
 	vec2_t	coords[MAX_VERTS_PER_FRAGMENT];
 	struct mnode_s	*node;
@@ -167,14 +167,14 @@ typedef struct
 {
 	vec3_t	angle;
 	vec3_t	origin;
-	Sint32		color;
+	int32_t		color;
 	
 	float	size;
-	Sint32		flags;
+	int32_t		flags;
 	float	alpha;
 
-	Sint32		blendfunc_src;
-	Sint32		blendfunc_dst;
+	int32_t		blendfunc_src;
+	int32_t		blendfunc_dst;
 
 	float	red;
 	float	green;
@@ -182,7 +182,7 @@ typedef struct
 
 	decalpolys_t *decal;
 
-	Sint32		image;
+	int32_t		image;
 } particle_t;
 
 // end Knightmare
@@ -207,28 +207,28 @@ typedef struct
 {
 	//only 2 buttons for menus
 	float		buttontime[MENU_CURSOR_BUTTON_MAX];
-	Sint32			buttonclicks[MENU_CURSOR_BUTTON_MAX];
-	Sint32			buttonused[MENU_CURSOR_BUTTON_MAX];
+	int32_t			buttonclicks[MENU_CURSOR_BUTTON_MAX];
+	int32_t			buttonused[MENU_CURSOR_BUTTON_MAX];
 	qboolean	buttondown[MENU_CURSOR_BUTTON_MAX];
 
 	qboolean	mouseaction;
 
 	//this is the active item that cursor is on.
-	Sint32			menuitemtype;
+	int32_t			menuitemtype;
 	void		*menuitem;
 	void		*menu;
 
 	//coords
-	Sint32		x;
-	Sint32		y;
+	int32_t		x;
+	int32_t		y;
 
-	Sint32		oldx;
-	Sint32		oldy;
+	int32_t		oldx;
+	int32_t		oldy;
 } cursor_t;
 
 typedef struct
 {
-	Sint32			x, y, width, height;// in virtual screen coordinates
+	int32_t			x, y, width, height;// in virtual screen coordinates
 	float		fov_x, fov_y;
 	float		vieworg[3];
 	float		viewangles[3];
@@ -237,22 +237,22 @@ typedef struct
 	float		aimend[3];
 	float		blend[4];			// rgba 0-1 full screen blend
 	float		time;				// time is uesed to auto animate
-	Sint32			rdflags;			// RDF_UNDERWATER, etc
+	int32_t			rdflags;			// RDF_UNDERWATER, etc
 
 	byte		*areabits;			// if not NULL, only areas with set bits will be drawn
 
 	lightstyle_t	*lightstyles;	// [MAX_LIGHTSTYLES]
 
-	Sint32			num_entities;
+	int32_t			num_entities;
 	entity_t	*entities;
 
-	Sint32			num_dlights;
+	int32_t			num_dlights;
 	dlight_t	*dlights;
 
-	Sint32			num_particles;
+	int32_t			num_particles;
 	particle_t	*particles;
 
-	Sint32			num_decals;
+	int32_t			num_decals;
 	particle_t	*decals;
 } refdef_t;
 

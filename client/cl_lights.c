@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 
-void CL_LogoutEffect (vec3_t org, Sint32 type);
+void CL_LogoutEffect (vec3_t org, int32_t type);
 void CL_GunSmokeEffect (vec3_t org, vec3_t dir);
 
 /*
@@ -36,13 +36,13 @@ LIGHT STYLE MANAGEMENT
 
 typedef struct
 {
-	Sint32		length;
+	int32_t		length;
 	float	value[3];
 	float	map[MAX_QPATH];
 } clightstyle_t;
 
 clightstyle_t	cl_lightstyle[MAX_LIGHTSTYLES];
-Sint32			lastofs;
+int32_t			lastofs;
 
 /*
 ================
@@ -62,8 +62,8 @@ CL_RunLightStyles
 */
 void CL_RunLightStyles (void)
 {
-	Sint32		ofs;
-	Sint32		i;
+	int32_t		ofs;
+	int32_t		i;
 	clightstyle_t	*ls;
 
 	ofs = cl.time / 100;
@@ -86,10 +86,10 @@ void CL_RunLightStyles (void)
 }
 
 
-void CL_SetLightstyle (Sint32 i)
+void CL_SetLightstyle (int32_t i)
 {
 	char	*s;
-	Sint32		j, k;
+	int32_t		j, k;
 
 	// Knightmare- BIG UGLY HACK for old connected to server using old protocol
 	// Changed config strings require different parsing
@@ -115,7 +115,7 @@ CL_AddLightStyles
 */
 void CL_AddLightStyles (void)
 {
-	Sint32		i;
+	int32_t		i;
 	clightstyle_t	*ls;
 
 	for (i=0,ls=cl_lightstyle ; i<MAX_LIGHTSTYLES ; i++, ls++)
@@ -148,9 +148,9 @@ CL_AllocDlight
 
 ===============
 */
-cdlight_t *CL_AllocDlight (Sint32 key)
+cdlight_t *CL_AllocDlight (int32_t key)
 {
-	Sint32		i;
+	int32_t		i;
 	cdlight_t	*dl;
 
 // first look for an exact key match
@@ -191,7 +191,7 @@ cdlight_t *CL_AllocDlight (Sint32 key)
 CL_NewDlight
 ===============
 */
-void CL_NewDlight (Sint32 key, float x, float y, float z, float radius, float time)
+void CL_NewDlight (int32_t key, float x, float y, float z, float radius, float time)
 {
 	cdlight_t	*dl;
 
@@ -212,7 +212,7 @@ CL_RunDLights
 */
 void CL_RunDLights (void)
 {
-	Sint32			i;
+	int32_t			i;
 	cdlight_t	*dl;
 
 	dl = cl_dlights;
@@ -240,7 +240,7 @@ CL_AddDLights
 */
 void CL_AddDLights (void)
 {
-	Sint32			i;
+	int32_t			i;
 	cdlight_t	*dl;
 
 	dl = cl_dlights;
@@ -264,9 +264,9 @@ void CL_ParseMuzzleFlash (void)
 {
 	vec3_t		fv, rv;
 	cdlight_t	*dl;
-	Sint32			i, weapon;
+	int32_t			i, weapon;
 	centity_t	*pl;
-	Sint32			silenced;
+	int32_t			silenced;
 	float		volume;
 	char		soundname[64];
 
@@ -475,9 +475,9 @@ CL_ParseMuzzleFlash2
 */
 void CL_ParseMuzzleFlash2 (void) 
 {
-	Sint32			ent;
+	int32_t			ent;
 	vec3_t		origin;
-	Sint32			flash_number;
+	int32_t			flash_number;
 	cdlight_t	*dl;
 	vec3_t		forward, right;
 	char		soundname[64];

@@ -29,9 +29,9 @@ SV_FindIndex
 
 ================
 */
-Sint32 SV_FindIndex (char *name, Sint32 start, Sint32 max, qboolean create)
+int32_t SV_FindIndex (char *name, int32_t start, int32_t max, qboolean create)
 {
-	Sint32		i;
+	int32_t		i;
 	
 	if (!name || !name[0])
 		return 0;
@@ -74,17 +74,17 @@ Sint32 SV_FindIndex (char *name, Sint32 start, Sint32 max, qboolean create)
 }
 
 
-Sint32 SV_ModelIndex (char *name)
+int32_t SV_ModelIndex (char *name)
 {
 	return SV_FindIndex (name, CS_MODELS, MAX_MODELS, true);
 }
 
-Sint32 SV_SoundIndex (char *name)
+int32_t SV_SoundIndex (char *name)
 {
 	return SV_FindIndex (name, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
-Sint32 SV_ImageIndex (char *name)
+int32_t SV_ImageIndex (char *name)
 {
 	return SV_FindIndex (name, CS_IMAGES, MAX_IMAGES, true);
 }
@@ -102,7 +102,7 @@ baseline will be transmitted
 void SV_CreateBaseline (void)
 {
 	edict_t			*svent;
-	Sint32				entnum;	
+	int32_t				entnum;	
 
 	for (entnum = 1; entnum < ge->num_edicts ; entnum++)
 	{
@@ -131,7 +131,7 @@ void SV_CheckForSavegame (void)
 {
 	char		name[MAX_OSPATH];
 	FILE		*f;
-	Sint32			i;
+	int32_t			i;
 
 	if (sv_noreload->value)
 		return;
@@ -181,7 +181,7 @@ clients along with it.
 */
 void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate, qboolean attractloop, qboolean loadgame)
 {
-	Sint32			i;
+	int32_t			i;
 	unsigned	checksum;
 	fileHandle_t	f;
 
@@ -306,11 +306,11 @@ SV_InitGame
 A brand new game has been started
 ==============
 */
-void PF_Configstring (Sint32 index, char *val);
+void PF_Configstring (int32_t index, char *val);
 
 void SV_InitGame (void)
 {
-	Sint32		i;
+	int32_t		i;
 	edict_t	*ent;
 	char	idmaster[32];
 
@@ -408,7 +408,7 @@ void SV_Map (qboolean attractloop, char *levelstring, qboolean loadgame)
 {
 	char	level[MAX_QPATH];
 	char	*ch;
-	Sint32		l;
+	int32_t		l;
 	char	spawnpoint[MAX_QPATH];
 
 	sv.loadgame = loadgame;

@@ -35,9 +35,9 @@
 #ifdef USE_OPENAL
 
 #include "../client.h"
-#include "header/qal.h"
-#include "header/local.h"
-#include "header/vorbis.h"
+#include "include/qal.h"
+#include "include/local.h"
+#include "include/vorbis.h"
 
 /* translates from AL coordinate system to quake */
 #define AL_UnpackVector(v) - v[1], v[2], -v[0]

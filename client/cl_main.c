@@ -23,10 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c  -- client main loop
 
 #include "client.h"
-#include "../ui/ui_local.h"
-#include "../vr/vr.h"
+#include "ui/include/ui_local.h"
 
-#include "../sdl2/sdl2quake.h"
+#include "../backends/sdl2/sdl2quake.h"
 
 cvar_t	*freelook;
 
@@ -178,7 +177,7 @@ Dumps the current net message, prefixed by the length
 */
 void CL_WriteDemoMessage (void)
 {
-	Sint32		len, swlen;
+	int32_t		len, swlen;
 
 	// the first eight bytes are just packet sequencing stuff
 	len = net_message.cursize-8;
@@ -197,7 +196,7 @@ stop recording a demo
 */
 void CL_Stop_f (void)
 {
-	Sint32		len;
+	int32_t		len;
 
 	if (!cls.demorecording)
 	{
@@ -228,8 +227,8 @@ void CL_Record_f (void)
 	char	name[MAX_OSPATH];
 	char	buf_data[MAX_MSGLEN];
 	sizebuf_t	buf;
-	Sint32		i;
-	Sint32		len;
+	int32_t		i;
+	int32_t		len;
 	entity_state_t	*ent;
 	entity_state_t	nullstate;
 
@@ -369,12 +368,12 @@ void Cmd_ForwardToServer (void)
 
 void CL_Setenv_f( void )
 {
-	Sint32 argc = Cmd_Argc();
+	int32_t argc = Cmd_Argc();
 
 	if ( argc > 2 )
 	{
 		char buffer[1000];
-		Sint32 i;
+		int32_t i;
 
 		strcpy( buffer, Cmd_Argv(1) );
 		strcat( buffer, "=" );
@@ -488,7 +487,7 @@ connect.
 void CL_SendConnectPacket (void)
 {
 	netadr_t	adr;
-	Sint32		port;
+	int32_t		port;
 
 	if (!NET_StringToAdr (cls.servername, &adr))
 	{
@@ -607,7 +606,7 @@ CL_Rcon_f
 void CL_Rcon_f (void)
 {
 	char	message[1024];
-	Sint32		i;
+	int32_t		i;
 	netadr_t	to;
 
 	if (!rcon_client_password->string)
@@ -701,7 +700,7 @@ void CL_Disconnect (void)
 
 	if (cl_timedemo && cl_timedemo->value)
 	{
-		Sint32	time;
+		int32_t	time;
 		
 		time = Sys_Milliseconds () - cl.timedemo_start;
 		if (time > 0)
@@ -760,7 +759,7 @@ Contents allows \n escape character
 void CL_Packet_f (void)
 {
 	char	send[2048];
-	Sint32		i, l;
+	int32_t		i, l;
 	char	*in, *out;
 	netadr_t	adr;
 
@@ -886,14 +885,14 @@ CL_PingServers_f
 */
 #if 1
 //<serverping> Added code for compute ping time of server broadcasted
-extern Sint32      global_udp_server_time;
-extern Sint32      global_ipx_server_time;
-extern Sint32      global_adr_server_time[16];
+extern int32_t      global_udp_server_time;
+extern int32_t      global_ipx_server_time;
+extern int32_t      global_adr_server_time[16];
 extern netadr_t global_adr_server_netadr[16];
 
 void CL_PingServers_f (void)
 {
-	Sint32			i;
+	int32_t			i;
 	netadr_t	adr;
 	char		name[32];
 	char		*adrstring;
@@ -968,7 +967,7 @@ void CL_PingServers_f (void)
 #else
 void CL_PingServers_f (void)
 {
-	Sint32			i;
+	int32_t			i;
 	netadr_t	adr;
 	char		name[32];
 	char		*adrstring;
@@ -1041,7 +1040,7 @@ Load or download any custom player skins and models
 */
 void CL_Skins_f (void)
 {
-	Sint32		i;
+	int32_t		i;
 
 	for (i=0 ; i<MAX_CLIENTS ; i++)
 	{
@@ -1199,7 +1198,7 @@ void CL_ReadPackets (void)
 		//
 		// remote command packet
 		//
-		if (*(Sint32 *)net_message.data == -1)
+		if (*(int32_t *)net_message.data == -1)
 		{
 			CL_ConnectionlessPacket ();
 			continue;
@@ -1310,12 +1309,12 @@ void CL_Snd_Restart_f (void)
 }
 
 
-extern	Sint32 precache_check; // for autodownload of precache items
-extern	Sint32 precache_spawncount;
-//extern	Sint32 precache_tex;
-extern	Sint32 precache_model_skin;
+extern	int32_t precache_check; // for autodownload of precache items
+extern	int32_t precache_spawncount;
+//extern	int32_t precache_tex;
+extern	int32_t precache_model_skin;
 extern	byte *precache_model; // used for skin checking in alias models
-extern	Sint32	precache_pak;	// Knightmare added
+extern	int32_t	precache_pak;	// Knightmare added
 
 /*
 =================
@@ -1675,11 +1674,11 @@ CL_Frame
 ==================
 */
 extern cvar_t *r_fencesync;
-extern Sint32 R_FrameSync(void);
-void CL_Frame (Sint32 msec)
+extern int32_t R_FrameSync(void);
+void CL_Frame (int32_t msec)
 {
-	static Sint32	extratime;
-	static Sint32  lasttimecalled;
+	static int32_t	extratime;
+	static int32_t  lasttimecalled;
 
 	if (dedicated->value)
 		return;
@@ -1700,7 +1699,7 @@ void CL_Frame (Sint32 msec)
 
 		if (r_fencesync->value)
 		{ 
-			Sint32 timeWaited = R_FrameSync();
+			int32_t timeWaited = R_FrameSync();
 			if (!timeWaited)
 				return;
 			else if (r_fencesync->value == 2)
@@ -1712,7 +1711,7 @@ void CL_Frame (Sint32 msec)
 #ifdef _WIN32 // Pooy's CPU usage fix
 			if (cl_sleep->value && (!vr_enabled->value || !vr_nosleep->value) )
 			{
-				Sint32 temptime = 1000/cl_maxfps->value-extratime;
+				int32_t temptime = 1000/cl_maxfps->value-extratime;
 				if (temptime > 1)
 					SDL_Delay(1);
 			}
@@ -1806,7 +1805,7 @@ void CL_Frame (Sint32 msec)
 			}
 			else
 			{
-				Sint32 now = Sys_Milliseconds();
+				int32_t now = Sys_Milliseconds();
 
 				if ( log_stats_file )
 					fprintf( log_stats_file, "%d\n", now - lasttimecalled );
@@ -1872,7 +1871,7 @@ to run quit through here before the final handoff to the sys code.
 void CL_Shutdown (void)
 {
 	static qboolean isdown = false;
-	Sint32 sec, base; 	// zaphster's delay variables
+	int32_t sec, base; 	// zaphster's delay variables
 
 	if (isdown)
 	{

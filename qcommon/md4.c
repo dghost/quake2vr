@@ -4,16 +4,16 @@
 #include <SDL_stdinc.h>
 
 /* POINTER defines a generic pointer type */
-typedef Uint8 *POINTER;
+typedef uint8_t *POINTER;
 
 /* UINT2 defines a two byte word */
-typedef Uint16 UINT2;
+typedef uint16_t UINT2;
 
 /* UINT4 defines a four byte word */
 #ifdef __alpha__
-typedef Uint32 UINT4;
+typedef uint32_t UINT4;
 #else
-typedef Uint32 UINT4;
+typedef uint32_t UINT4;
 #endif
 
   
@@ -33,12 +33,12 @@ These notices must be retained in any copies of any part of this documentation a
 typedef struct {
 	UINT4 state[4];				/* state (ABCD) */
 	UINT4 count[2];				/* number of bits, modulo 2^64 (lsb first) */
-	Uint8 buffer[64]; 			/* input buffer */
+	uint8_t buffer[64]; 			/* input buffer */
 } MD4_CTX;
 
 void MD4Init (MD4_CTX *);
-void MD4Update (MD4_CTX *, Uint8 *, Uint32);
-void MD4Final (Uint8 [16], MD4_CTX *);
+void MD4Update (MD4_CTX *, uint8_t *, uint32_t);
+void MD4Final (uint8_t [16], MD4_CTX *);
   
 
   
@@ -70,11 +70,11 @@ These notices must be retained in any copies of any part of this documentation a
 #define S33 11
 #define S34 15
 
-static void MD4Transform (UINT4 [4], Uint8 [64]);
-static void Encode (Uint8 *, UINT4 *, Uint32);
-static void Decode (UINT4 *, Uint8 *, Uint32);
+static void MD4Transform (UINT4 [4], uint8_t [64]);
+static void Encode (uint8_t *, UINT4 *, uint32_t);
+static void Decode (UINT4 *, uint8_t *, uint32_t);
 
-static Uint8 PADDING[64] = {
+static uint8_t PADDING[64] = {
 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -108,12 +108,12 @@ context->state[3] = 0x10325476;
 }
 
 /* MD4 block update operation. Continues an MD4 message-digest operation, processing another message block, and updating the context. */
-void MD4Update (MD4_CTX *context, Uint8 *input, Uint32 inputLen)
+void MD4Update (MD4_CTX *context, uint8_t *input, uint32_t inputLen)
 {
-	Uint32 i, index, partLen;
+	uint32_t i, index, partLen;
 
 	/* Compute number of bytes mod 64 */
-	index = (Uint32)((context->count[0] >> 3) & 0x3F);
+	index = (uint32_t)((context->count[0] >> 3) & 0x3F);
 
 	/* Update number of bits */
 	if ((context->count[0] += ((UINT4)inputLen << 3))< ((UINT4)inputLen << 3))
@@ -143,16 +143,16 @@ void MD4Update (MD4_CTX *context, Uint8 *input, Uint32 inputLen)
 
 
 /* MD4 finalization. Ends an MD4 message-digest operation, writing the the message digest and zeroizing the context. */
-void MD4Final (Uint8 digest[16], MD4_CTX *context)
+void MD4Final (uint8_t digest[16], MD4_CTX *context)
 {
-	Uint8 bits[8];
-	Uint32 index, padLen;
+	uint8_t bits[8];
+	uint32_t index, padLen;
 
 	/* Save number of bits */
 	Encode (bits, context->count, 8);
 
 	/* Pad out to 56 mod 64.*/
-	index = (Uint32)((context->count[0] >> 3) & 0x3f);
+	index = (uint32_t)((context->count[0] >> 3) & 0x3f);
 	padLen = (index < 56) ? (56 - index) : (120 - index);
 	MD4Update (context, PADDING, padLen);
 
@@ -168,7 +168,7 @@ void MD4Final (Uint8 digest[16], MD4_CTX *context)
 
 
 /* MD4 basic transformation. Transforms state based on block. */
-static void MD4Transform (UINT4 state[4], Uint8 block[64])
+static void MD4Transform (UINT4 state[4], uint8_t block[64])
 {
 	UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -238,24 +238,24 @@ state[3] += d;
 }
 
 
-/* Encodes input (UINT4) into output (Uint8). Assumes len is a multiple of 4. */
-static void Encode (Uint8 *output, UINT4 *input, Uint32 len)
+/* Encodes input (UINT4) into output (uint8_t). Assumes len is a multiple of 4. */
+static void Encode (uint8_t *output, UINT4 *input, uint32_t len)
 {
-	Uint32 i, j;
+	uint32_t i, j;
 
 	for (i = 0, j = 0; j < len; i++, j += 4) {
- 		output[j] = (Uint8)(input[i] & 0xff);
- 		output[j+1] = (Uint8)((input[i] >> 8) & 0xff);
- 		output[j+2] = (Uint8)((input[i] >> 16) & 0xff);
- 		output[j+3] = (Uint8)((input[i] >> 24) & 0xff);
+ 		output[j] = (uint8_t)(input[i] & 0xff);
+ 		output[j+1] = (uint8_t)((input[i] >> 8) & 0xff);
+ 		output[j+2] = (uint8_t)((input[i] >> 16) & 0xff);
+ 		output[j+3] = (uint8_t)((input[i] >> 24) & 0xff);
 	}
 }
 
 
-/* Decodes input (Uint8) into output (UINT4). Assumes len is a multiple of 4. */
-static void Decode (UINT4 *output, Uint8 *input, Uint32 len)
+/* Decodes input (uint8_t) into output (UINT4). Assumes len is a multiple of 4. */
+static void Decode (UINT4 *output, uint8_t *input, uint32_t len)
 {
-Uint32 i, j;
+uint32_t i, j;
 
 for (i = 0, j = 0; j < len; i++, j += 4)
  	output[i] = ((UINT4)input[j]) | (((UINT4)input[j+1]) << 8) | (((UINT4)input[j+2]) << 16) | (((UINT4)input[j+3]) << 24);
@@ -263,15 +263,15 @@ for (i = 0, j = 0; j < len; i++, j += 4)
 
 //===================================================================
 
-unsigned Com_BlockChecksum (void *buffer, Sint32 length)
+unsigned Com_BlockChecksum (void *buffer, int32_t length)
 {
-	Sint32			digest[4];
+	int32_t			digest[4];
 	unsigned	val;
 	MD4_CTX		ctx;
 
 	MD4Init (&ctx);
-	MD4Update (&ctx, (Uint8 *)buffer, length);
-	MD4Final ( (Uint8 *)digest, &ctx);
+	MD4Update (&ctx, (uint8_t *)buffer, length);
+	MD4Final ( (uint8_t *)digest, &ctx);
 	
 	val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
 
