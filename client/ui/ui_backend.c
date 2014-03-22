@@ -102,7 +102,7 @@ int32_t mouseOverAlpha (menucommon_s *m)
 	{
 		int32_t alpha;
 
-		alpha = 125 + 25 * cos(anglemod(cls.realtime*0.005));
+		alpha = 215 + 25 * cos(anglemod(cls.realtime*0.005));
 
 		if (alpha>255) alpha = 255;
 		if (alpha<0) alpha = 0;
