@@ -158,6 +158,7 @@ Sint32 VR_OVR_SetPredictionTime(float time)
 	return result;
 }
 
+void SCR_CenterAlert (char *str);
 void VR_OVR_Frame()
 {
 
@@ -183,7 +184,16 @@ void VR_OVR_Frame()
 	{
 			const char *results = LibOVR_ProcessLatencyResults();
 			if (results)
+			{
+				float ms;
 				Com_Printf("VR_OVR: %s\n",results);		
+				if (sscanf(results,"RESULT=%f ",&ms))
+				{
+					char buffer[64];
+					SDL_snprintf(buffer,sizeof(buffer),"%.1fms latency",ms);
+					SCR_CenterAlert(buffer);
+				}
+			}
 	} 
 }
 
