@@ -213,7 +213,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	if (!ActiveApp)
 	{
 		IN_Activate (false);
-		S_Activate (false);
+//		S_Activate (false);
 
 #ifdef _WIN32
 		if ( win_noalttab->value )
@@ -225,7 +225,7 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	else
 	{
 		IN_Activate (true);
-		S_Activate (true);
+//		S_Activate (true);
 #ifdef _WIN32
 		if ( win_noalttab->value )
 		{

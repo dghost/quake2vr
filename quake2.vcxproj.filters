@@ -39,18 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="client\snd_dma.c">
-      <Filter>Source Files\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="client\snd_mem.c">
-      <Filter>Source Files\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="client\snd_mix.c">
-      <Filter>Source Files\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="client\snd_stream.c">
-      <Filter>Source Files\sound</Filter>
-    </ClCompile>
     <ClCompile Include="client\cl_cin.c">
       <Filter>Source Files\client</Filter>
     </ClCompile>
@@ -372,14 +360,32 @@
     <ClCompile Include="sdl2\in_sdl2.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
-    <ClCompile Include="sdl2\snd_sdl2.c">
-      <Filter>Source Files\system</Filter>
-    </ClCompile>
     <ClCompile Include="sdl2\in_sdlcont.c">
       <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="ui\ui_options_vr_svr.c">
       <Filter>Source Files\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="client\sound\ogg.c">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="client\sound\openal.c">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="client\sound\sound.c">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="client\sound\wave.c">
+      <Filter>Source Files\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\glob.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl2\snd_sdl2.c">
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="client\sound\qal.c">
+      <Filter>Source Files\sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __QCOMMON_H
 
 #include "../game/q_shared.h"
+#include "glob.h"
 
 #define	VERSION		2.0 //was 3.21
 #define PATCH   	"-pre"
@@ -814,6 +815,7 @@ void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
 char		**FS_ListFiles (char *findname, Sint32 *numfiles, unsigned musthave, unsigned canthave);
+char		**FS_ListFiles2 (char *findname, Sint32 *numfiles, unsigned musthave, unsigned canthave);
 void		FS_FreeFileList (char **list, Sint32 n);
 qboolean	FS_ItemInList (char *check, Sint32 num, char **list);
 void		FS_InsertInList (char **list, char *insert, Sint32 len, Sint32 start);

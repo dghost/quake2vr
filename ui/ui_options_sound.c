@@ -65,7 +65,6 @@ static menuseparator_s	s_options_sound_header;
 static menuslider_s		s_options_sound_sfxvolume_slider;
 static menuslider_s		s_options_sound_musicvolume_slider;
 static menulist_s		s_options_sound_oggmusic_box;
-static menulist_s		s_options_sound_cdvolume_box;
 static menulist_s		s_options_sound_quality_list;
 static menulist_s		s_options_sound_driver_list;
 static menuaction_s		s_options_sound_defaults_action;
@@ -79,17 +78,12 @@ static void UpdateVolumeFunc ( void *unused )
 
 static void UpdateMusicVolumeFunc ( void *unused )
 {
-	Cvar_SetValue( "s_musicvolume", s_options_sound_musicvolume_slider.curvalue / 10 );
+	Cvar_SetValue( "ogg_volume", s_options_sound_musicvolume_slider.curvalue / 10 );
 }
 
 static void UpdateOggMusicFunc ( void *unused )
 {
-	Cvar_SetValue( "cl_ogg_music", s_options_sound_oggmusic_box.curvalue );
-}
-
-static void UpdateCDVolumeFunc ( void *unused )
-{
-	Cvar_SetValue( "cd_nocd", !s_options_sound_cdvolume_box.curvalue );
+	Cvar_SetValue( "ogg_enable", s_options_sound_oggmusic_box.curvalue );
 }
 
 static void UpdateSoundQualityFunc ( void *unused )
@@ -132,9 +126,8 @@ static void SoundSetMenuItemValues( void )
 	Sint32 i = 0;
 	qboolean found = false;
 	s_options_sound_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
-	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "s_musicvolume" ) * 10;
-	s_options_sound_oggmusic_box.curvalue			= (Cvar_VariableValue("cl_ogg_music") > 0);
-	s_options_sound_cdvolume_box.curvalue 		= !Cvar_VariableValue("cd_nocd");
+	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "ogg_volume" ) * 10;
+	s_options_sound_oggmusic_box.curvalue			= (Cvar_VariableValue("ogg_enable") > 0);
 	//s_options_quality_list.curvalue			= !Cvar_VariableValue( "s_loadas8bit" );
 	//**  DMP convert setting into index for option display text
 	switch((Sint32)Cvar_VariableValue("s_khz"))
@@ -239,7 +232,7 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_musicvolume_slider.generic.callback		= UpdateMusicVolumeFunc;
 	s_options_sound_musicvolume_slider.minvalue				= 0;
 	s_options_sound_musicvolume_slider.maxvalue				= 10;
-	s_options_sound_musicvolume_slider.curvalue				= Cvar_VariableValue( "s_musicvolume" ) * 10;
+	s_options_sound_musicvolume_slider.curvalue				= Cvar_VariableValue( "ogg_volume" ) * 10;
 	s_options_sound_musicvolume_slider.generic.statusbar	= "volume of ogg vorbis music";
 
 	s_options_sound_oggmusic_box.generic.type		= MTYPE_SPINCONTROL;
@@ -248,17 +241,8 @@ void Options_Sound_MenuInit ( void )
 	s_options_sound_oggmusic_box.generic.name		= "ogg vorbis music";
 	s_options_sound_oggmusic_box.generic.callback	= UpdateOggMusicFunc;
 	s_options_sound_oggmusic_box.itemnames			= cd_music_items;
-	s_options_sound_oggmusic_box.curvalue 			= (Cvar_VariableValue("cl_ogg_music") > 0);
-	s_options_sound_oggmusic_box.generic.statusbar	= "override of CD music with ogg vorbis tracks";
-
-	s_options_sound_cdvolume_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_sound_cdvolume_box.generic.x			= 0;
-	s_options_sound_cdvolume_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_sound_cdvolume_box.generic.name		= "CD music";
-	s_options_sound_cdvolume_box.generic.callback	= UpdateCDVolumeFunc;
-	s_options_sound_cdvolume_box.itemnames			= cd_music_items;
-	s_options_sound_cdvolume_box.curvalue 			= !Cvar_VariableValue("cd_nocd");
-	s_options_sound_cdvolume_box.generic.statusbar	= "enables or disables CD music";
+	s_options_sound_oggmusic_box.curvalue 			= (Cvar_VariableValue("ogg_enable") > 0);
+	s_options_sound_oggmusic_box.generic.statusbar	= "enable ogg music subsystem";
 
 	s_options_sound_quality_list.generic.type		= MTYPE_SPINCONTROL;
 	s_options_sound_quality_list.generic.x			= 0;
@@ -294,7 +278,6 @@ void Options_Sound_MenuInit ( void )
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_sfxvolume_slider );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_musicvolume_slider );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_oggmusic_box );
-	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_cdvolume_box );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_quality_list );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_driver_list );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_defaults_action );

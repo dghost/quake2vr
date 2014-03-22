@@ -94,7 +94,6 @@ cvar_t	*con_font_size;
 cvar_t	*alt_text_color;
 
 // whether to try to play OGGs instead of CD tracks
-cvar_t	*cl_ogg_music;
 cvar_t	*cl_rogue_music; // whether to play Rogue tracks
 cvar_t	*cl_xatrix_music; // whether to play Xatrix tracks
 
@@ -1307,6 +1306,7 @@ void CL_Snd_Restart_f (void)
 	S_Shutdown ();
 	S_Init ();
 	CL_RegisterSounds ();
+	CL_PlayBackgroundTrack ();
 }
 
 
@@ -1432,8 +1432,6 @@ void CL_InitLocal (void)
 	con_font_size = Cvar_Get ("con_font_size", "8", CVAR_ARCHIVE);
 	alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
 
-	// whether to try to play OGGs instead of CD tracks
-	cl_ogg_music = Cvar_Get ("cl_ogg_music", "1", CVAR_ARCHIVE);
 	cl_rogue_music = Cvar_Get ("cl_rogue_music", "0", CVAR_ARCHIVE);
 	cl_xatrix_music = Cvar_Get ("cl_xatrix_music", "0", CVAR_ARCHIVE);
 

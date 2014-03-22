@@ -414,9 +414,7 @@ Sint32 CL_MissionPackCDTrack (Sint32 tracknum)
 CL_PlayBackgroundTrack
 =================
 */
-#ifdef OGG_SUPPORT
-
-#include "snd_ogg.h"
+#include "sound/header/vorbis.h"
 
 void CL_PlayBackgroundTrack (void)
 {
@@ -429,36 +427,25 @@ void CL_PlayBackgroundTrack (void)
 	// using a named audio track intead of numbered
 	if (strlen(cl.configstrings[CS_CDTRACK]) > 2)
 	{
-		Com_sprintf (name, sizeof(name), "music/%s.ogg", cl.configstrings[CS_CDTRACK]);
-		if (FS_LoadFile(name, NULL) != -1)
-		{
-			S_StartBackgroundTrack(name, name);
+	
+			OGG_ParseCmd(cl.configstrings[CS_CDTRACK]);
+//			S_StartBackgroundTrack(name, name);
 			return;
-		}
+
 	}
 
 	track = atoi(cl.configstrings[CS_CDTRACK]);
 
 	if (track == 0)
 	{	// Stop any playing track
-		S_StopBackgroundTrack();
+		OGG_Stop();
 		return;
 	}
 
 	// If an OGG file exists play it, otherwise fall back to CD audio
-	Com_sprintf (name, sizeof(name), "music/track%02i.ogg", CL_MissionPackCDTrack(track));
-	if ( (FS_LoadFile(name, NULL) != -1) && cl_ogg_music->value )
-		S_StartBackgroundTrack(name, name);
+	Com_sprintf (name, sizeof(name), "track%02i", CL_MissionPackCDTrack(track));
+	OGG_ParseCmd(name);
 }
-
-#else
-
-void CL_PlayBackgroundTrack (void)
-{
-	// null because no cd audio support
-}
-
-#endif // OGG_SUPPORT
 
 /*
 ================

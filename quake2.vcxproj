@@ -209,6 +209,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="client\sound\ogg.c" />
+    <ClCompile Include="client\sound\openal.c" />
+    <ClCompile Include="client\sound\qal.c" />
+    <ClCompile Include="client\sound\sound.c" />
+    <ClCompile Include="client\sound\wave.c" />
+    <ClCompile Include="qcommon\glob.c" />
     <ClCompile Include="renderer\r_antialias.c" />
     <ClCompile Include="renderer\r_fbo.c" />
     <ClCompile Include="renderer\r_shaderobjects.c" />
@@ -230,10 +236,6 @@
     <ClCompile Include="vr\vr_ovr.c" />
     <ClCompile Include="vr\vr_steamvr.cpp" />
     <ClCompile Include="vr\vr_svr.c" />
-    <ClCompile Include="client\snd_dma.c" />
-    <ClCompile Include="client\snd_mem.c" />
-    <ClCompile Include="client\snd_mix.c" />
-    <ClCompile Include="client\snd_stream.c" />
     <ClCompile Include="client\cl_cin.c" />
     <ClCompile Include="client\cl_cinematic.c" />
     <ClCompile Include="client\cl_console.c" />

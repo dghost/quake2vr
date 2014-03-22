@@ -105,8 +105,6 @@ __inline Sint32 Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_li
 
 #define ROQ_SUPPORT // whether to use new cinematic system
 
-#define OGG_SUPPORT // whether to use Ogg Vorbis soundtrack
-
 #define MD2_AS_MD3 // whether to load md2s into md3 memory representation
 
 #ifndef MD2_AS_MD3

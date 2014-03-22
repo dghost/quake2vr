@@ -33,7 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "vid.h"
 #include "screen.h"
-#include "sound.h"
+#include "sound/header/sound.h"
+#include "sound/header/vorbis.h"
 #include "input.h"
 #include "keys.h"
 #include "console.h"
@@ -339,7 +340,6 @@ extern	cvar_t	*alt_text_color;
 extern	cvar_t	*cl_drawfps;
 
 // whether to try to play OGGs instead of CD tracks
-extern	cvar_t	*cl_ogg_music;
 extern	cvar_t	*cl_rogue_music; // whether to play Rogue tracks
 extern	cvar_t	*cl_xatrix_music; // whether to play Xatrix tracks
 // end Knightmare
