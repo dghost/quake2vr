@@ -458,7 +458,7 @@ void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
 int32_t R_FrameSync (void);
-void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset);
+void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 
 //
 // r_model.c
@@ -809,6 +809,7 @@ typedef struct
 	GLboolean		depthMask;
 
 	GLenum			matrixMode;
+	GLfloat			axisRotation[4][4];
 
 	Uint8	originalRedGammaTable[256];
 	Uint8	originalGreenGammaTable[256];
@@ -850,8 +851,10 @@ void	GL_SetDefaultState (void);
 void	GL_MatrixMode(GLenum matrixMode);
 void	GL_SetIdentity(GLenum matrixMode);
 void	GL_LoadIdentity(GLenum matrixMode);
-void	GL_SetIdentityOrtho(GLenum matrixMode, double l, double r, double b, double t, double n, double f);
-void	GL_LoadMatrix(GLenum matrixMode, const double *m);
+void	GL_SetIdentityOrtho(GLenum matrixMode, float l, float r, float b, float t, float n, float f);
+
+void	GL_LoadMatrix(GLenum matrixMode, const float m[4][4]);
+void	GL_MultiplyMatrix(GLenum matrixMode, const float m[4][4]);
 void	GL_PushMatrix(GLenum matrixMode);
 void	GL_PopMatrix(GLenum matrixMode);
 

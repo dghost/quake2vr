@@ -538,7 +538,7 @@ void GL_LoadIdentity(GLenum matrixMode)
 	glLoadIdentity();
 }
 
-void GL_SetIdentityOrtho(GLenum matrixMode, double l, double r, double b, double t, double n, double f)
+void GL_SetIdentityOrtho(GLenum matrixMode, float l, float r, float b, float t, float n, float f)
 {
 	if (glState.matrixMode == matrixMode)
 	{
@@ -557,18 +557,34 @@ void GL_SetIdentityOrtho(GLenum matrixMode, double l, double r, double b, double
 	}
 }
 
-void GL_LoadMatrix(GLenum matrixMode, const double *m)
+void GL_LoadMatrix(GLenum matrixMode, const float m[4][4])
 {
 	if (glState.matrixMode == matrixMode)
 	{
-		glLoadMatrixd(m);
+		glLoadMatrixf((GLfloat*) m);
 	} else if (glConfig.ext_direct_state_access)
 	{
-		glMatrixLoaddEXT(matrixMode, m);
+		glMatrixLoadfEXT(matrixMode, (GLfloat*) m);
 	} else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
-		glLoadMatrixd(m);
+		glLoadMatrixf((GLfloat*) m);
+		GL_MatrixMode(currentMode);
+	}
+}
+
+void GL_MultiplyMatrix(GLenum matrixMode, const float m[4][4])
+{
+	if (glState.matrixMode == matrixMode)
+	{
+		glMultMatrixf((GLfloat*) m);
+	} else if (glConfig.ext_direct_state_access)
+	{
+		glMatrixMultfEXT(matrixMode, (GLfloat*) m);
+	} else {
+		GLenum currentMode = glState.matrixMode;
+		GL_MatrixMode(matrixMode);
+		glMultMatrixf((GLfloat*) m);
 		GL_MatrixMode(currentMode);
 	}
 }
@@ -613,6 +629,7 @@ GL_SetDefaultState
 void GL_SetDefaultState (void)
 {
 	int32_t		i;
+	vec_t rot[4][4], temp[4][4];
 
 	// Reset the state manager
 	glState.texgen = false;
@@ -639,6 +656,12 @@ void GL_SetDefaultState (void)
 	glState.depthMask = GL_TRUE;
 	glState.matrixMode = GL_MODELVIEW;
 	glState.currentFBO = 0;
+
+
+	RotationMatrix(-90, 1, 0, 0, rot);
+	RotationMatrix( 90, 0, 0, 1, temp);
+	MatrixMultiply(temp, rot, glState.axisRotation);
+
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 	

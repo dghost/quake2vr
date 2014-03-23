@@ -208,11 +208,9 @@ void R_PolyBlend (void)
 	GL_Disable (GL_DEPTH_TEST);
 	GL_DisableTexture(0);
 
-	GL_LoadIdentity (GL_MODELVIEW);
+//	GL_MatrixMode (GL_MODELVIEW);
 
-	// FIXME: get rid of these
-    glRotatef (-90,  1, 0, 0);	    // put Z going up
-    glRotatef (90,  0, 0, 1);	    // put Z going up
+	GL_LoadMatrix(GL_MODELVIEW, glState.axisRotation);
 
 	rb_vertex = rb_index = 0;
 	indexArray[rb_index++] = rb_vertex+0;
@@ -394,8 +392,10 @@ void R_SetupGL(void)
 	int32_t		x, x2, y2, y, w, h;
 	vec3_t vieworigin;
 	//Knightmare- variable sky range
-	static GLdouble farz;
-	GLdouble boxsize;
+	static GLfloat farz;
+	GLfloat boxsize;
+	vec_t temp[4][4], fin[4][4];
+
 	//end Knightmare
 
 	// Knightmare- update r_modulate in real time
@@ -413,10 +413,10 @@ void R_SetupGL(void)
 	//
 	// set up viewport
 	//
-	x = floor(r_newrefdef.x * vid.width / vid.width);
-	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
-	y = floor(vid.height - r_newrefdef.y * vid.height / vid.height);
-	y2 = ceil(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
+	x = floorf(r_newrefdef.x * vid.width / vid.width);
+	x2 = ceilf((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
+	y = floorf(vid.height - r_newrefdef.y * vid.height / vid.height);
+	y2 = ceilf(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
 
 	w = x2 - x;
 	h = y - y2;
@@ -449,24 +449,27 @@ void R_SetupGL(void)
 	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 
 	//Knightmare- 12/26/2001- increase back clipping plane distance
-	R_VR_Perspective(r_newrefdef.fov_y, (double) r_newrefdef.width / r_newrefdef.height, 1, farz); //was 4096
+	R_VR_Perspective(r_newrefdef.fov_y, (float) r_newrefdef.width / r_newrefdef.height, 1, farz); //was 4096
 	//end Knightmare
 
 
 	GL_LoadIdentity(GL_MODELVIEW);
 
-    glRotatef (-90,  1, 0, 0);	    // put Z going up
-    glRotatef (90,  0, 0, 1);	    // put Z going up
-
-	glRotatef (-r_newrefdef.viewangles[2],  1, 0, 0);
-	glRotatef (-r_newrefdef.viewangles[0],  0, 1, 0);
-	glRotatef (-r_newrefdef.viewangles[1],  0, 0, 1);
-	
-	GL_CullFace(GL_FRONT);
+	RotationMatrix (-r_newrefdef.viewangles[2],  1, 0, 0, temp);
+	MatrixMultiply (temp,glState.axisRotation,fin);
+	RotationMatrix (-r_newrefdef.viewangles[0],  0, 1, 0, temp);
+	MatrixMultiply (temp,fin,fin);
+	RotationMatrix (-r_newrefdef.viewangles[1],  0, 0, 1, temp);
+	MatrixMultiply (temp,fin,fin);
 
 	VectorCopy(r_newrefdef.vieworg,vieworigin);
+	TranslationMatrix (-vieworigin[0],  -vieworigin[1],  -vieworigin[2],temp);
+	MatrixMultiply (temp,fin,fin);
 
-	glTranslatef (-vieworigin[0],  -vieworigin[1],  -vieworigin[2]);
+	GL_LoadMatrix(GL_MODELVIEW, fin);
+
+	GL_CullFace(GL_FRONT);
+
 
 
 	

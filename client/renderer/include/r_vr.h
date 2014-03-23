@@ -43,7 +43,7 @@ void R_VR_CurrentViewRect(vr_rect_t *rect);
 void R_VR_Present();
 void R_VR_EndFrame();
 void R_VR_DrawHud(vr_eye_t eye);
-void R_VR_Perspective(double fovy, double aspect, double zNear, double zFar);
+void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar);
 void R_VR_GetFOV(float *fovx, float *fovy);
 
 #endif //__R_VR_H

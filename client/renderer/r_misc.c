@@ -691,12 +691,12 @@ int32_t R_FrameSync (void)
 }
 
 
-void R_PerspectiveOffset(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar, GLdouble offset)
+void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset)
 {
 
-	GLdouble f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
-	GLdouble nf = 1.0f / (zNear - zFar);
-	GLdouble out[16];
+	GLfloat f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
+	GLfloat nf = 1.0f / (zNear - zFar);
+	GLfloat out[16];
 
 	out[0] = f / aspect;
 	out[1] = 0;

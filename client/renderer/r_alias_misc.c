@@ -137,11 +137,8 @@ void R_ShadowBlend (float shadowalpha)
 		return;
 
 	GL_PushMatrix(GL_MODELVIEW);
-	GL_LoadIdentity (GL_MODELVIEW);
 
-	// FIXME: get rid of these
-    glRotatef (-90,  1, 0, 0);	    // put Z going up
-    glRotatef (90,  0, 0, 1);	    // put Z going up
+	GL_LoadMatrix(GL_MODELVIEW, glState.axisRotation);
 
 	GL_Disable (GL_ALPHA_TEST);
 	GL_Enable (GL_BLEND);

@@ -199,7 +199,7 @@ void R_VR_EndFrame()
 	}
 }
 
-void R_VR_Perspective(double fovy, double aspect, double zNear, double zFar)
+void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar)
 {
 	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
 	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
@@ -222,6 +222,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 	float y,x;
 	float depth = vr_hud_depth->value;
 	float ipd = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0);
+	vec_t mat[4][4],temp[4][4];
 
 	extern int32_t scr_draw_loading;
 
@@ -230,31 +231,22 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	R_PerspectiveOffset(vrState.viewFovY, vrState.aspect, 0.24, 251.0, eye * vrState.projOffset);
 
-	GL_LoadIdentity(GL_MODELVIEW);
-
+	TranslationMatrix(0,0,0,mat);
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int32_t) vr_aimmode->value > 0))
 	{
 		// load the quaternion directly into a rotation matrix
 		vec4_t q;
-		vec4_t mat[4];
 		VR_GetOrientationEMAQuat(q);
 		q[2] = -q[2];
 		QuatToRotation(q,mat);
-		glMultMatrixf((const GLfloat *) mat);
 
-		/* depriciated as of 9/30/2013 - consider removing later
-		// convert to euler angles and rotate
-		vec3_t orientation;
-		VR_GetOrientationEMA(orientation);
-		glRotatef (orientation[0],  1, 0, 0);
-		// y axis is inverted between Quake II and OpenGL
-		glRotatef (-orientation[1],  0, 1, 0);
-		glRotatef (orientation[2],  0, 0, 1);
-		*/
 	}
 
-	glTranslatef(eye * -ipd,0,0);
+	TranslationMatrix(eye * -ipd,0,0,temp);
+	MatrixMultiply(temp,mat,mat);
+	GL_LoadMatrix(GL_MODELVIEW, mat);
+	
 	// calculate coordinates for hud
 	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
 	y = x / ((float) hud.width / hud.height);
