@@ -2296,7 +2296,7 @@ void CL_CalcViewValues (void)
 	// add the weapon
 	CL_AddViewWeapon (ps, ops);
 	
-	if (vr_crosshair->value)
+	if (vr_enabled->value)
 	{
 		vec3_t forward, right,distance;
 		vec3_t gun_origin;
@@ -2311,17 +2311,6 @@ void CL_CalcViewValues (void)
 		}
 
 		VectorCopy(cl.refdef.aimangles, gun_angles);
-
-		/*
-		if ((int32_t) vr_crosshair->value == VR_CROSSHAIR_LASER)
-		{
-			for (i = 0; i < 3; i++)
-			{
-				gun_angles[i] += LerpAngle(ops->gunangles[i],ps->gunangles[i], cl.lerpfrac);
-			}
-		}
-		*/
-
 		AngleVectors(gun_angles,forward,right,NULL);
 	
 		// right handed
@@ -2336,15 +2325,11 @@ void CL_CalcViewValues (void)
 			
 		CL_ProjectSource(gun_origin,distance,forward,right,cl.refdef.aimstart);
 		
-
-		//VectorCopy(gun_origin,cl.refdef.aimstart);
-		//	VectorCopy(cl.refdef.vieworg,cl.refdef.aimstart);
 		VectorMA(cl.refdef.aimstart,8192,forward,distance);
-		//trace = CL_BrushTrace(cl.refdef.aimstart,aim,0,MASK_ALL);
-		//trace = CL_Trace(cl.refdef.aimstart,distance,0,MASK_SHOT);
 		trace = CL_PMSurfaceTrace(cl.playernum + 1, cl.refdef.aimstart,NULL,NULL,distance,MASK_SHOT | MASK_OPAQUE);
 		VectorCopy(trace.endpos,cl.refdef.aimend);
 	}
+
 	// set up chase cam
 	SetUpCamera();
 }

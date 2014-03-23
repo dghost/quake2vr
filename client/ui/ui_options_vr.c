@@ -41,9 +41,7 @@ static menulist_s		s_options_vr_aimmode_box;
 static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
 static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
 static menulist_s		s_options_vr_viewmove_box;
-static menulist_s		s_options_vr_crosshair_box;
-static menuslider_s		s_options_vr_crosshair_bright_slider;
-static menuslider_s		s_options_vr_crosshair_size_slider;
+
 static menulist_s		s_options_vr_autoipd_box;
 static menufield_s		s_options_vr_ipd_field;
 static menulist_s		s_options_vr_autofov_box;
@@ -78,13 +76,6 @@ static void EnableDisableFunc( void *unused )
 		Cmd_ExecuteString("vr_enable");
 }
 
-static void CrosshairFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_crosshair", s_options_vr_crosshair_box.curvalue);
-	Cvar_SetInteger( "vr_crosshair_brightness", s_options_vr_crosshair_bright_slider.curvalue);
-	Cvar_SetValue( "vr_crosshair_size", s_options_vr_crosshair_size_slider.curvalue / 4.0f);
-}
-
 static void AutoIPDFunc ( void *unused )
 {
 	Cvar_SetInteger( "vr_autoipd", s_options_vr_autoipd_box.curvalue);
@@ -99,9 +90,6 @@ static void VRSetMenuItemValues( void )
 {
 	s_options_vr_aimmode_box.curvalue = ( Cvar_VariableValue("vr_aimmode") );
 	s_options_vr_viewmove_box.curvalue = ( Cvar_VariableValue("vr_viewmove") );
-	s_options_vr_crosshair_box.curvalue = ( Cvar_VariableValue("vr_crosshair") );
-	s_options_vr_crosshair_bright_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_brightness") );
-	s_options_vr_crosshair_size_slider.curvalue = ( Cvar_VariableValue("vr_crosshair_size") * 4.0 );
 	s_options_vr_autoipd_box.curvalue = ( Cvar_VariableValue("vr_autoipd") );
 	s_options_vr_autofov_box.curvalue = (Cvar_VariableValue("vr_autofov"));
 
@@ -119,9 +107,6 @@ static void VRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_viewmove");
 	Cvar_SetToDefault ("vr_aimmode_deadzone_pitch");
 	Cvar_SetToDefault ("vr_aimmode_deadzone_yaw");
-	Cvar_SetToDefault ("vr_crosshair");
-	Cvar_SetToDefault ("vr_crosshair_brightness");
-	Cvar_SetToDefault ("vr_crosshair_size");
 	Cvar_SetToDefault ("vr_autoipd");
 	Cvar_SetToDefault ("vr_autofov");
 	Cvar_SetToDefault ("vr_ipd");
@@ -210,14 +195,6 @@ void Options_VR_MenuInit ( void )
 		0
 	};
 
-	static const char *crosshair_names[] =
-	{
-		"none",
-		"dot",
-		"laser (experimental)",
-		0
-	};
-
 	static const char *auto_names[] =
 	{
 		"custom",
@@ -283,32 +260,6 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_deadzone_yaw_field.visible_length = 5;
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
-
-	s_options_vr_crosshair_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_crosshair_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_crosshair_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_crosshair_box.generic.name			= "crosshair type";
-	s_options_vr_crosshair_box.generic.callback		= CrosshairFunc;
-	s_options_vr_crosshair_box.itemnames			= crosshair_names;
-	s_options_vr_crosshair_box.generic.statusbar	= "select what type of crosshair is enabled";
-
-	s_options_vr_crosshair_bright_slider.generic.type		= MTYPE_SLIDER;
-	s_options_vr_crosshair_bright_slider.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_crosshair_bright_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_crosshair_bright_slider.generic.name		= "crosshair brightness";
-	s_options_vr_crosshair_bright_slider.generic.callback	= CrosshairFunc;
-	s_options_vr_crosshair_bright_slider.minvalue			= 1;
-	s_options_vr_crosshair_bright_slider.maxvalue			= 100;
-	s_options_vr_crosshair_bright_slider.generic.statusbar	= "changes opacity of crosshair";
-
-	s_options_vr_crosshair_size_slider.generic.type		= MTYPE_SLIDER;
-	s_options_vr_crosshair_size_slider.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_crosshair_size_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_crosshair_size_slider.generic.name		= "crosshair size";
-	s_options_vr_crosshair_size_slider.generic.callback	= CrosshairFunc;
-	s_options_vr_crosshair_size_slider.minvalue			= 1;
-	s_options_vr_crosshair_size_slider.maxvalue			= 20;
-	s_options_vr_crosshair_size_slider.generic.statusbar	= "changes size of crosshair";
 
 	s_options_vr_autofov_box.generic.type = MTYPE_SPINCONTROL;
 	s_options_vr_autofov_box.generic.x = MENU_FONT_SIZE;
@@ -387,9 +338,6 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_box );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_bright_slider );
-	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_crosshair_size_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autofov_box);
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );

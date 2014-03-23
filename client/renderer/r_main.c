@@ -543,53 +543,98 @@ void R_DrawLastElements (void)
 }
 //============================================
 
+void 	SCR_TouchPics ();
+image_t	*R_DrawFindPic (char *name);
+extern cvar_t *crosshair;
+extern cvar_t *crosshair_scale;
+extern cvar_t *crosshair_alpha;
+extern cvar_t *crosshair_pulse;
+extern char		crosshair_pic[MAX_QPATH];
+
 void VR_DrawCrosshair()
 {
 	GLenum src, dst;
-	qboolean blend, depth, alpha;
+	qboolean blend, depth, alphatest;
+
+	float	scaledSize, alpha, pulsealpha;
 
 	if (!vr_enabled->value)
 		return;
 
+	scaledSize = crosshair_scale->value * vrState.pixelScale;
+	pulsealpha = crosshair_alpha->value * crosshair_pulse->value;	
+	alpha = max(min(crosshair_alpha->value - pulsealpha + pulsealpha*sin(anglemod(r_newrefdef.time*5)), 1.0), 0.0);
+	
 	blend = glState.blend;
 	depth = glState.depthTest;
-	alpha = glState.alphaTest;
+	alphatest = glState.alphaTest;
 	src = glState.blendSrc;
 	dst = glState.blendDst;
 
-
 	if (depth)
 		GL_Disable(GL_DEPTH_TEST);
-	if (alpha)
+	if (alphatest)
 		GL_Disable(GL_ALPHA_TEST);
 	if (!blend)
 		GL_Enable(GL_BLEND);
 
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	GL_MBind(0,0);
-	glColor4f(1.0,0.0,0.0,vr_crosshair_brightness->value / 100.0);
-	if ((int32_t) vr_crosshair->value == VR_CROSSHAIR_DOT)
+	if (! vr_aimlaser->value)
 	{
-		glEnable(GL_POINT_SMOOTH);
+		float y,x, depth;
+		image_t		*gl;
+		vec3_t origin, up,right,temp;
+		vec3_t forward, delta;
 
-		glPointSize(vr_crosshair_size->value * vrState.pixelScale);
-		glBegin(GL_POINTS);
-		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
+		gl = R_DrawFindPic (crosshair_pic);
+		GL_MBind(0,gl->texnum);
+
+		AngleVectors(r_newrefdef.aimangles,forward,right,up);
+		VectorCopy(r_newrefdef.aimend,origin);
+		VectorSubtract(r_newrefdef.aimend,r_newrefdef.vieworg,delta);
+
+		// calculate coordinates for hud
+		depth = abs(DotProduct(forward,delta));
+		x = tanf(scaledSize * (M_PI/180.0f) * 0.5) * depth;
+		y = x / ((float) vrState.viewFovX / vrState.viewFovY);
+		VectorScale(up,y,up);
+		VectorScale(right,x,right);
+
+		glColor4f(1.0,1.0,1.0,alpha);
+		glBegin(GL_TRIANGLE_STRIP);
+
+		VectorSubtract(origin,up,temp);
+		VectorSubtract(temp,right,temp);
+		glTexCoord2f (0, 1); glVertex3f (temp[0],temp[1],temp[2]);
+
+		VectorAdd(origin,up,temp);
+		VectorSubtract(temp,right,temp);
+		glTexCoord2f (0, 0); glVertex3f (temp[0],temp[1],temp[2]);
+
+		VectorSubtract(origin,up,temp);
+		VectorAdd(temp,right,temp);
+		glTexCoord2f (1, 1); glVertex3f (temp[0],temp[1],temp[2]);
+
+		VectorAdd(origin,up,temp);
+		VectorAdd(temp,right,temp);
+		glTexCoord2f (1, 0); glVertex3f (temp[0],temp[1],temp[2]);
+
 		glEnd();
-		glDisable(GL_POINT_SMOOTH);
-	} else if ((int32_t) vr_crosshair->value == VR_CROSSHAIR_LASER)
+		GL_MBind(0,0);
+	} else 
 	{
+		glColor4f(1.0,0.0,0.0,alpha);
 
-		glLineWidth( vr_crosshair_size->value * vrState.pixelScale );
+		GL_MBind(0,0);
+		glLineWidth( scaledSize );
 		glBegin (GL_LINES);
 		glVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
 		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
 		glEnd ();
 	}
-
 	if (depth)
 		GL_Enable(GL_DEPTH_TEST);
-	if (alpha)
+	if (alphatest)
 		GL_Enable(GL_ALPHA_TEST);
 	if (!blend)
 		GL_Disable(GL_BLEND);
@@ -694,8 +739,6 @@ void VR_RenderView (refdef_t *fd)
 			R_DrawAllParticles ();
 			R_ParticleStencil (3);
 		}
-
-
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);

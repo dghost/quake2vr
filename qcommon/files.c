@@ -1978,7 +1978,7 @@ ComparePackFiles(const char *findname, const char *name, unsigned musthave,
 	char *ptr;
 	char buffer[MAX_OSPATH];
 
-	SDL_strlcpy(buffer, name, sizeof(buffer));
+	strncpy(buffer, name, sizeof(buffer));
 
 	if ((canthave & SFF_SUBDIR) && (name[strlen(name) - 1] == '/'))
 	{
@@ -2020,7 +2020,7 @@ ComparePackFiles(const char *findname, const char *name, unsigned musthave,
 
 	if (retval && (output != NULL))
 	{
-		SDL_strlcpy(output, buffer, size);
+		strncpy(output, buffer, size);
 	}
 
 	return retval;

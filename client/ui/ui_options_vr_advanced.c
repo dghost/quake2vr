@@ -38,7 +38,7 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_advanced_menu;
 static menuseparator_s	s_options_vr_advanced_header;
 static menulist_s		s_options_vr_advanced_autoenable_box;
-static menulist_s		s_options_vr_advanced_nosleep_box;
+static menulist_s		s_options_vr_advanced_laser_box;
 static menulist_s		s_options_vr_advanced_chroma_box;
 static menufield_s		s_options_vr_advanced_prediction_field;
 static menuslider_s		s_options_vr_advanced_hud_depth_slider;
@@ -64,9 +64,9 @@ static void AutoFunc( void *unused )
 	Cvar_SetInteger("vr_autoenable",s_options_vr_advanced_autoenable_box.curvalue);
 }
 
-static void SleepFunc( void *unused )
+static void LaserFunc( void *unused )
 {
-	Cvar_SetInteger("vr_nosleep",s_options_vr_advanced_nosleep_box.curvalue);
+	Cvar_SetInteger("vr_aimlaser",s_options_vr_advanced_laser_box.curvalue);
 }
 
 static void BounceFunc( void *unused )
@@ -138,7 +138,7 @@ static void CustomPredictionFunc(void *unused)
 static void VRAdvSetMenuItemValues( void )
 {
 	s_options_vr_advanced_autoenable_box.curvalue = ( Cvar_VariableInteger("vr_autoenable") );
-	s_options_vr_advanced_nosleep_box.curvalue = ( Cvar_VariableInteger("vr_nosleep") );
+	s_options_vr_advanced_laser_box.curvalue = ( Cvar_VariableInteger("vr_aimlaser") );
 	s_options_vr_advanced_hud_depth_slider.curvalue = ( Cvar_VariableValue("vr_hud_depth") * 20.0f);
 	s_options_vr_advanced_hud_fov_slider.curvalue = ( Cvar_VariableValue("vr_hud_fov") );
 	s_options_vr_advanced_hudtrans_box.curvalue = ( Cvar_VariableInteger("vr_hud_transparency") );
@@ -161,7 +161,7 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault("vr_autoenable");
 	Cvar_SetToDefault("vr_chromatic");
-	Cvar_SetToDefault("vr_nosleep");
+	Cvar_SetToDefault("vr_aimlaser");
 	Cvar_SetToDefault("vr_hud_depth");
 	Cvar_SetToDefault("vr_hud_fov");
 	Cvar_SetToDefault("vr_hud_transparency");
@@ -223,14 +223,6 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_autoenable_box.itemnames			= yesno_names;
 	s_options_vr_advanced_autoenable_box.generic.statusbar	= "automatically enable VR support what starting Quake II VR";
 
-	s_options_vr_advanced_nosleep_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_advanced_nosleep_box.generic.x				= MENU_FONT_SIZE;
-	s_options_vr_advanced_nosleep_box.generic.y				= y+=MENU_LINE_SIZE;
-	s_options_vr_advanced_nosleep_box.generic.name			= "disable idle thread yielding";
-	s_options_vr_advanced_nosleep_box.generic.callback		= SleepFunc;
-	s_options_vr_advanced_nosleep_box.itemnames				= yesno_names;
-	s_options_vr_advanced_nosleep_box.generic.statusbar		= "prevents stuttering but increases cpu utilization";
-
 	s_options_vr_advanced_chroma_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_chroma_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_chroma_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -238,6 +230,14 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_chroma_box.generic.callback		= ChromaFunc;
 	s_options_vr_advanced_chroma_box.itemnames			= yesno_names;
 	s_options_vr_advanced_chroma_box.generic.statusbar	= "applies chromatic aberration correction to the distortion shader";
+
+	s_options_vr_advanced_laser_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_laser_box.generic.x				= MENU_FONT_SIZE;
+	s_options_vr_advanced_laser_box.generic.y				= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_laser_box.generic.name			= "aiming laser";
+	s_options_vr_advanced_laser_box.generic.callback		= LaserFunc;
+	s_options_vr_advanced_laser_box.itemnames				= yesno_names;
+	s_options_vr_advanced_laser_box.generic.statusbar		= "replaces the cursor with an aiming laser";
 
 
 	s_options_vr_advanced_prediction_field.generic.type = MTYPE_FIELD;
@@ -332,8 +332,6 @@ void Options_VR_Advanced_MenuInit ( void )
 	strcpy( s_options_vr_advanced_neckmodel_forward_field.buffer, vr_neckmodel_forward->string );
 	s_options_vr_advanced_neckmodel_forward_field.cursor = strlen( vr_neckmodel_forward->string );
 
-
-
 	s_options_vr_advanced_defaults_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_advanced_defaults_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_defaults_action.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -350,8 +348,8 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_header );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autoenable_box );
-	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_nosleep_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_chroma_box );
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_laser_box );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_prediction_field );
 

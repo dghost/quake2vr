@@ -14,9 +14,7 @@ cvar_t *vr_hud_depth;
 cvar_t *vr_hud_transparency;
 cvar_t *vr_hud_segments;
 cvar_t *vr_chromatic;
-cvar_t *vr_crosshair;
-cvar_t *vr_crosshair_size;
-cvar_t *vr_crosshair_brightness;
+cvar_t *vr_aimlaser;
 cvar_t *vr_aimmode;
 cvar_t *vr_aimmode_deadzone_yaw;
 cvar_t *vr_aimmode_deadzone_pitch;
@@ -241,36 +239,13 @@ void VR_Frame()
 		vr_aimmode_deadzone_yaw->modified = false;
 	}
 
-	if (vr_crosshair->modified)
+	if (vr_aimlaser->modified)
 	{
-		if (vr_crosshair->value < 0.0)
-			Cvar_SetInteger("vr_crosshair",0);
-		else if (vr_crosshair->value > 2)
-			Cvar_SetInteger("vr_crosshair",2);
-		else
-			Cvar_SetInteger("vr_crosshair",(int32_t) vr_crosshair->value);
-		vr_crosshair->modified = false;
+		Cvar_SetInteger("vr_aimlaser",!!vr_aimlaser->value);
+		vr_aimlaser->modified = false;
 	}
 
-	if (vr_crosshair_brightness->modified)
-	{
-		if (vr_crosshair_brightness->value < 0.0)
-			Cvar_SetInteger("vr_crosshair_brightness",0);
-		else if (vr_crosshair_brightness->value > 100)
-			Cvar_SetInteger("vr_crosshair_brightness",100);
-		else
-			Cvar_SetInteger("vr_crosshair_brightness",(int32_t) vr_crosshair_brightness->value);
-		vr_crosshair_brightness->modified = false;
-	}
-
-	if (vr_crosshair_size->modified)
-	{
-		if (vr_crosshair_size->value < 0.0)
-			Cvar_SetInteger("vr_crosshair_size",0);
-		else if (vr_crosshair_size->value > 5)
-			Cvar_SetInteger("vr_crosshair_size",5);
-		vr_crosshair_size->modified = false;
-	}
+	
 	if (vr_hud_depth->modified)
 	{
 		if (vr_hud_depth->value < 0.25f)
@@ -471,9 +446,7 @@ void VR_Startup(void)
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
-	vr_crosshair_size = Cvar_Get("vr_crosshair_size","2", CVAR_ARCHIVE);
-	vr_crosshair_brightness = Cvar_Get("vr_crosshair_brightness","75",CVAR_ARCHIVE);
-	vr_crosshair = Cvar_Get("vr_crosshair","1", CVAR_ARCHIVE);
+	vr_aimlaser = Cvar_Get("vr_aimlaser","0", CVAR_ARCHIVE);
 	vr_chromatic = Cvar_Get("vr_chromatic","1",CVAR_ARCHIVE);
 	vr_autoipd = Cvar_Get("vr_autoipd","1",CVAR_ARCHIVE);
 	vr_autofov_scale = Cvar_Get("vr_autofov_scale", "1.0", CVAR_ARCHIVE);
