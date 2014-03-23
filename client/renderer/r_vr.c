@@ -3,6 +3,7 @@
 #include "include/r_vr_ovr.h"
 #include "include/r_vr_svr.h"
 
+#define MAX_SEGMENTS 20
 static fbo_t offscreen, hud; 
 
 static hmd_render_t vr_render_none = 
@@ -27,6 +28,14 @@ static vr_eye_t currenteye;
 
 vr_rect_t screen;
 
+/*
+typedef struct {
+	GLfloat position[3];
+	GLfloat texCoords[2];
+} vert_t;
+
+vert_t hudverts[MAX_VERTS];
+*/
 //
 // Rendering related functions
 //
@@ -50,6 +59,18 @@ void R_VR_StartFrame()
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
 
+
+	if (vr_hud_segments->modified)
+	{
+		// clamp value from 30-90 degrees
+		if (vr_hud_segments->value < 1)
+			Cvar_SetInteger("vr_hud_segments",1);
+		else if (vr_hud_segments->value > MAX_SEGMENTS)
+			Cvar_SetValue("vr_hud_segments",MAX_SEGMENTS);
+		vr_hud_segments->modified = false;
+	
+		// build VAO here
+	}
 
 	if (vr_hud_fov->modified)
 	{
@@ -219,8 +240,8 @@ void R_VR_GetFOV(float *fovx, float *fovy)
 void R_VR_DrawHud(vr_eye_t eye)
 {
 	float fov = vr_hud_fov->value;
-	float y,x;
 	float depth = vr_hud_depth->value;
+	int numsegments = vr_hud_segments->value;
 	float ipd = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0);
 	vec_t mat[4][4],temp[4][4];
 
@@ -247,10 +268,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	MatrixMultiply(temp,mat,mat);
 	GL_LoadMatrix(GL_MODELVIEW, mat);
 	
-	// calculate coordinates for hud
-	x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
-	y = x / ((float) hud.width / hud.height);
-
 
 
 	if (vr_hud_transparency->value)
@@ -261,13 +278,40 @@ void R_VR_DrawHud(vr_eye_t eye)
 	} 
 	GL_MBind(0,hud.texture);
 
-
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f (0, 0); glVertex3f (-x, -y,-depth);
-	glTexCoord2f (0, 1); glVertex3f (-x, y,-depth);		
-	glTexCoord2f (1, 0); glVertex3f (x, -y,-depth);
-	glTexCoord2f (1, 1); glVertex3f (x, y,-depth);
+
+	if (numsegments > 1) {
+
+		int i = 0;
+		float interval = fov / (float) numsegments;
+		float pos = fov * -0.5f;
+		float texpos = 0;
+		qboolean dir = false;
+		float y = (tanf(abs(pos) * (M_PI/180.0f)) * depth) / ((float) hud.width / hud.height);
+
+		for (i = 0; i <= numsegments; i++)
+		{
+			float z = depth * cosf(pos * (M_PI/180.0f));
+			float x = tanf((pos ) * (M_PI/180.0f)) * (depth);
+
+			glTexCoord2f (texpos, 0); glVertex3f (x, -y,-z);
+			glTexCoord2f (texpos, 1); glVertex3f (x, y,-z);
+			texpos += (1.0f / (float) numsegments);
+			pos += interval;
+		}
+	} else {
+		float y,x;
+		// calculate coordinates for hud
+		x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
+		y = x / ((float) hud.width / hud.height);
+		glTexCoord2f (0, 0); glVertex3f (-x, -y,-depth);
+		glTexCoord2f (0, 1); glVertex3f (-x, y,-depth);		
+		glTexCoord2f (1, 0); glVertex3f (x, -y,-depth);
+		glTexCoord2f (1, 1); glVertex3f (x, y,-depth);
+	}
+
 	glEnd();
+
 
 	GL_Disable(GL_BLEND);
 }

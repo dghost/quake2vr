@@ -12,6 +12,7 @@ cvar_t *vr_ipd;
 cvar_t *vr_hud_fov;
 cvar_t *vr_hud_depth;
 cvar_t *vr_hud_transparency;
+cvar_t *vr_hud_segments;
 cvar_t *vr_chromatic;
 cvar_t *vr_crosshair;
 cvar_t *vr_crosshair_size;
@@ -29,6 +30,7 @@ cvar_t *vr_neckmodel_forward;
 cvar_t *vr_hmdtype;
 cvar_t *vr_prediction;
 cvar_t *vr_hmdstring;
+
 
 vr_param_t vrState;
 
@@ -462,6 +464,7 @@ void VR_Startup(void)
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
+	vr_hud_segments = Cvar_Get("vr_hud_segments","20",CVAR_ARCHIVE);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","70",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);

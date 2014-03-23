@@ -56,6 +56,7 @@ extern cvar_t *vr_autoipd;
 extern cvar_t *vr_ipd;
 extern cvar_t *vr_hud_fov;
 extern cvar_t *vr_hud_depth;
+extern cvar_t *vr_hud_segments;
 extern cvar_t *vr_hud_transparency;
 extern cvar_t *vr_chromatic;
 extern cvar_t *vr_crosshair;
