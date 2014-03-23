@@ -479,6 +479,48 @@
     <ClInclude Include="backends\sdl2\sdl2quake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="client\renderer\include\r_local.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_normals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_vr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_vr_ovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_vr_svr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\qgl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_alias.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\renderer\include\r_cin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\vr\include\vr_steamvr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\vr\include\vr_svr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\vr\include\vr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\vr\include\vr_libovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\vr\include\vr_ovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="backends\win32\q2.rc">

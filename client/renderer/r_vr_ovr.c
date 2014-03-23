@@ -345,13 +345,22 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 
 void OVR_RenderDistortion()
 {
-	float resScale = (1.0 / pow(2,(vr_ovr_distortion->value >= 0 ? vr_ovr_distortion->value : 0)));
-	uint32_t width = Cvar_VariableInteger("vid_width") * 0.5 * resScale;
-	uint32_t height = Cvar_VariableInteger("vid_height") * resScale;
+	float resScale = 1.0;
+	uint32_t width;
+	uint32_t height;
 	float scale = VR_OVR_GetDistortionScale();
 	r_ovr_shader_t *current = &ovr_distortion_shaders[useChroma];
 	// draw left eye
 
+	if (vr_ovr_distortion->value > 0)
+	{
+		resScale = (1.0 / pow(2,vr_ovr_distortion->value - 1 ));
+		width = ovrConfig.hmdWidth * 0.5 * resScale;
+		height = ovrConfig.hmdHeight * resScale;
+	} else {
+		width = Cvar_VariableInteger("vid_width") * 0.5;
+		height = Cvar_VariableInteger("vid_height");
+	}
 	Com_Printf("VR_OVR: Generating %dx%d distortion textures.\n",width,height);
 	glUseProgram(current->shader->program);
 

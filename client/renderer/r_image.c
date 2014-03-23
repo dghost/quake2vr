@@ -2203,7 +2203,7 @@ R_InitImages
 void R_InitImages (void)
 {
 	int32_t		i, j;
-	float	g = 1.0f / r_gamma->value;
+	float	g = 1.0f / vid_gamma->value;
 
 	// Knightmare- reinitialize these after a vid_restart
 	// this is needed because the renderer is no longer a DLL

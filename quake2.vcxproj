@@ -328,7 +328,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h" />
+    <ClInclude Include="client\renderer\include\qgl.h" />
+    <ClInclude Include="client\renderer\include\r_alias.h" />
+    <ClInclude Include="client\renderer\include\r_cin.h" />
+    <ClInclude Include="client\renderer\include\r_local.h" />
+    <ClInclude Include="client\renderer\include\r_model.h" />
+    <ClInclude Include="client\renderer\include\r_normals.h" />
+    <ClInclude Include="client\renderer\include\r_vr.h" />
+    <ClInclude Include="client\renderer\include\r_vr_ovr.h" />
+    <ClInclude Include="client\renderer\include\r_vr_svr.h" />
     <ClInclude Include="client\ui\include\ui_local.h" />
+    <ClInclude Include="client\vr\include\vr.h" />
+    <ClInclude Include="client\vr\include\vr_libovr.h" />
+    <ClInclude Include="client\vr\include\vr_ovr.h" />
+    <ClInclude Include="client\vr\include\vr_steamvr.h" />
+    <ClInclude Include="client\vr\include\vr_svr.h" />
     <ClInclude Include="renderer\anorms.h" />
     <ClInclude Include="renderer\anormtab.h" />
     <ClInclude Include="qcommon\bspfile.h" />

@@ -857,7 +857,7 @@ void SCR_Init (void)
 
 	crosshair = Cvar_Get ("crosshair", "1", CVAR_ARCHIVE);
 	crosshair_scale = Cvar_Get ("crosshair_scale", "1", CVAR_ARCHIVE);
-	crosshair_alpha = Cvar_Get ("crosshair_alpha", "1", CVAR_ARCHIVE);
+	crosshair_alpha = Cvar_Get ("crosshair_alpha", "0.8", CVAR_ARCHIVE);
 	crosshair_pulse = Cvar_Get ("crosshair_pulse", "0", CVAR_ARCHIVE);
 
 	scr_simple_loadscreen = Cvar_Get ("scr_simple_loadscreen", "1", CVAR_ARCHIVE);
@@ -865,7 +865,7 @@ void SCR_Init (void)
 	hud_scale = Cvar_Get ("hud_scale", "4", CVAR_ARCHIVE);
 	hud_width = Cvar_Get ("hud_width", "512", CVAR_ARCHIVE);
 	hud_height = Cvar_Get ("hud_height", "384", CVAR_ARCHIVE);
-	hud_alpha = Cvar_Get ("hud_alpha", "1", CVAR_ARCHIVE);
+	hud_alpha = Cvar_Get ("hud_alpha", "0.8", CVAR_ARCHIVE);
 	hud_squeezedigits = Cvar_Get ("hud_squeezedigits", "1", CVAR_ARCHIVE);
 
 //
@@ -2301,10 +2301,6 @@ void VR_UpdateScreen (void)
 
 		// clear background around sized down view
 		//	SCR_TileClear ();
-
-		// don't draw crosshair while in menu
-		if (cls.key_dest != key_menu) 
-			SCR_DrawCrosshair ();
 
 		if (!scr_hidehud)
 		{

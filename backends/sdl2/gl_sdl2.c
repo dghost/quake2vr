@@ -311,7 +311,7 @@ qboolean GLimp_InitGL (void)
 	if ( !r_ignorehwgamma->value )
 	{
 		original_brightness = SDL_GetWindowBrightness(mainWindow);
-		r_gamma->modified = true;
+		vid_gamma->modified = true;
 	}
 
 
@@ -349,7 +349,7 @@ void UpdateGammaRamp (qboolean enable)
 	int32_t ret;
 
 	if (enable)
-		gamma =  r_gamma->value;
+		gamma =  vid_gamma->value;
 	else
 		gamma = original_brightness;
 

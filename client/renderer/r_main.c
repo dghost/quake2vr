@@ -158,7 +158,7 @@ cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
 
 cvar_t	*vid_fullscreen;
-cvar_t	*r_gamma;
+cvar_t	*vid_gamma;
 cvar_t	*vid_ref;
 
 cvar_t  *r_bloom;	// BLOOMS
@@ -543,13 +543,15 @@ void R_DrawLastElements (void)
 }
 //============================================
 
-void 	SCR_TouchPics ();
+void SCR_DrawCrosshair();
+void SCR_TouchPics ();
 image_t	*R_DrawFindPic (char *name);
 extern cvar_t *crosshair;
 extern cvar_t *crosshair_scale;
 extern cvar_t *crosshair_alpha;
 extern cvar_t *crosshair_pulse;
 extern char		crosshair_pic[MAX_QPATH];
+extern qboolean scr_hidehud;
 
 void VR_DrawCrosshair()
 {
@@ -557,10 +559,12 @@ void VR_DrawCrosshair()
 	qboolean blend, depth, alphatest;
 
 	float	scaledSize, alpha, pulsealpha;
-
-	if (!vr_enabled->value)
+	
+	if (!vr_enabled->value || scr_hidehud)
 		return;
-
+	
+	SCR_DrawCrosshair();
+	
 	scaledSize = crosshair_scale->value * vrState.pixelScale;
 	pulsealpha = crosshair_alpha->value * crosshair_pulse->value;	
 	alpha = max(min(crosshair_alpha->value - pulsealpha + pulsealpha*sin(anglemod(r_newrefdef.time*5)), 1.0), 0.0);
@@ -579,7 +583,8 @@ void VR_DrawCrosshair()
 		GL_Enable(GL_BLEND);
 
 	GL_BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	if (! vr_aimlaser->value)
+
+	if (crosshair->value)
 	{
 		float y,x, depth;
 		image_t		*gl;
@@ -621,11 +626,12 @@ void VR_DrawCrosshair()
 
 		glEnd();
 		GL_MBind(0,0);
-	} else 
-	{
-		glColor4f(1.0,0.0,0.0,alpha);
+	}
 
+	if (vr_aimlaser->value)
+	{
 		GL_MBind(0,0);
+		glColor4f(1.0,0.0,0.0,alpha);
 		glLineWidth( scaledSize );
 		glBegin (GL_LINES);
 		glVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
@@ -1144,7 +1150,7 @@ void R_Register (void)
 
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
-	r_gamma = Cvar_Get( "r_gamma", "1.4", CVAR_ARCHIVE ); // was 1.0
+	vid_gamma = Cvar_Get( "vid_gamma", "1.4", CVAR_ARCHIVE ); // was 1.0
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
@@ -1688,13 +1694,13 @@ void R_BeginFrame()
 	}
 
 	// update gamma values
-	if ( r_gamma->modified )
+	if ( vid_gamma->modified )
 	{
-		if (r_gamma->value > 3.0)
-			Cvar_SetValue("r_gamma",3.0);
-		else if (r_gamma->value < 0.5)
-			Cvar_SetValue("r_gamma",0.5);
-		r_gamma->modified = false;
+		if (vid_gamma->value > 3.0)
+			Cvar_SetValue("vid_gamma",3.0);
+		else if (vid_gamma->value < 0.5)
+			Cvar_SetValue("vid_gamma",0.5);
+		vid_gamma->modified = false;
 		
 		UpdateGammaRamp ((int32_t) !r_ignorehwgamma->value);
 	}

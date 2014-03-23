@@ -28,14 +28,16 @@ static vr_eye_t currenteye;
 
 vr_rect_t screen;
 
-/*
+
 typedef struct {
-	GLfloat position[3];
-	GLfloat texCoords[2];
+	vec3_t position;
+	vec2_t texCoords;
 } vert_t;
 
-vert_t hudverts[MAX_VERTS];
-*/
+static vert_t hudverts[MAX_VERTS];
+static uint32_t hudNumVerts;
+
+
 //
 // Rendering related functions
 //
@@ -43,8 +45,9 @@ vert_t hudverts[MAX_VERTS];
 // executed once per frame
 void R_VR_StartFrame()
 {
-	int32_t resolutionChanged = 0;
-	
+	qboolean resolutionChanged = 0;
+	qboolean hudChanged = 0;
+
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
@@ -55,21 +58,28 @@ void R_VR_StartFrame()
 		resolutionChanged = true;		
 	}
 
-
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
-
 
 	if (vr_hud_segments->modified)
 	{
 		// clamp value from 30-90 degrees
-		if (vr_hud_segments->value < 1)
-			Cvar_SetInteger("vr_hud_segments",1);
+		if (vr_hud_segments->value < 0)
+			Cvar_SetInteger("vr_hud_segments",0);
 		else if (vr_hud_segments->value > MAX_SEGMENTS)
 			Cvar_SetValue("vr_hud_segments",MAX_SEGMENTS);
 		vr_hud_segments->modified = false;
-	
-		// build VAO here
+		hudChanged = true;
+	}
+
+	if (vr_hud_depth->modified)
+	{
+		if (vr_hud_depth->value < 0.25f)
+			Cvar_SetValue("vr_hud_depth",0.25);
+		else if (vr_hud_depth->value > 250)
+			Cvar_SetValue("vr_hud_depth",250);
+		vr_hud_depth->modified = false;
+		hudChanged = true;
 	}
 
 	if (vr_hud_fov->modified)
@@ -80,8 +90,43 @@ void R_VR_StartFrame()
 		else if (vr_hud_fov->value > vrState.viewFovY * 2.0)
 			Cvar_SetValue("vr_hud_fov",vrState.viewFovY * 2.0);
 		vr_hud_fov->modified = false;
-		resolutionChanged = true;
+		hudChanged = true;
 	}
+
+	if (hudChanged)
+	{
+		int i = 0;
+		int numsegments = vr_hud_segments->value;
+		float fov = vr_hud_fov->value;
+		float depth = vr_hud_depth->value;
+		float interval = fov / (float) numsegments;
+		float pos = fov * -0.5f;
+		float texpos = 0;
+		float y = (depth * tanf(abs(pos) * (M_PI/180.0f))) / ((float) hud.width / hud.height);
+
+		hudNumVerts = 0;
+		memset(hudverts,0,sizeof(hudverts));
+		
+		for (i = 0; i <= numsegments; i++)
+		{
+			float z = depth * cosf(pos * (M_PI/180.0f));
+			float x = depth * tanf(pos  * (M_PI/180.0f));
+
+			VectorSet(hudverts[hudNumVerts].position,x,-y,-z);
+			hudverts[hudNumVerts].texCoords[0] = texpos;
+			hudverts[hudNumVerts].texCoords[1] = 0;
+			hudNumVerts++;
+
+			VectorSet(hudverts[hudNumVerts].position,x,y,-z);
+			hudverts[hudNumVerts].texCoords[0] = texpos;
+			hudverts[hudNumVerts].texCoords[1] = 1;
+			hudNumVerts++;
+
+			texpos += (1.0f / (float) numsegments);
+			pos += interval;
+		}
+	}
+
 
 	if (resolutionChanged)
 	{
@@ -268,8 +313,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	MatrixMultiply(temp,mat,mat);
 	GL_LoadMatrix(GL_MODELVIEW, mat);
 	
-
-
 	if (vr_hud_transparency->value)
 	{
 		GL_Enable(GL_BLEND);
@@ -280,34 +323,24 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	glBegin(GL_TRIANGLE_STRIP);
 
-	if (numsegments > 1) {
-
+	if (hudNumVerts >= 4) {
 		int i = 0;
-		float interval = fov / (float) numsegments;
-		float pos = fov * -0.5f;
-		float texpos = 0;
-		qboolean dir = false;
-		float y = (tanf(abs(pos) * (M_PI/180.0f)) * depth) / ((float) hud.width / hud.height);
-
-		for (i = 0; i <= numsegments; i++)
+		for (i = 0; i < hudNumVerts; i++)
 		{
-			float z = depth * cosf(pos * (M_PI/180.0f));
-			float x = tanf((pos ) * (M_PI/180.0f)) * (depth);
-
-			glTexCoord2f (texpos, 0); glVertex3f (x, -y,-z);
-			glTexCoord2f (texpos, 1); glVertex3f (x, y,-z);
-			texpos += (1.0f / (float) numsegments);
-			pos += interval;
+			glTexCoord2fv(hudverts[i].texCoords);
+			glVertex3fv(hudverts[i].position);
 		}
 	} else {
-		float y,x;
+		float y,x,z;
 		// calculate coordinates for hud
 		x = tanf(fov * (M_PI/180.0f) * 0.5) * (depth);
 		y = x / ((float) hud.width / hud.height);
-		glTexCoord2f (0, 0); glVertex3f (-x, -y,-depth);
-		glTexCoord2f (0, 1); glVertex3f (-x, y,-depth);		
-		glTexCoord2f (1, 0); glVertex3f (x, -y,-depth);
-		glTexCoord2f (1, 1); glVertex3f (x, y,-depth);
+		z = depth * cosf(fov * (M_PI/180.0f) * 0.5);
+
+		glTexCoord2f (0, 0); glVertex3f (-x, -y,-z);
+		glTexCoord2f (0, 1); glVertex3f (-x, y,-z);		
+		glTexCoord2f (1, 0); glVertex3f (x, -y,-z);
+		glTexCoord2f (1, 1); glVertex3f (x, y,-z);
 	}
 
 	glEnd();
@@ -364,7 +397,18 @@ void R_VR_Enable()
 			Com_Printf(" failed!\n");
 			Cmd_ExecuteString("vr_disable");
 		} else {
+			char string[6];
 			Com_Printf(" ok!\n");
+
+			hmd->getState(&vrState);
+
+
+			strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
+			vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
+
+			if (vr_ipd->value < 0)
+				Cvar_SetToDefault("vr_ipd");
+
 		}
 
 	} else {

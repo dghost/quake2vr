@@ -406,7 +406,7 @@ void UpdateGammaRamp (qboolean enable);
 
 void VID_UpdateWindowPos ( int32_t x, int32_t y )
 {
-	float gamma = Cvar_VariableValue("r_gamma");
+	float gamma = Cvar_VariableValue("vid_gamma");
 	qboolean useGamma = (qboolean) !Cvar_VariableInteger("r_ignorehwgamma");
 	UpdateGammaRamp(false);
 	SDL_SetWindowPosition(mainWindow,x,y);

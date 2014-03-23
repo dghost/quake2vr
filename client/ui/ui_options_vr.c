@@ -188,10 +188,10 @@ void Options_VR_MenuInit ( void )
 		"* head aiming + mouse pitch",
 		"mouse aiming",
 		"* mouse aiming + mouse pitch",
-		"TF2 Mode 2 (bounded deadzone)",
-		"TF2 Mode 3 (deadzone w/ view move)",
-		"TF2 Mode 4 (deadzone w/ aim move)",
-		"fully decoupled view/aiming",
+		"strict deadzone",
+		"deadzone w/ view move",
+		"deadzone w/ aim move",
+		"decoupled view/aiming",
 		0
 	};
 

@@ -245,18 +245,6 @@ void VR_Frame()
 		vr_aimlaser->modified = false;
 	}
 
-	
-	if (vr_hud_depth->modified)
-	{
-		if (vr_hud_depth->value < 0.25f)
-			Cvar_SetValue("vr_hud_depth",0.25);
-		else if (vr_hud_depth->value > 250)
-			Cvar_SetValue("vr_hud_depth",250);
-
-		vr_hud_depth->modified = false;
-	}
-
-
 	if (vr_hud_bounce->modified)
 	{
 		if (vr_hud_bounce->value < 0.0)
@@ -328,7 +316,6 @@ void VR_ResetOrientation( void )
 
 int32_t VR_Enable()
 {
-	char string[6];
 	char hmd_type[3];
 	int32_t i;
 	hmd = NULL;
@@ -353,14 +340,6 @@ int32_t VR_Enable()
 	if (hmd->setPrediction)
 		hmd->setPrediction(vr_prediction->value);
 	vr_prediction->modified = false;
-
-
-
-	strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
-	vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
-
-	if (vr_ipd->value < 0)
-		Cvar_SetValue("vr_ipd", vrState.ipd * 1000);
 
 	VR_ResetOrientation();
 
@@ -439,9 +418,9 @@ void VR_Startup(void)
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_ARCHIVE);
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
-	vr_hud_segments = Cvar_Get("vr_hud_segments","20",CVAR_ARCHIVE);
-	vr_hud_fov = Cvar_Get("vr_hud_fov","70",CVAR_ARCHIVE);
-	vr_hud_depth = Cvar_Get("vr_hud_depth","0.75",CVAR_ARCHIVE);
+	vr_hud_segments = Cvar_Get("vr_hud_segments","15",CVAR_ARCHIVE);
+	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
+	vr_hud_depth = Cvar_Get("vr_hud_depth","1.0",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
