@@ -57,6 +57,7 @@ static int snd_inited = 0;
 static int snd_scaletable[32][256];
 static int snd_vol;
 static int soundtime;
+static SDL_AudioDeviceID dev;
 
 /* ------------------------------------------------------------------ */
 
@@ -1197,6 +1198,7 @@ SDL_BackendInit(void)
 	}
 
 
+
 	s_sdldriver = (Cvar_Get("s_sdldriver", "auto", CVAR_ARCHIVE));
 /*
 #ifdef _WIN32
@@ -1230,6 +1232,17 @@ SDL_BackendInit(void)
 		}
 	}
 
+
+		{
+		int i = 0;
+		int j = SDL_GetNumAudioDevices(0);
+		for (i = 0; i < j; i++)
+		{
+			Com_Printf("Found audio device: %s\n",SDL_GetAudioDeviceName(i,0));
+		}
+
+	}
+
 	{
 		const char* drivername = SDL_GetCurrentAudioDriver();
 		if(drivername == NULL)
@@ -1239,6 +1252,7 @@ SDL_BackendInit(void)
 		Com_Printf("SDL audio driver is \"%s\".\n", drivername);
 
 	}
+
 
 
 	memset(&desired, '\0', sizeof(desired));
@@ -1290,7 +1304,8 @@ SDL_BackendInit(void)
 	desired.callback = SDL_Callback;
 
 	/* Okay, let's try our luck */
-	if (SDL_OpenAudio(&desired, &obtained) == -1)
+	dev = SDL_OpenAudioDevice(NULL,0,&desired, &obtained,0);
+	if ( dev == 0)
 	{
 		Com_Printf("SDL_OpenAudio() failed: %s\n", SDL_GetError());
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -1322,7 +1337,7 @@ SDL_BackendInit(void)
 	s_numchannels = MAX_CHANNELS;
 
 	SDL_UpdateScaletable();
-	SDL_PauseAudio(0);
+	SDL_PauseAudioDevice(dev,0);
 
 	Com_Printf("SDL audio initialized.\n");
 
@@ -1339,8 +1354,9 @@ void
 SDL_BackendShutdown(void)
 {
 	Com_Printf("Closing SDL audio device...\n");
-    SDL_PauseAudio(1);
-    SDL_CloseAudio();
+    SDL_PauseAudioDevice(dev,1);
+    SDL_CloseAudioDevice(dev);
+	dev = 0;
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     free(backend->buffer);
     backend->buffer = NULL;
@@ -1349,3 +1365,7 @@ SDL_BackendShutdown(void)
     Com_Printf("SDL audio device shut down.\n");
 }
 
+void SDL_AudioActivate(int activate)
+{
+	SDL_PauseAudioDevice(dev,!activate);
+}

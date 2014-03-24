@@ -264,6 +264,10 @@ void SDL_RawSamples(int samples, int rate, int width,
  */
 void SDL_Spatialize(channel_t *ch);
 
+
+void SDL_AudioActivate(int activate);
+
+
 /* ----------------------------------------------------------------- */
 
 #if USE_OPENAL
@@ -334,6 +338,9 @@ void AL_RawSamples(int samples, int rate, int width,
  * still in flight
  */
 void AL_UnqueueRawSamples();
+
+
+void AL_AudioActivate(int activate);
 
 #endif /* USE_OPENAL */
 #endif /* CL_SOUND_LOCAL_H */

@@ -493,6 +493,8 @@ Sys_AppActivate
 */
 void Sys_AppActivate (void)
 {
+
+	/*
 #ifdef _WIN32
 		if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 			SetForegroundWindow(mainWindowInfo.info.win.window);
@@ -500,6 +502,7 @@ void Sys_AppActivate (void)
 	
 	SDL_RaiseWindow(mainWindow);
 	SDL_ShowWindow(mainWindow);
+	*/
 }
 
 /*

@@ -521,7 +521,7 @@ void GL_SetIdentity(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glLoadIdentity();
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadIdentityEXT(matrixMode);
 	} else {
@@ -544,7 +544,7 @@ void GL_SetIdentityOrtho(GLenum matrixMode, float l, float r, float b, float t, 
 	{
 		glLoadIdentity();
 		glOrtho(l, r, b, t, n ,f);
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadIdentityEXT(matrixMode);
 		glMatrixOrthoEXT(matrixMode, l, r, b, t, n ,f);
@@ -562,7 +562,7 @@ void GL_LoadMatrix(GLenum matrixMode, const float m[4][4])
 	if (glState.matrixMode == matrixMode)
 	{
 		glLoadMatrixf((GLfloat*) m);
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadfEXT(matrixMode, (GLfloat*) m);
 	} else {
@@ -578,7 +578,7 @@ void GL_MultiplyMatrix(GLenum matrixMode, const float m[4][4])
 	if (glState.matrixMode == matrixMode)
 	{
 		glMultMatrixf((GLfloat*) m);
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixMultfEXT(matrixMode, (GLfloat*) m);
 	} else {
@@ -594,7 +594,7 @@ void GL_PushMatrix(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glPushMatrix();
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixPushEXT(matrixMode);
 	} else {
@@ -610,7 +610,7 @@ void GL_PopMatrix(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glPopMatrix();
-	} else if (glConfig.ext_direct_state_access)
+	} else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixPopEXT(matrixMode);
 	} else {

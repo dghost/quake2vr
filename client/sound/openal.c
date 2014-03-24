@@ -57,6 +57,7 @@ static int s_framecount;
 
 static qboolean filterSupport;
 static ALuint underwaterFilter;
+static qboolean mute;
 
 /* ----------------------------------------------------------------- */
 
@@ -543,7 +544,10 @@ AL_Update(void)
 	/* set listener (player) parameters */
 	AL_CopyVector(listener_forward, orientation);
 	AL_CopyVector(listener_up, orientation + 3);
- 	qalListenerf(AL_GAIN, s_volume->value);
+	if (!mute)
+	 	qalListenerf(AL_GAIN, s_volume->value);
+	else
+		qalListenerf(AL_GAIN, 0);
 	qalListenerf(AL_MAX_GAIN, s_openal_maxgain->value);
 	qalDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
 	qalListener3f(AL_POSITION, AL_UnpackVector(listener_origin));
@@ -793,6 +797,11 @@ AL_Shutdown(void)
 	}
 
 	QAL_Shutdown();
+}
+
+void AL_AudioActivate(int activate)
+{
+	mute = !activate;
 }
 
 #endif /* USE_OPENAL */

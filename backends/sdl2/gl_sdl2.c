@@ -404,7 +404,7 @@ void GLimp_AppActivate( qboolean active )
 		if (mainWindow)
 		{
 #ifdef _WIN32
-			if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 				SetForegroundWindow(mainWindowInfo.info.win.window);
 #endif
 			SDL_RaiseWindow(mainWindow);

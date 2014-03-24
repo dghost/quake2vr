@@ -1127,3 +1127,23 @@ S_Shutdown(void)
 	Cmd_RemoveCommand("ogg_init");
 	Cmd_RemoveCommand("ogg_shutdown");
 }
+
+void S_Activate(qboolean activate)
+{
+#if USE_OPENAL
+	if (sound_started == SS_OAL)
+	{
+		AL_AudioActivate(activate);
+	}
+	else
+#endif
+	{
+		if (sound_started == SS_SDL)
+		{
+			SDL_AudioActivate(activate);
+		}
+	}
+
+
+
+}

@@ -464,7 +464,6 @@ void IN_Move (usercmd_t *cmd)
 		IN_ControllerMove (cmd);
 		return;
 	default:
-		IN_ControllerMove (cmd);
 		return;
 	}
 
@@ -498,7 +497,6 @@ void IN_Commands (void)
 		IN_ControllerCommands ();
 		return;
 	default:
-		IN_ControllerCommands ();
 		return;
 	}
 }
