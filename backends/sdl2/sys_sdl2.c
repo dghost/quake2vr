@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../qcommon/qcommon.h"
 #include "sdl2quake.h"
-#include "../win32/resource.h"
 #include <errno.h>
 #include <float.h>
 #include <fcntl.h>
@@ -29,20 +28,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
-#include "../win32/conproc.h"
 #include "../../client/vr/include/vr.h"
+
+#ifdef _WIN32
+#include "../win32/resource.h"
+#include "../win32/conproc.h"
+#endif
 
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
 int32_t			starttime;
-int32_t			ActiveApp;
+qboolean			ActiveApp;
 qboolean	Minimized;
 
 static HANDLE		hinput, houtput;
 
 SDL_Window *mainWindow;
 uint32_t mainWindowID;
+SDL_SysWMinfo mainWindowInfo;
 
 void SDL_ProcEvent(SDL_Event *event);
 unsigned	sys_msg_time;
@@ -489,6 +493,11 @@ Sys_AppActivate
 */
 void Sys_AppActivate (void)
 {
+#ifdef _WIN32
+		if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			SetForegroundWindow(mainWindowInfo.info.win.window);
+#endif
+	
 	SDL_RaiseWindow(mainWindow);
 	SDL_ShowWindow(mainWindow);
 }

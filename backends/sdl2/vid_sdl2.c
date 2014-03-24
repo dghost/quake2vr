@@ -374,6 +374,11 @@ void VID_Restart_f (void)
 
 void VID_Front_f( void )
 {
+#ifdef _WIN32
+		if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			SetForegroundWindow(mainWindowInfo.info.win.window);
+#endif
+	
 	SDL_RaiseWindow(mainWindow);
 }
 

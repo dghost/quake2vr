@@ -37,7 +37,7 @@ typedef struct {
 static vert_t hudverts[MAX_VERTS];
 static uint32_t hudNumVerts;
 
-
+static GLuint currentFBO = 0;
 //
 // Rendering related functions
 //
@@ -58,6 +58,7 @@ void R_VR_StartFrame()
 		resolutionChanged = true;		
 	}
 
+	currentFBO = glState.currentFBO;
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
 
@@ -110,7 +111,7 @@ void R_VR_StartFrame()
 		for (i = 0; i <= numsegments; i++)
 		{
 			float z = depth * cosf(pos * (M_PI/180.0f));
-			float x = depth * tanf(pos  * (M_PI/180.0f));
+			float x = depth * tan(pos  * (M_PI/180.0f));
 
 			VectorSet(hudverts[hudNumVerts].position,x,-y,-z);
 			hudverts[hudNumVerts].texCoords[0] = texpos;
@@ -258,7 +259,6 @@ void R_VR_EndFrame()
 
 		GL_Disable(GL_ALPHA_TEST);
 
-		GL_BindFBO(0);
 		glViewport(0,0,screen.width,screen.height);
 		vid.width = screen.width ;
 		vid.height = screen.height;
@@ -354,6 +354,7 @@ void R_VR_Present()
 {
 	if (!hmd)
 		return;
+	GL_BindFBO(currentFBO);
 
 	GL_SetIdentity(GL_PROJECTION);
 	GL_SetIdentity(GL_MODELVIEW);

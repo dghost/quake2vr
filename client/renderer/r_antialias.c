@@ -1,11 +1,12 @@
 #include "include/r_local.h"
 
 cvar_t *r_antialias;
-fbo_t offscreen;
-viddef_t offscreenBounds;
-viddef_t screenBounds;
+static fbo_t offscreen;
+static viddef_t offscreenBounds;
+static viddef_t screenBounds;
 
 static int32_t offscreenStale = 1;
+static GLuint currentFBO;
 
 void R_AntialiasStartFrame (void)
 {
@@ -26,35 +27,43 @@ void R_AntialiasStartFrame (void)
 			Cvar_SetInteger("r_antialias",ANTIALIAS_NONE);
 			return;
 		}
-
-		switch (aa)
-		{
-		case ANTIALIAS_4X_FSAA:
-			offscreenBounds.width = screenBounds.width * 2;
-			offscreenBounds.height = screenBounds.height * 2;
-			R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, &offscreen);
-			break;
-		default:
-		case ANTIALIAS_NONE:
-			offscreenBounds.width = screenBounds.width;
-			offscreenBounds.height = screenBounds.height;
-			R_DelFBO(&offscreen);
-			break;
-		}
-		Com_Printf("Antialias render target size %ux%u\n",offscreenBounds.width, offscreenBounds.height);
-
-		VID_NewWindow(offscreenBounds.width,offscreenBounds.height);
 	}
+}
 
-	offscreenStale = 1;
-	vid.width = offscreenBounds.width;
-	vid.height = offscreenBounds.height;
+void R_AntialiasGenFBO(void)
+{
+	switch ((int) r_antialias->value)
+	{
+	case ANTIALIAS_4X_FSAA:
+		offscreenBounds.width = screenBounds.width * 2;
+		offscreenBounds.height = screenBounds.height * 2;
+		R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, &offscreen);
+		break;
+	default:
+	case ANTIALIAS_NONE:
+		offscreenBounds.width = screenBounds.width;
+		offscreenBounds.height = screenBounds.height;
+		R_DelFBO(&offscreen);
+		break;
+	}
+	Com_Printf("Antialias render target size %ux%u\n",offscreenBounds.width, offscreenBounds.height);
+
+	VID_NewWindow(offscreenBounds.width,offscreenBounds.height);
+
 }
 
 void R_AntialiasBind(void)
 {
 	if (r_antialias->value)
 	{
+		if (vid.width != screenBounds.width || vid.height != screenBounds.height)
+		{
+			screenBounds.width = vid.width;
+			screenBounds.height = vid.height;
+			R_AntialiasGenFBO();
+		}
+
+		currentFBO = glState.currentFBO;
 		R_BindFBO(&offscreen);
 		vid.width = offscreen.width;
 		vid.height = offscreen.height;
@@ -73,7 +82,7 @@ void R_AntialiasEndFrame(void)
 
 	if (r_antialias->value)
 	{
-		GL_BindFBO(0);
+		GL_BindFBO(currentFBO);
 		glViewport(0,0,screenBounds.width,screenBounds.height);
 		//GL_SelectTexture(0);
 
@@ -83,7 +92,7 @@ void R_AntialiasEndFrame(void)
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
-		GL_Bind(offscreen.texture);
+		GL_MBind(0,offscreen.texture);
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0, 0); glVertex2f(-1, -1);
@@ -92,20 +101,32 @@ void R_AntialiasEndFrame(void)
 		glTexCoord2f(1, 1); glVertex2f(1, 1);
 		glEnd();
 
-		GL_Bind(0);
+		GL_MBind(0,0);
 		vid.width = screenBounds.width;
 		vid.height = screenBounds.height;
+
 	}
+
+	offscreenStale = 1;
 }
 
 
-void R_InitAntialias(void)
+void R_AntialiasInit(void)
 {
 	r_antialias = Cvar_Get("r_antialias","0",CVAR_ARCHIVE);
 	R_InitFBO(&offscreen);
-	screenBounds.width = vid.width;
-	screenBounds.height = vid.height;
-	Com_Printf("Screen size %ux%u\n",screenBounds.width, screenBounds.height);
+	screenBounds.width = 0;
+	screenBounds.height = 0;
 	r_antialias->modified = true; 
 	R_AntialiasStartFrame();
+}
+
+void R_AntialiasShutdown(void)
+{
+	if (offscreen.valid)
+		R_DelFBO(&offscreen);
+
+
+	vid.width = screenBounds.width;
+	vid.height = screenBounds.height;
 }

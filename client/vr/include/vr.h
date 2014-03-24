@@ -85,13 +85,6 @@ enum {
 } vr_aimmode_t;
 
 enum {
-	VR_CROSSHAIR_NONE,
-	VR_CROSSHAIR_DOT,
-	VR_CROSSHAIR_LASER,
-	NUM_VR_CROSSHAIR
-} vr_crosshair_t;
-
-enum {
 	VR_HUD_BOUNCE_NONE,
 	VR_HUD_BOUNCE_SES,
 	VR_HUD_BOUNCE_LES,

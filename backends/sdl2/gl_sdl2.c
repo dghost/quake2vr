@@ -227,6 +227,13 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 			return rserr_invalid_fullscreen;
 		}
 	}
+	SDL_VERSION(&mainWindowInfo.version); // initialize info structure with SDL version info
+	SDL_GetWindowWMInfo(mainWindow,&mainWindowInfo);
+#ifdef _WIN32
+		if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			SetForegroundWindow(mainWindowInfo.info.win.window);
+#endif
+	
 
 	SDL_RaiseWindow(mainWindow);
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
@@ -396,6 +403,10 @@ void GLimp_AppActivate( qboolean active )
 	{
 		if (mainWindow)
 		{
+#ifdef _WIN32
+			if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+				SetForegroundWindow(mainWindowInfo.info.win.window);
+#endif
 			SDL_RaiseWindow(mainWindow);
 			SDL_ShowWindow(mainWindow);
 

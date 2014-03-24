@@ -983,6 +983,6 @@ enum {
 void R_AntialiasStartFrame (void);
 void R_AntialiasBind(void);
 void R_AntialiasEndFrame(void);
-void R_InitAntialias (void);
-
+void R_AntialiasInit (void);
+void R_AntialiasShutdown(void);
 #endif

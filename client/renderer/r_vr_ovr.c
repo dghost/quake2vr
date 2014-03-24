@@ -348,10 +348,12 @@ void OVR_RenderDistortion()
 	float resScale = 1.0;
 	uint32_t width;
 	uint32_t height;
+	GLuint currentFBO;
 	float scale = VR_OVR_GetDistortionScale();
 	r_ovr_shader_t *current = &ovr_distortion_shaders[useChroma];
 	// draw left eye
 
+	currentFBO = glState.currentFBO;
 	if (vr_ovr_distortion->value > 0)
 	{
 		resScale = (1.0 / pow(2,vr_ovr_distortion->value - 1 ));
@@ -412,7 +414,7 @@ void OVR_RenderDistortion()
 	glEnd();
 	glUseProgram(0);
 
-	GL_BindFBO(0);
+	GL_BindFBO(currentFBO);
 }
 
 void OVR_FrameStart(int32_t changeBackBuffers)

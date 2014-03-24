@@ -565,7 +565,7 @@ void VR_DrawCrosshair()
 	
 	SCR_DrawCrosshair();
 	
-	scaledSize = crosshair_scale->value * vrState.pixelScale;
+	scaledSize = crosshair_scale->value * 2;
 	pulsealpha = crosshair_alpha->value * crosshair_pulse->value;	
 	alpha = max(min(crosshair_alpha->value - pulsealpha + pulsealpha*sin(anglemod(r_newrefdef.time*5)), 1.0), 0.0);
 	
@@ -632,7 +632,7 @@ void VR_DrawCrosshair()
 	{
 		GL_MBind(0,0);
 		glColor4f(1.0,0.0,0.0,alpha);
-		glLineWidth( scaledSize );
+		glLineWidth( crosshair_scale->value * vrState.pixelScale );
 		glBegin (GL_LINES);
 		glVertex3f(r_newrefdef.aimstart[0],r_newrefdef.aimstart[1],r_newrefdef.aimstart[2]);	
 		glVertex3f(r_newrefdef.aimend[0],r_newrefdef.aimend[1],r_newrefdef.aimend[2]);
@@ -1521,10 +1521,10 @@ qboolean R_Init ( char *reason )
 		VID_Printf (PRINT_ALL, "R_ShaderObjectsInit: glGetError() = 0x%x\n", err);
 
 
-	R_InitAntialias();
+	R_AntialiasInit();
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
-		VID_Printf (PRINT_ALL, "R_InitAntialias: glGetError() = 0x%x\n", err);
+		VID_Printf (PRINT_ALL, "R_AntialiasInit: glGetError() = 0x%x\n", err);
 
 	R_VR_Init();
 	err = glGetError();
@@ -1642,6 +1642,7 @@ void R_Shutdown (void)
 	saveshotdata = NULL;	// make sure this is null after a vid restart!
 
 	Mod_FreeAll ();
+	R_AntialiasShutdown();
 	R_ShaderObjectsShutdown();
 	R_ShutdownImages ();
 	R_VR_Shutdown();
@@ -1706,16 +1707,15 @@ void R_BeginFrame()
 	}
 
 	GLimp_BeginFrame(  );
-	
+	GL_BindFBO(0);
 	R_AntialiasStartFrame();
+
+	R_AntialiasBind();
 
 	if (vr_enabled->value)
 	{
 		R_VR_StartFrame();
 		R_VR_BindView(EYE_HUD);	
-	} else 
-	{
-		R_AntialiasBind();
 	}
 
 	// fuck with draw buffers here
@@ -1796,9 +1796,10 @@ void R_EndFrame(void)
 	if (vr_enabled->value)
 	{
 		R_VR_EndFrame();
-		R_AntialiasBind();
+//		R_AntialiasBind();
 		R_VR_Present();
 	}
+
 	R_AntialiasEndFrame();
 
 	GLimp_EndFrame();

@@ -27,8 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
+#include <SDL_syswm.h>
+
+
+
 extern SDL_Window *mainWindow;
 extern uint32_t mainWindowID;
+extern SDL_SysWMinfo mainWindowInfo;
 
 extern qboolean		ActiveApp, Minimized;
 
