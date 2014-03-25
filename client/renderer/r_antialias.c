@@ -7,7 +7,7 @@ static viddef_t screenBounds;
 
 static int32_t offscreenStale = 1;
 static GLuint currentFBO;
-
+static qboolean changed = false;
 void R_AntialiasStartFrame (void)
 {
 	if (r_antialias->modified)
@@ -27,43 +27,39 @@ void R_AntialiasStartFrame (void)
 			Cvar_SetInteger("r_antialias",ANTIALIAS_NONE);
 			return;
 		}
+		changed = true;
 	}
-}
-
-void R_AntialiasGenFBO(void)
-{
-	switch ((int) r_antialias->value)
-	{
-	case ANTIALIAS_4X_FSAA:
-		offscreenBounds.width = screenBounds.width * 2;
-		offscreenBounds.height = screenBounds.height * 2;
-		R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, &offscreen);
-		break;
-	default:
-	case ANTIALIAS_NONE:
-		offscreenBounds.width = screenBounds.width;
-		offscreenBounds.height = screenBounds.height;
-		R_DelFBO(&offscreen);
-		break;
-	}
-	Com_Printf("Antialias render target size %ux%u\n",offscreenBounds.width, offscreenBounds.height);
-
-	VID_NewWindow(offscreenBounds.width,offscreenBounds.height);
-
 }
 
 void R_AntialiasBind(void)
 {
+
+	currentFBO = glState.currentFBO;
+	if (changed || vid.width != screenBounds.width || vid.height != screenBounds.height)
+	{
+		screenBounds.width = vid.width;
+		screenBounds.height = vid.height;
+		switch ((int) r_antialias->value)
+		{
+		case ANTIALIAS_4X_FSAA:
+			offscreenBounds.width = screenBounds.width * 2;
+			offscreenBounds.height = screenBounds.height * 2;
+			R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, &offscreen);
+			break;
+		default:
+		case ANTIALIAS_NONE:
+			offscreenBounds.width = screenBounds.width;
+			offscreenBounds.height = screenBounds.height;
+			R_DelFBO(&offscreen);
+			break;
+		}
+		Com_Printf("Antialias render target size %ux%u\n",offscreenBounds.width, offscreenBounds.height);
+		VID_NewWindow(offscreenBounds.width,offscreenBounds.height);
+		changed = false;
+	}
+
 	if (r_antialias->value)
 	{
-		if (vid.width != screenBounds.width || vid.height != screenBounds.height)
-		{
-			screenBounds.width = vid.width;
-			screenBounds.height = vid.height;
-			R_AntialiasGenFBO();
-		}
-
-		currentFBO = glState.currentFBO;
 		R_BindFBO(&offscreen);
 		vid.width = offscreen.width;
 		vid.height = offscreen.height;
