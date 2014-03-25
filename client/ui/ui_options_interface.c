@@ -39,7 +39,7 @@ static menuframework_s	s_options_interface_menu;
 static menuseparator_s	s_options_interface_header;
 static menuslider_s		s_options_interface_conalpha_slider;
 //static menuslider_s		s_options_interface_conheight_slider;
-static menuslider_s		s_options_interface_menumouse_slider;
+//static menuslider_s		s_options_interface_menumouse_slider;
 static menuslider_s		s_options_interface_menualpha_slider;
 static menulist_s		s_options_interface_font_box;
 static menuslider_s		s_options_interface_fontsize_slider;
@@ -50,10 +50,10 @@ static menuaction_s		s_options_interface_defaults_action;
 static menuaction_s		s_options_interface_back_action;
 
 
-static void MouseMenuFunc( void *unused )
+/*static void MouseMenuFunc( void *unused )
 {
 	Cvar_SetValue( "menu_sensitivity", s_options_interface_menumouse_slider.curvalue / 4.0F );
-}
+}*/
 
 // menu alpha option
 static void MenuAlphaFunc( void *unused )
@@ -257,7 +257,7 @@ static void InterfaceSetMenuItemValues( void )
 {
 	SetFontCursor();
 
-	s_options_interface_menumouse_slider.curvalue		= ( Cvar_VariableValue("menu_sensitivity") ) * 4;
+//	s_options_interface_menumouse_slider.curvalue		= ( Cvar_VariableValue("menu_sensitivity") ) * 4;
 	s_options_interface_menualpha_slider.curvalue		= ( Cvar_VariableValue("menu_alpha") ) * 20;
 	s_options_interface_fontsize_slider.curvalue		= ( Cvar_VariableValue("con_font_size") ) * 0.5;
 
@@ -327,7 +327,7 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_header.generic.y		= 0;
 
 	// Knightmare- Psychospaz's menu mouse support
-	s_options_interface_menumouse_slider.generic.type		= MTYPE_SLIDER;
+/*	s_options_interface_menumouse_slider.generic.type		= MTYPE_SLIDER;
 	s_options_interface_menumouse_slider.generic.x			= 0;
 	s_options_interface_menumouse_slider.generic.y			= y;
 	s_options_interface_menumouse_slider.generic.name		= "mouse speed";
@@ -335,20 +335,11 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_menumouse_slider.minvalue			= 1;
 	s_options_interface_menumouse_slider.maxvalue			= 8;
 	s_options_interface_menumouse_slider.generic.statusbar	= "changes sensitivity of mouse in menus";
-
-	s_options_interface_menualpha_slider.generic.type		= MTYPE_SLIDER;
-	s_options_interface_menualpha_slider.generic.x			= 0;
-	s_options_interface_menualpha_slider.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_interface_menualpha_slider.generic.name		= "ingame menu transparency";
-	s_options_interface_menualpha_slider.generic.callback	= MenuAlphaFunc;
-	s_options_interface_menualpha_slider.minvalue			= 0;
-	s_options_interface_menualpha_slider.maxvalue			= 20;
-	s_options_interface_menualpha_slider.generic.statusbar	= "changes opacity of menu background";
-
+	*/
 	font_names = SetFontNames ();
 	s_options_interface_font_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_interface_font_box.generic.x					= 0;
-	s_options_interface_font_box.generic.y					= y+=2*MENU_LINE_SIZE;
+	s_options_interface_font_box.generic.y					= y;
 	s_options_interface_font_box.generic.name				= "font";
 	s_options_interface_font_box.generic.callback			= FontFunc;
 	s_options_interface_font_box.itemnames					= font_names;
@@ -371,9 +362,18 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_alt_text_color_box.itemnames		= textcolor_names;
 	s_options_interface_alt_text_color_box.generic.statusbar	= "changes color of highlighted text";
 
+	s_options_interface_menualpha_slider.generic.type		= MTYPE_SLIDER;
+	s_options_interface_menualpha_slider.generic.x			= 0;
+	s_options_interface_menualpha_slider.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_interface_menualpha_slider.generic.name		= "ingame menu transparency";
+	s_options_interface_menualpha_slider.generic.callback	= MenuAlphaFunc;
+	s_options_interface_menualpha_slider.minvalue			= 0;
+	s_options_interface_menualpha_slider.maxvalue			= 20;
+	s_options_interface_menualpha_slider.generic.statusbar	= "changes opacity of menu background";
+
 	s_options_interface_conalpha_slider.generic.type		= MTYPE_SLIDER;
 	s_options_interface_conalpha_slider.generic.x			= 0;
-	s_options_interface_conalpha_slider.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_interface_conalpha_slider.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_interface_conalpha_slider.generic.name		= "console transparency";
 	s_options_interface_conalpha_slider.generic.callback	= ConAlphaFunc;
 	s_options_interface_conalpha_slider.minvalue			= 0;
@@ -420,11 +420,11 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_back_action.generic.callback	= UI_BackMenu;
 
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_header );
-	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_menumouse_slider );
-	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_menualpha_slider );
+//	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_menumouse_slider );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_font_box );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_fontsize_slider );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_alt_text_color_box );
+	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_menualpha_slider );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_conalpha_slider );
 	//Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_conheight_slider );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_simple_loadscreen_box );
