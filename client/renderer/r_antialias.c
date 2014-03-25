@@ -8,6 +8,7 @@ static viddef_t screenBounds;
 static int32_t offscreenStale = 1;
 static GLuint currentFBO;
 static qboolean changed = false;
+
 void R_AntialiasStartFrame (void)
 {
 	if (r_antialias->modified)
@@ -100,7 +101,7 @@ void R_AntialiasEndFrame(void)
 		GL_MBind(0,0);
 		vid.width = screenBounds.width;
 		vid.height = screenBounds.height;
-
+		
 	}
 
 	offscreenStale = 1;
@@ -121,7 +122,6 @@ void R_AntialiasShutdown(void)
 {
 	if (offscreen.valid)
 		R_DelFBO(&offscreen);
-
 
 	vid.width = screenBounds.width;
 	vid.height = screenBounds.height;

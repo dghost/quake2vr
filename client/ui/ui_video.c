@@ -105,7 +105,19 @@ static void FenceSyncCallback (void *unused )
 
 static void AntialiasCallback ( void *usused )
 {
-	Cvar_SetValue( "r_antialias", s_antialias_box.curvalue);
+	int old = Cvar_VariableInteger("r_antialias");
+	int newVal = s_antialias_box.curvalue;
+
+	if (old != ANTIALIAS_4X_FSAA && newVal == ANTIALIAS_4X_FSAA)
+	{
+		cursor.x *= 2;
+		cursor.y *= 2;
+	} else {
+		cursor.x *= 0.5f;
+		cursor.y *= 0.5f;
+	}
+
+	Cvar_SetValue( "r_antialias", newVal);
 }
 
 static void AdvancedOptions( void *s )
