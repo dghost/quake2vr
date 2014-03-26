@@ -132,34 +132,31 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 
 	if (hmd)
 	{
-		float psign = -1.0f;
 		float a, b, c;
-		float D = 1;
-		float S = 1;
 		float pM;
 		vr::HmdMatrix34_t mat;
 		vr::HmdTrackingResult result;
 		hmd->GetWorldFromHeadPose(prediction,&mat, &result);
 
 
-		pM = psign*mat.m[1][2];
+		pM = -mat.m[1][2];
 		if (pM < -1.0f + 0.0000001f)
 		{ // South pole singularity
 			a = 0.0f;
-			b = (float) (-S*D* M_PI * 0.5);
-			c = (float) (S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] ));
+			b = (float) (M_PI * -0.5);
+			c = (float) SDL_atan2( -mat.m[0][1], mat.m[0][0] );
 		}
 		else if (pM > 1.0f - 0.0000001f)
 		{ // North pole singularity
 			a = 0.0f;
-			b = (float) (S*D* M_PI * 0.5);
-			c = (float) (S*D*SDL_atan2( psign*mat.m[0][1], mat.m[0][0] ));
+			b = (float) M_PI * 0.5;
+			c = (float) SDL_atan2( -mat.m[0][1], mat.m[0][0] );
 		}
 		else
-		{ // Normat.mal case (nonsingular)
-			a = (float) (S*D*SDL_atan2( -psign*mat.m[0][2], mat.m[2][2] ));
-			b = (float) (S*D*SDL_asin(pM));
-			c = (float) (S*D*SDL_atan2( -psign*mat.m[1][0], mat.m[1][1] ));
+		{ 
+			a = (float) SDL_atan2( mat.m[0][2], mat.m[2][2] );
+			b = (float) SDL_asin(pM);
+			c = (float) SDL_atan2( mat.m[1][0], mat.m[1][1] );
 		}
 
 		orientation[0] = (float) (-b * 180.0f / M_PI);

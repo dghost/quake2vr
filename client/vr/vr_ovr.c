@@ -287,7 +287,7 @@ int32_t VR_OVR_Enable()
 	Com_Printf("...detected IPD %.1fmm\n", vr_ovr_settings.interpupillary_distance * 1000);
 	strncpy(string, va("%.2f", vr_ovr_settings.lens_separation_distance * 1000), sizeof(string));
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance", string, CVAR_ARCHIVE);
-
+	
 	if (vr_ovr_scale->value < 1)
 		Cvar_SetValue("vr_ovr_scale", 1.0);
 
@@ -305,6 +305,12 @@ int32_t VR_OVR_Enable()
 	Com_Printf("...calculated %.2f minimum distortion scale\n", ovrConfig.minScale);
 	Com_Printf("...calculated %.2f maximum distortion scale\n", ovrConfig.maxScale);
 
+	if (LibOVR_IsLatencyTesterAvailable())
+	{
+		Com_Printf("...found latency tester\n");
+		Cvar_SetInteger("vr_ovr_latencytest",1);
+	}
+	
 	return 1;
 }
 
@@ -320,7 +326,7 @@ int32_t VR_OVR_Init()
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
 	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
-	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
+	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",0);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_distortion = Cvar_Get("vr_ovr_distortion","1",CVAR_ARCHIVE);

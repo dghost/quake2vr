@@ -125,12 +125,13 @@ void LibOVR_Shutdown(void) {
 
 	LibOVR_DeviceRelease();
 
-	initialized = false;
 	if (manager) {
 		manager->Release();
 		manager = NULL;
 	}
 	OVR::System::Destroy();
+	initialized = false;
+
 }
 
 void LibOVR_ResetHMDOrientation(void)

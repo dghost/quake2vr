@@ -430,13 +430,12 @@ Sys_Init
 */
 void Sys_Init (void)
 {
-	char			string[64];	// Knightmare added
+	char string[64];
 	SDL_version compiled;
 	SDL_version linked;
 
 	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0){
 		Sys_Error("SDL_Init failed!");
-//		Com_Printf("SDL_Init Error: %s\n",SDL_GetError());
 	}
 #ifdef _WIN32
 	timeBeginPeriod( 1 );
