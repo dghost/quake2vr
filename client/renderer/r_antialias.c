@@ -14,7 +14,9 @@ void R_AntialiasStartFrame (void)
 	if (r_antialias->modified)
 	{
 		int32_t aa = r_antialias->value;
-		if (aa >= NUM_ANTIALIAS_MODES)
+		if (!glConfig.ext_framebuffer_object)
+			aa = ANTIALIAS_NONE;
+		else if (aa >= NUM_ANTIALIAS_MODES)
 			aa = NUM_ANTIALIAS_MODES - 1;
 		else if (aa < 0)
 			aa = 0;
@@ -23,11 +25,6 @@ void R_AntialiasStartFrame (void)
 
 		r_antialias->modified = false;
 		
-		if (!glConfig.ext_framebuffer_object)
-		{
-			Cvar_SetInteger("r_antialias",ANTIALIAS_NONE);
-			return;
-		}
 		changed = true;
 	}
 }

@@ -565,7 +565,7 @@ void VR_DrawCrosshair()
 	
 	SCR_DrawCrosshair();
 	
-	scaledSize = crosshair_scale->value * 2;
+	scaledSize = crosshair_scale->value * 3;
 	pulsealpha = crosshair_alpha->value * crosshair_pulse->value;	
 	alpha = max(min(crosshair_alpha->value - pulsealpha + pulsealpha*sin(anglemod(r_newrefdef.time*5)), 1.0), 0.0);
 	
@@ -599,9 +599,10 @@ void VR_DrawCrosshair()
 		VectorSubtract(r_newrefdef.aimend,r_newrefdef.vieworg,delta);
 
 		// calculate coordinates for hud
+
 		depth = abs(DotProduct(forward,delta));
 		x = tanf(scaledSize * (M_PI/180.0f) * 0.5) * depth;
-		y = x / ((float) vrState.viewFovX / vrState.viewFovY);
+		y = x;
 		VectorScale(up,y,up);
 		VectorScale(right,x,right);
 

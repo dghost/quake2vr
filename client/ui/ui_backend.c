@@ -39,6 +39,9 @@ static	void	SpinControl_DoEnter( menulist_s *s );
 static	void	SpinControl_Draw( menulist_s *s );
 static	void	SpinControl_DoSlide( menulist_s *s, int32_t dir );
 
+void	Menu_ClickSlideItem (menuframework_s *menu, void *menuitem);
+void	Menu_DragSlideItem (menuframework_s *menu, void *menuitem);
+
 #define RCOLUMN_OFFSET  MENU_FONT_SIZE*2	// was 16
 #define LCOLUMN_OFFSET -MENU_FONT_SIZE*2	// was -16
 
@@ -1036,7 +1039,6 @@ void UI_RefreshCursorLink (void)
 	cursor.menuitem = NULL;
 }
 
-#if 0
 /*
 =================
 Slider_CursorPositionX
@@ -1130,7 +1132,6 @@ void Menu_ClickSlideItem (menuframework_s *menu, void *menuitem)
 	if (cursor.x > max)
 		Menu_SlideItem( menu, 1 );
 }
-#endif
 
 /*
 =================
@@ -1182,10 +1183,10 @@ void UI_Think_MouseCursor (void)
 		{
 			if (cursor.menuitemtype == MENUITEM_SLIDER && !cursor.buttonused[MOUSEBUTTON1])
 			{
-			//	Menu_DragSlideItem(m, cursor.menuitem);
-				Menu_SlideItem(m, 1);
+				Menu_DragSlideItem(m, cursor.menuitem);
+			/*	Menu_SlideItem(m, 1);
 				sound = menu_move_sound;
-				cursor.buttonused[MOUSEBUTTON1] = true;
+				cursor.buttonused[MOUSEBUTTON1] = true;*/
 			}
 			else if (!cursor.buttonused[MOUSEBUTTON1] && cursor.buttonclicks[MOUSEBUTTON1])
 			{
@@ -1212,10 +1213,10 @@ void UI_Think_MouseCursor (void)
 		{
 			if (cursor.menuitemtype == MENUITEM_SLIDER && !cursor.buttonused[MOUSEBUTTON2])
 			{
-			//	Menu_ClickSlideItem(m, cursor.menuitem);
-				Menu_SlideItem(m, -1);
+				Menu_ClickSlideItem(m, cursor.menuitem);
+			/*	Menu_SlideItem(m, -1);
 				sound = menu_move_sound;
-				cursor.buttonused[MOUSEBUTTON2] = true;
+				cursor.buttonused[MOUSEBUTTON2] = true; */
 			}
 			else if (!cursor.buttonused[MOUSEBUTTON2])
 			{
