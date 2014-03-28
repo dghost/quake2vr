@@ -270,7 +270,6 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 ** for the window.  The state structure is also nulled out.
 **
 */
-float original_brightness;
 void UpdateGammaRamp (qboolean enable);
 
 void GLimp_Shutdown( void )
@@ -323,13 +322,9 @@ qboolean GLimp_InitGL (void)
 		goto fail;
 	}
 
-	//Knightmare- Vic's hardware gamma stuff
-	if ( !r_ignorehwgamma->value )
-	{
-		original_brightness = SDL_GetWindowBrightness(mainWindow);
-		vid_gamma->modified = true;
-	}
 
+	vid_gamma->modified = true;
+	
 
 	//Knightmare- 12/24/2001- stencil buffer
 	{
@@ -367,7 +362,7 @@ void UpdateGammaRamp (qboolean enable)
 	if (enable)
 		gamma =  vid_gamma->value;
 	else
-		gamma = original_brightness;
+		gamma = 1.0f;
 
 	ret = SDL_SetWindowBrightness(mainWindow,gamma);
 
