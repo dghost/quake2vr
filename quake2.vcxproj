@@ -359,7 +359,6 @@
     <ClInclude Include="game\q_shared.h" />
     <ClInclude Include="qcommon\qcommon.h" />
     <ClInclude Include="qcommon\qfiles.h" />
-    <ClInclude Include="renderer\qgl.h" />
     <ClInclude Include="client\ref.h" />
     <ClInclude Include="client\screen.h" />
     <ClInclude Include="server\server.h" />

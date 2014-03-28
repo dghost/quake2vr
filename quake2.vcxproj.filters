@@ -437,9 +437,6 @@
     <ClInclude Include="qcommon\qfiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\qgl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="client\ref.h">
       <Filter>Header Files</Filter>
     </ClInclude>

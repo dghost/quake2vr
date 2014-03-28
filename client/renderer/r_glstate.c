@@ -621,6 +621,24 @@ void GL_PopMatrix(GLenum matrixMode)
 	}
 }
 
+void GL_ClearColor(float r, float g, float b, float a)
+{
+	if (glState.clearColor[0] != r || glState.clearColor[1] != g ||  
+		glState.clearColor[2] != b || glState.clearColor[3] != a )
+	{
+		Vector4Set(glState.clearColor,r,g,b,a);
+		glClearColor(r,g,b,a);
+	}
+
+}
+void GL_SetDefaultClearColor(void)
+{
+	if (developer->value)
+		GL_ClearColor (1,0, 0.5, 0.5);
+	else
+		GL_ClearColor (0.0,0.0,0.0,0.0);
+}
+
 /*
 =================
 GL_SetDefaultState
@@ -688,7 +706,9 @@ void GL_SetDefaultState (void)
 
 	glMatrixMode(GL_MODELVIEW);
 
-	glClearColor (1,0, 0.5, 0.5);
+	// force it to change the clear color
+	Vector4Set(glState.clearColor,-1,-1,-1,-1);
+	GL_SetDefaultClearColor();
 	glClearDepth(1.0);
 	glClearStencil(128);
 

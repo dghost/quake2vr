@@ -67,9 +67,9 @@ void R_AntialiasBind(void)
 		if (offscreenStale)
 		{
 			offscreenStale = 0;
-			glClearColor(0.0,0.0,0.0,0.0);
+			GL_ClearColor(0.0,0.0,0.0,0.0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			glClearColor (1,0, 0.5, 0.5);
+			GL_SetDefaultClearColor();
 		}
 	} 
 }

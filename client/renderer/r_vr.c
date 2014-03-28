@@ -169,13 +169,13 @@ void R_VR_BindView(vr_eye_t eye)
 
 	if (clear && eye != EYE_HUD)
 	{
-		glClearColor(0.0,0.0,0.0,0.0);
+		GL_ClearColor(0.0,0.0,0.0,0.0);
 		R_Clear();
-		glClearColor (1,0, 0.5, 0.5);
+		GL_SetDefaultClearColor();
 	} else if (clear) {
-		glClearColor(0.0,0.0,0.0,0.0);
+		GL_ClearColor(0.0,0.0,0.0,0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glClearColor (1,0, 0.5, 0.5);
+		GL_SetDefaultClearColor();
 	}
 }
 

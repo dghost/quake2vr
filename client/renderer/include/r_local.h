@@ -811,6 +811,7 @@ typedef struct
 	GLenum			matrixMode;
 	GLfloat			axisRotation[4][4];
 
+	vec4_t			clearColor;
 	Uint8	originalRedGammaTable[256];
 	Uint8	originalGreenGammaTable[256];
 	Uint8	originalBlueGammaTable[256];
@@ -858,6 +859,8 @@ void	GL_MultiplyMatrix(GLenum matrixMode, const float m[4][4]);
 void	GL_PushMatrix(GLenum matrixMode);
 void	GL_PopMatrix(GLenum matrixMode);
 
+void	GL_ClearColor(float r, float g, float b, float a);
+void	GL_SetDefaultClearColor();
 /*
 ====================================================================
 

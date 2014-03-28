@@ -372,10 +372,10 @@ void R_SetupFrame (void)
 	/*if ( r_newrefdef.rdflags & RDF_NOWORLDMODEL )
 	{
 		GL_Enable( GL_SCISSOR_TEST );
-		glClearColor( 0.3, 0.3, 0.3, 1 );
+		GL_ClearColor( 0.3, 0.3, 0.3, 1 );
 		glScissor( r_newrefdef.x, vid.height - r_newrefdef.height - r_newrefdef.y, r_newrefdef.width, r_newrefdef.height );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		glClearColor( 1, 0, 0.5, 0.5 );
+		GL_SetDefaultClearColor();
 		GL_Disable( GL_SCISSOR_TEST );
 	}*/
 }
@@ -1843,7 +1843,7 @@ void R_SetPalette ( const uint8_t *palette)
 	}
 	//GL_SetTexturePalette( r_rawpalette );
 
-	glClearColor (0,0,0,0);
+	GL_ClearColor (0,0,0,0);
 	glClear (GL_COLOR_BUFFER_BIT);
-	glClearColor (1,0, 0.5 , 0.5);
+	GL_SetDefaultClearColor();
 }
