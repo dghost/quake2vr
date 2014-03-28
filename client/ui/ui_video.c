@@ -107,6 +107,10 @@ static void AntialiasCallback ( void *usused )
 {
 	int old = Cvar_VariableInteger("r_antialias");
 	int newVal = s_antialias_box.curvalue;
+	Cvar_SetValue( "r_antialias", newVal);
+
+	if (Cvar_VariableInteger("vr_enabled"))
+		return;
 
 	if (old != ANTIALIAS_4X_FSAA && newVal == ANTIALIAS_4X_FSAA)
 	{
@@ -117,7 +121,6 @@ static void AntialiasCallback ( void *usused )
 		cursor.y *= 0.5f;
 	}
 
-	Cvar_SetValue( "r_antialias", newVal);
 }
 
 static void AdvancedOptions( void *s )
