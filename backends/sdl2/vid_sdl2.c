@@ -33,7 +33,6 @@ int32_t	vidref_val;
 
 // Console variables that we need to access from this module
 cvar_t		*scanforcd; // Knightmare- just here to enable command line option without error
-cvar_t		*win_noalttab;
 cvar_t		*vid_ref;			// Name of Refresh DLL loaded
 cvar_t		*vid_xpos;			// X coordinate of window position
 cvar_t		*vid_ypos;			// Y coordinate of window position
@@ -47,35 +46,6 @@ static qboolean s_alttab_disabled;
 
 extern	unsigned	sys_msg_time;
 
-#ifdef _WIN32
-/*
-** WIN32 helper functions
-*/
-
-static void WIN_DisableAltTab( void )
-{
-	if ( s_alttab_disabled )
-		return;
-
-
-	RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
-	RegisterHotKey( 0, 1, MOD_ALT, VK_RETURN );
-
-	s_alttab_disabled = true;
-}
-
-static void WIN_EnableAltTab( void )
-{
-	if ( s_alttab_disabled )
-	{
-
-		UnregisterHotKey( 0, 0 );
-		UnregisterHotKey( 0, 1 );
-
-		s_alttab_disabled = false;
-	}
-}
-#endif
 
 /*
 ==========================================================================
@@ -214,24 +184,11 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	{
 		IN_Activate (false);
 		S_Activate (false);
-
-#ifdef _WIN32
-		if ( win_noalttab->value )
-		{
-			WIN_EnableAltTab();
-		}
-#endif
 	}
 	else
 	{
 		IN_Activate (true);
 		S_Activate (true);
-#ifdef _WIN32
-		if ( win_noalttab->value )
-		{
-			WIN_DisableAltTab();
-		}
-#endif
 	}
 }
 
@@ -266,7 +223,6 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_WINDOWEVENT:
 		if (event->window.windowID != mainWindowID)
 			break;
-
 		switch (event->window.event)
 		{
 		case SDL_WINDOWEVENT_RESTORED:
@@ -280,6 +236,10 @@ void SDL_ProcEvent (SDL_Event *event)
 			break;
 
 		case SDL_WINDOWEVENT_MINIMIZED:
+			AppActivate(false,true);
+			if ( kmgl_active )
+				GLimp_AppActivate ( false );
+			break;
 		case SDL_WINDOWEVENT_HIDDEN:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 		case SDL_WINDOWEVENT_LEAVE:
@@ -340,21 +300,26 @@ void SDL_ProcEvent (SDL_Event *event)
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 		// todo - trap alt-enter
-		if ( (event->key.keysym.sym == SDLK_RETURN) &&
-			(event->key.keysym.mod & KMOD_ALT) && event->key.type == SDL_KEYDOWN)
-		{
-			if ( vid_fullscreen )
-			{
-				Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
-			}
+		if (event->key.windowID != mainWindowID)
 			break;
-		}
 		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYDOWN), sys_msg_time);
 		break;
 	}
 
 }
 
+int altEnterFilter(void* unused, SDL_Event *event)
+{
+	if ( event->type == SDL_KEYDOWN ) {
+		if ( (event->key.keysym.sym == SDLK_RETURN) &&
+                     (event->key.keysym.mod & KMOD_ALT) )
+		{
+			Cvar_SetValue( "vid_fullscreen", !vid_fullscreen->value );
+			return(0);
+		}
+	}
+	return(1);
+}
 
 
 
@@ -374,12 +339,14 @@ void VID_Restart_f (void)
 
 void VID_Front_f( void )
 {
-#ifdef _WIN32
-			if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
-				SetForegroundWindow(mainWindowInfo.info.win.window);
-#endif
-	
 	SDL_RaiseWindow(mainWindow);
+#ifdef _WIN32
+	if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+	{
+		SetWindowLong( mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST );
+		SetForegroundWindow(mainWindowInfo.info.win.window);
+	}
+#endif
 }
 
 /*
@@ -526,15 +493,6 @@ update the rendering DLL and/or video mode to match.
 */
 void VID_CheckChanges (void)
 {
-	if ( win_noalttab->modified )
-	{
-		if ( win_noalttab->value )
-			WIN_DisableAltTab();
-		else
-			WIN_EnableAltTab();
-		win_noalttab->modified = false;
-	}
-
 	//update changed vid_ref
 	UpdateVideoRef ();
 
@@ -558,10 +516,9 @@ void VID_Init (void)
 {
 	/* Create the video variables so we know how to start the graphics drivers */
 	vid_ref = Cvar_Get ("vid_ref", "gl", CVAR_NOSET );
-	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
-	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
+	vid_xpos = Cvar_Get ("vid_xpos", "0", CVAR_ARCHIVE);
+	vid_ypos = Cvar_Get ("vid_ypos", "0", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "1", CVAR_ARCHIVE);
-	win_noalttab = Cvar_Get( "win_noalttab", "0", CVAR_ARCHIVE );
 
 	// Knightmare- just here to enable command line option without error
 	scanforcd = Cvar_Get( "scanforcd", "0", 0 );
@@ -577,8 +534,10 @@ void VID_Init (void)
 
 	/* Disable the 3Dfx splash screen */
 	//putenv("FX_GLIDE_NO_SPLASH=0");
-
-	/* Start the graphics mode and load refresh DLL */
+	
+	SDL_SetEventFilter(altEnterFilter,NULL);
+		
+		/* Start the graphics mode and load refresh DLL */
 	VID_CheckChanges();
 }
 

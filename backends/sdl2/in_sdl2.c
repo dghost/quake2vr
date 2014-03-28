@@ -106,7 +106,7 @@ void IN_ActivateMouse (void)
 		newmouseparms[2]=1;
 		*/
 	SDL_GetWindowSize(mainWindow,&width,&height);
-	//SDL_SetWindowGrab(mainWindow,SDL_TRUE);
+	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 
 	SDL_ShowCursor(0);
 	window_center_x = width/2;
@@ -134,8 +134,8 @@ void IN_DeactivateMouse (void)
 
 	mouseactive = false;
 
-	//SDL_ShowCursor(1);
-	//SDL_SetWindowGrab(mainWindow,SDL_FALSE);
+	SDL_ShowCursor(1);
+	SDL_SetWindowGrab(mainWindow,SDL_FALSE);
 }
 
 

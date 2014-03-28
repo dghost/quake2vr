@@ -227,16 +227,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 			return rserr_invalid_fullscreen;
 		}
 	}
-	SDL_VERSION(&mainWindowInfo.version); // initialize info structure with SDL version info
-	SDL_GetWindowWMInfo(mainWindow,&mainWindowInfo);
-#ifdef _WIN32
-		if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
-			SetForegroundWindow(mainWindowInfo.info.win.window);
-#endif
-	
 
-	SDL_RaiseWindow(mainWindow);
-	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 	mainWindowID = SDL_GetWindowID(mainWindow);
 
 	if (!GLimp_InitGL())
@@ -244,8 +235,26 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
 		return rserr_unknown;
 	}
+
 	SDL_GL_GetDrawableSize(mainWindow,&width,&height);
 	printf("Set window to size %ix%i...\n",width,height);
+
+	SDL_VERSION(&mainWindowInfo.version); // initialize info structure with SDL version info
+	SDL_GetWindowWMInfo(mainWindow,&mainWindowInfo);
+
+	SDL_ShowWindow(mainWindow);
+	SDL_RaiseWindow(mainWindow);
+
+#ifdef _WIN32
+	if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+		SetForegroundWindow(mainWindowInfo.info.win.window);
+	if(fullscreen)
+		SetWindowLong( mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST );
+#endif
+
+
+	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
+
 	VID_NewWindow (width, height);
 	*pwidth = width;
 	*pheight = height;
@@ -363,8 +372,6 @@ void UpdateGammaRamp (qboolean enable)
 	ret = SDL_SetWindowBrightness(mainWindow,gamma);
 
 	if ( ret < 0 ) {
-		// originally the idea of warning on failures seemed pretty rad
-		// unfortunately, this tends to return false even if it succeeds
 		Com_Printf( "SDL_SetWindowBrightness failed: %s\n", SDL_GetError() );
 	}
 }
@@ -399,22 +406,22 @@ void GLimp_EndFrame (void)
 */
 void GLimp_AppActivate( qboolean active )
 {
+	UpdateGammaRamp(active);
 	if ( active )
 	{
 		if (mainWindow)
 		{
+			SDL_ShowWindow(mainWindow);
+			SDL_RaiseWindow(mainWindow);
 #ifdef _WIN32
 			if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 				SetForegroundWindow(mainWindowInfo.info.win.window);
 #endif
-			SDL_RaiseWindow(mainWindow);
-			SDL_ShowWindow(mainWindow);
-
 		}
 
-	}	else
+	} /*	else
 	{
 		if ( vid_fullscreen->value )
-			SDL_MinimizeWindow(mainWindow);
-	}
+
+	} */
 }

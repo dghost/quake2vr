@@ -45,7 +45,6 @@ static menulist_s		s_options_interface_font_box;
 static menuslider_s		s_options_interface_fontsize_slider;
 static menulist_s		s_options_interface_alt_text_color_box;
 static menulist_s		s_options_interface_simple_loadscreen_box;
-static menulist_s		s_options_interface_noalttab_box;
 static menuaction_s		s_options_interface_defaults_action;
 static menuaction_s		s_options_interface_back_action;
 
@@ -81,11 +80,6 @@ static void ConAlphaFunc( void *unused )
 static void SimpleLoadscreenFunc( void *unused )
 {
 	Cvar_SetValue( "scr_simple_loadscreen", s_options_interface_simple_loadscreen_box.curvalue );
-}
-
-static void NoAltTabFunc( void *unused )
-{
-	Cvar_SetValue( "win_noalttab", s_options_interface_noalttab_box.curvalue );
 }
 
 /*
@@ -273,7 +267,6 @@ static void InterfaceSetMenuItemValues( void )
 	Cvar_SetValue( "scr_simple_loadscreen", ClampCvar( 0, 1, Cvar_VariableValue("scr_simple_loadscreen") ) );
 	s_options_interface_simple_loadscreen_box.curvalue = Cvar_VariableValue("scr_simple_loadscreen");
 
-	s_options_interface_noalttab_box.curvalue			= Cvar_VariableValue("win_noalttab");
 }
 
 static void InterfaceResetDefaultsFunc ( void *unused )
@@ -286,7 +279,6 @@ static void InterfaceResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("con_alpha");	
 //	Cvar_SetToDefault ("con_height");	
 	Cvar_SetToDefault ("scr_simple_loadscreen");	
-	Cvar_SetToDefault ("win_noalttab");	
 
 	InterfaceSetMenuItemValues();
 }
@@ -398,14 +390,6 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_simple_loadscreen_box.itemnames			= yesno_names;
 	s_options_interface_simple_loadscreen_box.generic.statusbar	= "toggles simple map load screen";
 
-	s_options_interface_noalttab_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_interface_noalttab_box.generic.x			= 0;
-	s_options_interface_noalttab_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_interface_noalttab_box.generic.name		= "disable alt-tab";
-	s_options_interface_noalttab_box.generic.callback	= NoAltTabFunc;
-	s_options_interface_noalttab_box.itemnames			= yesno_names;
-	s_options_interface_noalttab_box.generic.statusbar	= "disables alt-tabbing to desktop";
-
 	s_options_interface_defaults_action.generic.type		= MTYPE_ACTION;
 	s_options_interface_defaults_action.generic.x			= MENU_FONT_SIZE;
 	s_options_interface_defaults_action.generic.y			= 18*MENU_LINE_SIZE;
@@ -428,7 +412,6 @@ void Options_Interface_MenuInit ( void )
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_conalpha_slider );
 	//Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_conheight_slider );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_simple_loadscreen_box );
-	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_noalttab_box );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_defaults_action );
 	Menu_AddItem( &s_options_interface_menu, ( void * ) &s_options_interface_back_action );
 

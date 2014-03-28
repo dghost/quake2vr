@@ -603,6 +603,7 @@ void VR_DrawCrosshair()
 		depth = abs(DotProduct(forward,delta));
 		x = tanf(scaledSize * (M_PI/180.0f) * 0.5) * depth;
 		y = x;
+
 		VectorScale(up,y,up);
 		VectorScale(right,x,right);
 
@@ -1690,9 +1691,12 @@ void R_BeginFrame()
 	//
 	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
-		cvar_t	*ref;
-		ref = Cvar_Get ("vid_ref", "gl", 0);
-		ref->modified = true;
+//		cvar_t	*ref;
+//		ref = Cvar_Get ("vid_ref", "gl", 0);
+//		ref->modified = true;
+		extern SDL_Window *mainWindow;
+		SDL_SetWindowFullscreen(mainWindow,(vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
+		vid_fullscreen->modified=false;
 	}
 
 	// update gamma values
