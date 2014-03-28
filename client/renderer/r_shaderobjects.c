@@ -10,25 +10,29 @@ r_warpshader_t warpshader;
 static r_shaderobject_t warpshader_object = {
 	0,
 	// vertex shader (identity)
-	"varying vec4 color;"
+	"varying vec4 color;\n"
+	"varying vec4 coords;\n"
+	"uniform float displacement;\n"
+	"uniform vec2 scale;\n"
+	"uniform float time;\n"
 	"void main(void) {\n"
 		"color = gl_Color;\n"
-		"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
-		"gl_TexCoord[0] = gl_MultiTexCoord0;\n"
-		"gl_TexCoord[1] = gl_MultiTexCoord1;\n"
+		"vec4 vertex = gl_Vertex;\n"
+		"vertex.z += displacement * sin(vertex.x * scale.x + time) * cos(vertex.y * scale.y + time);\n"
+		"gl_Position = gl_ModelViewProjectionMatrix * vertex;\n"
+		"coords = vec4(gl_MultiTexCoord0.xy,gl_MultiTexCoord1.xy);\n"
 	"}\n",
 	// fragment shader
 	"uniform sampler2D texImage;\n"
 	"uniform sampler2D texDistort;\n"
 	"uniform vec4 rgbscale;\n"
 	"varying vec4 color;\n"
+	"varying vec4 coords;\n"
 	"void main() {\n"
 		"vec2 offset;\n"
 		"vec4 dist;\n"
-		"vec2 coord;\n"
-		"offset = texture2D(texDistort, gl_TexCoord[1].xy).zw * 0.5;\n"
-		"coord = gl_TexCoord[0].xy + offset;\n"
-		"dist = texture2D(texImage, coord);\n"
+		"offset = texture2D(texDistort, coords.zw).zw * 0.5;\n"
+		"dist = texture2D(texImage, coords.xy + offset);\n"
 		"gl_FragColor = color * dist * rgbscale;\n"
 	"}\n"
 };
@@ -145,7 +149,11 @@ void R_ShaderObjectsInit()
 		glUniform1i(texloc,0);
 		texloc = glGetUniformLocation(warpshader.shader->program,"texDistort");
 		glUniform1i(texloc,1);
-		warpshader.scale_uniform = glGetUniformLocation(warpshader.shader->program,"rgbscale");
+		warpshader.rgbscale_uniform = glGetUniformLocation(warpshader.shader->program,"rgbscale");
+		warpshader.scale_uniform = glGetUniformLocation(warpshader.shader->program,"scale");
+		warpshader.time_uniform = glGetUniformLocation(warpshader.shader->program,"time");
+		warpshader.displacement_uniform = glGetUniformLocation(warpshader.shader->program,"displacement");
+		
 		glUseProgram(0);
 	} else {
 		Com_Printf("failed!\n");

@@ -955,7 +955,10 @@ typedef struct {
 
 typedef struct {
 	r_shaderobject_t *shader;
+	GLuint rgbscale_uniform;
 	GLuint scale_uniform;
+	GLuint time_uniform;
+	GLuint displacement_uniform;
 } r_warpshader_t;
 
 extern r_warpshader_t warpshader;

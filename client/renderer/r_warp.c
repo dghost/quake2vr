@@ -208,7 +208,7 @@ float	r_turbsin[] =
 
 
 // MrG - texture shader stuffs
-#define DST_SIZE 16
+#define DST_SIZE 32
 uint32_t dst_texture;
 
 /*
@@ -300,15 +300,28 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	if (texShaderWarp)
 	{
 		GLfloat param[4];
+		float rdt = r_newrefdef.time;
+		float scale[2] = {0.025,0.05};
+		float distortion = 0;
 		//GL_SelectTexture(0);
 		GL_MBind(0, image->texnum);
 
 		GL_EnableTexture(1);
 		GL_MBind(1, dst_texture);
 
+		if ( !(fa->texinfo->flags & SURF_FLOWING)
+			&& fa->plane->normal[2] > 0
+			&& fa->plane->normal[2] > fa->plane->normal[0]
+			&& fa->plane->normal[2] > fa->plane->normal[1] )
+		{
+			distortion = r_waterwave->value;
+		}
 		Vector4Set(param,r_rgbscale->value,r_rgbscale->value,r_rgbscale->value,1.0);
 		glUseProgram(warpshader.shader->program);
-		glUniform4fv(warpshader.scale_uniform,1,param);
+		glUniform4fv(warpshader.rgbscale_uniform,1,param);
+		glUniform1f(warpshader.time_uniform,rdt);
+		glUniform1f(warpshader.displacement_uniform,distortion);
+		glUniform2fv(warpshader.scale_uniform,1,scale);
 	}
 	else
 		GL_MBind(0,image->texnum);
@@ -346,7 +359,6 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 {
 	glpoly_t	*p, *bp;
 	float		*v, s, t, scroll, dstscroll, rdt = r_newrefdef.time;
-	vec3_t		point;
 	int32_t			i;
 	qboolean	light = r_warp_lighting->value && !r_fullbright->value && !(fa->texinfo->flags & SURF_NOLIGHTENV);
 
@@ -383,14 +395,7 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 			s += scroll;
 			s *= DIV64;
 			t *= DIV64;
-//=============== Water waves ========================
-			VectorCopy(v, point);
-			if ( r_waterwave->value > 0 && !(fa->texinfo->flags & SURF_FLOWING)
-				&& fa->plane->normal[2] > 0
-				&& fa->plane->normal[2] > fa->plane->normal[0]
-				&& fa->plane->normal[2] > fa->plane->normal[1] )
-				point[2] = v[2] + r_waterwave->value * sin(v[0]*0.025+rdt) * sin(v[2]*0.05+rdt);
-//=============== End water waves ====================
+
 			// MrG - texture shader waterwarp
 			VA_SetElem2(texCoordArray[0][rb_vertex], s, t);
 			VA_SetElem2(texCoordArray[1][rb_vertex], (v[3]+dstscroll)*DIV64, v[4]*DIV64);
@@ -403,7 +408,7 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 			else
 				VA_SetElem4(colorArray[rb_vertex], glState.inverse_intensity, glState.inverse_intensity, glState.inverse_intensity, alpha);
 
-			VA_SetElem3(vertexArray[rb_vertex], point[0], point[1], point[2]);
+			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
 
 			rb_vertex++;
 		}

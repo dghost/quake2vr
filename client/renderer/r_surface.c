@@ -983,8 +983,10 @@ static void RB_DrawCaustics (msurface_t *surf)
 
 	Vector4Set(param,1.0,1.0,1.0,1.0);
 	glUseProgram(warpshader.shader->program);
-	glUniform4fvARB(warpshader.scale_uniform,1,param);
-
+	glUniform4fv(warpshader.rgbscale_uniform,1,param);
+	glUniform1f(warpshader.time_uniform,0);
+	glUniform1f(warpshader.displacement_uniform,0);
+	glUniform2f(warpshader.scale_uniform,0,0);	
 	GL_Enable(GL_POLYGON_OFFSET_FILL);
 		
 	GL_PolygonOffset(-0.75,-1.0);
