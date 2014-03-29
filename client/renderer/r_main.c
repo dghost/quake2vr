@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "include/r_local.h"
 #include "include/vlights.h"
+#include "include/r_vr.h"
 
 void R_Clear (void);
 

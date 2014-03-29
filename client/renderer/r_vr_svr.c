@@ -19,89 +19,6 @@ static qboolean chromatic;
 
 extern svr_settings_t svr_settings;
 
-// Default Lens Warp Shader
-static r_shaderobject_t svr_shader_norm = {
-	0, 
-	
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	"void main()\n"
-	"{\n"
-		"vec2 tc = texture2D(dist,texCoords).xy;\n"
-		"if (!all(equal(clamp(tc, vec2(0.0,0.0), vec2(1.0,1.0)),tc)))\n"
-			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-		"else\n"
-			"gl_FragColor = texture2D(tex, tc);\n"
-	"}\n"
-
-};
-
-
-// Lens Warp Shader with Chromatic Aberration 
-static r_shaderobject_t svr_shader_chrm = {
-	0, 
-	
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	"void main()\n"
-	"{\n"
-		"vec4 vRead = texture2D(dist,texCoords);\n"
-		"vec2 tcGreen = vec2(vRead.r + vRead.b, vRead.g + vRead.a) / 2.0;\n"
-		"if (!all(equal(clamp(tcGreen, vec2(0.0,0.0), vec2(1.0,1.0)),tcGreen)))\n"
-		"{\n"
-			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-		"}\n"
-		"else\n"
-		"{\n"
-			"vec4 final;"
-			"final.r = texture2D(tex, vRead.rg).r;"
-			"final.ga = texture2D(tex, tcGreen).ga;"
-			"final.b = texture2D(tex, vRead.ba).b;"
-			"gl_FragColor = final;\n"
-		"}\n"
-	"}\n"
-};
-
-typedef struct {
-	r_shaderobject_t *shader;
-	struct {
-		GLuint texture;
-		GLuint distortion;
-	} uniform;
-
-} r_svr_shader_t;
-
-r_svr_shader_t svr_shaders[2];
-
-// util function
-void SVR_InitShader(r_svr_shader_t *shader, r_shaderobject_t *object)
-{
-	if (!object->program)
-		R_CompileShaderProgram(object);
-
-	shader->shader = object;
-	glUseProgram(shader->shader->program);
-	shader->uniform.texture = glGetUniformLocation(shader->shader->program, "tex");
-	shader->uniform.distortion = glGetUniformLocation(shader->shader->program, "dist");
-	glUseProgram(0);
-}
-
 void SVR_BuildDistortionTextures()
 {
 	GLfloat *normalTexture, *chromaTexture;
@@ -254,7 +171,7 @@ void SVR_Present()
 	if (!vr_svr_debug->value)
 	{
 
-		r_svr_shader_t *current_shader = &svr_shaders[chromatic];
+		vr_distort_shader_t *current_shader = &vr_distort_shaders[chromatic];
  
 		
 		// draw left eye
@@ -323,9 +240,6 @@ int32_t SVR_Init()
 
 void SVR_Disable()
 {
-	R_DelShaderProgram(&svr_shader_norm);
-	R_DelShaderProgram(&svr_shader_chrm);
-
 	if (left.valid)
 		R_DelFBO(&left);
 	if (right.valid)
@@ -370,8 +284,6 @@ int32_t SVR_Enable()
 	SteamVR_GetEyeViewport(SVR_Left,&leftRenderRect.x,&leftRenderRect.y,&leftRenderRect.width,&leftRenderRect.height);	
 	SteamVR_GetEyeViewport(SVR_Right,&rightRenderRect.x,&rightRenderRect.y,&rightRenderRect.width,&rightRenderRect.height);
 
-	SVR_InitShader(&svr_shaders[0],&svr_shader_norm);
-	SVR_InitShader(&svr_shaders[1],&svr_shader_chrm);
 	strncpy(string, va("SteamVR-%s", svr_settings.deviceName), sizeof(string));
 	Cvar_ForceSet("vr_hmdstring",string);
 	return true;

@@ -2,7 +2,7 @@
 #define __R_VR_H
 
 #include "../../vr/include/vr.h"
-
+#include "r_local.h"
 
 typedef struct {
 	uint32_t x, y;
@@ -27,6 +27,18 @@ typedef struct {
 	void (*present)();
 } hmd_render_t;
 
+typedef struct {
+	r_shaderobject_t *shader;
+	struct {
+		GLuint texture;
+		GLuint distortion;
+		GLuint texture_size;
+	} uniform;
+} vr_distort_shader_t;
+
+extern vr_distort_shader_t vr_distort_shaders[2];
+extern vr_distort_shader_t vr_bicubic_distort_shaders[2];
+
 void R_VR_Init();
 void R_VR_Shutdown();
 void R_VR_Enable();
@@ -45,5 +57,6 @@ void R_VR_EndFrame();
 void R_VR_DrawHud(vr_eye_t eye);
 void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar);
 void R_VR_GetFOV(float *fovx, float *fovy);
+void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object);
 
 #endif //__R_VR_H

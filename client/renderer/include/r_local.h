@@ -35,8 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qgl.h"
 
-#include "r_vr.h"
-
 // up / down
 #define	PITCH	0
 // left / right

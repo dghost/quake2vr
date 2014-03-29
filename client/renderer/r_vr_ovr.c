@@ -43,255 +43,23 @@ static qboolean useBilinear, useChroma;
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_dist_norm = {
 	0, 
-	
 	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
+	"vr/common.vert",
 	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"vec2 warp(vec2 uv)\n"
-	"{\n"
-		"vec2 theta = (vec2(uv) - lensCenter) * scaleIn;\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 rvector = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"return (lensCenter + scale * rvector);\n"
-	"}\n"
-	"void main()\n"
-	"{\n"
-		"vec2 tc = warp(texCoords);\n"
-		"gl_FragColor.rg = tc;\n"
-	"}\n"
+	"vr/ovrdistort.frag"
 
 };
 
 // Lens Warp Shader with Chromatic Aberration 
 static r_shaderobject_t ovr_shader_dist_chrm = {
 	0, 
-	
 	// vertex shader (identity)
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scaleIn;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"theta = (vec2(gl_MultiTexCoord0) - lensCenter) * scaleIn;\n"
-	"}\n",
-
+	"vr/common.vert",
 	// fragment shader
-	"varying vec2 theta;\n"
-	"uniform vec2 lensCenter;\n"
-	"uniform vec2 scale;\n"
-	"uniform vec4 hmdWarpParam;\n"
-	"uniform vec4 chromAbParam;\n"
-
-	// Scales input texture coordinates for distortion.
-	// ScaleIn maps texture coordinates to Scales to ([-1, 1]), although top/bottom will be
-	// larger due to aspect ratio.
-	"void main()\n"
-	"{\n"
-		"float rSq = theta.x*theta.x + theta.y*theta.y;\n"
-		"vec2 theta1 = theta*(hmdWarpParam.x + hmdWarpParam.y*rSq + hmdWarpParam.z*rSq*rSq + hmdWarpParam.w*rSq*rSq*rSq);\n"
-		"vec2 thetaBlue = theta1 * (chromAbParam.z + chromAbParam.w * rSq);\n"
-		"vec2 tcBlue = lensCenter + scale * thetaBlue;\n"
-		"vec2 thetaRed = theta1 * (chromAbParam.x + chromAbParam.y * rSq);\n"
-		"vec2 tcRed = lensCenter + scale * thetaRed;\n"
-		"vec4 final;\n"
-		"final.rg = tcRed;\n"
-		"final.ba = tcBlue;\n"
-		"gl_FragColor = final;\n"
-	"}\n"
+	"vr/ovrdistort_chromatic.frag"
 };
 
 
-
-// Default Lens Warp Shader
-static r_shaderobject_t ovr_shader_norm = {
-	0, 
-	
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	"void main()\n"
-	"{\n"
-		"vec2 tc = texture2D(dist,texCoords).rg;\n"
-		"if (any(bvec2(clamp(tc, vec2(0.0,0.0), vec2(1.0,1.0))-tc)))\n"
-			"gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
-		"else\n"
-			"gl_FragColor = texture2D(tex, tc);\n"
-	"}\n"
-};
-
-// Default Lens Warp Shader
-static r_shaderobject_t ovr_shader_bicubic_norm = {
-	0,
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-	"gl_Position = gl_Vertex;\n"
-	"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform vec4 textureSize;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	// hack to fix artifacting with AMD cards
-	"vec3 sampleClamp(sampler2D tex, vec2 uv)\n"
-	"{\n"
-		"return texture2D(tex,clamp(uv,vec2(0.0),vec2(1.0))).rgb;\n"
-	"}\n"
-	"vec3 filter(sampler2D texture, vec2 texCoord)\n"
-	"{\n"
-		// calculate the center of the texel
-		"texCoord *= textureSize.xy;\n"
-		"vec2 texelCenter   = floor( texCoord - 0.5 ) + 0.5;\n"
-		"vec2 fracOffset    = texCoord - texelCenter;\n"
-		"vec2 fracOffset_x2 = fracOffset * fracOffset;\n"
-		"vec2 fracOffset_x3 = fracOffset * fracOffset_x2;\n"
-		// calculate bspline weight function
-		"vec2 weight0 = fracOffset_x2 - 0.5 * ( fracOffset_x3 + fracOffset );\n"
-		"vec2 weight1 = 1.5 * fracOffset_x3 - 2.5 * fracOffset_x2 + 1.0;\n"
-		"vec2 weight3 = 0.5 * ( fracOffset_x3 - fracOffset_x2 );\n"
-		"vec2 weight2 = 1.0 - weight0 - weight1 - weight3;\n"
-		// calculate texture coordinates
-		"vec2 scalingFactor0 = weight0 + weight1;\n"
-		"vec2 scalingFactor1 = weight2 + weight3;\n"
-		"vec2 f0 = weight1 / ( weight0 + weight1 );\n"
-		"vec2 f1 = weight3 / ( weight2 + weight3 );\n"
-		"vec2 texCoord0 = texelCenter - 1.0 + f0;\n"
-		"vec2 texCoord1 = texelCenter + 1.0 + f1;\n"
-		"texCoord0 *= textureSize.zw;\n"
-		"texCoord1 *= textureSize.zw;\n"
-		// sample texture and apply weighting
-		"return sampleClamp( texture, (vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
-	"}\n"
-	"void main()\n"
-	"{\n"
-		"vec2 tc = texture2D(dist,texCoords).rg;\n"
-		"if (any(bvec2(clamp(tc, vec2(0.0,0.0), vec2(1.0,1.0))-tc)))\n"
-			"gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n"
-		"else\n"
-			// have to reapply warping for the bicubic sampling
-			"gl_FragColor = vec4(filter(tex, tc),1.0);\n"
-	"}\n"
-};
-
-
-// Lens Warp Shader with Chromatic Aberration 
-static r_shaderobject_t ovr_shader_chrm = {
-	0, 
-	
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	"void main()\n"
-	"{\n"
-		"vec4 vRead = texture2D(dist,texCoords);\n"
-		"vec2 tcGreen = vec2(vRead.r + vRead.b, vRead.g + vRead.a) / 2.0;\n"
-		"if (!all(equal(clamp(tcGreen, vec2(0.0,0.0), vec2(1.0,1.0)),tcGreen)))\n"
-		"{\n"
-			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-		"}\n"
-		"else\n"
-		"{\n"
-			"vec4 final;"
-			"final.r = texture2D(tex, vRead.rg).r;"
-			"final.ga = texture2D(tex, tcGreen).ga;"
-			"final.b = texture2D(tex, vRead.ba).b;"
-			"gl_FragColor = final;\n"
-		"}\n"
-	"}\n"
-};
-
-static r_shaderobject_t ovr_shader_bicubic_chrm = {
-	0,
-	// vertex shader (identity)
-	"varying vec2 texCoords;\n"
-	"void main(void) {\n"
-		"gl_Position = gl_ProjectionMatrix * gl_Vertex;\n"
-		"texCoords = gl_MultiTexCoord0.xy;\n"
-	"}\n",
-	// fragment shader
-	"varying vec2 texCoords;\n"
-	"uniform vec4 textureSize;\n"
-	"uniform sampler2D tex;\n"
-	"uniform sampler2D dist;\n"
-	"vec4 sampleClamp(sampler2D tex, vec2 uv)\n"
-	"{\n"
-		"return texture2D(tex,clamp(uv,vec2(0.0),vec2(1.0))).rgba;\n"
-	"}\n"
-	"vec4 filter(sampler2D texture, vec2 texCoord)\n"
-	"{\n"
-		// calculate the center of the texel
-		"texCoord *= textureSize.xy;\n"
-		"vec2 texelCenter   = floor( texCoord - 0.5 ) + 0.5;\n"
-		"vec2 fracOffset    = texCoord - texelCenter;\n"
-		"vec2 fracOffset_x2 = fracOffset * fracOffset;\n"
-		"vec2 fracOffset_x3 = fracOffset * fracOffset_x2;\n"
-		// calculate bspline weight function
-		"vec2 weight0 = fracOffset_x2 - 0.5 * ( fracOffset_x3 + fracOffset );\n"
-		"vec2 weight1 = 1.5 * fracOffset_x3 - 2.5 * fracOffset_x2 + 1.0;\n"
-		"vec2 weight3 = 0.5 * ( fracOffset_x3 - fracOffset_x2 );\n"
-		"vec2 weight2 = 1.0 - weight0 - weight1 - weight3;\n"
-		// calculate texture coordinates
-		"vec2 scalingFactor0 = weight0 + weight1;\n"
-		"vec2 scalingFactor1 = weight2 + weight3;\n"
-		"vec2 f0 = weight1 / ( weight0 + weight1 );\n"
-		"vec2 f1 = weight3 / ( weight2 + weight3 );\n"
-		"vec2 texCoord0 = texelCenter - 1.0 + f0;\n"
-		"vec2 texCoord1 = texelCenter + 1.0 + f1;\n"
-		"texCoord0 *= textureSize.zw;\n"
-		"texCoord1 *= textureSize.zw;\n"
-		// sample texture and apply weighting
-		"return sampleClamp( texture, (vec2( texCoord0.x, texCoord0.y )) ) * scalingFactor0.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord0.y )) ) * scalingFactor1.x * scalingFactor0.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord0.x, texCoord1.y )) ) * scalingFactor0.x * scalingFactor1.y +\n"
-			   "sampleClamp( texture, (vec2( texCoord1.x, texCoord1.y )) ) * scalingFactor1.x * scalingFactor1.y;\n"
-	"}\n"
-
-	"void main()\n"
-	"{\n"
-		"vec4 vRead = texture2D(dist,texCoords);\n"
-		"vec2 tcGreen = vec2(vRead.r + vRead.b, vRead.g + vRead.a) / 2.0;\n"
-		"if (!all(equal(clamp(tcGreen, vec2(0.0,0.0), vec2(1.0,1.0)),tcGreen)))\n"
-		"{\n"
-			"gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n"
-		"}\n"
-		"else\n"
-		"{\n"
-			"vec4 final;"
-			"final.r = filter(tex, vRead.rg).r;"
-			"final.ga = filter(tex, tcGreen).ga;"
-			"final.b = filter(tex, vRead.ba).b;"
-			"gl_FragColor = final;\n"
-		"}\n"
-	"}\n"
-};
 
 
 typedef struct {
@@ -316,8 +84,6 @@ typedef enum {
 	NUM_OVR_FILTER_MODES
 } ovr_filtermode_t;
 
-static r_ovr_shader_t ovr_shaders[2];
-static r_ovr_shader_t ovr_bicubic_shaders[2];
 static r_ovr_shader_t ovr_distortion_shaders[2];
 
 // util function
@@ -325,7 +91,7 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 {
 
 	if (!object->program)
-		R_CompileShaderProgram(object);
+		R_CompileShaderFromFiles(object);
 
 	shader->shader = object;
 	glUseProgram(shader->shader->program);
@@ -573,18 +339,18 @@ void OVR_Present()
 	{
 
 		float superscale = vr_ovr_supersample->value;
-		r_ovr_shader_t *current_shader;
+		vr_distort_shader_t *current_shader;
 		if (vr_ovr_filtermode->value)
-			current_shader = &ovr_bicubic_shaders[!!(int32_t) vr_chromatic->value];
+			current_shader = &vr_bicubic_distort_shaders[!!(int32_t) vr_chromatic->value];
 		else
-			current_shader = &ovr_shaders[!!(int32_t) vr_chromatic->value];
+			current_shader = &vr_distort_shaders[!!(int32_t) vr_chromatic->value];
 
 		// draw left eye
 		glUseProgram(current_shader->shader->program);
 
 		glUniform4f(current_shader->uniform.texture_size, renderTargetRect.width / superscale, renderTargetRect.height / superscale, superscale / renderTargetRect.width, superscale / renderTargetRect.height);
-		glUniform1i(current_shader->uniform.tex,0);
-		glUniform1i(current_shader->uniform.dist,1);
+		glUniform1i(current_shader->uniform.texture,0);
+		glUniform1i(current_shader->uniform.distortion,1);
 
 		GL_MBind(0,left.texture);
 		GL_MBind(1,leftDistortion.texture);
@@ -667,11 +433,6 @@ int32_t OVR_Enable()
 		R_DelFBO(&leftDistortion);
 	if (rightDistortion.valid)
 		R_DelFBO(&rightDistortion);
-
-	VR_OVR_InitShader(&ovr_shaders[0],&ovr_shader_norm);
-	VR_OVR_InitShader(&ovr_shaders[1],&ovr_shader_chrm);
-	VR_OVR_InitShader(&ovr_bicubic_shaders[0],&ovr_shader_bicubic_norm);
-	VR_OVR_InitShader(&ovr_bicubic_shaders[1],&ovr_shader_bicubic_chrm);
 	
 	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_dist_norm);
 	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_dist_chrm);
@@ -682,10 +443,7 @@ int32_t OVR_Enable()
 
 void OVR_Disable()
 {
-	R_DelShaderProgram(&ovr_shader_norm);
-	R_DelShaderProgram(&ovr_shader_chrm);
-	R_DelShaderProgram(&ovr_shader_bicubic_norm);
-	R_DelShaderProgram(&ovr_shader_bicubic_chrm);
+
 	R_DelShaderProgram(&ovr_shader_dist_norm);
 	R_DelShaderProgram(&ovr_shader_dist_chrm);
 

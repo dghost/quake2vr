@@ -38,6 +38,46 @@ static vert_t hudverts[MAX_VERTS];
 static uint32_t hudNumVerts;
 
 static GLuint currentFBO = 0;
+
+// Default Lens Warp Shader
+static r_shaderobject_t vr_shader_distort_norm = {
+	0, 
+	// vertex shader (identity)
+	"vr/common.vert",
+	// fragment shader
+	"vr/texdistort.frag"
+};
+
+// Default Lens Warp Shader
+static r_shaderobject_t vr_shader_distort_bicubic_norm = {
+	0, 
+	// vertex shader (identity)
+	"vr/common.vert",
+	// fragment shader
+	"vr/texdistort_fastbicubic.frag"
+};
+
+
+// Lens Warp Shader with Chromatic Aberration 
+static r_shaderobject_t vr_shader_distort_chrm = {
+	0, 
+	// vertex shader (identity)
+	"vr/common.vert",
+	// fragment shader
+	"vr/texdistort_chromatic.frag"
+};
+
+static r_shaderobject_t vr_shader_distort_bicubic_chrm = {
+	0, 
+	// vertex shader (identity)
+	"vr/common.vert",
+	// fragment shader
+	"vr/texdistort_chromatic_fastbicubic.frag"
+};
+
+vr_distort_shader_t vr_distort_shaders[2];
+vr_distort_shader_t vr_bicubic_distort_shaders[2];
+
 //
 // Rendering related functions
 //
@@ -364,6 +404,19 @@ void R_VR_Present()
 
 }
 
+// util function
+void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object)
+{
+	if (!object->program)
+		R_CompileShaderFromFiles(object);
+
+	shader->shader = object;
+	glUseProgram(shader->shader->program);
+	shader->uniform.texture = glGetUniformLocation(shader->shader->program, "tex");
+	shader->uniform.distortion = glGetUniformLocation(shader->shader->program, "dist");
+	shader->uniform.texture_size = glGetUniformLocation(shader->shader->program,"textureSize");
+	glUseProgram(0);
+}
 
 
 // enables renderer support for the Rift
@@ -392,6 +445,12 @@ void R_VR_Enable()
 
 		success = (qboolean) R_GenFBO(640, 480, 1, &hud);
 		success = success && hmd->enable && hmd->enable();
+
+
+		R_VR_InitDistortionShader(&vr_distort_shaders[0],&vr_shader_distort_norm);
+		R_VR_InitDistortionShader(&vr_distort_shaders[1],&vr_shader_distort_chrm);
+		R_VR_InitDistortionShader(&vr_bicubic_distort_shaders[0],&vr_shader_distort_bicubic_norm);
+		R_VR_InitDistortionShader(&vr_bicubic_distort_shaders[1],&vr_shader_distort_bicubic_chrm);
 
 		if (!success)
 		{
@@ -437,6 +496,12 @@ void R_VR_Disable()
 		hmd->disable();
 	if (hud.valid)
 		R_DelFBO(&hud);
+
+	R_DelShaderProgram(&vr_shader_distort_norm);
+	R_DelShaderProgram(&vr_shader_distort_chrm);
+	R_DelShaderProgram(&vr_shader_distort_bicubic_norm);
+	R_DelShaderProgram(&vr_shader_distort_bicubic_chrm);
+
 }
 
 // launch-time initialization for VR support
