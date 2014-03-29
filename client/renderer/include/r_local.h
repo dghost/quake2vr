@@ -964,9 +964,16 @@ typedef struct {
 	GLuint displacement_uniform;
 } r_warpshader_t;
 
+typedef struct {
+	r_shaderobject_t *shader;
+	GLuint rgbscale_uniform;
+} r_causticshader_t;
+
 extern r_warpshader_t warpshader;
+extern r_causticshader_t causticshader;
 
 qboolean R_CompileShader(GLuint shader, const char *source);
+qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader);
 qboolean R_CompileShaderProgram(r_shaderobject_t *shader);
 void R_DelShaderProgram(r_shaderobject_t *shader);
 void R_ShaderObjectsInit();

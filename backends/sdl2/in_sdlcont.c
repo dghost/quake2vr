@@ -54,7 +54,6 @@ void IN_ControllerInit (void)
 {
 	int32_t i;
 	int32_t size;
-	fileHandle_t handle;
 	char *name[] = {"gamecontrollerdb.txt","controllers.cfg",0};
 	char *p = NULL;
 	cvar_t		*cv;
@@ -88,29 +87,24 @@ void IN_ControllerInit (void)
 	
 	for (i = 0; name[i] != NULL ; i++)
 	{
+		void *buffer = NULL;
+		SDL_RWops *rw;
 		p = name[i];
-		size = FS_FOpenFile(p,&handle,FS_READ);
-		if (size > 0)
+		Com_Printf("Loading controller mappings from '%s':\n",p);
+		size = FS_LoadFile(p,&buffer);		
+		
+		if (buffer)
 		{
-			SDL_RWops *rw;
-			void *buffer = NULL;
-			int results = -1;
-			Com_Printf("Loading controller mappings from '%s':\n",p);
-			buffer = malloc(size);
-			if (buffer)
-			{
-				FS_Read(buffer,size,handle);
-				rw = SDL_RWFromMem(buffer,size);
-				results = SDL_GameControllerAddMappingsFromRW(rw, 1);
-			}
+			int results;
+			rw = SDL_RWFromMem(buffer,size);
+			results = SDL_GameControllerAddMappingsFromRW(rw, 1);	
 			if (results >= 0)
 			{
 				Com_Printf("...loaded %d additional mappings\n",results);
 			} else {
 				Com_Printf("...error: %s\n",SDL_GetError());
 			}
-			free(buffer);
-			FS_FCloseFile(handle);
+			Z_Free(buffer);
 		}
 	}
 	autosensitivity			= Cvar_Get ("autosensitivity",			"1",		CVAR_ARCHIVE);

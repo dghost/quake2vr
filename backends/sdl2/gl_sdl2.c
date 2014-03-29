@@ -75,29 +75,21 @@ qboolean modType (char *name);
 #define WINDOW_ICON_XATRIX  "icons/q2mp1.bmp"
 #define WINDOW_ICON_ROGUE	"icons/q2mp2.bmp"
 
-SDL_Surface* GLimp_LoadIcon(const char *name)
+SDL_Surface* GLimp_LoadIcon(char *name)
 {
 	int32_t size;
-	fileHandle_t handle;
 	SDL_Surface *result = NULL;
-	size = FS_FOpenFile(name,&handle,FS_READ);
-	if (size > 0)
+	void *buffer = NULL;
+	size = FS_LoadFile(name,&buffer);
+	if (buffer)
 	{
 		SDL_RWops *rw;
-		void *buffer = NULL;
-		
-		buffer = malloc(size);
-		if (buffer)
+		rw = SDL_RWFromMem(buffer,size);
+		if (rw)
 		{
-			FS_Read(buffer,size,handle);
-			rw = SDL_RWFromMem(buffer,size);
-			if (rw)
-			{
-				result = SDL_LoadBMP_RW(rw,1);
-			}
-			free(buffer);
+			result = SDL_LoadBMP_RW(rw,1);
 		}
-		FS_FCloseFile(handle);
+		Z_Free(buffer);
 	}
 	return result;
 }

@@ -982,11 +982,9 @@ static void RB_DrawCaustics (msurface_t *surf)
 	GL_MBind (1, dst_texture);
 
 	Vector4Set(param,1.0,1.0,1.0,1.0);
-	glUseProgram(warpshader.shader->program);
-	glUniform4fv(warpshader.rgbscale_uniform,1,param);
-	glUniform1f(warpshader.time_uniform,0);
-	glUniform1f(warpshader.displacement_uniform,0);
-	glUniform2f(warpshader.scale_uniform,0,0);	
+	glUseProgram(causticshader.shader->program);
+	glUniform4fv(causticshader.rgbscale_uniform,1,param);
+
 	GL_Enable(GL_POLYGON_OFFSET_FILL);
 		
 	GL_PolygonOffset(-0.75,-1.0);
