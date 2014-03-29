@@ -303,25 +303,35 @@ void RB_RenderWarpSurface (msurface_t *fa)
 		float rdt = r_newrefdef.time;
 		float scale[2] = {0.025,0.05};
 		float distortion = 0;
+		r_warpshader_t *warp;
+
 		//GL_SelectTexture(0);
 		GL_MBind(0, image->texnum);
 
 		GL_EnableTexture(1);
 		GL_MBind(1, dst_texture);
 
+		Vector4Set(param,r_rgbscale->value,r_rgbscale->value,r_rgbscale->value,1.0);
 		if ( !(fa->texinfo->flags & SURF_FLOWING)
 			&& fa->plane->normal[2] > 0
 			&& fa->plane->normal[2] > fa->plane->normal[0]
-			&& fa->plane->normal[2] > fa->plane->normal[1] )
+			&& fa->plane->normal[2] > fa->plane->normal[1] 
+			&& r_waterwave->value > 0)
 		{
-			distortion = r_waterwave->value;
+			if (r_waterquality->value == 3)
+				warp = &simplexwarpshader;
+			else 
+				warp = &warpshader;
+
+			glUseProgram(warp->shader->program);
+			glUniform4fv(warp->rgbscale_uniform,1,param);
+			glUniform1f(warp->time_uniform,rdt);
+			glUniform1f(warp->displacement_uniform,r_waterwave->value);
+			glUniform2fv(warp->scale_uniform,1,scale);
+		} else {
+			glUseProgram(causticshader.shader->program);
+			glUniform4fv(causticshader.rgbscale_uniform,1,param);
 		}
-		Vector4Set(param,r_rgbscale->value,r_rgbscale->value,r_rgbscale->value,1.0);
-		glUseProgram(warpshader.shader->program);
-		glUniform4fv(warpshader.rgbscale_uniform,1,param);
-		glUniform1f(warpshader.time_uniform,rdt);
-		glUniform1f(warpshader.displacement_uniform,distortion);
-		glUniform2fv(warpshader.scale_uniform,1,scale);
 	}
 	else
 		GL_MBind(0,image->texnum);

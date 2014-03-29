@@ -968,7 +968,9 @@ typedef struct {
 } r_causticshader_t;
 
 extern r_warpshader_t warpshader;
+extern r_warpshader_t simplexwarpshader;
 extern r_causticshader_t causticshader;
+
 
 qboolean R_CompileShader(GLuint shader, const char *source);
 qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader);

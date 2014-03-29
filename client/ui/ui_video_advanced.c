@@ -82,7 +82,7 @@ static void Video_Advanced_MenuSetValues ( void )
 	Cvar_SetValue( "r_solidalpha", ClampCvar( 0, 1, Cvar_VariableValue("r_solidalpha") ) );
 	s_solidalpha_box.curvalue = Cvar_VariableValue("r_solidalpha");
 
-	Cvar_SetValue( "r_waterquality", ClampCvar( 0, 2, Cvar_VariableValue("r_waterquality") ) );
+	Cvar_SetValue( "r_waterquality", ClampCvar( 0, 3, Cvar_VariableValue("r_waterquality") ) );
 	s_texshader_warp_box.curvalue = Cvar_VariableValue("r_waterquality");
 
 	Cvar_SetValue( "r_waterwave", ClampCvar( 0, 24, Cvar_VariableValue("r_waterwave") ) );
@@ -239,6 +239,7 @@ void Menu_Video_Advanced_Init (void)
 		"low",
 		"medium",
 		"high",
+		"extreme",
 		0
 	};
 

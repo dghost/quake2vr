@@ -7,6 +7,7 @@
 #define SHADER_DIR "shaders"
 
 r_warpshader_t warpshader;
+r_warpshader_t simplexwarpshader;
 r_causticshader_t causticshader;
 
 static r_shaderobject_t warpshader_object = {
@@ -16,6 +17,15 @@ static r_shaderobject_t warpshader_object = {
 	// fragment shader
 	"warp.frag"
 };
+
+static r_shaderobject_t warpsimplexshader_object = {
+	0,
+	// vertex shader (identity)
+	"warp_simplex.vert",
+	// fragment shader
+	"warp.frag"
+};
+
 
 static r_shaderobject_t causticshader_object = {
 	0,
@@ -211,18 +221,15 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 {
 	if (shader->program)
 	{
-		
 		glDeleteProgram(shader->program);
 		shader->program = 0;
 	}
 }
 
-
-void R_ShaderObjectsInit()
+qboolean R_InitShaders(void)
 {
 	qboolean success = false;
 	Com_Printf("...loading shaders: ");
-
 	if (R_CompileShaderFromFiles(&warpshader_object))
 	{
 		GLint texloc;
@@ -237,14 +244,36 @@ void R_ShaderObjectsInit()
 		warpshader.time_uniform = glGetUniformLocation(warpshader.shader->program,"time");
 		warpshader.displacement_uniform = glGetUniformLocation(warpshader.shader->program,"displacement");
 		glUseProgram(0);
-
 		success = true;
+	} 
+	else {
+		success = false;
+	}
+
+	if (R_CompileShaderFromFiles(&warpsimplexshader_object))
+	{
+		GLint texloc;
+		simplexwarpshader.shader = &warpsimplexshader_object;
+		glUseProgram(simplexwarpshader.shader->program);
+		texloc = glGetUniformLocation(simplexwarpshader.shader->program,"texImage");
+		glUniform1i(texloc,0);
+		texloc = glGetUniformLocation(simplexwarpshader.shader->program,"texDistort");
+		glUniform1i(texloc,1);
+		simplexwarpshader.rgbscale_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"rgbscale");
+		simplexwarpshader.scale_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"scale");
+		simplexwarpshader.time_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"time");
+		simplexwarpshader.displacement_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"displacement");
+		glUseProgram(0);
+		success = success && true;
+	}
+	else {
+		success = false;
 	}
 
 	if (R_CompileShaderFromFiles(&causticshader_object))
 	{
 		GLint texloc;
-		causticshader.shader = &warpshader_object;
+		causticshader.shader = &causticshader_object;
 		glUseProgram(causticshader.shader->program);
 		texloc = glGetUniformLocation(causticshader.shader->program,"texImage");
 		glUniform1i(texloc,0);
@@ -254,6 +283,9 @@ void R_ShaderObjectsInit()
 		glUseProgram(0);
 		success = success && true;
 	}
+	else {
+		success = false;
+	}
 
 
 	if (success)
@@ -262,9 +294,26 @@ void R_ShaderObjectsInit()
 	} else {
 		Com_Printf("failed!\n");
 	}
+	return success;
+}
+
+void R_ReloadShader_f(void)
+{
+	R_ShaderObjectsShutdown();
+	R_InitShaders();
+}
+
+void R_ShaderObjectsInit()
+{
+	qboolean success = false;
+
+	R_InitShaders();
+
+	Cmd_AddCommand("r_reloadshaders",R_ReloadShader_f);
 }
 
 void R_ShaderObjectsShutdown()
 {
 	R_DelShaderProgram(&warpshader_object);
+	R_DelShaderProgram(&causticshader_object);
 }
