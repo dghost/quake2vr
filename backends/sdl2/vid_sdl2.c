@@ -228,7 +228,6 @@ void SDL_ProcEvent (SDL_Event *event)
 		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_SHOWN:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-		case SDL_WINDOWEVENT_ENTER:
 			AppActivate(true,false);
 
 			if ( kmgl_active )
@@ -242,7 +241,6 @@ void SDL_ProcEvent (SDL_Event *event)
 			break;
 		case SDL_WINDOWEVENT_HIDDEN:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-		case SDL_WINDOWEVENT_LEAVE:
 			AppActivate(false,false);
 			if ( kmgl_active )
 				GLimp_AppActivate ( false );
