@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern	model_t	*loadmodel;
 msurface_t	*warpface;
 
-#define	SUBDIVIDE_SIZE	64
+#define	SUBDIVIDE_SIZE	32
 
 void BoundPoly (int32_t numverts, float *verts, vec3_t mins, vec3_t maxs)
 {
@@ -50,16 +50,16 @@ void SubdividePolygon (int32_t numverts, float *verts)
 	vec3_t	mins, maxs;
 	float	m;
 	float	*v;
-	vec3_t	front[64], back[64];
+	vec3_t	front[128], back[128];
 	int32_t		f, b, size;
-	float	dist[64];
+	float	dist[128];
 	float	frac;
 	glpoly_t	*poly;
 	float	s, t;
 	vec3_t	total;
 	float	total_s, total_t;
 
-	if (numverts > 60)
+	if (numverts > 124)
 		VID_Error (ERR_DROP, "numverts = %i", numverts);
 
 	BoundPoly (numverts, verts, mins, maxs);
@@ -68,9 +68,9 @@ void SubdividePolygon (int32_t numverts, float *verts)
 	{
 		m = (mins[i] + maxs[i]) * 0.5;
 		m = SUBDIVIDE_SIZE * floor (m/SUBDIVIDE_SIZE + 0.5);
-		if (maxs[i] - m < 8)
+		if (maxs[i] - m < 1)
 			continue;
-		if (m - mins[i] < 8)
+		if (m - mins[i] < 1)
 			continue;
 
 		// cut it
