@@ -373,8 +373,6 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="backends\win32\q2.ico" />
-    <CustomBuild Include="backends\win32\q2mp1.ico" />
-    <CustomBuild Include="backends\win32\q2mp2.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="backends\win32\q2.rc">

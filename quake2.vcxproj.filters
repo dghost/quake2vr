@@ -528,11 +528,5 @@
     <CustomBuild Include="backends\win32\q2.ico">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="backends\win32\q2mp1.ico">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="backends\win32\q2mp2.ico">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
   </ItemGroup>
 </Project>
