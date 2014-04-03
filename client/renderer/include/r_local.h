@@ -751,7 +751,7 @@ typedef struct
 	// anisotropic filtering
 	qboolean	anisotropic;
 	float		max_anisotropy;
-
+	uint32_t	refresh_rate;
 } glconfig_t;
 
 

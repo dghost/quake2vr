@@ -291,7 +291,7 @@ qboolean GLimp_Init( )
 
 qboolean GLimp_InitGL (void)
 {
-
+	SDL_DisplayMode currentMode;
 
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
@@ -325,6 +325,8 @@ qboolean GLimp_InitGL (void)
 
 	}
 
+	SDL_GetWindowDisplayMode(mainWindow,&currentMode);
+	glConfig.refresh_rate = currentMode.refresh_rate;
 	/*	Moved to GL_SetDefaultState in r_glstate.c
 	// Vertex arrays
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
