@@ -45,7 +45,6 @@ static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
 static menulist_s		s_options_vr_advanced_hudtrans_box;
 static menulist_s		s_options_vr_advanced_hudbounce_box;
-static menufield_s		s_options_vr_advanced_hudfalloff_field;
 static menulist_s		s_options_vr_advanced_neckmodel_box;
 static menufield_s		s_options_vr_advanced_neckmodel_up_field;
 static menufield_s		s_options_vr_advanced_neckmodel_forward_field;
@@ -88,17 +87,6 @@ static void HUDFunc( void *unused )
 static void NeckFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_neckmodel", s_options_vr_advanced_neckmodel_box.curvalue );
-}
-
-static void FalloffFunc( void *unused )
-{
-	float temp;
-
-	temp = ClampCvar(1,60,atof(s_options_vr_advanced_hudfalloff_field.buffer));
-	Cvar_SetInteger("vr_hud_bounce_falloff",temp);
-
-	strcpy( s_options_vr_advanced_hudfalloff_field.buffer, vr_hud_bounce_falloff->string );
-	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
 }
 
 static void NeckmodelFunc ( void *unused )
@@ -144,8 +132,6 @@ static void VRAdvSetMenuItemValues( void )
 	s_options_vr_advanced_hudtrans_box.curvalue = ( Cvar_VariableInteger("vr_hud_transparency") );
 	s_options_vr_advanced_hudbounce_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce") );
 	s_options_vr_advanced_neckmodel_box.curvalue = ( Cvar_VariableValue("vr_neckmodel") );
-	strcpy( s_options_vr_advanced_hudfalloff_field.buffer, vr_hud_bounce_falloff->string );
-	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
 	strcpy( s_options_vr_advanced_neckmodel_up_field.buffer, vr_neckmodel_up->string );
 	s_options_vr_advanced_neckmodel_up_field.cursor = strlen( vr_neckmodel_up->string );
 	strcpy( s_options_vr_advanced_neckmodel_forward_field.buffer, vr_neckmodel_forward->string );
@@ -176,7 +162,6 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 
 static void VRAdvancedConfigAccept (void)
 {
-	FalloffFunc(NULL);
 	NeckFunc(NULL);
 	CustomPredictionFunc(NULL);
 }
@@ -287,19 +272,6 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hudbounce_box.itemnames			= smoothfunc_names;
 	s_options_vr_advanced_hudbounce_box.generic.statusbar	= "enables or disables hud counter rotation";
 	
-	s_options_vr_advanced_hudfalloff_field.generic.type = MTYPE_FIELD;
-	s_options_vr_advanced_hudfalloff_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_advanced_hudfalloff_field.generic.name = "hud bounce falloff";
-	s_options_vr_advanced_hudfalloff_field.generic.statusbar	= "sets the number of frames for the bouncing falloff";
-	s_options_vr_advanced_hudfalloff_field.generic.callback = FalloffFunc;
-	s_options_vr_advanced_hudfalloff_field.generic.x		= MENU_FONT_SIZE;
-	s_options_vr_advanced_hudfalloff_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_advanced_hudfalloff_field.length	= 5;
-	s_options_vr_advanced_hudfalloff_field.visible_length = 5;
-	strcpy( s_options_vr_advanced_hudfalloff_field.buffer, vr_hud_bounce_falloff->string );
-	s_options_vr_advanced_hudfalloff_field.cursor = strlen( vr_hud_bounce_falloff->string );
-
-
 	s_options_vr_advanced_neckmodel_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_neckmodel_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_neckmodel_box.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -357,8 +329,6 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_fov_slider );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudtrans_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudbounce_box );
-	
-	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudfalloff_field );
 	
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_up_field );

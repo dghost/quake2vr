@@ -39,7 +39,6 @@ static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_drift_box;
-static menulist_s		s_options_vr_ovr_filtermode_box;
 static menulist_s		s_options_vr_ovr_distortion_box;
 static menulist_s		s_options_vr_ovr_autoscale_box;
 static menufield_s		s_options_vr_ovr_scale_field;
@@ -56,11 +55,6 @@ extern cvar_t *vr_ovr_scale;
 static void DriftFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_ovr_driftcorrection", s_options_vr_ovr_drift_box.curvalue);
-}
-
-static void BicubicFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_ovr_filtermode", s_options_vr_ovr_filtermode_box.curvalue);
 }
 
 static void DistortionFunc( void *unused )
@@ -97,7 +91,6 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
-	s_options_vr_ovr_filtermode_box.curvalue = ( Cvar_VariableInteger("vr_ovr_filtermode") );
 	s_options_vr_ovr_distortion_box.curvalue = ( 3 - ClampCvar(-1, 3, Cvar_VariableInteger("vr_ovr_distortion")) );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
 	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
@@ -205,13 +198,6 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
-	static const char *filter_names[] =
-	{
-		"bilinear",
-		"bspline bilinear",
-		0
-	};
-
 	static const char *enable_names[] =
 	{
 		"disable",
@@ -248,14 +234,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
 	s_options_vr_ovr_drift_box.generic.statusbar	= "enable magnetic drift correction";
 
-	s_options_vr_ovr_filtermode_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_filtermode_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_filtermode_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_filtermode_box.generic.name		= "filter mode";
-	s_options_vr_ovr_filtermode_box.generic.callback	= BicubicFunc;
-	s_options_vr_ovr_filtermode_box.itemnames			= filter_names;
-	s_options_vr_ovr_filtermode_box.generic.statusbar	= "chooses texture filtering mode used with the distortion shader";
-	
 	s_options_vr_ovr_distortion_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_distortion_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_distortion_box.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -338,7 +316,6 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_enable_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_filtermode_box );
 	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_distortion_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autoscale_box );

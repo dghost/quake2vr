@@ -1721,8 +1721,7 @@ void CL_Frame (int32_t msec)
 					return;
 
 			if (r_fencesync->value < 0)
-				Com_Printf("avgframe: %f last: %ims GPU: %ims delay: %ims\n",averageFrameTime,extratime, lastTimeWaited, lateFrameDelay);
-
+				Com_Printf("avgframe: %.2f last: %ims GPU: %ims delay: %ims\n",averageFrameTime,extratime, lastTimeWaited, lateFrameDelay);
 		}
 
 		if ((extratime < 1000/cl_maxfps->value))

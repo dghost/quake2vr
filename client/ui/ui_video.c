@@ -140,6 +140,9 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_swapinterval");
 	Cvar_SetToDefault ("r_adaptivevsync");
 	Cvar_SetToDefault ("r_fencesync");
+	Cvar_SetToDefault ("r_lateframe_ratio");
+	Cvar_SetToDefault ("r_lateframe_threshold");
+	Cvar_SetToDefault ("r_lateframe_decay");
 	Cvar_SetToDefault ("vid_refresh");
 	Cvar_SetToDefault ("cl_widescreen_fov");
 
@@ -162,6 +165,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_screenshot_jpeg_quality");
 	Cvar_SetToDefault ("r_saveshotsize");
 	Cvar_SetToDefault ("r_antialias");
+
 	Menu_Video_Init();
 }
 
@@ -422,6 +426,13 @@ void Menu_Video_Init (void)
 		"yes",
 		0
 	};
+	static const char *sync_names[] =
+	{
+		"no",
+		"vsync",
+		"late frame",
+		0
+	};
 	static const char *mip_names[] =
 	{
 		"bilinear",
@@ -574,8 +585,8 @@ void Menu_Video_Init (void)
 		s_fencesync_box.generic.y				= y += MENU_LINE_SIZE;
 		s_fencesync_box.generic.name			= "gpu frame pacing";
 		s_fencesync_box.generic.callback		= FenceSyncCallback;
-		s_fencesync_box.curvalue				= !!Cvar_VariableInteger("r_fencesync");
-		s_fencesync_box.itemnames				= yesno_names;
+		s_fencesync_box.curvalue				= ClampCvar(0,2, abs(Cvar_VariableInteger("r_fencesync")));
+		s_fencesync_box.itemnames				= sync_names;
 		s_fencesync_box.generic.statusbar		= "forces the gpu to synchronize after monitor refresh";
 	}
 	// Knightmare- refresh rate option
