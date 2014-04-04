@@ -1,6 +1,3 @@
 [submodule "missionpacksrc"]
 	path = missionpacksrc
 	url = https://github.com/dghost/q2vr-missionpack
-[submodule "game"]
-	path = game
-	url = https://github.com/dghost/q2vr-game.git
