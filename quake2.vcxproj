@@ -385,12 +385,6 @@
     <ProjectReference Include="external\LibOVR\Projects\win32\LibOVR_Msvc2010.vcxproj">
       <Project>{934b40c7-f40a-4e4c-97a7-b9659be0a441}</Project>
     </ProjectReference>
-    <ProjectReference Include="game\lazarus.vcxproj">
-      <Project>{09e58c1f-353d-58c5-de43-60f70bb966ae}</Project>
-    </ProjectReference>
-    <ProjectReference Include="missionpacksrc\game.vcxproj">
-      <Project>{0ddc01cc-74eb-43bf-8bc7-1807346b74b0}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
