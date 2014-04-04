@@ -301,7 +301,6 @@
     <ClCompile Include="client\cl_tempent.c" />
     <ClCompile Include="client\cl_utils.c" />
     <ClCompile Include="client\cl_view.c" />
-    <ClCompile Include="game\m_flash.c" />
     <ClCompile Include="client\x86.c" />
     <ClCompile Include="qcommon\cmd.c" />
     <ClCompile Include="qcommon\cmodel.c" />
@@ -312,7 +311,8 @@
     <ClCompile Include="qcommon\md4.c" />
     <ClCompile Include="qcommon\net_chan.c" />
     <ClCompile Include="qcommon\pmove.c" />
-    <ClCompile Include="game\q_shared.c" />
+    <ClCompile Include="qcommon\shared\m_flash.c" />
+    <ClCompile Include="qcommon\shared\q_shared.c" />
     <ClCompile Include="qcommon\wildcard.c" />
     <ClCompile Include="server\sv_ccmds.c" />
     <ClCompile Include="server\sv_ents.c" />
@@ -343,6 +343,7 @@
     <ClInclude Include="client\vr\include\vr_ovr.h" />
     <ClInclude Include="client\vr\include\vr_steamvr.h" />
     <ClInclude Include="client\vr\include\vr_svr.h" />
+    <ClInclude Include="qcommon\shared\q_shared.h" />
     <ClInclude Include="renderer\anorms.h" />
     <ClInclude Include="renderer\anormtab.h" />
     <ClInclude Include="qcommon\bspfile.h" />
@@ -356,7 +357,6 @@
     <ClInclude Include="client\keys.h" />
     <ClInclude Include="client\particles.h" />
     <ClInclude Include="client\q2palette.h" />
-    <ClInclude Include="game\q_shared.h" />
     <ClInclude Include="qcommon\qcommon.h" />
     <ClInclude Include="qcommon\qfiles.h" />
     <ClInclude Include="client\ref.h" />

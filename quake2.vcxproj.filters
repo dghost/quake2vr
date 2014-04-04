@@ -99,9 +99,6 @@
     <ClCompile Include="client\cl_view.c">
       <Filter>Source Files\client</Filter>
     </ClCompile>
-    <ClCompile Include="game\m_flash.c">
-      <Filter>Source Files\client</Filter>
-    </ClCompile>
     <ClCompile Include="client\x86.c">
       <Filter>Source Files\client</Filter>
     </ClCompile>
@@ -130,9 +127,6 @@
       <Filter>Source Files\common</Filter>
     </ClCompile>
     <ClCompile Include="qcommon\pmove.c">
-      <Filter>Source Files\common</Filter>
-    </ClCompile>
-    <ClCompile Include="game\q_shared.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
     <ClCompile Include="qcommon\wildcard.c">
@@ -370,22 +364,28 @@
       <Filter>Source Files\client\renderer</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\gl_sdl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\in_sdl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\in_sdlcont.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\snd_sdl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\sys_sdl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
     </ClCompile>
     <ClCompile Include="backends\sdl2\vid_sdl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\system</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\shared\m_flash.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\shared\q_shared.c">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -426,9 +426,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client\q2palette.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\q_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="qcommon\qcommon.h">
@@ -516,6 +513,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client\vr\include\vr_ovr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\shared\q_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

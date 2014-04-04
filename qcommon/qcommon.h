@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __QCOMMON_H
 #define __QCOMMON_H
 
-#include "../game/q_shared.h"
+#include "shared/q_shared.h"
 #include "glob.h"
 
 #define	VERSION		2.0 //was 3.21
