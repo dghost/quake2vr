@@ -2296,7 +2296,7 @@ void CL_CalcViewValues (void)
 	// add the weapon
 	CL_AddViewWeapon (ps, ops);
 	
-	if (vr_enabled->value)
+	//if (vr_enabled->value)
 	{
 		vec3_t forward, right,distance;
 		vec3_t gun_origin;

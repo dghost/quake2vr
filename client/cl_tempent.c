@@ -1651,7 +1651,7 @@ void CL_AddPlayerBeams (void)
 				// lerp for chasecam mode
 				if (chasecam)
 				{	// use player's original viewangles
-					AngleVectors(old_viewangles, f, r, u);
+					AngleVectors(cl.refdef.aimangles, f, r, u);
 					VectorClear (pbeam_offset_dir);
 					for (j=0; j<3; j++)
 					{
@@ -1670,21 +1670,19 @@ void CL_AddPlayerBeams (void)
 				}
 				else // firstperson
 				{
+					AngleVectors(cl.refdef.aimangles,f,r,u);
 					for (j=0; j<3; j++)
 					{
+		
 						b->start[j] = cl.refdef.vieworg[j] + ops->gunoffset[j]
 							+ cl.lerpfrac * (ps->gunoffset[j] - ops->gunoffset[j]);
 					}
-					VectorMA (b->start, (hand_multiplier * b->offset[0]), cl.v_right, org);
-					VectorMA (     org, b->offset[1], cl.v_forward, org);
-					VectorMA (     org, b->offset[2], cl.v_up, org);
+					VectorMA (b->start, (hand_multiplier * b->offset[0]), r, org);
+					VectorMA (     org, b->offset[1], f, org);
+					VectorMA (     org, b->offset[2], u, org);
 					if ((hand) && (hand->value == 2)) {
-						VectorMA (org, -1, cl.v_up, org);
+						VectorMA (org, -1, u, org);
 					}
-					// FIXME - take these out when final
-					VectorCopy (cl.v_right, r);
-					VectorCopy (cl.v_forward, f);
-					VectorCopy (cl.v_up, u);
 				}
 			}
 			else // some other player or monster
@@ -1696,7 +1694,7 @@ void CL_AddPlayerBeams (void)
 			// skip for chasecam mode
 			if (firstperson)
 			{
-				VectorCopy (cl.refdef.vieworg, b->start);
+				VectorCopy (cl.refdef.aimstart, b->start);
 				b->start[2] -= 22;	// adjust for view height
 			}
 			VectorAdd (b->start, b->offset, org);
@@ -1706,26 +1704,29 @@ void CL_AddPlayerBeams (void)
 		VectorSubtract (b->end, org, dist);
 
 //PMM
+
 		if (clMedia.mod_heatbeam && (b->model == clMedia.mod_heatbeam) && (firstperson||chasecam))
 		{
 			vec_t len;
-
+			vec3_t forward, right, up;
+			AngleVectors(cl.refdef.aimangles,forward,right,up);
 			len = VectorLength (dist);
-			VectorScale (f, len, dist);
+			VectorScale (forward, len, dist);
 			if (chasecam)
-				VectorMA (dist, (newhandmult * b->offset[0]), r, dist);
+				VectorMA (dist, (newhandmult * b->offset[0]), right, dist);
 			else
-				VectorMA (dist, (hand_multiplier * b->offset[0]), r, dist);
-			VectorMA (dist, b->offset[1], f, dist);
-			VectorMA (dist, b->offset[2], u, dist);
+				VectorMA (dist, (hand_multiplier * b->offset[0]), right, dist);
+			VectorMA (dist, b->offset[1], forward, dist);
+			VectorMA (dist, b->offset[2], up, dist);
 			if (chasecam) {
-				VectorMA (dist, -(newhandmult * thirdp_pbeam_offset[0]), r, dist);
-				VectorMA (dist, thirdp_pbeam_offset[1], f, dist);
-				VectorMA (dist, thirdp_pbeam_offset[2], u, dist);
+				VectorMA (dist, -(newhandmult * thirdp_pbeam_offset[0]), right, dist);
+				VectorMA (dist, thirdp_pbeam_offset[1], forward, dist);
+				VectorMA (dist, thirdp_pbeam_offset[2], up, dist);
 			}
 			if ((hand) && (hand->value == 2) && !chasecam)
-				VectorMA (org, -1, cl.v_up, org);
+				VectorMA (org, -1, up, org);
 		}
+
 //PMM
 
 		if (dist[1] == 0 && dist[0] == 0)
