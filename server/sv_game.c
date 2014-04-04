@@ -387,11 +387,12 @@ void SV_InitGameProgs (void)
 
 	// Knightmare- support game DLL loading from pak files thru engine
 	// This can be used to load script files, etc
+#ifdef KMQUAKE2_ENGINE_MOD
 	import.ListPak = FS_ListPak;
 	import.LoadFile = FS_LoadFile;
 	import.FreeFile = FS_FreeFile;
 	import.FreeFileList = FS_FreeFileList;
-
+#endif
 	import.SetAreaPortalState = CM_SetAreaPortalState;
 	import.AreasConnected = CM_AreasConnected;
 

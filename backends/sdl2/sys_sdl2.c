@@ -531,6 +531,11 @@ Sys_GetGameAPI
 Loads the game dll
 =================
 */
+#ifdef _WIN32
+#define LIBEXT ".dll"
+#else
+#define LIBEXT ".so"
+#endif
 void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
@@ -539,11 +544,11 @@ void *Sys_GetGameAPI (void *parms)
 	char	cwd[MAX_OSPATH];
 	int32_t i = 0;
 	//Knightmare- changed DLL name for better cohabitation
-#ifdef _WIN32
-	const char *dllnames[2] = {"vrgamex86.dll", "kmq2gamex86.dll"};
+#ifdef KMQUAKE2_ENGINE_MOD
+	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
 #else
-const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
-#endif
+	static const char *dllnames[] = {"game", "gamex86",0};
+	#endif
 	const char *gamename = NULL;
 	
 #ifdef NDEBUG
@@ -560,10 +565,10 @@ const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
 	// check the current debug directory first for development purposes
 	_getcwd (cwd, sizeof(cwd));
 	
-	for (i = 0; (i < 2) && (game_library == NULL); i++)
+	for (i = 0; (dllnames[i] != 0) && (game_library == NULL); i++)
 	{
 		gamename = dllnames[i];
-		Com_sprintf (name, sizeof(name), "%s/%s/%s", cwd, debugdir, gamename);
+		Com_sprintf (name, sizeof(name), "%s/%s/%s%s", cwd, debugdir, gamename,LIBEXT);
 		game_library = SDL_LoadObject ( name );
 	}
 	if (game_library)
@@ -574,7 +579,7 @@ const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
 	{
 #ifdef DEBUG
 		// check the current directory for other development purposes
-		Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
+		Com_sprintf (name, sizeof(name), "%s/%s%s", cwd, gamename,LIBEXT);
 		game_library = SDL_LoadObject ( name );
 		if (game_library)
 		{
@@ -590,10 +595,10 @@ const char *dllnames[2] = {"vrgamex86.so", "kmq2gamex86.so"};
 				path = FS_NextPath (path);
 				if (!path)
 					return NULL;		// couldn't find one anywhere
-				for (i = 0; (i < 2) && (game_library == NULL); i++)
+				for (i = 0; dllnames[i] != 0 && (game_library == NULL); i++)
 				{
 					gamename = dllnames[i];
-					Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
+					Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename,LIBEXT);
 					game_library = SDL_LoadObject (name);
 				}
 				if (game_library)

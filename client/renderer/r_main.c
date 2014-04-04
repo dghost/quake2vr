@@ -1030,13 +1030,19 @@ void AssertCvarRange (cvar_t *var, float min, float max, qboolean isInteger)
 {
 	if (!var)
 		return;
-
-	if (isInteger && ((int32_t)var->value != var->integer))
+#ifdef NEW_CVAR_MEMBERS
+	if (isInteger && (var->value != (float) var->integer))
 	{
 		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
 		Cvar_Set (var->name, va("%d", var->integer));
 	}
-
+#else
+	if (isInteger && (var->value != (float)((int) var->value)))
+	{
+		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
+		Cvar_Set (var->name, va("%d", (int) var->value));
+	}
+#endif
 	if (var->value < min)
 	{
 		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f < %f)\n", var->name, var->value, min);

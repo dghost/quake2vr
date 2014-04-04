@@ -1396,7 +1396,7 @@ void CL_InitLocal (void)
 	cl_sleep = Cvar_Get ("cl_sleep", "1", 0); 
 
 	// whether to trick version 34 servers that this is a version 34 client
-	cl_servertrick = Cvar_Get ("cl_servertrick", "0", 0);
+	cl_servertrick = Cvar_Get ("cl_servertrick", "1", 0);
 
 	// Psychospaz's chasecam
 	cg_thirdperson = Cvar_Get ("cg_thirdperson", "0", CVAR_ARCHIVE);
@@ -1490,7 +1490,7 @@ void CL_InitLocal (void)
 
 	// for the server to tell which version the client is
 	cl_engine = Cvar_Get ("cl_engine", "Quake II VR", CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
-	cl_engine_version = Cvar_Get ("cl_engine_version", va("%f",VERSION), CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
+	cl_engine_version = Cvar_Get ("cl_engine_version", va("%s",VERSION), CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
 
 	//
 	// register our commands

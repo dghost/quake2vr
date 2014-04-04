@@ -105,7 +105,6 @@ char *Cvar_VariableString (char *var_name)
 	return var->string;
 }
 
-
 /*
 ============
 Cvar_DefaultValue
@@ -115,11 +114,14 @@ Knightmare added
 float Cvar_DefaultValue (char *var_name)
 {
 	cvar_t	*var;
-	
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
+#ifdef 	NEW_CVAR_MEMBERS
 	return atof (var->default_string);
+#else
+	return var->value;
+#endif
 }
 
 
@@ -132,13 +134,16 @@ Knightmare added
 char *Cvar_DefaultString (char *var_name)
 {
 	cvar_t *var;
-	
+
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return "";
+#ifdef NEW_CVAR_MEMBERS
 	return var->default_string;
+#else
+	return var->string;
+#endif
 }
-
 
 /*
 ============
@@ -195,9 +200,10 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 	{
 		var->flags |= flags;
 		// Knightmare- added cvar defaults
+#ifdef NEW_CVAR_MEMBERS
 		Z_Free(var->default_string);
 		var->default_string = CopyString (var_value);
-
+#endif
 		return var;
 	}
 
@@ -217,10 +223,12 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
 	// Knightmare- added cvar defaults
+#ifdef NEW_CVAR_MEMBERS
 	var->default_string = CopyString (var_value);
+	var->integer = atoi(var->string);
+#endif
 	var->modified = true;
 	var->value = atof (var->string);
-	var->integer = atoi(var->string);
 
 	// link the variable in
 	var->next = cvar_vars;
@@ -322,7 +330,9 @@ cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
 	
 	var->string = CopyString(value);
 	var->value = atof (var->string);
+#ifdef NEW_CVAR_MEMBERS
 	var->integer = atoi(var->string);
+#endif
 
 	return var;
 }
@@ -459,6 +469,8 @@ Borrowed from Q2E
 */
 void Cvar_FixCheatVars (qboolean allowCheats)
 {
+
+#ifdef NEW_CVAR_MEMBERS
 	cvar_t	*var;
 
 	if (cvar_allowCheats == allowCheats)
@@ -478,6 +490,7 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 
 		Cvar_Set2 (var->name, var->default_string, true);
 	}
+#endif
 }
 
 
@@ -500,12 +513,19 @@ qboolean Cvar_Command (void)
 // perform a variable print or set
 	if (Cmd_Argc() == 1)
 	{	// Knightmare- show latched value if applicable
+#ifdef NEW_CVAR_MEMBERS
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", v->name, v->string, v->default_string, v->latched_string);
 		else if (v->flags & CVAR_NOSET)
 			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string, v->default_string);
 		else
 			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", v->name, v->string, v->default_string);
+#else
+		if ((v->flags & CVAR_LATCH) && v->latched_string)
+			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", v->name, v->string, v->latched_string);
+		else
+			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string);
+#endif
 		return true;
 	}
 
@@ -572,8 +592,11 @@ void Cvar_Toggle_f (void)
 		Com_Printf("'%s' is not a variable\n", Cmd_Argv(1));
 		return;
 	}
-
+#ifdef NEW_CVAR_MEMBERS
 	Cvar_Set2(var->name, va("%i", !var->integer), false);
+#else
+	Cvar_Set2(var->name, va("%i", (int) !var->value), false);
+#endif
 }
 
 
@@ -587,7 +610,7 @@ Allows resetting of arbitrary cvars from console
 void Cvar_Reset_f (void)
 {
 	cvar_t *var;
-
+#ifdef NEW_CVAR_MEMBERS
 	if (Cmd_Argc() != 2){
 		Com_Printf("Usage: reset <variable>\n");
 		return;
@@ -599,7 +622,11 @@ void Cvar_Reset_f (void)
 		return;
 	}
 
+
 	Cvar_Set2(var->name, var->default_string, false);
+#else
+	Com_Printf("Error: unsupported command\n");
+#endif
 }
 
 
@@ -691,10 +718,18 @@ void Cvar_List_f (void)
 				Com_Printf(" ");
 
 			// show latched value if applicable
+#ifdef NEW_CVAR_MEMBERS
 			if ((var->flags & CVAR_LATCH) && var->latched_string)
 				Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, var->default_string, var->latched_string);
 			else
 				Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, var->default_string);
+#else
+			if ((var->flags & CVAR_LATCH) && var->latched_string)
+				Com_Printf (" %s \"%s\" - latched: \"%s\"\n", var->name, var->string, var->latched_string);
+			else
+				Com_Printf (" %s \"%s\"\n", var->name, var->string);
+
+#endif
 		}
 	}
 	Com_Printf (" %i cvars, %i matching\n", i, j);

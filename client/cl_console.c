@@ -688,9 +688,9 @@ void Con_DrawConsole (float frac, qboolean trans)
 #endif // NET_SERVER_BUILD
 #else // ERASER_COMPAT_BUILD
 #ifdef NET_SERVER_BUILD
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s (net server)", VERSION,PATCH);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%s (net server)", VR_VER);
 #else
-	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%4.2f%s",VERSION,PATCH);
+	Com_sprintf (version, sizeof(version), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"Quake II VR v%s",VR_VER);
 #endif // ERASER_COMPAT_BUILD
 #endif // NEW_ENTITY_STATE_MEMBERS
 	Com_sprintf (hmd, sizeof(hmd), S_COLOR_BOLD S_COLOR_SHADOW S_COLOR_ALT"%s",Cvar_VariableString("vr_hmdstring"));

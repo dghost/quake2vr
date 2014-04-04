@@ -109,7 +109,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 
 // Knightmare- whether to include new engine enhancements
-#define	KMQUAKE2_ENGINE_MOD
+//#define	KMQUAKE2_ENGINE_MOD
 
 // enable to build exe that is compatible with Eraser bot
 // Eraser Bot's precompiled p_trail.c not compatible with modified entity state structure
@@ -118,6 +118,10 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 // enable to build exe to host net games
 // (to bring MAX_MSG_LENGTH in line with UDP packet size)
 //#define NET_SERVER_BUILD
+
+// enable to add enhanced cvar support
+// supports default values, resetting cvars, etc
+#define NEW_CVAR_MEMBERS
 
 #ifdef KMQUAKE2_ENGINE_MOD
 #ifndef ERASER_COMPAT_BUILD
@@ -130,7 +134,11 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 // enable to include looping of attenuated sounds
 // changes entity_state_t struct
 #define LOOP_SOUND_ATTENUATION
+#ifndef NEW_CVAR_MEMBERS
+#define NEW_CVAR_MEMBERS
 #endif
+#endif
+
 
 #define ROQ_SUPPORT // whether to use new cinematic system
 
@@ -525,7 +533,7 @@ typedef struct cvar_s
 	float		value;
 	struct cvar_s *next;
 	// Knightmare- added cvar defaults
-#ifdef KMQUAKE2_ENGINE_MOD
+#ifdef NEW_CVAR_MEMBERS
 	char		*default_string;
 	int32_t			integer;
 #endif
