@@ -687,7 +687,7 @@ int32_t R_FrameSync (void)
 			return max(Sys_Milliseconds()-glFence.timeStart,1);
 		}
 	}
-	return 1;
+	return -1;
 }
 
 

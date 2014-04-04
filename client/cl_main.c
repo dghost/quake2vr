@@ -1674,12 +1674,17 @@ CL_Frame
 ==================
 */
 extern cvar_t *r_fencesync;
+extern cvar_t *r_lateframe_threshold;
+extern cvar_t *r_lateframe_decay;
+extern cvar_t *r_lateframe_ratio;
 extern int32_t R_FrameSync(void);
 void CL_Frame (int32_t msec)
 {
+	extern int32_t scr_draw_loading;
 	static int32_t	extratime;
 	static int32_t  lasttimecalled;
-
+	static float	averageFrameTime;
+	const float alpha = 2.0 / (abs(r_lateframe_decay->value + 1.0));
 	if (dedicated->value)
 		return;
 
@@ -1699,13 +1704,27 @@ void CL_Frame (int32_t msec)
 
 		if (r_fencesync->value)
 		{ 
+			static uint32_t lastSyncTime;
+			static uint32_t lastTimeWaited;
+			uint32_t lateFrameDelay = ceil(averageFrameTime * r_lateframe_ratio->value);
+
 			int32_t timeWaited = R_FrameSync();
 			if (!timeWaited)
 				return;
-			else if (r_fencesync->value == 2)
-				Com_Printf("last: %ims GPU: %ims diff: %ims\n",extratime, timeWaited, extratime - timeWaited);
-	
+			else if (timeWaited > 0)
+			{
+				lastSyncTime = Sys_Milliseconds();
+				lastTimeWaited = timeWaited;
+			}
+			if (abs(r_fencesync->value) == 2)
+				if (Sys_Milliseconds() < (lastSyncTime + lateFrameDelay))
+					return;
+
+			if (r_fencesync->value < 0)
+				Com_Printf("avgframe: %f last: %ims GPU: %ims delay: %ims\n",averageFrameTime,extratime, lastTimeWaited, lateFrameDelay);
+
 		}
+
 		if ((extratime < 1000/cl_maxfps->value))
 		{	
 #ifdef _WIN32 // Pooy's CPU usage fix
@@ -1720,7 +1739,10 @@ void CL_Frame (int32_t msec)
 		}
 	}
 
-
+	if ( !scr_draw_loading && (extratime <= abs(r_lateframe_threshold->value)))
+		averageFrameTime = alpha * extratime + (1.0f - alpha) * averageFrameTime;
+	else 
+		averageFrameTime = 0.0f;
 
 	// let the mouse activate or deactivate
 	IN_Frame ();

@@ -169,6 +169,9 @@ cvar_t	*r_saturation;	//** DMP
 
 cvar_t  *r_drawnullmodel;
 cvar_t  *r_fencesync;
+cvar_t  *r_lateframe_decay;
+cvar_t  *r_lateframe_threshold;
+cvar_t  *r_lateframe_ratio;
 cvar_t  *r_directstate;
 
 /*
@@ -1164,6 +1167,10 @@ void R_Register (void)
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
 	r_fencesync = Cvar_Get("r_fencesync","1",CVAR_ARCHIVE );
+	r_lateframe_decay = Cvar_Get("r_lateframe_decay","15",CVAR_ARCHIVE);
+	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
+	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.5",CVAR_ARCHIVE);
+
 	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
