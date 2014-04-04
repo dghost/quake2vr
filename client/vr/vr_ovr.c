@@ -192,6 +192,7 @@ void VR_OVR_Frame()
 					char buffer[64];
 					SDL_snprintf(buffer,sizeof(buffer),"%.1fms latency",ms);
 					SCR_CenterAlert(buffer);
+					Cvar_SetInteger("vr_prediction",(int) ms);
 				}
 			}
 	} 
