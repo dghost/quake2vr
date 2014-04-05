@@ -93,7 +93,7 @@ void DrawStringGeneric (int32_t x, int32_t y, const char *string, int32_t alpha,
 	unsigned i, j;
 	char modifier, character;
 	int32_t len, red, green, blue, italic, shadow, bold, reset;
-	qboolean modified;
+	qboolean modified = false;
 	float textSize, textScale;
 
 	// defaults

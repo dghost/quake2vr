@@ -201,8 +201,11 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 		var->flags |= flags;
 		// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
-		Z_Free(var->default_string);
-		var->default_string = CopyString (var_value);
+		if (var_value)
+		{
+			Z_Free(var->default_string);
+			var->default_string = CopyString (var_value);
+		}
 #endif
 		return var;
 	}

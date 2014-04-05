@@ -1173,9 +1173,9 @@ void R_Register (void)
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
 	r_fencesync = Cvar_Get("r_fencesync","1",CVAR_ARCHIVE );
-	r_lateframe_decay = Cvar_Get("r_lateframe_decay","15",CVAR_ARCHIVE);
+	r_lateframe_decay = Cvar_Get("r_lateframe_decay","10",CVAR_ARCHIVE);
 	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
-	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.5",CVAR_ARCHIVE);
+	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
 
 	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
 	Cmd_AddCommand ("imagelist", R_ImageList_f);

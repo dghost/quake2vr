@@ -181,6 +181,13 @@ typedef struct
 	void (*AddCommandString)(char *text);
 
 	void (*DebugGraph)(float value, int color);
+
+#ifdef KMQUAKE2_ENGINE_MOD
+	char	**(*ListPak) (char *find, int *num);
+	int		(*LoadFile) (char *name, void **buf);
+	void	(*FreeFile) (void *buf);
+	void	(*FreeFileList) (char **list, int n);
+#endif
 } game_import_t;
 
 /* functions exported by the game subsystem */

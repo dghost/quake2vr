@@ -1706,7 +1706,7 @@ void CL_Frame (int32_t msec)
 		{ 
 			static uint32_t lastSyncTime;
 			static uint32_t lastTimeWaited;
-			uint32_t lateFrameDelay = ceil(averageFrameTime * r_lateframe_ratio->value);
+			uint32_t lateFrameDelay = floor(averageFrameTime * r_lateframe_ratio->value);
 
 			int32_t timeWaited = R_FrameSync();
 			if (!timeWaited)
