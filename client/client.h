@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client/vr/include/vr.h"
 
 //Knightmare added
-#include "../game/header/game.h"
+#include "../game/game.h"
 trace_t SV_Trace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, edict_t *passedict, int32_t contentmask);
 //end Knightmare
 

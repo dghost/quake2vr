@@ -1014,11 +1014,10 @@ CL_ParticleRailDecal
 ===============
 */
 #define RAIL_DECAL_OFFSET 2.0f
-void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
+void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, int32_t color[3])
 {
 	vec3_t		ang, angle, end, origin;
 	trace_t		tr;
-	int32_t beamred, beamgreen, beamblue;
 
 	if (!r_decals->value)
 		return;
@@ -1031,25 +1030,6 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 		return;
 	if (VectorCompare(tr.plane.normal, vec3_origin))
 		return;
-
-		if (isRed)
-		{
-			beamred = 255;
-			beamgreen = 20;
-			beamblue = 20;
-		} else if (cl_railtype->value > 0 && cl_railtype->value < 5) {
-			ColorLookup(cl_railcore_color->value,&beamred,&beamgreen,&beamblue);
-			beamred *= 0.75;
-			beamblue *=0.75;
-			beamgreen *=0.75;
-		} 
-		else 
-		{
-			uint32_t temp = 0x74 + (rand() & 7);
-			beamred = color8red(temp);
-			beamgreen = color8green(temp);
-			beamblue = color8blue(temp);
-		}
 
 	VectorNegate(tr.plane.normal, angle);
 	VecToAngleRolled(angle, rand()%360, ang);
@@ -1074,7 +1054,7 @@ void CL_ParticleRailDecal (vec3_t org, vec3_t dir, float size, qboolean isRed)
 		origin[0],	origin[1],	origin[2],
 		0,		0,		0,
 		0,		0,		0,
-		beamred,	beamgreen,	beamblue,
+		color[0],	color[1],	color[2],
 		0,		0,		0,
 		1,		-0.25,
 		GL_SRC_ALPHA, GL_ONE,
@@ -2010,14 +1990,14 @@ qboolean FartherPoint (vec3_t pt1, vec3_t pt2)
 
 /*
 ===============
-CL_RailSprial
+CL_RailSpiral
 ===============
 */
 #define DEVRAILSTEPS 2
 //this is the length of each piece...
 #define RAILTRAILSPACE 15
 
-void CL_RailSprial (vec3_t start, vec3_t end, qboolean isRed)
+void CL_RailSpiral (vec3_t start, vec3_t end, int32_t color[3])
 {
 	vec3_t		move;
 	vec3_t		vec;
@@ -2026,7 +2006,6 @@ void CL_RailSprial (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	int32_t beamred, beamgreen, beamblue;
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2042,18 +2021,6 @@ void CL_RailSprial (vec3_t start, vec3_t end, qboolean isRed)
 
 	VectorScale(vec, cl_rail_space->value*cl_particle_scale->value, vec);
 
-	if (isRed) 
-	{
-		beamred = 255;
-		beamgreen = beamblue = 20;
-	}
-	else
-	{
-		ColorLookup(cl_railspiral_color->value,&beamred,&beamgreen,&beamblue);
-		beamred *= 0.75;
-		beamblue *=0.75;
-		beamgreen*=0.75;
-	}
 
 	for (i=0; i<len; i += cl_rail_space->value*cl_particle_scale->value)
 	{
@@ -2069,7 +2036,7 @@ void CL_RailSprial (vec3_t start, vec3_t end, qboolean isRed)
 			move[0] + dir[0]*3,	move[1] + dir[1]*3,	move[2] + dir[2]*3,
 			dir[0]*6,	dir[1]*6,	dir[2]*6,
 			0,		0,		0,
-			beamred,	beamgreen,	beamblue,
+			color[0],	color[1],	color[2],
 			0,	0,	0,
 			1,		-1.0,
 			GL_SRC_ALPHA, GL_ONE,
@@ -2087,7 +2054,7 @@ CL_RailParticleSpiral
 ===============
 */
 
-void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
+void CL_RailParticleSpiral (vec3_t start, vec3_t end, int32_t color[3])
 {
 	vec3_t		move;
 	vec3_t		vec;
@@ -2096,7 +2063,6 @@ void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	int32_t beamred, beamgreen, beamblue;
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2112,19 +2078,6 @@ void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
 
 	VectorScale(vec, 5.0* cl_rail_space->value*cl_particle_scale->value, vec);
 
-	if (isRed) 
-	{
-		beamred = 255;
-		beamgreen = beamblue = 20;
-	}
-	else
-	{
-		ColorLookup(cl_railspiral_color->value,&beamred,&beamgreen,&beamblue);
-		beamred *= 0.75;
-		beamblue *=0.75;
-		beamgreen*=0.75;
-	}
-	
 	for (i=0; i<len; i += 5.0 * cl_rail_space->value*cl_particle_scale->value)
 	{
 		d = i * 0.05;
@@ -2140,7 +2093,7 @@ void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
 			move[0] + dir[0]*3,	move[1] + dir[1]*3,	move[2] + dir[2]*3,
 			dir[0]*6,	dir[1]*6,	dir[2]*6,
 			0,		0,		0,
-			beamred,	beamgreen,	beamblue,
+			color[0],	color[1],	color[2],
 			0,	0,	0,
 			1.0,		-1.0,
 			GL_SRC_ALPHA, GL_ONE,
@@ -2158,14 +2111,13 @@ void CL_RailParticleSpiral (vec3_t start, vec3_t end, qboolean isRed)
 CL_RailCore
 ===============
 */
-void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
+void CL_RailCore (vec3_t start, vec3_t end, int32_t color[3])
 {
 	vec3_t		move, last;
 	vec3_t		vec, point;
 	//vec3_t	right, up;
 	int32_t			i;
 	int32_t j;
-	int32_t			beamred, beamgreen, beamblue;
 	float		len;//, dec;
 
 	// Draw from closest point
@@ -2183,19 +2135,6 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 	VectorScale (vec, RAILTRAILSPACE, vec);
 	//MakeNormalVectors (vec, right, up);
 
-	if (isRed) 
-	{
-		beamred = 255;
-		beamgreen = beamblue = 20;
-	}
-	else
-	{
-		ColorLookup(cl_railcore_color->value,&beamred,&beamgreen,&beamblue);
-		beamred *= 0.75;
-		beamblue *=0.75;
-		beamgreen *=0.75;
-
-	}
 	j = 0;
 	while (len > 0)
 	{
@@ -2210,7 +2149,7 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 				move[0],	move[1],	move[2],
 				0,	0,	0,
 				0,	0,	0,
-				beamred,	beamgreen,	beamblue,
+				color[0],	color[1],	color[2],
 				0,	0,	0,
 				1.0, -1.0,
 				GL_SRC_ALPHA, GL_ONE,
@@ -2225,7 +2164,7 @@ void CL_RailCore (vec3_t start, vec3_t end, qboolean isRed)
 				move[0],	move[1],	move[2],
 				0,	0,	0,
 				0,	0,	0,
-				beamred,	beamgreen,	beamblue,
+				color[0],	color[1],	color[2],
 				0,	0,	0,
 				1.0,		-1.0,
 				GL_SRC_ALPHA, GL_ONE,
@@ -2272,15 +2211,13 @@ void CL_ParticleDevRailThink (cparticle_t *p, vec3_t org, vec3_t angle, float *a
 CL_DevRailTrail
 ===============
 */
-void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
+void CL_DevRailTrail (vec3_t start, vec3_t end, int32_t color[3])
 {
 	vec3_t		move;
 	vec3_t		vec, point;
 	float		len;
 	int32_t			dec, i=0;
 	
-	int32_t beamred, beamgreen, beamblue;
-
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
 		VectorCopy (end, move);
@@ -2296,19 +2233,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 
 	dec = 4;
 	VectorScale (vec, dec, vec);
-	if (isRed) 
-	{
-		beamred = 255;
-		beamgreen = beamblue = 20;
-	}
-	else
-	{
-		ColorLookup(cl_railcore_color->value,&beamred,&beamgreen,&beamblue);
-		beamred *= 0.75;
-		beamblue *=0.75;
-		beamgreen*=0.75;
 
-	}
 	// FIXME: this is a really silly way to have a loop
 	while (len > 0)
 	{
@@ -2323,7 +2248,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 				move[0],	move[1],	move[2],
 				0,		0,		0,
 				0,		0,		0,
-				beamred,	beamgreen,	beamblue,
+				color[0],	color[1],	color[2],
 				0,		-90,	-30,
 				0.75,		-.75,
 				GL_SRC_ALPHA, GL_ONE,
@@ -2338,7 +2263,7 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 			move[0],	move[1],	move[2],
 			crand()*10,	crand()*10,	crand()*10+20,
 			0,		0,		0,
-			beamred,	beamgreen,	beamblue,
+			color[0],	color[1],	color[2],
 			0,	0,	0,
 			1,		-0.75 / (0.5 + frand()*0.3),
 			GL_SRC_ALPHA, GL_ONE,
@@ -2370,13 +2295,12 @@ void CL_DevRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 CL_ClassicRailTrail
 ===============
 */
-void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
+void CL_ClassicRailTrail (vec3_t start, vec3_t end)
 {
 	vec3_t		move;
 	vec3_t		vec, point;
 	float		len, dec;
 	int32_t			i=0;
-	int32_t			beamred, beamgreen, beamblue;
 
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
@@ -2400,6 +2324,8 @@ void CL_ClassicRailTrail (vec3_t start, vec3_t end, qboolean isRed)
 	while (len > 0)
 	{
 		uint32_t temp = (rand() & 15);
+		int32_t	beamred, beamgreen, beamblue;
+
 		beamred = color8red(temp);
 		beamgreen = color8green(temp);
 		beamblue = color8blue(temp);
@@ -2441,7 +2367,6 @@ void CL_ClassicRailSprial (vec3_t start, vec3_t end, qboolean isRed)
 	float			i;
 	float		d, c, s;
 	vec3_t		dir;
-	int32_t			beamred, beamgreen, beamblue;
 
 	// Draw from closest point
 	if (FartherPoint(start, end)) {
@@ -2461,6 +2386,8 @@ void CL_ClassicRailSprial (vec3_t start, vec3_t end, qboolean isRed)
 
 	for (i=0; i<len; i += cl_rail_space->value*cl_particle_scale->value)
 	{
+		int32_t	beamred, beamgreen, beamblue;
+
 		d = i * 0.1;
 		c = cos(d);
 		s = sin(d);
@@ -2470,9 +2397,11 @@ void CL_ClassicRailSprial (vec3_t start, vec3_t end, qboolean isRed)
 
 		if (isRed)
 		{
-			beamred = 255;
-			beamgreen = 20;
-			beamblue = 20;
+			uint32_t temp = 0x42 + (rand() & 7);
+			beamred = color8red(temp);
+			beamgreen = color8green(temp);
+			beamblue = color8blue(temp);
+
 		} else 
 		{
 			uint32_t temp = 0x74 + (rand() & 7);
@@ -2508,31 +2437,76 @@ void CL_RailTrail (vec3_t start, vec3_t end, qboolean isRed)
 {
 
 	vec3_t		vec;
+	int32_t		coreColor[3];
+	int32_t		spiralColor[3];
+	if (isRed) 
+	{
+
+		VectorSet(spiralColor,255,20,20);
+		VectorSet(coreColor,191,191,191);
+	}
+	else
+	{
+		ColorLookup(cl_railspiral_color->value,&spiralColor[0],&spiralColor[1],&spiralColor[2]);
+		spiralColor[0] *= 0.75;
+		spiralColor[1] *=0.75;
+		spiralColor[2] *=0.75;
+		ColorLookup(cl_railcore_color->value,&coreColor[0],&coreColor[1],&coreColor[2]);
+		coreColor[0] *= 0.75;
+		coreColor[1] *=0.75;
+		coreColor[2] *=0.75;
+	}
 
 	VectorSubtract (end, start, vec);
 	VectorNormalize(vec);
-	CL_ParticleRailDecal (end, vec, 7, isRed);
-
+	
 	switch((int32_t) cl_railtype->value)
 	{
 	default:
 	case 0:
-		CL_ClassicRailTrail (start,end,isRed);
-		CL_ClassicRailSprial (start, end, isRed);
+		{
+			int32_t	splashColor[3];
+			if (isRed)
+			{
+				uint32_t temp = 0x42 + (rand() & 7);
+				splashColor[0] = color8red(temp);
+				splashColor[1] = color8green(temp);
+				splashColor[2] = color8blue(temp);
+
+			} else 
+			{
+				uint32_t temp = 0x74 + (rand() & 7);
+				splashColor[0] = color8red(temp);
+				splashColor[1] = color8green(temp);
+				splashColor[2] = color8blue(temp);
+			}
+
+			CL_ParticleRailDecal (end, vec, 7, splashColor);
+			CL_ClassicRailTrail (start,end);
+			CL_ClassicRailSprial (start, end, isRed);
+		}
 		break;
 	case 1:
-		CL_RailCore(start,end,isRed);
-		CL_RailParticleSpiral (start, end, isRed);
+		CL_ParticleRailDecal (end, vec, 7, coreColor);
+		CL_RailCore(start,end,coreColor);
+		CL_RailParticleSpiral (start, end, spiralColor);
 		break;
 	case 2:
-		CL_RailCore(start,end,isRed);
-		CL_RailSprial (start, end, isRed);
+		CL_ParticleRailDecal (end, vec, 7, coreColor);
+		CL_RailCore(start,end,coreColor);
+		CL_RailSpiral (start, end, spiralColor);
 		break;
 	case 3:
-		CL_RailCore(start,end,isRed);
+		if (isRed)
+			VectorCopy(spiralColor,coreColor);
+		CL_ParticleRailDecal (end, vec, 7, coreColor);
+		CL_RailCore(start,end,coreColor);
 		break;
 	case 4:
-		CL_DevRailTrail (start, end, isRed);
+		if (isRed)
+			VectorCopy(spiralColor,coreColor);
+		CL_ParticleRailDecal (end, vec, 7, coreColor);
+		CL_DevRailTrail (start, end, coreColor);
 		break;
 
 	}
