@@ -1172,6 +1172,8 @@ edict_t *findradius2 (edict_t *from, vec3_t org, float rad);
 #define BLASTER_GREEN	2
 #define BLASTER_BLUE	3
 #define BLASTER_RED		4
+#define BLASTER_RANDOM  5
+
 void ThrowDebris (edict_t *self, char *modelname, float speed, vec3_t origin, int skin, int effects);
 qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick);
 void fire_bullet (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int mod);

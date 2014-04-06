@@ -1166,8 +1166,10 @@ void Weapon_Blaster_Fire (edict_t *ent, qboolean altfire)
 	// select color
 	color = blaster_color->value;
 	// blaster_color could be any other value, so clamp it
-	if (blaster_color->value < 2 || blaster_color->value > 4)
+	if (blaster_color->value < 2 || blaster_color->value > 5)
 		color = BLASTER_ORANGE; 
+	if (color == BLASTER_RANDOM)
+		color = rand()%4 + 1;
 	// CTF color override
 	if (ctf->value && ctf_blastercolors->value && ent->client)
 		color = 5-ent->client->resp.ctf_team;
@@ -1236,8 +1238,10 @@ void Weapon_HyperBlaster_Fire (edict_t *ent, qboolean altfire)
 			// Knightmare- select color
 			color = hyperblaster_color->value;
 			// hyperblaster_color could be any other value, so clamp this
-			if (hyperblaster_color->value < 2 || hyperblaster_color->value > 4)
+			if (hyperblaster_color->value < 2 || hyperblaster_color->value > 5)
 				color = BLASTER_ORANGE;
+			if (color == BLASTER_RANDOM)
+				color = rand()%4 + 1;
 			// CTF color override
 			if (ctf->value && ctf_blastercolors->value && ent->client)
 				color = 5-ent->client->resp.ctf_team;
