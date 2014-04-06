@@ -179,17 +179,11 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	else
 		ActiveApp = false;
 
-	// minimize/restore mouse-capture on demand
-	if (!ActiveApp)
-	{
-		IN_Activate (false);
-		S_Activate (false);
-	}
-	else
-	{
-		IN_Activate (true);
-		S_Activate (true);
-	}
+	SDL_SetWindowGrab(mainWindow,ActiveApp);
+	SDL_ShowCursor(!ActiveApp);
+
+	IN_Activate (ActiveApp);
+	S_Activate (ActiveApp);
 }
 
 

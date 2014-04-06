@@ -737,7 +737,7 @@ S_StopAllSounds(void)
 	{
 		return;
 	}
-
+	OGG_Stop();
 	/* clear all the playsounds */
 	memset(s_playsounds, 0, sizeof(s_playsounds));
 	s_freeplays.next = s_freeplays.prev = &s_freeplays;

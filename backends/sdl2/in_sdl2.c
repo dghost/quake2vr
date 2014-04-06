@@ -106,9 +106,9 @@ void IN_ActivateMouse (void)
 		newmouseparms[2]=1;
 		*/
 	SDL_GetWindowSize(mainWindow,&width,&height);
-	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
+//	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 
-	SDL_ShowCursor(0);
+//	SDL_ShowCursor(0);
 	window_center_x = width/2;
 	window_center_y = height/2;
 	old_mouse_x = 0;
@@ -134,8 +134,8 @@ void IN_DeactivateMouse (void)
 
 	mouseactive = false;
 
-	SDL_ShowCursor(1);
-	SDL_SetWindowGrab(mainWindow,SDL_FALSE);
+//	SDL_ShowCursor(1);
+//	SDL_SetWindowGrab(mainWindow,SDL_FALSE);
 }
 
 
@@ -244,7 +244,7 @@ IN_MouseMove
 void IN_MouseMove (usercmd_t *cmd)
 {
 	int32_t		mx, my;
-
+	
 	if (!autosensitivity)
 		autosensitivity = Cvar_Get ("autosensitivity", "1", CVAR_ARCHIVE);
 
@@ -253,13 +253,12 @@ void IN_MouseMove (usercmd_t *cmd)
 
 	// find mouse movement
 	SDL_GetMouseState(&mx,&my);
+	// force the mouse to the center, so there's room to move
+	SDL_WarpMouseInWindow (mainWindow, window_center_x, window_center_y);
+
+
 	mx -= window_center_x;
 	my -= window_center_y;
-
-#if 0
-	if (!mx && !my)
-		return;
-#endif
 
 	if (m_filter->value)
 	{
@@ -294,6 +293,7 @@ void IN_MouseMove (usercmd_t *cmd)
 	}
 	else
 	{
+
 		cursor.oldx = 0;
 		cursor.oldy = 0;
 
@@ -308,6 +308,8 @@ void IN_MouseMove (usercmd_t *cmd)
 			mouse_x *= sensitivity->value;
 			mouse_y *= sensitivity->value;
 		}
+
+//		Com_Printf("(%i,%i) (%i,%i)\n",mx,my,mouse_x,mouse_y);
 
 		// add mouse X/Y movement to cmd
 		if ( (in_strafe.state & 1) || (lookstrafe->value && mlooking ))
@@ -325,9 +327,6 @@ void IN_MouseMove (usercmd_t *cmd)
 		}
 	}
 
-	// force the mouse to the center, so there's room to move
-	if (mx || my)
-		SDL_WarpMouseInWindow (mainWindow, window_center_x, window_center_y);
 }
 
 
@@ -359,7 +358,7 @@ void IN_Init (void)
 	in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
 
 	// joystick variables
-	in_controller			= Cvar_Get ("in_controller",			"0",		CVAR_ARCHIVE);
+	in_controller			= Cvar_Get ("in_controller",			"1",		CVAR_ARCHIVE);
 
 	// centering
 	v_centermove			= Cvar_Get ("v_centermove",				"0.15",		0);
@@ -397,7 +396,6 @@ between a deactivate and an activate.
 void IN_Activate (qboolean active)
 {
 
-	SDL_SetWindowGrab(mainWindow,active);
 	in_appactive = active;
 	mouseactive = !active;		// force a new window check or turn off
 	if (!active)
@@ -450,7 +448,7 @@ void IN_Move (usercmd_t *cmd)
 	if (!ActiveApp)
 		return;
 
-
+	Sys_SendKeyEvents();
 	IN_MouseMove (cmd);
 
 	// Knightmare- added Psychospaz's mouse support
