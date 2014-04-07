@@ -219,37 +219,6 @@ void CL_Explosion_Decal (vec3_t org, float size, int32_t decalnum)
 	}
 }
 
-
-/*
-===============
-CL_ExplosionThink
-===============
-*/
-void CL_ExplosionThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
-{
-	if (*alpha>.85)
-		*image = particle_rexplosion1;
-	else if (*alpha>.7)
-		*image = particle_rexplosion2;
-	else if (*alpha>.5)
-		*image = particle_rexplosion3;
-	else if (*alpha>.4)
-		*image = particle_rexplosion4;
-	else if (*alpha>.25)
-		*image = particle_rexplosion5;
-	else if (*alpha>.1)
-		*image = particle_rexplosion6;
-	else 
-		*image = particle_rexplosion7;
-
-	*alpha *= 3.0;
-
-	if (*alpha > 1.0)
-		*alpha = 1;
-
-	p->thinknext = true;
-}
-
 /*
 ===============
 CL_ExplosionBubbleThink
@@ -266,90 +235,6 @@ void CL_ExplosionBubbleThink (cparticle_t *p, vec3_t org, vec3_t angle, float *a
 		p->alpha = 0;
 	}
 }
-
-/*
-===============
-CL_Explosion_Particle
-
-Explosion effect
-===============
-*/
-void CL_Explosion_Particle (vec3_t org, float size, qboolean rocket)
-{
-	cparticle_t *p;
-
-	p = CL_SetupParticle (
-		0,		0,		0,
-		org[0],	org[1],	org[2],
-		0,		0,		0,
-		0,		0,		0,
-		255,	255,	255,
-		0,		0,		0,
-		1,		(rocket)? -2 : -1.5,
-		GL_SRC_ALPHA, GL_ONE,
-		//GL_ONE, GL_ONE,
-		(size!=0)?size:(150-(!rocket)?75:0),	0,			
-		particle_rexplosion1,
-		PART_DEPTHHACK_SHORT,
-		CL_ExplosionThink, true);
-	
-	if (p)
-	{	// smooth color blend :D
-	/*	CL_AddParticleLight (p, 225, 0, 1, 0, 0);
-		CL_AddParticleLight (p, 250, 0, 1, 0.3, 0);
-		CL_AddParticleLight (p, 275, 0, 1, 0.6, 0);
-		CL_AddParticleLight (p, 300, 0, 1, 1, 0);*/
-		// use just one, 4 lights kills the framerate
-		CL_AddParticleLight (p, 300, 0, 1, 0.514, 0);
-	}
-}
-
-/*
-===============
-CL_Explosion_FlashParticle
-
-Explosion fash
-===============
-*/
-void CL_Explosion_FlashParticle (vec3_t org, float size, qboolean large)
-{
-	if (large)
-	{
-		CL_SetupParticle (
-			0,		0,		0,
-			org[0],	org[1],	org[2],
-			0,		0,		0,
-			0,		0,		0,
-			255,	175,	100,
-			0,		0,		0,
-			1,		-1.75,
-			GL_SRC_ALPHA, GL_ONE,
-			//GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-			(size!=0)?size:50,	-10,			
-			//100-(!rocket)?50:0,	-10,			
-			particle_rflash,
-			PART_DEPTHHACK_SHORT,
-			NULL,0);
-	}
-	else
-	{
-		CL_SetupParticle (
-			0,		0,		0,
-			org[0],	org[1],	org[2],
-			0,		0,		0,
-			0,		0,		0,
-			255,	175,	100,
-			0,		0,		0,
-			1,		-1.75,
-			GL_SRC_ALPHA, GL_ONE,
-			(size!=0)?size:50,	-10,	
-			//100-(!rocket)?50:0,	-10,			
-			particle_blaster,
-			0,
-			NULL,0);
-	}
-}
-
 
 /*
 ===============
@@ -1433,6 +1318,7 @@ void CL_BlasterParticles (vec3_t org, vec3_t dir, int32_t count, float size,
 	}
 	if (p) // added light effect
 		CL_AddParticleLight (p, 150, 0, ((float)red)/255, ((float)green)/255, ((float)blue)/255);
+	
 }
 
 

@@ -72,7 +72,6 @@ cvar_t	*cg_thirdperson_alpha;
 cvar_t	*cg_thirdperson_adjust;
 
 cvar_t	*cl_blood;
-cvar_t	*cl_old_explosions;	// Option for old explosions
 cvar_t	*cl_plasma_explo_sound;	// Option for unique plasma explosion sound
 cvar_t	*cl_item_bobbing;	// Option for bobbing items
 
@@ -1408,8 +1407,6 @@ void CL_InitLocal (void)
 
 	cl_blood = Cvar_Get ("cl_blood", "2", CVAR_ARCHIVE);
 
-	// Option for old explosions
-	cl_old_explosions = Cvar_Get ("cl_old_explosions", "1", CVAR_ARCHIVE);
 	// Option for unique plasma explosion sound
 	cl_plasma_explo_sound = Cvar_Get ("cl_plasma_explo_sound", "0", CVAR_ARCHIVE);
 	cl_item_bobbing = Cvar_Get ("cl_item_bobbing", "0", CVAR_ARCHIVE);

@@ -78,8 +78,6 @@ extern void CL_TeleportParticles (vec3_t org);
 //PGM
 
 // Psychospaz's enhanced particle code
-void CL_Explosion_Particle (vec3_t org, float scale, qboolean rocket);
-void CL_Explosion_FlashParticle (vec3_t org, float size, qboolean large);
 void CL_BloodHit (vec3_t org, vec3_t dir);
 void CL_GreenBloodHit (vec3_t org, vec3_t dir);
 void CL_ParticleEffectSparks (vec3_t org, vec3_t dir, vec3_t color, int32_t count);
@@ -300,31 +298,6 @@ explosion_t *CL_AllocExplosion (void)
 		}
 	memset (&cl_explosions[index], 0, sizeof (cl_explosions[index]));
 	return &cl_explosions[index];
-}
-
-
-void CL_Explosion_Flash (vec3_t origin, int32_t dist, int32_t size, qboolean plasma)
-{
-	int32_t i,j,k;
-	int32_t limit = (plasma)?1:2;
-	vec3_t org;
-
-	if (cl_particle_scale->value > 1 || plasma)
-	{
-		for (i=0; i<limit; i++)
-			CL_Explosion_FlashParticle(origin, size+2*dist, true);
-		return;
-	}
-
-	for (i=-1; i<2; i+=2)
-		for (j=-1; j<2; j+=2)
-			for (k=-1; k<2; k+=2)
-			{
-				org[0]=origin[0]+i*dist;
-				org[1]=origin[1]+j*dist;
-				org[2]=origin[2]+k*dist;
-				CL_Explosion_FlashParticle(org, size, false);
-			}
 }
 
 /*
@@ -890,27 +863,19 @@ void CL_ParseTEnt (void)
 	case TE_GRENADE_EXPLOSION:
 	case TE_GRENADE_EXPLOSION_WATER:
 		MSG_ReadPos (&net_message, pos);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->type = ex_poly;
-			ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 350;
-			ex->lightcolor[0] = 1.0;
-			ex->lightcolor[1] = 0.5;
-			ex->lightcolor[2] = 0.5;
-			ex->ent.model = clMedia.mod_explo;
-			ex->frames = 19;
-			ex->baseframe = 30;
-			ex->ent.angles[1] = rand() % 360;
-		}
-		else {
-			CL_Explosion_Particle (pos, 0, false);
-			if (type!=TE_GRENADE_EXPLOSION_WATER)
-				CL_Explosion_Flash (pos, 10, 50, false);
-		}
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->type = ex_poly;
+		ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 350;
+		ex->lightcolor[0] = 1.0;
+		ex->lightcolor[1] = 0.5;
+		ex->lightcolor[2] = 0.5;
+		ex->ent.model = clMedia.mod_explo;
+		ex->frames = 19;
+		ex->baseframe = 30;
+		ex->ent.angles[1] = rand() % 360;
 		CL_Explosion_Sparks (pos, 16, 128);
 		if (type != TE_EXPLOSION2)
 			CL_Explosion_Decal (pos, 50, particle_burnmark);
@@ -920,30 +885,23 @@ void CL_ParseTEnt (void)
 			S_StartSound (pos, 0, 0, clMedia.sfx_grenexp, 1, ATTN_NORM, 0);
 		break;
 
-	// RAFAEL
+		// RAFAEL
 	case TE_PLASMA_EXPLOSION:
 		MSG_ReadPos (&net_message, pos);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->type = ex_poly;
-			ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 350;
-			ex->lightcolor[0] = 1.0; 
-			ex->lightcolor[1] = 0.5;
-			ex->lightcolor[2] = 0.5;
-			ex->ent.angles[1] = rand() % 360;
-			ex->ent.model = clMedia.mod_explo;
-			if (frand() < 0.5)
-				ex->baseframe = 15;
-			ex->frames = 15;
-		}
-		else {
-			CL_Explosion_Particle (pos, 0, true);
-			CL_Explosion_Flash (pos, 10, 50, true);
-		}
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->type = ex_poly;
+		ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 350;
+		ex->lightcolor[0] = 1.0; 
+		ex->lightcolor[1] = 0.5;
+		ex->lightcolor[2] = 0.5;
+		ex->ent.angles[1] = rand() % 360;
+		ex->ent.model = clMedia.mod_explo;
+		if (frand() < 0.5)
+			ex->baseframe = 15;
+		ex->frames = 15;
 		CL_Explosion_Sparks (pos, 16, 128);
 		CL_Explosion_Decal (pos, 50, particle_burnmark);
 		if (cl_plasma_explo_sound->value)
@@ -954,54 +912,40 @@ void CL_ParseTEnt (void)
 
 	case TE_EXPLOSION1_BIG:						// PMM
 		MSG_ReadPos (&net_message, pos);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->type = ex_poly;
-			ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 350;
-			ex->lightcolor[0] = 1.0;
-			ex->lightcolor[1] = 0.5;
-			ex->lightcolor[2] = 0.5;
-			ex->ent.angles[1] = rand() % 360;
-			ex->ent.model = clMedia.mod_explo_big;
-			if (frand() < 0.5)
-				ex->baseframe = 15;
-			ex->frames = 15;
-		}
-		else {
-			CL_Explosion_Particle (pos, 150, true); // increased size
-			CL_Explosion_Flash (pos, 30, 150, false);
-		}
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->type = ex_poly;
+		ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 350;
+		ex->lightcolor[0] = 1.0;
+		ex->lightcolor[1] = 0.5;
+		ex->lightcolor[2] = 0.5;
+		ex->ent.angles[1] = rand() % 360;
+		ex->ent.model = clMedia.mod_explo_big;
+		if (frand() < 0.5)
+			ex->baseframe = 15;
+		ex->frames = 15;
 		CL_Explosion_Sparks (pos, 48, 128);
 		S_StartSound (pos, 0, 0, clMedia.sfx_rockexp, 1, ATTN_NORM, 0);
 		break;
 
 	case TE_EXPLOSION1_NP:						// PMM
 		MSG_ReadPos (&net_message, pos);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->type = ex_poly;
-			ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 350;
-			ex->lightcolor[0] = 1.0;
-			ex->lightcolor[1] = 0.5;
-			ex->lightcolor[2] = 0.5;
-			ex->ent.angles[1] = rand() % 360;
-			ex->ent.model = clMedia.mod_explo;
-			if (frand() < 0.5)
-				ex->baseframe = 15;
-			ex->frames = 15;
-		}
-		else {
-			CL_Explosion_Particle (pos, 50, true);
-			CL_Explosion_Flash (pos, 7, 32, false);
-		}
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->type = ex_poly;
+		ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 350;
+		ex->lightcolor[0] = 1.0;
+		ex->lightcolor[1] = 0.5;
+		ex->lightcolor[2] = 0.5;
+		ex->ent.angles[1] = rand() % 360;
+		ex->ent.model = clMedia.mod_explo;
+		if (frand() < 0.5)
+			ex->baseframe = 15;
+		ex->frames = 15;
 		CL_Explosion_Sparks (pos, 10, 128);
 		S_StartSound (pos, 0, 0, clMedia.sfx_grenexp, 1, ATTN_NORM, 0);
 		break;
@@ -1011,27 +955,20 @@ void CL_ParseTEnt (void)
 	case TE_ROCKET_EXPLOSION:
 	case TE_ROCKET_EXPLOSION_WATER:
 		MSG_ReadPos (&net_message, pos);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->type = ex_poly;
-			ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 350;
-			ex->lightcolor[0] = 1.0;
-			ex->lightcolor[1] = 0.5;
-			ex->lightcolor[2] = 0.5;
-			ex->ent.angles[1] = rand() % 360;
-			ex->ent.model = clMedia.mod_explo;
-			if (frand() < 0.5)
-				ex->baseframe = 15;
-			ex->frames = 15;
-		}
-		else {
-			CL_Explosion_Particle (pos, 0, true);
-			CL_Explosion_Flash (pos, 10, 50, false);
-		}
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->type = ex_poly;
+		ex->ent.flags = RF_FULLBRIGHT|RF_NOSHADOW; // noshadow flag
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 350;
+		ex->lightcolor[0] = 1.0;
+		ex->lightcolor[1] = 0.5;
+		ex->lightcolor[2] = 0.5;
+		ex->ent.angles[1] = rand() % 360;
+		ex->ent.model = clMedia.mod_explo;
+		if (frand() < 0.5)
+			ex->baseframe = 15;
+		ex->frames = 15;
 		CL_Explosion_Sparks (pos, 16, 128);
 		if (type == TE_ROCKET_EXPLOSION || type == TE_ROCKET_EXPLOSION_WATER)
 			CL_Explosion_Decal (pos, 50, particle_burnmark);
@@ -1141,69 +1078,67 @@ void CL_ParseTEnt (void)
 	case TE_FLECHETTE:			// flechette hitting wall
 		MSG_ReadPos (&net_message, pos);
 		MSG_ReadDir (&net_message, dir);
-		if (cl_old_explosions->value)
-		{
-			ex = CL_AllocExplosion ();
-			VectorCopy (pos, ex->ent.origin);
-			ex->ent.angles[0] = acos(dir[2])/M_PI*180;
-			if (dir[0]) // PMM - fixed to correct for pitch of 0
-				ex->ent.angles[1] = atan2(dir[1], dir[0])/M_PI*180;
-			else if (dir[1] > 0)
-				ex->ent.angles[1] = 90;
-			else if (dir[1] < 0)
-				ex->ent.angles[1] = 270;
-			else
-				ex->ent.angles[1] = 0;
+		ex = CL_AllocExplosion ();
+		VectorCopy (pos, ex->ent.origin);
+		ex->ent.angles[0] = acos(dir[2])/M_PI*180;
+		if (dir[0]) // PMM - fixed to correct for pitch of 0
+			ex->ent.angles[1] = atan2(dir[1], dir[0])/M_PI*180;
+		else if (dir[1] > 0)
+			ex->ent.angles[1] = 90;
+		else if (dir[1] < 0)
+			ex->ent.angles[1] = 270;
+		else
+			ex->ent.angles[1] = 0;
 
-			ex->type = ex_misc;
-			ex->ent.flags |= RF_FULLBRIGHT|RF_TRANSLUCENT|RF_NOSHADOW; // no shadow on these
+		ex->type = ex_misc;
+		ex->ent.flags |= RF_FULLBRIGHT|RF_TRANSLUCENT|RF_NOSHADOW; // no shadow on these
 
-			if (type == TE_BLASTER2)
-				ex->ent.skinnum = 1;
-			else if (type == TE_REDBLASTER)
-				ex->ent.skinnum = 3;
-			else if (type == TE_FLECHETTE || type == TE_BLUEHYPERBLASTER)
-				ex->ent.skinnum = 2;
-			else // TE_BLASTER
-				ex->ent.skinnum = 0;
+		if (type == TE_BLASTER2)
+			ex->ent.skinnum = 1;
+		else if (type == TE_REDBLASTER)
+			ex->ent.skinnum = 3;
+		else if (type == TE_FLECHETTE || type == TE_BLUEHYPERBLASTER)
+			ex->ent.skinnum = 2;
+		else // TE_BLASTER
+			ex->ent.skinnum = 0;
 
-			ex->start = cl.frame.servertime - 100;
-			ex->light = 150;
+		ex->start = cl.frame.servertime - 100;
+		ex->light = 150;
 
-			if (type == TE_BLASTER2) {
-				ex->lightcolor[0] = 0.15;
-				ex->lightcolor[1] = 1;
-				ex->lightcolor[2] = 0.15;
-			}
-			else if (type == TE_BLUEHYPERBLASTER) {
-				ex->lightcolor[0] = 0.19;
-				ex->lightcolor[1] = 0.41;
-				ex->lightcolor[2] = 0.75;
-			}
-			else if (type == TE_REDBLASTER) {
-				ex->lightcolor[0] = 0.75;
-				ex->lightcolor[1] = 0.41;
-				ex->lightcolor[2] = 0.19;
-			}
-			else if (type == TE_FLECHETTE) {
-				ex->lightcolor[0] = 0.39;
-				ex->lightcolor[1] = 0.61;
-				ex->lightcolor[2] = 0.75;
-			}
-			else { // TE_BLASTER	
-				ex->lightcolor[0] = 1;
-				ex->lightcolor[1] = 1;
-				ex->lightcolor[2] = 0;
-			}
-
-			ex->ent.model = clMedia.mod_explode;
-			ex->frames = 4;
+		if (type == TE_BLASTER2) {
+			ex->lightcolor[0] = 0.15;
+			ex->lightcolor[1] = 1;
+			ex->lightcolor[2] = 0.15;
 		}
+		else if (type == TE_BLUEHYPERBLASTER) {
+			ex->lightcolor[0] = 0.19;
+			ex->lightcolor[1] = 0.41;
+			ex->lightcolor[2] = 0.75;
+		}
+		else if (type == TE_REDBLASTER) {
+			ex->lightcolor[0] = 0.75;
+			ex->lightcolor[1] = 0.41;
+			ex->lightcolor[2] = 0.19;
+		}
+		else if (type == TE_FLECHETTE) {
+			ex->lightcolor[0] = 0.39;
+			ex->lightcolor[1] = 0.61;
+			ex->lightcolor[2] = 0.75;
+		}
+		else { // TE_BLASTER	
+			ex->lightcolor[0] = 1;
+			ex->lightcolor[1] = 1;
+			ex->lightcolor[2] = 0;
+		}
+
+		ex->ent.model = clMedia.mod_explode;
+		ex->frames = 4;
+		
 		// Psychospaz's enhanced particle code	
 		{
 			int32_t		red, green, blue, numparts;
-			float	partsize = (cl_old_explosions->value) ? 2 : 4;
-			numparts = (cl_old_explosions->value) ? 12 : (32 / max(cl_particle_scale->value/2, 1));
+			float	partsize = 4;
+			numparts = (32 / max(cl_particle_scale->value/2, 1));
 			if (type == TE_BLASTER2) {
 				CL_BlasterParticles (pos, dir, numparts, partsize, 50, 235, 50, -10, 0, -10);
 				red=50; green=235; blue=50; }

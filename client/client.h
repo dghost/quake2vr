@@ -317,7 +317,6 @@ extern	cvar_t	*cg_thirdperson_alpha;
 extern	cvar_t	*cg_thirdperson_adjust;
 
 extern	cvar_t	*cl_blood;
-extern	cvar_t	*cl_old_explosions;	// Option for old explosions
 extern	cvar_t	*cl_plasma_explo_sound;	// Option for unique plasma explosion sound
 extern	cvar_t	*cl_item_bobbing;	// Option for bobbing items
 

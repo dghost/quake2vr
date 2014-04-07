@@ -38,7 +38,6 @@ EFFECTS MENU
 static menuframework_s	s_options_effects_menu;
 static menuseparator_s	s_options_effects_header;
 static menulist_s		s_options_effects_blood_box;
-static menulist_s		s_options_effects_oldexplosions_box;
 static menulist_s		s_options_effects_plasmaexplosound_box;
 static menulist_s		s_options_effects_itembob_box;
 static menuslider_s		s_options_effects_decal_slider;
@@ -54,11 +53,6 @@ static menuaction_s		s_options_effects_back_action;
 static void BloodFunc( void *unused )
 {
 	Cvar_SetValue( "cl_blood", s_options_effects_blood_box.curvalue );
-}
-
-static void OldExplosionFunc( void *unused )
-{
-	Cvar_SetValue( "cl_old_explosions", s_options_effects_oldexplosions_box.curvalue );
 }
 
 static void PlasmaExploSoundFunc( void *unused )
@@ -107,9 +101,6 @@ static void EffectsSetMenuItemValues( void )
 	Cvar_SetValue( "cl_blood", ClampCvar( 0, 4, Cvar_VariableValue("cl_blood") ) );
 	s_options_effects_blood_box.curvalue			= Cvar_VariableValue("cl_blood");
 
-	Cvar_SetValue( "cl_old_explosions", ClampCvar( 0, 1, Cvar_VariableValue("cl_old_explosions") ) );
-	s_options_effects_oldexplosions_box.curvalue = Cvar_VariableValue("cl_old_explosions");
-
 	Cvar_SetValue( "cl_plasma_explo_sound", ClampCvar( 0, 1, Cvar_VariableValue("cl_plasma_explo_sound") ) );
 	s_options_effects_plasmaexplosound_box.curvalue = Cvar_VariableValue("cl_plasma_explo_sound");
 
@@ -139,7 +130,6 @@ static void EffectsSetMenuItemValues( void )
 static void EffectsResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("cl_blood");
-	Cvar_SetToDefault ("cl_old_explosions");
 	Cvar_SetToDefault ("cl_plasma_explo_sound");
 	Cvar_SetToDefault ("cl_item_bobbing");
 	Cvar_SetToDefault ("r_decals");
@@ -211,14 +201,6 @@ void Options_Effects_MenuInit ( void )
 	s_options_effects_blood_box.generic.callback	= BloodFunc;
 	s_options_effects_blood_box.itemnames			= blood_names;
 	s_options_effects_blood_box.generic.statusbar	= "changes blood effect type";
-
-	s_options_effects_oldexplosions_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_effects_oldexplosions_box.generic.x			= 0;
-	s_options_effects_oldexplosions_box.generic.y			= y += 2*MENU_LINE_SIZE;
-	s_options_effects_oldexplosions_box.generic.name		= "old style explosions";
-	s_options_effects_oldexplosions_box.generic.callback	= OldExplosionFunc;
-	s_options_effects_oldexplosions_box.itemnames			= yesno_names;
-	s_options_effects_oldexplosions_box.generic.statusbar	= "brings back those cheesy model explosions";
 
 	s_options_effects_plasmaexplosound_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_effects_plasmaexplosound_box.generic.x			= 0;
@@ -304,7 +286,6 @@ void Options_Effects_MenuInit ( void )
 
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_header );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_blood_box );
-	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_oldexplosions_box );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_plasmaexplosound_box );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_itembob_box );
 	Menu_AddItem( &s_options_effects_menu, ( void * ) &s_options_effects_decal_slider );
