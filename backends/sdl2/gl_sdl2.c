@@ -246,8 +246,8 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
-	SDL_ShowCursor(0);
 
+	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Using":"Not using");
 	VID_NewWindow (width, height);
 	*pwidth = width;
 	*pheight = height;

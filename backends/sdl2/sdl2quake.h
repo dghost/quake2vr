@@ -35,7 +35,7 @@ extern SDL_Window *mainWindow;
 extern uint32_t mainWindowID;
 extern SDL_SysWMinfo mainWindowInfo;
 
-extern qboolean		ActiveApp, Minimized;
+extern SDL_bool		ActiveApp, Minimized, RelativeMouse;
 
 void IN_Activate (qboolean active);
 void IN_MouseEvent (int32_t mstate);

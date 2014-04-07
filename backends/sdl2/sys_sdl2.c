@@ -39,8 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
 int32_t			starttime;
-qboolean			ActiveApp;
-qboolean	Minimized;
+SDL_bool	ActiveApp;
+SDL_bool	Minimized;
+SDL_bool	RelativeMouse;
 
 static HANDLE		hinput, houtput;
 

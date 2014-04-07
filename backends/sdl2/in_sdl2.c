@@ -35,6 +35,7 @@ enum _ControllerType
 
 cvar_t	*m_noaccel; //sul
 cvar_t	*in_mouse;
+cvar_t	*in_relativemouse;
 cvar_t	*in_controller;
 cvar_t	*autosensitivity;
 
@@ -113,7 +114,8 @@ void IN_ActivateMouse (void)
 	window_center_y = height/2;
 	old_mouse_x = 0;
 	old_mouse_y = 0;
-	SDL_WarpMouseInWindow(mainWindow,window_center_x, window_center_y);
+	if (!RelativeMouse)
+		SDL_WarpMouseInWindow(mainWindow,window_center_x, window_center_y);
 }
 
 
@@ -162,11 +164,16 @@ void IN_StartupMouse (void)
 	cursor.mouseaction = false;
 
 	mouseinitialized = true;
-	//MW_Set_Hook(); 	// Logitech mouse support
 	mouse_buttons = 5; // was 3
 
-
-
+	if (in_relativemouse->value)
+	{
+		Com_Printf("Enabling suppport for relative mouse movements: ");
+		RelativeMouse = (SDL_bool) !SDL_SetRelativeMouseMode(SDL_TRUE);
+		Com_Printf("%s!\n",RelativeMouse ? "ok" : "failed");
+	} else {
+		RelativeMouse = SDL_FALSE;
+	}
 }
 
 /*
@@ -250,15 +257,20 @@ void IN_MouseMove (usercmd_t *cmd)
 
 	if (!mouseactive)
 		return;
-
+	if (!RelativeMouse)
+	{
 	// find mouse movement
 	SDL_GetMouseState(&mx,&my);
 	// force the mouse to the center, so there's room to move
 	SDL_WarpMouseInWindow (mainWindow, window_center_x, window_center_y);
 
-
 	mx -= window_center_x;
 	my -= window_center_y;
+	}
+	else
+	{
+		SDL_GetRelativeMouseState(&mx,&my);
+	}
 
 	if (m_filter->value)
 	{
@@ -356,7 +368,7 @@ void IN_Init (void)
 	m_noaccel				= Cvar_Get ("m_noaccel",				"0",		CVAR_ARCHIVE); //sul  enables mouse acceleration XP fix?
 	m_filter				= Cvar_Get ("m_filter",					"0",		0);
 	in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
-
+	in_relativemouse		= Cvar_Get ("in_relativemouse",			"1",		CVAR_ARCHIVE);
 	// joystick variables
 	in_controller			= Cvar_Get ("in_controller",			"1",		CVAR_ARCHIVE);
 
@@ -450,6 +462,7 @@ void IN_Move (usercmd_t *cmd)
 
 	Sys_SendKeyEvents();
 	IN_MouseMove (cmd);
+	Sys_SendKeyEvents();
 
 	// Knightmare- added Psychospaz's mouse support
 	if (cls.key_dest == key_menu && !cls.consoleActive) // Knightmare added

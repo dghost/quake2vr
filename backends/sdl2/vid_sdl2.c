@@ -169,21 +169,25 @@ int32_t MapSDLKey (SDL_Keysym key)
 
 void AppActivate(BOOL fActive, BOOL minimize)
 {
-	Minimized = minimize;
+	Minimized = (SDL_bool) !!minimize;
 
 	Key_ClearStates();
 
 	// we don't want to act like we're active if we're minimized
 	if (fActive && !Minimized)
-		ActiveApp = true;
+		ActiveApp = SDL_TRUE;
 	else
-		ActiveApp = false;
+		ActiveApp = SDL_FALSE;
 
-	SDL_SetWindowGrab(mainWindow,ActiveApp);
-	SDL_ShowCursor(!ActiveApp);
-
-	IN_Activate (ActiveApp);
-	S_Activate (ActiveApp);
+	if (!RelativeMouse)
+	{
+		SDL_SetWindowGrab(mainWindow,ActiveApp);
+		SDL_ShowCursor(!ActiveApp);
+	} else {
+		SDL_SetRelativeMouseMode(ActiveApp);
+	}
+	IN_Activate ((qboolean) !!ActiveApp);
+	S_Activate ((qboolean) !!ActiveApp);
 }
 
 
