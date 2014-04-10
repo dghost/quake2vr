@@ -460,9 +460,8 @@ void IN_Move (usercmd_t *cmd)
 	if (!ActiveApp)
 		return;
 
-	Sys_SendKeyEvents();
 	IN_MouseMove (cmd);
-	Sys_SendKeyEvents();
+//	Sys_SendKeyEvents();
 
 	// Knightmare- added Psychospaz's mouse support
 	if (cls.key_dest == key_menu && !cls.consoleActive) // Knightmare added

@@ -1740,6 +1740,8 @@ void CL_Frame (int32_t msec)
 	else 
 		averageFrameTime = 0.0f;
 
+	Sys_SendKeyEvents();
+
 	// let the mouse activate or deactivate
 	IN_Frame ();
 
