@@ -539,7 +539,7 @@ AL_Update(void)
 	channel_t *ch;
 	vec_t orientation[6];
 
-	paintedtime = cl.time;
+	paintedtime = cls.realtime;
 
 	/* set listener (player) parameters */
 	AL_CopyVector(listener_forward, orientation);
