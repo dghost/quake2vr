@@ -68,7 +68,7 @@ qboolean R_CompileShader(GLuint shader, const char *source)
 	{
 		GLint length;
 		char *info;
-		
+
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 		info = (char *) malloc(sizeof(char) * length+1);
 		glGetShaderInfoLog(shader, length, NULL, info);
@@ -130,7 +130,7 @@ qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader)
 
 		Com_sprintf (buffer, sizeof(buffer), "%s/%s", SHADER_DIR, shader->frag_source);
 		fragBuffer = R_LoadShader(buffer);
-		
+
 		if (fragBuffer)
 		{
 			success = success && R_CompileShader(frag_shader, (const char *) fragBuffer);
@@ -306,39 +306,44 @@ qboolean R_InitShaders(void)
 		success = false;
 	}
 
-	if (R_CompileShaderFromFiles(&blurX_object))
+	if (glConfig.shader_version_major > 1 || (glConfig.shader_version_major == 1 && glConfig.shader_version_minor >= 2))
 	{
-		GLint texloc;
-		blurXshader.shader = &blurX_object;
-		glUseProgram(blurXshader.shader->program);
-		texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
-		glUniform1i(texloc,0);
-		blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
-		blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
-		glUseProgram(0);
 
-		success = success && true;
-	}
-	else {
-		success = false;
+		if (R_CompileShaderFromFiles(&blurX_object))
+		{
+			GLint texloc;
+			blurXshader.shader = &blurX_object;
+			glUseProgram(blurXshader.shader->program);
+			texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
+			glUniform1i(texloc,0);
+			blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
+			blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
+			glUseProgram(0);
+
+			success = success && true;
+		}
+		else {
+			success = false;
+		}
+
+		if (R_CompileShaderFromFiles(&blurY_object))
+		{
+			GLint texloc;
+			blurYshader.shader = &blurY_object;
+			glUseProgram(blurYshader.shader->program);
+			texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
+			glUniform1i(texloc,0);
+			blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
+			blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
+			glUseProgram(0);
+			success = success && true;
+		}
+		else {
+			success = false;
+		}
+
 	}
 
-	if (R_CompileShaderFromFiles(&blurY_object))
-	{
-		GLint texloc;
-		blurYshader.shader = &blurY_object;
-		glUseProgram(blurYshader.shader->program);
-		texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
-		glUniform1i(texloc,0);
-		blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
-		blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
-		glUseProgram(0);
-		success = success && true;
-	}
-	else {
-		success = false;
-	}
-	
 	if (success)
 	{
 		Com_Printf("success!\n");

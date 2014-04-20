@@ -140,8 +140,9 @@ void R_BlurInit()
 	{
 		firstInit = true;
 	}
-
-	if (glConfig.shader_version_major > 1 || (glConfig.shader_version_major == 1 && glConfig.shader_version_minor >= 2))
+	if (glConfig.ext_framebuffer_object
+		&& blurXshader.shader->program
+		&& blurYshader.shader->program)
 	{
 		blurSupported = true;
 		R_InitFBO(&pongFBO);
