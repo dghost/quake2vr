@@ -1703,7 +1703,7 @@ void CL_Frame (int32_t msec)
 		{ 
 			static uint32_t lastSyncTime;
 			static uint32_t lastTimeWaited;
-			uint32_t lateFrameDelay = floor(averageFrameTime * r_lateframe_ratio->value);
+			uint32_t lateFrameDelay = 0;
 
 			int32_t timeWaited = R_FrameSync();
 			if (!timeWaited)
@@ -1714,8 +1714,12 @@ void CL_Frame (int32_t msec)
 				lastTimeWaited = timeWaited;
 			}
 			if (abs(r_fencesync->value) == 2)
+			{
+				lateFrameDelay = floor(averageFrameTime * r_lateframe_ratio->value);
 				if (Sys_Milliseconds() < (lastSyncTime + lateFrameDelay))
 					return;
+
+			}
 
 			if (r_fencesync->value < 0)
 				Com_Printf("avgframe: %.2f last: %ims GPU: %ims delay: %ims\n",averageFrameTime,extratime, lastTimeWaited, lateFrameDelay);

@@ -387,6 +387,9 @@
     <ClCompile Include="qcommon\shared\q_shared.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="client\renderer\r_blur.c">
+      <Filter>Source Files\client\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">

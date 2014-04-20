@@ -52,6 +52,7 @@ static menulist_s		s_lightbloom_box;
 static menulist_s		s_modelshading_box;
 static menulist_s		s_shadows_box;
 static menulist_s  		s_glass_envmap_box;
+static menuslider_s		s_blur_slider;
 static menulist_s  		s_screenshotjpeg_box;
 static menuslider_s  	s_screenshotjpegquality_slider;
 static menulist_s  		s_saveshotsize_box;
@@ -99,6 +100,9 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_shadows", ClampCvar( 0, 3, Cvar_VariableValue("r_shadows") ) );
 	s_shadows_box.curvalue	= Cvar_VariableValue("r_shadows");
+
+	Cvar_SetValue( "r_blur", ClampCvar( 0, 8, Cvar_VariableValue("r_blur")));
+	s_blur_slider.curvalue = Cvar_VariableValue("r_blur");
 
 	Cvar_SetValue( "r_screenshot_jpeg", ClampCvar( 0, 1, Cvar_VariableValue("r_screenshot_jpeg") ) );
 	s_screenshotjpeg_box.curvalue = Cvar_VariableValue("r_screenshot_jpeg");
@@ -183,6 +187,11 @@ static void JPEGScreenshotQualityCallback ( void *unused )
 static void SaveshotSizeCallback ( void *unused )
 {
 	Cvar_SetValue( "r_saveshotsize", s_saveshotsize_box.curvalue);
+}
+
+static void BlurCallback( void *unused )
+{
+	Cvar_SetValue( "r_blur", s_blur_slider.curvalue);
 }
 
 static void AdvancedMenuApplyChanges ( void *unused )
@@ -322,6 +331,15 @@ void Menu_Video_Advanced_Init (void)
 	s_waterwave_slider.maxvalue				= 24;
 	s_waterwave_slider.generic.statusbar	= "size of waves on flat water surfaces";
 
+	s_blur_slider.generic.type			= MTYPE_SLIDER;
+	s_blur_slider.generic.x				= 0;
+	s_blur_slider.generic.y				= y += MENU_LINE_SIZE;
+	s_blur_slider.generic.name			= "blur strength";
+	s_blur_slider.generic.callback		= BlurCallback;
+	s_blur_slider.minvalue				= 0;
+	s_blur_slider.maxvalue				= 8;
+	s_blur_slider.generic.statusbar	= "strength of blur applied";
+
 	s_particle_overdraw_box.generic.type		= MTYPE_SPINCONTROL;
 	s_particle_overdraw_box.generic.x			= 0;
 	s_particle_overdraw_box.generic.y			= y += 2*MENU_LINE_SIZE;
@@ -402,6 +420,7 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_solidalpha_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_texshader_warp_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_waterwave_slider );
+	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_blur_slider );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_particle_overdraw_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightbloom_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_modelshading_box );

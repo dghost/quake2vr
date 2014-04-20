@@ -1,5 +1,6 @@
 #include "include/r_local.h"
 
+
 int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO)
 {
 	GLuint fbo, tex, dep;

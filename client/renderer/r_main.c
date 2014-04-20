@@ -1020,7 +1020,7 @@ R_RenderFrame
 */
 void R_RenderFrame (refdef_t *fd)
 {
-	R_RenderView( fd );
+	R_RenderView( fd );	
 	R_SetLightLevel ();
 	R_SetGL2D ();
 }
@@ -1166,6 +1166,8 @@ void R_Register (void)
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
+
+	r_blur = Cvar_Get("r_blur", "2", CVAR_ARCHIVE );
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
 	r_saturation = Cvar_Get( "r_saturation", "1.0", CVAR_ARCHIVE );	//** DMP saturation setting (.89 good for nvidia)
@@ -1547,6 +1549,11 @@ qboolean R_Init ( char *reason )
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_VR_Init: glGetError() = 0x%x\n", err);
 
+	R_BlurInit();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_BlurInit: glGetError() = 0x%x\n", err);
+
 	R_InitImages ();
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
@@ -1658,6 +1665,7 @@ void R_Shutdown (void)
 	saveshotdata = NULL;	// make sure this is null after a vid restart!
 
 	Mod_FreeAll ();
+	R_BlurShutdown();
 	R_AntialiasShutdown();
 	R_ShaderObjectsShutdown();
 	R_ShutdownImages ();

@@ -156,6 +156,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_solidalpha");
 	Cvar_SetToDefault ("r_waterquality");
 	Cvar_SetToDefault ("r_waterwave");
+	Cvar_SetToDefault ("r_blur");
 	Cvar_SetToDefault ("r_particle_overdraw");
 	Cvar_SetToDefault ("r_bloom");
 	Cvar_SetToDefault ("r_model_shading");

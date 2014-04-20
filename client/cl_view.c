@@ -834,6 +834,11 @@ void VR_RenderStereo ()
 
 	R_RenderView(&cl.refdef );
 
+	// finish house keeping tasks
+	if (cl_paused->value || cl.refdef.rdflags & RDF_UNDERWATER)
+		R_Blur(1);
+
+
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 	// render full screen effects
@@ -854,6 +859,11 @@ void VR_RenderStereo ()
 
 	R_RenderView(&cl.refdef );
 
+	// finish house keeping tasks
+	if (cl_paused->value || cl.refdef.rdflags & RDF_UNDERWATER)
+		R_Blur(1);
+
+	
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 	// render full screen effects
@@ -869,7 +879,6 @@ void VR_RenderStereo ()
 
 //	R_VR_BindView(EYE_HUD);
 
-	// finish house keeping tasks
 	R_SetLightLevel ();
 	R_SetGL2D ();
 
@@ -997,7 +1006,16 @@ void V_RenderView ()
         qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int32_t (*)(const void *, const void *))entitycmpfnc );
 	}
 
-	R_RenderFrame (&cl.refdef);
+	R_RenderView( &cl.refdef );	
+
+	if (cl_paused->value)
+		R_Blur(4);
+	else if (cl.refdef.rdflags & RDF_UNDERWATER)
+		R_Blur(1);
+
+	R_SetLightLevel ();
+	R_SetGL2D ();
+	
 	if (cl_stats->value)
 		Com_Printf ("ent:%i  lt:%i  part:%i\n", r_numentities, r_numdlights, r_numparticles);
 	if ( log_stats->value && ( log_stats_file != 0 ) )

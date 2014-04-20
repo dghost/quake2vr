@@ -300,6 +300,7 @@ extern	cvar_t	*r_skydistance; //Knightmare- variable sky range
 extern	cvar_t	*r_saturation;	//** DMP
 
 extern  cvar_t  *r_bloom;
+extern  cvar_t  *r_blur;
 
 extern	cvar_t	*vid_fullscreen;
 extern	cvar_t	*vid_gamma;
@@ -449,14 +450,6 @@ void R_SetPalette ( const Uint8 *palette);
 void VR_RenderView (refdef_t *fd);
 void VR_RenderScreenEffects (refdef_t *fd);
 
-//
-// r_misc.c
-//
-void R_ScreenShot_f (void);
-void R_ScreenShot_Silent_f (void);
-void R_FrameFence (void);
-int32_t R_FrameSync (void);
-void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 
 //
 // r_model.c
@@ -967,9 +960,17 @@ typedef struct {
 	GLuint rgbscale_uniform;
 } r_causticshader_t;
 
+
+typedef struct {
+	r_shaderobject_t *shader;
+	GLuint res_uniform;
+} r_blurshader_t;
+
 extern r_warpshader_t warpshader;
 extern r_warpshader_t simplexwarpshader;
 extern r_causticshader_t causticshader;
+extern r_blurshader_t blurXshader;
+extern r_blurshader_t blurYshader;
 
 
 qboolean R_CompileShader(GLuint shader, const char *source);
@@ -998,4 +999,25 @@ void R_AntialiasBind(void);
 void R_AntialiasEndFrame(void);
 void R_AntialiasInit (void);
 void R_AntialiasShutdown(void);
+
+
+//
+// r_misc.c
+//
+void R_ScreenShot_f (void);
+void R_ScreenShot_Silent_f (void);
+void R_FrameFence (void);
+int32_t R_FrameSync (void);
+void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
+
+
+//
+// r_blur.c
+//
+
+void R_Blur(float blurScale);
+void R_BlurInit();
+void R_BlurShutdown();
+
+
 #endif

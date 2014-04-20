@@ -10,6 +10,9 @@ r_warpshader_t warpshader;
 r_warpshader_t simplexwarpshader;
 r_causticshader_t causticshader;
 
+r_blurshader_t blurXshader;
+r_blurshader_t blurYshader;
+
 static r_shaderobject_t warpshader_object = {
 	0,
 	// vertex shader (identity)
@@ -26,7 +29,6 @@ static r_shaderobject_t warpsimplexshader_object = {
 	"warp.frag"
 };
 
-
 static r_shaderobject_t causticshader_object = {
 	0,
 	// vertex shader (identity)
@@ -35,6 +37,23 @@ static r_shaderobject_t causticshader_object = {
 	"warp.frag"
 };
 
+static r_shaderobject_t blurX_object = {
+	0,
+	// vertex shader (identity)
+	"blurX.vert",
+	// fragment shader
+	"blur.frag"
+};
+
+static r_shaderobject_t blurY_object = {
+	0,
+	// vertex shader (identity)
+	"blurY.vert",
+	// fragment shader
+	"blur.frag"
+};
+
+static qboolean firstInit = false;
 
 qboolean R_CompileShader(GLuint shader, const char *source)
 {
@@ -287,7 +306,37 @@ qboolean R_InitShaders(void)
 		success = false;
 	}
 
+	if (R_CompileShaderFromFiles(&blurX_object))
+	{
+		GLint texloc;
+		blurXshader.shader = &blurX_object;
+		glUseProgram(blurXshader.shader->program);
+		texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
+		glUniform1i(texloc,0);
+		blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
+		glUseProgram(0);
+		success = success && true;
+	}
+	else {
+		success = false;
+	}
 
+	if (R_CompileShaderFromFiles(&blurY_object))
+	{
+		GLint texloc;
+		blurYshader.shader = &blurY_object;
+		glUseProgram(blurYshader.shader->program);
+		texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
+		glUniform1i(texloc,0);
+		blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
+
+		glUseProgram(0);
+		success = success && true;
+	}
+	else {
+		success = false;
+	}
+	
 	if (success)
 	{
 		Com_Printf("success!\n");
@@ -305,15 +354,21 @@ void R_ReloadShader_f(void)
 
 void R_ShaderObjectsInit()
 {
-	qboolean success = false;
+
 
 	R_InitShaders();
-
-	Cmd_AddCommand("r_reloadshaders",R_ReloadShader_f);
+	if (!firstInit)
+	{
+		Cmd_AddCommand("r_reloadshaders",R_ReloadShader_f);
+		firstInit = true;
+	}
 }
 
 void R_ShaderObjectsShutdown()
 {
 	R_DelShaderProgram(&warpshader_object);
+	R_DelShaderProgram(&warpsimplexshader_object);
 	R_DelShaderProgram(&causticshader_object);
+	R_DelShaderProgram(&blurX_object);
+	R_DelShaderProgram(&blurY_object);
 }
