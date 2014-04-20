@@ -633,6 +633,10 @@ usercmd_t CL_CreateCmd (void)
 
 	// allow mice or other external controllers to add to the move
 	IN_Move (&cmd);
+
+	if (cl_paused->value)
+		VectorSet(cl.in_delta,0,0,0);
+
 	if (!vr_enabled->value)
 	{
 		VectorAdd(cl.in_delta, cl.bodyangles, cl.bodyangles);

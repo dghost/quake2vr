@@ -259,13 +259,13 @@ void IN_MouseMove (usercmd_t *cmd)
 		return;
 	if (!RelativeMouse)
 	{
-	// find mouse movement
-	SDL_GetMouseState(&mx,&my);
-	// force the mouse to the center, so there's room to move
-	SDL_WarpMouseInWindow (mainWindow, window_center_x, window_center_y);
+		// find mouse movement
+		SDL_GetMouseState(&mx,&my);
+		// force the mouse to the center, so there's room to move
+		SDL_WarpMouseInWindow (mainWindow, window_center_x, window_center_y);
 
-	mx -= window_center_x;
-	my -= window_center_y;
+		mx -= window_center_x;
+		my -= window_center_y;
 	}
 	else
 	{
