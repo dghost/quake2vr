@@ -527,9 +527,21 @@ void R_Clear (void)
 R_Flash
 =============
 */
+extern cvar_t *cl_paused;
 void R_Flash (void)
 {
 	R_PolyBlend ();
+	if (cl_paused->value)
+	{
+		R_Blur(1);
+	} else if (r_flashblur->value)
+	{
+		if (v_blend[3])
+			R_Blur(v_blend[3]);
+	} else if (r_newrefdef.rdflags & RDF_UNDERWATER)
+	{
+		R_Blur(1);
+	}
 }
 
 
@@ -1167,7 +1179,8 @@ void R_Register (void)
 
 	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
 
-	r_blur = Cvar_Get("r_blur", "2", CVAR_ARCHIVE );
+	r_blur = Cvar_Get("r_blur", "5", CVAR_ARCHIVE );
+	r_flashblur = Cvar_Get("r_flashblur","1",CVAR_ARCHIVE);
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
 	r_saturation = Cvar_Get( "r_saturation", "1.0", CVAR_ARCHIVE );	//** DMP saturation setting (.89 good for nvidia)

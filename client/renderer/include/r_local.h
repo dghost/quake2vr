@@ -301,6 +301,7 @@ extern	cvar_t	*r_saturation;	//** DMP
 
 extern  cvar_t  *r_bloom;
 extern  cvar_t  *r_blur;
+extern  cvar_t  *r_flashblur;
 
 extern	cvar_t	*vid_fullscreen;
 extern	cvar_t	*vid_gamma;
@@ -964,6 +965,7 @@ typedef struct {
 typedef struct {
 	r_shaderobject_t *shader;
 	GLuint res_uniform;
+	GLuint weight_uniform;
 } r_blurshader_t;
 
 extern r_warpshader_t warpshader;

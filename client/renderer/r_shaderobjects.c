@@ -314,7 +314,9 @@ qboolean R_InitShaders(void)
 		texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
 		glUniform1i(texloc,0);
 		blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
+		blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
 		glUseProgram(0);
+
 		success = success && true;
 	}
 	else {
@@ -329,7 +331,7 @@ qboolean R_InitShaders(void)
 		texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
 		glUniform1i(texloc,0);
 		blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
-
+		blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
 		glUseProgram(0);
 		success = success && true;
 	}

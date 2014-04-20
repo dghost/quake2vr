@@ -834,17 +834,11 @@ void VR_RenderStereo ()
 
 	R_RenderView(&cl.refdef );
 
-	// finish house keeping tasks
-	if (cl_paused->value || cl.refdef.rdflags & RDF_UNDERWATER)
-		R_Blur(1);
-
-
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 	// render full screen effects
 //	VR_RenderScreenEffects(&cl.refdef);
 	// draw for right eye
-
 
 
 	// shift view to the right half of the frame buffer
@@ -860,8 +854,6 @@ void VR_RenderStereo ()
 	R_RenderView(&cl.refdef );
 
 	// finish house keeping tasks
-	if (cl_paused->value || cl.refdef.rdflags & RDF_UNDERWATER)
-		R_Blur(1);
 
 	
 	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
@@ -1007,11 +999,6 @@ void V_RenderView ()
 	}
 
 	R_RenderView( &cl.refdef );	
-
-	if (cl_paused->value)
-		R_Blur(4);
-	else if (cl.refdef.rdflags & RDF_UNDERWATER)
-		R_Blur(1);
 
 	R_SetLightLevel ();
 	R_SetGL2D ();
