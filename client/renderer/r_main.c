@@ -1726,11 +1726,15 @@ void R_BeginFrame()
 	//
 	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
-//		cvar_t	*ref;
-//		ref = Cvar_Get ("vid_ref", "gl", 0);
-//		ref->modified = true;
-		extern SDL_Window *mainWindow;
-		SDL_SetWindowFullscreen(mainWindow,(vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
+		cvar_t	*ref;
+		ref = Cvar_Get ("vid_ref", "gl", 0);
+		ref->modified = true;
+
+		// consider this for future, but in the mean time it has problems with the alt-key getting stuck when changing
+		// explicitly destroying the window and creating a new one doesn't have this problem
+
+		//		extern SDL_Window *mainWindow;
+		//		SDL_SetWindowFullscreen(mainWindow,(vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
 		vid_fullscreen->modified=false;
 	}
 
