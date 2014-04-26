@@ -94,6 +94,21 @@ SDL_Surface* GLimp_LoadIcon(char *name)
 	return result;
 }
 
+void GLimp_SetFullscreen(qboolean enable)
+{
+
+	if (0)
+	{
+		// consider this for future, but in the mean time it has problems with the alt-key getting stuck when changing
+		// explicitly destroying the window and creating a new one doesn't have this problem
+		SDL_SetWindowFullscreen(mainWindow,(vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
+	} else {
+		cvar_t	*ref;
+		ref = Cvar_Get("vid_ref", "gl", 0);
+		ref->modified = true;
+	}
+}
+
 /*
 ** GLimp_SetMode
 */
@@ -247,7 +262,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 
-	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Using":"Not using");
+	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Available":"Not available");
 	VID_NewWindow (width, height);
 	*pwidth = width;
 	*pheight = height;
