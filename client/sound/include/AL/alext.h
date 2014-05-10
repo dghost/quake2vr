@@ -1,6 +1,6 @@
 /**
  * OpenAL cross platform audio library
- * Copyright (C) 2008 by authors.
+ * Copyright (C) 1999-2007, 2013 by authors.
  * This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Library General Public
  *  License as published by the Free Software Foundation; either
@@ -16,10 +16,14 @@
  *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  *  Boston, MA  02111-1307, USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
+ *
+ * This file has been modified for OpenAL-MOB from the Original OpenAL-Soft.
  */
 
 #ifndef AL_ALEXT_H
 #define AL_ALEXT_H
+
+#include "alconflict.h"
 
 #include <stddef.h>
 /* Define int64_t and uint64_t types */
@@ -348,8 +352,19 @@ AL_API void AL_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64
 #endif
 #endif
 
+struct MOB_ConfigKeyValue_Struct;
+typedef void (AL_APIENTRY*LPALSETCONFIGMOB)(const struct MOB_ConfigKeyValue_Struct *);
+typedef ALboolean(AL_APIENTRY*LPALCDEVICEENABLEHRTFMOB)(ALCdevice*, ALboolean);
+
+#ifdef AL_ALEXT_PROTOTYPES
+AL_API void AL_APIENTRY alSetConfigMOB( const struct MOB_ConfigKeyValue_Struct *keyValues );
+AL_API ALboolean AL_APIENTRY alcDeviceEnableHrtfMOB( ALCdevice *device, ALboolean enable );
+#endif // #ifdef AL_ALEXT_PROTOTYPES
+
 #ifdef __cplusplus
 }
 #endif
+
+#include "alunconflict.h"
 
 #endif

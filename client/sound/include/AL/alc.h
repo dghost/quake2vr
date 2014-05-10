@@ -1,5 +1,28 @@
+/**
+ * OpenAL cross platform audio library
+ * Copyright (C) 1999-2007, 2013 by authors.
+ * This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ *  License along with this library; if not, write to the
+ *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ *  Boston, MA  02111-1307, USA.
+ * Or go to http://www.gnu.org/copyleft/lgpl.html
+ *
+ * This file has been modified for OpenAL-MOB from the Original OpenAL-Soft.
+ */
 #ifndef AL_ALC_H
 #define AL_ALC_H
+
+#include "alconflict.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -178,7 +201,7 @@ ALC_API ALCdevice*  ALC_APIENTRY alcGetContextsDevice(ALCcontext *context);
 /** Device management. */
 ALC_API ALCdevice* ALC_APIENTRY alcOpenDevice(const ALCchar *devicename);
 ALC_API ALCboolean ALC_APIENTRY alcCloseDevice(ALCdevice *device);
-
+ALC_API ALCint	   ALC_APIENTRY alcGetDeviceReferenceCount(ALCdevice *device);
 
 /**
  * Error support.
@@ -233,5 +256,7 @@ typedef void           (ALC_APIENTRY *LPALCCAPTURESAMPLES)(ALCdevice *device, AL
 #if defined(__cplusplus)
 }
 #endif
+
+#include "alunconflict.h"
 
 #endif /* AL_ALC_H */

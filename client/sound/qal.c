@@ -28,24 +28,24 @@
  * was taken from Q2Pro and modified by the YQ2 authors.
  *
  * =======================================================================
+ *
+ * This was taken from YQ2 and modified for Q2VR by it's authors
+ *
  */
 
 #ifdef USE_OPENAL
 
 #ifdef _WIN32
-#define DEFAULT_OPENAL_DRIVER "soft_oal.dll"
+#define DEFAULT_OPENAL_DRIVER "openal-mob.dll"
 #else
-#define DEFAULT_OPENAL_DRIVER "soft_oal.so"
+#define DEFAULT_OPENAL_DRIVER "openal-mob.so"
 #endif
 
-#if defined (__APPLE__)
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
+
 #include "include/AL/al.h"
 #include "include/AL/alc.h"
 #include "include/AL/alext.h"
-#endif
+#include "include/alConfigMob.h"
 
 #include "../../qcommon/qcommon.h"
 #include "include/local.h"
@@ -58,6 +58,18 @@ static ALCdevice *device;
 static cvar_t *al_device;
 static cvar_t *al_driver;
 static void *handle;
+
+const MOB_ConfigKeyValue g_soundConfig[] =
+{
+#ifdef _WIN32
+	// The default sound output on Windows can't be forced to 44.1 KHz. Outputting at 44.1 KHz is essential to support HRTF, so adding this is on Windows is a good idea
+	{ MOB_ConfigKey_root_drivers, "dsound" },
+#endif // #if _WIN32
+	// If you want to use HRTFs, you should be outputting to Stereo sound
+	{ MOB_ConfigKey_root_channels, "stereo" },
+	{ MOB_ConfigKey_root_hrtf, (const char*) 1 }, // This is a union, and const char * is the first type, so we have to cast it.
+	{ MOB_ConfigKey_NULL, 0 }, // This is the terminator for the config array
+};
 
 /* Function pointers for OpenAL management */
 static LPALCCREATECONTEXT qalcCreateContext;
@@ -156,12 +168,12 @@ LPALDOPPLERFACTOR qalDopplerFactor;
 LPALDOPPLERVELOCITY qalDopplerVelocity;
 LPALSPEEDOFSOUND qalSpeedOfSound;
 LPALDISTANCEMODEL qalDistanceModel;
-#if !defined (__APPLE__)
 LPALGENFILTERS qalGenFilters;
 LPALFILTERI qalFilteri;
 LPALFILTERF qalFilterf;
 LPALDELETEFILTERS qalDeleteFilters;
-#endif
+LPALCDEVICEENABLEHRTFMOB qalcDeviceEnableHrtfMOB;
+LPALSETCONFIGMOB qalSetConfigMOB;
 
 /*
  * Gives information over the OpenAL
@@ -212,6 +224,21 @@ void QAL_SoundInfo()
 			Com_Printf("- %s\n", devs);
 		}
 	}
+	{
+		ALCint attr_size;
+		ALCint * attributes;
+		int i = 0;
+		qalcGetIntegerv(device, ALC_ATTRIBUTES_SIZE, sizeof(attr_size), &attr_size);
+		attributes = (ALCint *) malloc(attr_size * sizeof(ALCint));
+		qalcGetIntegerv(device, ALC_ALL_ATTRIBUTES, attr_size, attributes);
+		for (i = 0; i < attr_size; i += 2)
+		{
+			if (attributes[i] == ALC_FREQUENCY)
+				Com_Printf("ALC_FREQUENCY: %i\n", attributes[i + 1]);
+		}
+		free(attributes);
+	}
+
 }
 
 /*
@@ -337,6 +364,10 @@ QAL_Shutdown()
 	qalFilterf = NULL;
 	qalDeleteFilters = NULL;
 
+	// OpenAL-MOB specific functions
+	qalSetConfigMOB = NULL;
+	qalcDeviceEnableHrtfMOB = NULL;
+
 	/* Unload the shared lib */
 	SDL_UnloadObject(handle);
     handle = NULL;
@@ -349,8 +380,28 @@ QAL_Shutdown()
 qboolean
 QAL_Init()
 {
-	char *libraries[] = {"soft_oal.dll","openal32.dll",0};
+	char *libraries[] = {"openal-mob.dll","openal32.dll",0};
 	int i = 0;
+	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_ARCHIVE))->value;
+	
+	if (sndfreq == 48)
+	{
+		sndfreq = 48000;
+	}
+	else if (sndfreq == 44)
+	{
+		sndfreq = 44100;
+	}
+	else if (sndfreq == 22)
+	{
+		sndfreq = 22050;
+	}
+	else if (sndfreq == 11)
+	{
+		sndfreq = 11025;
+	}
+
+
 	/* DEFAULT_OPENAL_DRIVER is defined at compile time via the compiler */
 	al_driver = Cvar_Get("al_driver", DEFAULT_OPENAL_DRIVER, CVAR_ARCHIVE);
 	al_device = Cvar_Get("al_device", "", CVAR_ARCHIVE);
@@ -475,6 +526,16 @@ QAL_Init()
 	qalFilterf = SDL_LoadFunction(handle, "alFilterf");
 	qalDeleteFilters = SDL_LoadFunction(handle, "alDeleteFilters");
 
+	// OpenAL-MOB specific functions
+	qalSetConfigMOB = SDL_LoadFunction(handle, "alSetConfigMOB");
+	qalcDeviceEnableHrtfMOB = SDL_LoadFunction(handle, "alcDeviceEnableHrtfMOB");
+	
+	if (qalSetConfigMOB)
+	{
+		Com_Printf("...found OpenAL-MOB\n");
+		qalSetConfigMOB(g_soundConfig);
+	}
+
 	/* Open the OpenAL device */
 	{
 		char* devices = (char*)qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
@@ -509,7 +570,15 @@ QAL_Init()
 	/* Create the OpenAL context */
 	Com_Printf("...creating OpenAL context: ");
 
-	context = qalcCreateContext(device, NULL);
+	// the parameters
+	{
+		const ALint params[] =
+		{
+			ALC_FREQUENCY, sndfreq,   // The HRTF only works for 44.1KHz output.      
+			0,          // Null terminator
+		};
+		context = qalcCreateContext(device, params);
+	}
 
 	if(!context)
 	{
@@ -519,6 +588,8 @@ QAL_Init()
 	}
 
 	Com_Printf("ok\n");
+
+
 
 	/* Set the created context as current context */
 	Com_Printf("...making context current: ");
@@ -531,6 +602,17 @@ QAL_Init()
 	}
 
 	Com_Printf("ok\n");
+
+	if (qalcDeviceEnableHrtfMOB)
+	{
+		ALboolean hrtf = AL_FALSE;
+		Com_Printf("...enabling HRTF: ");
+		hrtf = qalcDeviceEnableHrtfMOB(device, AL_TRUE);
+		if (hrtf == AL_TRUE)
+			Com_Printf("ok!\n");
+		else
+			Com_Printf("failed!\n");
+	}
 
 	/* Print OpenAL informations */
 	Com_Printf("\n");
