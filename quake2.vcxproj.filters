@@ -521,6 +521,9 @@
     <ClInclude Include="qcommon\shared\q_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="client\sound\include\qal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="backends\win32\q2.rc">

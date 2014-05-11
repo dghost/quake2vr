@@ -48,7 +48,9 @@
 #define MIN_CHANNELS 16
 
 /* Globals */
-cvar_t *s_openal_maxgain;
+cvar_t *al_maxgain;
+cvar_t *al_hrtf;
+
 int active_buffers;
 qboolean streamPlaying;
 static ALuint s_srcnums[MAX_CHANNELS - 1];
@@ -539,6 +541,13 @@ AL_Update(void)
 	channel_t *ch;
 	vec_t orientation[6];
 
+
+	if (al_hrtf->modified)
+	{
+		QAL_SetHRTF(al_hrtf->value);
+		al_hrtf->modified = false;
+	}
+
 	paintedtime = cls.realtime;
 
 	/* set listener (player) parameters */
@@ -548,7 +557,7 @@ AL_Update(void)
 	 	qalListenerf(AL_GAIN, s_volume->value);
 	else
 		qalListenerf(AL_GAIN, 0);
-	qalListenerf(AL_MAX_GAIN, s_openal_maxgain->value);
+	qalListenerf(AL_MAX_GAIN, al_maxgain->value);
 	qalDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
 	qalListener3f(AL_POSITION, AL_UnpackVector(listener_origin));
 	qalListenerfv(AL_ORIENTATION, orientation);
@@ -723,7 +732,8 @@ AL_Init(void)
 		return false;
 	}
 
-	s_openal_maxgain = Cvar_Get("s_openal_maxgain", "1.0", CVAR_ARCHIVE);
+	al_maxgain = Cvar_Get("al_maxgain", "1.0", CVAR_ARCHIVE);
+	al_hrtf = Cvar_Get("al_hrtf", "1", CVAR_ARCHIVE);
 
 	/* check for linear distance extension */
 	if (!qalIsExtensionPresent("AL_EXT_LINEAR_DISTANCE"))
@@ -764,7 +774,8 @@ AL_Init(void)
 			return false;
 		}
 	}
-
+	QAL_SetHRTF(al_hrtf->value);
+	al_hrtf->modified = false;
 	s_numchannels = i;
 	AL_InitStreamSource();
 

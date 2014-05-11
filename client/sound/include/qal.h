@@ -126,6 +126,11 @@ extern LPALDELETEFILTERS qalDeleteFilters;
  */
 void QAL_SoundInfo(void);
 
+/* 
+ * Enables or disables HRTFs when using OpenAL-MOB
+ */
+void QAL_SetHRTF(qboolean enable);
+
 /*
  * Loads the OpenAL shared lib, creates
  * a context and device handle.

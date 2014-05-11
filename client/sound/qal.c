@@ -35,10 +35,12 @@
 
 #ifdef USE_OPENAL
 
+#define DEFAULT_OPENAL_DRIVER "openal-mob"
+
 #ifdef _WIN32
-#define DEFAULT_OPENAL_DRIVER "openal-mob.dll"
+#define DEFAULT_LIBRARY_EXTENSION ".dll"
 #else
-#define DEFAULT_OPENAL_DRIVER "openal-mob.so"
+#define DEFAULT_LIBRARY_EXTENSION ".so"
 #endif
 
 
@@ -67,7 +69,7 @@ const MOB_ConfigKeyValue g_soundConfig[] =
 #endif // #if _WIN32
 	// If you want to use HRTFs, you should be outputting to Stereo sound
 	{ MOB_ConfigKey_root_channels, "stereo" },
-	{ MOB_ConfigKey_root_hrtf, (const char*) 1 }, // This is a union, and const char * is the first type, so we have to cast it.
+	{ MOB_ConfigKey_root_hrtf, (const char*) 0 }, // This is a union, and const char * is the first type, so we have to cast it.
 	{ MOB_ConfigKey_NULL, 0 }, // This is the terminator for the config array
 };
 
@@ -241,6 +243,22 @@ void QAL_SoundInfo()
 
 }
 
+void QAL_SetHRTF(qboolean enable)
+{
+	if (qalcDeviceEnableHrtfMOB)
+	{
+		ALboolean result = AL_FALSE;
+		ALboolean mode = (enable ? AL_TRUE : AL_FALSE);
+		result = qalcDeviceEnableHrtfMOB(device, mode);
+		if (result = !AL_TRUE)
+			Com_Printf("Error: cannot set HRTF mode\n");
+//		else
+//			Com_Printf("Successfully %s HRTF mode\n", (enable ? "enabled" : "disabled"));
+	}
+	else {
+		Com_Printf("Error: Setting HRTF mode is not supported by this OpenAL driver\n");
+	}
+}
 /*
  * Shuts OpenAL down, frees all context and
  * device handles and unloads the shared lib.
@@ -380,10 +398,12 @@ QAL_Shutdown()
 qboolean
 QAL_Init()
 {
-	char *libraries[] = {"openal-mob.dll","openal32.dll",0};
+	char *libraries[] = {DEFAULT_OPENAL_DRIVER,"openal32",0};
+	char name[256];
+	char buffer[300];
 	int i = 0;
 	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_ARCHIVE))->value;
-	
+
 	if (sndfreq == 48)
 	{
 		sndfreq = 48000;
@@ -406,16 +426,23 @@ QAL_Init()
 	al_driver = Cvar_Get("al_driver", DEFAULT_OPENAL_DRIVER, CVAR_ARCHIVE);
 	al_device = Cvar_Get("al_device", "", CVAR_ARCHIVE);
 
-	Com_Printf("LoadLibrary(%s)\n", al_driver->string);
+		
+	strncpy(name, al_driver->string, sizeof(name));
+	strncpy(buffer, name, sizeof(buffer));
+	strncat(buffer, DEFAULT_LIBRARY_EXTENSION, sizeof(buffer) -strlen(name));
+	Com_Printf("LoadLibrary(%s)\n", buffer);
 
 	/* Load the library */
-	handle = SDL_LoadObject(al_driver->string);
+	handle = SDL_LoadObject(buffer);
 	
 	// prevent the user from screwing themselves by setting an invalid library
 	for (i = 0; !handle && libraries[i] != NULL ; i++)
 	{
-		Com_Printf("LoadLibrary(%s)\n", libraries[i]);
-		handle = SDL_LoadObject(libraries[i]);
+		strncpy(name, libraries[i], sizeof(name));
+		strncpy(buffer, name, sizeof(buffer));
+		strncat(buffer, DEFAULT_LIBRARY_EXTENSION, sizeof(buffer) -strlen(name));
+		Com_Printf("LoadLibrary(%s)\n", buffer);
+		handle = SDL_LoadObject(buffer);
 	}
 
 	if (!handle)
@@ -423,6 +450,10 @@ QAL_Init()
 		Com_Printf("Loading %s failed! Disabling OpenAL.\n", al_driver->string);
 		return false;
 	}
+
+
+	Cvar_Set("al_driver", name);
+
 
 	/* Connect function pointers to management functions */
 	qalcCreateContext = SDL_LoadFunction(handle, "alcCreateContext");
@@ -533,6 +564,7 @@ QAL_Init()
 	if (qalSetConfigMOB)
 	{
 		Com_Printf("...found OpenAL-MOB\n");
+		sndfreq = 44100;
 		qalSetConfigMOB(g_soundConfig);
 	}
 
@@ -570,11 +602,14 @@ QAL_Init()
 	/* Create the OpenAL context */
 	Com_Printf("...creating OpenAL context: ");
 
+
+
 	// the parameters
 	{
 		const ALint params[] =
 		{
 			ALC_FREQUENCY, sndfreq,   // The HRTF only works for 44.1KHz output.      
+			//ALC_FREQUENCY, 44100,   // The HRTF only works for 44.1KHz output.      
 			0,          // Null terminator
 		};
 		context = qalcCreateContext(device, params);
@@ -602,17 +637,6 @@ QAL_Init()
 	}
 
 	Com_Printf("ok\n");
-
-	if (qalcDeviceEnableHrtfMOB)
-	{
-		ALboolean hrtf = AL_FALSE;
-		Com_Printf("...enabling HRTF: ");
-		hrtf = qalcDeviceEnableHrtfMOB(device, AL_TRUE);
-		if (hrtf == AL_TRUE)
-			Com_Printf("ok!\n");
-		else
-			Com_Printf("failed!\n");
-	}
 
 	/* Print OpenAL informations */
 	Com_Printf("\n");

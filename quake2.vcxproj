@@ -340,6 +340,7 @@
     <ClInclude Include="client\renderer\include\r_vr.h" />
     <ClInclude Include="client\renderer\include\r_vr_ovr.h" />
     <ClInclude Include="client\renderer\include\r_vr_svr.h" />
+    <ClInclude Include="client\sound\include\qal.h" />
     <ClInclude Include="client\ui\include\ui_local.h" />
     <ClInclude Include="client\vr\include\vr.h" />
     <ClInclude Include="client\vr\include\vr_libovr.h" />
