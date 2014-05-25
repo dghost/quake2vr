@@ -69,6 +69,8 @@ static cvar_t *al_device;
 static cvar_t *al_driver;
 static void *handle;
 
+qboolean OpenALMOB_Supported;
+
 const MOB_ConfigKeyValue g_soundConfig[] =
 {
 #ifdef _WIN32
@@ -577,8 +579,11 @@ QAL_Init()
 	qalSetWindowMOB = SDL_LoadFunction(handle, "alcSetWindowMOB");
 #endif
 
+	OpenALMOB_Supported = false;
 	if (qalSetConfigMOB)
 	{
+		OpenALMOB_Supported = true;
+
 		Com_Printf("...found OpenAL-MOB");
 		sndfreq = 44100;
 		qalSetConfigMOB(g_soundConfig);
