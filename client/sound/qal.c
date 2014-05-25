@@ -43,6 +43,9 @@
 #define DEFAULT_LIBRARY_EXTENSION ".so"
 #endif
 
+#ifdef _WIN32
+#include "../../backends/win32/config-oal.h"
+#endif
 
 #include "include/AL/al.h"
 #include "include/AL/alc.h"
@@ -54,6 +57,11 @@
 #include "include/qal.h"
 
 #include <SDL.h>
+#include <SDL_syswm.h>
+
+extern SDL_Window *mainWindow;
+extern uint32_t mainWindowID;
+extern SDL_SysWMinfo mainWindowInfo;
 
 static ALCcontext *context;
 static ALCdevice *device;
@@ -176,6 +184,10 @@ LPALFILTERF qalFilterf;
 LPALDELETEFILTERS qalDeleteFilters;
 LPALCDEVICEENABLEHRTFMOB qalcDeviceEnableHrtfMOB;
 LPALSETCONFIGMOB qalSetConfigMOB;
+
+#ifdef _WIN32
+LPALCSETWINDOWMOB qalSetWindowMOB;
+#endif
 
 /*
  * Gives information over the OpenAL
@@ -561,11 +573,24 @@ QAL_Init()
 	qalSetConfigMOB = SDL_LoadFunction(handle, "alSetConfigMOB");
 	qalcDeviceEnableHrtfMOB = SDL_LoadFunction(handle, "alcDeviceEnableHrtfMOB");
 	
+#ifdef _WIN32
+	qalSetWindowMOB = SDL_LoadFunction(handle, "alcSetWindowMOB");
+#endif
+
 	if (qalSetConfigMOB)
 	{
-		Com_Printf("...found OpenAL-MOB\n");
+		Com_Printf("...found OpenAL-MOB");
 		sndfreq = 44100;
 		qalSetConfigMOB(g_soundConfig);
+
+#ifdef _WIN32
+		if (qalSetWindowMOB)
+		{
+			Com_Printf(" and using existing window handle");
+			qalSetWindowMOB(mainWindowInfo.info.win.window);
+		}
+		Com_Printf("\n");
+#endif
 	}
 
 	/* Open the OpenAL device */

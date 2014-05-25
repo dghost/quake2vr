@@ -42,6 +42,10 @@ typedef unsigned __int64 uint64_t;
 #include "alc.h"
 #include "al.h"
 
+#if defined(HAVE_DSOUND)
+#include <windows.h>
+#endif // defined(HAVE_DSOUND)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,6 +142,7 @@ extern "C" {
 #ifndef AL_EXT_STATIC_BUFFER
 #define AL_EXT_STATIC_BUFFER 1
 typedef ALvoid (AL_APIENTRY*PFNALBUFFERDATASTATICPROC)(const ALint,ALenum,ALvoid*,ALsizei,ALsizei);
+typedef PFNALBUFFERDATASTATICPROC LPALBUFFERDATASTATIC;
 #ifdef AL_ALEXT_PROTOTYPES
 AL_API ALvoid AL_APIENTRY alBufferDataStatic(const ALint buffer, ALenum format, ALvoid *data, ALsizei len, ALsizei freq);
 #endif
@@ -157,6 +162,8 @@ AL_API ALvoid AL_APIENTRY alBufferDataStatic(const ALint buffer, ALenum format, 
 #define ALC_EXT_thread_local_context 1
 typedef ALCboolean  (ALC_APIENTRY*PFNALCSETTHREADCONTEXTPROC)(ALCcontext *context);
 typedef ALCcontext* (ALC_APIENTRY*PFNALCGETTHREADCONTEXTPROC)(void);
+typedef PFNALCSETTHREADCONTEXTPROC LPALCSETTHREADCONTEXT;
+typedef PFNALCGETTHREADCONTEXTPROC LPALCGETTHREADCONTEXT;
 #ifdef AL_ALEXT_PROTOTYPES
 ALC_API ALCboolean  ALC_APIENTRY alcSetThreadContext(ALCcontext *context);
 ALC_API ALCcontext* ALC_APIENTRY alcGetThreadContext(void);
@@ -173,6 +180,7 @@ ALC_API ALCcontext* ALC_APIENTRY alcGetThreadContext(void);
 #define AL_BYTE_RW_OFFSETS_SOFT                  0x1031
 #define AL_SAMPLE_RW_OFFSETS_SOFT                0x1032
 typedef ALvoid (AL_APIENTRY*PFNALBUFFERSUBDATASOFTPROC)(ALuint,ALenum,const ALvoid*,ALsizei,ALsizei);
+typedef PFNALBUFFERSUBDATASOFTPROC LPALBUFFERSUBDATASOFT;
 #ifdef AL_ALEXT_PROTOTYPES
 AL_API ALvoid AL_APIENTRY alBufferSubDataSOFT(ALuint buffer,ALenum format,const ALvoid *data,ALsizei offset,ALsizei length);
 #endif
@@ -354,11 +362,17 @@ AL_API void AL_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64
 
 struct MOB_ConfigKeyValue_Struct;
 typedef void (AL_APIENTRY*LPALSETCONFIGMOB)(const struct MOB_ConfigKeyValue_Struct *);
-typedef ALboolean(AL_APIENTRY*LPALCDEVICEENABLEHRTFMOB)(ALCdevice*, ALboolean);
+typedef ALboolean (AL_APIENTRY*LPALCDEVICEENABLEHRTFMOB)(ALCdevice*, ALboolean);
+#ifdef _WIN32
+typedef void (AL_APIENTRY*LPALCSETWINDOWMOB)(HWND wnd);
+#endif // _WIN32
 
 #ifdef AL_ALEXT_PROTOTYPES
 AL_API void AL_APIENTRY alSetConfigMOB( const struct MOB_ConfigKeyValue_Struct *keyValues );
 AL_API ALboolean AL_APIENTRY alcDeviceEnableHrtfMOB( ALCdevice *device, ALboolean enable );
+#ifdef _WIN32
+AL_API void AL_APIENTRY alcSetWindowMOB( HWND wnd );
+#endif // _WIN32
 #endif // #ifdef AL_ALEXT_PROTOTYPES
 
 #ifdef __cplusplus

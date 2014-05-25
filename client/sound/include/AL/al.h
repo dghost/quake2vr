@@ -40,8 +40,10 @@ extern "C" {
 
 #if defined(_WIN32)
  #define AL_APIENTRY __cdecl
+ #define AL_INLINE __inline
 #else
  #define AL_APIENTRY
+ #define AL_INLINE inline
 #endif
 
 

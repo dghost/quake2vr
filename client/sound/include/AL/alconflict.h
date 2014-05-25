@@ -22,7 +22,7 @@
 
 // If you set this to 1, then it will rename prefix all al*() functions with ALMOB_. This allows you
 // to link two separate OpenAL implementations into the same program.
-#define ALMOB_UNIQUE_NAMES     (0)
+#define ALMOB_UNIQUE_NAMES     (TARGET_OS_IPHONE)
 #define ALMOB_REMOVE_CONFLICTS (ALMOB_UNIQUE_NAMES && !defined(AL_BUILD_LIBRARY))
 
 #if ALMOB_UNIQUE_NAMES

@@ -45,6 +45,37 @@ int MOB_Local_ConfigValueInt( MOB_ConfigKey key, int *ret);
 int MOB_Local_ConfigValueUInt( MOB_ConfigKey key, unsigned int *ret);
 int MOB_Local_ConfigValueFloat( MOB_ConfigKey key, float *ret);
 
+// Type safe ways of constructing your config
+static AL_INLINE MOB_ConfigValue MOB_ConfigValue_Str( const char *stringVal )
+{
+	MOB_ConfigValue value;
+	value.stringVal = stringVal;
+	return value;
+}
+
+static AL_INLINE MOB_ConfigValue MOB_ConfigValue_Int( int intVal )
+{
+	MOB_ConfigValue value;
+	value.intVal = intVal;
+	return value;
+}
+
+static AL_INLINE MOB_ConfigValue MOB_ConfigValue_Uint( unsigned int uintVal )
+{
+	MOB_ConfigValue value;
+	value.uintVal = uintVal;
+	return value;
+}
+
+
+static AL_INLINE MOB_ConfigValue MOB_ConfigValue_Float( float floatVal )
+{
+	MOB_ConfigValue value;
+	value.floatVal = floatVal;
+	return value;
+}
+
+
 
 #define MOB_ConfigValueExists( blockName, keyName ) MOB_Local_ConfigValueExists( MOB_ConfigKey_##blockName##_##keyName )
 #define MOB_GetConfigValue( blockName, keyName, def ) MOB_Local_GetConfigValue(MOB_ConfigKey_##blockName##_##keyName, (def))
