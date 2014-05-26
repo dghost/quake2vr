@@ -293,8 +293,8 @@ void CL_ParseMuzzleFlash (void)
 	dl = CL_AllocDlight (i);
 	VectorCopy (pl->current.origin,  dl->origin);
 	AngleVectors (pl->current.angles, fv, rv, NULL);
-	VectorMA (dl->origin, 18, fv, dl->origin);
-	VectorMA (dl->origin, side * 16, rv, dl->origin);
+	VectorMA (dl->origin, 8, fv, dl->origin);
+	VectorMA (dl->origin, side * 8, rv, dl->origin);
 	if (silenced)
 		dl->radius = 100 + (rand()&31);
 	else
