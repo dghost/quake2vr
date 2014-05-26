@@ -157,7 +157,7 @@ void R_VR_StartFrame()
 		float vertBounds = (float) hud.height / (float) hud.width;
 		float vertInterval = horizInterval * vertBounds;
 
-		int numverts = (numsegments) * (numsegments + 1) * 2 + (numsegments * 3);
+		int numverts = (numsegments) * (numsegments + 1) * 2 + (numsegments * 2);
 
 
 		// calculate coordinates for hud
@@ -174,43 +174,40 @@ void R_VR_StartFrame()
 		hudverts = malloc(sizeof(vert_t) * numverts);
 		memset(hudverts, 0, sizeof(vert_t) * numverts);
 
-		for (i = 0; i < numsegments; i++)
+		for (j = 0; j < numsegments; j++)
 		{
-			float xpos = i * horizInterval - 1;
-			float xpos1 = (i + 1) * horizInterval - 1;
-			for (j = 0; j <= numsegments; j++)
+			float ypos = j * vertInterval - vertBounds;
+			float ypos1 = (j + 1) * vertInterval - vertBounds;
+
+			for (i = 0; i <= numsegments; i++)
 			{
-				float ypos = j * vertInterval - vertBounds;
-				float ypos1 = (j + 1) * vertInterval - vertBounds;
+				float xpos = i * horizInterval - 1;
+				float xpos1 = (i + 1) * horizInterval - 1;
 
 				vert_t vert1, vert2;
 	
-				VectorSet(vert2.position, xpos, ypos, -1);
-				sphereProject(vert2.position, offsetScale, vert2.position);
-				vert2.texCoords[0] = (float) i / (float) (numsegments);
-				vert2.texCoords[1] = (float) j / (float) (numsegments);
-
-				VectorSet(vert1.position, xpos1, ypos, -1);
+				VectorSet(vert1.position, xpos, ypos, -1);
 				sphereProject(vert1.position, offsetScale, vert1.position);
-				vert1.texCoords[0] = (float) (i + 1) / (float) (numsegments);
+				vert1.texCoords[0] = (float) i / (float) (numsegments);
 				vert1.texCoords[1] = (float) j / (float) (numsegments);
 
-				if (i > 0 && j == 0)
+				VectorSet(vert2.position, xpos, ypos1, -1);
+				sphereProject(vert2.position, offsetScale, vert2.position);
+				vert2.texCoords[0] = (float) i / (float) (numsegments);
+				vert2.texCoords[1] = (float) (j + 1) / (float) (numsegments);
+
+				if (j > 0 && i == 0)
 				{
-					memcpy(&hudverts[hudNumVerts], &vert1, sizeof(vert_t));
-					hudNumVerts++;
+					memcpy(&hudverts[hudNumVerts++], &vert1, sizeof(vert_t));
 				}
 
-				memcpy(&hudverts[hudNumVerts], &vert1, sizeof(vert_t));
-				hudNumVerts++;
+				memcpy(&hudverts[hudNumVerts++], &vert1, sizeof(vert_t));
 
-				memcpy(&hudverts[hudNumVerts], &vert2, sizeof(vert_t));
-				hudNumVerts++;
+				memcpy(&hudverts[hudNumVerts++], &vert2, sizeof(vert_t));
 
-				if (j == numsegments && i < (numsegments - 1))
+				if (i == numsegments && j < (numsegments - 1))
 				{
-					memcpy(&hudverts[hudNumVerts], &vert2, sizeof(vert_t));
-					hudNumVerts++;
+					memcpy(&hudverts[hudNumVerts++], &vert2, sizeof(vert_t));
 				}
 			}
 		}
@@ -414,6 +411,39 @@ void R_VR_DrawHud(vr_eye_t eye)
 		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	}
+
+	/*
+	// debug rendering of HUD wireframe
+	GL_MBind(0, 0);
+	glColor3f(0.25, 0.25, 0.25);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glBegin(GL_TRIANGLE_STRIP);
+	if (hudNumVerts >= 4) {
+		int i = 0;
+		for (i = 0; i < hudNumVerts; i++)
+		{
+			glTexCoord2fv(hudverts[i].texCoords);
+			glVertex3fv(hudverts[i].position);
+		}
+	}
+	else {
+		float y, x, z;
+		// calculate coordinates for hud
+		x = tanf(fov * (M_PI / 180.0f) * 0.5) * (depth);
+		y = x / ((float) hud.width / hud.height);
+		z = depth * cosf(fov * (M_PI / 180.0f) * 0.5);
+
+		glTexCoord2f(0, 0); glVertex3f(-x, -y, -z);
+		glTexCoord2f(0, 1); glVertex3f(-x, y, -z);
+		glTexCoord2f(1, 0); glVertex3f(x, -y, -z);
+		glTexCoord2f(1, 1); glVertex3f(x, y, -z);
+	}
+
+	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glColor3f(1.0, 1.0, 1.0);
+	GL_MBind(0, hud.texture);
+	*/
 
 	glBegin(GL_TRIANGLE_STRIP);
 
