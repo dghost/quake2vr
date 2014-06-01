@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "shared/q_shared.h"
 #include "glob.h"
 
-#define	VERSION	"4.19" //was 3.21
+#define	VERSION	"4.2" //was 3.21
 #define VR_VER "1.9.0"
 
 #define	BASEDIRNAME	"baseq2"
