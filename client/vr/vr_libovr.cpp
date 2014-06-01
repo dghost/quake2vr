@@ -11,6 +11,7 @@ static OVR::LatencyTestDevice *latencyTester = NULL;
 static OVR::Util::LatencyTest *latencyUtil = NULL;
 
 static bool initialized = false;
+static double prediction_time = 0;
 
 //#define M_PI 3.14159265358979323846f
 
@@ -57,7 +58,6 @@ int32_t LibOVR_InitSensor(void) {
 		fusion = new OVR::SensorFusion();
 		fusion->AttachToSensor(sensor);
 		fusion->SetYawCorrectionEnabled(false);
-		fusion->SetPrediction(0.0,false);
 	}
 	return (sensor != NULL && fusion != NULL);
 }
@@ -147,11 +147,10 @@ int32_t LibOVR_GetOrientation(float euler[3])
 	if (!LibOVR_InitSensor())
 		return 0;
 
-
 	// GetPredictedOrientation() works even if prediction is disabled
-	OVR::Quatf q = fusion->GetPredictedOrientation();
-	
-	q.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&euler[1], &euler[0], &euler[2]);
+	OVR::Transformf t = fusion->GetPoseAtTime(OVR::Timer::GetSeconds() + prediction_time);
+
+	t.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&euler[1], &euler[0], &euler[2]);
 
 	euler[0] = (float ) ((-euler[0] * 180.0f) / M_PI);
 	euler[1] = (float ) ((euler[1] * 180.0f) / M_PI);
@@ -185,20 +184,26 @@ const char* LibOVR_ProcessLatencyResults()
 
 int32_t LibOVR_GetSettings(ovr_settings_t *settings) {
 	OVR::HMDInfo hmdInfo;
+	float distk[4] = { 1.0f, 0.22f, 0.24f, 0.0f };
+	float chrm[4] = { 0.996f, -0.004f, 1.014f, 0.0f };
 	if (!LibOVR_InitHMD() || !hmd->GetDeviceInfo(&hmdInfo))
 		return 0;
+	
+	OVR::HmdRenderInfo info = OVR::GenerateHmdRenderInfoFromHmdInfo(hmdInfo);
+
 	settings->initialized = 1;
-	settings->h_resolution = hmdInfo.HResolution;
-	settings->v_resolution = hmdInfo.VResolution;
-	settings->h_screen_size = hmdInfo.HScreenSize;
-	settings->v_screen_size = hmdInfo.VScreenSize;
+	
+	settings->h_resolution = hmdInfo.ResolutionInPixels.w;
+	settings->v_resolution = hmdInfo.ResolutionInPixels.h;
+	settings->h_screen_size = hmdInfo.ScreenSizeInMeters.w;
+	settings->v_screen_size = hmdInfo.ScreenSizeInMeters.h;
 	settings->xPos = hmdInfo.DesktopX;
 	settings->yPos = hmdInfo.DesktopY;
-	settings->interpupillary_distance = hmdInfo.InterpupillaryDistance;
-	settings->lens_separation_distance = hmdInfo.LensSeparationDistance;
-	settings->eye_to_screen_distance = hmdInfo.EyeToScreenDistance;
-	memcpy(settings->distortion_k, hmdInfo.DistortionK, sizeof(float) * 4);
-	memcpy(settings->chrom_abr, hmdInfo.ChromaAbCorrection, sizeof(float) * 4);
+	settings->interpupillary_distance = info.EyeLeft.NoseToPupilInMeters;
+	settings->lens_separation_distance = hmdInfo.LensSeparationInMeters;
+	settings->eye_to_screen_distance = info.LensSurfaceToMidplateInMeters + info.EyeLeft.ReliefInMeters;
+	memcpy(settings->distortion_k, distk, sizeof(float) * 4);
+	memcpy(settings->chrom_abr, chrm, sizeof(float) * 4);
 	strncpy(settings->deviceString, hmdInfo.ProductName,31);
 	strncpy(settings->deviceName,hmdInfo.DisplayDeviceName,31);
 	return 1;
@@ -209,10 +214,7 @@ int32_t LibOVR_SetPredictionTime(float time) {
 	if (!LibOVR_InitSensor())
 		return 0;
 
-	if (time > 0.0f)
-		fusion->SetPrediction(timeInSec, true);
-	else
-		fusion->SetPrediction(0.0f,false);
+	prediction_time = timeInSec;
 	return 1;
 }
 
@@ -224,9 +226,6 @@ int32_t LibOVR_IsDriftCorrectionEnabled() {
 
 int32_t LibOVR_EnableDriftCorrection() {
 	if (!LibOVR_InitSensor())
-		return 0;
-	
-	if (!fusion->HasMagCalibration())
 		return 0;
 
 	fusion->SetYawCorrectionEnabled(true);
