@@ -15,9 +15,10 @@ typedef struct {
 	float projOffset;
 	float viewFovY;
 	float viewFovX;
-	float ipd;
 	float pixelScale;
 	float aspect;
+	vec3_t leftEyeAdjust;
+	vec3_t rightEyeAdjust;
 } vr_param_t;
 
 // struct for things that may change from frame to frame

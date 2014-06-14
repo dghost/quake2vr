@@ -42,7 +42,7 @@ void R_AntialiasBind(void)
 		case ANTIALIAS_4X_FSAA:
 			offscreenBounds.width = screenBounds.width * 2;
 			offscreenBounds.height = screenBounds.height * 2;
-			R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, &offscreen);
+			R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, GL_RGBA8, &offscreen);
 			break;
 		default:
 		case ANTIALIAS_NONE:

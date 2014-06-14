@@ -663,7 +663,6 @@ void VR_RenderStereo ()
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
 	float f; // Barnes added
 	vec3_t view,viewOrig, tmp;
-	float viewOffset = (vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0)) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
 
 
 	if (cls.state != ca_active)
@@ -821,46 +820,84 @@ void VR_RenderStereo ()
 		}
 	}
 
-	// draw for left eye
-	R_VR_BindView(EYE_LEFT);
+	// left eye rendering
+	{
 
-//	R_VR_BindWorld();
+		vec3_t leftEyeOffset;
+		// draw for left eye
+		R_VR_BindView(EYE_LEFT);
 
-	VectorScale( cl.v_right, EYE_LEFT * viewOffset , tmp );
-	VectorAdd( view, tmp, cl.refdef.vieworg );
+		//	R_VR_BindWorld();
 
-	R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
-	R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
+		if (vr_autoipd->value)
+		{
+			vec3_t eye;
+			VectorScale(vrState.leftEyeAdjust,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
+			VectorScale( cl.v_right, eye[0] , tmp );
+			VectorAdd( view, tmp, cl.refdef.vieworg );
 
-	R_RenderView(&cl.refdef );
+			VectorScale( cl.v_forward, eye[1], tmp );
+			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
 
-	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
-		R_DrawCameraEffect ();
-	// render full screen effects
-//	VR_RenderScreenEffects(&cl.refdef);
-	// draw for right eye
+			VectorScale( cl.v_up, eye[2] , tmp );
+			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
+		} else {
+			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			VectorScale( cl.v_right, EYE_LEFT * viewOffset , tmp );
+			VectorAdd( view, tmp, cl.refdef.vieworg );
+		}
 
+		R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
+		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
 
-	// shift view to the right half of the frame buffer
-	R_VR_BindView(EYE_RIGHT);
-		
-	VectorScale( cl.v_right, EYE_RIGHT * viewOffset , tmp );
-	VectorAdd( view, tmp, cl.refdef.vieworg );
+		R_RenderView(&cl.refdef );
+
+		if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
+			R_DrawCameraEffect ();
+		// render full screen effects
+		//	VR_RenderScreenEffects(&cl.refdef);
+		// draw for right eye
+
+	}
+
+	// Right eye rendering
+	{
 	
-	R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
-	R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
+		// shift view to the right half of the frame buffer
+		R_VR_BindView(EYE_RIGHT);
+
+		if (vr_autoipd->value)
+		{
+			vec3_t eye;
+			VectorScale(vrState.rightEyeAdjust,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
+			VectorScale( cl.v_right, eye[0] , tmp );
+			VectorAdd( view, tmp, cl.refdef.vieworg );
+
+			VectorScale( cl.v_forward, eye[1], tmp );
+			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
+
+			VectorScale( cl.v_up, eye[2] , tmp );
+			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
+		} else {
+			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			VectorScale( cl.v_right, EYE_RIGHT * viewOffset , tmp );
+			VectorAdd( view, tmp, cl.refdef.vieworg );
+		}
+
+		R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
+		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
 
 
-	R_RenderView(&cl.refdef );
+		R_RenderView(&cl.refdef );
 
-	// finish house keeping tasks
+		// finish house keeping tasks
 
-	
-	if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
-		R_DrawCameraEffect ();
-	// render full screen effects
-	//VR_RenderScreenEffects(&cl.refdef);
 
+		if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
+			R_DrawCameraEffect ();
+		// render full screen effects
+		//VR_RenderScreenEffects(&cl.refdef);
+	}
 	VectorCopy(viewOrig, cl.refdef.vieworg);
 
 	// reset for fullscreen rendering

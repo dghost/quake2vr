@@ -49,7 +49,7 @@ void R_Blur(float blurScale)
 			scale *= 2;
 
 		if (vid.width != offscreenFBO.width || vid.height != offscreenFBO.height)
-			R_ResizeFBO(vid.width,vid.height,TRUE, &offscreenFBO);
+			R_ResizeFBO(vid.width,vid.height,TRUE, GL_RGBA8, &offscreenFBO);
 
 		for (i = 0 ; i < 5 ; i++)
 		{
@@ -79,8 +79,8 @@ void R_Blur(float blurScale)
 
 		if (width != pongFBO.width || height != pongFBO.height)
 		{
-			R_ResizeFBO(width ,height ,TRUE, &pongFBO);
-			R_ResizeFBO(width ,height ,TRUE, &pingFBO);
+			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pongFBO);
+			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pingFBO);
 		}
 
 		GL_ClearColor(0,0,0,0);

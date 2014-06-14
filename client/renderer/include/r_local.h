@@ -746,6 +746,8 @@ typedef struct
 	qboolean	anisotropic;
 	float		max_anisotropy;
 	uint32_t	refresh_rate;
+	qboolean	ext_texture_srgb;
+	qboolean	ext_framebuffer_srgb;
 } glconfig_t;
 
 
@@ -924,11 +926,12 @@ typedef struct {
 	GLuint texture;
 	GLuint depthbuffer;
 	int32_t width, height;
+	GLenum format;
 	int32_t valid;
 } fbo_t;
 
-int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO);
-int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO);
+int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO);
+int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear,GLenum format, fbo_t *FBO);
 void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);
 void R_InitFBO(fbo_t *FBO);

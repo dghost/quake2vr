@@ -212,6 +212,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	//SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
 
 
 	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);

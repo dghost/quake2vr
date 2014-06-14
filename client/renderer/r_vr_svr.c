@@ -132,7 +132,7 @@ void SVR_BindView(vr_eye_t eye)
 
 		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
 		{
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, &left);
+			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);
 		}
 		vid.height = left.height;
 		vid.width = left.width;
@@ -141,7 +141,7 @@ void SVR_BindView(vr_eye_t eye)
 	case EYE_RIGHT:
 		if (renderTargetRect.width != right.width || renderTargetRect.height != right.height)
 		{
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, &right);
+			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &right);
 		}
 		vid.height = right.height;
 		vid.width = right.width;
@@ -155,11 +155,13 @@ void SVR_BindView(vr_eye_t eye)
 void SVR_GetState(vr_param_t *state)
 {
 	vr_param_t svrState;
+	float ipd = (svr_settings.ipd / 2.0);
 	svrState.aspect = svr_settings.aspect;
 	svrState.projOffset = svr_settings.projOffset;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
-	svrState.ipd = svr_settings.ipd;
+	VectorSet(svrState.leftEyeAdjust,ipd * EYE_LEFT, 0.0, 0.0);
+	VectorSet(svrState.rightEyeAdjust,ipd * EYE_RIGHT, 0.0, 0.0);
 	svrState.pixelScale = 3.0;
 	*state = svrState;
 }

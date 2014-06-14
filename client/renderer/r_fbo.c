@@ -1,7 +1,7 @@
 #include "include/r_local.h"
 
 
-int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO)
+int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO)
 {
 	GLuint fbo, tex, dep;
 	int32_t err;
@@ -13,7 +13,7 @@ int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO)
 
 	GL_MBind(0,tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	if (bilinear)
 	{
@@ -63,26 +63,27 @@ int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, fbo_t *FBO)
 		FBO->depthbuffer = dep;
 		FBO->width = width;
 		FBO->height = height;
+		FBO->format = format;
 		FBO->valid = 1;
 		return 1;
 	}
 }
 
-int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, fbo_t *FBO)
+int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, GLenum format, fbo_t *FBO)
 {
 	int32_t err;
 	
 	
 	if (!FBO->valid)
 	{
-		return R_GenFBO(width, height, bilinear, FBO);
+		return R_GenFBO(width, height, bilinear, format, FBO);
 	}
 
 	glGetError();
 
 	GL_MBind(0,FBO->texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 	if (bilinear)
 	{
@@ -109,7 +110,7 @@ int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, fbo_t *FBO
 		VID_Printf(PRINT_ALL, "R_ResizeFBO: Depth buffer resize: glGetError() = 0x%x\n", err);
 	FBO->width = width;
 	FBO->height = height;
-
+	FBO->format = format;
 
 	return 1;
 }
@@ -138,12 +139,7 @@ void R_DelFBO(fbo_t *FBO)
 	glDeleteTextures(1, &FBO->texture);
 	glDeleteRenderbuffersEXT(1, &FBO->depthbuffer);
 	
-	FBO->framebuffer = 0;
-	FBO->texture = 0;
-	FBO->depthbuffer = 0;
-	FBO->height = 0;
-	FBO->width = 0;
-	FBO->valid = 0;
+	R_InitFBO(FBO);
 }
 
 void R_InitFBO(fbo_t *FBO)
@@ -153,6 +149,7 @@ void R_InitFBO(fbo_t *FBO)
 	FBO->depthbuffer = 0;
 	FBO->height = 0;
 	FBO->width = 0;
+	FBO->format = 0;	
 	FBO->valid = 0;
 }
 

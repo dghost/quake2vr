@@ -1528,6 +1528,27 @@ qboolean R_Init ( char *reason )
 		Cvar_SetInteger("r_directstate",0);
 	}
 
+	glConfig.ext_texture_srgb = false;
+	if (GLEW_EXT_texture_sRGB)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_EXT_texture_srgb\n" );
+		glConfig.ext_texture_srgb = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_EXT_texture_srgb not found\n" );
+		glConfig.ext_texture_srgb = false;
+//		Cvar_SetInteger("r_srgb_gamma",0);
+	}
+
+	glConfig.ext_framebuffer_srgb = false;
+	if (GLEW_EXT_framebuffer_sRGB)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_EXT_framebuffer_srgb\n" );
+		glConfig.ext_framebuffer_srgb = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_srgb not found\n" );
+		glConfig.ext_framebuffer_srgb = false;
+//		Cvar_SetInteger("r_srgb_gamma",0);
+	}
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);
 	err = glGetError();

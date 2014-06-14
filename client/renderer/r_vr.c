@@ -379,7 +379,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	float fov = vr_hud_fov->value;
 	float depth = vr_hud_depth->value;
 	int numsegments = vr_hud_segments->value;
-	float ipd = vr_autoipd->value ? vrState.ipd / 2.0 : (vr_ipd->value / 2000.0);
 	vec_t mat[4][4], temp[4][4];
 
 	extern int32_t scr_draw_loading;
@@ -400,8 +399,22 @@ void R_VR_DrawHud(vr_eye_t eye)
 		QuatToRotation(q, mat);
 
 	}
+	
+	if (vr_autoipd->value)
+	{
+		if (eye == EYE_LEFT)
+		{
+			TranslationMatrix(-vrState.leftEyeAdjust[0], vrState.leftEyeAdjust[1], vrState.leftEyeAdjust[2], temp);
+		} else if (eye == EYE_RIGHT)
+		{
+			TranslationMatrix(-vrState.rightEyeAdjust[0], vrState.rightEyeAdjust[1], vrState.rightEyeAdjust[2], temp);
+		}
+	} else {
+		float viewOffset = (vr_ipd->value / 2000.0);
+		// negative? not sure that's right?
+		TranslationMatrix(eye * -viewOffset, 0, 0, temp);
+	}
 
-	TranslationMatrix(eye * -ipd, 0, 0, temp);
 	MatrixMultiply(temp, mat, mat);
 	GL_LoadMatrix(GL_MODELVIEW, mat);
 
@@ -527,7 +540,7 @@ void R_VR_Enable()
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
-		success = (qboolean) R_GenFBO(640, 480, 1, &hud);
+		success = (qboolean) R_GenFBO(640, 480, 1, GL_RGBA8, &hud);
 		success = success && hmd->enable && hmd->enable();
 
 
@@ -548,7 +561,7 @@ void R_VR_Enable()
 			hmd->getState(&vrState);
 
 
-			strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
+			//strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
 			vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
 
 			if (vr_ipd->value < 0)
