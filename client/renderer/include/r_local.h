@@ -748,6 +748,8 @@ typedef struct
 	uint32_t	refresh_rate;
 	qboolean	ext_texture_srgb;
 	qboolean	ext_framebuffer_srgb;
+	qboolean	arb_vertex_buffer_object;
+	qboolean	arb_vertex_array_object;
 } glconfig_t;
 
 
@@ -946,9 +948,15 @@ r_shaderobjects.c
 */
 
 typedef struct {
+	const char *name;
+	GLuint index;
+} r_attrib_t;
+
+typedef struct {
 	GLuint program;
 	const char *vert_source;
 	const char *frag_source;
+	r_attrib_t *attribs;
 } r_shaderobject_t;
 
 typedef struct {
@@ -1009,10 +1017,12 @@ void R_AntialiasShutdown(void);
 //
 // r_misc.c
 //
+
 void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
-int32_t R_FrameSync (void);
+int32_t R_FrameSync (v
+					 oid);
 void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 
 
@@ -1023,6 +1033,5 @@ void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zF
 void R_Blur(float blurScale);
 void R_BlurInit();
 void R_BlurShutdown();
-
 
 #endif

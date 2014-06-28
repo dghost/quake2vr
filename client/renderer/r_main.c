@@ -1547,8 +1547,30 @@ qboolean R_Init ( char *reason )
 	} else {
 		VID_Printf (PRINT_ALL, "...GL_EXT_framebuffer_srgb not found\n" );
 		glConfig.ext_framebuffer_srgb = false;
-//		Cvar_SetInteger("r_srgb_gamma",0);
 	}
+
+	glConfig.arb_vertex_buffer_object = false;
+	if (GLEW_ARB_vertex_buffer_object)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_buffer_object\n" );
+		glConfig.arb_vertex_buffer_object = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_vertex_buffer_object not found\n" );
+		glConfig.arb_vertex_buffer_object = false;
+	}
+
+	glConfig.arb_vertex_array_object = false;
+	if (GLEW_ARB_vertex_array_object)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_ARB_vertex_array_object\n" );
+		glConfig.arb_vertex_array_object = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_vertex_array_object not found\n" );
+		glConfig.arb_vertex_array_object = false;
+	}
+
+
+
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);
 	err = glGetError();

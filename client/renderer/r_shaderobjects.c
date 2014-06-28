@@ -18,7 +18,8 @@ static r_shaderobject_t warpshader_object = {
 	// vertex shader (identity)
 	"warp.vert",
 	// fragment shader
-	"warp.frag"
+	"warp.frag",
+	NULL
 };
 
 static r_shaderobject_t warpsimplexshader_object = {
@@ -26,7 +27,8 @@ static r_shaderobject_t warpsimplexshader_object = {
 	// vertex shader (identity)
 	"warp_simplex.vert",
 	// fragment shader
-	"warp.frag"
+	"warp.frag",
+	NULL
 };
 
 static r_shaderobject_t causticshader_object = {
@@ -34,7 +36,8 @@ static r_shaderobject_t causticshader_object = {
 	// vertex shader (identity)
 	"caustic.vert",
 	// fragment shader
-	"warp.frag"
+	"warp.frag",
+	NULL
 };
 
 static r_shaderobject_t blurX_object = {
@@ -42,7 +45,8 @@ static r_shaderobject_t blurX_object = {
 	// vertex shader (identity)
 	"blurX.vert",
 	// fragment shader
-	"blur.frag"
+	"blur.frag",
+	NULL
 };
 
 static r_shaderobject_t blurY_object = {
@@ -50,7 +54,8 @@ static r_shaderobject_t blurY_object = {
 	// vertex shader (identity)
 	"blurY.vert",
 	// fragment shader
-	"blur.frag"
+	"blur.frag",
+	NULL
 };
 
 static qboolean firstInit = false;
@@ -141,6 +146,22 @@ qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader)
 		{
 			glAttachShader(program, vert_shader);
 			glAttachShader(program, frag_shader);
+
+			if (shader->attribs)
+			{
+				int i = 0;
+				r_attrib_t *attribList = shader->attribs;
+
+				for (i = 0; attribList[i].name != 0; i++)
+				{
+					GLenum error;
+					glBindAttribLocation(program,attribList[i].index, attribList[i].name);
+					error = glGetError();
+					if (error)
+						Com_Printf("R_CompileShaderProgram: Error assigning attribute '%s' location '%u'\n",attribList[i].name,attribList[i].index);
+				}
+			}
+
 			glLinkProgram(program); 
 
 			err = glGetError();
@@ -200,6 +221,22 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 		{
 			glAttachShader(program, vert_shader);
 			glAttachShader(program, frag_shader);
+
+			if (shader->attribs)
+			{
+				int i = 0;
+				r_attrib_t *attribList = shader->attribs;
+
+				for (i = 0; attribList[i].name != 0; i++)
+				{
+					GLenum error;
+					glBindAttribLocation(program,attribList[i].index, attribList[i].name);
+					error = glGetError();
+					if (error)
+						Com_Printf("R_CompileShaderProgram: Error assigning attribute '%s' location '%u'\n",attribList[i].name,attribList[i].index);
+				}
+			}
+
 			glLinkProgram(program); 
 
 			err = glGetError();
