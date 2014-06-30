@@ -696,24 +696,25 @@ void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zF
 
 	GLfloat f = 1.0f / tanf((fovy / 2.0f) * M_PI / 180);
 	GLfloat nf = 1.0f / (zNear - zFar);
-	GLfloat out[16];
+	GLfloat out[4][4];
 
-	out[0] = f / aspect;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-	out[4] = 0;
-	out[5] = f;
-	out[6] = 0;
-	out[7] = 0;
-	out[8] = offset;
-	out[9] = 0;
-	out[10] = (zFar + zNear) * nf;
-	out[11] = -1;
-	out[12] = 0;
-	out[13] = 0;
-	out[14] = (2.0f * zFar * zNear) * nf;
-	out[15] = 0;
+	out[0][0] = f / aspect;
+	out[0][1] = 0;
+	out[0][2] = 0;
+	out[0][3] = 0;
+	out[1][0] = 0;
+	out[1][1] = f;
+	out[1][2] = 0;
+	out[1][3] = 0;
+	out[2][0] = offset;
+	out[2][1] = 0;
+	out[2][2] = (zFar + zNear) * nf;
+	out[2][3] = -1;
+	out[3][0] = 0;
+	out[3][1] = 0;
+	out[3][2] = (2.0f * zFar * zNear) * nf;
+	out[3][3] = 0;
 
 	GL_LoadMatrix(GL_PROJECTION,out);
 }
+

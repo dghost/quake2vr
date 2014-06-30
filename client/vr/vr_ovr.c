@@ -36,7 +36,8 @@ vr_param_t ovrState = {0, 0, 0, 0, 0, 0};
 
 ovrHmd hmd;
 ovrHmdDesc hmdDesc; 
-
+ovrEyeRenderDesc eyeDesc[2];
+	
 static double prediction_time;
 
 hmd_interface_t hmd_rift = {
@@ -56,7 +57,8 @@ hmd_interface_t hmd_rift = {
 
 void VR_OVR_GetFOV(float *fovx, float *fovy)
 {
-	// retrieve the FOV
+	*fovx = hmdDesc.DefaultEyeFov[ovrEye_Left].LeftTan + hmdDesc.DefaultEyeFov[ovrEye_Left].RightTan;
+	*fovy = hmdDesc.DefaultEyeFov[ovrEye_Left].UpTan + hmdDesc.DefaultEyeFov[ovrEye_Left].DownTan;
 }
 
 
@@ -69,14 +71,61 @@ void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos)
 	}
 }
 
+void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e)
+{
+	vec_t w = q.w;
+	vec_t Q[3] = {q.x,q.y,q.z};
 
+	vec_t ww  = w*w;
+    vec_t Q11 = Q[1]*Q[1];
+    vec_t Q22 = Q[0]*Q[0];
+    vec_t Q33 = Q[2]*Q[2];
+
+    vec_t psign = -1.0f;
+
+    vec_t s2 = -2.0f * (-w*Q[0] + Q[1]*Q[2]);
+
+    if (s2 < -1.0f + 0.0000001f)
+    { // South pole singularity
+        e[YAW] = 0.0f;
+        e[PITCH] = -M_PI / 2.0f;
+        e[ROLL] = atan2(2.0f*(-Q[1]*Q[0] + w*Q[2]),
+		                ww + Q22 - Q11 - Q33 );
+    }
+    else if (s2 > 1.0f - 0.0000001f)
+    {  // North pole singularity
+        e[YAW] = 0.0f;
+        e[PITCH] = M_PI / 2.0f;
+        e[ROLL] = atan2(2.0f*(-Q[1]*Q[0] + w*Q[2]),
+		                ww + Q22 - Q11 - Q33);
+    }
+    else
+    {
+        e[YAW] = -atan2(-2.0f*(w*Q[1] - -Q[0]*Q[2]),
+		                ww + Q33 - Q11 - Q22);
+        e[PITCH] = asin(s2);
+        e[ROLL] = atan2(2.0f*(w*Q[2] - -Q[1]*Q[0]),
+		                ww + Q11 - Q22 - Q33);
+    }      
+
+	e[PITCH] = -RAD2DEG(e[PITCH]);
+	e[YAW] = RAD2DEG(e[YAW]);
+	e[ROLL] = -RAD2DEG(e[ROLL]);
+
+}
 int32_t VR_OVR_getOrientation(float euler[3])
 {
-	/*
-	if (vr_ovr_latencytest->value)
-		LibOVR_ProcessLatencyInputs();
-    return LibOVR_GetOrientation(euler);
-	*/
+	ovrSensorState ss;
+	if (!hmd)
+		return 0;
+
+	ss = ovrHmd_GetSensorState(hmd, ovr_GetTimeInSeconds() + prediction_time);
+	
+	if (ss.StatusFlags & (ovrStatus_OrientationTracked ) )
+	{ 
+		VR_OVR_QuatToEuler(ss.Predicted.Pose.Orientation,euler);
+		return 1;
+	}
 	return 0;
 }
 
@@ -158,7 +207,7 @@ float VR_OVR_GetDistortionScale()
 
 int32_t VR_OVR_SetPredictionTime(float time)
 {
-	prediction_time = time;
+	prediction_time = time / 1000.0;
 	Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", time);
 	return 1;
 }
@@ -191,12 +240,11 @@ void VR_OVR_Frame()
 
 int32_t VR_OVR_Enable()
 {
-	char string[6];
 	int32_t failure = 0;
 	if (!vr_ovr_enable->value)
 		return 0;
 	hmd = ovrHmd_Create(0);
-
+	
 	if (!hmd)
 	{
 		Com_Printf("VR_OVR: Error, no HMD detected!\n");
@@ -230,7 +278,6 @@ int32_t VR_OVR_Enable()
 
 	ovrHmd_GetDesc(hmd, &hmdDesc);
 	
-
 	Com_Printf("...detected HMD %s with %ux%u resolution\n", hmdDesc.ProductName,hmdDesc.Resolution.w, hmdDesc.Resolution.h);
 	
 	if (ovrHmd_StartSensor(hmd,(ovrSensorCap_Orientation | ovrSensorCap_YawCorrection), ovrSensorCap_Orientation))
@@ -238,27 +285,13 @@ int32_t VR_OVR_Enable()
 		Com_Printf("...successfully started sensor\n");
 	}
 
-	if (vr_ovr_scale->value < 1)
-		Cvar_SetValue("vr_ovr_scale", 1.0);
-
-	VR_OVR_CalcRenderParam();
-
-	/* 8/30/2013 - never auto enable this.
-	// TODO: use pixel density instead
-	if (vr_ovr_settings.v_resolution > 800)
-		Cvar_SetInteger("vr_hud_transparency", 1);
-	*/
-	Com_Printf("...calculated %.2f minimum distortion scale\n", ovrConfig.minScale);
-	Com_Printf("...calculated %.2f maximum distortion scale\n", ovrConfig.maxScale);
-
 	if (hmdDesc.SensorCaps & ovrHmdCap_LatencyTest)
 	{
 		Com_Printf("...found latency tester\n");
 		Cvar_SetInteger("vr_ovr_latencytest",1);
 	}
 	
-	VR_OVR_Disable();
-	return 0;
+	return 1;
 }
 
 void VR_OVR_Disable()

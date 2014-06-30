@@ -823,8 +823,7 @@ void VR_RenderStereo ()
 	// left eye rendering
 	{
 
-		vec3_t leftEyeOffset;
-		// draw for left eye
+//		// draw for left eye
 		R_VR_BindView(EYE_LEFT);
 
 		//	R_VR_BindWorld();

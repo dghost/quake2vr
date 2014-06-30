@@ -157,11 +157,22 @@ void SVR_GetState(vr_param_t *state)
 	vr_param_t svrState;
 	float ipd = (svr_settings.ipd / 2.0);
 	svrState.aspect = svr_settings.aspect;
-	svrState.projOffset = svr_settings.projOffset;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
 	VectorSet(svrState.leftEyeAdjust,ipd * EYE_LEFT, 0.0, 0.0);
 	VectorSet(svrState.rightEyeAdjust,ipd * EYE_RIGHT, 0.0, 0.0);
+
+    svrState.leftScaleOffset.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.leftScaleOffset.y.offset = 0.0;
+	svrState.leftScaleOffset.x.scale = svrState.leftScaleOffset.y.scale / svr_settings.aspect;
+	svrState.leftScaleOffset.x.offset = svr_settings.projOffset;
+
+
+    svrState.rightScaleOffset.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.rightScaleOffset.y.offset = 0.0;
+	svrState.rightScaleOffset.x.scale = svrState.rightScaleOffset.y.scale / svr_settings.aspect;
+	svrState.rightScaleOffset.x.offset = -svr_settings.projOffset;
+
 	svrState.pixelScale = 3.0;
 	*state = svrState;
 }

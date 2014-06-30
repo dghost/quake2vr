@@ -235,6 +235,8 @@
     <ClCompile Include="client\renderer\r_sky.c" />
     <ClCompile Include="client\renderer\r_sprite.c" />
     <ClCompile Include="client\renderer\r_surface.c" />
+    <ClCompile Include="client\renderer\r_vao.c" />
+    <ClCompile Include="client\renderer\r_vbo.c" />
     <ClCompile Include="client\renderer\r_vlights.c" />
     <ClCompile Include="client\renderer\r_vr.c" />
     <ClCompile Include="client\renderer\r_vr_ovr.c" />

@@ -12,13 +12,24 @@ typedef enum {
 } vr_eye_t;
 
 typedef struct {
-	float projOffset;
+	float scale;
+	float offset;
+} scaleOffset_t;
+
+typedef struct {
+	scaleOffset_t x;
+	scaleOffset_t y;
+} eyeScaleOffset_t;
+
+typedef struct {
 	float viewFovY;
 	float viewFovX;
 	float pixelScale;
 	float aspect;
 	vec3_t leftEyeAdjust;
 	vec3_t rightEyeAdjust;
+	eyeScaleOffset_t leftScaleOffset;
+	eyeScaleOffset_t rightScaleOffset;
 } vr_param_t;
 
 // struct for things that may change from frame to frame
