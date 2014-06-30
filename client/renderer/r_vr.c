@@ -34,8 +34,7 @@ typedef struct {
 	vec2_t texCoords;
 } vert_t;
 
-static vert_t *hudverts;
-static uint32_t hudNumVerts;
+static vbo_t hudVBO;
 
 static GLuint currentFBO = 0;
 
@@ -95,6 +94,96 @@ void sphereProject(vec3_t pos, vec3_t scale, vec3_t out)
 	VectorCopy(temp, out);
 }
 
+void R_VR_GenerateHud()
+{
+	int i, j;
+	float numsegments = floor(vr_hud_segments->value);
+	float horizFOV = vr_hud_fov->value;
+	float depth = vr_hud_depth->value;
+	float horizInterval = 2.0 / numsegments;
+	float vertBounds = (float) hud.height / (float) hud.width;
+	float vertInterval = horizInterval * vertBounds;
+
+	int numindices = (numsegments) * (numsegments + 1) * 2 + (numsegments * 2);
+	int numverts = (numsegments) * (numsegments + 1) * 2;
+
+
+	vert_t *hudverts = NULL;
+	uint32_t *indices = NULL;
+	uint32_t hudNumVerts = 0;
+	uint32_t currIndex = 0;
+	uint32_t iboSize = sizeof(uint32_t) * numindices;
+	uint32_t vboSize = sizeof(vert_t) * numverts;
+
+	// calculate coordinates for hud
+	float xoff = tanf(horizFOV * (M_PI / 180.0f) * 0.5) * (depth);
+	float zoff = depth * cosf(horizFOV * (M_PI / 180.0f) * 0.5);
+	vec3_t offsetScale;
+	VectorSet(offsetScale, xoff, xoff, zoff);
+
+	hudverts = (vert_t *) malloc(vboSize);
+	memset(hudverts, 0, vboSize);
+
+	indices = (uint32_t *) malloc(iboSize);
+	memset(indices, 0, iboSize);
+
+	for (j = 0; j < numsegments; j++)
+	{
+		float ypos = j * vertInterval - vertBounds;
+		float ypos1 = (j + 1) * vertInterval - vertBounds;
+
+		for (i = 0; i <= numsegments; i++)
+		{
+			float xpos = i * horizInterval - 1;
+			float xpos1 = (i + 1) * horizInterval - 1;
+
+			vert_t vert1, vert2;
+			uint32_t vertNum1, vertNum2;
+
+			VectorSet(vert1.position, xpos, ypos, -1);
+			sphereProject(vert1.position, offsetScale, vert1.position);
+			vert1.texCoords[0] = (float) i / (float) (numsegments);
+			vert1.texCoords[1] = (float) j / (float) (numsegments);
+				
+
+			VectorSet(vert2.position, xpos, ypos1, -1);
+			sphereProject(vert2.position, offsetScale, vert2.position);
+			vert2.texCoords[0] = (float) i / (float) (numsegments);
+			vert2.texCoords[1] = (float) (j + 1) / (float) (numsegments);
+
+
+			vertNum1 = hudNumVerts++;
+			vertNum2 = hudNumVerts++;
+
+			hudverts[vertNum1] = vert1;
+			hudverts[vertNum2] =  vert2;
+//				memcpy(&hudverts[vertNum1], &vert1, sizeof(vert_t));
+//				memcpy(&hudverts[vertNum2], &vert2, sizeof(vert_t));
+
+			if (j > 0 && i == 0)
+			{
+				indices[currIndex++] = vertNum1;
+			}
+
+			indices[currIndex++] = vertNum1;
+
+			indices[currIndex++] = vertNum2;
+
+			if (i == numsegments && j < (numsegments - 1))
+			{
+				indices[currIndex++] = vertNum2;
+			}
+		}
+	}
+
+	R_BindIVBO(&hudVBO,NULL,0);
+	R_VertexData(&hudVBO,hudNumVerts * sizeof(vert_t),hudverts);
+	R_IndexData(&hudVBO,GL_TRIANGLE_STRIP,GL_UNSIGNED_INT,currIndex,currIndex * sizeof(uint32_t),indices);
+	R_ReleaseIVBO(&hudVBO);
+	free(hudverts);
+	free(indices);
+}
+
 // executed once per frame
 void R_VR_StartFrame()
 {
@@ -148,70 +237,7 @@ void R_VR_StartFrame()
 	}
 
 	if (hudChanged)
-	{
-		int i, j;
-		float numsegments = floor(vr_hud_segments->value);
-		float horizFOV = vr_hud_fov->value;
-		float depth = vr_hud_depth->value;
-		float horizInterval = 2.0 / numsegments;
-		float vertBounds = (float) hud.height / (float) hud.width;
-		float vertInterval = horizInterval * vertBounds;
-
-		int numverts = (numsegments) * (numsegments + 1) * 2 + (numsegments * 2);
-
-
-		// calculate coordinates for hud
-		float xoff = tanf(horizFOV * (M_PI / 180.0f) * 0.5) * (depth);
-		float zoff = depth * cosf(horizFOV * (M_PI / 180.0f) * 0.5);
-		vec3_t offsetScale;
-		VectorSet(offsetScale, xoff, xoff, zoff);
-
-		hudNumVerts = 0;
-
-		if (hudverts)
-			free(hudverts);
-
-		hudverts = malloc(sizeof(vert_t) * numverts);
-		memset(hudverts, 0, sizeof(vert_t) * numverts);
-
-		for (j = 0; j < numsegments; j++)
-		{
-			float ypos = j * vertInterval - vertBounds;
-			float ypos1 = (j + 1) * vertInterval - vertBounds;
-
-			for (i = 0; i <= numsegments; i++)
-			{
-				float xpos = i * horizInterval - 1;
-				float xpos1 = (i + 1) * horizInterval - 1;
-
-				vert_t vert1, vert2;
-	
-				VectorSet(vert1.position, xpos, ypos, -1);
-				sphereProject(vert1.position, offsetScale, vert1.position);
-				vert1.texCoords[0] = (float) i / (float) (numsegments);
-				vert1.texCoords[1] = (float) j / (float) (numsegments);
-
-				VectorSet(vert2.position, xpos, ypos1, -1);
-				sphereProject(vert2.position, offsetScale, vert2.position);
-				vert2.texCoords[0] = (float) i / (float) (numsegments);
-				vert2.texCoords[1] = (float) (j + 1) / (float) (numsegments);
-
-				if (j > 0 && i == 0)
-				{
-					memcpy(&hudverts[hudNumVerts++], &vert1, sizeof(vert_t));
-				}
-
-				memcpy(&hudverts[hudNumVerts++], &vert1, sizeof(vert_t));
-
-				memcpy(&hudverts[hudNumVerts++], &vert2, sizeof(vert_t));
-
-				if (i == numsegments && j < (numsegments - 1))
-				{
-					memcpy(&hudverts[hudNumVerts++], &vert2, sizeof(vert_t));
-				}
-			}
-		}
-	}
+		R_VR_GenerateHud();
 
 	if (resolutionChanged)
 	{
@@ -357,10 +383,43 @@ void R_VR_EndFrame()
 	}
 }
 
+void VR_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar)
+{
+	GLfloat nf = 1.0f / (zNear - zFar);
+	GLfloat out[4][4];
+
+	out[0][0] = eye.x.scale;
+	out[0][1] = 0;
+	out[0][2] = 0;
+	out[0][3] = 0;
+
+	out[1][0] = 0;
+	out[1][1] = eye.y.scale;
+	out[1][2] = 0;
+	out[1][3] = 0;
+
+	out[2][0] = -eye.x.offset;
+	out[2][1] = eye.y.offset;
+	out[2][2] = (zFar + zNear) * nf;
+	out[2][3] = -1;
+
+	out[3][0] = 0;
+	out[3][1] = 0;
+	out[3][2] = (2.0f * zFar * zNear) * nf;
+	out[3][3] = 0;
+
+	GL_LoadMatrix(GL_PROJECTION,out);
+}
 void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar)
 {
 	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
-	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
+//	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
+	if (currenteye == EYE_LEFT)
+		VR_PerspectiveScale(vrState.leftScaleOffset,zNear,zFar);
+	else if (currenteye == EYE_RIGHT)
+		VR_PerspectiveScale(vrState.rightScaleOffset,zNear,zFar);
+	else
+		R_PerspectiveOffset(fovy,aspect,zNear,zFar,0);
 }
 
 
@@ -383,10 +442,10 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	extern int32_t scr_draw_loading;
 
-	if (!vr_enabled->value || !hudverts)
+	if (!vr_enabled->value)
 		return;
 
-	R_PerspectiveOffset(vrState.viewFovY, vrState.aspect, 0.24, 251.0, eye * vrState.projOffset);
+	R_VR_Perspective(vrState.viewFovY, vrState.aspect, 0.24, 251.0);
 
 	TranslationMatrix(0, 0, 0, mat);
 	// disable this for the loading screens since they are not at 60fps
@@ -425,22 +484,28 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	}
 
-	/*
-	// debug rendering of HUD wireframe
-	GL_MBind(0, 0);
-	glColor3f(0.25, 0.25, 0.25);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBegin(GL_TRIANGLE_STRIP);
-	if (hudNumVerts >= 4) {
-		int i = 0;
-		for (i = 0; i < hudNumVerts; i++)
-		{
-			glTexCoord2fv(hudverts[i].texCoords);
-			glVertex3fv(hudverts[i].position);
-		}
+
+	if (hudVBO.handles[0] > 0) {
+
+		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState (GL_VERTEX_ARRAY);
+		glDisableClientState (GL_COLOR_ARRAY);
+		R_BindIVBO(&hudVBO,NULL,0);
+		glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
+		glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
+		R_DrawIVBO(&hudVBO);
+		R_ReleaseIVBO(&hudVBO);
+//		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+//		glEnableClientState (GL_VERTEX_ARRAY);
+		glEnableClientState (GL_COLOR_ARRAY);
+
+		glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
+		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
+//		glColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
 	}
 	else {
 		float y, x, z;
+		glBegin(GL_TRIANGLE_STRIP);
 		// calculate coordinates for hud
 		x = tanf(fov * (M_PI / 180.0f) * 0.5) * (depth);
 		y = x / ((float) hud.width / hud.height);
@@ -450,38 +515,10 @@ void R_VR_DrawHud(vr_eye_t eye)
 		glTexCoord2f(0, 1); glVertex3f(-x, y, -z);
 		glTexCoord2f(1, 0); glVertex3f(x, -y, -z);
 		glTexCoord2f(1, 1); glVertex3f(x, y, -z);
+		glEnd();
+
 	}
 
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glColor3f(1.0, 1.0, 1.0);
-	GL_MBind(0, hud.texture);
-	*/
-
-	glBegin(GL_TRIANGLE_STRIP);
-
-	if (hudNumVerts >= 4) {
-		int i = 0;
-		for (i = 0; i < hudNumVerts; i++)
-		{
-			glTexCoord2fv(hudverts[i].texCoords);
-			glVertex3fv(hudverts[i].position);
-		}
-	}
-	else {
-		float y, x, z;
-		// calculate coordinates for hud
-		x = tanf(fov * (M_PI / 180.0f) * 0.5) * (depth);
-		y = x / ((float) hud.width / hud.height);
-		z = depth * cosf(fov * (M_PI / 180.0f) * 0.5);
-
-		glTexCoord2f(0, 0); glVertex3f(-x, -y, -z);
-		glTexCoord2f(0, 1); glVertex3f(-x, y, -z);
-		glTexCoord2f(1, 0); glVertex3f(x, -y, -z);
-		glTexCoord2f(1, 1); glVertex3f(x, y, -z);
-	}
-
-	glEnd();
 
 	GL_Disable(GL_BLEND);
 }
@@ -527,6 +564,7 @@ void R_VR_Enable()
 	rightStale = 1;
 	hudStale = 1;
 
+
 	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
 		Com_Printf("VR: Initializing renderer:");
@@ -569,6 +607,9 @@ void R_VR_Enable()
 
 		}
 
+		R_CreateIVBO(&hudVBO, GL_STATIC_DRAW);
+		R_VR_GenerateHud();
+
 	}
 	else {
 		Com_Printf("VR: Cannot initialize renderer due to missing OpenGL extensions\n");
@@ -585,6 +626,8 @@ void R_VR_Enable()
 void R_VR_Disable()
 {
 	GL_BindFBO(0);
+	R_DelIVBO(&hudVBO);
+
 	glViewport(0, 0, screen.width, screen.height);
 
 	vid.width = screen.width;
@@ -600,7 +643,6 @@ void R_VR_Disable()
 	R_DelShaderProgram(&vr_shader_distort_chrm);
 	R_DelShaderProgram(&vr_shader_distort_bicubic_norm);
 	R_DelShaderProgram(&vr_shader_distort_bicubic_chrm);
-
 }
 
 // launch-time initialization for VR support
@@ -620,6 +662,7 @@ void R_VR_Init()
 
 	R_InitFBO(&hud);
 	R_InitFBO(&offscreen);
+	R_InitIVBO(&hudVBO);
 
 	if (vr_enabled->value)
 		R_VR_Enable();
@@ -628,6 +671,5 @@ void R_VR_Init()
 // called when the renderer is shutdown
 void R_VR_Shutdown()
 {
-	if (vr_enabled->value)
-		R_VR_Disable();
+	R_VR_Disable();
 }
