@@ -109,10 +109,10 @@ void R_VR_GenerateHud()
 
 
 	vert_t *hudverts = NULL;
-	uint32_t *indices = NULL;
+	GLushort *indices = NULL;
 	uint32_t hudNumVerts = 0;
-	uint32_t currIndex = 0;
-	uint32_t iboSize = sizeof(uint32_t) * numindices;
+	GLushort currIndex = 0;
+	uint32_t iboSize = sizeof(GLushort) * numindices;
 	uint32_t vboSize = sizeof(vert_t) * numverts;
 
 	// calculate coordinates for hud
@@ -124,21 +124,25 @@ void R_VR_GenerateHud()
 	hudverts = (vert_t *) malloc(vboSize);
 	memset(hudverts, 0, vboSize);
 
-	indices = (uint32_t *) malloc(iboSize);
+	indices = (GLushort *) malloc(iboSize);
 	memset(indices, 0, iboSize);
 
 	for (j = 0; j < numsegments; j++)
 	{
-		float ypos = j * vertInterval - vertBounds;
-		float ypos1 = (j + 1) * vertInterval - vertBounds;
+		float ypos, ypos1;
+		qboolean verticalHalf = (j >= numsegments / 2);
+		ypos = j * vertInterval - vertBounds;
+		ypos1 = (j + 1) * vertInterval - vertBounds;
 
 		for (i = 0; i <= numsegments; i++)
 		{
-			float xpos = i * horizInterval - 1;
-			float xpos1 = (i + 1) * horizInterval - 1;
-
+			float xpos;
 			vert_t vert1, vert2;
-			uint32_t vertNum1, vertNum2;
+			GLushort vertNum1, vertNum2;
+			qboolean horizontalHalf = (i >= (numsegments+1) / 2);
+			
+
+			xpos = i * horizInterval - 1;
 
 			VectorSet(vert1.position, xpos, ypos, -1);
 			sphereProject(vert1.position, offsetScale, vert1.position);
@@ -151,14 +155,17 @@ void R_VR_GenerateHud()
 			vert2.texCoords[0] = (float) i / (float) (numsegments);
 			vert2.texCoords[1] = (float) (j + 1) / (float) (numsegments);
 
-
 			vertNum1 = hudNumVerts++;
 			vertNum2 = hudNumVerts++;
 
-			hudverts[vertNum1] = vert1;
-			hudverts[vertNum2] =  vert2;
-//				memcpy(&hudverts[vertNum1], &vert1, sizeof(vert_t));
-//				memcpy(&hudverts[vertNum2], &vert2, sizeof(vert_t));
+			if (verticalHalf)
+			{
+				hudverts[vertNum2] = vert1;
+				hudverts[vertNum1] = vert2;
+			} else {
+				hudverts[vertNum1] = vert1;
+				hudverts[vertNum2] = vert2;
+			}
 
 			if (j > 0 && i == 0)
 			{
@@ -166,8 +173,8 @@ void R_VR_GenerateHud()
 			}
 
 			indices[currIndex++] = vertNum1;
-
 			indices[currIndex++] = vertNum2;
+
 
 			if (i == numsegments && j < (numsegments - 1))
 			{
@@ -178,7 +185,7 @@ void R_VR_GenerateHud()
 
 	R_BindIVBO(&hudVBO,NULL,0);
 	R_VertexData(&hudVBO,hudNumVerts * sizeof(vert_t),hudverts);
-	R_IndexData(&hudVBO,GL_TRIANGLE_STRIP,GL_UNSIGNED_INT,currIndex,currIndex * sizeof(uint32_t),indices);
+	R_IndexData(&hudVBO,GL_TRIANGLE_STRIP,GL_UNSIGNED_SHORT,currIndex,currIndex * sizeof(GLushort),indices);
 	R_ReleaseIVBO(&hudVBO);
 	free(hudverts);
 	free(indices);
@@ -484,7 +491,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	}
 
-
+//	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	if (hudVBO.handles[0] > 0) {
 
 		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
@@ -519,7 +526,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	}
 
-
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	GL_Disable(GL_BLEND);
 }
 
