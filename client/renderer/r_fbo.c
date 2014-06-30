@@ -144,13 +144,7 @@ void R_DelFBO(fbo_t *FBO)
 
 void R_InitFBO(fbo_t *FBO)
 {
-	FBO->framebuffer = 0;
-	FBO->texture = 0;
-	FBO->depthbuffer = 0;
-	FBO->height = 0;
-	FBO->width = 0;
-	FBO->format = 0;	
-	FBO->valid = 0;
+	memset(FBO,0,sizeof(fbo_t));
 }
 
 void R_BindFBO(fbo_t *FBO)

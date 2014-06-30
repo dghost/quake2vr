@@ -1021,8 +1021,7 @@ void R_AntialiasShutdown(void);
 void R_ScreenShot_f (void);
 void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
-int32_t R_FrameSync (v
-					 oid);
+int32_t R_FrameSync (void);
 void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 
 
@@ -1034,4 +1033,74 @@ void R_Blur(float blurScale);
 void R_BlurInit();
 void R_BlurShutdown();
 
+
+/*
+====================================================================
+
+r_vao.c
+
+====================================================================
+*/
+
+/*
+typedef struct {
+	
+} vao_t;
+
+int32_t R_GenVAO(int32_t width, int32_t height, int32_t bilinear, GLenum format, vao_t *VAO);
+int32_t R_ResizeVAO(int32_t width, int32_t height, int32_t bilinear,GLenum format, vao_t *VAO);
+void R_SetVAOFilter(int32_t bilinear, vao_t *VAO);
+void R_DelVAO(vao_t *VAO);
+void R_InitVAO(vao_t *VAO);
+void R_BindVAO(vao_t *VAO);
+*/
+/*
+====================================================================
+
+r_vbo.c
+
+====================================================================
+*/
+
+typedef struct {
+	GLuint handle;
+	GLenum target;
+	GLenum usage;
+} buffer_t;
+
+int32_t R_CreateBuffer(buffer_t *buffer, GLenum target, GLenum usage);
+int32_t R_SetBuffer(buffer_t *buffer, GLsizeiptr size,  const GLvoid * data);
+void R_BindBuffer(buffer_t *buffer);
+void R_ReleaseBuffer(buffer_t *buffer);
+void R_DelBuffer(buffer_t *buffer);
+void R_InitBuffer(buffer_t *buffer);
+
+typedef struct {
+	GLuint index;
+	GLint size;
+	GLenum type;
+	GLboolean normalized;
+	GLsizei stride;
+	GLsizei offset;
+} attribs_t;
+
+void R_SetAttribsVBO(attribs_t *attribs, unsigned int count);
+
+typedef struct {
+	GLuint handles[2];
+	GLenum usage;
+	GLenum mode;
+	GLsizei count;
+	GLenum type;
+} vbo_t;
+
+void R_InitIVBO(vbo_t *buffer);
+void R_CreateIVBO(vbo_t *buffer, GLenum usage);
+void R_VertexData(vbo_t *buffer, GLsizeiptr size,  const GLvoid * data);
+void R_IndexData(vbo_t *buffer, GLenum mode, GLenum type, GLsizei count, GLsizeiptr size, const GLvoid * data);
+void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, unsigned int attribCount);
+void R_ReleaseIVBO(vbo_t *buffer);
+void R_DrawIVBO(vbo_t *buffer);
+void R_DrawRangeIVBO(vbo_t *buffer, GLsizei offset, GLsizei count);
+void R_DelIVBO(vbo_t *buffer);
 #endif
