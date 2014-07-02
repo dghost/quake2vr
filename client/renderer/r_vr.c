@@ -422,9 +422,9 @@ void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar)
 	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
 //	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
 	if (currenteye == EYE_LEFT)
-		VR_PerspectiveScale(vrState.leftScaleOffset,zNear,zFar);
+		VR_PerspectiveScale(vrState.scaleOffset[0],zNear,zFar);
 	else if (currenteye == EYE_RIGHT)
-		VR_PerspectiveScale(vrState.rightScaleOffset,zNear,zFar);
+		VR_PerspectiveScale(vrState.scaleOffset[1],zNear,zFar);
 	else
 		R_PerspectiveOffset(fovy,aspect,zNear,zFar,0);
 }
@@ -468,16 +468,10 @@ void R_VR_DrawHud(vr_eye_t eye)
 	
 	if (vr_autoipd->value)
 	{
-		if (eye == EYE_LEFT)
-		{
-			TranslationMatrix(-vrState.leftEyeAdjust[0], vrState.leftEyeAdjust[1], vrState.leftEyeAdjust[2], temp);
-		} else if (eye == EYE_RIGHT)
-		{
-			TranslationMatrix(-vrState.rightEyeAdjust[0], vrState.rightEyeAdjust[1], vrState.rightEyeAdjust[2], temp);
-		}
+		int i = (eye == EYE_RIGHT ? 1 : 0);
+		TranslationMatrix(-vrState.eyeOffset[i][0], vrState.eyeOffset[i][1], vrState.eyeOffset[i][2], temp);
 	} else {
 		float viewOffset = (vr_ipd->value / 2000.0);
-		// negative? not sure that's right?
 		TranslationMatrix(eye * -viewOffset, 0, 0, temp);
 	}
 

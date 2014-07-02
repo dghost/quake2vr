@@ -39,17 +39,13 @@ static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_drift_box;
-static menulist_s		s_options_vr_ovr_distortion_box;
 static menulist_s		s_options_vr_ovr_autoscale_box;
 static menufield_s		s_options_vr_ovr_scale_field;
-static menulist_s		s_options_vr_ovr_autolensdistance_box;
-static menufield_s		s_options_vr_ovr_lensdistance_field;
 static menulist_s		s_options_vr_ovr_latency_box;
 static menulist_s		s_options_vr_ovr_debug_box;
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
-extern cvar_t *vr_ovr_lensdistance;
 extern cvar_t *vr_ovr_scale;
 
 static void DriftFunc( void *unused )
@@ -57,19 +53,9 @@ static void DriftFunc( void *unused )
 	Cvar_SetInteger( "vr_ovr_driftcorrection", s_options_vr_ovr_drift_box.curvalue);
 }
 
-static void DistortionFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_ovr_distortion", 3 - s_options_vr_ovr_distortion_box.curvalue  );
-}
-
 static void ScaleFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_ovr_autoscale", s_options_vr_ovr_autoscale_box.curvalue);
-}
-
-static void AutoFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_ovr_autolensdistance", s_options_vr_ovr_autolensdistance_box.curvalue);
 }
 
 static void LatencyFunc( void *unused)
@@ -91,14 +77,10 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
-	s_options_vr_ovr_distortion_box.curvalue = ( 3 - ClampCvar(-1, 3, Cvar_VariableInteger("vr_ovr_distortion")) );
 	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
 	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
-	s_options_vr_ovr_autolensdistance_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autolensdistance") );
 
-	strcpy( s_options_vr_ovr_lensdistance_field.buffer, vr_ovr_lensdistance->string );
-	s_options_vr_ovr_lensdistance_field.cursor = strlen( vr_ovr_lensdistance->string );
 
 	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
 	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
@@ -114,8 +96,6 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_scale");
 	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
-	Cvar_SetToDefault ("vr_ovr_autolensdistance");
-	Cvar_SetToDefault ("vr_ovr_lensdistance");
 	VROVRSetMenuItemValues();
 }
 
@@ -131,23 +111,9 @@ static void CustomScaleFunc(void *unused)
 	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
 }
 
-
-static void CustomLensFunc(void *unused)
-{
-	float temp;
-	char string[6];
-
-	temp = ClampCvar(0,100,atof(s_options_vr_ovr_lensdistance_field.buffer));
-	strncpy(string, va("%.2f",temp), sizeof(string));
-	Cvar_Set("vr_ovr_lensdistance",string);
-	strcpy( s_options_vr_ovr_lensdistance_field.buffer, vr_ovr_lensdistance->string );
-	s_options_vr_ovr_lensdistance_field.cursor = strlen( vr_ovr_lensdistance->string );
-}
-
 static void VROVRConfigAccept (void)
 {
 	CustomScaleFunc(NULL);
-	CustomLensFunc(NULL);
 }
 
 static void BackFunc ( void *unused )
@@ -165,15 +131,6 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
-	static const char *distortion_names[] =
-	{
-		"1/4 hmd",
-		"1/2 hmd",
-		"native hmd",
-		"display",
-		"none",
-		0
-	};
 
 	static const char *scale_names[] = 
 	{
@@ -195,6 +152,8 @@ void Options_VR_OVR_MenuInit ( void )
 		"disabled",
 		"DK1 emulation",
 		"HD DK emulation",
+		"Chrystal Cove emulation",
+		"DK2 Emulation",
 		0
 	};
 
@@ -234,14 +193,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
 	s_options_vr_ovr_drift_box.generic.statusbar	= "enable magnetic drift correction";
 
-	s_options_vr_ovr_distortion_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_distortion_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_distortion_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_distortion_box.generic.name			= "distortion resolution";
-	s_options_vr_ovr_distortion_box.generic.callback		= DistortionFunc;
-	s_options_vr_ovr_distortion_box.itemnames			= distortion_names;
-	s_options_vr_ovr_distortion_box.generic.statusbar	= "adjusts the quality of distortion applied";
-
 	s_options_vr_ovr_autoscale_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_autoscale_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_autoscale_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -261,26 +212,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_scale_field.visible_length = 5;
 	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
 	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
-
-	s_options_vr_ovr_autolensdistance_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_autolensdistance_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_autolensdistance_box.generic.y			= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_autolensdistance_box.generic.name			= "lens separation distance";
-	s_options_vr_ovr_autolensdistance_box.generic.callback		= AutoFunc;
-	s_options_vr_ovr_autolensdistance_box.itemnames			= auto_names;
-	s_options_vr_ovr_autolensdistance_box.generic.statusbar	= "sets whether to use the automatic or custom lens separation distance";
-
-	s_options_vr_ovr_lensdistance_field.generic.type = MTYPE_FIELD;
-	s_options_vr_ovr_lensdistance_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_ovr_lensdistance_field.generic.name = "custom lens separation distance";
-	s_options_vr_ovr_lensdistance_field.generic.statusbar	= "sets a custom lens seperation distance";
-	s_options_vr_ovr_lensdistance_field.generic.callback = CustomLensFunc;
-	s_options_vr_ovr_lensdistance_field.generic.x		= MENU_FONT_SIZE;
-	s_options_vr_ovr_lensdistance_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_lensdistance_field.length	= 5;
-	s_options_vr_ovr_lensdistance_field.visible_length = 5;
-	strcpy( s_options_vr_ovr_lensdistance_field.buffer, vr_ovr_lensdistance->string );
-	s_options_vr_ovr_lensdistance_field.cursor = strlen( vr_ovr_lensdistance->string );
 
 	s_options_vr_ovr_latency_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_latency_box.generic.x			= MENU_FONT_SIZE;
@@ -317,12 +248,8 @@ void Options_VR_OVR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
 	
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_distortion_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autoscale_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_scale_field );
-		
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autolensdistance_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lensdistance_field );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latency_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	

@@ -26,10 +26,8 @@ typedef struct {
 	float viewFovX;
 	float pixelScale;
 	float aspect;
-	vec3_t leftEyeAdjust;
-	vec3_t rightEyeAdjust;
-	eyeScaleOffset_t leftScaleOffset;
-	eyeScaleOffset_t rightScaleOffset;
+	vec3_t eyeOffset[2];
+	eyeScaleOffset_t scaleOffset[2];
 } vr_param_t;
 
 // struct for things that may change from frame to frame

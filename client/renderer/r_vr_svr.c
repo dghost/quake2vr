@@ -159,19 +159,19 @@ void SVR_GetState(vr_param_t *state)
 	svrState.aspect = svr_settings.aspect;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
-	VectorSet(svrState.leftEyeAdjust,ipd * EYE_LEFT, 0.0, 0.0);
-	VectorSet(svrState.rightEyeAdjust,ipd * EYE_RIGHT, 0.0, 0.0);
+	VectorSet(svrState.eyeOffset[0],ipd * EYE_LEFT, 0.0, 0.0);
+	VectorSet(svrState.eyeOffset[1],ipd * EYE_RIGHT, 0.0, 0.0);
 
-    svrState.leftScaleOffset.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.leftScaleOffset.y.offset = 0.0;
-	svrState.leftScaleOffset.x.scale = svrState.leftScaleOffset.y.scale / svr_settings.aspect;
-	svrState.leftScaleOffset.x.offset = svr_settings.projOffset;
+    svrState.scaleOffset[0].y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.scaleOffset[0].y.offset = 0.0;
+	svrState.scaleOffset[0].x.scale = svrState.scaleOffset[0].y.scale / svr_settings.aspect;
+	svrState.scaleOffset[0].x.offset = svr_settings.projOffset;
 
 
-    svrState.rightScaleOffset.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.rightScaleOffset.y.offset = 0.0;
-	svrState.rightScaleOffset.x.scale = svrState.rightScaleOffset.y.scale / svr_settings.aspect;
-	svrState.rightScaleOffset.x.offset = -svr_settings.projOffset;
+    svrState.scaleOffset[1].y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.scaleOffset[1].y.offset = 0.0;
+	svrState.scaleOffset[1].x.scale = svrState.scaleOffset[1].y.scale / svr_settings.aspect;
+	svrState.scaleOffset[1].x.offset = -svr_settings.projOffset;
 
 	svrState.pixelScale = 3.0;
 	*state = svrState;

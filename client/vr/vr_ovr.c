@@ -21,9 +21,7 @@ cvar_t *vr_ovr_driftcorrection;
 cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_distortion;
-cvar_t *vr_ovr_lensdistance;
 cvar_t *vr_ovr_autoscale;
-cvar_t *vr_ovr_autolensdistance;
 cvar_t *vr_ovr_filtermode;
 cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_latencytest;
@@ -141,50 +139,6 @@ int32_t VR_OVR_RenderLatencyTest(vec4_t color)
 	return 0;
 }
 
-void VR_OVR_CalcRenderParam()
-{
-/*
-	if (vr_ovr_settings.initialized)
-	{	
-		float *dk = vr_ovr_settings.distortion_k;
-		float lsd = vr_ovr_autolensdistance->value ? vr_ovr_settings.lens_separation_distance : vr_ovr_lensdistance->value / 1000.0;
-		float h = 1.0f - (2.0f * lsd) / vr_ovr_settings.h_screen_size;
-
-		if (lsd > 0)
-		{
-			float le = (-1.0f - h) * (-1.0f - h);
-			float re = (-1.0f + h) * (-1.0f + h);
-
-			if (le > re)
-			{
-				ovrConfig.minScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-				ovrConfig.maxScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
-			} else
-			{
-				ovrConfig.maxScale = (dk[0] + dk[1] * re + dk[2] * re * re + dk[3] * re * re * re);
-				ovrConfig.minScale = (dk[0] + dk[1] * le + dk[2] * le * le + dk[3] * le * le * le);
-			}
-		} else {
-			ovrConfig.maxScale = 2.0;
-			ovrConfig.minScale = 1.0;
-		}
-
-		if (ovrConfig.maxScale >= 2.0)
-			ovrConfig.maxScale = 2.0;
-
-		ovrConfig.ipd = vr_ovr_settings.interpupillary_distance;
-		ovrConfig.aspect = vr_ovr_settings.h_resolution / (2.0f * vr_ovr_settings.v_resolution);
-		ovrConfig.hmdWidth = vr_ovr_settings.h_resolution;
-		ovrConfig.hmdHeight = vr_ovr_settings.v_resolution;
-
-		memcpy(ovrConfig.chrm, vr_ovr_settings.chrom_abr, sizeof(float) * 4);
-		memcpy(ovrConfig.dk, vr_ovr_settings.distortion_k, sizeof(float) * 4);
-		strncpy(ovrConfig.deviceString,vr_ovr_settings.deviceString,sizeof(ovrConfig.deviceString));
-		ovrConfig.projOffset = h;
-	}
-	*/
-}
-
 
 float VR_OVR_GetDistortionScale()
 {
@@ -243,6 +197,7 @@ int32_t VR_OVR_Enable()
 	int32_t failure = 0;
 	if (!vr_ovr_enable->value)
 		return 0;
+
 	hmd = ovrHmd_Create(0);
 	
 	if (!hmd)
@@ -261,16 +216,21 @@ int32_t VR_OVR_Enable()
 		switch((int) vr_ovr_debug->value)
 		{
 			default:
-				temp = ovrHmd_DK2;
-				break;
-			case 1:
 				temp = ovrHmd_DK1;
 				break;
 			case 2:
 				temp = ovrHmd_DKHD;
 				break;
+			case 3:
+				temp = ovrHmd_CrystalCoveProto;
+				break;
+			case 4:
+				temp = ovrHmd_DK2;
+				break;
+
 		}
 		hmd = ovrHmd_CreateDebug(temp);
+		Com_Printf("VR_OVR: Creating debug HMD...\n");
 	}
 
 	if (!hmd)
@@ -310,7 +270,6 @@ int32_t VR_OVR_Init()
 	ovrBool init = ovr_Initialize();
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
-	vr_ovr_lensdistance = Cvar_Get("vr_ovr_lensdistance","-1",CVAR_ARCHIVE);
 	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",0);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
@@ -318,7 +277,6 @@ int32_t VR_OVR_Init()
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_filtermode = Cvar_Get("vr_ovr_filtermode","0",CVAR_ARCHIVE);
 	vr_ovr_autoscale = Cvar_Get("vr_ovr_autoscale","1",CVAR_ARCHIVE);
-	vr_ovr_autolensdistance = Cvar_Get("vr_ovr_autolensdistance","1",CVAR_ARCHIVE);
 
 	if (!init)
 	{

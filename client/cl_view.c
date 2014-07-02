@@ -831,7 +831,7 @@ void VR_RenderStereo ()
 		if (vr_autoipd->value)
 		{
 			vec3_t eye;
-			VectorScale(vrState.leftEyeAdjust,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
+			VectorScale(vrState.eyeOffset[0],PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
 			VectorScale( cl.v_right, eye[0] , tmp );
 			VectorAdd( view, tmp, cl.refdef.vieworg );
 
@@ -868,7 +868,7 @@ void VR_RenderStereo ()
 		if (vr_autoipd->value)
 		{
 			vec3_t eye;
-			VectorScale(vrState.rightEyeAdjust,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
+			VectorScale(vrState.eyeOffset[1],PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
 			VectorScale( cl.v_right, eye[0] , tmp );
 			VectorAdd( view, tmp, cl.refdef.vieworg );
 
