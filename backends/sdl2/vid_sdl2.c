@@ -105,7 +105,7 @@ Map from SDL to quake keynums
 */
 int32_t MapSDLKey (SDL_Keysym key)
 {
-	int32_t result;
+	int32_t result = 0;
 	if (key.sym > 32 && key.sym < 127)
 	{
 		result = key.sym;
@@ -298,7 +298,11 @@ void SDL_ProcEvent (SDL_Event *event)
 		// todo - trap alt-enter
 		if (event->key.windowID != mainWindowID)
 			break;
-		Key_Event( MapSDLKey(event->key.keysym),(event->key.type == SDL_KEYDOWN), sys_msg_time);
+		{
+			int32_t key = MapSDLKey(event->key.keysym);
+			if (key > 0)
+				Key_Event( key ,(qboolean) (event->key.type == SDL_KEYDOWN), sys_msg_time);
+		}
 		break;
 	}
 
