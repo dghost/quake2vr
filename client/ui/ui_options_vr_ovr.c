@@ -38,19 +38,15 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
-static menulist_s		s_options_vr_ovr_drift_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
+static menulist_s		s_options_vr_ovr_prediction_box;
+static menulist_s		s_options_vr_ovr_timewarp_box;
 static menulist_s		s_options_vr_ovr_latency_box;
 static menulist_s		s_options_vr_ovr_debug_box;
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
-extern cvar_t *vr_ovr_scale;
 
-static void DriftFunc( void *unused )
-{
-	Cvar_SetInteger( "vr_ovr_driftcorrection", s_options_vr_ovr_drift_box.curvalue);
-}
 
 static void ScaleFunc( void *unused )
 {
@@ -70,27 +66,36 @@ static void DebugFunc( void *unused)
 static void EnableFunc( void *unused)
 {
 	Cvar_SetInteger("vr_ovr_enable", s_options_vr_ovr_enable_box.curvalue);
-
 }
+
+static void PredictionFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_autoprediction", s_options_vr_ovr_prediction_box.curvalue);
+}
+
+static void WarpFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_timewarp", s_options_vr_ovr_timewarp_box.curvalue);
+}
+
 static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
-	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
 	s_options_vr_ovr_maxfov_box.curvalue = ( Cvar_VariableInteger("vr_ovr_maxfov") );
 	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
+	s_options_vr_ovr_prediction_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoprediction") );
+	s_options_vr_ovr_timewarp_box.curvalue = ( Cvar_VariableInteger("vr_ovr_timewarp") );
 }
 
 static void VROVRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_ovr_enable");
-	Cvar_SetToDefault ("vr_ovr_driftcorrection");
-	Cvar_SetToDefault ("vr_ovr_filtermode");
-	Cvar_SetToDefault ("vr_ovr_distortion");
 	Cvar_SetToDefault ("vr_ovr_maxfov");
-	Cvar_SetToDefault ("vr_ovr_scale");
 	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
+	Cvar_SetToDefault ("vr_ovr_autoprediction");
+	Cvar_SetToDefault ("vr_ovr_timewarp");
 	VROVRSetMenuItemValues();
 }
 
@@ -166,13 +171,21 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_enable_box.generic.statusbar	= "enable or disable native oculus rift support";
 
 
-	s_options_vr_ovr_drift_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_drift_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_drift_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_drift_box.generic.name			= "drift correction";
-	s_options_vr_ovr_drift_box.generic.callback		= DriftFunc;
-	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
-	s_options_vr_ovr_drift_box.generic.statusbar	= "enable magnetic drift correction";
+	s_options_vr_ovr_timewarp_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_timewarp_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_timewarp_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_ovr_timewarp_box.generic.name		= "time warp";
+	s_options_vr_ovr_timewarp_box.generic.callback	= WarpFunc;
+	s_options_vr_ovr_timewarp_box.itemnames			= enable_names;
+	s_options_vr_ovr_timewarp_box.generic.statusbar	= "applies time warping during distortion";
+
+	s_options_vr_ovr_prediction_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_prediction_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_prediction_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_prediction_box.generic.name		= "auto motion prediction";
+	s_options_vr_ovr_prediction_box.generic.callback	= PredictionFunc;
+	s_options_vr_ovr_prediction_box.itemnames			= enable_names;
+	s_options_vr_ovr_prediction_box.generic.statusbar	= "uses sets motion prediction time automatically";
 
 	s_options_vr_ovr_maxfov_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_maxfov_box.generic.x			= MENU_FONT_SIZE;
@@ -184,7 +197,7 @@ void Options_VR_OVR_MenuInit ( void )
 		
 	s_options_vr_ovr_latency_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_latency_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_latency_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_ovr_latency_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_latency_box.generic.name		= "latency tester";
 	s_options_vr_ovr_latency_box.generic.callback	= LatencyFunc;
 	s_options_vr_ovr_latency_box.itemnames			= yesno_names;
@@ -215,8 +228,8 @@ void Options_VR_OVR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_enable_box );
 
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
-	
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latency_box );	

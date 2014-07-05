@@ -240,16 +240,6 @@ void OVR_CalculateState(vr_param_t *state)
 
 void OVR_FrameStart(int32_t changeBackBuffers)
 {
-	if (vr_ovr_scale->modified)
-	{
-		if (vr_ovr_scale->value < 1.0)
-			Cvar_Set("vr_ovr_scale", "1.0");
-		else if (vr_ovr_scale->value > 2.0)
-			Cvar_Set("vr_ovr_scale", "2.0");
-		changeBackBuffers = 1;
-		vr_ovr_scale->modified = false;
-	}
-
 	if (vr_ovr_maxfov->modified)
 	{
 		int newValue =  vr_ovr_maxfov->value ? 1 : 0;

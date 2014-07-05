@@ -25,8 +25,6 @@ typedef struct {
 
 extern ovr_attrib_t ovrConfig;
 
-extern cvar_t *vr_ovr_driftcorrection;
-extern cvar_t *vr_ovr_scale;
 extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_maxfov;
 extern cvar_t *vr_ovr_autoprediction;

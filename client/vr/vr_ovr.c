@@ -16,8 +16,6 @@ int32_t VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
 int32_t VR_OVR_SetPredictionTime(float time);
 
-cvar_t *vr_ovr_driftcorrection;
-cvar_t *vr_ovr_scale;
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_maxfov;
 cvar_t *vr_ovr_supersample;
@@ -40,6 +38,7 @@ qboolean withinFrame = false;
 
 ovrPosef framePose;
 ovrFrameTiming frameTime;
+static ovrBool sensorEnabled = 0;
 
 static double prediction_time;
 
@@ -57,6 +56,7 @@ hmd_interface_t hmd_rift = {
 	NULL,
 	VR_OVR_SetPredictionTime
 };
+
 
 
 void VR_OVR_GetFOV(float *fovx, float *fovy)
@@ -147,6 +147,37 @@ void VR_OVR_ResetHMDOrientation()
 		ovrHmd_ResetSensor(hmd);
 }
 
+void VR_OVR_InitSensor()
+{
+	unsigned int sensorCaps = ovrSensorCap_Orientation | ovrSensorCap_YawCorrection;
+
+	if (sensorEnabled)
+	{
+		ovrHmd_StopSensor(hmd);
+		sensorEnabled = 0;
+	}
+
+	Com_Printf("Initializing sensor: ");
+	sensorEnabled = ovrHmd_StartSensor(hmd,sensorCaps, ovrSensorCap_Orientation);
+	if (sensorEnabled)
+	{
+		ovrSensorState ss;
+		ss = ovrHmd_GetSensorState(hmd, ovr_GetTimeInSeconds() + prediction_time);
+		Com_Printf("ok!\n");
+
+		if (ss.StatusFlags & ovrStatus_HmdConnected)
+			Com_Printf("...sensor has HMD connected\n");
+		if (ss.StatusFlags & ovrStatus_PositionConnected)
+			Com_Printf("...sensor has position tracking support\n");
+		if (ss.StatusFlags & ovrStatus_OrientationTracked)
+			Com_Printf("...orientation tracking enabled\n");
+		if (ss.StatusFlags & ovrStatus_PositionTracked)
+			Com_Printf("...position tracking enabled\n");
+	} else {
+		Com_Printf("failed!\n");
+	}
+}
+
 int32_t VR_OVR_RenderLatencyTest(vec4_t color) 
 {
 	qboolean use = (qboolean) ovrHmd_GetLatencyTestDrawColor(hmd,ovrLatencyColor);
@@ -156,6 +187,7 @@ int32_t VR_OVR_RenderLatencyTest(vec4_t color)
 	color[3] = 1.0f;
 	return (vr_ovr_latencytest->value && use);
 }
+
 
 int32_t VR_OVR_SetPredictionTime(float time)
 {
@@ -183,6 +215,7 @@ void VR_OVR_FrameStart()
 				}
 			}
 	}
+
 	if (!withinFrame)
 	{
 		frameTime = ovrHmd_BeginFrameTiming(hmd,0);
@@ -201,7 +234,6 @@ void VR_OVR_FrameEnd()
 	ovrHmd_EndFrameTiming(hmd);
 	withinFrame = false;
 }
-
 
 int32_t VR_OVR_Enable()
 {
@@ -272,10 +304,7 @@ int32_t VR_OVR_Enable()
 	Com_Printf("...has type %s\n", hmdDesc.ProductName);
 	Com_Printf("...has %ux%u native resolution\n", hmdDesc.Resolution.w, hmdDesc.Resolution.h);
 
-	if (ovrHmd_StartSensor(hmd,(ovrSensorCap_Orientation | ovrSensorCap_YawCorrection), ovrSensorCap_Orientation))
-	{
-		Com_Printf("...successfully started sensor\n");
-	}
+	VR_OVR_InitSensor();
 
 	ovrHmd_ResetFrameTiming(hmd,0);
 	return 1;
@@ -297,12 +326,10 @@ int32_t VR_OVR_Init()
 	ovrBool init = ovr_Initialize();
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
-	vr_ovr_scale = Cvar_Get("vr_ovr_scale","1.0",CVAR_ARCHIVE);
+	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
 	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",0);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
-	vr_ovr_driftcorrection = Cvar_Get("vr_ovr_driftcorrection","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
-	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","1",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
 
 	if (!init)
