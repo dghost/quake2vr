@@ -1749,7 +1749,7 @@ void CL_Frame (int32_t msec)
 	// let the mouse activate or deactivate
 	IN_Frame ();
 
-	VR_Frame();
+	VR_FrameStart();
 		
 	// decide the simulation time
 	cls.frametime = extratime/1000.0;
@@ -1837,6 +1837,8 @@ void CL_Frame (int32_t msec)
 			}
 		}
 	}
+	VR_FrameEnd();
+
 }
 
 

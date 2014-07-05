@@ -177,7 +177,7 @@ void SVR_GetState(vr_param_t *state)
 	*state = svrState;
 }
 
-void SVR_Present()
+void SVR_Present(qboolean loading)
 {
 	GL_SetIdentityOrtho(GL_PROJECTION, 0, svr_settings.width, svr_settings.height, 0, -1, 1);
 

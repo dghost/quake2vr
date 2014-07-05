@@ -24,7 +24,7 @@ typedef struct {
 	void (*getViewRect)(vr_eye_t eye, vr_rect_t *rect);
 	void (*frameStart)(int32_t changeBackBuffers);
 	void (*getState)(vr_param_t *state);
-	void (*present)();
+	void (*present)(qboolean loading);
 } hmd_render_t;
 
 typedef struct {

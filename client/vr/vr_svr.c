@@ -96,6 +96,7 @@ hmd_interface_t hmd_steam = {
 	VR_SVR_Disable,
 	VR_SVR_GetHMDPos,
 	VR_SVR_Frame,
+	NULL,
 	SteamVR_ResetHMDOrientation,
 	VR_SVR_GetOrientation,
 	NULL,
@@ -106,6 +107,7 @@ hmd_interface_t hmd_steam = {
 
 hmd_interface_t hmd_steam = {
 	HMD_STEAM,
+	NULL,
 	NULL,
 	NULL,
 	NULL,

@@ -39,8 +39,7 @@ static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_drift_box;
-static menulist_s		s_options_vr_ovr_autoscale_box;
-static menufield_s		s_options_vr_ovr_scale_field;
+static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_latency_box;
 static menulist_s		s_options_vr_ovr_debug_box;
 
@@ -55,7 +54,7 @@ static void DriftFunc( void *unused )
 
 static void ScaleFunc( void *unused )
 {
-	Cvar_SetInteger( "vr_ovr_autoscale", s_options_vr_ovr_autoscale_box.curvalue);
+	Cvar_SetInteger( "vr_ovr_maxfov", s_options_vr_ovr_maxfov_box.curvalue);
 }
 
 static void LatencyFunc( void *unused)
@@ -77,13 +76,9 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
 	s_options_vr_ovr_drift_box.curvalue = ( Cvar_VariableInteger("vr_ovr_driftcorrection") );
-	s_options_vr_ovr_autoscale_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoscale") );
+	s_options_vr_ovr_maxfov_box.curvalue = ( Cvar_VariableInteger("vr_ovr_maxfov") );
 	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
-
-
-	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
-	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
 }
 
 static void VROVRResetDefaultsFunc ( void *unused )
@@ -92,28 +87,15 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_driftcorrection");
 	Cvar_SetToDefault ("vr_ovr_filtermode");
 	Cvar_SetToDefault ("vr_ovr_distortion");
-	Cvar_SetToDefault ("vr_ovr_autoscale");
+	Cvar_SetToDefault ("vr_ovr_maxfov");
 	Cvar_SetToDefault ("vr_ovr_scale");
 	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
 	VROVRSetMenuItemValues();
 }
 
-static void CustomScaleFunc(void *unused)
-{
-	float temp;
-	char string[6];
-
-	temp = ClampCvar(1,2,atof(s_options_vr_ovr_scale_field.buffer));
-	strncpy(string, va("%.2f",temp), sizeof(string));
-	Cvar_Set("vr_ovr_scale",string);
-	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
-	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
-}
-
 static void VROVRConfigAccept (void)
 {
-	CustomScaleFunc(NULL);
 }
 
 static void BackFunc ( void *unused )
@@ -134,9 +116,8 @@ void Options_VR_OVR_MenuInit ( void )
 
 	static const char *scale_names[] = 
 	{
-		"custom",
-		"nearest edge",
-		"furthest edge",
+		"profile default",
+		"screen maximum",
 		0
 	};
 
@@ -193,26 +174,14 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_drift_box.itemnames			= yesno_names;
 	s_options_vr_ovr_drift_box.generic.statusbar	= "enable magnetic drift correction";
 
-	s_options_vr_ovr_autoscale_box.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_autoscale_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_autoscale_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_autoscale_box.generic.name			= "distortion scaling";
-	s_options_vr_ovr_autoscale_box.generic.callback		= ScaleFunc;
-	s_options_vr_ovr_autoscale_box.itemnames			= scale_names;
-	s_options_vr_ovr_autoscale_box.generic.statusbar	= "adjusts the size of the post-distortion view";
+	s_options_vr_ovr_maxfov_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_maxfov_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_maxfov_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_maxfov_box.generic.name		= "distortion fov";
+	s_options_vr_ovr_maxfov_box.generic.callback	= ScaleFunc;
+	s_options_vr_ovr_maxfov_box.itemnames			= scale_names;
+	s_options_vr_ovr_maxfov_box.generic.statusbar	= "adjusts the size of the post-distortion view";
 		
-	s_options_vr_ovr_scale_field.generic.type = MTYPE_FIELD;
-	s_options_vr_ovr_scale_field.generic.flags = QMF_LEFT_JUSTIFY;
-	s_options_vr_ovr_scale_field.generic.name = "custom distortion scale";
-	s_options_vr_ovr_scale_field.generic.statusbar	= "sets a custom distortion scale factor";
-	s_options_vr_ovr_scale_field.generic.callback = CustomScaleFunc;
-	s_options_vr_ovr_scale_field.generic.x		= MENU_FONT_SIZE;
-	s_options_vr_ovr_scale_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ovr_scale_field.length	= 5;
-	s_options_vr_ovr_scale_field.visible_length = 5;
-	strcpy( s_options_vr_ovr_scale_field.buffer, vr_ovr_scale->string );
-	s_options_vr_ovr_scale_field.cursor = strlen( vr_ovr_scale->string );
-
 	s_options_vr_ovr_latency_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_latency_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_latency_box.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -248,8 +217,7 @@ void Options_VR_OVR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_drift_box );
 	
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_autoscale_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_scale_field );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latency_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	

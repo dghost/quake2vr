@@ -55,6 +55,7 @@ static hmd_interface_t hmd_none = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 };
 
 const char *hmd_names[] = 
@@ -197,7 +198,7 @@ void VR_GetOrientationEMAQuat(vec3_t quat)
 
 }
 
-void VR_Frame()
+void VR_FrameStart()
 {
 	if (!vr_enabled->value || !hmd)
 		return;
@@ -285,14 +286,18 @@ void VR_Frame()
 
 
 
-	hmd->frame();
+	hmd->frameStart();
 
 // 	only flag as stale after a frame is rendered
 	stale = 1;
 
 }
 
-
+void VR_FrameEnd()
+{
+	if (hmd && hmd->frameEnd)
+		hmd->frameEnd();
+}
 
 void VR_ResetOrientation( void )
 {

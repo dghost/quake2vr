@@ -8,7 +8,7 @@
 void OVR_FrameStart(int32_t changeBackBuffers);
 void OVR_BindView(vr_eye_t eye);
 void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
-void OVR_Present();
+void OVR_Present(qboolean loading);
 int32_t OVR_Enable();
 void OVR_Disable();
 int32_t OVR_Init();
@@ -30,11 +30,13 @@ hmd_render_t vr_render_ovr =
 extern ovrHmd hmd;
 extern ovrHmdDesc hmdDesc;
 extern ovrEyeRenderDesc eyeDesc[2];
+extern ovrPosef framePose;
+extern ovrFrameTiming frameTime;
+extern qboolean withinFrame;
+
 ovrFovPort eyeFov[2]; 
 ovrVector2f UVScaleOffset[2][2];
 
-extern void VR_OVR_CalcRenderParam();
-extern float VR_OVR_GetDistortionScale();
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
 
@@ -49,24 +51,35 @@ static vbo_t eyes[2];
 
 static ovrSizei renderTargets[2];
 
-static qboolean useBilinear, useChroma;
+static qboolean useChroma;
 
 r_attrib_t distAttribs[] = {
 	{"Position",0},
 	{"TexCoord0",1},
 	{"Color",4},
-	{NULL,NULL}
+	{NULL,0}
 	};
 
 // Default Lens Warp Shader
-static r_shaderobject_t ovr_shader_dist_norm = {
+static r_shaderobject_t ovr_shader_norm = {
 	0, 
 	// vertex shader
-	"vr/libovr.vert",
+	"vr/rift.vert",
 	// fragment shader
-	"vr/libovr.frag",
+	"vr/rift.frag",
 	distAttribs
 };
+
+// Default Lens Warp Shader
+static r_shaderobject_t ovr_shader_warp = {
+	0, 
+	// vertex shader
+	"vr/rift_timewarp.vert",
+	// fragment shader
+	"vr/rift.frag",
+	distAttribs
+};
+
 
 r_attrib_t chromaAttribs[] = {
 	{"Position",0},
@@ -74,19 +87,29 @@ r_attrib_t chromaAttribs[] = {
 	{"TexCoord1",2},
 	{"TexCoord2",3},
 	{"Color",4},
-	{NULL,NULL}
+	{NULL,0}
 	};
 
 // Lens Warp Shader with Chromatic Aberration 
-static r_shaderobject_t ovr_shader_dist_chrm = {
+static r_shaderobject_t ovr_shader_chrm = {
 	0, 
 	// vertex shader
-	"vr/libovr_chromatic.vert",
+	"vr/rift_chromatic.vert",
 	// fragment shader
-	"vr/libovr_chromatic.frag",
+	"vr/rift_chromatic.frag",
 	chromaAttribs
 };
 
+
+// Lens Warp Shader with Chromatic Aberration 
+static r_shaderobject_t ovr_shader_chrm_warp = {
+	0, 
+	// vertex shader
+	"vr/rift_chromatic_timewarp.vert",
+	// fragment shader
+	"vr/rift_chromatic.frag",
+	chromaAttribs
+};
 
 typedef struct {
 	ovrVector2f pos;
@@ -109,28 +132,17 @@ static attribs_t distortion_attribs[5] = {
 typedef struct {
 	r_shaderobject_t *shader;
 	struct {
-		GLuint scale;
-		GLuint scale_in;
-		GLuint lens_center;
-		GLuint texture_size;
-		GLuint hmd_warp_param;
-		GLuint chrom_ab_param;
 		GLuint tex;
-		GLuint dist;
 		GLuint EyeToSourceUVScale;
 		GLuint EyeToSourceUVOffset;
+		GLuint EyeRotationStart;
+		GLuint EyeRotationEnd;
 	} uniform;
 
 } r_ovr_shader_t;
 
-typedef enum {
-	OVR_FILTER_BILINEAR,
-	OVR_FILTER_WEIGHTED_BILINEAR,
-	OVR_FILTER_BICUBIC,
-	NUM_OVR_FILTER_MODES
-} ovr_filtermode_t;
-
 static r_ovr_shader_t ovr_distortion_shaders[2];
+static r_ovr_shader_t ovr_timewarp_shaders[2];
 
 // util function
 void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
@@ -142,6 +154,9 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	glUseProgram(shader->shader->program);
 	shader->uniform.EyeToSourceUVOffset = glGetUniformLocation(shader->shader->program,"EyeToSourceUVOffset");
 	shader->uniform.EyeToSourceUVScale = glGetUniformLocation(shader->shader->program,"EyeToSourceUVScale");
+	shader->uniform.EyeRotationStart = glGetUniformLocation(shader->shader->program,"EyeRotationStart");
+	shader->uniform.EyeRotationEnd = glGetUniformLocation(shader->shader->program,"EyeRotationEnd");
+
 	shader->uniform.tex = glGetUniformLocation(shader->shader->program,"tex");
 	glUseProgram(0);
 }
@@ -152,7 +167,6 @@ void OVR_CalculateState(vr_param_t *state)
 {
 	vr_param_t ovrState;
 	float ovrScale = vr_ovr_supersample->value;
-	ovrFovPort fovLeft, fovRight;
 	int eye = 0;
 
 	for (eye = 0; eye < 2; eye++) {
@@ -162,12 +176,12 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrDistortionVertex *ov = NULL;
 		int i = 0;
 
-		if (vr_ovr_autoscale->value <= 1)
-		{
-			eyeFov[eye] = hmdDesc.DefaultEyeFov[eye];
-		} else
+		if (vr_ovr_maxfov->value)
 		{
 			eyeFov[eye] = hmdDesc.MaxEyeFov[eye];
+		} else
+		{
+			eyeFov[eye] = hmdDesc.DefaultEyeFov[eye];
 		}
 
 		ovrState.scaleOffset[eye].x.scale = 2.0f / ( eyeFov[eye].LeftTan + eyeFov[eye].RightTan );
@@ -226,18 +240,6 @@ void OVR_CalculateState(vr_param_t *state)
 
 void OVR_FrameStart(int32_t changeBackBuffers)
 {
-
-
-	if (vr_ovr_distortion->modified)
-	{
-		if (vr_ovr_distortion->value > 2)
-			Cvar_SetInteger("vr_ovr_distortion", 2);
-		else if (vr_ovr_distortion->value < 0)
-			Cvar_SetInteger("vr_ovr_distortion", 0);
-		changeBackBuffers = 1;
-		vr_ovr_distortion->modified = false;
-	}
-
 	if (vr_ovr_scale->modified)
 	{
 		if (vr_ovr_scale->value < 1.0)
@@ -248,16 +250,13 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		vr_ovr_scale->modified = false;
 	}
 
-	if (vr_ovr_autoscale->modified)
+	if (vr_ovr_maxfov->modified)
 	{
-		if (vr_ovr_autoscale->value < 0.0)
-			Cvar_SetInteger("vr_ovr_autoscale", 0);
-		else if (vr_ovr_autoscale->value > 2.0)
-			Cvar_SetInteger("vr_ovr_autoscale",2);
-		else
-			Cvar_SetInteger("vr_ovr_autoscale", (int32_t) vr_ovr_autoscale->value);
+		int newValue =  vr_ovr_maxfov->value ? 1 : 0;
+		if (newValue != vr_ovr_maxfov->value)
+			Cvar_SetInteger("vr_ovr_maxfov",newValue);
 		changeBackBuffers = 1;
-		vr_ovr_autoscale->modified = false;
+		vr_ovr_maxfov->modified = (qboolean) false;
 	}
 
 	if (vr_ovr_supersample->modified)
@@ -274,25 +273,6 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		useChroma = (qboolean) !!vr_chromatic->value;
 	}
 
-	if (vr_ovr_filtermode->modified)
-	{
-		switch ((int32_t) vr_ovr_filtermode->value)
-		{
-		default:
-		case OVR_FILTER_BILINEAR:
-		case OVR_FILTER_BICUBIC:
-			useBilinear = 1;
-			break;
-		case OVR_FILTER_WEIGHTED_BILINEAR:
-			useBilinear = 0;
-			break;
-		}
-//		Com_Printf("OVR: %s bilinear texture filtering\n", useBilinear ? "Using" : "Not using");
-		R_SetFBOFilter(useBilinear,&left);
-		R_SetFBOFilter(useBilinear,&right);
-		vr_ovr_filtermode->modified = false;
-	}
-
 	if (changeBackBuffers)
 	{
 		int i;
@@ -302,6 +282,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 		ovrScale = (r_antialias->value == ANTIALIAS_4X_FSAA ? 2.0 : 1.0);
 		ovrScale *= vr_ovr_supersample->value;
+		Com_Printf("OVR: Texture scaling %.2f\n",ovrScale);
 		for (i = 0; i < 2; i++)
 		{
 			renderTargets[i] = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, eyeFov[i], ovrScale); 
@@ -318,7 +299,7 @@ void OVR_BindView(vr_eye_t eye)
 	case EYE_LEFT:
 		if (renderTargets[0].w != left.width || renderTargets[0].h != left.height)
 		{
-			R_ResizeFBO(renderTargets[0].w, renderTargets[0].h, useBilinear, GL_RGBA8, &left);
+			R_ResizeFBO(renderTargets[0].w, renderTargets[0].h, 1, GL_RGBA8, &left);
 			Com_Printf("OVR: Set left render target size to %ux%u\n",left.width,left.height);
 		}
 		vid.height = left.height;
@@ -328,7 +309,7 @@ void OVR_BindView(vr_eye_t eye)
 	case EYE_RIGHT:
 		if (renderTargets[1].w != right.width || renderTargets[1].h != right.height)
 		{
-			R_ResizeFBO(renderTargets[1].w, renderTargets[1].h, useBilinear, GL_RGBA8, &right);
+			R_ResizeFBO(renderTargets[1].w, renderTargets[1].h, 1, GL_RGBA8, &right);
 			Com_Printf("OVR: Set right render target size to %ux%u\n",right.width, right.height);
 		}
 		vid.height = right.height;
@@ -365,15 +346,30 @@ void OVR_GetState(vr_param_t *state)
 }
 
 
-void OVR_Present()
+void OVR_Present(qboolean loading)
 {
 	vec4_t debugColor;
 	{
-		r_ovr_shader_t *currentShader = &ovr_distortion_shaders[useChroma];
+		r_ovr_shader_t *currentShader;
+		ovrMatrix4f timeWarpMatrices[2][2];
 		ovrRecti viewport[] = {{ {0,0}, renderTargets[0].w, renderTargets[0].h},
 								{ {0, 0 }, renderTargets[1].w, renderTargets[1].h}};
+		qboolean warp =(qboolean) (!loading && withinFrame && vr_ovr_timewarp->value);
+		if (warp)
+		{
+			currentShader = &ovr_timewarp_shaders[useChroma];	
+			ovr_WaitTillTime(frameTime.TimewarpPointSeconds);
+			ovrHmd_GetEyeTimewarpMatrices(hmd, (ovrEyeType)0, framePose, timeWarpMatrices[0]);
+			ovrHmd_GetEyeTimewarpMatrices(hmd, (ovrEyeType)1, framePose, timeWarpMatrices[1]);
+
+		} else {
+			currentShader = &ovr_distortion_shaders[useChroma];	
+		}
 		ovrHmd_GetRenderScaleAndOffset(eyeDesc[0].Fov, renderTargets[0], viewport[0], (ovrVector2f*) UVScaleOffset[0]);
 		ovrHmd_GetRenderScaleAndOffset(eyeDesc[1].Fov, renderTargets[1], viewport[1], (ovrVector2f*) UVScaleOffset[1]);
+
+		//WARNING!!! These matrices are transposed in SetUniform4x4f, before being used by the shader.
+
 		glDisableClientState (GL_COLOR_ARRAY);
 		glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState (GL_VERTEX_ARRAY);
@@ -390,7 +386,12 @@ void OVR_Present()
 		glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
 			 UVScaleOffset[0][1].x, UVScaleOffset[0][1].y);
 		glUniform1i(currentShader->uniform.tex,0);
-
+		
+		if (warp)
+		{
+			glUniformMatrix4fv(currentShader->uniform.EyeRotationStart,1,GL_TRUE,(GLfloat *) timeWarpMatrices[0][0].M);
+			glUniformMatrix4fv(currentShader->uniform.EyeRotationEnd,1,GL_TRUE,(GLfloat *) timeWarpMatrices[0][1].M);
+		}
 		GL_MBind(0,left.texture);
 		R_BindIVBO(&eyes[0],distortion_attribs,5);
 
@@ -403,6 +404,12 @@ void OVR_Present()
 		glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
 			 UVScaleOffset[1][1].x, UVScaleOffset[1][1].y);
 
+		if (warp)
+		{
+
+			glUniformMatrix4fv(currentShader->uniform.EyeRotationStart,1,GL_TRUE,(GLfloat *) timeWarpMatrices[1][0].M);
+			glUniformMatrix4fv(currentShader->uniform.EyeRotationEnd,1,GL_TRUE,(GLfloat *) timeWarpMatrices[1][1].M);
+		}	
 
 		R_BindIVBO(&eyes[1],distortion_attribs, 5);
 		R_DrawIVBO(&eyes[1]);
@@ -463,8 +470,11 @@ int32_t OVR_Enable()
 	R_CreateIVBO(&eyes[0],GL_STATIC_DRAW);
 	R_CreateIVBO(&eyes[1],GL_STATIC_DRAW);
 
-	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_dist_norm);
-	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_dist_chrm);
+	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_norm);
+	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_chrm);
+
+	VR_OVR_InitShader(&ovr_timewarp_shaders[0],&ovr_shader_warp);
+	VR_OVR_InitShader(&ovr_timewarp_shaders[1],&ovr_shader_chrm_warp);
 	//OVR_FrameStart(true);
 	Cvar_ForceSet("vr_hmdstring",(char *)hmdDesc.ProductName);
 	return true;
@@ -473,8 +483,10 @@ int32_t OVR_Enable()
 void OVR_Disable()
 {
 
-	R_DelShaderProgram(&ovr_shader_dist_norm);
-	R_DelShaderProgram(&ovr_shader_dist_chrm);
+	R_DelShaderProgram(&ovr_shader_norm);
+	R_DelShaderProgram(&ovr_shader_chrm);
+	R_DelShaderProgram(&ovr_shader_warp);
+	R_DelShaderProgram(&ovr_shader_chrm_warp);
 
 	if (left.valid)
 		R_DelFBO(&left);

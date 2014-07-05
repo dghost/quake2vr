@@ -28,10 +28,10 @@ extern ovr_attrib_t ovrConfig;
 extern cvar_t *vr_ovr_driftcorrection;
 extern cvar_t *vr_ovr_scale;
 extern cvar_t *vr_ovr_prediction;
-extern cvar_t *vr_ovr_distortion;
-extern cvar_t *vr_ovr_autoscale;
-extern cvar_t *vr_ovr_filtermode;
+extern cvar_t *vr_ovr_maxfov;
+extern cvar_t *vr_ovr_autoprediction;
 extern cvar_t *vr_ovr_supersample;
+extern cvar_t *vr_ovr_timewarp;
 
 extern hmd_interface_t hmd_rift;
 

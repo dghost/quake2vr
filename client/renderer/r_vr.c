@@ -28,6 +28,7 @@ static vr_eye_t currenteye;
 
 vr_rect_t screen;
 
+static qboolean loadingScreen;
 
 typedef struct {
 	vec3_t position;
@@ -197,6 +198,9 @@ void R_VR_StartFrame()
 	qboolean resolutionChanged = 0;
 	qboolean hudChanged = 0;
 
+	extern int32_t scr_draw_loading;
+
+
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 
@@ -255,6 +259,7 @@ void R_VR_StartFrame()
 	rightStale = 1;
 	hudStale = 1;
 
+	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
 }
 
 void R_Clear(void);
@@ -440,6 +445,7 @@ void R_VR_GetFOV(float *fovx, float *fovy)
 }
 
 
+
 void R_VR_DrawHud(vr_eye_t eye)
 {
 	float fov = vr_hud_fov->value;
@@ -447,7 +453,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	int numsegments = vr_hud_segments->value;
 	vec_t mat[4][4], temp[4][4];
 
-	extern int32_t scr_draw_loading;
 
 	if (!vr_enabled->value)
 		return;
@@ -456,7 +461,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	TranslationMatrix(0, 0, 0, mat);
 	// disable this for the loading screens since they are not at 60fps
-	if ((vr_hud_bounce->value > 0) && !scr_draw_loading && ((int32_t) vr_aimmode->value > 0))
+	if ((vr_hud_bounce->value > 0) && !loadingScreen && ((int32_t) vr_aimmode->value > 0))
 	{
 		// load the quaternion directly into a rotation matrix
 		vec4_t q;
@@ -530,13 +535,12 @@ void R_VR_Present()
 	if (!hmd)
 		return;
 	GL_BindFBO(currentFBO);
-
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GL_SetIdentity(GL_PROJECTION);
 	GL_SetIdentity(GL_MODELVIEW);
 
 	// tell the HMD renderer to draw composited scene
-	hmd->present();
-
+	hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
 }
 
 // util function
@@ -579,6 +583,8 @@ void R_VR_Enable()
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
+		// TODO: variable resolution HUD
+		// although in theory 640x480 should be plenty even at 1080p
 		success = (qboolean) R_GenFBO(640, 480, 1, GL_RGBA8, &hud);
 		success = success && hmd->enable && hmd->enable();
 
