@@ -393,7 +393,6 @@ R_SetupGL
 void R_SetupGL(void)
 {
 	//	float	yfov;
-	int32_t		x, x2, y2, y, w, h;
 	vec3_t vieworigin;
 	//Knightmare- variable sky range
 	static GLfloat farz;
@@ -413,19 +412,6 @@ void R_SetupGL(void)
 
 		r_modulate->modified = 0;
 	}
-
-	//
-	// set up viewport
-	//
-	x = floorf(r_newrefdef.x * vid.width / vid.width);
-	x2 = ceilf((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
-	y = floorf(vid.height - r_newrefdef.y * vid.height / vid.height);
-	y2 = ceilf(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
-
-	w = x2 - x;
-	h = y - y2;
-
-	glViewport(x, y2, w, h);
 
 	// Knightmare- variable sky range
 	// calc farz falue from skybox size
@@ -719,10 +705,26 @@ r_newrefdef must be set before the first call
 extern cvar_t *cl_paused;
 void R_RenderView (refdef_t *fd)
 {
+	int32_t		x, x2, y2, y, w, h;
+
 	if (r_norefresh->value)
 		return;
 
 	r_newrefdef = *fd;
+
+	//
+	// set up viewport
+	//
+	x = floorf(r_newrefdef.x * vid.width / vid.width);
+	x2 = ceilf((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
+	y = floorf(vid.height - r_newrefdef.y * vid.height / vid.height);
+	y2 = ceilf(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
+
+	w = x2 - x;
+	h = y - y2;
+
+	glViewport(x, y2, w, h);
+
 
 	R_SetupGL ();
 
