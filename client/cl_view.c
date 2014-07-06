@@ -655,9 +655,11 @@ VR_RenderStereo
 ==================
 */
 extern void R_RenderView (refdef_t *fd);
+extern void R_RenderViewIntoFBO (refdef_t *fd, fbo_t *destination);
 //extern void VR_RenderScreenEffects (refdef_t *fd);
 extern void	R_SetLightLevel ();
 extern void	R_SetGL2D ();
+extern void R_RenderCommon (refdef_t *fd);
 void VR_RenderStereo ()
 {
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
@@ -777,6 +779,7 @@ void VR_RenderStereo ()
 
 		// Neckmodel stuff
 
+	R_RenderCommon(&cl.refdef);
 
 	VectorCopy(cl.refdef.vieworg, viewOrig);
 	VectorCopy(cl.refdef.vieworg,view);
@@ -849,7 +852,7 @@ void VR_RenderStereo ()
 		R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
 		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
 
-		R_RenderView(&cl.refdef );
+		R_RenderView( &cl.refdef );	
 
 		if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
 			R_DrawCameraEffect ();
@@ -887,7 +890,7 @@ void VR_RenderStereo ()
 		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
 
 
-		R_RenderView(&cl.refdef );
+		R_RenderView( &cl.refdef );	
 
 		// finish house keeping tasks
 
@@ -1033,6 +1036,8 @@ void V_RenderView ()
 		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
         qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int32_t (*)(const void *, const void *))entitycmpfnc );
 	}
+
+	R_RenderCommon(&cl.refdef);
 
 	R_RenderView( &cl.refdef );	
 

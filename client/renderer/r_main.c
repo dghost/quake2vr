@@ -527,21 +527,9 @@ void R_Clear (void)
 R_Flash
 =============
 */
-extern cvar_t *cl_paused;
 void R_Flash (void)
 {
 	R_PolyBlend ();
-	if (cl_paused->value)
-	{
-		R_Blur(1);
-	} else if (r_flashblur->value)
-	{
-		if (v_blend[3])
-			R_Blur(v_blend[3]);
-	} else if (r_newrefdef.rdflags & RDF_UNDERWATER)
-	{
-		R_Blur(1);
-	}
 }
 
 
@@ -666,109 +654,6 @@ void VR_DrawCrosshair()
 	GL_BlendFunc(src,dst);
 }
 
-/*
-================
-VR_RenderView
-
-r_newrefdef must be set before the first call
-================
-*/
-void VR_RenderView (refdef_t *fd)
-{
-	if (r_norefresh->value)
-		return;
-
-	r_newrefdef = *fd;
-
-	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
-		VID_Error (ERR_DROP, "R_RenderView: NULL worldmodel");
-
-	if (r_speeds->value)
-	{
-		c_brush_calls = 0;
-		c_brush_surfs = 0;
-		c_brush_polys = 0;
-		c_alias_polys = 0;
-		c_part_polys = 0;
-	}
-
-	R_PushDlights ();
-
-	if (r_finish->value)
-		glFinish ();
-
-	R_SetupFrame ();
-
-	R_SetFrustum ();
-
-	R_SetupGL ();
-
-	R_MarkLeaves ();	// done here so we know if we're in water
-
-	R_DrawWorld ();
-	
-	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
-	{
-		qboolean fog_on = false;
-		//Knightmare- no fogging on menu/hud models
-		if (glIsEnabled(GL_FOG)) //check if fog is enabled
-		{
-			fog_on = true;
-			glDisable(GL_FOG); //if so, disable it
-		}
-
-		//R_DrawAllDecals();
-		R_DrawAllEntities(false);
-		R_DrawAllParticles();
-
-		//re-enable fog if it was on
-		if (fog_on)
-			glEnable(GL_FOG);
-	}
-	else
-	{
-		GL_Disable (GL_ALPHA_TEST);
-
-		R_RenderDlights();
-
-		if (r_transrendersort->value) {
-			//R_BuildParticleList();
-			R_SortParticlesOnList();
-			R_DrawAllDecals();
-			//R_DrawAllEntityShadows();
-			R_DrawSolidEntities();
-			R_DrawEntitiesOnList(ents_trans);
-		}
-		else {
-			R_DrawAllDecals();
-			//R_DrawAllEntityShadows();
-			R_DrawAllEntities(true);
-		}
-
-		R_DrawAllParticles ();
-	
-		VR_DrawCrosshair();
-
-		R_DrawEntitiesOnList(ents_viewweaps);
-
-		if (r_particle_overdraw->value)
-		{
-			R_ParticleStencil (1);
-		}
-		R_DrawAlphaSurfaces ();
-
-		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
-		{
-			R_ParticleStencil (2);
-			R_DrawAllParticles ();
-			R_ParticleStencil (3);
-		}
-
-		// always draw vwep last...
-		R_DrawEntitiesOnList(ents_viewweaps_trans);
-	}
-	R_SetFog();
-}
 
 /*
 ================
@@ -784,14 +669,16 @@ void VR_RenderScreenEffects (refdef_t *fd)
 		R_PolyBlend ();
 }
 
+
 /*
 ================
-R_RenderView
+R_RenderCommon
 
-r_newrefdef must be set before the first call
+
 ================
 */
-void R_RenderView (refdef_t *fd)
+extern cvar_t *cl_paused;
+void R_RenderCommon (refdef_t *fd)
 {
 	if (r_norefresh->value)
 		return;
@@ -819,9 +706,25 @@ void R_RenderView (refdef_t *fd)
 
 	R_SetFrustum ();
 
-	R_SetupGL ();
-
 	R_MarkLeaves ();	// done here so we know if we're in water
+}
+
+/*
+================
+R_RenderView
+
+r_newrefdef must be set before the first call
+================
+*/
+extern cvar_t *cl_paused;
+void R_RenderView (refdef_t *fd)
+{
+	if (r_norefresh->value)
+		return;
+
+	r_newrefdef = *fd;
+
+	R_SetupGL ();
 
 	R_DrawWorld ();
 	
@@ -888,10 +791,21 @@ void R_RenderView (refdef_t *fd)
 		
 		R_BloomBlend (fd);	// BLOOMS
 		R_Flash();
+
+		if (cl_paused->value)
+		{
+			R_Blur(1);
+		} else if (r_flashblur->value)
+		{
+			if (v_blend[3])
+				R_Blur(v_blend[3]);
+		} else if (r_newrefdef.rdflags & RDF_UNDERWATER)
+		{
+			R_Blur(1);
+		}
 	}
 	R_SetFog();
 }
-
 
 /*
 ================

@@ -51,6 +51,15 @@ void R_Blur(float blurScale)
 		if (vid.width != offscreenFBO.width || vid.height != offscreenFBO.height)
 			R_ResizeFBO(vid.width,vid.height,TRUE, GL_RGBA8, &offscreenFBO);
 
+		width = (vid.width / scale);
+		height = (vid.height / scale);
+
+		if (width != pongFBO.width || height != pongFBO.height)
+		{
+			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pongFBO);
+			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pingFBO);
+		}
+
 		for (i = 0 ; i < 5 ; i++)
 		{
 	
@@ -74,15 +83,6 @@ void R_Blur(float blurScale)
 		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,vid.width,vid.height,0);
 		//glGenerateMipmap(GL_TEXTURE_2D);
 		
-		width = (vid.width / scale);
-		height = (vid.height / scale);
-
-		if (width != pongFBO.width || height != pongFBO.height)
-		{
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pongFBO);
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pingFBO);
-		}
-
 		GL_ClearColor(0,0,0,0);
 
 		GL_LoadIdentity(GL_PROJECTION);
