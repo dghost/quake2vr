@@ -124,14 +124,20 @@ int32_t VR_OVR_getOrientation(float euler[3])
 		return 0;
 	if (withinFrame && vr_ovr_autoprediction->value > 0)
 	{
-		// really, we should be checking both eyes
+		// really, we should be using both eyes separately
 		// however, for the way we are using the SDK this should always be equal
 		// mostly we are just letting the SDK have it's fun with timing
 		framePose = ovrHmd_GetEyePose(hmd,ovrEye_Left);
+		framePose = ovrHmd_GetEyePose(hmd,ovrEye_Right);
 	} else {
 		// if not, do this by hand
 		ovrSensorState ss;
-		ss = ovrHmd_GetSensorState(hmd, ovr_GetTimeInSeconds() + prediction_time);
+		double time = 0.0;
+		if (vr_ovr_autoprediction->value > 0)
+			time = (frameTime.EyeScanoutSeconds[ovrEye_Left] + frameTime.EyeScanoutSeconds[ovrEye_Right]) / 2.0;
+		else
+			time = ovr_GetTimeInSeconds() + prediction_time;
+		ss = ovrHmd_GetSensorState(hmd, time);
 		if (ss.StatusFlags & (ovrStatus_OrientationTracked ) )
 		{ 
 			framePose = ss.Predicted.Pose;		
