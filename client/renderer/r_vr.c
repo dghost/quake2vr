@@ -188,11 +188,11 @@ void R_VR_StartFrame()
 
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
-
-	if (vid.width != screen.width || vid.height != screen.height)
+	
+	if (viddef.width != screen.width || viddef.height != screen.height)
 	{
-		screen.height = vid.height;
-		screen.width = vid.width;
+		screen.height = viddef.height;
+		screen.width = viddef.width;
 		resolutionChanged = true;
 	}
 

@@ -920,7 +920,7 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
 		GL_MBind(0,destination->texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		GL_MBind(0,0);
 		if (r_bloom->value)
