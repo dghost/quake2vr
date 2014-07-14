@@ -43,18 +43,9 @@ static GLuint currentFBO = 0;
 static r_shaderobject_t vr_shader_distort_norm = {
 	0,
 	// vertex shader (identity)
-	"vr/common.vert",
+	"vr/texdistort.vert",
 	// fragment shader
 	"vr/texdistort.frag"
-};
-
-// Default Lens Warp Shader
-static r_shaderobject_t vr_shader_distort_bicubic_norm = {
-	0,
-	// vertex shader (identity)
-	"vr/common.vert",
-	// fragment shader
-	"vr/texdistort_fastbicubic.frag"
 };
 
 
@@ -62,21 +53,13 @@ static r_shaderobject_t vr_shader_distort_bicubic_norm = {
 static r_shaderobject_t vr_shader_distort_chrm = {
 	0,
 	// vertex shader (identity)
-	"vr/common.vert",
+	"vr/texdistort.vert",
 	// fragment shader
 	"vr/texdistort_chromatic.frag"
 };
 
-static r_shaderobject_t vr_shader_distort_bicubic_chrm = {
-	0,
-	// vertex shader (identity)
-	"vr/common.vert",
-	// fragment shader
-	"vr/texdistort_chromatic_fastbicubic.frag"
-};
-
 vr_distort_shader_t vr_distort_shaders[2];
-vr_distort_shader_t vr_bicubic_distort_shaders[2];
+vr_param_t vrState;
 
 //
 // Rendering related functions
@@ -187,12 +170,14 @@ void R_VR_GenerateHud()
 	R_BindIVBO(&hudVBO,NULL,0);
 	R_VertexData(&hudVBO,hudNumVerts * sizeof(vert_t),hudverts);
 	R_IndexData(&hudVBO,GL_TRIANGLE_STRIP,GL_UNSIGNED_SHORT,currIndex,currIndex * sizeof(GLushort),indices);
-	R_ReleaseIVBO(&hudVBO);
+	R_ReleaseIVBO();
 	free(hudverts);
 	free(indices);
 }
 
 // executed once per frame
+void R_Clear(void);
+
 void R_VR_StartFrame()
 {
 	qboolean resolutionChanged = 0;
@@ -255,118 +240,19 @@ void R_VR_StartFrame()
 		Com_Printf("VR: Calculated %.2f FOV\n", vrState.viewFovY);
 	}
 
-	leftStale = 1;
-	rightStale = 1;
+
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	R_BindFBO(vrState.eyeFBO[0]);
+	R_Clear();
+
+	R_BindFBO(vrState.eyeFBO[1]);
+	R_Clear();
+	GL_BindFBO(currentFBO);
+	GL_SetDefaultClearColor();		
+
 	hudStale = 1;
 
 	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
-}
-
-void R_Clear(void);
-void R_VR_BindView(vr_eye_t eye)
-{
-	int32_t clear = 0;
-	currenteye = eye;
-	if (eye == EYE_HUD)
-	{
-		R_BindFBO(&hud);
-		vid.height = hud.height;
-		vid.width = hud.width;
-		clear = hudStale;
-		hudStale = 0;
-	}
-	else if (hmd)
-	{
-		hmd->bindView(eye);
-		if (eye == EYE_LEFT)
-		{
-			clear = leftStale;
-			leftStale = 0;
-		}
-		else if (eye == EYE_RIGHT)
-		{
-			clear = rightStale;
-			rightStale = 0;
-		}
-	}
-
-	if (clear && eye != EYE_HUD)
-	{
-		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-		R_Clear();
-		GL_SetDefaultClearColor();
-	}
-	else if (clear) {
-		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		GL_SetDefaultClearColor();
-	}
-}
-
-void R_VR_GetViewPos(vr_eye_t eye, int32_t *x, int32_t *y)
-{
-	if (eye == EYE_HUD)
-	{
-		*x = 0;
-		*y = 0;
-	}
-	else if (hmd)
-	{
-		vr_rect_t view;
-		hmd->getViewRect(eye, &view);
-		*x = view.x;
-		*y = view.y;
-	}
-}
-
-void R_VR_GetViewSize(vr_eye_t eye, int32_t *width, int32_t *height)
-{
-	if (eye == EYE_HUD)
-	{
-		*width = hud.width;
-		*height = hud.height;
-	}
-	else if (hmd)
-	{
-		vr_rect_t view;
-		hmd->getViewRect(eye, &view);
-		*width = view.width;
-		*height = view.height;
-	}
-}
-
-void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
-{
-	if (eye == EYE_HUD)
-	{
-		rect->x = 0;
-		rect->y = 0;
-		rect->width = hud.width;
-		rect->height = hud.height;
-	}
-	else if (hmd)
-		hmd->getViewRect(eye, rect);
-}
-
-void R_VR_CurrentViewPosition(int32_t *x, int32_t *y)
-{
-	R_VR_GetViewPos(currenteye, x, y);
-}
-
-void R_VR_CurrentViewSize(int32_t *width, int32_t *height)
-{
-	R_VR_GetViewSize(currenteye, width, height);
-}
-
-void R_VR_CurrentViewRect(vr_rect_t *rect)
-{
-	R_VR_GetViewRect(currenteye, rect);
-}
-
-void R_VR_Rebind()
-{
-	if (hmd)
-		hmd->bindView(currenteye);
 }
 
 void R_VR_EndFrame()
@@ -379,57 +265,31 @@ void R_VR_EndFrame()
 
 		GL_MBind(0, hud.texture);
 
-		R_VR_BindView(EYE_LEFT);
+		R_BindFBO(vrState.eyeFBO[0]);
 		R_VR_DrawHud(EYE_LEFT);
 
-		R_VR_BindView(EYE_RIGHT);
+		R_BindFBO(vrState.eyeFBO[1]);
 		R_VR_DrawHud(EYE_RIGHT);
 
 		GL_MBind(0, 0);
 
 		GL_Disable(GL_ALPHA_TEST);
-
-		glViewport(0, 0, screen.width, screen.height);
-		vid.width = screen.width;
-		vid.height = screen.height;
+		GL_BindFBO(0);
+		glViewport(0, 0, glConfig.screen_width, glConfig.screen_height);
+		vid.width = glConfig.screen_width;
+		vid.height = glConfig.screen_height;
 	}
 }
 
-void VR_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar)
-{
-	GLfloat nf = 1.0f / (zNear - zFar);
-	GLfloat out[4][4];
 
-	out[0][0] = eye.x.scale;
-	out[0][1] = 0;
-	out[0][2] = 0;
-	out[0][3] = 0;
-
-	out[1][0] = 0;
-	out[1][1] = eye.y.scale;
-	out[1][2] = 0;
-	out[1][3] = 0;
-
-	out[2][0] = -eye.x.offset;
-	out[2][1] = eye.y.offset;
-	out[2][2] = (zFar + zNear) * nf;
-	out[2][3] = -1;
-
-	out[3][0] = 0;
-	out[3][1] = 0;
-	out[3][2] = (2.0f * zFar * zNear) * nf;
-	out[3][3] = 0;
-
-	GL_LoadMatrix(GL_PROJECTION,out);
-}
 void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar)
 {
 	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
 //	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
 	if (currenteye == EYE_LEFT)
-		VR_PerspectiveScale(vrState.scaleOffset[0],zNear,zFar);
+		R_PerspectiveScale(vrState.renderParams[0].projection,zNear,zFar);
 	else if (currenteye == EYE_RIGHT)
-		VR_PerspectiveScale(vrState.scaleOffset[1],zNear,zFar);
+		R_PerspectiveScale(vrState.renderParams[1].projection,zNear,zFar);
 	else
 		R_PerspectiveOffset(fovy,aspect,zNear,zFar,0);
 }
@@ -444,6 +304,22 @@ void R_VR_GetFOV(float *fovx, float *fovy)
 	*fovy = vrState.viewFovY * vr_autofov_scale->value;
 }
 
+fbo_t* R_VR_GetFBOForEye(vr_eye_t eye)
+{
+	if (!hmd)
+		return NULL;
+	
+	switch (eye)
+	{
+	case EYE_LEFT:
+		return vrState.eyeFBO[0];
+	case EYE_RIGHT:
+		return vrState.eyeFBO[1];
+	default:
+		return &hud;
+	}
+}
+
 
 
 void R_VR_DrawHud(vr_eye_t eye)
@@ -451,15 +327,17 @@ void R_VR_DrawHud(vr_eye_t eye)
 	float fov = vr_hud_fov->value;
 	float depth = vr_hud_depth->value;
 	int numsegments = vr_hud_segments->value;
+	int index = (eye == EYE_LEFT ? 0 : 1);
 	vec_t mat[4][4], temp[4][4];
 
 
 	if (!vr_enabled->value)
 		return;
 
-	R_VR_Perspective(vrState.viewFovY, vrState.aspect, 0.24, 251.0);
+	R_PerspectiveScale(vrState.renderParams[index].projection, 0.24, 251.0);
 
 	TranslationMatrix(0, 0, 0, mat);
+
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !loadingScreen && ((int32_t) vr_aimmode->value > 0))
 	{
@@ -473,8 +351,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 	
 	if (vr_autoipd->value)
 	{
-		int i = (eye == EYE_RIGHT ? 1 : 0);
-		TranslationMatrix(-vrState.eyeOffset[i][0], vrState.eyeOffset[i][1], vrState.eyeOffset[i][2], temp);
+		TranslationMatrix(-vrState.renderParams[index].viewOffset[0], vrState.renderParams[index].viewOffset[1], vrState.renderParams[index].viewOffset[2], temp);
 	} else {
 		float viewOffset = (vr_ipd->value / 2000.0);
 		TranslationMatrix(eye * -viewOffset, 0, 0, temp);
@@ -487,7 +364,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	{
 		GL_Enable(GL_BLEND);
 		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	}
 
 //	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -500,7 +376,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 		glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
 		glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
 		R_DrawIVBO(&hudVBO);
-		R_ReleaseIVBO(&hudVBO);
+		R_ReleaseIVBO();
 //		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 //		glEnableClientState (GL_VERTEX_ARRAY);
 		glEnableClientState (GL_COLOR_ARRAY);
@@ -525,7 +401,7 @@ void R_VR_DrawHud(vr_eye_t eye)
 
 	}
 
-	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+//	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	GL_Disable(GL_BLEND);
 }
 
@@ -534,8 +410,8 @@ void R_VR_Present()
 {
 	if (!hmd)
 		return;
-	GL_BindFBO(currentFBO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	GL_BindFBO(currentFBO);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GL_SetIdentity(GL_PROJECTION);
 	GL_SetIdentity(GL_MODELVIEW);
 
@@ -591,8 +467,6 @@ void R_VR_Enable()
 
 		R_VR_InitDistortionShader(&vr_distort_shaders[0], &vr_shader_distort_norm);
 		R_VR_InitDistortionShader(&vr_distort_shaders[1], &vr_shader_distort_chrm);
-		R_VR_InitDistortionShader(&vr_bicubic_distort_shaders[0], &vr_shader_distort_bicubic_norm);
-		R_VR_InitDistortionShader(&vr_bicubic_distort_shaders[1], &vr_shader_distort_bicubic_chrm);
 
 		if (!success)
 		{
@@ -648,8 +522,6 @@ void R_VR_Disable()
 
 	R_DelShaderProgram(&vr_shader_distort_norm);
 	R_DelShaderProgram(&vr_shader_distort_chrm);
-	R_DelShaderProgram(&vr_shader_distort_bicubic_norm);
-	R_DelShaderProgram(&vr_shader_distort_bicubic_chrm);
 }
 
 // launch-time initialization for VR support

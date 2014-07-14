@@ -14,6 +14,18 @@ typedef struct {
 	float width, height;
 } vr_rectf_t;
 
+typedef struct {
+	float viewFovY;
+	float viewFovX;
+	float pixelScale;
+	float aspect;
+//	vec3_t eyeOffset[2];
+//	eyeScaleOffset_t scaleOffset[2];
+	fbo_t* eyeFBO[2];
+	eye_param_t renderParams[2];
+} vr_param_t;
+
+extern vr_param_t vrState;
 
 typedef struct {
 	hmd_t type;
@@ -25,6 +37,7 @@ typedef struct {
 	void (*frameStart)(int32_t changeBackBuffers);
 	void (*getState)(vr_param_t *state);
 	void (*present)(qboolean loading);
+	fbo_t* (*getFBO)(vr_eye_t eye);
 } hmd_render_t;
 
 typedef struct {
@@ -44,19 +57,12 @@ void R_VR_Shutdown();
 void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
-void R_VR_BindView(vr_eye_t eye);
-void R_VR_GetViewPos(vr_eye_t eye, int32_t *x, int32_t *y);
-void R_VR_GetViewSize(vr_eye_t eye, int32_t *width, int32_t *height);
-void R_VR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
-void R_VR_Rebind();
-void R_VR_CurrentViewPosition(int32_t *x, int32_t *y);
-void R_VR_CurrentViewSize(int32_t *width, int32_t *height);
-void R_VR_CurrentViewRect(vr_rect_t *rect);
 void R_VR_Present();
 void R_VR_EndFrame();
 void R_VR_DrawHud(vr_eye_t eye);
 void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar);
 void R_VR_GetFOV(float *fovx, float *fovy);
+fbo_t* R_VR_GetFBOForEye(vr_eye_t eye);
 void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object);
 
 #endif //__R_VR_H

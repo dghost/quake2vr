@@ -2226,27 +2226,28 @@ void DrawDemoMessage (void)
 	}
 }
 
+void R_DrawSpeeds(fbo_t *destination);
+void R_Clear (void);
 
-/*
-==================
-VR_UpdateScreen
-
-This is called every frame, and can also be called explicitly to flush
-text to the screen.
-==================
-*/
-
-void VR_UpdateScreen (void)
+void SCR_Draw2DintoFBO(fbo_t *destination)
 {
-	vr_rect_t view;
+	R_BindFBO(destination);
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	R_Clear();
+	GL_SetDefaultClearColor();
+	scr_vrect.x = 0;
+	scr_vrect.y = 0;
+	vid.width =	scr_vrect.width = viddef.width = destination->width;
+	vid.height = scr_vrect.height = viddef.height = destination->height;
 
-	R_BeginFrame( );
+	GL_SetIdentityOrtho( GL_PROJECTION , 0, vid.width, vid.height, 0, -99999, 99999);
+	GL_LoadIdentity(GL_MODELVIEW);
 
-	R_VR_CurrentViewRect(&view);
-	scr_vrect.x = view.x;
-	scr_vrect.y = view.y;
-	scr_vrect.width = viddef.width = view.width;
-	scr_vrect.height = viddef.height = view.height;
+	GL_Disable (GL_DEPTH_TEST);
+	GL_Disable (GL_CULL_FACE);
+	GL_Disable (GL_BLEND);
+	GL_Enable (GL_ALPHA_TEST);
+	glColor4f (1,1,1,1);
 
 	if (scr_draw_loading == 2)
 	{	//  loading plaque over black screen
@@ -2292,17 +2293,22 @@ void VR_UpdateScreen (void)
 			M_Menu_Main_f();
 		}
 
-		// make sure the game palette is active
-		/*if (cl.cinematicpalette_active)
+		if (!vr_enabled->value)
 		{
-		R_SetPalette(NULL);
-		cl.cinematicpalette_active = false;
-		}*/
+			// do 3D refresh drawing, and then update the screen
+			SCR_CalcVrect ();
 
-		// do 3D refresh drawing, and then update the screen
+			// clear background around sized down view
+			SCR_TileClear ();
+	
+		}
 
-		// clear background around sized down view
-		//	SCR_TileClear ();
+
+		R_DrawSpeeds(destination);
+
+		// don't draw crosshair while in menu
+		if (cls.key_dest != key_menu) 
+			SCR_DrawCrosshair ();
 
 		if (!scr_hidehud)
 		{
@@ -2337,10 +2343,39 @@ void VR_UpdateScreen (void)
 		SCR_DrawLoading ();
 
 		SCR_DrawConsole ();	
-
-		VR_RenderStereo();
-
 	}
+}
+
+/*
+==================
+VR_UpdateScreen
+
+This is called every frame, and can also be called explicitly to flush
+text to the screen.
+==================
+*/
+
+void VR_UpdateScreen (void)
+{
+	fbo_t *hud = R_VR_GetFBOForEye(EYE_HUD);
+	fbo_t *fbo;
+
+	R_BeginFrame( );
+
+	SCR_Draw2DintoFBO(hud);	
+
+	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
+	{
+		VR_RenderStereo();
+	} else {
+		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+		fbo = R_VR_GetFBOForEye(EYE_RIGHT);
+		R_ClearFBO(fbo);
+		fbo = R_VR_GetFBOForEye(EYE_LEFT);
+		R_ClearFBO(fbo);
+		GL_SetDefaultClearColor();		
+	}
+
 //	R_VR_EndFrame();
 	R_EndFrame();
 }
@@ -2354,8 +2389,54 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-
+void V_RenderViewIntoFBO (fbo_t *fbo);
 void SCR_UpdateScreen (void)
+{
+	fbo_t *view, *hud;
+	// if the screen is disabled (loading plaque is up, or vid mode changing)
+	// do nothing at all
+	if (cls.disable_screen)
+	{
+		if (cls.download) // Knightmare- don't time out on downloads
+			cls.disable_screen = Sys_Milliseconds ();
+		if (Sys_Milliseconds() - cls.disable_screen > 120000
+			&& cl.refresh_prepped && !(cl.cinematictime > 0)) // Knightmare- dont time out on vid restart
+		{
+			cls.disable_screen = 0;
+			Com_Printf ("Loading plaque timed out.\n");
+			return; // Knightmare- moved here for loading screen
+		}
+		scr_draw_loading = 2; // Knightmare- added for loading screen
+	}
+
+	if (!scr_initialized || !con.initialized)
+		return;				// not initialized yet
+
+	if (vr_enabled->value) {
+		VR_UpdateScreen();
+		return;
+	}
+
+	R_BeginFrame( );
+
+	hud = R_GetHUDFBO();
+	view = R_GetViewFBO();
+	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
+	R_ClearFBO(view);
+	GL_SetDefaultClearColor();		
+
+	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
+	{
+		V_RenderViewIntoFBO(view);
+	} 
+	
+	SCR_Draw2DintoFBO(hud);	
+
+	R_EndFrame();
+}
+
+
+void SCR_UpdateScreenOld (void)
 {
 	// if the screen is disabled (loading plaque is up, or vid mode changing)
 	// do nothing at all

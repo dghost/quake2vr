@@ -4,7 +4,6 @@
 #include <SDL.h>
 
 void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos);
-void VR_OVR_GetState(vr_param_t *state);
 void VR_OVR_FrameStart();
 void VR_OVR_FrameEnd();
 
@@ -28,8 +27,6 @@ unsigned char ovrLatencyColor[3];
 qboolean useLatencyColor = false;
 
 ovr_attrib_t ovrConfig = {0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}};
-
-vr_param_t ovrState = {0, 0, 0, 0, 0, 0};
 
 ovrHmd hmd;
 ovrHmdDesc hmdDesc; 
@@ -250,6 +247,7 @@ int32_t VR_OVR_Enable()
 		return 0;
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
+	withinFrame = false;
 	
 	hmd = ovrHmd_Create(0);
 	
@@ -318,6 +316,7 @@ int32_t VR_OVR_Enable()
 
 void VR_OVR_Disable()
 {
+	withinFrame = false;
 	if (hmd)
 	{
 		ovrHmd_StopSensor(hmd);

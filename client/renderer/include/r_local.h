@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../ref.h"
 
 #include "qgl.h"
+#include "../../vid.h"
 
 // up / down
 #define	PITCH	0
@@ -293,6 +294,7 @@ extern	cvar_t	*r_anisotropic_avail;
 extern	cvar_t	*r_texturemode;
 extern	cvar_t	*r_texturealphamode;
 extern	cvar_t	*r_texturesolidmode;
+extern  cvar_t  *r_lodbias;
 extern  cvar_t  *r_lockpvs;
 extern	cvar_t	*r_intensity;
 
@@ -300,6 +302,7 @@ extern	cvar_t	*r_skydistance; //Knightmare- variable sky range
 extern	cvar_t	*r_saturation;	//** DMP
 
 extern  cvar_t  *r_bloom;
+
 extern  cvar_t  *r_blur;
 extern  cvar_t  *r_flashblur;
 
@@ -436,21 +439,63 @@ extern	int32_t		registration_sequence;
 
 void V_AddBlend (float r, float g, float b, float a, float *v_blend);
 
+
+/*
+====================================================================
+
+r_fbo.c
+
+====================================================================
+*/
+
+typedef struct {
+	GLuint framebuffer;
+	GLuint texture;
+	GLuint depthbuffer;
+	int32_t width, height;
+	GLenum format;
+	int32_t valid;
+} fbo_t;
+
+int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO);
+int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear,GLenum format, fbo_t *FBO);
+void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO);
+void R_DelFBO(fbo_t *FBO);
+void R_InitFBO(fbo_t *FBO);
+void R_BindFBO(fbo_t *FBO);
+void R_ClearFBO(fbo_t *FBO);
+
+
+typedef struct {
+	float scale;
+	float offset;
+} scaleOffset_t;
+
+typedef struct {
+	scaleOffset_t x;
+	scaleOffset_t y;
+} eyeScaleOffset_t;
+
+typedef struct {
+	vec3_t viewOffset;
+	eyeScaleOffset_t projection;
+} eye_param_t;
+
 //
 // r_main.c
 //
 qboolean R_Init ( char *reason );
 void R_ClearState (void);
 void R_Shutdown (void);
+void R_RenderCommon (refdef_t *fd);
 void R_RenderView (refdef_t *fd);
+void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect);
+fbo_t* R_GetHUDFBO(void);
+fbo_t* R_GetViewFBO(void);
 void R_BeginFrame();
 void R_EndFrame ( void );
 void R_SwapBuffers( int32_t );
 void R_SetPalette ( const Uint8 *palette);
-
-void VR_RenderView (refdef_t *fd);
-void VR_RenderScreenEffects (refdef_t *fd);
-
 
 //
 // r_model.c
@@ -563,13 +608,6 @@ void R_DrawSkyBox (void);
 //
 // r_surf.c
 //
-
-
-// 
-// r_bloom.c 
-// 
-void R_BloomBlend( refdef_t *fd ); 
-void R_InitBloomTextures( void ); 
 
 
 #if 0
@@ -720,6 +758,8 @@ typedef struct
 	int32_t		version_release;
 	int32_t		shader_version_major;
 	int32_t		shader_version_minor;
+	int32_t		screen_width;
+	int32_t		screen_height;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;
@@ -918,30 +958,6 @@ void		GLimp_AppActivate( qboolean active );
 /*
 ====================================================================
 
-r_fbo.c
-
-====================================================================
-*/
-
-typedef struct {
-	GLuint framebuffer;
-	GLuint texture;
-	GLuint depthbuffer;
-	int32_t width, height;
-	GLenum format;
-	int32_t valid;
-} fbo_t;
-
-int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO);
-int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear,GLenum format, fbo_t *FBO);
-void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO);
-void R_DelFBO(fbo_t *FBO);
-void R_InitFBO(fbo_t *FBO);
-void R_BindFBO(fbo_t *FBO);
-
-/*
-====================================================================
-
 r_shaderobjects.c
 
 ====================================================================
@@ -961,10 +977,10 @@ typedef struct {
 
 typedef struct {
 	r_shaderobject_t *shader;
-	GLuint rgbscale_uniform;
-	GLuint scale_uniform;
-	GLuint time_uniform;
-	GLuint displacement_uniform;
+	GLint rgbscale_uniform;
+	GLint scale_uniform;
+	GLint time_uniform;
+	GLint displacement_uniform;
 } r_warpshader_t;
 
 typedef struct {
@@ -973,18 +989,9 @@ typedef struct {
 } r_causticshader_t;
 
 
-typedef struct {
-	r_shaderobject_t *shader;
-	GLuint res_uniform;
-	GLuint weight_uniform;
-} r_blurshader_t;
-
 extern r_warpshader_t warpshader;
 extern r_warpshader_t simplexwarpshader;
 extern r_causticshader_t causticshader;
-extern r_blurshader_t blurXshader;
-extern r_blurshader_t blurYshader;
-
 
 qboolean R_CompileShader(GLuint shader, const char *source);
 qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader);
@@ -1012,7 +1019,7 @@ void R_AntialiasBind(void);
 void R_AntialiasEndFrame(void);
 void R_AntialiasInit (void);
 void R_AntialiasShutdown(void);
-
+void R_AntialiasSetFBOSize(fbo_t *fbo);
 
 //
 // r_misc.c
@@ -1023,16 +1030,23 @@ void R_ScreenShot_Silent_f (void);
 void R_FrameFence (void);
 int32_t R_FrameSync (void);
 void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
-
+void R_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar);
 
 //
 // r_blur.c
 //
 
-void R_Blur(float blurScale);
-void R_BlurInit();
-void R_BlurShutdown();
+void R_SetupQuadState();
+void R_TeardownQuadState();
+void R_DrawQuad();
 
+void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
+void R_BloomFBO(fbo_t *source);
+void R_PostProcessInit();
+void R_PostProcessShutdown();
+void R_PostProcessInit();
+qboolean R_InitPostsprocessShaders();
+void R_TeardownPostprocessShaders();
 
 /*
 ====================================================================
@@ -1069,7 +1083,7 @@ typedef struct {
 } buffer_t;
 
 int32_t R_CreateBuffer(buffer_t *buffer, GLenum target, GLenum usage);
-int32_t R_SetBuffer(buffer_t *buffer, GLsizeiptr size,  const GLvoid * data);
+void R_SetBuffer(buffer_t *buffer, GLsizeiptr size,  const GLvoid * data);
 void R_BindBuffer(buffer_t *buffer);
 void R_ReleaseBuffer(buffer_t *buffer);
 void R_DelBuffer(buffer_t *buffer);
@@ -1099,7 +1113,7 @@ void R_CreateIVBO(vbo_t *buffer, GLenum usage);
 void R_VertexData(vbo_t *buffer, GLsizeiptr size,  const GLvoid * data);
 void R_IndexData(vbo_t *buffer, GLenum mode, GLenum type, GLsizei count, GLsizeiptr size, const GLvoid * data);
 void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, unsigned int attribCount);
-void R_ReleaseIVBO(vbo_t *buffer);
+void R_ReleaseIVBO();
 void R_DrawIVBO(vbo_t *buffer);
 void R_DrawRangeIVBO(vbo_t *buffer, GLsizei offset, GLsizei count);
 void R_DelIVBO(vbo_t *buffer);

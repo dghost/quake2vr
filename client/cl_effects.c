@@ -1245,6 +1245,7 @@ void CL_ParticleBlasterThink (cparticle_t *p, vec3_t org, vec3_t angle, float *a
 	if (*size < pBlasterMinSize)
 		*size = pBlasterMinSize;
 
+
 	CL_ParticleBounceThink (p, org, angle, alpha, &clipsize, image, time); // was size
 
 	length = VectorNormalize(p->vel);

@@ -19,10 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // vid.h -- video driver defs
 
+#ifndef __VRECT_T
+#define __VRECT_T
 typedef struct vrect_s
 {
 	int32_t				x,y,width,height;
 } vrect_t;
+
+#endif
 
 #ifndef __VIDDEF_T
 #define __VIDDEF_T

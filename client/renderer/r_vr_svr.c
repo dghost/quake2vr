@@ -118,6 +118,12 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 			renderTargetRect.width *= 2;
 			renderTargetRect.height *= 2;
 		}
+		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
+		{
+			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);
+			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &right);
+		}
+
 		Com_Printf("VR_SVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
 		SVR_BuildDistortionTextures();		
 	}
@@ -130,19 +136,13 @@ void SVR_BindView(vr_eye_t eye)
 	{
 	case EYE_LEFT:
 
-		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
-		{
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);
-		}
+
 		vid.height = left.height;
 		vid.width = left.width;
 		R_BindFBO(&left);
 		break;
 	case EYE_RIGHT:
-		if (renderTargetRect.width != right.width || renderTargetRect.height != right.height)
-		{
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &right);
-		}
+
 		vid.height = right.height;
 		vid.width = right.width;
 		R_BindFBO(&right);
@@ -159,21 +159,23 @@ void SVR_GetState(vr_param_t *state)
 	svrState.aspect = svr_settings.aspect;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
-	VectorSet(svrState.eyeOffset[0],ipd * EYE_LEFT, 0.0, 0.0);
-	VectorSet(svrState.eyeOffset[1],ipd * EYE_RIGHT, 0.0, 0.0);
+	VectorSet(svrState.renderParams[0].viewOffset,ipd * EYE_LEFT, 0.0, 0.0);
+	VectorSet(svrState.renderParams[1].viewOffset,ipd * EYE_RIGHT, 0.0, 0.0);
 
-    svrState.scaleOffset[0].y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.scaleOffset[0].y.offset = 0.0;
-	svrState.scaleOffset[0].x.scale = svrState.scaleOffset[0].y.scale / svr_settings.aspect;
-	svrState.scaleOffset[0].x.offset = svr_settings.projOffset;
+    svrState.renderParams[0].projection.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.renderParams[0].projection.y.offset = 0.0;
+	svrState.renderParams[0].projection.x.scale = svrState.renderParams[0].projection.y.scale / svr_settings.aspect;
+	svrState.renderParams[0].projection.x.offset = svr_settings.projOffset;
 
 
-    svrState.scaleOffset[1].y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.scaleOffset[1].y.offset = 0.0;
-	svrState.scaleOffset[1].x.scale = svrState.scaleOffset[1].y.scale / svr_settings.aspect;
-	svrState.scaleOffset[1].x.offset = -svr_settings.projOffset;
+    svrState.renderParams[1].projection.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+	svrState.renderParams[1].projection.y.offset = 0.0;
+	svrState.renderParams[1].projection.x.scale = svrState.renderParams[1].projection.y.scale / svr_settings.aspect;
+	svrState.renderParams[1].projection.x.offset = -svr_settings.projOffset;
 
 	svrState.pixelScale = 3.0;
+	svrState.eyeFBO[0] = &left;
+	svrState.eyeFBO[1] = &right;
 	*state = svrState;
 }
 

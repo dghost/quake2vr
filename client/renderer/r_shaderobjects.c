@@ -10,8 +10,6 @@ r_warpshader_t warpshader;
 r_warpshader_t simplexwarpshader;
 r_causticshader_t causticshader;
 
-r_blurshader_t blurXshader;
-r_blurshader_t blurYshader;
 
 static r_shaderobject_t warpshader_object = {
 	0,
@@ -37,24 +35,6 @@ static r_shaderobject_t causticshader_object = {
 	"caustic.vert",
 	// fragment shader
 	"warp.frag",
-	NULL
-};
-
-static r_shaderobject_t blurX_object = {
-	0,
-	// vertex shader (identity)
-	"blurX.vert",
-	// fragment shader
-	"blur.frag",
-	NULL
-};
-
-static r_shaderobject_t blurY_object = {
-	0,
-	// vertex shader (identity)
-	"blurY.vert",
-	// fragment shader
-	"blur.frag",
 	NULL
 };
 
@@ -285,7 +265,7 @@ void R_DelShaderProgram(r_shaderobject_t *shader)
 qboolean R_InitShaders(void)
 {
 	qboolean success = false;
-	Com_Printf("...loading shaders: ");
+	Com_Printf("...initializing shader support: ");
 	if (R_CompileShaderFromFiles(&warpshader_object))
 	{
 		GLint texloc;
@@ -343,44 +323,6 @@ qboolean R_InitShaders(void)
 		success = false;
 	}
 
-	if (glConfig.shader_version_major > 1 || (glConfig.shader_version_major == 1 && glConfig.shader_version_minor >= 2))
-	{
-
-		if (R_CompileShaderFromFiles(&blurX_object))
-		{
-			GLint texloc;
-			blurXshader.shader = &blurX_object;
-			glUseProgram(blurXshader.shader->program);
-			texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
-			glUniform1i(texloc,0);
-			blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
-			blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
-			glUseProgram(0);
-
-			success = success && true;
-		}
-		else {
-			success = false;
-		}
-
-		if (R_CompileShaderFromFiles(&blurY_object))
-		{
-			GLint texloc;
-			blurYshader.shader = &blurY_object;
-			glUseProgram(blurYshader.shader->program);
-			texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
-			glUniform1i(texloc,0);
-			blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
-			blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
-			glUseProgram(0);
-			success = success && true;
-		}
-		else {
-			success = false;
-		}
-
-	}
-
 	if (success)
 	{
 		Com_Printf("success!\n");
@@ -392,14 +334,14 @@ qboolean R_InitShaders(void)
 
 void R_ReloadShader_f(void)
 {
+	R_TeardownPostprocessShaders();
 	R_ShaderObjectsShutdown();
 	R_InitShaders();
+	R_InitPostsprocessShaders();
 }
 
 void R_ShaderObjectsInit()
 {
-
-
 	R_InitShaders();
 	if (!firstInit)
 	{
@@ -413,6 +355,4 @@ void R_ShaderObjectsShutdown()
 	R_DelShaderProgram(&warpshader_object);
 	R_DelShaderProgram(&warpsimplexshader_object);
 	R_DelShaderProgram(&causticshader_object);
-	R_DelShaderProgram(&blurX_object);
-	R_DelShaderProgram(&blurY_object);
 }

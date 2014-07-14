@@ -1636,7 +1636,7 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mi
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (mipmap) ? gl_filter_min : gl_filter_max);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-
+	
 	// Set anisotropic filter if supported and enabled
 	if (mipmap && glConfig.anisotropic && r_anisotropic->value)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_anisotropic->value);
@@ -2265,8 +2265,6 @@ void R_InitImages (void)
 			j = 255;
 		intensitytable[i] = j;
 	}
-
-	R_InitBloomTextures (); // BLOOMS
 }
 
 /*

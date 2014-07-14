@@ -46,7 +46,7 @@ int32_t SteamVR_GetSettings(svr_settings_t *settings)
 {
 	if (hmd)
 	{
-		vr::HmdMatrix44_t mat;
+		vr::HmdMatrix34_t mat;
 		float left, right, top, bottom;
 		float centerRight;
 		double f;
@@ -55,7 +55,7 @@ int32_t SteamVR_GetSettings(svr_settings_t *settings)
 		hmd->GetRecommendedRenderTargetSize(&settings->targetWidth,&settings->targetHeight);
 		settings->scaleX = (float) settings->targetWidth / (float) settings->width;
 		settings->scaleY = (float) settings->targetHeight / (float) settings->height;
-		mat = hmd->GetEyeMatrix(vr::Eye_Right);
+		mat = hmd->GetHeadFromEyePose(vr::Eye_Right);
 		settings->ipd = (float) SDL_fabs(mat.m[0][3]) * 2.0f;
 		hmd->GetProjectionRaw(vr::Eye_Right,&left,&right,&top,&bottom);
 		centerRight = right - left;
@@ -110,7 +110,7 @@ void SteamVR_GetEyeViewport(eye_t eye, uint32_t *xpos, uint32_t *ypos, uint32_t 
 {
 	if (hmd)
 	{
-		hmd->GetEyeOutputViewport((vr::Hmd_Eye) eye , vr::API_OpenGL, xpos, ypos, width, height);
+		hmd->GetEyeOutputViewport((vr::Hmd_Eye) eye , xpos, ypos, width, height);
 	}
 }
 
@@ -136,7 +136,7 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 		float pM;
 		vr::HmdMatrix34_t mat;
 		vr::HmdTrackingResult result;
-		hmd->GetWorldFromHeadPose(prediction,&mat, &result);
+		hmd->GetTrackerFromHeadPose (prediction,&mat, &result);
 
 
 		pM = -mat.m[1][2];

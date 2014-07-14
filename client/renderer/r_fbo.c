@@ -84,7 +84,7 @@ int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, GLenum for
 	GL_MBind(0,FBO->texture);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 	if (bilinear)
 	{
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -135,10 +135,12 @@ void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO)
 }
 void R_DelFBO(fbo_t *FBO)
 {
-	glDeleteFramebuffersEXT(1, &FBO->framebuffer);
-	glDeleteTextures(1, &FBO->texture);
-	glDeleteRenderbuffersEXT(1, &FBO->depthbuffer);
-	
+	if (FBO->valid)
+	{
+		glDeleteFramebuffersEXT(1, &FBO->framebuffer);
+		glDeleteTextures(1, &FBO->texture);
+		glDeleteRenderbuffersEXT(1, &FBO->depthbuffer);
+	}
 	R_InitFBO(FBO);
 }
 
@@ -152,4 +154,12 @@ void R_BindFBO(fbo_t *FBO)
 	//glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
 	GL_BindFBO(FBO->framebuffer);
 	glViewport(0, 0, FBO->width, FBO->height);
+}
+
+void R_Clear();
+void R_ClearFBO(fbo_t *FBO)
+{
+	R_BindFBO(FBO);
+	R_Clear();
+	GL_BindFBO(0);
 }

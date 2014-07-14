@@ -718,3 +718,31 @@ void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zF
 	GL_LoadMatrix(GL_PROJECTION,out);
 }
 
+
+void R_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar)
+{
+	GLfloat nf = 1.0f / (zNear - zFar);
+	GLfloat out[4][4];
+
+	out[0][0] = eye.x.scale;
+	out[0][1] = 0;
+	out[0][2] = 0;
+	out[0][3] = 0;
+
+	out[1][0] = 0;
+	out[1][1] = eye.y.scale;
+	out[1][2] = 0;
+	out[1][3] = 0;
+
+	out[2][0] = -eye.x.offset;
+	out[2][1] = eye.y.offset;
+	out[2][2] = (zFar + zNear) * nf;
+	out[2][3] = -1;
+
+	out[3][0] = 0;
+	out[3][1] = 0;
+	out[3][2] = (2.0f * zFar * zNear) * nf;
+	out[3][3] = 0;
+
+	GL_LoadMatrix(GL_PROJECTION,out);
+}

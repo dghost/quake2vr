@@ -20,9 +20,10 @@ int32_t R_CreateBuffer(buffer_t *buffer, GLenum target, GLenum usage)
 	}
 	buffer->target = target;
 	buffer->usage = usage;
+	return 1;
 }
 
-int32_t R_SetBuffer(buffer_t *buffer, GLsizeiptr size,  const GLvoid * data)
+void R_SetBuffer(buffer_t *buffer, GLsizeiptr size,  const GLvoid * data)
 {
 	if (buffer->handle)
 	{
@@ -99,7 +100,7 @@ void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, unsigned int attribCount)
 	}
 }
 
-void R_ReleaseIVBO(vbo_t *buffer)
+void R_ReleaseIVBO()
 {
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);

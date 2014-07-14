@@ -649,22 +649,36 @@ void V_Gun_Model_f (void)
 
 //============================================================================
 
+eyeScaleOffset_t R_ApplyWarpToProjection(eyeScaleOffset_t projection)
+{
+	eyeScaleOffset_t result = projection;
+	// Barnes- Warp if underwater ala q3a :-)
+
+	float fov_x = RAD2DEG(atan2f(1,projection.x.scale)) * 2.0;
+	float fov_y = RAD2DEG(atan2f(1,projection.y.scale)) * 2.0;
+	float f = sin(cl.time * 0.001 * 0.4 * (M_PI*2.7));
+	fov_x += f * (fov_x/90.0); // Knightmare- scale to fov
+	fov_y -= f * (fov_y/90.0); // Knightmare- scale to fov
+	result.x.scale = 1.0f / tanf(DEG2RAD(fov_x / 2.0f));
+	result.y.scale = 1.0f / tanf(DEG2RAD(fov_y / 2.0f));
+	return result;
+}
+
 /*
 ==================
 VR_RenderStereo
 ==================
 */
-extern void R_RenderView (refdef_t *fd);
-extern void R_RenderViewIntoFBO (refdef_t *fd, fbo_t *destination);
-//extern void VR_RenderScreenEffects (refdef_t *fd);
-extern void	R_SetLightLevel ();
-extern void	R_SetGL2D ();
-extern void R_RenderCommon (refdef_t *fd);
+void R_RenderView (refdef_t *fd);
+void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect);
+void R_SetLightLevel ();
+void R_SetGL2D ();
+void R_RenderCommon (refdef_t *fd);
+void R_Clear(void);
 void VR_RenderStereo ()
 {
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
-	float f; // Barnes added
-	vec3_t view,viewOrig, tmp;
+	vec3_t view,viewOrig;
 
 
 	if (cls.state != ca_active)
@@ -740,13 +754,6 @@ void VR_RenderStereo ()
 		}
 
 		cl.refdef.time = cl.time*0.001;
-
-		// Barnes- Warp if underwater ala q3a :-)
-		if (cl.refdef.rdflags & RDF_UNDERWATER) {
-			f = sin(cl.time * 0.001 * 0.4 * (M_PI*2.7));
-			cl.refdef.fov_x += f * (cl.refdef.fov_x/90.0); // Knightmare- scale to fov
-			cl.refdef.fov_y -= f * (cl.refdef.fov_y/90.0); // Knightmare- scale to fov
-		} // end Barnes
 
 		cl.refdef.areabits = cl.frame.areabits;
 
@@ -825,80 +832,50 @@ void VR_RenderStereo ()
 
 	// left eye rendering
 	{
-
-//		// draw for left eye
-		R_VR_BindView(EYE_LEFT);
-
+		eye_param_t params;
+		//		// draw for left eye
+//		R_VR_BindView(EYE_LEFT);
+		fbo_t *fbo = R_VR_GetFBOForEye(EYE_LEFT);
 		//	R_VR_BindWorld();
-
+		params.projection = vrState.renderParams[0].projection;
+		if (cl.refdef.rdflags & RDF_UNDERWATER)
+			params.projection = R_ApplyWarpToProjection(params.projection);
 		if (vr_autoipd->value)
 		{
-			vec3_t eye;
-			VectorScale(vrState.eyeOffset[0],PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
-			VectorScale( cl.v_right, eye[0] , tmp );
-			VectorAdd( view, tmp, cl.refdef.vieworg );
-
-			VectorScale( cl.v_forward, eye[1], tmp );
-			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
-
-			VectorScale( cl.v_up, eye[2] , tmp );
-			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
+			VectorScale(vrState.renderParams[0].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
 		} else {
 			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorScale( cl.v_right, EYE_LEFT * viewOffset , tmp );
-			VectorAdd( view, tmp, cl.refdef.vieworg );
+			VectorSet(params.viewOffset,EYE_LEFT * viewOffset ,0,0);
 		}
 
-		R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
-		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
+		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
 
-		R_RenderView( &cl.refdef );	
-
-		if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
-			R_DrawCameraEffect ();
-		// render full screen effects
-		//	VR_RenderScreenEffects(&cl.refdef);
-		// draw for right eye
 
 	}
 
 	// Right eye rendering
 	{
-	
+		eye_param_t params;
+
+		fbo_t *fbo = R_VR_GetFBOForEye(EYE_RIGHT);
+		params.projection = vrState.renderParams[1].projection;
+
+		if (cl.refdef.rdflags & RDF_UNDERWATER)
+			params.projection = R_ApplyWarpToProjection(params.projection);
+
 		// shift view to the right half of the frame buffer
-		R_VR_BindView(EYE_RIGHT);
+//		R_VR_BindView(EYE_RIGHT);
 
 		if (vr_autoipd->value)
 		{
-			vec3_t eye;
-			VectorScale(vrState.eyeOffset[1],PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eye);
-			VectorScale( cl.v_right, eye[0] , tmp );
-			VectorAdd( view, tmp, cl.refdef.vieworg );
-
-			VectorScale( cl.v_forward, eye[1], tmp );
-			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
-
-			VectorScale( cl.v_up, eye[2] , tmp );
-			VectorAdd( cl.refdef.vieworg, tmp, cl.refdef.vieworg );
+			VectorScale(vrState.renderParams[1].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
 		} else {
 			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorScale( cl.v_right, EYE_RIGHT * viewOffset , tmp );
-			VectorAdd( view, tmp, cl.refdef.vieworg );
+			VectorSet(params.viewOffset,EYE_RIGHT * viewOffset ,0,0);
 		}
 
-		R_VR_CurrentViewPosition(&cl.refdef.x,&cl.refdef.y);
-		R_VR_CurrentViewSize(&cl.refdef.width,&cl.refdef.height);
+		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
 
-
-		R_RenderView( &cl.refdef );	
-
-		// finish house keeping tasks
-
-
-		if ((cl.refdef.rdflags & RDF_CAMERAEFFECT))
-			R_DrawCameraEffect ();
-		// render full screen effects
-		//VR_RenderScreenEffects(&cl.refdef);
 	}
 	VectorCopy(viewOrig, cl.refdef.vieworg);
 
@@ -1050,6 +1027,137 @@ void V_RenderView ()
 		fprintf( log_stats_file, "%i,%i,%i,",r_numentities, r_numdlights, r_numparticles);
 }
 
+void V_RenderViewIntoFBO (fbo_t *fbo)
+{
+	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
+	float f; // Barnes added
+	eye_param_t params;
+
+	if (cls.state != ca_active)
+		return;
+
+	if (!cl.refresh_prepped)
+		return;			// still loading
+
+	if (cl_timedemo->value)
+	{
+		if (!cl.timedemo_start)
+			cl.timedemo_start = Sys_Milliseconds ();
+		cl.timedemo_frames++;
+	}
+
+	// an invalid frame will just use the exact previous refdef
+	// we can't use the old frame if the video mode has changed, though...
+	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) )
+	{
+		cl.force_refdef = false;
+
+		V_ClearScene ();
+
+		// build a refresh entity list and calc cl.sim*
+		// this also calls CL_CalcViewValues which loads
+		// v_forward, etc.
+		CL_AddEntities ();
+
+		if (cl_testparticles->value)
+			V_TestParticles ();
+		if (cl_testentities->value)
+			V_TestEntities ();
+		if (cl_testlights->value)
+			V_TestLights ();
+		if (cl_testblend->value)
+		{
+			cl.refdef.blend[0] = 1;
+			cl.refdef.blend[1] = 0.5;
+			cl.refdef.blend[2] = 0.25;
+			cl.refdef.blend[3] = 0.5;
+		}
+
+		// never let it sit exactly on a node line, because a water plane can
+		// dissapear when viewed with the eye exactly on it.
+		// the server protocol only specifies to 1/8 pixel, so add 1/16 in each axis
+		cl.refdef.vieworg[0] += 1.0/16;
+		cl.refdef.vieworg[1] += 1.0/16;
+		cl.refdef.vieworg[2] += 1.0/16;
+
+		cl.refdef.x = 0;
+		cl.refdef.y = 0;
+		cl.refdef.width = fbo->width;
+		cl.refdef.height = fbo->height;
+
+		// adjust fov for wide aspect ratio
+		if (cl_widescreen_fov->value)
+		{
+		//	float standardRatio, currentRatio;
+		//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+		//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+		//	if (currentRatio > standardRatio)
+		//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
+			float aspectRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+			// changed to improved algorithm by Dopefish
+			if (aspectRatio > STANDARD_ASPECT_RATIO)
+				cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
+			//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
+			cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
+		}
+		cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+		cl.refdef.time = cl.time*0.001;
+
+		// Barnes- Warp if underwater ala q3a :-)
+		if (cl.refdef.rdflags & RDF_UNDERWATER) {
+			f = sin(cl.time * 0.001 * 0.4 * (M_PI*2.7));
+			cl.refdef.fov_x += f * (cl.refdef.fov_x/90.0); // Knightmare- scale to fov
+			cl.refdef.fov_y -= f * (cl.refdef.fov_y/90.0); // Knightmare- scale to fov
+		} // end Barnes
+
+		cl.refdef.areabits = cl.frame.areabits;
+
+		if (!cl_add_entities->value)
+			r_numentities = 0;
+		if (!cl_add_particles->value)
+			r_numparticles = 0;
+		if (!cl_add_lights->value)
+			r_numdlights = 0;
+		if (!cl_add_blend->value)
+		{
+			VectorClear (cl.refdef.blend);
+		}
+
+		cl.refdef.num_entities = r_numentities;
+		cl.refdef.entities = r_entities;
+		cl.refdef.num_particles = r_numparticles;
+		cl.refdef.particles = r_particles;
+
+		cl.refdef.num_decals = r_numdecalfrags;
+		cl.refdef.decals = r_decalfrags;
+
+		cl.refdef.num_dlights = r_numdlights;
+		cl.refdef.dlights = r_dlights;
+		cl.refdef.lightstyles = r_lightstyles;
+
+		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
+        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int32_t (*)(const void *, const void *))entitycmpfnc );
+	}
+
+	params.projection.y.scale = 1.0f / tanf((cl.refdef.fov_y / 2.0f) * M_PI / 180);
+	params.projection.y.offset = 0.0;
+	params.projection.x.scale = 1.0f / tanf((cl.refdef.fov_x / 2.0f) * M_PI / 180);
+
+	params.projection.x.offset = 0.0;
+	VectorSet(params.viewOffset,0,0,0);
+
+	R_RenderCommon(&cl.refdef);
+
+	R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
+
+	R_SetLightLevel ();
+	R_SetGL2D ();
+	
+	if (cl_stats->value)
+		Com_Printf ("ent:%i  lt:%i  part:%i\n", r_numentities, r_numdlights, r_numparticles);
+	if ( log_stats->value && ( log_stats_file != 0 ) )
+		fprintf( log_stats_file, "%i,%i,%i,",r_numentities, r_numdlights, r_numparticles);
+}
 
 /*
 =============

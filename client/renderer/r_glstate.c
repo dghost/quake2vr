@@ -726,6 +726,8 @@ void GL_SetDefaultState (void)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS,r_lodbias->value);
+
 	// Vertex arrays
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState (GL_VERTEX_ARRAY);

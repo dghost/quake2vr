@@ -297,9 +297,6 @@
     <ClCompile Include="client\renderer\r_beam.c">
       <Filter>Source Files\client\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="client\renderer\r_bloom.c">
-      <Filter>Source Files\client\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="client\renderer\r_draw.c">
       <Filter>Source Files\client\renderer</Filter>
     </ClCompile>
@@ -387,13 +384,13 @@
     <ClCompile Include="qcommon\shared\q_shared.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="client\renderer\r_blur.c">
-      <Filter>Source Files\client\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="client\renderer\r_vao.c">
       <Filter>Source Files\client\renderer</Filter>
     </ClCompile>
     <ClCompile Include="client\renderer\r_vbo.c">
+      <Filter>Source Files\client\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="client\renderer\r_postprocess.c">
       <Filter>Source Files\client\renderer</Filter>
     </ClCompile>
   </ItemGroup>

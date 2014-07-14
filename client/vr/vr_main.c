@@ -29,9 +29,6 @@ cvar_t *vr_hmdtype;
 cvar_t *vr_prediction;
 cvar_t *vr_hmdstring;
 
-
-vr_param_t vrState;
-
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
 static vec4_t vr_smoothSeries;

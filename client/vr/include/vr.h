@@ -11,27 +11,7 @@ typedef enum {
 	EYE_RIGHT = 1
 } vr_eye_t;
 
-typedef struct {
-	float scale;
-	float offset;
-} scaleOffset_t;
 
-typedef struct {
-	scaleOffset_t x;
-	scaleOffset_t y;
-} eyeScaleOffset_t;
-
-typedef struct {
-	float viewFovY;
-	float viewFovX;
-	float pixelScale;
-	float aspect;
-	vec3_t eyeOffset[2];
-	eyeScaleOffset_t scaleOffset[2];
-} vr_param_t;
-
-// struct for things that may change from frame to frame
-extern vr_param_t vrState;
 
 // prefer OVR native code path
 typedef enum {
@@ -108,7 +88,6 @@ int32_t VR_Enable();
 void VR_Disable();
 void VR_FrameStart();
 void VR_FrameEnd();
-void VR_GetRenderParam(vr_param_t *settings);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);

@@ -681,7 +681,7 @@ void	R_BeginFrame ();
 void	R_EndFrame (void);
 
 void	GLimp_AppActivate (qboolean activate);
-void	GLimp_SetFullscreen(qboolean activate);
+void	GLimp_SetFullscreen(qboolean enable);
 
 //====================================================================
 

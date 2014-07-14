@@ -154,6 +154,7 @@ cvar_t  *r_adaptivevsync;
 cvar_t	*r_texturemode;
 cvar_t	*r_texturealphamode;
 cvar_t	*r_texturesolidmode;
+cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
@@ -202,9 +203,10 @@ R_PolyBlend
 */
 void R_PolyBlend (void)
 {
+	float alpha = v_blend[3];
 	if (!r_polyblend->value)
 		return;
-	if (!v_blend[3])
+	if (!alpha)
 		return;
 
 	GL_Disable (GL_ALPHA_TEST);
@@ -224,16 +226,16 @@ void R_PolyBlend (void)
 	indexArray[rb_index++] = rb_vertex+2;
 	indexArray[rb_index++] = rb_vertex+3;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, 100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], v_blend[3]);
+	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, 100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], v_blend[3]);
+	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, -100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], v_blend[3]);
+	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, -100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], v_blend[3]);
+	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
 	rb_vertex++;
 	RB_RenderMeshGeneric (false);
 
@@ -329,13 +331,12 @@ void R_SetupFrame (void)
 	VectorCopy (r_newrefdef.vieworg, r_origin);
 
 	AngleVectors (r_newrefdef.viewangles, vpn, vright, vup);
-
 // current viewcluster
 	if ( !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
 		r_oldviewcluster = r_viewcluster;
 		r_oldviewcluster2 = r_viewcluster2;
-		leaf = Mod_PointInLeaf (r_origin, r_worldmodel);
+		leaf = Mod_PointInLeaf (r_newrefdef.vieworg, r_worldmodel);
 		r_viewcluster = r_viewcluster2 = leaf->cluster;
 
 		// check above and below so crossing solid water doesn't draw wrong
@@ -343,7 +344,7 @@ void R_SetupFrame (void)
 		{	// look down a bit
 			vec3_t	temp;
 
-			VectorCopy (r_origin, temp);
+			VectorCopy (r_newrefdef.vieworg, temp);
 			temp[2] -= 16;
 			leaf = Mod_PointInLeaf (temp, r_worldmodel);
 			if ( !(leaf->contents & CONTENTS_SOLID) &&
@@ -354,7 +355,7 @@ void R_SetupFrame (void)
 		{	// look up a bit
 			vec3_t	temp;
 
-			VectorCopy (r_origin, temp);
+			VectorCopy (r_newrefdef.vieworg, temp);
 			temp[2] += 16;
 			leaf = Mod_PointInLeaf (temp, r_worldmodel);
 			if ( !(leaf->contents & CONTENTS_SOLID) &&
@@ -365,6 +366,7 @@ void R_SetupFrame (void)
 
 	for (i=0 ; i<4 ; i++)
 		v_blend[i] = r_newrefdef.blend[i];
+
 
 	c_brush_calls = 0;
 	c_brush_surfs = 0;
@@ -384,35 +386,10 @@ void R_SetupFrame (void)
 	}*/
 }
 
-
-/*
-=============
-R_SetupGL
-=============
-*/
-void R_SetupGL(void)
+void R_SetProjection(eyeScaleOffset_t scaleOffset)
 {
-	//	float	yfov;
-	vec3_t vieworigin;
-	//Knightmare- variable sky range
 	static GLfloat farz;
 	GLfloat boxsize;
-	vec_t temp[4][4], fin[4][4];
-
-	//end Knightmare
-
-	// Knightmare- update r_modulate in real time
-	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
-	{
-		msurface_t *surf;
-		int32_t i;
-
-		for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
-			surf->cached_light[0] = 0;
-
-		r_modulate->modified = 0;
-	}
-
 	// Knightmare- variable sky range
 	// calc farz falue from skybox size
 	if (r_skydistance->modified)
@@ -439,8 +416,36 @@ void R_SetupGL(void)
 	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 
 	//Knightmare- 12/26/2001- increase back clipping plane distance
-	R_VR_Perspective(r_newrefdef.fov_y, (float) r_newrefdef.width / r_newrefdef.height, 1, farz); //was 4096
+	R_PerspectiveScale(scaleOffset, 1, farz); //was 4096
 	//end Knightmare
+}
+
+/*
+=============
+R_SetupGL
+=============
+*/
+void R_SetupGL(void)
+{
+	//	float	yfov;
+	vec3_t vieworigin;
+	//Knightmare- variable sky range
+	vec_t temp[4][4], fin[4][4];
+
+	//end Knightmare
+
+	// Knightmare- update r_modulate in real time
+	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
+	{
+		msurface_t *surf;
+		int32_t i;
+
+		for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
+			surf->cached_light[0] = 0;
+
+		r_modulate->modified = 0;
+	}
+
 
 
 	GL_LoadIdentity(GL_MODELVIEW);
@@ -640,22 +645,6 @@ void VR_DrawCrosshair()
 	GL_BlendFunc(src,dst);
 }
 
-
-/*
-================
-VR_RenderScreenEffects
-
-r_newrefdef must be set before the first call
-================
-*/
-void VR_RenderScreenEffects (refdef_t *fd)
-{
-		r_newrefdef = *fd;
-		R_BloomBlend (fd);	// BLOOMS
-		R_PolyBlend ();
-}
-
-
 /*
 ================
 R_RenderCommon
@@ -672,7 +661,7 @@ void R_RenderCommon (refdef_t *fd)
 	r_newrefdef = *fd;
 
 	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
-		VID_Error (ERR_DROP, "R_RenderView: NULL worldmodel");
+		VID_Error (ERR_DROP, "R_RenderCommon: NULL worldmodel");
 
 	if (r_speeds->value)
 	{
@@ -706,11 +695,16 @@ extern cvar_t *cl_paused;
 void R_RenderView (refdef_t *fd)
 {
 	int32_t		x, x2, y2, y, w, h;
+	eyeScaleOffset_t projection;
 
 	if (r_norefresh->value)
 		return;
 
 	r_newrefdef = *fd;
+	// build the transformation matrix for the given view angles
+	VectorCopy (r_newrefdef.vieworg, r_origin);
+
+	AngleVectors (r_newrefdef.viewangles, vpn, vright, vup);
 
 	//
 	// set up viewport
@@ -727,6 +721,13 @@ void R_RenderView (refdef_t *fd)
 
 
 	R_SetupGL ();
+
+    projection.y.scale = 1.0f / tanf((r_newrefdef.fov_y / 2.0f) * M_PI / 180);
+	projection.y.offset = 0.0;
+	projection.x.scale = 1.0f / tanf((r_newrefdef.fov_x / 2.0f) * M_PI / 180);
+	projection.x.offset = 0;
+
+	R_SetProjection(projection);
 
 	R_DrawWorld ();
 	
@@ -791,48 +792,183 @@ void R_RenderView (refdef_t *fd)
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
 		
-		R_BloomBlend (fd);	// BLOOMS
 		R_Flash();
-
-		if (cl_paused->value)
-		{
-			R_Blur(1);
-		} else if (r_flashblur->value)
-		{
-			if (v_blend[3])
-				R_Blur(v_blend[3]);
-		} else if (r_newrefdef.rdflags & RDF_UNDERWATER)
-		{
-			R_Blur(1);
-		}
 	}
 	R_SetFog();
+
 }
 
 /*
 ================
-R_SetGL2D
+R_RenderViewIntoFBO
+
+r_newrefdef must be set before the first call
 ================
 */
+extern cvar_t *cl_paused;
+void R_DrawCameraEffect ();
+void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect)
+{
+	vec3_t tmp;
+	unsigned int oldWidth, oldHeight;
+	if (r_norefresh->value)
+		return;
+
+	r_newrefdef = *fd;
+
+	AngleVectors (r_newrefdef.viewangles, vpn, vright, vup);
+
+	VectorScale( vright, parameters.viewOffset[0] , tmp );
+	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+
+	VectorScale( vpn, parameters.viewOffset[1], tmp );
+	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+
+	VectorScale(vup, parameters.viewOffset[2] , tmp );
+	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+	
+	VectorCopy (r_newrefdef.vieworg, r_origin);
+	
+	oldWidth = vid.width;
+	oldHeight = vid.height;
+
+	r_newrefdef.width = vid.width = destination->width;
+	r_newrefdef.width = vid.height = destination->height;
+	
+	R_BindFBO(destination);
+
+	if (viewRect)
+	{
+		GLint x,x2,y,y2;
+		GLsizei w,h;
+
+		// sanity check the view rectangle
+		x = floorf(viewRect->x * vid.width / vid.width);
+		x2 = ceilf((viewRect->x + viewRect->width) * vid.width / vid.width);
+		y = floorf(vid.height - viewRect->y * vid.height / vid.height);
+		y2 = ceilf(vid.height - (viewRect->y + viewRect->height) * vid.height / vid.height);
+
+		w = x2 - x;
+		h = y - y2;
+
+		glViewport(x, y2, w, h);	
+	}
+
+	R_SetupGL ();
+	R_SetProjection(parameters.projection);
+
+	R_DrawWorld ();
+	
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
+	{
+		qboolean fog_on = false;
+		//Knightmare- no fogging on menu/hud models
+		if (glIsEnabled(GL_FOG)) //check if fog is enabled
+		{
+			fog_on = true;
+			glDisable(GL_FOG); //if so, disable it
+		}
+
+		//R_DrawAllDecals();
+		R_DrawAllEntities(false);
+		R_DrawAllParticles();
+
+		//re-enable fog if it was on
+		if (fog_on)
+			glEnable(GL_FOG);
+	}
+	else
+	{
+		GL_Disable (GL_ALPHA_TEST);
+
+		R_RenderDlights();
+
+		if (r_transrendersort->value) {
+			//R_BuildParticleList();
+			R_SortParticlesOnList();
+			R_DrawAllDecals();
+			//R_DrawAllEntityShadows();
+			R_DrawSolidEntities();
+			R_DrawEntitiesOnList(ents_trans);
+		}
+		else {
+			R_DrawAllDecals();
+			//R_DrawAllEntityShadows();
+			R_DrawAllEntities(true);
+		}
+
+		R_DrawAllParticles ();
+
+		VR_DrawCrosshair();
+
+		R_DrawEntitiesOnList(ents_viewweaps);
+
+		if (r_particle_overdraw->value)
+		{
+			R_ParticleStencil (1);
+		}
+
+		R_DrawAlphaSurfaces ();
+
+		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
+		{
+			R_ParticleStencil (2);
+			R_DrawAllParticles ();
+			R_ParticleStencil (3);
+		}
+
+		// always draw vwep last...
+		R_DrawEntitiesOnList(ents_viewweaps_trans);
+		GL_MBind(0,destination->texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		GL_MBind(0,0);
+		if (r_bloom->value)
+		{
+			R_BloomFBO(destination);
+		}
+		
+
+
+	//	R_SetupGL ();
+	//	R_Flash();
+
+
+		if (r_polyblend->value && v_blend[3] > 0.0)
+		{
+			if (r_blur->value && r_flashblur->value)
+			{
+				float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
+				float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
+				R_BlurFBO(weight,color,destination);
+			} else {
+				R_SetProjection(parameters.projection);
+				R_Flash();
+			}
+		} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
+		{
+			float color[4] = {0.0,0.0,0.0,0.0};
+			R_BlurFBO(1,color,destination);
+		}
+	}
+	R_SetFog();
+	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
+		R_DrawCameraEffect ();
+	vid.width = oldWidth;
+	vid.height = oldHeight;
+}
+
+
 void	Con_DrawString (int32_t x, int32_t y, char *string, int32_t alpha);
 float	SCR_ScaledVideo (float param);
 #define	FONT_SIZE		SCR_ScaledVideo(con_font_size->value)
 
-void R_SetGL2D (void)
+void R_DrawSpeeds(fbo_t *destination)
 {
-	// set 2D virtual screen size
-	glViewport (0,0, vid.width, vid.height);
-	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -99999, 99999);
-	GL_LoadIdentity(GL_MODELVIEW);
-
-	GL_Disable (GL_DEPTH_TEST);
-	GL_Disable (GL_CULL_FACE);
-	GL_Disable (GL_BLEND);
-	GL_Enable (GL_ALPHA_TEST);
-	glColor4f (1,1,1,1);
-
+	if (glState.currentFBO != destination->framebuffer)
+		R_BindFBO(destination);
 	// Knightmare- draw r_speeds (modified from Echon's tutorial)
-	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL) &&!(vr_enabled->value)) // don't do this for options menu
+	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL)) // don't do this for options menu
 	{
 		char	S[128];
 		int32_t		lines, i, x, y, n = 0;
@@ -852,56 +988,34 @@ void R_SetGL2D (void)
 				default: break;
 			}
 			if (scr_netgraph_pos->value)
-				x = r_newrefdef.width - (n*FONT_SIZE + FONT_SIZE/2);
+				x = destination->width - (n*FONT_SIZE + FONT_SIZE/2);
 			else
 				x = FONT_SIZE/2;
-			y = r_newrefdef.height-(lines-i)*(FONT_SIZE+2);
+			y = destination->height-(lines-i)*(FONT_SIZE+2);
 			Con_DrawString (x, y, S, 255);
 		}
 	}
 }
 
+/*
+================
+R_SetGL2D
+================
+*/
 
-#if 0
-static void GL_DrawColoredStereoLinePair (float r, float g, float b, float y)
+void R_SetGL2D (void)
 {
-	glColor3f( r, g, b );
-	glVertex2f( 0, y );
-	glVertex2f( vid.width, y );
-	glColor3f( 0, 0, 0 );
-	glVertex2f( 0, y + 1 );
-	glVertex2f( vid.width, y + 1 );
+	// set 2D virtual screen size
+	glViewport (0,0, vid.width, vid.height);
+	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -99999, 99999);
+	GL_LoadIdentity(GL_MODELVIEW);
+
+	GL_Disable (GL_DEPTH_TEST);
+	GL_Disable (GL_CULL_FACE);
+	GL_Disable (GL_BLEND);
+	GL_Enable (GL_ALPHA_TEST);
+	glColor4f (1,1,1,1);
 }
-
-
-static void GL_DrawStereoPattern (void)
-{
-	int32_t i;
-
-	if ( !glState.stereo_enabled )
-		return;
-
-	R_SetGL2D();
-
-	glDrawBuffer( GL_BACK_LEFT );
-
-	for ( i = 0; i < 20; i++ )
-	{
-		glBegin( GL_LINES );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 0 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 2 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 4 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 6 );
-			GL_DrawColoredStereoLinePair( 0, 1, 0, 8 );
-			GL_DrawColoredStereoLinePair( 1, 1, 0, 10);
-			GL_DrawColoredStereoLinePair( 1, 1, 0, 12);
-			GL_DrawColoredStereoLinePair( 0, 1, 0, 14);
-		glEnd();
-		
-		R_EndFrame();
-	}
-}
-#endif
 
 /*
 ====================
@@ -946,9 +1060,27 @@ R_RenderFrame
 
 @@@@@@@@@@@@@@@@@@@@@
 */
+void V_RenderViewIntoFBO (fbo_t *fbo);
+void V_RenderView ();
 void R_RenderFrame (refdef_t *fd)
 {
-	R_RenderView( fd );	
+	eye_param_t params;
+	vrect_t rect;
+	fbo_t *hud = R_GetHUDFBO();
+
+	params.projection.y.scale = 1.0f / tanf((fd->fov_y / 2.0f) * M_PI / 180);
+	params.projection.y.offset = 0.0;
+	params.projection.x.scale = 1.0f / tanf((fd->fov_x / 2.0f) * M_PI / 180);
+	params.projection.x.offset = 0.0;
+
+	VectorSet(params.viewOffset,0,0,0);
+
+	rect.x = fd->x;
+	rect.y = fd->y;
+	rect.width = fd->width;
+	rect.height = fd->height;
+	R_RenderViewIntoFBO(fd,params,hud,&rect);
+//	V_RenderViewIntoFBO(hud);
 	R_SetLightLevel ();
 	R_SetGL2D ();
 }
@@ -1056,6 +1188,7 @@ void R_Register (void)
 	r_texturemode = Cvar_Get( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
 	r_texturealphamode = Cvar_Get( "r_texturealphamode", "default", CVAR_ARCHIVE );
 	r_texturesolidmode = Cvar_Get( "r_texturesolidmode", "default", CVAR_ARCHIVE );
+	r_lodbias = Cvar_Get("r_lodbias","0",CVAR_ARCHIVE);
 	r_anisotropic = Cvar_Get( "r_anisotropic", "0", CVAR_ARCHIVE );
 	r_anisotropic_avail = Cvar_Get( "r_anisotropic_avail", "0", 0 );
 	r_lockpvs = Cvar_Get( "r_lockpvs", "0", 0 );
@@ -1092,11 +1225,6 @@ void R_Register (void)
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_gamma = Cvar_Get( "vid_gamma", "1.4", CVAR_ARCHIVE ); // was 1.0
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
-
-	r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
-
-	r_blur = Cvar_Get("r_blur", "5", CVAR_ARCHIVE );
-	r_flashblur = Cvar_Get("r_flashblur","1",CVAR_ARCHIVE);
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
 	r_saturation = Cvar_Get( "r_saturation", "1.0", CVAR_ARCHIVE );	//** DMP saturation setting (.89 good for nvidia)
@@ -1224,7 +1352,8 @@ qboolean R_Init ( char *reason )
 		return false;
 	}
 
-
+	glConfig.screen_height = vid.height;
+	glConfig.screen_width = vid.width;
 
 	//
 	// get our various GL strings
@@ -1510,6 +1639,10 @@ qboolean R_Init ( char *reason )
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_ShaderObjectsInit: glGetError() = 0x%x\n", err);
 
+	R_PostProcessInit();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_BlurInit: glGetError() = 0x%x\n", err);
 
 	R_AntialiasInit();
 	err = glGetError();
@@ -1521,10 +1654,6 @@ qboolean R_Init ( char *reason )
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_VR_Init: glGetError() = 0x%x\n", err);
 
-	R_BlurInit();
-	err = glGetError();
-	if ( err != GL_NO_ERROR )
-		VID_Printf (PRINT_ALL, "R_BlurInit: glGetError() = 0x%x\n", err);
 
 	R_InitImages ();
 	err = glGetError();
@@ -1622,6 +1751,10 @@ void GL_Strings_f (void)
 R_Shutdown
 ===============
 */
+
+fbo_t viewFBO;
+fbo_t hudFBO;
+
 void R_Shutdown (void)
 {	
 	Cmd_RemoveCommand ("modellist");
@@ -1637,11 +1770,13 @@ void R_Shutdown (void)
 	saveshotdata = NULL;	// make sure this is null after a vid restart!
 
 	Mod_FreeAll ();
-	R_BlurShutdown();
+	R_PostProcessShutdown();
 	R_AntialiasShutdown();
 	R_ShaderObjectsShutdown();
 	R_ShutdownImages ();
 	R_VR_Shutdown();
+	R_DelFBO(&viewFBO);
+	R_DelFBO(&hudFBO);
 
 	//
 	// shut down OS specific OpenGL stuff like contexts, etc.
@@ -1653,6 +1788,31 @@ void R_Shutdown (void)
 	//
 }
 
+/*
+@@@@@@@@@@@@@@@@@@@@@
+R_GetViewFBO
+@@@@@@@@@@@@@@@@@@@@@
+*/
+
+fbo_t* R_GetViewFBO(void)
+{
+	return &viewFBO;
+}
+
+/*
+@@@@@@@@@@@@@@@@@@@@@
+R_GetHUDFBO
+@@@@@@@@@@@@@@@@@@@@@
+*/
+
+fbo_t* R_GetHUDFBO(void)
+{
+	if (vr_enabled->value)
+	{
+		return R_VR_GetFBOForEye(EYE_HUD);
+	}
+	return &hudFBO;
+}
 
 
 /*
@@ -1662,6 +1822,8 @@ R_BeginFrame
 */
 void UpdateGammaRamp (qboolean enable); //Knightmare added
 void RefreshFont (void);
+void GLimp_SetFullscreen(qboolean enable);
+
 void R_BeginFrame()
 {
 
@@ -1704,25 +1866,22 @@ void R_BeginFrame()
 
 	GLimp_BeginFrame(  );
 	GL_BindFBO(0);
+	glViewport(0,0,glConfig.screen_width,glConfig.screen_height);
+
+	R_Clear();
 	R_AntialiasStartFrame();
 
-	R_AntialiasBind();
 
 	if (vr_enabled->value)
 	{
 		R_VR_StartFrame();
-		R_VR_BindView(EYE_HUD);	
+		//R_VR_BindView(EYE_HUD);	
+	} else {
+		R_AntialiasSetFBOSize(&viewFBO);
+		R_AntialiasSetFBOSize(&hudFBO);
 	}
 
-	// fuck with draw buffers here
-	if ( vr_enabled->value || r_antialias->value)
-	{
-		glDrawBuffer( GL_COLOR_ATTACHMENT0 );
-	} 
-	else
-	{
-		glDrawBuffer( GL_BACK );
-	}
+
 
 	//
 	// texturemode stuff
@@ -1745,6 +1904,12 @@ void R_BeginFrame()
 		r_texturesolidmode->modified = false;
 	}
 
+	if ( r_lodbias->modified )
+	{
+		glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS,r_lodbias->value);
+		r_lodbias->modified = false;
+	}
+
 	//
 	// swapinterval stuff
 	//
@@ -1765,6 +1930,7 @@ void R_BeginFrame()
 	//
 	// go into 2D mode
 	//
+/*
 	glViewport (0,0, vid.width, vid.height);
 	GL_SetIdentityOrtho( GL_PROJECTION , 0, vid.width, vid.height, 0, -99999, 99999);
 	GL_LoadIdentity(GL_MODELVIEW);
@@ -1777,6 +1943,7 @@ void R_BeginFrame()
 
 	if (!vr_enabled->value)
 		R_Clear ();
+		*/
 }
 
 void R_EndFrame(void)
@@ -1789,19 +1956,58 @@ void R_EndFrame(void)
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
 
+	GL_SetIdentity(GL_PROJECTION);
+	GL_SetIdentity(GL_MODELVIEW);
+	GL_Disable(GL_DEPTH_TEST);
+	GL_Disable(GL_ALPHA_TEST);
+
 	if (vr_enabled->value)
 	{
 		R_VR_EndFrame();
-//		R_AntialiasBind();
+
+		R_AntialiasBind();
 		R_VR_Present();
+
+
+		R_AntialiasEndFrame();
+	} else {
+		GL_BindFBO(0);
+		glViewport(0,0,glConfig.screen_width,glConfig.screen_height);
+
+		glColor4f(1.0,1.0,1.0,1.0);
+
+		GL_MBind(0,viewFBO.texture);
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0, 0); glVertex2f(-1, -1);
+		glTexCoord2f(0, 1); glVertex2f(-1, 1);
+		glTexCoord2f(1, 0); glVertex2f(1, -1);
+		glTexCoord2f(1, 1); glVertex2f(1, 1);
+		glEnd();
+
+		GL_Enable(GL_ALPHA_TEST);
+		GL_AlphaFunc(GL_GREATER, 0.0f);
+		GL_Enable(GL_BLEND);
+		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		GL_MBind(0,hudFBO.texture);
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(0, 0); glVertex2f(-1, -1);
+		glTexCoord2f(0, 1); glVertex2f(-1, 1);
+		glTexCoord2f(1, 0); glVertex2f(1, -1);
+		glTexCoord2f(1, 1); glVertex2f(1, 1);
+		glEnd();
+
+		GL_MBind(0, 0);
+		GL_Disable(GL_ALPHA_TEST);
+		GL_Disable(GL_BLEND);
+
 	}
 
-	R_AntialiasEndFrame();
 
 	GLimp_EndFrame();
 	
 	R_FrameFence();
-
 }
 
 /*
