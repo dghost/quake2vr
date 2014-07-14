@@ -283,6 +283,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 			if (renderTargets[i].w != eyeFBO[i].width || renderTargets[i].h != eyeFBO[i].height)
 			{
+				Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderTargets[i].w, renderTargets[i].h);
 				R_ResizeFBO(renderTargets[i].w, renderTargets[i].h, 1, GL_RGBA8, &eyeFBO[i]);
 			}
 
