@@ -32,12 +32,9 @@ typedef struct {
 	int32_t (*init)();
 	int32_t (*enable)();
 	void (*disable)();
-	void (*bindView)(vr_eye_t eye);
-	void (*getViewRect)(vr_eye_t eye, vr_rect_t *rect);
 	void (*frameStart)(int32_t changeBackBuffers);
 	void (*getState)(vr_param_t *state);
 	void (*present)(qboolean loading);
-	fbo_t* (*getFBO)(vr_eye_t eye);
 } hmd_render_t;
 
 typedef struct {

@@ -2232,9 +2232,7 @@ void R_Clear (void);
 void SCR_Draw2DintoFBO(fbo_t *destination)
 {
 	R_BindFBO(destination);
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_Clear();
-	GL_SetDefaultClearColor();
+
 	scr_vrect.x = 0;
 	scr_vrect.y = 0;
 	vid.width =	scr_vrect.width = viddef.width = destination->width;
@@ -2361,7 +2359,7 @@ void VR_UpdateScreen (void)
 	fbo_t *fbo;
 
 	R_BeginFrame( );
-
+	R_ClearFBO(hud);
 	SCR_Draw2DintoFBO(hud);	
 
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
@@ -2390,6 +2388,7 @@ text to the screen.
 ==================
 */
 void V_RenderViewIntoFBO (fbo_t *fbo);
+cvar_t *r_hud_separate_fbo;
 void SCR_UpdateScreen (void)
 {
 	fbo_t *view, *hud;
@@ -2419,9 +2418,16 @@ void SCR_UpdateScreen (void)
 
 	R_BeginFrame( );
 
-	hud = R_GetHUDFBO();
 	view = R_GetViewFBO();
-	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	if (r_hud_separate_fbo->value)
+	{
+		hud = R_GetHUDFBO();
+		R_ClearFBO(hud);
+	} else {
+		hud = view;
+	}
+
 	R_ClearFBO(view);
 	GL_SetDefaultClearColor();		
 

@@ -158,7 +158,7 @@ cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
-
+cvar_t  *r_hud_separate_fbo;
 cvar_t	*vid_fullscreen;
 cvar_t	*vid_gamma;
 cvar_t	*vid_ref;
@@ -965,7 +965,7 @@ float	SCR_ScaledVideo (float param);
 
 void R_DrawSpeeds(fbo_t *destination)
 {
-	if (glState.currentFBO != destination->framebuffer)
+	if (glState.currentFBO != destination)
 		R_BindFBO(destination);
 	// Knightmare- draw r_speeds (modified from Echon's tutorial)
 	if (r_speeds->value && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL)) // don't do this for options menu
@@ -1234,7 +1234,7 @@ void R_Register (void)
 	r_lateframe_decay = Cvar_Get("r_lateframe_decay","10",CVAR_ARCHIVE);
 	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
 	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
-
+	r_hud_separate_fbo = Cvar_Get("r_hud_separate_fbo","0",CVAR_ARCHIVE);
 	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
@@ -1876,9 +1876,14 @@ void R_BeginFrame()
 		//R_VR_BindView(EYE_HUD);	
 	} else {
 		R_AntialiasSetFBOSize(&viewFBO);
-		R_AntialiasSetFBOSize(&hudFBO);
+		if (r_hud_separate_fbo->value)
+		{
+			R_AntialiasSetFBOSize(&hudFBO);
+		} else if (hudFBO.framebuffer)
+		{
+			R_DelFBO(&hudFBO);
+		}
 	}
-
 
 
 	//
@@ -1924,24 +1929,6 @@ void R_BeginFrame()
 		else
 			glClearStencil(1);
 	}
-
-	//
-	// go into 2D mode
-	//
-/*
-	glViewport (0,0, vid.width, vid.height);
-	GL_SetIdentityOrtho( GL_PROJECTION , 0, vid.width, vid.height, 0, -99999, 99999);
-	GL_LoadIdentity(GL_MODELVIEW);
-
-	GL_Disable (GL_DEPTH_TEST);
-	GL_Disable (GL_CULL_FACE);
-	GL_Disable (GL_BLEND);
-	GL_Enable (GL_ALPHA_TEST);
-	glColor4f (1,1,1,1);
-
-	if (!vr_enabled->value)
-		R_Clear ();
-		*/
 }
 
 void R_EndFrame(void)
@@ -1953,51 +1940,39 @@ void R_EndFrame(void)
 	if (err != GL_NO_ERROR)	// Output error code instead
 		VID_Printf (PRINT_DEVELOPER, "OpenGL Error %i\n", err);
 
-
 	GL_SetIdentity(GL_PROJECTION);
 	GL_SetIdentity(GL_MODELVIEW);
 	GL_Disable(GL_DEPTH_TEST);
 	GL_Disable(GL_ALPHA_TEST);
 
+	R_VR_EndFrame();
+
+	R_BindFBO(&screenFBO);
+
+	glColor4f(1.0,1.0,1.0,1.0);
+
 	if (vr_enabled->value)
 	{
-		R_VR_EndFrame();
-
-		R_AntialiasBind();
 		R_VR_Present();
-
-
-		R_AntialiasEndFrame();
 	} else {
-		R_BindFBO(&screenFBO);
+		R_SetupBlit();
 
-		glColor4f(1.0,1.0,1.0,1.0);
+		R_BlitTextureToScreen(viewFBO.texture);
+		
+		if (r_hud_separate_fbo->value)
+		{
+			GL_Enable(GL_ALPHA_TEST);
+			GL_AlphaFunc(GL_GREATER, 0.0f);
+			GL_Enable(GL_BLEND);
+			GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		GL_MBind(0,viewFBO.texture);
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(-1, -1);
-		glTexCoord2f(0, 1); glVertex2f(-1, 1);
-		glTexCoord2f(1, 0); glVertex2f(1, -1);
-		glTexCoord2f(1, 1); glVertex2f(1, 1);
-		glEnd();
+			R_BlitTextureToScreen(hudFBO.texture);
 
-		GL_Enable(GL_ALPHA_TEST);
-		GL_AlphaFunc(GL_GREATER, 0.0f);
-		GL_Enable(GL_BLEND);
-		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			GL_Disable(GL_ALPHA_TEST);
+			GL_Disable(GL_BLEND);
+		}
 
-		GL_MBind(0,hudFBO.texture);
-
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(-1, -1);
-		glTexCoord2f(0, 1); glVertex2f(-1, 1);
-		glTexCoord2f(1, 0); glVertex2f(1, -1);
-		glTexCoord2f(1, 1); glVertex2f(1, 1);
-		glEnd();
-
-		GL_MBind(0, 0);
-		GL_Disable(GL_ALPHA_TEST);
-		GL_Disable(GL_BLEND);
+		R_TeardownBlit();
 
 	}
 

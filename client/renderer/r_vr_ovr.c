@@ -6,8 +6,6 @@
 
 
 void OVR_FrameStart(int32_t changeBackBuffers);
-void OVR_BindView(vr_eye_t eye);
-void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect);
 void OVR_Present(qboolean loading);
 int32_t OVR_Enable();
 void OVR_Disable();
@@ -20,8 +18,6 @@ hmd_render_t vr_render_ovr =
 	OVR_Init,
 	OVR_Enable,
 	OVR_Disable,
-	OVR_BindView,
-	OVR_GetViewRect,
 	OVR_FrameStart,
 	OVR_GetState,
 	OVR_Present
@@ -33,7 +29,6 @@ extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrPosef framePose;
 extern ovrFrameTiming frameTime;
 extern qboolean withinFrame;
-
 
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
@@ -289,45 +284,6 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 		}
 	}
-}
-
-
-void OVR_BindView(vr_eye_t eye)
-{	
-	switch(eye)
-	{
-	case EYE_LEFT:
-		vid.height = eyeFBO[0].height;
-		vid.width = eyeFBO[0].width;
-		R_BindFBO(&eyeFBO[0]);
-		break;
-	case EYE_RIGHT:
-		vid.height = eyeFBO[1].height;
-		vid.width = eyeFBO[1].width;
-		R_BindFBO(&eyeFBO[1]);
-		break;
-	default:
-		return;
-	}
-}
-
-void OVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
-{
-	vr_rect_t result;
-	result.x = 0;
-	result.y = 0;
-	
-	if (eye == EYE_LEFT)
-	{
-		result.width = renderTargets[0].w;
-		result.height = renderTargets[0].h;
-	}
-	else
-	{
-		result.width = renderTargets[1].w;
-		result.height = renderTargets[1].h;
-	}
-	*rect = result;
 }
 
 void OVR_GetState(vr_param_t *state)

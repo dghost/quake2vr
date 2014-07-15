@@ -64,8 +64,11 @@ static quad_vert_t quad_verts[4] = {
 buffer_t quad;
 
 
+static qboolean setForQuad = false;
 void R_SetupQuadState()
 {
+	if (setForQuad)
+		return;
 	glDisableClientState (GL_COLOR_ARRAY);
 	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState (GL_VERTEX_ARRAY);
@@ -73,22 +76,30 @@ void R_SetupQuadState()
 	glEnableVertexAttribArray (1);
 	R_BindBuffer(&quad);
 	R_SetAttribsVBO(postprocess_attribs,2);
+	setForQuad = true;
 }
 
 void R_TeardownQuadState()
 {
+	if (!setForQuad)
+		return;
 	R_ReleaseBuffer(&quad);
 	glDisableVertexAttribArray (0);
 	glDisableVertexAttribArray (1);
-
 	glEnableClientState (GL_COLOR_ARRAY);
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState (GL_VERTEX_ARRAY);
+	setForQuad = false;
 }
 
 void R_DrawQuad()
 {
+	qboolean needsSetup = !setForQuad;
+	if (needsSetup)
+		R_SetupQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+	if (needsSetup)
+		R_TeardownQuadState();
 }
 
 /*
@@ -191,12 +202,48 @@ static r_shaderobject_t colorBlend_object = {
 	postProcess
 };
 
+static qboolean setupForBlit = false;
+static qboolean wasSetupForQuad = false;
+void R_SetupBlit()
+{
+	if (setupForBlit)
+		return;
+	R_SetupQuadState();
+	glUseProgram(passthrough.shader->program);
+	glUniform2f(passthrough.scale_uniform,1.0,1.0);	
+	setupForBlit = true;
+}
+
+
+void R_TeardownBlit()
+{
+	if (!setupForBlit)
+		return;
+	R_TeardownQuadState();
+	glUseProgram(0);
+	setupForBlit = false;
+}
+
+void R_BlitTextureToScreen(GLuint texture)
+{
+	qboolean alreadySetup = setupForBlit;
+
+	if (!alreadySetup)
+		R_SetupBlit();
+	GL_MBind(0,texture);
+	R_DrawQuad();
+	GL_MBind(0,0);
+	if (!alreadySetup)
+		R_TeardownBlit();
+
+}
+
 
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 {
 	if (blurSupported && r_blur->value && blurScale > 0.0)
 	{
-		GLuint currentFBO = glState.currentFBO;
+		fbo_t *currentFBO = glState.currentFBO;
 		GLuint width, height;
 		float scale = r_blur_texscale->value;
 		float size = blurScale * r_blur_radius->value;
@@ -296,7 +343,7 @@ void R_BloomFBO(fbo_t *source)
 {
 	if (bloomSupported && r_bloom->value)
 	{
-		GLuint currentFBO = glState.currentFBO;
+		fbo_t *currentFBO = glState.currentFBO;
 		GLuint width, height;
 		float scale = r_bloom_texscale->value;
 		float size = r_bloom_radius->value;

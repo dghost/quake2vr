@@ -1016,8 +1016,6 @@ enum {
 } r_antialias_t;
 
 void R_AntialiasStartFrame (void);
-void R_AntialiasBind(void);
-void R_AntialiasEndFrame(void);
 void R_AntialiasInit (void);
 void R_AntialiasShutdown(void);
 void R_AntialiasSetFBOSize(fbo_t *fbo);
@@ -1040,7 +1038,9 @@ void R_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar);
 void R_SetupQuadState();
 void R_TeardownQuadState();
 void R_DrawQuad();
-
+void R_SetupBlit();
+void R_TeardownBlit();
+void R_BlitTextureToScreen(GLuint texture);
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
 void R_BloomFBO(fbo_t *source);
 void R_PostProcessInit();

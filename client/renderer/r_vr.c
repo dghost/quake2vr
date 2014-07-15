@@ -14,7 +14,6 @@ static hmd_render_t vr_render_none =
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	NULL
 };
 
@@ -37,7 +36,11 @@ typedef struct {
 
 static vbo_t hudVBO;
 
-static fbo_t *currentFBO = 0;
+r_attrib_t distort[] = {
+	{"Position",0},
+	{"TexCoord",1},
+	{NULL,0}
+};
 
 // Default Lens Warp Shader
 static r_shaderobject_t vr_shader_distort_norm = {
@@ -45,7 +48,8 @@ static r_shaderobject_t vr_shader_distort_norm = {
 	// vertex shader (identity)
 	"vr/texdistort.vert",
 	// fragment shader
-	"vr/texdistort.frag"
+	"vr/texdistort.frag",
+	distort
 };
 
 
@@ -55,7 +59,8 @@ static r_shaderobject_t vr_shader_distort_chrm = {
 	// vertex shader (identity)
 	"vr/texdistort.vert",
 	// fragment shader
-	"vr/texdistort_chromatic.frag"
+	"vr/texdistort_chromatic.frag",
+	distort
 };
 
 vr_distort_shader_t vr_distort_shaders[2];
@@ -189,14 +194,14 @@ void R_VR_StartFrame()
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	if (viddef.width != screen.width || viddef.height != screen.height)
+	R_AntialiasSetFBOSize(&offscreen);
+	if (offscreen.width != screen.width || offscreen.height != screen.height)
 	{
-		screen.height = viddef.height;
-		screen.width = viddef.width;
+		screen.height = offscreen.height;
+		screen.width = offscreen.width;
 		resolutionChanged = true;
 	}
 
-	currentFBO = glState.currentFBO;
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
 
@@ -244,6 +249,7 @@ void R_VR_StartFrame()
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	R_ClearFBO(vrState.eyeFBO[0]);
 	R_ClearFBO(vrState.eyeFBO[1]);
+	R_ClearFBO(&offscreen);
 	GL_SetDefaultClearColor();		
 
 	hudStale = 1;
@@ -253,8 +259,9 @@ void R_VR_StartFrame()
 
 void R_VR_EndFrame()
 {
-	if (vr_enabled->value)
+	if (hmd && vr_enabled->value)
 	{
+		fbo_t *current = glState.currentFBO;
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Enable(GL_ALPHA_TEST);
 		GL_AlphaFunc(GL_GREATER, 0.0f);
@@ -270,9 +277,13 @@ void R_VR_EndFrame()
 		GL_MBind(0, 0);
 
 		GL_Disable(GL_ALPHA_TEST);
-		R_BindFBO(&screenFBO);
-		vid.width = glConfig.screen_width;
-		vid.height = glConfig.screen_height;
+		R_BindFBO(&offscreen);
+		GL_SetIdentity(GL_PROJECTION);
+		GL_SetIdentity(GL_MODELVIEW);
+
+	// tell the HMD renderer to draw composited scene
+		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
+		R_BindFBO(current);
 	}
 }
 
@@ -382,11 +393,12 @@ void R_VR_DrawHud(vr_eye_t eye)
 	}
 	else {
 		float y, x, z;
-		glBegin(GL_TRIANGLE_STRIP);
-		// calculate coordinates for hud
 		x = tanf(fov * (M_PI / 180.0f) * 0.5) * (depth);
 		y = x / ((float) hud.width / hud.height);
 		z = depth * cosf(fov * (M_PI / 180.0f) * 0.5);
+
+		glBegin(GL_TRIANGLE_STRIP);
+		// calculate coordinates for hud
 
 		glTexCoord2f(0, 0); glVertex3f(-x, -y, -z);
 		glTexCoord2f(0, 1); glVertex3f(-x, y, -z);
@@ -403,15 +415,9 @@ void R_VR_DrawHud(vr_eye_t eye)
 // takes the various FBO's and renders them to the framebuffer
 void R_VR_Present()
 {
-	if (!hmd)
+	if (!vr_enabled->value)
 		return;
-//	GL_BindFBO(currentFBO);
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	GL_SetIdentity(GL_PROJECTION);
-	GL_SetIdentity(GL_MODELVIEW);
-
-	// tell the HMD renderer to draw composited scene
-	hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
+	R_BlitTextureToScreen(offscreen.texture);
 }
 
 // util function
@@ -505,14 +511,14 @@ void R_VR_Disable()
 
 	R_BindFBO(&screenFBO);
 	
-	vid.width = screen.width;
-	vid.height = screen.height;
-
 	vrState.pixelScale = 1.0;
+
 	if (hmd && hmd->disable)
 		hmd->disable();
 	if (hud.valid)
 		R_DelFBO(&hud);
+	if (offscreen.valid)
+		R_DelFBO(&offscreen);
 
 	R_DelShaderProgram(&vr_shader_distort_norm);
 	R_DelShaderProgram(&vr_shader_distort_chrm);

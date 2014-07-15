@@ -22,8 +22,8 @@ extern svr_settings_t svr_settings;
 void SVR_BuildDistortionTextures()
 {
 	GLfloat *normalTexture, *chromaTexture;
-	int width = origTargetRect.width; // width of the distortion map
-	int height= origTargetRect.height; // height of the distortion map
+	int width = glConfig.screen_width; // width of the distortion map
+	int height= glConfig.screen_height; // height of the distortion map
 	int bitsPerPixel = (glConfig.arb_texture_rg? 2 : 4);
 	float scale = (1.0 / pow(2,vr_svr_distortion->value));
 	
@@ -97,6 +97,7 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 		if (vr_svr_distortion->value <0)
 			Cvar_SetInteger("vr_svr_distortion", 0);
 		changeBackBuffers = 1;
+		SVR_BuildDistortionTextures();		
 		vr_svr_distortion->modified = false;
 	}
 
@@ -109,8 +110,8 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 	{	
 		origTargetRect.x = 0;
 		origTargetRect.y = 0;
-		origTargetRect.width = (uint32_t) Cvar_VariableValue("vid_width") * svr_settings.scaleX;
-		origTargetRect.height = (uint32_t) Cvar_VariableValue("vid_height") * svr_settings.scaleY;
+		origTargetRect.width = glConfig.screen_width * svr_settings.scaleX;
+		origTargetRect.height = glConfig.screen_height * svr_settings.scaleY;
 
 		renderTargetRect = origTargetRect;
 		if (r_antialias->value == ANTIALIAS_4X_FSAA)
@@ -125,30 +126,6 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 		}
 
 		Com_Printf("VR_SVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
-		SVR_BuildDistortionTextures();		
-	}
-}
-
-
-void SVR_BindView(vr_eye_t eye)
-{
-	switch(eye)
-	{
-	case EYE_LEFT:
-
-
-		vid.height = left.height;
-		vid.width = left.width;
-		R_BindFBO(&left);
-		break;
-	case EYE_RIGHT:
-
-		vid.height = right.height;
-		vid.width = right.width;
-		R_BindFBO(&right);
-		break;
-	default:
-		return;
 	}
 }
 
@@ -181,14 +158,14 @@ void SVR_GetState(vr_param_t *state)
 
 void SVR_Present(qboolean loading)
 {
-	GL_SetIdentityOrtho(GL_PROJECTION, 0, svr_settings.width, svr_settings.height, 0, -1, 1);
+//	GL_SetIdentityOrtho(GL_PROJECTION, 0, svr_settings.width, svr_settings.height, 0, -1, 1);
 
 	if (!vr_svr_debug->value)
 	{
 
 		vr_distort_shader_t *current_shader = &vr_distort_shaders[chromatic];
  
-		
+		R_SetupQuadState();
 		// draw left eye
 		glUseProgram(current_shader->shader->program);
 		glUniform1i(current_shader->uniform.texture,0);
@@ -197,54 +174,34 @@ void SVR_Present(qboolean loading)
 		GL_EnableMultitexture(true);
 		GL_MBind(0,left.texture);
 		GL_MBind(1,leftDistortion[chromatic]);
+		glViewport(0,0,vid.width / 2.0, vid.height);
 		
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(leftRenderRect.x, leftRenderRect.y + leftRenderRect.height);
-		glTexCoord2f(0, 1); glVertex2f(leftRenderRect.x, leftRenderRect.y);
-		glTexCoord2f(1, 0); glVertex2f(leftRenderRect.x + leftRenderRect.width, leftRenderRect.y + leftRenderRect.height);
-		glTexCoord2f(1, 1); glVertex2f(leftRenderRect.x + leftRenderRect.width, leftRenderRect.y);
-		glEnd();
-
+		R_DrawQuad();
 		// draw right eye
 
 		GL_MBind(0,right.texture);
 		GL_MBind(1,rightDistortion[chromatic]);
+		glViewport(vid.width / 2.0,0,vid.width / 2.0, vid.height);
+		
+		R_DrawQuad();
 
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(rightRenderRect.x, rightRenderRect.y + rightRenderRect.height);
-		glTexCoord2f(0, 1); glVertex2f(rightRenderRect.x, rightRenderRect.y);
-		glTexCoord2f(1, 0); glVertex2f(rightRenderRect.x + rightRenderRect.width, rightRenderRect.y + rightRenderRect.height);
-		glTexCoord2f(1, 1); glVertex2f(rightRenderRect.x + rightRenderRect.width, rightRenderRect.y);
-		glEnd();
 		glUseProgram(0);
 		GL_MBind(1,0);
 		GL_MBind(0,0);
 		GL_EnableMultitexture(false);
+		R_TeardownQuadState();
 
 	} else {
-		GL_MBind(0,left.texture);
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(leftRenderRect.x, leftRenderRect.y + leftRenderRect.height);
-		glTexCoord2f(0, 1); glVertex2f(leftRenderRect.x, leftRenderRect.y);
-		glTexCoord2f(1, 0); glVertex2f(leftRenderRect.x + leftRenderRect.width, leftRenderRect.y + leftRenderRect.height);
-		glTexCoord2f(1, 1); glVertex2f(leftRenderRect.x + leftRenderRect.width, leftRenderRect.y);
-		glEnd();
+		R_SetupBlit();
 
-		GL_MBind(0,rightDistortion[chromatic]);
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2f(rightRenderRect.x, rightRenderRect.y + rightRenderRect.height);
-		glTexCoord2f(0, 1); glVertex2f(rightRenderRect.x, rightRenderRect.y);
-		glTexCoord2f(1, 0); glVertex2f(rightRenderRect.x + rightRenderRect.width, rightRenderRect.y + rightRenderRect.height);
-		glTexCoord2f(1, 1); glVertex2f(rightRenderRect.x + rightRenderRect.width, rightRenderRect.y);
-		glEnd();
-		GL_MBind(0,0);
+		glViewport(0,0,vid.width / 2.0, vid.height);
+		R_BlitTextureToScreen(left.texture);
+		glViewport(vid.width / 2.0,0,vid.width / 2.0, vid.height);
+
+		R_BlitTextureToScreen(rightDistortion[chromatic]);
+		R_TeardownBlit();
 	}
 }
-void SVR_GetViewRect(vr_eye_t eye, vr_rect_t *rect)
-{
-	*rect = renderTargetRect;
-}
-
 
 int32_t SVR_Init()
 {
@@ -301,6 +258,7 @@ int32_t SVR_Enable()
 
 	strncpy(string, va("SteamVR-%s", svr_settings.deviceName), sizeof(string));
 	Cvar_ForceSet("vr_hmdstring",string);
+	vr_svr_distortion->modified = true;
 	return true;
 }
 
@@ -312,8 +270,6 @@ hmd_render_t vr_render_svr =
 	SVR_Init,
 	SVR_Enable,
 	SVR_Disable,
-	SVR_BindView,
-	SVR_GetViewRect,
 	SVR_FrameStart,
 	SVR_GetState,
 	SVR_Present
@@ -324,7 +280,6 @@ hmd_render_t vr_render_svr =
 hmd_render_t vr_render_svr = 
 {
 	HMD_STEAM,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
