@@ -80,8 +80,7 @@ void R_AntialiasEndFrame(void)
 
 	if (r_antialias->value)
 	{
-		GL_BindFBO(0);
-		glViewport(0,0,glConfig.screen_width,glConfig.screen_height);
+		R_BindFBO(&screenFBO);
 
 		GL_Disable(GL_DEPTH_TEST);
 		GL_Disable(GL_ALPHA_TEST);

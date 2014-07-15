@@ -37,7 +37,7 @@ typedef struct {
 
 static vbo_t hudVBO;
 
-static GLuint currentFBO = 0;
+static fbo_t *currentFBO = 0;
 
 // Default Lens Warp Shader
 static r_shaderobject_t vr_shader_distort_norm = {
@@ -242,12 +242,8 @@ void R_VR_StartFrame()
 
 
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_BindFBO(vrState.eyeFBO[0]);
-	R_Clear();
-
-	R_BindFBO(vrState.eyeFBO[1]);
-	R_Clear();
-	GL_BindFBO(currentFBO);
+	R_ClearFBO(vrState.eyeFBO[0]);
+	R_ClearFBO(vrState.eyeFBO[1]);
 	GL_SetDefaultClearColor();		
 
 	hudStale = 1;
@@ -274,8 +270,7 @@ void R_VR_EndFrame()
 		GL_MBind(0, 0);
 
 		GL_Disable(GL_ALPHA_TEST);
-		GL_BindFBO(0);
-		glViewport(0, 0, glConfig.screen_width, glConfig.screen_height);
+		R_BindFBO(&screenFBO);
 		vid.width = glConfig.screen_width;
 		vid.height = glConfig.screen_height;
 	}
@@ -506,11 +501,10 @@ void R_VR_Enable()
 // disables renderer support for the Rift
 void R_VR_Disable()
 {
-	GL_BindFBO(0);
 	R_DelIVBO(&hudVBO);
 
-	glViewport(0, 0, screen.width, screen.height);
-
+	R_BindFBO(&screenFBO);
+	
 	vid.width = screen.width;
 	vid.height = screen.height;
 

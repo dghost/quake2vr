@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "include/r_local.h"
 
+fbo_t screenFBO;
 
 /*
 =================
@@ -492,20 +493,23 @@ void GL_MBind (unsigned tmu, int32_t texnum)
 
 /*
 =================
-GL_MBind
+GL_BindFBO
 =================
 */
-void GL_BindFBO (unsigned fbo)
+
+void GL_BindFBO (fbo_t *fbo)
 {
 	if (!glConfig.ext_framebuffer_object)
 		return;
 
-	if (glState.currentFBO == fbo)
+	if (!fbo || glState.currentFBO == fbo)
 		return;
 
 	glState.currentFBO = fbo;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo->framebuffer);
 }
+
+
 
 void GL_MatrixMode(GLenum matrixMode)
 {
@@ -673,7 +677,6 @@ void GL_SetDefaultState (void)
 	glState.depthFunc = GL_LEQUAL;
 	glState.depthMask = GL_TRUE;
 	glState.matrixMode = GL_MODELVIEW;
-	glState.currentFBO = 0;
 
 
 	RotationMatrix(-90, 1, 0, 0, rot);
@@ -681,8 +684,7 @@ void GL_SetDefaultState (void)
 	MatrixMultiply(temp, rot, glState.axisRotation);
 
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-	
+
 	// Set default state
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -745,4 +747,9 @@ void GL_SetDefaultState (void)
 	GL_TexEnv (GL_REPLACE);
 	
 	GL_UpdateSwapInterval();
+
+	memset(&screenFBO,0,sizeof(fbo_t));
+	screenFBO.width = glConfig.screen_width;
+	screenFBO.height = glConfig.screen_height;
+	R_BindFBO(&screenFBO);
 }

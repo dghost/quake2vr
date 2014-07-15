@@ -1066,8 +1066,7 @@ void R_RenderFrame (refdef_t *fd)
 {
 	eye_param_t params;
 	vrect_t rect;
-	fbo_t *hud = R_GetHUDFBO();
-
+	
 	params.projection.y.scale = 1.0f / tanf((fd->fov_y / 2.0f) * M_PI / 180);
 	params.projection.y.offset = 0.0;
 	params.projection.x.scale = 1.0f / tanf((fd->fov_x / 2.0f) * M_PI / 180);
@@ -1079,7 +1078,7 @@ void R_RenderFrame (refdef_t *fd)
 	rect.y = fd->y;
 	rect.width = fd->width;
 	rect.height = fd->height;
-	R_RenderViewIntoFBO(fd,params,hud,&rect);
+	R_RenderViewIntoFBO(fd,params,glState.currentFBO,&rect);
 //	V_RenderViewIntoFBO(hud);
 	R_SetLightLevel ();
 	R_SetGL2D ();
@@ -1865,8 +1864,7 @@ void R_BeginFrame()
 	}
 
 	GLimp_BeginFrame(  );
-	GL_BindFBO(0);
-	glViewport(0,0,glConfig.screen_width,glConfig.screen_height);
+	R_BindFBO(&screenFBO);
 
 	R_Clear();
 	R_AntialiasStartFrame();
@@ -1971,8 +1969,7 @@ void R_EndFrame(void)
 
 		R_AntialiasEndFrame();
 	} else {
-		GL_BindFBO(0);
-		glViewport(0,0,glConfig.screen_width,glConfig.screen_height);
+		R_BindFBO(&screenFBO);
 
 		glColor4f(1.0,1.0,1.0,1.0);
 

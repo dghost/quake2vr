@@ -36,7 +36,7 @@ int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format,
 	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT, width, height);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
-	GL_BindFBO(fbo);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex, 0);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dep);
@@ -46,7 +46,7 @@ int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format,
 	if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
 	{
 		Com_Printf("ERROR: Creation of %i x %i FBO failed!\n", width, height);
-
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,glState.currentFBO->framebuffer);
 		glDeleteTextures(1, &tex);
 		glDeleteRenderbuffersEXT(1, &dep);
 		glDeleteFramebuffersEXT(1, &fbo);
@@ -65,6 +65,7 @@ int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format,
 		FBO->height = height;
 		FBO->format = format;
 		FBO->valid = 1;
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,glState.currentFBO->framebuffer);
 		return 1;
 	}
 }
@@ -73,7 +74,9 @@ int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, GLenum for
 {
 	int32_t err;
 	
-	
+	if (FBO == &screenFBO)
+		return 0;
+
 	if (!FBO->valid)
 	{
 		return R_GenFBO(width, height, bilinear, format, FBO);
@@ -111,7 +114,6 @@ int32_t R_ResizeFBO(int32_t width, int32_t height,  int32_t bilinear, GLenum for
 	FBO->width = width;
 	FBO->height = height;
 	FBO->format = format;
-
 	return 1;
 }
 
@@ -151,15 +153,19 @@ void R_InitFBO(fbo_t *FBO)
 
 void R_BindFBO(fbo_t *FBO)
 {
-	//glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &currentFrameBuffer);
-	GL_BindFBO(FBO->framebuffer);
+	GL_BindFBO(FBO);
 	glViewport(0, 0, FBO->width, FBO->height);
+	vid.width = FBO->width;
+	vid.height = FBO->height;
 }
 
 void R_Clear();
 void R_ClearFBO(fbo_t *FBO)
 {
-	R_BindFBO(FBO);
+	fbo_t *current = glState.currentFBO;
+
+	// use GL_BindFBO to avoid trampling on current viewport
+	GL_BindFBO(FBO);
 	R_Clear();
-	GL_BindFBO(0);
+	GL_BindFBO(current);
 }

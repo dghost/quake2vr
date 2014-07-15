@@ -807,7 +807,7 @@ typedef struct
 	Uint32	currenttmu;
 	qboolean		activetmu[MAX_TEXTURE_UNITS];
 
-	Uint32	currentFBO;
+	fbo_t			*currentFBO;
 	
 	// advanced state manager - MrG
 	qboolean		texgen;
@@ -860,6 +860,7 @@ extern glstate_t   glState;
 //
 // r_glstate.c
 //
+extern fbo_t screenFBO;
 void	GL_Stencil (qboolean enable, qboolean shell);
 void	R_ParticleStencil (int32_t passnum);
 qboolean GL_HasStencil (void);
@@ -883,7 +884,7 @@ void	GL_EnableMultitexture(qboolean enable);
 void	GL_SelectTexture (unsigned tmu);
 void	GL_Bind (int32_t texnum);
 void	GL_MBind (unsigned tmu, int32_t texnum);
-void	GL_BindFBO (unsigned fbo);
+void	GL_BindFBO (fbo_t *fbo);
 void	GL_SetDefaultState (void);
 void	GL_MatrixMode(GLenum matrixMode);
 void	GL_SetIdentity(GLenum matrixMode);
