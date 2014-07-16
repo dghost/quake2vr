@@ -1,3 +1,5 @@
+#version 110
+
 uniform vec2 EyeToSourceUVScale;
 uniform vec2 EyeToSourceUVOffset;
 uniform mat4 EyeRotationStart;
