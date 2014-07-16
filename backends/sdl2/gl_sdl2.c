@@ -51,6 +51,7 @@ SDL_GLContext glcontext;
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
 extern cvar_t *vid_refresh;
+extern cvar_t *vid_srgb;
 
 static qboolean VerifyDriver( void )
 {
@@ -124,7 +125,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	int32_t xpos = Cvar_VariableInteger("vid_xpos");
 	int32_t ypos = Cvar_VariableInteger("vid_ypos");
-	qboolean fullscreen = Cvar_VariableInteger("vid_fullscreen");
+	int32_t fullscreen = Cvar_VariableInteger("vid_fullscreen");
 
 	if (vr_enabled->value)
 	{
@@ -212,7 +213,10 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	//SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
+	if (vid_srgb->value)
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
+	else
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,0);
 
 
 	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
@@ -262,7 +266,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
-
+	
 	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Available":"Not available");
 	VID_NewWindow (width, height);
 	*pwidth = width;
@@ -279,13 +283,8 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 ** for the window.  The state structure is also nulled out.
 **
 */
-void UpdateGammaRamp (qboolean enable);
-
 void GLimp_Shutdown( void )
 {
-	//Knightmare- added Vic's hardware gamma ramp
-	UpdateGammaRamp(false);
-
 	//end Knightmare
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(mainWindow);
@@ -309,7 +308,7 @@ qboolean GLimp_Init( )
 qboolean GLimp_InitGL (void)
 {
 	SDL_DisplayMode currentMode;
-
+	int srgb = 0;
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
 	{
@@ -332,54 +331,25 @@ qboolean GLimp_InitGL (void)
 	}
 
 
-	vid_gamma->modified = true;
-	
-
 	//Knightmare- 12/24/2001- stencil buffer
 	{
 		VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
 		glConfig.have_stencil = true; // Stencil shadows - MrG
-
 	}
 
 	SDL_GetWindowDisplayMode(mainWindow,&currentMode);
 	glConfig.refresh_rate = currentMode.refresh_rate;
-	/*	Moved to GL_SetDefaultState in r_glstate.c
-	// Vertex arrays
-	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState (GL_VERTEX_ARRAY);
-	glEnableClientState (GL_COLOR_ARRAY);
+	SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,&srgb);
+	glConfig.srgb_framebuffer = srgb ? 1 : 0;
+	if (!glConfig.srgb_framebuffer)
+		Cvar_SetInteger("vid_srgb",0);
 
-	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
-	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
-	glColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
-	//glState.activetmu[0] = true;
-	// end vertex arrays
-	*/
 	return true;
 
 fail:
 
 	GLimp_Shutdown();
 	return false;
-}
-
-//Knightmare- added Vic's hardware gammaramp
-void UpdateGammaRamp (qboolean enable)
-{
-	float gamma;
-	int32_t ret;
-
-	if (enable)
-		gamma =  vid_gamma->value;
-	else
-		gamma = 1.0f;
-
-	ret = SDL_SetWindowBrightness(mainWindow,gamma);
-
-	if ( ret < 0 ) {
-		Com_Printf( "SDL_SetWindowBrightness failed: %s\n", SDL_GetError() );
-	}
 }
 
 /*
@@ -412,7 +382,6 @@ void GLimp_EndFrame (void)
 */
 void GLimp_AppActivate( qboolean active )
 {
-	UpdateGammaRamp(active);
 	if ( active )
 	{
 		if (mainWindow)

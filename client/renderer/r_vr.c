@@ -326,6 +326,12 @@ fbo_t* R_VR_GetFBOForEye(vr_eye_t eye)
 	}
 }
 
+fbo_t* R_VR_GetFrameFBO()
+{
+	if (!vr_enabled->value)
+		return NULL;
+	return &offscreen;	
+}
 
 
 void R_VR_DrawHud(vr_eye_t eye)
@@ -412,13 +418,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 	GL_Disable(GL_BLEND);
 }
 
-// takes the various FBO's and renders them to the framebuffer
-void R_VR_Present()
-{
-	if (!vr_enabled->value)
-		return;
-	R_BlitTextureToScreen(offscreen.texture);
-}
 
 // util function
 void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object)

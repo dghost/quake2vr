@@ -1,10 +1,10 @@
-#version 120
+#version 110
 
 varying vec2 texCoords;
 
 uniform sampler2D tex;
 
-uniform vec4 blendColor = vec4(1.0);
+uniform vec4 blendColor;
 
 void main(void)
 {

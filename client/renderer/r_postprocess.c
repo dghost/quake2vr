@@ -120,6 +120,7 @@ typedef struct {
 	r_shaderobject_t *shader;
 	GLint scale_uniform;
 	GLint blend_uniform;
+	GLint gamma_uniform;
 } r_blitshader_t;
 
 typedef struct {
@@ -139,6 +140,7 @@ r_bloomshader_t bloomPass;
 r_bloomshader_t brightPass;
 r_blitshader_t passthrough;
 r_blitshader_t colorBlend;
+r_blitshader_t gammaAdjust;
 
 r_attrib_t postProcess[] = {
 	{"Position",0},
@@ -202,6 +204,15 @@ static r_shaderobject_t colorBlend_object = {
 	postProcess
 };
 
+static r_shaderobject_t gammaAdjust_object = {
+	0,
+	// vertex shader (identity)
+	"quad.vert",
+	// fragment shader
+	"gamma.frag",
+	postProcess
+};
+
 static qboolean setupForBlit = false;
 static qboolean wasSetupForQuad = false;
 void R_SetupBlit()
@@ -235,7 +246,19 @@ void R_BlitTextureToScreen(GLuint texture)
 	GL_MBind(0,0);
 	if (!alreadySetup)
 		R_TeardownBlit();
+}
 
+
+void R_BlitWithGamma(GLuint texture, float gamma)
+{
+	glUseProgram(gammaAdjust.shader->program);
+	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
+	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);		
+	
+	GL_MBind(0,texture);
+	R_DrawQuad();
+	GL_MBind(0,0);
+	glUseProgram(0);
 }
 
 
@@ -451,53 +474,76 @@ void R_BloomFBO(fbo_t *source)
 qboolean R_InitPostsprocessShaders()
 {
 	qboolean success = true;
+	Com_Printf("...loading blit shaders: ");
+
+	if (R_CompileShaderFromFiles(&passthrough_object))
+	{
+		GLint texloc;
+		passthrough.shader = &passthrough_object;
+		glUseProgram(passthrough.shader->program);
+		texloc = glGetUniformLocation(passthrough.shader->program,"tex");
+		glUniform1i(texloc,0);
+		passthrough.blend_uniform = glGetUniformLocation(passthrough.shader->program,"blendColor");
+		passthrough.scale_uniform = glGetUniformLocation(passthrough.shader->program,"texScale");			
+		glUniform2f(passthrough.scale_uniform,1.0,1.0);	
+		passthrough.gamma_uniform = glGetUniformLocation(passthrough.shader->program,"gamma");			
+		glUseProgram(0);
+
+
+		success = success && true;
+	}
+	else {
+		success = false;
+	}
+
+	if (R_CompileShaderFromFiles(&colorBlend_object))
+	{
+		GLint texloc;
+		colorBlend.shader = &colorBlend_object;
+		glUseProgram(colorBlend.shader->program);
+		texloc = glGetUniformLocation(colorBlend.shader->program,"tex");
+		glUniform1i(texloc,0);
+		colorBlend.blend_uniform = glGetUniformLocation(colorBlend.shader->program,"blendColor");
+		colorBlend.scale_uniform = glGetUniformLocation(colorBlend.shader->program,"texScale");
+		glUniform2f(colorBlend.scale_uniform,1.0,1.0);	
+		colorBlend.gamma_uniform = glGetUniformLocation(colorBlend.shader->program,"gamma");
+		glUseProgram(0);
+		success = success && true;
+	}
+	else {
+		success = false;
+	}
+
+	if (R_CompileShaderFromFiles(&gammaAdjust_object))
+	{
+		GLint texloc;
+		gammaAdjust.shader = &gammaAdjust_object;
+		glUseProgram(gammaAdjust.shader->program);
+		texloc = glGetUniformLocation(gammaAdjust.shader->program,"tex");
+		glUniform1i(texloc,0);
+		gammaAdjust.blend_uniform = glGetUniformLocation(gammaAdjust.shader->program,"blendColor");
+		gammaAdjust.scale_uniform = glGetUniformLocation(gammaAdjust.shader->program,"texScale");
+		glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);	
+		gammaAdjust.gamma_uniform = glGetUniformLocation(gammaAdjust.shader->program,"gamma");
+		glUseProgram(0);
+		success = success && true;
+	}
+	else {
+		success = false;
+	}
+
+	if (success)
+	{
+		Com_Printf("success!\n");
+		blitSupported = true;
+
+	} else {
+		Com_Printf("failed!\n");
+	}
+
 
 	if (glConfig.shader_version_major > 1 || (glConfig.shader_version_major == 1 && glConfig.shader_version_minor >= 2))
 	{
-		Com_Printf("...loading blit shaders: ");
-
-		if (R_CompileShaderFromFiles(&passthrough_object))
-		{
-			GLint texloc;
-			passthrough.shader = &passthrough_object;
-			glUseProgram(passthrough.shader->program);
-			texloc = glGetUniformLocation(passthrough.shader->program,"tex");
-			glUniform1i(texloc,0);
-			passthrough.blend_uniform = glGetUniformLocation(passthrough.shader->program,"blendColor");
-			passthrough.scale_uniform = glGetUniformLocation(passthrough.shader->program,"texScale");			
-			glUseProgram(0);
-
-			success = success && true;
-		}
-		else {
-			success = false;
-		}
-
-		if (R_CompileShaderFromFiles(&colorBlend_object))
-		{
-			GLint texloc;
-			colorBlend.shader = &colorBlend_object;
-			glUseProgram(colorBlend.shader->program);
-			texloc = glGetUniformLocation(colorBlend.shader->program,"tex");
-			glUniform1i(texloc,0);
-			colorBlend.blend_uniform = glGetUniformLocation(colorBlend.shader->program,"blendColor");
-			colorBlend.scale_uniform = glGetUniformLocation(colorBlend.shader->program,"texScale");
-			glUseProgram(0);
-			success = success && true;
-		}
-		else {
-			success = false;
-		}
-
-		if (success)
-		{
-			Com_Printf("success!\n");
-			blitSupported = true;
-
-		} else {
-			Com_Printf("failed!\n");
-		}
-
 		if (blitSupported)
 		{
 			Com_Printf("...loading blur shaders: ");

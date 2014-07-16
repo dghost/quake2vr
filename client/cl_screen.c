@@ -2388,10 +2388,9 @@ text to the screen.
 ==================
 */
 void V_RenderViewIntoFBO (fbo_t *fbo);
-cvar_t *r_hud_separate_fbo;
 void SCR_UpdateScreen (void)
 {
-	fbo_t *view, *hud;
+	fbo_t *view;
 	// if the screen is disabled (loading plaque is up, or vid mode changing)
 	// do nothing at all
 	if (cls.disable_screen)
@@ -2420,13 +2419,6 @@ void SCR_UpdateScreen (void)
 
 	view = R_GetViewFBO();
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	if (r_hud_separate_fbo->value)
-	{
-		hud = R_GetHUDFBO();
-		R_ClearFBO(hud);
-	} else {
-		hud = view;
-	}
 
 	R_ClearFBO(view);
 	GL_SetDefaultClearColor();		
@@ -2436,7 +2428,7 @@ void SCR_UpdateScreen (void)
 		V_RenderViewIntoFBO(view);
 	} 
 	
-	SCR_Draw2DintoFBO(hud);	
+	SCR_Draw2DintoFBO(view);	
 
 	R_EndFrame();
 }

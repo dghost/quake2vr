@@ -307,11 +307,12 @@ extern  cvar_t  *r_blur;
 extern  cvar_t  *r_flashblur;
 
 extern	cvar_t	*vid_fullscreen;
-extern	cvar_t	*vid_gamma;
 
 extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;
 extern	cvar_t  *r_directstate;
+
+extern  float	vid_gamma;
 
 extern	int32_t		gl_lightmap_format;
 extern	int32_t		gl_solid_format;
@@ -321,6 +322,7 @@ extern	int32_t		gl_tex_alpha_format;
 
 extern	int32_t		c_visible_lightmaps;
 extern	int32_t		c_visible_textures;
+
 
 //extern	float	r_world_matrix[16];
 
@@ -490,7 +492,6 @@ void R_Shutdown (void);
 void R_RenderCommon (refdef_t *fd);
 void R_RenderView (refdef_t *fd);
 void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect);
-fbo_t* R_GetHUDFBO(void);
 fbo_t* R_GetViewFBO(void);
 void R_BeginFrame();
 void R_EndFrame ( void );
@@ -786,10 +787,12 @@ typedef struct
 	qboolean	anisotropic;
 	float		max_anisotropy;
 	uint32_t	refresh_rate;
-	qboolean	ext_texture_srgb;
-	qboolean	ext_framebuffer_srgb;
 	qboolean	arb_vertex_buffer_object;
 	qboolean	arb_vertex_array_object;
+
+	qboolean	srgb_framebuffer;
+	qboolean	ext_texture_srgb;
+	qboolean	ext_framebuffer_srgb;
 } glconfig_t;
 
 
@@ -1041,6 +1044,7 @@ void R_DrawQuad();
 void R_SetupBlit();
 void R_TeardownBlit();
 void R_BlitTextureToScreen(GLuint texture);
+void R_BlitWithGamma(GLuint texture, float gamma);
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
 void R_BloomFBO(fbo_t *source);
 void R_PostProcessInit();

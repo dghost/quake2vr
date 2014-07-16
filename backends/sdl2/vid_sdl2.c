@@ -374,15 +374,9 @@ vidmode_t vid_modes[] =
 VID_UpdateWindowPos
 ==============
 */
-void UpdateGammaRamp (qboolean enable);
-
 void VID_UpdateWindowPos ( int32_t x, int32_t y )
 {
-	float gamma = Cvar_VariableValue("vid_gamma");
-	qboolean useGamma = (qboolean) !Cvar_VariableInteger("r_ignorehwgamma");
-	UpdateGammaRamp(false);
 	SDL_SetWindowPosition(mainWindow,x,y);
-	UpdateGammaRamp(useGamma);
 	//SDL_SetWindowSize(mainWindow,viddef.width,viddef.height);
 }
 

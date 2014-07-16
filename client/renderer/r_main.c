@@ -158,10 +158,10 @@ cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
-cvar_t  *r_hud_separate_fbo;
 cvar_t	*vid_fullscreen;
-cvar_t	*vid_gamma;
+cvar_t  *vid_brightness;
 cvar_t	*vid_ref;
+cvar_t  *vid_srgb;
 
 cvar_t  *r_bloom;	// BLOOMS
 
@@ -174,6 +174,8 @@ cvar_t  *r_lateframe_decay;
 cvar_t  *r_lateframe_threshold;
 cvar_t  *r_lateframe_ratio;
 cvar_t  *r_directstate;
+
+float vid_gamma = 1.0;
 
 /*
 =================
@@ -1222,7 +1224,8 @@ void R_Register (void)
 
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
-	vid_gamma = Cvar_Get( "vid_gamma", "1.4", CVAR_ARCHIVE ); // was 1.0
+	vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
+	vid_brightness = Cvar_Get("vid_brightness","0.5",CVAR_ARCHIVE);
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
@@ -1234,7 +1237,6 @@ void R_Register (void)
 	r_lateframe_decay = Cvar_Get("r_lateframe_decay","10",CVAR_ARCHIVE);
 	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
 	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
-	r_hud_separate_fbo = Cvar_Get("r_hud_separate_fbo","0",CVAR_ARCHIVE);
 	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
@@ -1752,7 +1754,6 @@ R_Shutdown
 */
 
 fbo_t viewFBO;
-fbo_t hudFBO;
 
 void R_Shutdown (void)
 {	
@@ -1775,7 +1776,6 @@ void R_Shutdown (void)
 	R_ShutdownImages ();
 	R_VR_Shutdown();
 	R_DelFBO(&viewFBO);
-	R_DelFBO(&hudFBO);
 
 	//
 	// shut down OS specific OpenGL stuff like contexts, etc.
@@ -1800,26 +1800,9 @@ fbo_t* R_GetViewFBO(void)
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
-R_GetHUDFBO
-@@@@@@@@@@@@@@@@@@@@@
-*/
-
-fbo_t* R_GetHUDFBO(void)
-{
-	if (vr_enabled->value)
-	{
-		return R_VR_GetFBOForEye(EYE_HUD);
-	}
-	return &hudFBO;
-}
-
-
-/*
-@@@@@@@@@@@@@@@@@@@@@
 R_BeginFrame
 @@@@@@@@@@@@@@@@@@@@@
 */
-void UpdateGammaRamp (qboolean enable); //Knightmare added
 void RefreshFont (void);
 void GLimp_SetFullscreen(qboolean enable);
 
@@ -1851,16 +1834,37 @@ void R_BeginFrame()
 		vid_fullscreen->modified=false;
 	}
 
-	// update gamma values
-	if ( vid_gamma->modified )
+	if (vid_srgb->modified)
 	{
-		if (vid_gamma->value > 3.0)
-			Cvar_SetValue("vid_gamma",3.0);
-		else if (vid_gamma->value < 0.5)
-			Cvar_SetValue("vid_gamma",0.5);
-		vid_gamma->modified = false;
+		vid_srgb->modified = false;
+		vid_brightness->modified = true;
+	}
+
+#define BRIGHTNESS_MAX 1.0
+#define BRIGHTNESS_MIN 0.0
+#define BRIGHTNESS_DIFF (BRIGHTNESS_MAX - BRIGHTNESS_MIN)
+
+	if (vid_brightness->modified)
+	{
+		float bright = 0.0;
 		
-		UpdateGammaRamp ((int32_t) !r_ignorehwgamma->value);
+		if (vid_brightness->value > BRIGHTNESS_MAX)
+			Cvar_SetValue("vid_brightness", BRIGHTNESS_MAX);
+		else if (vid_brightness->value < BRIGHTNESS_MIN)
+			Cvar_SetValue("vid_brightness", BRIGHTNESS_MIN);
+		vid_brightness->modified = false;
+		// normalize from 0 to 1
+		bright = (vid_brightness->value - BRIGHTNESS_MIN) / BRIGHTNESS_DIFF;
+		
+		if (glConfig.srgb_framebuffer && vid_srgb->value)
+		{
+			// compress gamma from 0.5 - 1.3
+			vid_gamma = bright * 0.8  + 0.5;
+		} else {
+			// expand gamma from 1.0 to 2.8
+			vid_gamma = bright * 1.9  + 1.0;
+		}
+
 	}
 
 	GLimp_BeginFrame(  );
@@ -1876,15 +1880,7 @@ void R_BeginFrame()
 		//R_VR_BindView(EYE_HUD);	
 	} else {
 		R_AntialiasSetFBOSize(&viewFBO);
-		if (r_hud_separate_fbo->value)
-		{
-			R_AntialiasSetFBOSize(&hudFBO);
-		} else if (hudFBO.framebuffer)
-		{
-			R_DelFBO(&hudFBO);
-		}
 	}
-
 
 	//
 	// texturemode stuff
@@ -1934,6 +1930,8 @@ void R_BeginFrame()
 void R_EndFrame(void)
 {
 	int32_t		err;
+	fbo_t *frame = &viewFBO;
+
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
 
@@ -1948,34 +1946,24 @@ void R_EndFrame(void)
 	R_VR_EndFrame();
 
 	R_BindFBO(&screenFBO);
-
 	glColor4f(1.0,1.0,1.0,1.0);
 
 	if (vr_enabled->value)
 	{
-		R_VR_Present();
-	} else {
-		R_SetupBlit();
+		frame = R_VR_GetFrameFBO();
+	} 
 
-		R_BlitTextureToScreen(viewFBO.texture);
-		
-		if (r_hud_separate_fbo->value)
-		{
-			GL_Enable(GL_ALPHA_TEST);
-			GL_AlphaFunc(GL_GREATER, 0.0f);
-			GL_Enable(GL_BLEND);
-			GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (glConfig.srgb_framebuffer && vid_srgb->value)
+	{
+		glEnable(GL_FRAMEBUFFER_SRGB);
+	}	
 
-			R_BlitTextureToScreen(hudFBO.texture);
+	R_BlitWithGamma(frame->texture,vid_gamma);
 
-			GL_Disable(GL_ALPHA_TEST);
-			GL_Disable(GL_BLEND);
-		}
-
-		R_TeardownBlit();
-
-	}
-
+	if (glConfig.srgb_framebuffer && vid_srgb->value)
+	{
+		glDisable(GL_FRAMEBUFFER_SRGB);
+	}	
 
 	GLimp_EndFrame();
 	
