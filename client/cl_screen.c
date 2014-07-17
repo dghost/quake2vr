@@ -2359,22 +2359,28 @@ void VR_UpdateScreen (void)
 	fbo_t *fbo;
 
 	R_BeginFrame( );
-	R_ClearFBO(hud);
-	SCR_Draw2DintoFBO(hud);	
 
+
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
 		VR_RenderStereo();
-	} else {
+	} 
+
+	R_ClearFBO(hud);
+	SCR_Draw2DintoFBO(hud);	
+	
+	/*
+	else {
 		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 		fbo = R_VR_GetFBOForEye(EYE_RIGHT);
 		R_ClearFBO(fbo);
 		fbo = R_VR_GetFBOForEye(EYE_LEFT);
 		R_ClearFBO(fbo);
 		GL_SetDefaultClearColor();		
-	}
+	}*/
 
-//	R_VR_EndFrame();
 	R_EndFrame();
 }
 
@@ -2419,7 +2425,6 @@ void SCR_UpdateScreen (void)
 
 	view = R_GetViewFBO();
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-
 	R_ClearFBO(view);
 	GL_SetDefaultClearColor();		
 
@@ -2429,7 +2434,6 @@ void SCR_UpdateScreen (void)
 	} 
 	
 	SCR_Draw2DintoFBO(view);	
-
 	R_EndFrame();
 }
 

@@ -789,7 +789,7 @@ void VR_RenderStereo ()
 	R_RenderCommon(&cl.refdef);
 
 	VectorCopy(cl.refdef.vieworg, viewOrig);
-	VectorCopy(cl.refdef.vieworg,view);
+	VectorCopy(cl.refdef.vieworg, view);
     if (vr_enabled->value)
     {
 		vec3_t offset;
@@ -830,6 +830,7 @@ void VR_RenderStereo ()
 		}
 	}
 
+	VectorCopy(view,cl.refdef.vieworg);
 	// left eye rendering
 	{
 		eye_param_t params;
@@ -849,8 +850,6 @@ void VR_RenderStereo ()
 		}
 
 		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
-
-
 	}
 
 	// Right eye rendering
@@ -875,7 +874,6 @@ void VR_RenderStereo ()
 		}
 
 		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
-
 	}
 	VectorCopy(viewOrig, cl.refdef.vieworg);
 

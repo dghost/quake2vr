@@ -266,7 +266,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 		OVR_CalculateState(&currentState);
 
-		ovrScale = (r_antialias->value == ANTIALIAS_4X_FSAA ? 2.0 : 1.0);
+		ovrScale = (r_antialias->value == ANTIALIAS_4X_FSAA ? 2.0 : r_antialias->value == ANTIALIAS_FXAA_FSS ? 1.3333 : 1.0);
 		ovrScale *= vr_ovr_supersample->value;
 		for (i = 0; i < 2; i++)
 		{

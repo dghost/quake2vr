@@ -36,6 +36,10 @@ void R_AntialiasStartFrame (void)
 			offscreenBounds.width = screenBounds.width * 2;
 			offscreenBounds.height = screenBounds.height * 2;
 			break;
+		case ANTIALIAS_FXAA_FSS:
+			offscreenBounds.width = screenBounds.width * 1.3333;
+			offscreenBounds.height = screenBounds.height * 1.3333;
+			break;
 		default:
 		case ANTIALIAS_NONE:
 			offscreenBounds.width = screenBounds.width;

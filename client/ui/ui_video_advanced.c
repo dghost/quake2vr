@@ -101,8 +101,8 @@ static void Video_Advanced_MenuSetValues ( void )
 	Cvar_SetValue( "r_shadows", ClampCvar( 0, 3, Cvar_VariableValue("r_shadows") ) );
 	s_shadows_box.curvalue	= Cvar_VariableValue("r_shadows");
 
-	Cvar_SetValue( "r_blur", ClampCvar( 0, 8, Cvar_VariableValue("r_blur")));
-	s_blur_slider.curvalue = Cvar_VariableValue("r_blur");
+	Cvar_SetValue( "r_blur_radius", ClampCvar( 0, 8, Cvar_VariableValue("r_blur_radius")));
+	s_blur_slider.curvalue = Cvar_VariableValue("r_blur_radius");
 
 	Cvar_SetValue( "r_screenshot_jpeg", ClampCvar( 0, 1, Cvar_VariableValue("r_screenshot_jpeg") ) );
 	s_screenshotjpeg_box.curvalue = Cvar_VariableValue("r_screenshot_jpeg");
@@ -191,7 +191,7 @@ static void SaveshotSizeCallback ( void *unused )
 
 static void BlurCallback( void *unused )
 {
-	Cvar_SetValue( "r_blur", s_blur_slider.curvalue);
+	Cvar_SetValue( "r_blur_radius", s_blur_slider.curvalue);
 }
 
 static void AdvancedMenuApplyChanges ( void *unused )

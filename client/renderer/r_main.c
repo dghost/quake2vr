@@ -375,17 +375,6 @@ void R_SetupFrame (void)
 	c_brush_polys = 0;
 	c_alias_polys = 0;
 	c_part_polys = 0;
-
-	// clear out the portion of the screen that the NOWORLDMODEL defines
-	/*if ( r_newrefdef.rdflags & RDF_NOWORLDMODEL )
-	{
-		GL_Enable( GL_SCISSOR_TEST );
-		GL_ClearColor( 0.3, 0.3, 0.3, 1 );
-		glScissor( r_newrefdef.x, vid.height - r_newrefdef.height - r_newrefdef.y, r_newrefdef.width, r_newrefdef.height );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		GL_SetDefaultClearColor();
-		GL_Disable( GL_SCISSOR_TEST );
-	}*/
 }
 
 void R_SetProjection(eyeScaleOffset_t scaleOffset)
@@ -415,11 +404,8 @@ void R_SetProjection(eyeScaleOffset_t scaleOffset)
 	//
 	// set up projection matrix
 	//
-	//	yfov = 2*atan((float)r_newrefdef.height/r_newrefdef.width)*180/M_PI;
 
-	//Knightmare- 12/26/2001- increase back clipping plane distance
 	R_PerspectiveScale(scaleOffset, 1, farz); //was 4096
-	//end Knightmare
 }
 
 /*
@@ -431,10 +417,8 @@ void R_SetupGL(void)
 {
 	//	float	yfov;
 	vec3_t vieworigin;
-	//Knightmare- variable sky range
-	vec_t temp[4][4], fin[4][4];
 
-	//end Knightmare
+	vec_t temp[4][4], fin[4][4];
 
 	// Knightmare- update r_modulate in real time
 	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
@@ -447,10 +431,6 @@ void R_SetupGL(void)
 
 		r_modulate->modified = 0;
 	}
-
-
-
-	GL_LoadIdentity(GL_MODELVIEW);
 
 	RotationMatrix (-r_newrefdef.viewangles[2],  1, 0, 0, temp);
 	MatrixMultiply (temp,glState.axisRotation,fin);
@@ -466,11 +446,6 @@ void R_SetupGL(void)
 	GL_LoadMatrix(GL_MODELVIEW, fin);
 
 	GL_CullFace(GL_FRONT);
-
-
-
-	
-	//glGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
 
 	//
 	// set drawing parms
@@ -703,6 +678,7 @@ void R_RenderView (refdef_t *fd)
 		return;
 
 	r_newrefdef = *fd;
+
 	// build the transformation matrix for the given view angles
 	VectorCopy (r_newrefdef.vieworg, r_origin);
 
@@ -811,50 +787,57 @@ extern cvar_t *cl_paused;
 void R_DrawCameraEffect ();
 void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect)
 {
-	vec3_t tmp;
 	unsigned int oldWidth, oldHeight;
 	if (r_norefresh->value)
 		return;
 
 	r_newrefdef = *fd;
 
+	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
+			VID_Error (ERR_DROP, "R_RenderView: NULL worldmodel");
+
 	AngleVectors (r_newrefdef.viewangles, vpn, vright, vup);
 
-	VectorScale( vright, parameters.viewOffset[0] , tmp );
-	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+	if (!( r_newrefdef.rdflags & RDF_NOWORLDMODEL ))
+	{
+		vec3_t tmp;
 
-	VectorScale( vpn, parameters.viewOffset[1], tmp );
-	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+		VectorScale( vright, parameters.viewOffset[0] , tmp );
+		VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
 
-	VectorScale(vup, parameters.viewOffset[2] , tmp );
-	VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
-	
+		VectorScale( vpn, parameters.viewOffset[1], tmp );
+		VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+
+		VectorScale(vup, parameters.viewOffset[2] , tmp );
+		VectorAdd( r_newrefdef.vieworg, tmp, r_newrefdef.vieworg );
+	}
+
 	VectorCopy (r_newrefdef.vieworg, r_origin);
-	
+
+
 	oldWidth = vid.width;
 	oldHeight = vid.height;
-
-	r_newrefdef.width = vid.width = destination->width;
-	r_newrefdef.width = vid.height = destination->height;
-	
+		
 	R_BindFBO(destination);
 
-	if (viewRect)
-	{
-		GLint x,x2,y,y2;
-		GLsizei w,h;
+	if (viewRect) {
+		int32_t		x, x2, y2, y, w, h;
 
-		// sanity check the view rectangle
-		x = floorf(viewRect->x * vid.width / vid.width);
-		x2 = ceilf((viewRect->x + viewRect->width) * vid.width / vid.width);
-		y = floorf(vid.height - viewRect->y * vid.height / vid.height);
-		y2 = ceilf(vid.height - (viewRect->y + viewRect->height) * vid.height / vid.height);
+		r_newrefdef.x = viewRect->x;
+		r_newrefdef.y = viewRect->y;
+		r_newrefdef.width = viewRect->width;
+		r_newrefdef.height = viewRect->height;
+		x = floorf(r_newrefdef.x * vid.width / vid.width);
+		x2 = ceilf((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
+		y = floorf(vid.height - r_newrefdef.y * vid.height / vid.height);
+		y2 = ceilf(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
 
 		w = x2 - x;
 		h = y - y2;
 
-		glViewport(x, y2, w, h);	
+		glViewport(x, y2, w, h);
 	}
+
 
 	R_SetupGL ();
 	R_SetProjection(parameters.projection);
@@ -864,13 +847,18 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
 	{
 		qboolean fog_on = false;
+
+		// re-execute these, because we're not rendering the world
+		//R_PushDlights ();
+		R_SetFrustum ();
+		R_MarkLeaves ();	
+		
 		//Knightmare- no fogging on menu/hud models
 		if (glIsEnabled(GL_FOG)) //check if fog is enabled
 		{
 			fog_on = true;
 			glDisable(GL_FOG); //if so, disable it
 		}
-
 		//R_DrawAllDecals();
 		R_DrawAllEntities(false);
 		R_DrawAllParticles();
@@ -921,20 +909,21 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
+
+		//GL_Disable(GL_ALPHA_TEST);
+
+		R_FXAAFBO(destination);
+
 		GL_MBind(0,destination->texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		GL_MBind(0,0);
+
+
 		if (r_bloom->value)
 		{
 			R_BloomFBO(destination);
 		}
-		
-
-
-	//	R_SetupGL ();
-	//	R_Flash();
-
 
 		if (r_polyblend->value && v_blend[3] > 0.0)
 		{
@@ -1068,13 +1057,13 @@ void R_RenderFrame (refdef_t *fd)
 {
 	eye_param_t params;
 	vrect_t rect;
-	
+	memset(&params,0,sizeof(eye_param_t));
 	params.projection.y.scale = 1.0f / tanf((fd->fov_y / 2.0f) * M_PI / 180);
 	params.projection.y.offset = 0.0;
 	params.projection.x.scale = 1.0f / tanf((fd->fov_x / 2.0f) * M_PI / 180);
 	params.projection.x.offset = 0.0;
 
-	VectorSet(params.viewOffset,0,0,0);
+//	VectorSet(params.viewOffset,0,0,0);
 
 	rect.x = fd->x;
 	rect.y = fd->y;
@@ -1225,7 +1214,7 @@ void R_Register (void)
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
-	vid_brightness = Cvar_Get("vid_brightness","0.5",CVAR_ARCHIVE);
+	vid_brightness = Cvar_Get("vid_brightness","0.4",CVAR_ARCHIVE);
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
@@ -1858,11 +1847,11 @@ void R_BeginFrame()
 		
 		if (glConfig.srgb_framebuffer && vid_srgb->value)
 		{
-			// compress gamma from 0.5 - 1.3
-			vid_gamma = bright * 0.8  + 0.5;
+			// compress gamma from 0.5 - 1.2
+			vid_gamma = bright * 0.6  + 0.5;
 		} else {
-			// expand gamma from 1.0 to 2.8
-			vid_gamma = bright * 1.9  + 1.0;
+			// expand gamma from 1.0 to 2.5
+			vid_gamma = bright * 1.3  + 1.0;
 		}
 
 	}

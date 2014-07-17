@@ -157,8 +157,14 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_waterquality");
 	Cvar_SetToDefault ("r_waterwave");
 	Cvar_SetToDefault ("r_blur");
+	Cvar_SetToDefault ("r_blur_radius");
+	Cvar_SetToDefault ("r_blur_texscale");
 	Cvar_SetToDefault ("r_particle_overdraw");
 	Cvar_SetToDefault ("r_bloom");
+	Cvar_SetToDefault ("r_bloom_falloff");
+	Cvar_SetToDefault ("r_bloom_minthreshold");
+	Cvar_SetToDefault ("r_bloom_radius");
+	Cvar_SetToDefault ("r_bloom_texscale");
 	Cvar_SetToDefault ("r_model_shading");
 	Cvar_SetToDefault ("r_shadows");
 	Cvar_SetToDefault ("r_shelltype");
@@ -461,6 +467,8 @@ void Menu_Video_Init (void)
 	{
 		"off",
 		"4x SSAA",
+		"FXAA",
+		"FXAA FSS",
 		0
 	};
 

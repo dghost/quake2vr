@@ -1015,6 +1015,8 @@ r_antialias.c
 enum {
 	ANTIALIAS_NONE,
 	ANTIALIAS_4X_FSAA,
+	ANTIALIAS_FXAA,
+	ANTIALIAS_FXAA_FSS,
 	NUM_ANTIALIAS_MODES
 } r_antialias_t;
 
@@ -1045,6 +1047,7 @@ void R_SetupBlit();
 void R_TeardownBlit();
 void R_BlitTextureToScreen(GLuint texture);
 void R_BlitWithGamma(GLuint texture, float gamma);
+void R_FXAAFBO(fbo_t *source);
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
 void R_BloomFBO(fbo_t *source);
 void R_PostProcessInit();

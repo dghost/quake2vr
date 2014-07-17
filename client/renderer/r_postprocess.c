@@ -34,9 +34,11 @@ cvar_t	*r_bloom_falloff;
 
 static fbo_t pongFBO;
 static fbo_t pingFBO;
+static fbo_t fxaaFBO;
 static qboolean blitSupported;
 static qboolean blurSupported;
 static qboolean bloomSupported;
+static qboolean fxaaSupported;
 
 /*
 =============
@@ -126,6 +128,12 @@ typedef struct {
 typedef struct {
 	r_shaderobject_t *shader;
 	GLint scale_uniform;
+	GLint res_uniform;
+} r_fxaashader_t;
+
+typedef struct {
+	r_shaderobject_t *shader;
+	GLint scale_uniform;
 	GLint brightpass_uniform;
 	GLint conversion_uniform;
 	GLint res_uniform;
@@ -141,6 +149,7 @@ r_bloomshader_t brightPass;
 r_blitshader_t passthrough;
 r_blitshader_t colorBlend;
 r_blitshader_t gammaAdjust;
+r_fxaashader_t fxaa;
 
 r_attrib_t postProcess[] = {
 	{"Position",0},
@@ -213,6 +222,15 @@ static r_shaderobject_t gammaAdjust_object = {
 	postProcess
 };
 
+static r_shaderobject_t FXAA_object = {
+	0,
+	// vertex shader (identity)
+	"quad.vert",
+	// fragment shader
+	"fxaa.frag",
+	postProcess
+};
+
 static qboolean setupForBlit = false;
 static qboolean wasSetupForQuad = false;
 void R_SetupBlit()
@@ -262,6 +280,55 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 }
 
 
+void R_FXAAFBO(fbo_t *source)
+{
+	if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
+	{
+		fbo_t *currentFBO = glState.currentFBO;
+
+		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
+		{
+			R_ResizeFBO(source->height ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
+		}
+
+		GL_ClearColor(0,0,0,0);
+		R_SetupQuadState();
+
+		GL_LoadIdentity(GL_PROJECTION);
+		GL_LoadIdentity(GL_MODELVIEW);
+		GL_Disable(GL_DEPTH_TEST);
+
+
+		R_BindFBO(&fxaaFBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		GL_MBind(0,source->texture);		
+
+		glUseProgram(passthrough.shader->program);
+		glUniform2f(passthrough.scale_uniform,1.0,1.0);
+
+		R_DrawQuad();
+
+
+		R_BindFBO(source);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		GL_MBind(0,fxaaFBO.texture);
+
+		glUseProgram(fxaa.shader->program);
+		glUniform2f(fxaa.res_uniform,source->width,source->height);
+		glUniform2f(fxaa.scale_uniform,1.0,1.0);
+
+		R_DrawQuad();
+
+		glUseProgram(0);
+		R_TeardownQuadState();
+		GL_MBind(0,0);
+
+		GL_Enable(GL_DEPTH_TEST);
+	}
+}
+
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 {
 	if (blurSupported && r_blur->value && blurScale > 0.0)
@@ -279,6 +346,26 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 
 		if ((int) r_antialias->value == ANTIALIAS_4X_FSAA)
 			scale /= 2.0;
+		else if ((int) r_antialias->value == ANTIALIAS_FXAA_FSS)
+			scale /= 1.3333;
+
+		size *= scale;
+
+		for (i = 0 ; i < 5 ; i++)
+		{
+
+			float two_oSq = 2.0 * size;
+			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
+
+//			if (temp > 1)
+//				temp = 1;
+			if (temp < 0)
+				temp = 0;
+			weights[i] = temp;
+		}
+
+		if (weights[0] >= 1)
+			return;
 
 		width = (source->width * scale);
 		height = (source->height * scale);
@@ -292,24 +379,7 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 		xCoord = width / (float) pongFBO.width;
 		yCoord = height / (float) pongFBO.height;
 
-		for (i = 0 ; i < 5 ; i++)
-		{
-
-			float two_oSq = 2.0 * size;
-			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
-
-			if (temp > 1)
-				temp = 1;
-			else if (temp < 0)
-				temp = 0;
-			weights[i] = temp;
-		}
-
-		if (weights[0] == 1)
-			return;
-
 		//		Com_Printf("Weights: %f %f %f %f %f\n",weights[0],weights[1],weights[2],weights[3],weights[4]);
-
 
 		GL_ClearColor(0,0,0,0);
 		GL_LoadIdentity(GL_PROJECTION);
@@ -382,6 +452,26 @@ void R_BloomFBO(fbo_t *source)
 
 		if ((int) r_antialias->value == ANTIALIAS_4X_FSAA)
 			scale /= 2.0;
+		else if ((int) r_antialias->value == ANTIALIAS_FXAA_FSS)
+			scale /= 1.3333;
+
+		size *= scale;
+
+		for (i = 0 ; i < 5 ; i++)
+		{
+
+			float two_oSq = 2.0 * size;
+			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
+
+//			if (temp > 1)
+//				temp = 1;
+			if (temp < 0)
+				temp = 0;
+			weights[i] = temp;
+		}
+
+		if (weights[0] >= 1)
+			return;
 
 		width = (source->width * scale);
 		height = (source->height * scale);
@@ -394,25 +484,6 @@ void R_BloomFBO(fbo_t *source)
 
 		xCoord = width / (float) pongFBO.width;
 		yCoord = height / (float) pongFBO.height;
-
-		for (i = 0 ; i < 5 ; i++)
-		{
-
-			float two_oSq = 2.0 * size;
-			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
-
-			if (temp > 1)
-				temp = 1;
-			else if (temp < 0)
-				temp = 0;
-			weights[i] = temp;
-		}
-
-		if (weights[0] == 1)
-			return;
-
-		//		Com_Printf("Weights: %f %f %f %f %f\n",weights[0],weights[1],weights[2],weights[3],weights[4]);
-
 
 		GL_ClearColor(0,0,0,0);
 		R_SetupQuadState();
@@ -532,11 +603,11 @@ qboolean R_InitPostsprocessShaders()
 		success = false;
 	}
 
-	if (success)
+	blitSupported = success;
+
+	if (blitSupported)
 	{
 		Com_Printf("success!\n");
-		blitSupported = true;
-
 	} else {
 		Com_Printf("failed!\n");
 	}
@@ -546,7 +617,37 @@ qboolean R_InitPostsprocessShaders()
 	{
 		if (blitSupported)
 		{
+			Com_Printf("...loading FXAA shader: ");
+			success = true;
+			if (R_CompileShaderFromFiles(&FXAA_object))
+			{
+				GLint texloc;
+				fxaa.shader = &FXAA_object;
+				glUseProgram(fxaa.shader->program);
+				texloc = glGetUniformLocation(fxaa.shader->program,"Texture0");
+				glUniform1i(texloc,0);
+				fxaa.res_uniform = glGetUniformLocation(fxaa.shader->program,"buffersize");
+				fxaa.scale_uniform = glGetUniformLocation(fxaa.shader->program,"texScale");
+				glUniform2f(fxaa.scale_uniform,1.0,1.0);	
+				glUseProgram(0);
+				success = success && true;
+			}
+			else {
+				success = false;
+			}
+
+			fxaaSupported = success;
+			if (fxaaSupported)
+			{
+				Com_Printf("success!\n");
+			} else {
+				Com_Printf("failed!\n");
+			}
+
+
+
 			Com_Printf("...loading blur shaders: ");
+			success = true;
 			if (R_CompileShaderFromFiles(&blurX_object))
 			{
 				GLint texloc;
@@ -582,18 +683,17 @@ qboolean R_InitPostsprocessShaders()
 				success = false;
 			}
 
-			if (success)
+			blurSupported = success;
+			if (blurSupported)
 			{
 				Com_Printf("success!\n");
-				blurSupported = true;
-
 			} else {
 				Com_Printf("failed!\n");
 			}
 
 
 			Com_Printf("...loading bloom shaders: ");
-
+			success = true;
 
 			if (R_CompileShaderFromFiles(&bloomPass_object))
 			{
@@ -638,22 +738,15 @@ qboolean R_InitPostsprocessShaders()
 				success = false;
 			}
 
-			if (success)
-				bloomSupported = true;
-
-			if (success)
+			bloomSupported = success;
+			if (bloomSupported)
 			{
 				Com_Printf("success!\n");
-				bloomSupported = true;
-
 			} else {
 				Com_Printf("failed!\n");
 			}
+			success = bloomSupported && blurSupported && fxaaSupported;
 		}
-	} else {
-		success = false;
-		Com_Printf("success!\n");
-
 	}
 	return success;
 }
@@ -666,9 +759,13 @@ void R_TeardownPostprocessShaders()
 	R_DelShaderProgram(&bloomPass_object);
 	R_DelShaderProgram(&passthrough_object);
 	R_DelShaderProgram(&colorBlend_object);
+	R_DelShaderProgram(&gammaAdjust_object);
+	R_DelShaderProgram(&FXAA_object);
+
 	blitSupported = false;
 	blurSupported = false;
 	bloomSupported = false;
+	fxaaSupported = false;
 }
 
 static qboolean firstInit = false;
@@ -679,19 +776,19 @@ void R_PostProcessInit()
 		firstInit = true;
 		r_flashblur = Cvar_Get("r_flashblur","1",CVAR_ARCHIVE);
 		r_bloom_texscale = Cvar_Get("r_bloom_texscale","0.5",CVAR_ARCHIVE);
-		r_bloom_radius = Cvar_Get("r_bloom_radius","5.0",CVAR_ARCHIVE);
+		r_bloom_radius = Cvar_Get("r_bloom_radius","15.0",CVAR_ARCHIVE);
 		r_bloom_minthreshold = Cvar_Get( "r_bloom_minthreshold", "0.15", CVAR_ARCHIVE );	// was 0.08
 		r_bloom_falloff = Cvar_Get("r_bloom_falloff","1.5",CVAR_ARCHIVE);
-		r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
+		r_bloom = Cvar_Get( "r_bloom", "1", CVAR_ARCHIVE );	// BLOOMS
 		r_blur_texscale = Cvar_Get("r_blur_texscale","1.0",CVAR_ARCHIVE);
 		r_blur_radius = Cvar_Get("r_blur_radius","5.0",CVAR_ARCHIVE);
-		r_blur = Cvar_Get("r_blur", "5", CVAR_ARCHIVE );
+		r_blur = Cvar_Get("r_blur", "1", CVAR_ARCHIVE );
 	}
 	if (glConfig.ext_framebuffer_object && glConfig.arb_vertex_buffer_object)
 	{
 		R_InitFBO(&pongFBO);
 		R_InitFBO(&pingFBO);
-
+		R_InitFBO(&fxaaFBO);
 		R_InitBuffer(&quad);
 		R_CreateBuffer(&quad, GL_ARRAY_BUFFER,GL_STATIC_DRAW);
 		R_BindBuffer(&quad);
@@ -705,6 +802,7 @@ void R_PostProcessShutdown()
 {
 	R_DelFBO(&pongFBO);
 	R_DelFBO(&pingFBO);
+	R_DelFBO(&fxaaFBO);
 	R_DelBuffer(&quad);
 	R_TeardownPostprocessShaders();
 }
