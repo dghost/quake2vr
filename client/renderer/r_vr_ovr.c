@@ -37,11 +37,15 @@ extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
 static vr_param_t currentState;
 
 // this should probably be rearranged
-static fbo_t eyeFBO[2];
-static vbo_t eyes[2];
-static ovrSizei renderTargets[2];
-static ovrFovPort eyeFov[2]; 
-static ovrVector2f UVScaleOffset[2][2];
+typedef struct {
+	fbo_t eyeFBO;
+	vbo_t eye;
+	ovrSizei renderTarget;
+	ovrFovPort eyeFov; 
+	ovrVector2f UVScaleOffset[2];
+} ovr_eye_info_t;
+
+static ovr_eye_info_t renderInfo[2];
 
 static qboolean useChroma;
 
@@ -170,21 +174,21 @@ void OVR_CalculateState(vr_param_t *state)
 
 		if (vr_ovr_maxfov->value)
 		{
-			eyeFov[eye] = hmdDesc.MaxEyeFov[eye];
+			renderInfo[eye].eyeFov = hmdDesc.MaxEyeFov[eye];
 		} else
 		{
-			eyeFov[eye] = hmdDesc.DefaultEyeFov[eye];
+			renderInfo[eye].eyeFov = hmdDesc.DefaultEyeFov[eye];
 		}
 
-		ovrState.eyeFBO[eye] = &eyeFBO[eye];
+		ovrState.eyeFBO[eye] = &renderInfo[eye].eyeFBO;
 
-		ovrState.renderParams[eye].projection.x.scale = 2.0f / ( eyeFov[eye].LeftTan + eyeFov[eye].RightTan );
-		ovrState.renderParams[eye].projection.x.offset = ( eyeFov[eye].LeftTan - eyeFov[eye].RightTan ) * ovrState.renderParams[eye].projection.x.scale * 0.5f;
-		ovrState.renderParams[eye].projection.y.scale = 2.0f / ( eyeFov[eye].UpTan + eyeFov[eye].DownTan );
-		ovrState.renderParams[eye].projection.y.offset = ( eyeFov[eye].UpTan - eyeFov[eye].DownTan ) * ovrState.renderParams[eye].projection.y.scale * 0.5f;
+		ovrState.renderParams[eye].projection.x.scale = 2.0f / ( renderInfo[eye].eyeFov.LeftTan + renderInfo[eye].eyeFov.RightTan );
+		ovrState.renderParams[eye].projection.x.offset = ( renderInfo[eye].eyeFov.LeftTan - renderInfo[eye].eyeFov.RightTan ) * ovrState.renderParams[eye].projection.x.scale * 0.5f;
+		ovrState.renderParams[eye].projection.y.scale = 2.0f / ( renderInfo[eye].eyeFov.UpTan + renderInfo[eye].eyeFov.DownTan );
+		ovrState.renderParams[eye].projection.y.offset = ( renderInfo[eye].eyeFov.UpTan - renderInfo[eye].eyeFov.DownTan ) * ovrState.renderParams[eye].projection.y.scale * 0.5f;
 
 		// set up rendering info
-		eyeDesc[eye] = ovrHmd_GetRenderDesc(hmd,(ovrEyeType) eye,eyeFov[eye]);
+		eyeDesc[eye] = ovrHmd_GetRenderDesc(hmd,(ovrEyeType) eye,renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
 			-eyeDesc[eye].ViewAdjust.x,
@@ -209,17 +213,17 @@ void OVR_CalculateState(vr_param_t *state)
 			v++; ov++;
 		}
 
-		R_BindIVBO(&eyes[eye],NULL,0);
-		R_VertexData(&eyes[eye],sizeof(ovr_vert_t) * meshData.VertexCount, mesh);
-		R_IndexData(&eyes[eye],GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(unsigned short) * meshData.IndexCount,meshData.pIndexData);
+		R_BindIVBO(&renderInfo[eye].eye,NULL,0);
+		R_VertexData(&renderInfo[eye].eye,sizeof(ovr_vert_t) * meshData.VertexCount, mesh);
+		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(unsigned short) * meshData.IndexCount,meshData.pIndexData);
 		R_ReleaseIVBO();
 		free(mesh);
 		ovrHmd_DestroyDistortionMesh( &meshData );
 	}
 	{
 		// calculate this to give the engine a rough idea of the fov
-		float combinedTanHalfFovHorizontal = max ( max ( eyeFov[0].LeftTan, eyeFov[0].RightTan ), max ( eyeFov[1].LeftTan, eyeFov[1].RightTan ) );
-		float combinedTanHalfFovVertical = max ( max ( eyeFov[0].UpTan, eyeFov[0].DownTan ), max ( eyeFov[1].UpTan, eyeFov[1].DownTan ) );
+		float combinedTanHalfFovHorizontal = max ( max ( renderInfo[0].eyeFov.LeftTan, renderInfo[0].eyeFov.RightTan ), max ( renderInfo[1].eyeFov.LeftTan, renderInfo[1].eyeFov.RightTan ) );
+		float combinedTanHalfFovVertical = max ( max ( renderInfo[0].eyeFov.UpTan, renderInfo[0].eyeFov.DownTan ), max ( renderInfo[1].eyeFov.UpTan, renderInfo[1].eyeFov.DownTan ) );
 		float horizontalFullFovInRadians = 2.0f * atanf ( combinedTanHalfFovHorizontal ); 
 		float fovX = RAD2DEG(horizontalFullFovInRadians);
 		float fovY = RAD2DEG(2.0 * atanf(combinedTanHalfFovVertical));
@@ -229,7 +233,6 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrState.pixelScale = ovrScale * vid.width / (float) hmdDesc.Resolution.w;
 	}
 
-	ovrState.eyeFBO[1] = &eyeFBO[1];
 	*state = ovrState;
 }
 
@@ -271,15 +274,15 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		for (i = 0; i < 2; i++)
 		{
 			ovrRecti viewport = {0,0, 0,0};
-			renderTargets[i] = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, eyeFov[i], ovrScale);
-			viewport.Size.w = renderTargets[i].w;
-			viewport.Size.h = renderTargets[i].h;
-			ovrHmd_GetRenderScaleAndOffset(eyeFov[i], renderTargets[i], viewport, (ovrVector2f*) UVScaleOffset[i]);
+			renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
+			viewport.Size.w = renderInfo[i].renderTarget.w;
+			viewport.Size.h = renderInfo[i].renderTarget.h;
+			ovrHmd_GetRenderScaleAndOffset(renderInfo[i].eyeFov, renderInfo[i].renderTarget, viewport, (ovrVector2f*) renderInfo[i].UVScaleOffset);
 
-			if (renderTargets[i].w != eyeFBO[i].width || renderTargets[i].h != eyeFBO[i].height)
+			if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
 			{
-				Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderTargets[i].w, renderTargets[i].h);
-				R_ResizeFBO(renderTargets[i].w, renderTargets[i].h, 1, GL_RGBA8, &eyeFBO[i]);
+				Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
+				R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
 			}
 
 		}
@@ -326,12 +329,14 @@ void OVR_Present(qboolean loading)
 		{
 			// hook for rendering in different order
 			int eye = i;
+			GL_MBind(0,renderInfo[eye].eyeFBO.texture);
+			R_BindIVBO(&renderInfo[eye].eye,distortion_attribs,5);
 
 			glUniform2f(currentShader->uniform.EyeToSourceUVScale,
-				UVScaleOffset[eye][0].x, UVScaleOffset[eye][0].y);
+				renderInfo[eye].UVScaleOffset[0].x, renderInfo[eye].UVScaleOffset[0].y);
 
 			glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
-				UVScaleOffset[eye][1].x, UVScaleOffset[eye][1].y);
+				renderInfo[eye].UVScaleOffset[1].x, renderInfo[eye].UVScaleOffset[1].y);
 
 			if (warp)
 			{
@@ -340,10 +345,8 @@ void OVR_Present(qboolean loading)
 				glUniformMatrix4fv(currentShader->uniform.EyeRotationStart,1,GL_TRUE,(GLfloat *) timeWarpMatrices[0].M);
 				glUniformMatrix4fv(currentShader->uniform.EyeRotationEnd,1,GL_TRUE,(GLfloat *) timeWarpMatrices[1].M);
 			}
-			GL_MBind(0,eyeFBO[eye].texture);
-			R_BindIVBO(&eyes[eye],distortion_attribs,5);
 
-			R_DrawIVBO(&eyes[eye]);
+			R_DrawIVBO(&renderInfo[eye].eye);
 			R_ReleaseIVBO();
 		}
 
@@ -392,13 +395,13 @@ int32_t OVR_Enable()
 {
 	if (!glConfig.arb_texture_float)
 		return 0;
-	if (eyeFBO[0].valid)
-		R_DelFBO(&eyeFBO[0]);
-	if (eyeFBO[1].valid)
-		R_DelFBO(&eyeFBO[1]);
+	if (renderInfo[0].eyeFBO.valid)
+		R_DelFBO(&renderInfo[0].eyeFBO);
+	if (renderInfo[1].eyeFBO.valid)
+		R_DelFBO(&renderInfo[1].eyeFBO);
 
-	R_CreateIVBO(&eyes[0],GL_STATIC_DRAW);
-	R_CreateIVBO(&eyes[1],GL_STATIC_DRAW);
+	R_CreateIVBO(&renderInfo[0].eye,GL_STATIC_DRAW);
+	R_CreateIVBO(&renderInfo[1].eye,GL_STATIC_DRAW);
 
 	//VR_FrameStart(1);
 
@@ -420,20 +423,20 @@ void OVR_Disable()
 	R_DelShaderProgram(&ovr_shader_warp);
 	R_DelShaderProgram(&ovr_shader_chrm_warp);
 
-	if (eyeFBO[0].valid)
-		R_DelFBO(&eyeFBO[0]);
-	if (eyeFBO[1].valid)
-		R_DelFBO(&eyeFBO[1]);
+	if (renderInfo[0].eyeFBO.valid)
+		R_DelFBO(&renderInfo[0].eyeFBO);
+	if (renderInfo[1].eyeFBO.valid)
+		R_DelFBO(&renderInfo[1].eyeFBO);
 
-	R_DelIVBO(&eyes[0]);
-	R_DelIVBO(&eyes[1]);
+	R_DelIVBO(&renderInfo[0].eye);
+	R_DelIVBO(&renderInfo[1].eye);
 }
 
 int32_t OVR_Init()
 {
-	R_InitFBO(&eyeFBO[0]);
-	R_InitFBO(&eyeFBO[1]);
-	R_InitIVBO(&eyes[0]);
-	R_InitIVBO(&eyes[1]);
+	R_InitFBO(&renderInfo[0].eyeFBO);
+	R_InitFBO(&renderInfo[1].eyeFBO);
+	R_InitIVBO(&renderInfo[0].eye);
+	R_InitIVBO(&renderInfo[1].eye);
 	return true;
 }
