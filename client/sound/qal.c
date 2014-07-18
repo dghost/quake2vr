@@ -35,7 +35,7 @@
 
 #ifdef USE_OPENAL
 
-#define DEFAULT_OPENAL_DRIVER "openal-mob"
+#define DEFAULT_OPENAL_DRIVER "oal_mob"
 
 #ifdef _WIN32
 #define DEFAULT_LIBRARY_EXTENSION ".dll"
