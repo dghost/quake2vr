@@ -1869,6 +1869,7 @@ void R_BeginFrame()
 		//R_VR_BindView(EYE_HUD);	
 	} else {
 		R_AntialiasSetFBOSize(&viewFBO);
+		R_ClearFBO(&viewFBO);
 	}
 
 	//

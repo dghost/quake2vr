@@ -2298,9 +2298,7 @@ void SCR_Draw2DintoFBO(fbo_t *destination)
 
 			// clear background around sized down view
 			SCR_TileClear ();
-	
 		}
-
 
 		R_DrawSpeeds(destination);
 
@@ -2356,31 +2354,17 @@ text to the screen.
 void VR_UpdateScreen (void)
 {
 	fbo_t *hud = R_VR_GetFBOForEye(EYE_HUD);
-	fbo_t *fbo;
 
 	R_BeginFrame( );
 
-
-	
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
 		VR_RenderStereo();
 	} 
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_ClearFBO(hud);
-	GL_SetDefaultClearColor();
+
+	// draw into the hud
 	SCR_Draw2DintoFBO(hud);	
 	
-	/*
-	else {
-		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-		fbo = R_VR_GetFBOForEye(EYE_RIGHT);
-		R_ClearFBO(fbo);
-		fbo = R_VR_GetFBOForEye(EYE_LEFT);
-		R_ClearFBO(fbo);
-		GL_SetDefaultClearColor();		
-	}*/
-
 	R_EndFrame();
 }
 
@@ -2424,9 +2408,12 @@ void SCR_UpdateScreen (void)
 	R_BeginFrame( );
 
 	view = R_GetViewFBO();
+
+	/*
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	R_ClearFBO(view);
 	GL_SetDefaultClearColor();		
+	*/
 
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
@@ -2477,8 +2464,6 @@ void SCR_UpdateScreenOld (void)
 
 		if (cls.consoleActive)
 			Con_DrawConsole (0.5, false);
-
-		//NO FULLSCREEN CONSOLE!!!
 		
 		R_EndFrame();
 		return;

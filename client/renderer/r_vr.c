@@ -247,9 +247,15 @@ void R_VR_StartFrame()
 
 
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_ClearFBO(vrState.eyeFBO[0]);
-	R_ClearFBO(vrState.eyeFBO[1]);
-	R_ClearFBO(&offscreen);
+	R_BindFBO(vrState.eyeFBO[0]);
+	R_Clear();
+	R_BindFBO(vrState.eyeFBO[1]);
+	R_Clear();
+	R_BindFBO(&hud);
+	R_Clear();
+	R_BindFBO(&offscreen);
+	R_Clear();
+	R_BindFBO(&screenFBO);
 	GL_SetDefaultClearColor();		
 
 	hudStale = 1;
@@ -263,13 +269,15 @@ void R_VR_EndFrame()
 	{
 		GL_Disable(GL_DEPTH_TEST);
 
+		//draw the HUD into specific views
 		R_VR_DrawHud();
 
+		// draw the HUD 
 		R_BindFBO(&offscreen);
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
-	// tell the HMD renderer to draw composited scene
+		// tell the HMD renderer to draw composited scene
 		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
 	}
 }
@@ -361,6 +369,7 @@ void R_VR_DrawHud()
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState (GL_VERTEX_ARRAY);
 	glDisableClientState (GL_COLOR_ARRAY);
+
 	R_BindIVBO(&hudVBO,NULL,0);
 	glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
 	glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
