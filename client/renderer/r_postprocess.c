@@ -256,24 +256,25 @@ void R_TeardownBlit()
 void R_BlitTextureToScreen(GLuint texture)
 {
 	qboolean alreadySetup = setupForBlit;
+	GL_MBind(0,texture);
 
 	if (!alreadySetup)
 		R_SetupBlit();
-	GL_MBind(0,texture);
 	R_DrawQuad();
 	GL_MBind(0,0);
 	if (!alreadySetup)
 		R_TeardownBlit();
+
 }
 
 
 void R_BlitWithGamma(GLuint texture, float gamma)
 {
+	GL_MBind(0,texture);
 	glUseProgram(gammaAdjust.shader->program);
 	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
 	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);		
 	
-	GL_MBind(0,texture);
 	R_DrawQuad();
 	GL_MBind(0,0);
 	glUseProgram(0);
@@ -288,42 +289,39 @@ void R_FXAAFBO(fbo_t *source)
 
 		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
 		{
-			R_ResizeFBO(source->height ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
+			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
 		}
-
-		GL_ClearColor(0,0,0,0);
-		R_SetupQuadState();
 
 		GL_LoadIdentity(GL_PROJECTION);
 		GL_LoadIdentity(GL_MODELVIEW);
 		GL_Disable(GL_DEPTH_TEST);
 
-
-		R_BindFBO(&fxaaFBO);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		GL_MBind(0,source->texture);		
-
-		glUseProgram(passthrough.shader->program);
-		glUniform2f(passthrough.scale_uniform,1.0,1.0);
-
-		R_DrawQuad();
-
-
-		R_BindFBO(source);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		GL_MBind(0,fxaaFBO.texture);
-
 		glUseProgram(fxaa.shader->program);
 		glUniform2f(fxaa.res_uniform,source->width,source->height);
 		glUniform2f(fxaa.scale_uniform,1.0,1.0);
 
+		R_BindFBO(&fxaaFBO);
+		GL_ClearColor(0,0,0,0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		R_SetupQuadState();
+
 		R_DrawQuad();
 
-		glUseProgram(0);
-		R_TeardownQuadState();
+		glUseProgram(passthrough.shader->program);
+		glUniform2f(passthrough.scale_uniform,1.0,1.0);
+		GL_MBind(0,fxaaFBO.texture);
+		R_BindFBO(source);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		R_DrawQuad();
+
 		GL_MBind(0,0);
+		glUseProgram(0);
+
+		R_TeardownQuadState();
 
 		GL_Enable(GL_DEPTH_TEST);
 	}

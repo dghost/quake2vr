@@ -55,7 +55,7 @@ void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
 void R_VR_EndFrame();
-void R_VR_DrawHud(vr_eye_t eye);
+void R_VR_DrawHud();
 void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar);
 void R_VR_GetFOV(float *fovx, float *fovy);
 fbo_t* R_VR_GetFBOForEye(vr_eye_t eye);

@@ -209,7 +209,7 @@ void R_VR_StartFrame()
 	{
 		// clamp value from 30-90 degrees
 		if (vr_hud_segments->value < 0)
-			Cvar_SetInteger("vr_hud_segments", 0);
+			Cvar_SetInteger("vr_hud_segments", 1);
 		else if (vr_hud_segments->value > MAX_SEGMENTS)
 			Cvar_SetValue("vr_hud_segments", MAX_SEGMENTS);
 		vr_hud_segments->modified = false;
@@ -261,29 +261,16 @@ void R_VR_EndFrame()
 {
 	if (hmd && vr_enabled->value)
 	{
-		fbo_t *current = glState.currentFBO;
 		GL_Disable(GL_DEPTH_TEST);
-		GL_Enable(GL_ALPHA_TEST);
-		GL_AlphaFunc(GL_GREATER, 0.0f);
 
-		GL_MBind(0, hud.texture);
+		R_VR_DrawHud();
 
-		R_BindFBO(vrState.eyeFBO[0]);
-		R_VR_DrawHud(EYE_LEFT);
-
-		R_BindFBO(vrState.eyeFBO[1]);
-		R_VR_DrawHud(EYE_RIGHT);
-
-		GL_MBind(0, 0);
-
-		GL_Disable(GL_ALPHA_TEST);
 		R_BindFBO(&offscreen);
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
 	// tell the HMD renderer to draw composited scene
 		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
-		R_BindFBO(current);
 	}
 }
 
@@ -334,19 +321,23 @@ fbo_t* R_VR_GetFrameFBO()
 }
 
 
-void R_VR_DrawHud(vr_eye_t eye)
+void R_VR_DrawHud()
 {
 	float fov = vr_hud_fov->value;
 	float depth = vr_hud_depth->value;
 	int numsegments = vr_hud_segments->value;
-	int index = (eye == EYE_LEFT ? 0 : 1);
+	int index = 0;
 	vec_t mat[4][4], temp[4][4];
 
 
 	if (!vr_enabled->value)
 		return;
 
-	R_PerspectiveScale(vrState.renderParams[index].projection, 0.24, 251.0);
+	GL_Enable(GL_ALPHA_TEST);
+	GL_AlphaFunc(GL_GREATER, 0.0f);
+
+	GL_MBind(0, hud.texture);
+
 
 	TranslationMatrix(0, 0, 0, mat);
 
@@ -360,17 +351,6 @@ void R_VR_DrawHud(vr_eye_t eye)
 		QuatToRotation(q, mat);
 
 	}
-	
-	if (vr_autoipd->value)
-	{
-		TranslationMatrix(-vrState.renderParams[index].viewOffset[0], vrState.renderParams[index].viewOffset[1], vrState.renderParams[index].viewOffset[2], temp);
-	} else {
-		float viewOffset = (vr_ipd->value / 2000.0);
-		TranslationMatrix(eye * -viewOffset, 0, 0, temp);
-	}
-
-	MatrixMultiply(temp, mat, mat);
-	GL_LoadMatrix(GL_MODELVIEW, mat);
 
 	if (vr_hud_transparency->value)
 	{
@@ -378,44 +358,41 @@ void R_VR_DrawHud(vr_eye_t eye)
 		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-//	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	if (hudVBO.handles[0] > 0) {
+	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState (GL_VERTEX_ARRAY);
+	glDisableClientState (GL_COLOR_ARRAY);
+	R_BindIVBO(&hudVBO,NULL,0);
+	glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
+	glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
 
-		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState (GL_VERTEX_ARRAY);
-		glDisableClientState (GL_COLOR_ARRAY);
-		R_BindIVBO(&hudVBO,NULL,0);
-		glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
-		glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
+	for (index = 0; index < 2; index++)
+	{
+		R_BindFBO(vrState.eyeFBO[index]);
+
+		R_PerspectiveScale(vrState.renderParams[index].projection, 0.24, 251.0);
+
+		if (vr_autoipd->value)
+		{
+			TranslationMatrix(-vrState.renderParams[index].viewOffset[0], vrState.renderParams[index].viewOffset[1], vrState.renderParams[index].viewOffset[2], temp);
+		} else {
+			float viewOffset = (vr_ipd->value / 2000.0);
+			TranslationMatrix((-1 + index * 2) * -viewOffset, 0, 0, temp);
+		}
+
+		MatrixMultiply(temp, mat, temp);
+		GL_LoadMatrix(GL_MODELVIEW, temp);
 		R_DrawIVBO(&hudVBO);
-		R_ReleaseIVBO();
-//		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-//		glEnableClientState (GL_VERTEX_ARRAY);
-		glEnableClientState (GL_COLOR_ARRAY);
-
-		glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
-		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
-//		glColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
-	}
-	else {
-		float y, x, z;
-		x = tanf(fov * (M_PI / 180.0f) * 0.5) * (depth);
-		y = x / ((float) hud.width / hud.height);
-		z = depth * cosf(fov * (M_PI / 180.0f) * 0.5);
-
-		glBegin(GL_TRIANGLE_STRIP);
-		// calculate coordinates for hud
-
-		glTexCoord2f(0, 0); glVertex3f(-x, -y, -z);
-		glTexCoord2f(0, 1); glVertex3f(-x, y, -z);
-		glTexCoord2f(1, 0); glVertex3f(x, -y, -z);
-		glTexCoord2f(1, 1); glVertex3f(x, y, -z);
-		glEnd();
-
 	}
 
-//	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	R_ReleaseIVBO();
+
+	glEnableClientState (GL_COLOR_ARRAY);
+	GL_MBind(0, 0);
+
+	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
+	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
 	GL_Disable(GL_BLEND);
+	GL_Disable(GL_ALPHA_TEST);
 }
 
 

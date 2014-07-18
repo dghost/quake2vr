@@ -2361,14 +2361,14 @@ void VR_UpdateScreen (void)
 	R_BeginFrame( );
 
 
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
 		VR_RenderStereo();
 	} 
-
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	R_ClearFBO(hud);
+	GL_SetDefaultClearColor();
 	SCR_Draw2DintoFBO(hud);	
 	
 	/*

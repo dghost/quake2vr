@@ -851,7 +851,7 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		// re-execute these, because we're not rendering the world
 		//R_PushDlights ();
 		R_SetFrustum ();
-		R_MarkLeaves ();	
+		//R_MarkLeaves ();	
 		
 		//Knightmare- no fogging on menu/hud models
 		if (glIsEnabled(GL_FOG)) //check if fog is enabled
@@ -912,8 +912,6 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 
 		//GL_Disable(GL_ALPHA_TEST);
 
-		R_FXAAFBO(destination);
-
 		GL_MBind(0,destination->texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -941,6 +939,9 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 			float color[4] = {0.0,0.0,0.0,0.0};
 			R_BlurFBO(1,color,destination);
 		}
+
+		R_FXAAFBO(destination);
+
 	}
 	R_SetFog();
 	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
@@ -1071,7 +1072,6 @@ void R_RenderFrame (refdef_t *fd)
 	rect.height = fd->height;
 	R_RenderViewIntoFBO(fd,params,glState.currentFBO,&rect);
 //	V_RenderViewIntoFBO(hud);
-	R_SetLightLevel ();
 	R_SetGL2D ();
 }
 
