@@ -19,8 +19,6 @@ typedef struct {
 	float viewFovX;
 	float pixelScale;
 	float aspect;
-//	vec3_t eyeOffset[2];
-//	eyeScaleOffset_t scaleOffset[2];
 	fbo_t* eyeFBO[2];
 	eye_param_t renderParams[2];
 } vr_param_t;
@@ -46,20 +44,14 @@ typedef struct {
 	} uniform;
 } vr_distort_shader_t;
 
-extern vr_distort_shader_t vr_distort_shaders[2];
-extern vr_distort_shader_t vr_bicubic_distort_shaders[2];
-
 void R_VR_Init();
 void R_VR_Shutdown();
 void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
 void R_VR_EndFrame();
-void R_VR_DrawHud();
-void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar);
 void R_VR_GetFOV(float *fovx, float *fovy);
-fbo_t* R_VR_GetFBOForEye(vr_eye_t eye);
+fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();
-void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object);
 
 #endif //__R_VR_H

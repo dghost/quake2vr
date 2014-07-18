@@ -6,12 +6,14 @@
 #define PLAYER_HEIGHT_M 1.75f
 
 typedef enum {
-	EYE_LEFT = -1,
-	EYE_HUD = 0,
-	EYE_RIGHT = 1
+	EYE_LEFT = 0,
+	EYE_RIGHT = 1,
+	NUM_EYES = 2,
 } vr_eye_t;
 
-
+typedef struct {
+	vr_eye_t eyes[NUM_EYES];
+} eye_order_t;
 
 // prefer OVR native code path
 typedef enum {

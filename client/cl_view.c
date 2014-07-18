@@ -678,8 +678,8 @@ void R_Clear(void);
 void VR_RenderStereo ()
 {
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
-	vec3_t view,viewOrig;
-
+	vec3_t view,viewOrig, offset;
+	int index;
 
 	if (cls.state != ca_active)
 		return;
@@ -790,100 +790,68 @@ void VR_RenderStereo ()
 
 	VectorCopy(cl.refdef.vieworg, viewOrig);
 	VectorCopy(cl.refdef.vieworg, view);
-    if (vr_enabled->value)
-    {
-		vec3_t offset;
-		if (VR_GetHeadOffset(offset))
-		{
-			vec3_t forward, right, up, out;
 
-			VectorCopy(cl.v_forward,forward);
-			VectorCopy(cl.v_up,up);
-			VectorCopy(cl.v_right,right);
+	// head and neck model stuff
+	if (VR_GetHeadOffset(offset))
+	{
+		vec3_t forward, right, up, out;
 
-			VectorNormalize(forward);
-			VectorNormalize(up);
-			VectorNormalize(right);
+		VectorCopy(cl.v_forward,forward);
+		VectorCopy(cl.v_up,up);
+		VectorCopy(cl.v_right,right);
 
-			// apply this using X forward, Y left, Z up
-			VectorScale(forward, offset[0] ,forward);
-			VectorScale(up,offset[2],up);
-			VectorScale(right,offset[1],up);
-			VectorAdd(forward,up,out);
-			VectorAdd(out,right,out);
-			VectorAdd(view,out,view); 
-		}
-		else if (vr_neckmodel->value)
-		{
-			vec3_t forward, up, out;
-			float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorCopy(cl.v_forward,forward);
-			VectorCopy(cl.v_up,up);
-			VectorNormalize(forward);
-			VectorNormalize(up);
-			VectorScale(forward, eyeDist ,forward);
-			VectorScale(up,neckLength,up);
-			VectorAdd(forward,up,out);
-			out[2] -= neckLength;
-			VectorAdd(view,out,view); 
-		}
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorNormalize(right);
+
+		// apply this using X forward, Y left, Z up
+		VectorScale(forward, offset[0] ,forward);
+		VectorScale(up,offset[2],up);
+		VectorScale(right,offset[1],up);
+		VectorAdd(forward,up,out);
+		VectorAdd(out,right,out);
+		VectorAdd(view,out,view); 
+	}
+	else if (vr_neckmodel->value)
+	{
+		vec3_t forward, up, out;
+		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		VectorCopy(cl.v_forward,forward);
+		VectorCopy(cl.v_up,up);
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorScale(forward, eyeDist ,forward);
+		VectorScale(up,neckLength,up);
+		VectorAdd(forward,up,out);
+		out[2] -= neckLength;
+		VectorAdd(view,out,view); 
 	}
 
 	VectorCopy(view,cl.refdef.vieworg);
 	// left eye rendering
+	for (index = 0; index < NUM_EYES; index++)
 	{
 		eye_param_t params;
-		//		// draw for left eye
-//		R_VR_BindView(EYE_LEFT);
-		fbo_t *fbo = R_VR_GetFBOForEye(EYE_LEFT);
-		//	R_VR_BindWorld();
-		params.projection = vrState.renderParams[0].projection;
+		int eyeSign = (-1 + index * 2);
+
+		params.projection = vrState.renderParams[index].projection;
+
 		if (cl.refdef.rdflags & RDF_UNDERWATER)
 			params.projection = R_ApplyWarpToProjection(params.projection);
 		if (vr_autoipd->value)
 		{
-			VectorScale(vrState.renderParams[0].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
+			VectorScale(vrState.renderParams[index].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
 		} else {
 			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorSet(params.viewOffset,EYE_LEFT * viewOffset ,0,0);
+			VectorSet(params.viewOffset,eyeSign * viewOffset ,0,0);
 		}
 
-		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
+		R_RenderViewIntoFBO( &cl.refdef, params,vrState.eyeFBO[index],NULL);	
 	}
 
-	// Right eye rendering
-	{
-		eye_param_t params;
-
-		fbo_t *fbo = R_VR_GetFBOForEye(EYE_RIGHT);
-		params.projection = vrState.renderParams[1].projection;
-
-		if (cl.refdef.rdflags & RDF_UNDERWATER)
-			params.projection = R_ApplyWarpToProjection(params.projection);
-
-		// shift view to the right half of the frame buffer
-//		R_VR_BindView(EYE_RIGHT);
-
-		if (vr_autoipd->value)
-		{
-			VectorScale(vrState.renderParams[1].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
-		} else {
-			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorSet(params.viewOffset,EYE_RIGHT * viewOffset ,0,0);
-		}
-
-		R_RenderViewIntoFBO( &cl.refdef, params,fbo,NULL);	
-	}
+	// cleanup
 	VectorCopy(viewOrig, cl.refdef.vieworg);
-
-	// reset for fullscreen rendering
-//	R_VR_BindWorld();
-
-	// render full screen effects
-//	VR_RenderScreenEffects(&cl.refdef);
-
-//	R_VR_BindView(EYE_HUD);
 
 	R_SetLightLevel ();
 	R_SetGL2D ();

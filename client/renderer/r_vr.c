@@ -23,8 +23,6 @@ static hmd_render_t *hmd;
 
 static int32_t leftStale, rightStale, hudStale;
 
-static vr_eye_t currenteye;
-
 vr_rect_t screen;
 
 static qboolean loadingScreen;
@@ -263,39 +261,6 @@ void R_VR_StartFrame()
 	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
 }
 
-void R_VR_EndFrame()
-{
-	if (hmd && vr_enabled->value)
-	{
-		GL_Disable(GL_DEPTH_TEST);
-
-		//draw the HUD into specific views
-		R_VR_DrawHud();
-
-		// draw the HUD 
-		R_BindFBO(&offscreen);
-		GL_SetIdentity(GL_PROJECTION);
-		GL_SetIdentity(GL_MODELVIEW);
-
-		// tell the HMD renderer to draw composited scene
-		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
-	}
-}
-
-
-void R_VR_Perspective(float fovy, float aspect, float zNear, float zFar)
-{
-	// if the current eye is set to either left or right use the HMD aspect ratio, otherwise use what was passed to it
-//	R_PerspectiveOffset(fovy, (currenteye) ? vrState.aspect : aspect, zNear, zFar, currenteye * vrState.projOffset);
-	if (currenteye == EYE_LEFT)
-		R_PerspectiveScale(vrState.renderParams[0].projection,zNear,zFar);
-	else if (currenteye == EYE_RIGHT)
-		R_PerspectiveScale(vrState.renderParams[1].projection,zNear,zFar);
-	else
-		R_PerspectiveOffset(fovy,aspect,zNear,zFar,0);
-}
-
-
 void R_VR_GetFOV(float *fovx, float *fovy)
 {
 	if (!hmd)
@@ -305,20 +270,12 @@ void R_VR_GetFOV(float *fovx, float *fovy)
 	*fovy = vrState.viewFovY * vr_autofov_scale->value;
 }
 
-fbo_t* R_VR_GetFBOForEye(vr_eye_t eye)
+fbo_t* R_VR_GetHUDFBO()
 {
 	if (!hmd)
 		return NULL;
 	
-	switch (eye)
-	{
-	case EYE_LEFT:
-		return vrState.eyeFBO[0];
-	case EYE_RIGHT:
-		return vrState.eyeFBO[1];
-	default:
-		return &hud;
-	}
+	return &hud;
 }
 
 fbo_t* R_VR_GetFrameFBO()
@@ -340,14 +297,22 @@ void R_VR_DrawHud()
 
 	if (!vr_enabled->value)
 		return;
-
+	
+	// enable alpha testing so only pixels that have alpha info get written out
+	// prevents black pixels from being rendered into the view
 	GL_Enable(GL_ALPHA_TEST);
 	GL_AlphaFunc(GL_GREATER, 0.0f);
 
+	// if hud transparency is enabled, enable blending
+	if (vr_hud_transparency->value)
+	{
+		GL_Enable(GL_BLEND);
+		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+
+	// bind the texture
 	GL_MBind(0, hud.texture);
-
-
-	TranslationMatrix(0, 0, 0, mat);
 
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !loadingScreen && ((int32_t) vr_aimmode->value > 0))
@@ -357,29 +322,30 @@ void R_VR_DrawHud()
 		VR_GetOrientationEMAQuat(q);
 		q[2] = -q[2];
 		QuatToRotation(q, mat);
-
+	} else {
+		// identity matrix
+		TranslationMatrix(0,0,0,mat);
 	}
 
-	if (vr_hud_transparency->value)
-	{
-		GL_Enable(GL_BLEND);
-		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState (GL_VERTEX_ARRAY);
+	// set proper mode
+//	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+//	glEnableClientState (GL_VERTEX_ARRAY);
 	glDisableClientState (GL_COLOR_ARRAY);
 
+	// bind vertex buffer and set tex coord parameters
 	R_BindIVBO(&hudVBO,NULL,0);
 	glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
 	glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
 
 	for (index = 0; index < 2; index++)
 	{
+		// bind the eye FBO
 		R_BindFBO(vrState.eyeFBO[index]);
 
+		// set the perspective matrix for that eye
 		R_PerspectiveScale(vrState.renderParams[index].projection, 0.24, 251.0);
 
+		// build the eye translation matrix
 		if (vr_autoipd->value)
 		{
 			TranslationMatrix(-vrState.renderParams[index].viewOffset[0], vrState.renderParams[index].viewOffset[1], vrState.renderParams[index].viewOffset[2], temp);
@@ -388,20 +354,44 @@ void R_VR_DrawHud()
 			TranslationMatrix((-1 + index * 2) * -viewOffset, 0, 0, temp);
 		}
 
+		// load the view matrix
 		MatrixMultiply(temp, mat, temp);
 		GL_LoadMatrix(GL_MODELVIEW, temp);
+
+		// draw the hud for that eye
 		R_DrawIVBO(&hudVBO);
 	}
 
+	// teardown 
 	R_ReleaseIVBO();
 
-	glEnableClientState (GL_COLOR_ARRAY);
 	GL_MBind(0, 0);
 
+	glEnableClientState (GL_COLOR_ARRAY);
 	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
 	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
 	GL_Disable(GL_BLEND);
 	GL_Disable(GL_ALPHA_TEST);
+}
+
+
+void R_VR_EndFrame()
+{
+	if (hmd && vr_enabled->value)
+	{
+		GL_Disable(GL_DEPTH_TEST);
+
+		//draw the HUD into specific views
+		R_VR_DrawHud();
+
+		// draw the HUD 
+		R_BindFBO(&offscreen);
+		GL_SetIdentity(GL_PROJECTION);
+		GL_SetIdentity(GL_MODELVIEW);
+
+		// tell the HMD renderer to draw composited scene
+		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
+	}
 }
 
 
@@ -450,7 +440,7 @@ void R_VR_Enable()
 		success = (qboolean) R_GenFBO(640, 480, 1, GL_RGBA8, &hud);
 		success = success && hmd->enable && hmd->enable();
 
-
+		// shader init
 		R_VR_InitDistortionShader(&vr_distort_shaders[0], &vr_shader_distort_norm);
 		R_VR_InitDistortionShader(&vr_distort_shaders[1], &vr_shader_distort_chrm);
 
@@ -464,7 +454,6 @@ void R_VR_Enable()
 			Com_Printf(" ok!\n");
 
 			hmd->getState(&vrState);
-
 
 			//strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
 			vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
@@ -513,7 +502,6 @@ void R_VR_Disable()
 void R_VR_Init()
 {
 	int32_t i;
-	currenteye = EYE_HUD;
 	available_hmds[HMD_NONE] = vr_render_none;
 	available_hmds[HMD_STEAM] = vr_render_svr;
 	available_hmds[HMD_RIFT] = vr_render_ovr;

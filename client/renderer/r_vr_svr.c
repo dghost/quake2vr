@@ -19,6 +19,9 @@ static qboolean chromatic;
 
 extern svr_settings_t svr_settings;
 
+extern vr_distort_shader_t vr_distort_shaders[2];
+extern vr_distort_shader_t vr_bicubic_distort_shaders[2];
+
 void SVR_BuildDistortionTextures()
 {
 	GLfloat *normalTexture, *chromaTexture;
@@ -133,22 +136,22 @@ void SVR_GetState(vr_param_t *state)
 {
 	vr_param_t svrState;
 	float ipd = (svr_settings.ipd / 2.0);
+	int index = 0;
+
 	svrState.aspect = svr_settings.aspect;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
-	VectorSet(svrState.renderParams[0].viewOffset,ipd * EYE_LEFT, 0.0, 0.0);
-	VectorSet(svrState.renderParams[1].viewOffset,ipd * EYE_RIGHT, 0.0, 0.0);
+	
+	for (index = 0; index < 2 ; index++)
+	{
+		int eyeSign = (-1 + index * 2);
+		VectorSet(svrState.renderParams[index].viewOffset,ipd * eyeSign, 0.0, 0.0);
 
-    svrState.renderParams[0].projection.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.renderParams[0].projection.y.offset = 0.0;
-	svrState.renderParams[0].projection.x.scale = svrState.renderParams[0].projection.y.scale / svr_settings.aspect;
-	svrState.renderParams[0].projection.x.offset = svr_settings.projOffset;
-
-
-    svrState.renderParams[1].projection.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
-	svrState.renderParams[1].projection.y.offset = 0.0;
-	svrState.renderParams[1].projection.x.scale = svrState.renderParams[1].projection.y.scale / svr_settings.aspect;
-	svrState.renderParams[1].projection.x.offset = -svr_settings.projOffset;
+		svrState.renderParams[index].projection.y.scale = 1.0f / tanf((svrState.viewFovY / 2.0f) * M_PI / 180);
+		svrState.renderParams[index].projection.y.offset = 0.0;
+		svrState.renderParams[index].projection.x.scale = svrState.renderParams[0].projection.y.scale / svr_settings.aspect;
+		svrState.renderParams[index].projection.x.offset = -eyeSign * svr_settings.projOffset;
+	}
 
 	svrState.pixelScale = 3.0;
 	svrState.eyeFBO[0] = &left;

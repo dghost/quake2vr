@@ -2353,7 +2353,7 @@ text to the screen.
 
 void VR_UpdateScreen (void)
 {
-	fbo_t *hud = R_VR_GetFBOForEye(EYE_HUD);
+	fbo_t *hud = R_VR_GetHUDFBO();
 
 	R_BeginFrame( );
 
@@ -2409,12 +2409,6 @@ void SCR_UpdateScreen (void)
 
 	view = R_GetViewFBO();
 
-	/*
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_ClearFBO(view);
-	GL_SetDefaultClearColor();		
-	*/
-
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
 		V_RenderViewIntoFBO(view);
@@ -2424,6 +2418,8 @@ void SCR_UpdateScreen (void)
 	R_EndFrame();
 }
 
+
+/* DEPRECATED */
 
 void SCR_UpdateScreenOld (void)
 {

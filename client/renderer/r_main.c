@@ -1866,7 +1866,6 @@ void R_BeginFrame()
 	if (vr_enabled->value)
 	{
 		R_VR_StartFrame();
-		//R_VR_BindView(EYE_HUD);	
 	} else {
 		R_AntialiasSetFBOSize(&viewFBO);
 		R_ClearFBO(&viewFBO);
