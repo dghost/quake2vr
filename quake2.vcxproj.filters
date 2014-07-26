@@ -183,9 +183,6 @@
     <ClCompile Include="client\sound\qal.c">
       <Filter>Source Files\client\sound</Filter>
     </ClCompile>
-    <ClCompile Include="client\vr\vr_libovr.cpp">
-      <Filter>Source Files\client\vr</Filter>
-    </ClCompile>
     <ClCompile Include="client\vr\vr_main.c">
       <Filter>Source Files\client\vr</Filter>
     </ClCompile>
@@ -513,9 +510,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client\vr\include\vr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="client\vr\include\vr_libovr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client\vr\include\vr_ovr.h">

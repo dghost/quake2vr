@@ -41,7 +41,6 @@ static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_prediction_box;
 static menulist_s		s_options_vr_ovr_timewarp_box;
-static menulist_s		s_options_vr_ovr_latency_box;
 static menulist_s		s_options_vr_ovr_debug_box;
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
@@ -51,11 +50,6 @@ static menuaction_s		s_options_vr_ovr_back_action;
 static void ScaleFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_ovr_maxfov", s_options_vr_ovr_maxfov_box.curvalue);
-}
-
-static void LatencyFunc( void *unused)
-{
-	Cvar_SetInteger("vr_ovr_latencytest",s_options_vr_ovr_latency_box.curvalue);
 }
 
 static void DebugFunc( void *unused)
@@ -82,7 +76,6 @@ static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
 	s_options_vr_ovr_maxfov_box.curvalue = ( Cvar_VariableInteger("vr_ovr_maxfov") );
-	s_options_vr_ovr_latency_box.curvalue = (Cvar_VariableInteger("vr_ovr_latencytest") );
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
 	s_options_vr_ovr_prediction_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoprediction") );
 	s_options_vr_ovr_timewarp_box.curvalue = ( Cvar_VariableInteger("vr_ovr_timewarp") );
@@ -92,7 +85,6 @@ static void VROVRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_ovr_enable");
 	Cvar_SetToDefault ("vr_ovr_maxfov");
-	Cvar_SetToDefault ("vr_ovr_latencytest");
 	Cvar_SetToDefault ("vr_ovr_debug");
 	Cvar_SetToDefault ("vr_ovr_autoprediction");
 	Cvar_SetToDefault ("vr_ovr_timewarp");
@@ -138,7 +130,6 @@ void Options_VR_OVR_MenuInit ( void )
 		"disabled",
 		"DK1 emulation",
 		"HD DK emulation",
-		"Chrystal Cove emulation",
 		"DK2 Emulation",
 		0
 	};
@@ -195,14 +186,6 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_maxfov_box.itemnames			= scale_names;
 	s_options_vr_ovr_maxfov_box.generic.statusbar	= "adjusts the size of the post-distortion view";
 		
-	s_options_vr_ovr_latency_box.generic.type		= MTYPE_SPINCONTROL;
-	s_options_vr_ovr_latency_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_ovr_latency_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_latency_box.generic.name		= "latency tester";
-	s_options_vr_ovr_latency_box.generic.callback	= LatencyFunc;
-	s_options_vr_ovr_latency_box.itemnames			= yesno_names;
-	s_options_vr_ovr_latency_box.generic.statusbar	= "enables support for the oculus latency tester";
-
 	s_options_vr_ovr_debug_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_debug_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_debug_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -232,7 +215,6 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
 
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latency_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_defaults_action );

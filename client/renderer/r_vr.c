@@ -251,8 +251,6 @@ void R_VR_StartFrame()
 	R_Clear();
 	R_BindFBO(&hud);
 	R_Clear();
-	R_BindFBO(&offscreen);
-	R_Clear();
 	R_BindFBO(&screenFBO);
 	GL_SetDefaultClearColor();		
 

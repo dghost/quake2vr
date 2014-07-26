@@ -159,9 +159,13 @@ void SVR_GetState(vr_param_t *state)
 	*state = svrState;
 }
 
+void R_Clear (void);
 void SVR_Present(qboolean loading)
 {
 //	GL_SetIdentityOrtho(GL_PROJECTION, 0, svr_settings.width, svr_settings.height, 0, -1, 1);
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	R_Clear();
+	GL_SetDefaultClearColor();		
 
 	if (!vr_svr_debug->value)
 	{

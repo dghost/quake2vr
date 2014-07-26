@@ -24,7 +24,6 @@ hmd_render_t vr_render_ovr =
 };
 
 extern ovrHmd hmd;
-extern ovrHmdDesc hmdDesc;
 extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrPosef framePose;
 extern ovrFrameTiming frameTime;
@@ -174,10 +173,10 @@ void OVR_CalculateState(vr_param_t *state)
 
 		if (vr_ovr_maxfov->value)
 		{
-			renderInfo[eye].eyeFov = hmdDesc.MaxEyeFov[eye];
+			renderInfo[eye].eyeFov = hmd->MaxEyeFov[eye];
 		} else
 		{
-			renderInfo[eye].eyeFov = hmdDesc.DefaultEyeFov[eye];
+			renderInfo[eye].eyeFov = hmd->DefaultEyeFov[eye];
 		}
 
 		ovrState.eyeFBO[eye] = &renderInfo[eye].eyeFBO;
@@ -202,12 +201,12 @@ void OVR_CalculateState(vr_param_t *state)
 		ov = meshData.pVertexData; 
 		for (i = 0; i < meshData.VertexCount; i++)
 		{
-			v->pos.x = ov->Pos.x;
-			v->pos.y = ov->Pos.y;
+			v->pos.x = ov->ScreenPosNDC.x;
+			v->pos.y = ov->ScreenPosNDC.y;
 
-			v->texR = (*(ovrVector2f*)&ov->TexR); 
-			v->texG = (*(ovrVector2f*)&ov->TexG);
-			v->texB = (*(ovrVector2f*)&ov->TexB); 
+			v->texR = (*(ovrVector2f*)&ov->TanEyeAnglesR); 
+			v->texG = (*(ovrVector2f*)&ov->TanEyeAnglesG);
+			v->texB = (*(ovrVector2f*)&ov->TanEyeAnglesB); 
 			v->color[0] = v->color[1] = v->color[2] = (GLubyte)( ov->VignetteFactor * 255.99f );
 			v->color[3] = (GLubyte)( ov->TimeWarpFactor * 255.99f );
 			v++; ov++;
@@ -230,7 +229,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrState.aspect = combinedTanHalfFovHorizontal / combinedTanHalfFovVertical;
 		ovrState.viewFovY = fovY;
 		ovrState.viewFovX = fovX;
-		ovrState.pixelScale = ovrScale * vid.width / (float) hmdDesc.Resolution.w;
+		ovrState.pixelScale = ovrScale * vid.width / (float) hmd->Resolution.w;
 	}
 
 	*state = ovrState;
@@ -294,10 +293,19 @@ void OVR_GetState(vr_param_t *state)
 	*state = currentState;
 }
 
-
+void R_Clear (void);
 void OVR_Present(qboolean loading)
 {
 	vec4_t debugColor;
+	int32_t latencyTest = VR_OVR_RenderLatencyTest(debugColor);
+	if (latencyTest)
+	{
+		GL_ClearColor(debugColor[0],debugColor[1],debugColor[2],debugColor[3]);
+	} else {
+		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	}
+	R_Clear();
+	GL_SetDefaultClearColor();	
 	{
 		int i = 0;
 		r_ovr_shader_t *currentShader;
@@ -367,7 +375,8 @@ void OVR_Present(qboolean loading)
 //		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
 
 	}
-	if (VR_OVR_RenderLatencyTest(debugColor))
+
+	if (latencyTest && hmd->Type < ovrHmd_DK2)
 	{
 		glColor4fv(debugColor);
 
@@ -390,7 +399,6 @@ void OVR_Present(qboolean loading)
 
 }
 
-
 int32_t OVR_Enable()
 {
 	if (!glConfig.arb_texture_float)
@@ -411,7 +419,7 @@ int32_t OVR_Enable()
 	VR_OVR_InitShader(&ovr_timewarp_shaders[0],&ovr_shader_warp);
 	VR_OVR_InitShader(&ovr_timewarp_shaders[1],&ovr_shader_chrm_warp);
 	//OVR_FrameStart(true);
-	Cvar_ForceSet("vr_hmdstring",(char *)hmdDesc.ProductName);
+	Cvar_ForceSet("vr_hmdstring",(char *)hmd->ProductName);
 	return true;
 }
 

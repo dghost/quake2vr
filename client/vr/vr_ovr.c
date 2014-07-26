@@ -18,7 +18,6 @@ int32_t VR_OVR_SetPredictionTime(float time);
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_maxfov;
 cvar_t *vr_ovr_supersample;
-cvar_t *vr_ovr_latencytest;
 cvar_t *vr_ovr_enable;
 cvar_t *vr_ovr_autoprediction;
 cvar_t *vr_ovr_timewarp;
@@ -29,7 +28,6 @@ qboolean useLatencyColor = false;
 ovr_attrib_t ovrConfig = {0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}};
 
 ovrHmd hmd;
-ovrHmdDesc hmdDesc; 
 ovrEyeRenderDesc eyeDesc[2];
 qboolean withinFrame = false;
 
@@ -58,8 +56,8 @@ hmd_interface_t hmd_rift = {
 
 void VR_OVR_GetFOV(float *fovx, float *fovy)
 {
-	*fovx = hmdDesc.DefaultEyeFov[ovrEye_Left].LeftTan + hmdDesc.DefaultEyeFov[ovrEye_Left].RightTan;
-	*fovy = hmdDesc.DefaultEyeFov[ovrEye_Left].UpTan + hmdDesc.DefaultEyeFov[ovrEye_Left].DownTan;
+	*fovx = hmd->DefaultEyeFov[ovrEye_Left].LeftTan + hmd->DefaultEyeFov[ovrEye_Left].RightTan;
+	*fovy = hmd->DefaultEyeFov[ovrEye_Left].UpTan + hmd->DefaultEyeFov[ovrEye_Left].DownTan;
 }
 
 
@@ -67,8 +65,8 @@ void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos)
 {
 	if (hmd)
 	{
-		*xpos = hmdDesc.WindowsPos.x;
-		*ypos = hmdDesc.WindowsPos.y;
+		*xpos = hmd->WindowsPos.x;
+		*ypos = hmd->WindowsPos.y;
 	}
 }
 
@@ -128,16 +126,16 @@ int32_t VR_OVR_getOrientation(float euler[3])
 		framePose = ovrHmd_GetEyePose(hmd,ovrEye_Right);
 	} else {
 		// if not, do this by hand
-		ovrSensorState ss;
+		ovrTrackingState ss;
 		double time = 0.0;
 		if (vr_ovr_autoprediction->value > 0)
 			time = (frameTime.EyeScanoutSeconds[ovrEye_Left] + frameTime.EyeScanoutSeconds[ovrEye_Right]) / 2.0;
 		else
 			time = ovr_GetTimeInSeconds() + prediction_time;
-		ss = ovrHmd_GetSensorState(hmd, time);
+		ss = ovrHmd_GetTrackingState(hmd, time);
 		if (ss.StatusFlags & (ovrStatus_OrientationTracked ) )
-		{ 
-			framePose = ss.Predicted.Pose;		
+		{
+			framePose = ss.HeadPose.ThePose;
 		}
 	}
 	VR_OVR_QuatToEuler(framePose.Orientation,euler);
@@ -147,25 +145,24 @@ int32_t VR_OVR_getOrientation(float euler[3])
 void VR_OVR_ResetHMDOrientation()
 {
 	if (hmd)
-		ovrHmd_ResetSensor(hmd);
+		ovrHmd_RecenterPose(hmd);
 }
 
 void VR_OVR_InitSensor()
 {
-	unsigned int sensorCaps = ovrSensorCap_Orientation | ovrSensorCap_YawCorrection;
+	unsigned int sensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection;
 
 	if (sensorEnabled)
 	{
-		ovrHmd_StopSensor(hmd);
 		sensorEnabled = 0;
 	}
 
 	Com_Printf("Initializing sensor: ");
-	sensorEnabled = ovrHmd_StartSensor(hmd,sensorCaps, ovrSensorCap_Orientation);
+	sensorEnabled = ovrHmd_ConfigureTracking(hmd,sensorCaps, ovrTrackingCap_Orientation);
 	if (sensorEnabled)
 	{
-		ovrSensorState ss;
-		ss = ovrHmd_GetSensorState(hmd, ovr_GetTimeInSeconds() + prediction_time);
+		ovrTrackingState ss;
+		ss = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds() + prediction_time);
 		Com_Printf("ok!\n");
 
 		if (ss.StatusFlags & ovrStatus_HmdConnected)
@@ -183,12 +180,12 @@ void VR_OVR_InitSensor()
 
 int32_t VR_OVR_RenderLatencyTest(vec4_t color) 
 {
-	qboolean use = (qboolean) ovrHmd_GetLatencyTestDrawColor(hmd,ovrLatencyColor);
+	qboolean use = (qboolean) ovrHmd_ProcessLatencyTest(hmd,ovrLatencyColor);
 	color[0] = ovrLatencyColor[0] / 255.0f;
 	color[1] = ovrLatencyColor[1] / 255.0f;
 	color[2] = ovrLatencyColor[2] / 255.0f;
 	color[3] = 1.0f;
-	return (vr_ovr_latencytest->value && use);
+	return use;
 }
 
 
@@ -199,25 +196,17 @@ int32_t VR_OVR_SetPredictionTime(float time)
 	return 1;
 }
 
-void SCR_CenterAlert (char *str);
 void VR_OVR_FrameStart()
 {
-	if (vr_ovr_latencytest->value)
+
+	const char *results = ovrHmd_GetLatencyTestResult(hmd);
+	if (results && strncmp(results,"",1))
 	{
-			const char *results = ovrHmd_GetLatencyTestResult(hmd);
-			if (results)
-			{
-				float ms;
-				Com_Printf("VR_OVR: %s\n",results);		
-				if (sscanf(results,"RESULT=%f ",&ms))
-				{
-					char buffer[64];
-					SDL_snprintf(buffer,sizeof(buffer),"%.1fms latency",ms);
-					SCR_CenterAlert(buffer);
-					Cvar_SetInteger("vr_prediction",(int) ms);
-				}
-			}
+		float ms;
+		if (sscanf(results,"RESULT=%f ",&ms))
+			Cvar_SetInteger("vr_prediction",(int) ms);
 	}
+
 
 	if (!withinFrame)
 	{
@@ -273,9 +262,6 @@ int32_t VR_OVR_Enable()
 				temp = ovrHmd_DKHD;
 				break;
 			case 3:
-				temp = ovrHmd_CrystalCoveProto;
-				break;
-			case 4:
 				temp = ovrHmd_DK2;
 				break;
 
@@ -289,24 +275,19 @@ int32_t VR_OVR_Enable()
 
 //	hmdCaps = ovrHmd_GetEnabledCaps(hmd);
 
-	ovrHmd_SetEnabledCaps(hmd,ovrHmdCap_LatencyTest);
-	ovrHmd_GetDesc(hmd, &hmdDesc);
-	if (hmdDesc.HmdCaps & ovrHmdCap_Available)
+	
+	if (hmd->HmdCaps & ovrHmdCap_Available)
 		Com_Printf("...sensor is available\n");
-	if (hmdDesc.HmdCaps & ovrHmdCap_LowPersistence)
+	if (hmd->HmdCaps & ovrHmdCap_LowPersistence)
 		Com_Printf("...supports low persistance\n");
-	if (hmdDesc.HmdCaps & ovrHmdCap_DynamicPrediction)
+	if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)
 		Com_Printf("...supports dynamic motion prediction\n");
-	if (hmdDesc.HmdCaps & ovrHmdCap_LatencyTest)
-	{
-		Com_Printf("...found latency tester\n");
-		Cvar_SetInteger("vr_ovr_latencytest",1);
-	}
-	if (hmdDesc.SensorCaps & ovrSensorCap_Position)
+
+	if (hmd->TrackingCaps & ovrTrackingCap_Position)
 		Com_Printf("...supports position tracking\n");
 
-	Com_Printf("...has type %s\n", hmdDesc.ProductName);
-	Com_Printf("...has %ux%u native resolution\n", hmdDesc.Resolution.w, hmdDesc.Resolution.h);
+	Com_Printf("...has type %s\n", hmd->ProductName);
+	Com_Printf("...has %ux%u native resolution\n", hmd->Resolution.w, hmd->Resolution.h);
 
 	VR_OVR_InitSensor();
 
@@ -319,7 +300,6 @@ void VR_OVR_Disable()
 	withinFrame = false;
 	if (hmd)
 	{
-		ovrHmd_StopSensor(hmd);
 		ovrHmd_Destroy(hmd);
 	}
 	hmd = NULL;
@@ -332,7 +312,6 @@ int32_t VR_OVR_Init()
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
-	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",0);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
@@ -343,7 +322,7 @@ int32_t VR_OVR_Init()
 		return 0;
 	}
 
-	Com_Printf("VR_OVR: Oculus Rift support initialized...\n");
+	Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());
 
 	return 0;
 }
