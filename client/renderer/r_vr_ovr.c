@@ -128,6 +128,7 @@ typedef struct {
 	r_shaderobject_t *shader;
 	struct {
 		GLuint tex;
+		GLuint minColor;
 		GLuint EyeToSourceUVScale;
 		GLuint EyeToSourceUVOffset;
 		GLuint EyeRotationStart;
@@ -151,7 +152,7 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.EyeToSourceUVScale = glGetUniformLocation(shader->shader->program,"EyeToSourceUVScale");
 	shader->uniform.EyeRotationStart = glGetUniformLocation(shader->shader->program,"EyeRotationStart");
 	shader->uniform.EyeRotationEnd = glGetUniformLocation(shader->shader->program,"EyeRotationEnd");
-
+	shader->uniform.minColor = glGetUniformLocation(shader->shader->program,"minColor");
 	shader->uniform.tex = glGetUniformLocation(shader->shader->program,"tex");
 	glUseProgram(0);
 }
@@ -332,7 +333,10 @@ void OVR_Present(qboolean loading)
 
 		glUseProgram(currentShader->shader->program);
 		glUniform1i(currentShader->uniform.tex,0);
-
+		if (vr_ovr_dk2_color_hack->value)
+			glUniform3f(currentShader->uniform.minColor,1.0/255.0,1.0/255.0,1.0/255.0);
+		else
+			glUniform3f(currentShader->uniform.minColor,0.0,0.0,0.0);
 		for (i = 0; i < 2; i++)
 		{
 			// hook for rendering in different order

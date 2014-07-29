@@ -21,11 +21,10 @@ cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_enable;
 cvar_t *vr_ovr_autoprediction;
 cvar_t *vr_ovr_timewarp;
+cvar_t *vr_ovr_dk2_color_hack;
 
 unsigned char ovrLatencyColor[3];
 qboolean useLatencyColor = false;
-
-ovr_attrib_t ovrConfig = {0, 0, 0, 0, 0, 0, 0, { 0, 0, 0, 0,}, { 0, 0, 0, 0,}};
 
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
@@ -313,9 +312,9 @@ int32_t VR_OVR_Init()
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
+	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
-
 	if (!init)
 	{
 		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");

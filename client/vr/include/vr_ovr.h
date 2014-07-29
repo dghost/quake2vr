@@ -10,26 +10,12 @@ typedef enum {
 	NUM_RIFT
 } rift_t;
 
-typedef struct {
-	uint32_t hmdHeight;
-	uint32_t hmdWidth;
-	float aspect;
-	float ipd;
-	float projOffset;
-	float minScale;
-	float maxScale;
-	float dk[4];
-	float chrm[4];
-	char deviceString[32];
-} ovr_attrib_t;
-
-extern ovr_attrib_t ovrConfig;
-
 extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_maxfov;
 extern cvar_t *vr_ovr_autoprediction;
 extern cvar_t *vr_ovr_supersample;
 extern cvar_t *vr_ovr_timewarp;
+extern cvar_t *vr_ovr_dk2_color_hack;
 
 extern hmd_interface_t hmd_rift;
 
