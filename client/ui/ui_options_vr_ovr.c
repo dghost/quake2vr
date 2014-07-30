@@ -40,6 +40,8 @@ static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_prediction_box;
+static menulist_s		s_options_vr_ovr_lowpersistence_box;
+static menulist_s		s_options_vr_ovr_dk2_color_hack_box;
 static menulist_s		s_options_vr_ovr_timewarp_box;
 static menulist_s		s_options_vr_ovr_debug_box;
 
@@ -72,6 +74,16 @@ static void WarpFunc( void *unused)
 	Cvar_SetInteger("vr_ovr_timewarp", s_options_vr_ovr_timewarp_box.curvalue);
 }
 
+static void PersistenceFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_lowpersistence", s_options_vr_ovr_lowpersistence_box.curvalue);
+}
+
+static void ColorHackFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_dk2_color_hack", s_options_vr_ovr_dk2_color_hack_box.curvalue);
+}
+
 static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
@@ -79,6 +91,8 @@ static void VROVRSetMenuItemValues( void )
 	s_options_vr_ovr_debug_box.curvalue = ( Cvar_VariableInteger("vr_ovr_debug") );
 	s_options_vr_ovr_prediction_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoprediction") );
 	s_options_vr_ovr_timewarp_box.curvalue = ( Cvar_VariableInteger("vr_ovr_timewarp") );
+	s_options_vr_ovr_lowpersistence_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lowpersistence") );
+	s_options_vr_ovr_dk2_color_hack_box.curvalue = ( Cvar_VariableInteger("vr_ovr_dk2_color_hack") );
 }
 
 static void VROVRResetDefaultsFunc ( void *unused )
@@ -88,6 +102,8 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_debug");
 	Cvar_SetToDefault ("vr_ovr_autoprediction");
 	Cvar_SetToDefault ("vr_ovr_timewarp");
+	Cvar_SetToDefault ("vr_ovr_lowpersistence");
+	Cvar_SetToDefault ("vr_ovr_dk2_color_hack");
 	VROVRSetMenuItemValues();
 }
 
@@ -185,7 +201,25 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_maxfov_box.generic.callback	= ScaleFunc;
 	s_options_vr_ovr_maxfov_box.itemnames			= scale_names;
 	s_options_vr_ovr_maxfov_box.generic.statusbar	= "adjusts the size of the post-distortion view";
-		
+
+	s_options_vr_ovr_lowpersistence_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_lowpersistence_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_lowpersistence_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_lowpersistence_box.generic.name		= "low persistence";
+	s_options_vr_ovr_lowpersistence_box.generic.callback	= PersistenceFunc;
+	s_options_vr_ovr_lowpersistence_box.itemnames			= yesno_names;
+	s_options_vr_ovr_lowpersistence_box.generic.statusbar	= "enables low persistence on DK2 and above";
+
+	s_options_vr_ovr_dk2_color_hack_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_dk2_color_hack_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_dk2_color_hack_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_dk2_color_hack_box.generic.name		= "DK2 black boost";
+	s_options_vr_ovr_dk2_color_hack_box.generic.callback	= ColorHackFunc;
+	s_options_vr_ovr_dk2_color_hack_box.itemnames			= yesno_names;
+	s_options_vr_ovr_dk2_color_hack_box.generic.statusbar	= "boosts black levels to reduce bluring on DK2 and above";
+
+
+
 	s_options_vr_ovr_debug_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_debug_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_debug_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -214,6 +248,8 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lowpersistence_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_dk2_color_hack_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	
 

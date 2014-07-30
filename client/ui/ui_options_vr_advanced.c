@@ -45,6 +45,7 @@ static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
 static menulist_s		s_options_vr_advanced_hudtrans_box;
 static menulist_s		s_options_vr_advanced_hudbounce_box;
+static menulist_s		s_options_vr_advanced_positiontracking_box;
 static menulist_s		s_options_vr_advanced_neckmodel_box;
 static menufield_s		s_options_vr_advanced_neckmodel_up_field;
 static menufield_s		s_options_vr_advanced_neckmodel_forward_field;
@@ -113,6 +114,12 @@ static void ChromaFunc( void *unused )
 	Cvar_SetInteger( "vr_chromatic", s_options_vr_advanced_chroma_box.curvalue);
 }
 
+static void PositionFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_positiontracking", s_options_vr_advanced_positiontracking_box.curvalue);
+}
+
+
 static void CustomPredictionFunc(void *unused)
 {
 	float temp;
@@ -132,6 +139,7 @@ static void VRAdvSetMenuItemValues( void )
 	s_options_vr_advanced_hudtrans_box.curvalue = ( Cvar_VariableInteger("vr_hud_transparency") );
 	s_options_vr_advanced_hudbounce_box.curvalue = ( Cvar_VariableInteger("vr_hud_bounce") );
 	s_options_vr_advanced_neckmodel_box.curvalue = ( Cvar_VariableValue("vr_neckmodel") );
+	s_options_vr_advanced_positiontracking_box.curvalue = ( Cvar_VariableValue("vr_positiontracking"));
 	strcpy( s_options_vr_advanced_neckmodel_up_field.buffer, vr_neckmodel_up->string );
 	s_options_vr_advanced_neckmodel_up_field.cursor = strlen( vr_neckmodel_up->string );
 	strcpy( s_options_vr_advanced_neckmodel_forward_field.buffer, vr_neckmodel_forward->string );
@@ -157,6 +165,7 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault("vr_neckmodel");
 	Cvar_SetToDefault("vr_neckmodel_up");
 	Cvar_SetToDefault("vr_neckmodel_forward");
+	Cvar_SetToDefault("vr_positiontracking");
 	VRAdvSetMenuItemValues();
 }
 
@@ -272,9 +281,17 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hudbounce_box.itemnames			= smoothfunc_names;
 	s_options_vr_advanced_hudbounce_box.generic.statusbar	= "enables or disables hud counter rotation";
 	
+	s_options_vr_advanced_positiontracking_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_positiontracking_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_advanced_positiontracking_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_advanced_positiontracking_box.generic.name			= "enable position tracking";
+	s_options_vr_advanced_positiontracking_box.generic.callback		= PositionFunc;
+	s_options_vr_advanced_positiontracking_box.itemnames			= yesno_names;
+	s_options_vr_advanced_positiontracking_box.generic.statusbar	= "enable or disable position tracking if available";
+
 	s_options_vr_advanced_neckmodel_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_neckmodel_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_advanced_neckmodel_box.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_advanced_neckmodel_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_advanced_neckmodel_box.generic.name			= "enable head/neck model";
 	s_options_vr_advanced_neckmodel_box.generic.callback		= NeckFunc;
 	s_options_vr_advanced_neckmodel_box.itemnames			= yesno_names;
@@ -330,6 +347,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudtrans_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudbounce_box );
 	
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_positiontracking_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_up_field );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_neckmodel_forward_field );
