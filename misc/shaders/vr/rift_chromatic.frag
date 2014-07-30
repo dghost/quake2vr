@@ -2,9 +2,6 @@
 
 uniform sampler2D tex;
 
-uniform vec3 minColor;
-
-
 varying vec4 oColor;
 varying vec2 oTexCoord0;
 varying vec2 oTexCoord1;
@@ -16,6 +13,5 @@ void main()
    float ResultR = texture2DLod(tex, oTexCoord0, 0.0).r;
    float ResultG = texture2DLod(tex, oTexCoord1, 0.0).g;
    float ResultB = texture2DLod(tex, oTexCoord2, 0.0).b;
-   vec3 color = max(vec3(ResultR * oColor.r, ResultG * oColor.g, ResultB * oColor.b),minColor);   
-   gl_FragColor = vec4(color, 1.0);
+   gl_FragColor = vec4(ResultR * oColor.r, ResultG * oColor.g, ResultB * oColor.b, 1.0);
 };

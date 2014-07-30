@@ -123,6 +123,7 @@ typedef struct {
 	GLint scale_uniform;
 	GLint blend_uniform;
 	GLint gamma_uniform;
+	GLint mincolor_uniform;
 } r_blitshader_t;
 
 typedef struct {
@@ -267,6 +268,7 @@ void R_BlitTextureToScreen(GLuint texture)
 
 }
 
+extern cvar_t *vr_enabled, *vr_ovr_dk2_color_hack;
 
 void R_BlitWithGamma(GLuint texture, float gamma)
 {
@@ -274,7 +276,10 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 	glUseProgram(gammaAdjust.shader->program);
 	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
 	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);		
-	
+	if (((int32_t) vr_enabled->value) == HMD_RIFT && vr_ovr_dk2_color_hack->value)
+		glUniform3f(gammaAdjust.mincolor_uniform,1.0/255.0,1.0/255.0,1.0/255.0);
+	else
+		glUniform3f(gammaAdjust.mincolor_uniform,0.0,0.0,0.0);	
 	R_DrawQuad();
 	GL_MBind(0,0);
 	glUseProgram(0);
@@ -594,6 +599,7 @@ qboolean R_InitPostsprocessShaders()
 		gammaAdjust.scale_uniform = glGetUniformLocation(gammaAdjust.shader->program,"texScale");
 		glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);	
 		gammaAdjust.gamma_uniform = glGetUniformLocation(gammaAdjust.shader->program,"gamma");
+		gammaAdjust.mincolor_uniform = glGetUniformLocation(gammaAdjust.shader->program,"minColor");
 		glUseProgram(0);
 		success = success && true;
 	}

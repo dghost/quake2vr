@@ -149,23 +149,13 @@ void VR_GetOrientationEMA(vec3_t angle)
 // returns head offset using X forward, Y left, Z up
 int32_t VR_GetHeadOffset(vec3_t offset)
 {
-	vec3_t headOffset;
-
 	if (!hmd)
 		return false;
 
 	if (stale && VR_GetSensorOrientation())
 		stale = 0;
 
-	if (hmd->getHeadOffset && hmd->getHeadOffset(headOffset))
-	{
-		// sure, this probably won't work
-		// apply this using X forward, Y left, Z up
-		VectorScale(headOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M,offset);
-		return true;
-	} 
-
-	return false;
+	return (hmd->getHeadOffset && hmd->getHeadOffset(offset));
 }
 
 void VR_GetHMDPos(int32_t *xpos, int32_t *ypos)

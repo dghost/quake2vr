@@ -794,11 +794,10 @@ void VR_RenderStereo ()
 	// head and neck model stuff
 	if (VR_GetHeadOffset(offset))
 	{
-		vec3_t forward, right, up, out;
-
-		VectorCopy(cl.v_forward,forward);
-		VectorCopy(cl.v_up,up);
-		VectorCopy(cl.v_right,right);
+		vec3_t forward, right, up, out, flatView;
+		float yaw = cl.predicted_angles[YAW];
+		VectorSet(flatView,0,yaw,0);
+		AngleVectors(flatView,forward,right,up);
 
 		VectorNormalize(forward);
 		VectorNormalize(up);
@@ -806,8 +805,8 @@ void VR_RenderStereo ()
 
 		// apply this using X forward, Y left, Z up
 		VectorScale(forward, offset[0] ,forward);
+		VectorScale(right,offset[1],right);
 		VectorScale(up,offset[2],up);
-		VectorScale(right,offset[1],up);
 		VectorAdd(forward,up,out);
 		VectorAdd(out,right,out);
 		VectorAdd(view,out,view); 

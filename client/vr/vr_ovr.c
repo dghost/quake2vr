@@ -14,6 +14,7 @@ void VR_OVR_Shutdown();
 int32_t VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
 int32_t VR_OVR_SetPredictionTime(float time);
+int32_t VR_OVR_getPosition(float pos[3]);
 
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_maxfov;
@@ -22,6 +23,8 @@ cvar_t *vr_ovr_enable;
 cvar_t *vr_ovr_autoprediction;
 cvar_t *vr_ovr_timewarp;
 cvar_t *vr_ovr_dk2_color_hack;
+cvar_t *vr_ovr_positiontracking;
+cvar_t *vr_ovr_lowpersistence;
 
 unsigned char ovrLatencyColor[3];
 qboolean useLatencyColor = false;
@@ -30,7 +33,7 @@ ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
 qboolean withinFrame = false;
 
-ovrPosef framePose;
+ovrTrackingState trackingState;
 ovrFrameTiming frameTime;
 static ovrBool sensorEnabled = 0;
 
@@ -47,7 +50,7 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_FrameEnd,
 	VR_OVR_ResetHMDOrientation,
 	VR_OVR_getOrientation,
-	NULL,
+	VR_OVR_getPosition,
 	VR_OVR_SetPredictionTime
 };
 
@@ -114,32 +117,40 @@ void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e)
 
 int32_t VR_OVR_getOrientation(float euler[3])
 {
+	double time = 0.0;
+
 	if (!hmd)
 		return 0;
-	if (withinFrame && vr_ovr_autoprediction->value > 0)
+
+	if (vr_ovr_autoprediction->value > 0)
+		time = (frameTime.EyeScanoutSeconds[ovrEye_Left] + frameTime.EyeScanoutSeconds[ovrEye_Right]) / 2.0;
+	else
+		time = ovr_GetTimeInSeconds() + prediction_time;
+	trackingState = ovrHmd_GetTrackingState(hmd, time);
+	if (trackingState.StatusFlags & (ovrStatus_OrientationTracked ) )
 	{
-		// really, we should be using both eyes separately
-		// however, for the way we are using the SDK this should always be equal
-		// mostly we are just letting the SDK have it's fun with timing
-		framePose = ovrHmd_GetEyePose(hmd,ovrEye_Left);
-		framePose = ovrHmd_GetEyePose(hmd,ovrEye_Right);
-	} else {
-		// if not, do this by hand
-		ovrTrackingState ss;
-		double time = 0.0;
-		if (vr_ovr_autoprediction->value > 0)
-			time = (frameTime.EyeScanoutSeconds[ovrEye_Left] + frameTime.EyeScanoutSeconds[ovrEye_Right]) / 2.0;
-		else
-			time = ovr_GetTimeInSeconds() + prediction_time;
-		ss = ovrHmd_GetTrackingState(hmd, time);
-		if (ss.StatusFlags & (ovrStatus_OrientationTracked ) )
-		{
-			framePose = ss.HeadPose.ThePose;
-		}
+		VR_OVR_QuatToEuler(trackingState.HeadPose.ThePose.Orientation,euler);
+		return 1;
 	}
-	VR_OVR_QuatToEuler(framePose.Orientation,euler);
-	return 1;
+	return 0;
 }
+
+int32_t VR_OVR_getPosition(float pos[3])
+{
+	if (!hmd)
+		return 0;
+
+	if (vr_ovr_positiontracking->value && ( trackingState.StatusFlags & ovrStatus_PositionTracked))
+	{
+		ovrPosef pose = trackingState.HeadPose.ThePose;
+		VectorSet(pos,-pose.Position.z,pose.Position.x,pose.Position.y);
+		VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
+		return 1;
+	}
+
+	return 0;
+}
+
 
 void VR_OVR_ResetHMDOrientation()
 {
@@ -156,6 +167,9 @@ void VR_OVR_InitSensor()
 		sensorEnabled = 0;
 	}
 
+	if (1)
+		sensorCaps |= ovrTrackingCap_Position;
+
 	Com_Printf("Initializing sensor: ");
 	sensorEnabled = ovrHmd_ConfigureTracking(hmd,sensorCaps, ovrTrackingCap_Orientation);
 	if (sensorEnabled)
@@ -164,8 +178,6 @@ void VR_OVR_InitSensor()
 		ss = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds() + prediction_time);
 		Com_Printf("ok!\n");
 
-		if (ss.StatusFlags & ovrStatus_HmdConnected)
-			Com_Printf("...sensor has HMD connected\n");
 		if (ss.StatusFlags & ovrStatus_PositionConnected)
 			Com_Printf("...sensor has position tracking support\n");
 		if (ss.StatusFlags & ovrStatus_OrientationTracked)
@@ -206,6 +218,15 @@ void VR_OVR_FrameStart()
 			Cvar_SetInteger("vr_prediction",(int) ms);
 	}
 
+	if (vr_ovr_lowpersistence->modified)
+	{
+		unsigned int caps = ovrHmdCap_DynamicPrediction;
+		if (vr_ovr_lowpersistence->value)
+			caps |= ovrHmdCap_LowPersistence;
+		
+		ovrHmd_SetEnabledCaps(hmd,caps);
+		vr_ovr_lowpersistence->modified = false;
+	}
 
 	if (!withinFrame)
 	{
@@ -271,10 +292,6 @@ int32_t VR_OVR_Enable()
 
 	if (!hmd)
 		return 0;
-
-//	hmdCaps = ovrHmd_GetEnabledCaps(hmd);
-
-	
 	if (hmd->HmdCaps & ovrHmdCap_Available)
 		Com_Printf("...sensor is available\n");
 	if (hmd->HmdCaps & ovrHmdCap_LowPersistence)
@@ -310,7 +327,9 @@ int32_t VR_OVR_Init()
 	ovrBool init = ovr_Initialize();
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
+	vr_ovr_positiontracking = Cvar_Get("vr_ovr_positiontracking","1",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
+	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);

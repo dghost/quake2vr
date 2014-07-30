@@ -25,7 +25,7 @@ hmd_render_t vr_render_ovr =
 
 extern ovrHmd hmd;
 extern ovrEyeRenderDesc eyeDesc[2];
-extern ovrPosef framePose;
+extern ovrTrackingState trackingState;
 extern ovrFrameTiming frameTime;
 extern qboolean withinFrame;
 
@@ -128,7 +128,6 @@ typedef struct {
 	r_shaderobject_t *shader;
 	struct {
 		GLuint tex;
-		GLuint minColor;
 		GLuint EyeToSourceUVScale;
 		GLuint EyeToSourceUVOffset;
 		GLuint EyeRotationStart;
@@ -152,7 +151,6 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.EyeToSourceUVScale = glGetUniformLocation(shader->shader->program,"EyeToSourceUVScale");
 	shader->uniform.EyeRotationStart = glGetUniformLocation(shader->shader->program,"EyeRotationStart");
 	shader->uniform.EyeRotationEnd = glGetUniformLocation(shader->shader->program,"EyeRotationEnd");
-	shader->uniform.minColor = glGetUniformLocation(shader->shader->program,"minColor");
 	shader->uniform.tex = glGetUniformLocation(shader->shader->program,"tex");
 	glUseProgram(0);
 }
@@ -195,7 +193,7 @@ void OVR_CalculateState(vr_param_t *state)
 			eyeDesc[eye].ViewAdjust.y,
 			eyeDesc[eye].ViewAdjust.z);
 
-		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic, &meshData);
+		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
 
 		mesh = (ovr_vert_t *) malloc(sizeof(ovr_vert_t) * meshData.VertexCount);
 		v = mesh;
@@ -333,10 +331,7 @@ void OVR_Present(qboolean loading)
 
 		glUseProgram(currentShader->shader->program);
 		glUniform1i(currentShader->uniform.tex,0);
-		if (vr_ovr_dk2_color_hack->value)
-			glUniform3f(currentShader->uniform.minColor,1.0/255.0,1.0/255.0,1.0/255.0);
-		else
-			glUniform3f(currentShader->uniform.minColor,0.0,0.0,0.0);
+
 		for (i = 0; i < 2; i++)
 		{
 			// hook for rendering in different order
@@ -352,6 +347,7 @@ void OVR_Present(qboolean loading)
 
 			if (warp)
 			{
+				ovrPosef framePose = trackingState.HeadPose.ThePose;
 				ovrMatrix4f timeWarpMatrices[2];
 				ovrHmd_GetEyeTimewarpMatrices(hmd, (ovrEyeType)eye, framePose, timeWarpMatrices);
 				glUniformMatrix4fv(currentShader->uniform.EyeRotationStart,1,GL_TRUE,(GLfloat *) timeWarpMatrices[0].M);
