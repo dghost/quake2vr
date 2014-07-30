@@ -28,6 +28,7 @@ cvar_t *vr_neckmodel_forward;
 cvar_t *vr_hmdtype;
 cvar_t *vr_prediction;
 cvar_t *vr_hmdstring;
+cvar_t *vr_positiontracking;
 
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
@@ -149,7 +150,7 @@ void VR_GetOrientationEMA(vec3_t angle)
 // returns head offset using X forward, Y left, Z up
 int32_t VR_GetHeadOffset(vec3_t offset)
 {
-	if (!hmd)
+	if (!hmd || !vr_positiontracking->value)
 		return false;
 
 	if (stale && VR_GetSensorOrientation())
@@ -403,6 +404,7 @@ void VR_Startup(void)
 	}
 
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
+	vr_positiontracking = Cvar_Get("vr_positiontracking","1",CVAR_ARCHIVE);
 	vr_prediction = Cvar_Get("vr_prediction","30",CVAR_ARCHIVE);
 	vr_nosleep = Cvar_Get("vr_nosleep", "1", CVAR_ARCHIVE);
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_ARCHIVE);

@@ -23,11 +23,9 @@ cvar_t *vr_ovr_enable;
 cvar_t *vr_ovr_autoprediction;
 cvar_t *vr_ovr_timewarp;
 cvar_t *vr_ovr_dk2_color_hack;
-cvar_t *vr_ovr_positiontracking;
 cvar_t *vr_ovr_lowpersistence;
 
 unsigned char ovrLatencyColor[3];
-qboolean useLatencyColor = false;
 
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
@@ -36,6 +34,8 @@ qboolean withinFrame = false;
 ovrTrackingState trackingState;
 ovrFrameTiming frameTime;
 static ovrBool sensorEnabled = 0;
+
+static qboolean positionTracked;
 
 static double prediction_time;
 
@@ -135,20 +135,32 @@ int32_t VR_OVR_getOrientation(float euler[3])
 	return 0;
 }
 
+void SCR_CenterAlert (char *str);
 int32_t VR_OVR_getPosition(float pos[3])
 {
+	qboolean tracked;
 	if (!hmd)
 		return 0;
-
-	if (vr_ovr_positiontracking->value && ( trackingState.StatusFlags & ovrStatus_PositionTracked))
+	tracked = trackingState.StatusFlags & ovrStatus_PositionTracked ? 1 : 0;
+	if (tracked)
 	{
 		ovrPosef pose = trackingState.HeadPose.ThePose;
 		VectorSet(pos,-pose.Position.z,pose.Position.x,pose.Position.y);
 		VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
-		return 1;
 	}
 
-	return 0;
+	if (hmd->TrackingCaps && ovrTrackingCap_Position)
+	{ 
+		if (tracked && !positionTracked)
+			SCR_CenterAlert("Position tracking enabled");
+		else if (!tracked && positionTracked)
+			SCR_CenterAlert("Position tracking interrupted");
+
+	}
+	
+	positionTracked = tracked;
+
+	return tracked;
 }
 
 
@@ -220,8 +232,11 @@ void VR_OVR_FrameStart()
 
 	if (vr_ovr_lowpersistence->modified)
 	{
-		unsigned int caps = ovrHmdCap_DynamicPrediction;
-		if (vr_ovr_lowpersistence->value)
+		unsigned int caps = 0;
+		if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)
+			caps |= ovrHmdCap_DynamicPrediction;
+
+		if (hmd->HmdCaps & ovrHmdCap_LowPersistence && vr_ovr_lowpersistence->value)
 			caps |= ovrHmdCap_LowPersistence;
 		
 		ovrHmd_SetEnabledCaps(hmd,caps);
@@ -292,13 +307,14 @@ int32_t VR_OVR_Enable()
 
 	if (!hmd)
 		return 0;
+	if (hmd->HmdCaps & ovrHmdCap_ExtendDesktop)
+		Com_Printf("...running in extended desktop mode\n");
 	if (hmd->HmdCaps & ovrHmdCap_Available)
 		Com_Printf("...sensor is available\n");
 	if (hmd->HmdCaps & ovrHmdCap_LowPersistence)
 		Com_Printf("...supports low persistance\n");
 	if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)
 		Com_Printf("...supports dynamic motion prediction\n");
-
 	if (hmd->TrackingCaps & ovrTrackingCap_Position)
 		Com_Printf("...supports position tracking\n");
 
@@ -327,13 +343,13 @@ int32_t VR_OVR_Init()
 	ovrBool init = ovr_Initialize();
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
-	vr_ovr_positiontracking = Cvar_Get("vr_ovr_positiontracking","1",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
 	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
+
 	if (!init)
 	{
 		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
