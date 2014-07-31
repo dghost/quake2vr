@@ -8,7 +8,7 @@
 #include "../vr/include/vr_steamvr.h"
 
 //static fbo_t world;
-static fbo_t left, right;
+static fbo_t left, right, offscreen;
 
 static vr_rect_t renderTargetRect, origTargetRect;
 static vr_rect_t leftRenderRect, rightRenderRect;
@@ -156,6 +156,7 @@ void SVR_GetState(vr_param_t *state)
 	svrState.pixelScale = 3.0;
 	svrState.eyeFBO[0] = &left;
 	svrState.eyeFBO[1] = &right;
+	svrState.offscreen = &offscreen;
 	*state = svrState;
 }
 
@@ -223,6 +224,9 @@ void SVR_Disable()
 		R_DelFBO(&left);
 	if (right.valid)
 		R_DelFBO(&right);
+	if (offscreen.valid)
+		R_DelFBO(&offscreen);
+
 
 	if (leftDistortion)
 		glDeleteTextures(2,&leftDistortion[0]);
@@ -235,12 +239,6 @@ void SVR_Disable()
 	rightDistortion[1] = 0;
 }
 
-void SVR_CalculateRenderParams()
-{
-
-}
-
-
 int32_t SVR_Enable()
 {
 	char string[128];
@@ -252,6 +250,8 @@ int32_t SVR_Enable()
 		R_DelFBO(&left);
 	if (right.valid)
 		R_DelFBO(&right);
+	if (offscreen.valid)
+		R_DelFBO(&offscreen);
 
 	if (!leftDistortion[0])
 		glGenTextures(2,&leftDistortion[0]);

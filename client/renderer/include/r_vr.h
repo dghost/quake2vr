@@ -20,6 +20,7 @@ typedef struct {
 	float pixelScale;
 	float aspect;
 	fbo_t* eyeFBO[2];
+	fbo_t* offscreen;
 	eye_param_t renderParams[2];
 } vr_param_t;
 

@@ -41,6 +41,7 @@ static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_prediction_box;
 static menulist_s		s_options_vr_ovr_lowpersistence_box;
+static menulist_s		s_options_vr_ovr_lumaoverdrive_box;
 static menulist_s		s_options_vr_ovr_dk2_color_hack_box;
 static menulist_s		s_options_vr_ovr_timewarp_box;
 static menulist_s		s_options_vr_ovr_debug_box;
@@ -79,6 +80,11 @@ static void PersistenceFunc( void *unused)
 	Cvar_SetInteger("vr_ovr_lowpersistence", s_options_vr_ovr_lowpersistence_box.curvalue);
 }
 
+static void LumaFunc( void *unused)
+{
+	Cvar_SetInteger("vr_ovr_lumoverdrive", s_options_vr_ovr_lumaoverdrive_box.curvalue);
+}
+
 static void ColorHackFunc( void *unused)
 {
 	Cvar_SetInteger("vr_ovr_dk2_color_hack", s_options_vr_ovr_dk2_color_hack_box.curvalue);
@@ -92,6 +98,7 @@ static void VROVRSetMenuItemValues( void )
 	s_options_vr_ovr_prediction_box.curvalue = ( Cvar_VariableInteger("vr_ovr_autoprediction") );
 	s_options_vr_ovr_timewarp_box.curvalue = ( Cvar_VariableInteger("vr_ovr_timewarp") );
 	s_options_vr_ovr_lowpersistence_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lowpersistence") );
+	s_options_vr_ovr_lumaoverdrive_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lumoverdrive") );
 	s_options_vr_ovr_dk2_color_hack_box.curvalue = ( Cvar_VariableInteger("vr_ovr_dk2_color_hack") );
 }
 
@@ -103,6 +110,7 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_autoprediction");
 	Cvar_SetToDefault ("vr_ovr_timewarp");
 	Cvar_SetToDefault ("vr_ovr_lowpersistence");
+	Cvar_SetToDefault ("vr_ovr_lumoverdrive");
 	Cvar_SetToDefault ("vr_ovr_dk2_color_hack");
 	VROVRSetMenuItemValues();
 }
@@ -210,6 +218,14 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_lowpersistence_box.itemnames			= yesno_names;
 	s_options_vr_ovr_lowpersistence_box.generic.statusbar	= "enables low persistence on DK2 and above";
 
+	s_options_vr_ovr_lumaoverdrive_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_lumaoverdrive_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_lumaoverdrive_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_lumaoverdrive_box.generic.name		= "lumanence overdrive";
+	s_options_vr_ovr_lumaoverdrive_box.generic.callback	= LumaFunc;
+	s_options_vr_ovr_lumaoverdrive_box.itemnames			= yesno_names;
+	s_options_vr_ovr_lumaoverdrive_box.generic.statusbar	= "enables lumanance overdrive on DK2 and above";
+
 	s_options_vr_ovr_dk2_color_hack_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_dk2_color_hack_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_dk2_color_hack_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -248,7 +264,8 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
-	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lowpersistence_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lowpersistence_box );	
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lumaoverdrive_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_dk2_color_hack_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	

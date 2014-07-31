@@ -16,7 +16,8 @@ extern cvar_t *vr_ovr_autoprediction;
 extern cvar_t *vr_ovr_supersample;
 extern cvar_t *vr_ovr_timewarp;
 extern cvar_t *vr_ovr_dk2_color_hack;
-
+extern cvar_t *vr_ovr_lowpersistence;
+extern cvar_t *vr_ovr_lumoverdrive;
 extern hmd_interface_t hmd_rift;
 
 #endif

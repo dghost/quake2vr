@@ -48,6 +48,9 @@ static ovr_eye_info_t renderInfo[2];
 
 static qboolean useChroma;
 
+static fbo_t offscreen[2];
+static int currentFrame = 0;
+
 r_attrib_t distAttribs[] = {
 	{"Position",0},
 	{"TexCoord",2},
@@ -127,11 +130,13 @@ static attribs_t distortion_attribs[5] = {
 typedef struct {
 	r_shaderobject_t *shader;
 	struct {
-		GLuint tex;
+		GLuint currentFrame;
+		GLuint lastFrame;
 		GLuint EyeToSourceUVScale;
 		GLuint EyeToSourceUVOffset;
 		GLuint EyeRotationStart;
 		GLuint EyeRotationEnd;
+		GLuint OverdriveScales;
 	} uniform;
 
 } r_ovr_shader_t;
@@ -142,6 +147,7 @@ static r_ovr_shader_t ovr_timewarp_shaders[2];
 // util function
 void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 {
+	GLint texloc;
 	if (!object->program)
 		R_CompileShaderFromFiles(object);
 
@@ -151,10 +157,19 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.EyeToSourceUVScale = glGetUniformLocation(shader->shader->program,"EyeToSourceUVScale");
 	shader->uniform.EyeRotationStart = glGetUniformLocation(shader->shader->program,"EyeRotationStart");
 	shader->uniform.EyeRotationEnd = glGetUniformLocation(shader->shader->program,"EyeRotationEnd");
-	shader->uniform.tex = glGetUniformLocation(shader->shader->program,"tex");
+
+	shader->uniform.OverdriveScales = glGetUniformLocation(shader->shader->program,"OverdriveScales");
+
+	texloc = glGetUniformLocation(shader->shader->program,"currentFrame");
+	glUniform1i(texloc,0);
+	shader->uniform.currentFrame = texloc;
+
+	texloc = glGetUniformLocation(shader->shader->program,"lastFrame");
+	glUniform1i(texloc,1);
+	shader->uniform.lastFrame = texloc;
+
 	glUseProgram(0);
 }
-
 
 
 void OVR_CalculateState(vr_param_t *state)
@@ -260,6 +275,13 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		useChroma = (qboolean) !!vr_chromatic->value;
 	}
 
+	if (vr_ovr_lumoverdrive->modified)
+	{
+		changeBackBuffers = 1;
+		currentFrame = 0;
+		vr_ovr_lumoverdrive->modified = false;
+	}
+
 	if (changeBackBuffers)
 	{
 		int i;
@@ -290,6 +312,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 void OVR_GetState(vr_param_t *state)
 {
 	*state = currentState;
+	state->offscreen = &offscreen[currentFrame];
 }
 
 void R_Clear (void);
@@ -330,7 +353,18 @@ void OVR_Present(qboolean loading)
 		glEnableVertexAttribArray (4);
 
 		glUseProgram(currentShader->shader->program);
-		glUniform1i(currentShader->uniform.tex,0);
+
+		if (vr_ovr_lumoverdrive->value)
+		{
+			int lastFrame = (currentFrame + 1) % 2;
+			static float overdriveScaleRegularRise = 0.1f;
+			static float overdriveScaleRegularFall = 0.05f;	// falling issues are hardly visible
+
+			GL_MBind(1,offscreen[lastFrame].texture);
+			glUniform2f(currentShader->uniform.OverdriveScales,overdriveScaleRegularRise, overdriveScaleRegularFall);
+		} else {
+			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
+		}
 
 		for (i = 0; i < 2; i++)
 		{
@@ -344,6 +378,9 @@ void OVR_Present(qboolean loading)
 
 			glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
 				renderInfo[eye].UVScaleOffset[1].x, renderInfo[eye].UVScaleOffset[1].y);
+	
+			
+
 
 			if (warp)
 			{
@@ -354,8 +391,15 @@ void OVR_Present(qboolean loading)
 				glUniformMatrix4fv(currentShader->uniform.EyeRotationEnd,1,GL_TRUE,(GLfloat *) timeWarpMatrices[1].M);
 			}
 
+
 			R_DrawIVBO(&renderInfo[eye].eye);
 			R_ReleaseIVBO();
+		}
+
+		if (vr_ovr_lumoverdrive->value)
+		{
+			GL_MBind(1,0);
+			currentFrame = (currentFrame + 1) % 2;
 		}
 
 		GL_MBind(0,0);
@@ -401,13 +445,18 @@ void OVR_Present(qboolean loading)
 
 int32_t OVR_Enable()
 {
+	int i;
 	if (!glConfig.arb_texture_float)
 		return 0;
-	if (renderInfo[0].eyeFBO.valid)
-		R_DelFBO(&renderInfo[0].eyeFBO);
-	if (renderInfo[1].eyeFBO.valid)
-		R_DelFBO(&renderInfo[1].eyeFBO);
 
+	for (i = 0; i < 2; i++)
+	{
+		if (renderInfo[i].eyeFBO.valid)
+			R_DelFBO(&renderInfo[i].eyeFBO);
+		if (offscreen[i].valid)
+			R_DelFBO(&offscreen[i]);
+	}
+	
 	R_CreateIVBO(&renderInfo[0].eye,GL_STATIC_DRAW);
 	R_CreateIVBO(&renderInfo[1].eye,GL_STATIC_DRAW);
 
@@ -425,26 +474,34 @@ int32_t OVR_Enable()
 
 void OVR_Disable()
 {
+	int i;
 
 	R_DelShaderProgram(&ovr_shader_norm);
 	R_DelShaderProgram(&ovr_shader_chrm);
 	R_DelShaderProgram(&ovr_shader_warp);
 	R_DelShaderProgram(&ovr_shader_chrm_warp);
 
-	if (renderInfo[0].eyeFBO.valid)
-		R_DelFBO(&renderInfo[0].eyeFBO);
-	if (renderInfo[1].eyeFBO.valid)
-		R_DelFBO(&renderInfo[1].eyeFBO);
 
-	R_DelIVBO(&renderInfo[0].eye);
-	R_DelIVBO(&renderInfo[1].eye);
+	for (i = 0; i < 2; i++)
+	{
+		if (renderInfo[i].eyeFBO.valid)
+			R_DelFBO(&renderInfo[i].eyeFBO);
+		if (offscreen[i].valid)
+			R_DelFBO(&offscreen[i]);
+		R_DelIVBO(&renderInfo[i].eye);
+	}
 }
 
 int32_t OVR_Init()
 {
-	R_InitFBO(&renderInfo[0].eyeFBO);
-	R_InitFBO(&renderInfo[1].eyeFBO);
-	R_InitIVBO(&renderInfo[0].eye);
-	R_InitIVBO(&renderInfo[1].eye);
+	int i;
+	for (i = 0; i < 2; i++)
+	{
+		R_InitFBO(&renderInfo[i].eyeFBO);
+		R_InitFBO(&offscreen[i]);
+		R_InitIVBO(&renderInfo[i].eye);
+		
+	}
+
 	return true;
 }

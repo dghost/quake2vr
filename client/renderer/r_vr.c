@@ -4,7 +4,7 @@
 #include "include/r_vr_svr.h"
 
 #define MAX_SEGMENTS 25
-static fbo_t offscreen, hud;
+static fbo_t hud;
 
 static hmd_render_t vr_render_none =
 {
@@ -192,11 +192,11 @@ void R_VR_StartFrame()
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	R_AntialiasSetFBOSize(&offscreen);
-	if (offscreen.width != screen.width || offscreen.height != screen.height)
+	R_AntialiasSetFBOSize(vrState.offscreen);
+	if (vrState.offscreen->width != screen.width || vrState.offscreen->height != screen.height)
 	{
-		screen.height = offscreen.height;
-		screen.width = offscreen.width;
+		screen.height = vrState.offscreen->height;
+		screen.width = vrState.offscreen->width;
 		resolutionChanged = true;
 	}
 
@@ -280,7 +280,7 @@ fbo_t* R_VR_GetFrameFBO()
 {
 	if (!vr_enabled->value)
 		return NULL;
-	return &offscreen;	
+	return vrState.offscreen;	
 }
 
 
@@ -383,7 +383,7 @@ void R_VR_EndFrame()
 		R_VR_DrawHud();
 
 		// draw the HUD 
-		R_BindFBO(&offscreen);
+		R_BindFBO(vrState.offscreen);
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
@@ -427,9 +427,6 @@ void R_VR_Enable()
 		// TODO: conditional this shit up
 		if (hud.valid)
 			R_DelFBO(&hud);
-
-		if (offscreen.valid)
-			R_DelFBO(&offscreen);
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
@@ -489,8 +486,6 @@ void R_VR_Disable()
 		hmd->disable();
 	if (hud.valid)
 		R_DelFBO(&hud);
-	if (offscreen.valid)
-		R_DelFBO(&offscreen);
 
 	R_DelShaderProgram(&vr_shader_distort_norm);
 	R_DelShaderProgram(&vr_shader_distort_chrm);
@@ -511,7 +506,6 @@ void R_VR_Init()
 	}
 
 	R_InitFBO(&hud);
-	R_InitFBO(&offscreen);
 	R_InitIVBO(&hudVBO);
 
 	if (vr_enabled->value)
