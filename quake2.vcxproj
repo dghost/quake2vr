@@ -91,7 +91,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
@@ -135,7 +135,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -180,7 +180,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\steam\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>

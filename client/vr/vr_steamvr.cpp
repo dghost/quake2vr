@@ -1,7 +1,8 @@
 #ifndef NO_STEAM
 
 #include "include/vr_steamvr.h"
-#include <steamvr.h>
+#include <steam/steam_api.h>
+#include <steam/steamvr.h>
 #include <cstdlib>
 
 static vr::IHmd *hmd;
@@ -9,6 +10,7 @@ static vr::IHmd *hmd;
 
 int32_t SteamVR_Init()
 {
+	SteamAPI_Init();
 	if (hmd)
 	{
 		vr::VR_Shutdown();
@@ -40,6 +42,7 @@ void SteamVR_Disable()
 void SteamVR_Shutdown()
 {
 	SteamVR_Disable();
+	SteamAPI_Shutdown();
 }
 
 int32_t SteamVR_GetSettings(svr_settings_t *settings)
