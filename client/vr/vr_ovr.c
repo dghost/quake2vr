@@ -270,6 +270,7 @@ int32_t VR_OVR_Enable()
 
 	if (!vr_ovr_enable->value)
 		return 0;
+
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
 	withinFrame = false;
@@ -308,8 +309,17 @@ int32_t VR_OVR_Enable()
 
 	if (!hmd)
 		return 0;
+
 	if (hmd->HmdCaps & ovrHmdCap_ExtendDesktop)
+	{
 		Com_Printf("...running in extended desktop mode\n");
+	} else {
+		Com_Printf("...running in Direct HMD mode\n");
+		Com_Printf("...Direct HMD mode is unsupported at this time\n");
+		VR_OVR_Disable();
+		return 0;
+	}
+
 	if (hmd->HmdCaps & ovrHmdCap_Available)
 		Com_Printf("...sensor is available\n");
 	if (hmd->HmdCaps & ovrHmdCap_LowPersistence)

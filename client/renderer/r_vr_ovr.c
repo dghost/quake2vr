@@ -2,7 +2,7 @@
 #include "../vr/include/vr_ovr.h"
 #include "include/r_local.h"
 #include "OVR_CAPI.h"
-
+#include "../../backends/sdl2/sdl2quake.h"
 
 
 void OVR_FrameStart(int32_t changeBackBuffers);
@@ -448,6 +448,11 @@ int32_t OVR_Enable()
 	int i;
 	if (!glConfig.arb_texture_float)
 		return 0;
+
+	if (hmd && !(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
+	{
+		ovrHmd_AttachToWindow(hmd,mainWindowInfo.info.win.window,NULL,NULL);
+	}
 
 	for (i = 0; i < 2; i++)
 	{
