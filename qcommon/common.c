@@ -131,6 +131,10 @@ void Com_Printf (char *fmt, ...)
 	// also echo to debugging console
 	if (msg[strlen(msg)-1] != '\r') // skip overwrittten outputs
 		Sys_ConsoleOutput (msg);
+#ifdef _DEBUG
+	OutputDebugString(msg);
+#endif
+
 #endif
 	// logfile
 	if (logfile_active && logfile_active->value)
