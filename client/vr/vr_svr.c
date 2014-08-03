@@ -5,6 +5,7 @@
 
 svr_settings_t svr_settings;
 static float predictionTime;
+static qboolean hasBeenInitialized = 0;
 
 cvar_t *vr_svr_distortion;
 cvar_t *vr_svr_debug;
@@ -14,11 +15,24 @@ int32_t VR_SVR_Enable()
 {
 	if (!vr_svr_enable->value)
 		return 0;
+
+	if (!hasBeenInitialized)
+	{
+		hasBeenInitialized = SteamVR_Init();
+		if (!hasBeenInitialized)
+		{
+			Com_Printf("VR_SVR: Fatal error initializing SteamVR support");
+			return 0;
+		}
+		Com_Printf("VR_SVR: SteamVR support initialized...\n");
+	}
+
 	if (!SteamVR_Enable())
 	{
 		Com_Printf("VR_SVR: Error, no HMD detected!\n");
 		return 0;
 	}
+
 	else {
 		qboolean result = false;
 		Com_Printf("VR_SVR: Initializing HMD:");
@@ -43,20 +57,18 @@ void VR_SVR_Disable()
 
 int32_t VR_SVR_Init()
 {
-	int32_t result = SteamVR_Init();
-	if (result)
-		Com_Printf("VR_SVR: SteamVR support initialized...\n");
-
 	vr_svr_enable = Cvar_Get("vr_svr_enable","1",CVAR_ARCHIVE);
 	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_ARCHIVE);
 	vr_svr_debug = Cvar_Get("vr_svr_debug","0",0);
-	return result;
+	return 1;
 }
 
 
 void VR_SVR_Shutdown()
 {
-	SteamVR_Shutdown();
+	if (hasBeenInitialized)
+		SteamVR_Shutdown();
+	hasBeenInitialized = 0;
 }
 
 void VR_SVR_GetHMDPos(int32_t *xpos, int32_t *ypos)

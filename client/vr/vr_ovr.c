@@ -36,6 +36,8 @@ ovrTrackingState trackingState;
 ovrFrameTiming frameTime;
 static ovrBool sensorEnabled = 0;
 
+static ovrBool hasBeenInitialized = 0;
+
 static qboolean positionTracked;
 
 static double prediction_time;
@@ -271,6 +273,18 @@ int32_t VR_OVR_Enable()
 	if (!vr_ovr_enable->value)
 		return 0;
 
+	if (!hasBeenInitialized)
+	{
+		hasBeenInitialized = ovr_Initialize();
+		if (!hasBeenInitialized)
+		{
+			Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
+			return 0;
+		} else {
+			Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());
+		}
+	}
+
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
 	withinFrame = false;
@@ -317,6 +331,7 @@ int32_t VR_OVR_Enable()
 		Com_Printf("...running in Direct HMD mode\n");
 		Com_Printf("...Direct HMD mode is unsupported at this time\n");
 		VR_OVR_Disable();
+		VR_OVR_Shutdown();
 		return 0;
 	}
 
@@ -351,7 +366,7 @@ void VR_OVR_Disable()
 
 int32_t VR_OVR_Init()
 {
-	ovrBool init = ovr_Initialize();
+
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
@@ -363,20 +378,14 @@ int32_t VR_OVR_Init()
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
 
-	if (!init)
-	{
-		Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
-		return 0;
-	}
-
-	Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());
-
-	return 0;
+	return 1;
 }
 
 void VR_OVR_Shutdown()
 {
-	ovr_Shutdown();
+	if (hasBeenInitialized)
+		ovr_Shutdown();
+	hasBeenInitialized = 0;
 }
 
 
