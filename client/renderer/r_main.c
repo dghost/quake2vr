@@ -1214,7 +1214,7 @@ void R_Register (void)
 
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
-	vid_brightness = Cvar_Get("vid_brightness","0.4",CVAR_ARCHIVE);
+	vid_brightness = Cvar_Get("vid_brightness","0.6",CVAR_ARCHIVE);
 	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
