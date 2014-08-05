@@ -794,23 +794,20 @@ void VR_RenderStereo ()
 	// head and neck model stuff
 	if (VR_GetHeadOffset(offset))
 	{
+		vec3_t orient;
 		vec3_t out;
 		vec3_t flatView,forward,right,up;
-		float yaw = cl.bodyangles[YAW] + (cl.predicted_angles[YAW] - cl.aimangles[YAW]);
-		float temp = floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-//		vec_t mat3x3[3][3];
+		float yaw;
+		float temp;
+		
+		VR_GetOrientation(orient);
 
+		yaw = cl.refdef.viewangles[YAW]- orient[YAW];
+		temp = floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
 		yaw = yaw - temp;
 
 		if (yaw > 180.0f)
 			yaw -= 360.0f;
-
-		/*
-		// y no this work?
-		RotationMatrix3(yaw,0,0,1,mat3x3);
-		VectorRotate(offset,mat3x3,out);
-		VectorAdd(view,out,view);
-		*/
 
 		VectorSet(flatView,0,yaw,0);
 		AngleVectors(flatView,forward,right,up);
