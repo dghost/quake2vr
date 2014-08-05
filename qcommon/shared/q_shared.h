@@ -330,6 +330,7 @@ void EulerToQuat(vec3_t in, vec4_t out);
 void QuatToRotation(vec4_t q, float out[4][4]);
 
 void RotationMatrix(vec_t angle, vec_t x, vec_t y, vec_t z, vec_t out[4][4]);
+void RotationMatrix3(vec_t angle, vec_t x, vec_t y, vec_t z, vec_t out[3][3]);
 void TranslationMatrix(vec_t x, vec_t y, vec_t z, vec_t out[4][4]);
 void MatrixMultiply (vec_t in1[4][4], vec_t in2[4][4], vec_t out[4][4]);
 

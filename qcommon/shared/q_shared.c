@@ -306,6 +306,36 @@ void RotationMatrix(vec_t angle, vec_t x, vec_t y, vec_t z, vec_t out[4][4])
 
 /*
 ================
+RotationMatrix
+================
+*/
+void RotationMatrix3(vec_t angle, vec_t x, vec_t y, vec_t z, vec_t out[3][3])
+{
+	vec_t phi = DEG2RAD(angle);
+    vec_t c = cosf(phi);    // cosine
+    vec_t s = sinf(phi);    // sine
+    vec_t xx = x * x;
+    vec_t xy = x * y;
+    vec_t xz = x * z;
+    vec_t yy = y * y;
+    vec_t yz = y * z;
+    vec_t zz = z * z;
+
+    // build rotation matrix
+    out[0][0] = xx * (1 - c) + c;
+    out[1][0] = xy * (1 - c) - z * s;
+    out[2][0] = xz * (1 - c) + y * s;
+    out[0][1] = xy * (1 - c) + z * s;
+    out[1][1] = yy * (1 - c) + c;
+    out[2][1] = yz * (1 - c) - x * s;
+    out[0][2] = xz * (1 - c) - y * s;
+    out[1][2] = yz * (1 - c) + x * s;
+    out[2][2] = zz * (1 - c) + c;
+}
+
+
+/*
+================
 TranslationMatrix
 ================
 */
