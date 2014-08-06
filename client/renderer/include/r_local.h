@@ -1051,6 +1051,7 @@ void R_BlitWithGamma(GLuint texture, float gamma);
 void R_FXAAFBO(fbo_t *source);
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
 void R_BloomFBO(fbo_t *source);
+void R_ApplyPostProcess(fbo_t *source);
 void R_PostProcessInit();
 void R_PostProcessShutdown();
 void R_PostProcessInit();

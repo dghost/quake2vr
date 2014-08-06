@@ -285,58 +285,10 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 	glUseProgram(0);
 }
 
-
-void R_FXAAFBO(fbo_t *source)
-{
-	if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
-	{
-		fbo_t *currentFBO = glState.currentFBO;
-
-		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
-		{
-			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
-		}
-
-		GL_LoadIdentity(GL_PROJECTION);
-		GL_LoadIdentity(GL_MODELVIEW);
-		GL_Disable(GL_DEPTH_TEST);
-
-		GL_MBind(0,source->texture);		
-		glUseProgram(fxaa.shader->program);
-		glUniform2f(fxaa.res_uniform,source->width,source->height);
-		glUniform2f(fxaa.scale_uniform,1.0,1.0);
-
-		R_BindFBO(&fxaaFBO);
-		GL_ClearColor(0,0,0,0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-		R_SetupQuadState();
-
-		R_DrawQuad();
-
-		glUseProgram(passthrough.shader->program);
-		glUniform2f(passthrough.scale_uniform,1.0,1.0);
-		GL_MBind(0,fxaaFBO.texture);
-		R_BindFBO(source);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		R_DrawQuad();
-
-		GL_MBind(0,0);
-		glUseProgram(0);
-
-		R_TeardownQuadState();
-
-		GL_Enable(GL_DEPTH_TEST);
-	}
-}
-
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 {
 	if (blurSupported && r_blur->value && blurScale > 0.0)
 	{
-		fbo_t *currentFBO = glState.currentFBO;
 		GLuint width, height;
 		float scale = r_blur_texscale->value;
 		float size = blurScale * r_blur_radius->value;
@@ -347,10 +299,7 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 		if (size <= 0)
 			return;
 
-		if ((int) r_antialias->value == ANTIALIAS_4X_FSAA)
-			scale /= 2.0;
-		else if ((int) r_antialias->value == ANTIALIAS_FXAA_FSS)
-			scale /= 1.3333;
+		scale /=  R_AntialiasGetScale();
 
 		size *= scale;
 
@@ -373,32 +322,23 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 		width = (source->width * scale);
 		height = (source->height * scale);
 
-		if (width > pongFBO.width || height > pongFBO.height)
-		{
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pongFBO);
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pingFBO);
-		}
-
 		xCoord = width / (float) pongFBO.width;
 		yCoord = height / (float) pongFBO.height;
 
 		//		Com_Printf("Weights: %f %f %f %f %f\n",weights[0],weights[1],weights[2],weights[3],weights[4]);
 
-		GL_ClearColor(0,0,0,0);
-		GL_LoadIdentity(GL_PROJECTION);
-		GL_LoadIdentity(GL_MODELVIEW);
-		GL_Disable(GL_DEPTH_TEST);
+
 		glUseProgram(blurXshader.shader->program);
 		glUniform2f(blurXshader.res_uniform,width,height);
 		glUniform1fv(blurXshader.weight_uniform,5,weights);
 		glUniform2f(blurXshader.scale_uniform,1.0,1.0);
 
 		GL_MBind(0,source->texture);
-		R_BindFBO(&pongFBO);
+		GL_BindFBO(&pongFBO);
 		//		GL_BindFBO(pongFBO.framebuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,width,height);
-		R_SetupQuadState();
+
 		R_DrawQuad();
 
 		glUseProgram(blurYshader.shader->program);
@@ -407,7 +347,7 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 		glUniform2f(blurYshader.scale_uniform,xCoord,yCoord);
 
 		GL_MBind(0,pongFBO.texture);
-		R_BindFBO(&pingFBO);
+		GL_BindFBO(&pingFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,width,height);
 
@@ -416,7 +356,9 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 
 
 		GL_MBind(0,pingFBO.texture);
-		R_BindFBO(source);
+
+		GL_BindFBO(source);
+		glViewport(0,0,source->width,source->height);
 
 		glUseProgram(colorBlend.shader->program);
 		glUniform2f(colorBlend.scale_uniform,xCoord,yCoord);
@@ -427,11 +369,9 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 		R_DrawQuad();
 
 		glUseProgram(0);
-		R_TeardownQuadState();
 
 		GL_MBind(0,0);
 
-		GL_Enable(GL_DEPTH_TEST);
 	} 
 }
 
@@ -439,7 +379,6 @@ void R_BloomFBO(fbo_t *source)
 {
 	if (bloomSupported && r_bloom->value)
 	{
-		fbo_t *currentFBO = glState.currentFBO;
 		GLuint width, height;
 		float scale = r_bloom_texscale->value;
 		float size = r_bloom_radius->value;
@@ -453,10 +392,7 @@ void R_BloomFBO(fbo_t *source)
 		if (size < 0)
 			return;
 
-		if ((int) r_antialias->value == ANTIALIAS_4X_FSAA)
-			scale /= 2.0;
-		else if ((int) r_antialias->value == ANTIALIAS_FXAA_FSS)
-			scale /= 1.3333;
+		scale /=  R_AntialiasGetScale();
 
 		size *= scale;
 
@@ -479,24 +415,12 @@ void R_BloomFBO(fbo_t *source)
 		width = (source->width * scale);
 		height = (source->height * scale);
 
-		if (width > pongFBO.width || height > pongFBO.height)
-		{
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pongFBO);
-			R_ResizeFBO(width ,height ,TRUE, GL_RGBA8, &pingFBO);
-		}
-
 		xCoord = width / (float) pongFBO.width;
 		yCoord = height / (float) pongFBO.height;
 
-		GL_ClearColor(0,0,0,0);
-		R_SetupQuadState();
-
-		GL_LoadIdentity(GL_PROJECTION);
-		GL_LoadIdentity(GL_MODELVIEW);
-		GL_Disable(GL_DEPTH_TEST);
 
 
-		R_BindFBO(&pongFBO);
+		GL_BindFBO(&pongFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,width,height);
 
@@ -518,14 +442,16 @@ void R_BloomFBO(fbo_t *source)
 
 
 		GL_MBind(0,pongFBO.texture);
-		R_BindFBO(&pingFBO);
+		GL_BindFBO(&pingFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0,0,width,height);
 
 		R_DrawQuad();
 
 		GL_MBind(0,pingFBO.texture);
-		R_BindFBO(source);
+		
+		GL_BindFBO(source);
+		glViewport(0,0,source->width,source->height);
 
 		glUseProgram(passthrough.shader->program);
 		glUniform2f(passthrough.scale_uniform,xCoord,yCoord);
@@ -536,14 +462,95 @@ void R_BloomFBO(fbo_t *source)
 		R_DrawQuad();
 
 		glUseProgram(0);
-		R_TeardownQuadState();
 		GL_MBind(0,0);
 		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		GL_Disable(GL_BLEND);
 
-		GL_Enable(GL_DEPTH_TEST);
 	} 
 }
+
+extern	cvar_t	*cl_paused;
+extern  float	v_blend[4];			// final blending color
+void R_PolyBlend ();
+
+void R_ApplyPostProcess(fbo_t *source)
+{
+		fbo_t *currentFBO = glState.currentFBO;
+
+		GL_ClearColor(0,0,0,0);
+		R_SetupQuadState();
+		GL_Disable(GL_DEPTH_TEST);
+
+		if (source->width > pongFBO.width || source->height > pongFBO.height)
+		{
+			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pongFBO);
+			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pingFBO);
+		}
+
+
+		if (r_polyblend->value && v_blend[3] > 0.0)
+		{
+			if (r_blur->value && r_flashblur->value)
+			{
+				float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
+				float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
+				R_BlurFBO(weight,color,source);
+			} else {
+				R_TeardownQuadState();
+				R_PolyBlend();
+				R_SetupQuadState();
+			}
+		} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
+		{
+			float color[4] = {0.0,0.0,0.0,0.0};
+			R_BlurFBO(1,color,source);
+		}
+
+		if (r_bloom->value)
+		{
+			R_BloomFBO(source);
+		}
+
+		if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
+		{
+			if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
+			{
+				R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
+			}
+
+			glViewport(0,0,source->width,source->height);
+
+			GL_MBind(0,source->texture);		
+			glUseProgram(fxaa.shader->program);
+			glUniform2f(fxaa.res_uniform,source->width,source->height);
+			glUniform2f(fxaa.scale_uniform,1.0,1.0);
+
+			GL_BindFBO(&fxaaFBO);
+			GL_ClearColor(0,0,0,0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+			R_DrawQuad();
+
+			glUseProgram(passthrough.shader->program);
+			glUniform2f(passthrough.scale_uniform,1.0,1.0);
+			GL_MBind(0,fxaaFBO.texture);
+			GL_BindFBO(source);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			R_DrawQuad();
+
+			GL_MBind(0,0);
+			glUseProgram(0);
+		} else {
+			R_DelFBO(&fxaaFBO);
+		}
+
+		GL_Enable(GL_DEPTH_TEST);
+		R_TeardownQuadState();
+		R_BindFBO(currentFBO);
+}
+
 
 qboolean R_InitPostsprocessShaders()
 {

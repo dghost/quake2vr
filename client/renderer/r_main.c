@@ -917,32 +917,9 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		glGenerateMipmap(GL_TEXTURE_2D);
 		GL_MBind(0,0);
 
-
-		if (r_bloom->value)
-		{
-			R_BloomFBO(destination);
-		}
-
-		if (r_polyblend->value && v_blend[3] > 0.0)
-		{
-			if (r_blur->value && r_flashblur->value)
-			{
-				float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
-				float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
-				R_BlurFBO(weight,color,destination);
-			} else {
-				R_SetProjection(parameters.projection);
-				R_Flash();
-			}
-		} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
-		{
-			float color[4] = {0.0,0.0,0.0,0.0};
-			R_BlurFBO(1,color,destination);
-		}
-
-		R_FXAAFBO(destination);
-
+		R_ApplyPostProcess(destination);
 	}
+
 	R_SetFog();
 	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
