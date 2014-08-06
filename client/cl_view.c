@@ -803,8 +803,9 @@ void VR_RenderStereo ()
 		VR_GetOrientation(orient);
 
 		yaw = cl.refdef.viewangles[YAW]- orient[YAW];
-		temp = floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-		yaw = yaw - temp;
+
+		// clamp yaw to [-180,180]
+		yaw = yaw - floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
 
 		if (yaw > 180.0f)
 			yaw -= 360.0f;

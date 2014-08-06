@@ -111,17 +111,17 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 
 	if (changeBackBuffers)
 	{	
+		float scale = R_AntialiasGetScale();
 		origTargetRect.x = 0;
 		origTargetRect.y = 0;
 		origTargetRect.width = glConfig.screen_width * svr_settings.scaleX;
 		origTargetRect.height = glConfig.screen_height * svr_settings.scaleY;
 
 		renderTargetRect = origTargetRect;
-		if (r_antialias->value == ANTIALIAS_4X_FSAA)
-		{
-			renderTargetRect.width *= 2;
-			renderTargetRect.height *= 2;
-		}
+	
+		renderTargetRect.width *= scale;
+		renderTargetRect.height *= scale;
+
 		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
 		{
 			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);

@@ -107,20 +107,17 @@ static void AntialiasCallback ( void *usused )
 {
 	int old = Cvar_VariableInteger("r_antialias");
 	int newVal = s_antialias_box.curvalue;
+	float oldscale, newscale, ratio;
+	oldscale = R_AntialiasGetScale();
 	Cvar_SetValue( "r_antialias", newVal);
+	newscale = R_AntialiasGetScale();
 
 	if (Cvar_VariableInteger("vr_enabled"))
 		return;
 
-	if (old != ANTIALIAS_4X_FSAA && newVal == ANTIALIAS_4X_FSAA)
-	{
-		cursor.x *= 2;
-		cursor.y *= 2;
-	} else {
-		cursor.x *= 0.5f;
-		cursor.y *= 0.5f;
-	}
-
+	ratio = newscale / oldscale;
+	cursor.x *= ratio;
+	cursor.y *= ratio;
 }
 
 static void AdvancedOptions( void *s )

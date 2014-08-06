@@ -1024,6 +1024,7 @@ void R_AntialiasStartFrame (void);
 void R_AntialiasInit (void);
 void R_AntialiasShutdown(void);
 void R_AntialiasSetFBOSize(fbo_t *fbo);
+float R_AntialiasGetScale();
 
 //
 // r_misc.c

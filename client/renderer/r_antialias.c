@@ -7,6 +7,7 @@ static viddef_t screenBounds;
 static GLuint currentFBO;
 static qboolean changed = false;
 
+
 void R_AntialiasStartFrame (void)
 {
 	if (r_antialias->modified)
@@ -51,11 +52,27 @@ void R_AntialiasStartFrame (void)
 	}
 }
 
+float R_AntialiasGetScale()
+{
+	switch ((int) r_antialias->value)
+	{
+	case ANTIALIAS_4X_FSAA:
+		return 2.0;
+		break;
+	case ANTIALIAS_FXAA_FSS:
+		return 1.3333;
+		break;
+	default:
+	case ANTIALIAS_NONE:
+		return 1.0;
+		break;
+	}
+
+}
 void R_AntialiasSetFBOSize(fbo_t *fbo)
 {
 	if ( fbo->width != offscreenBounds.width || fbo->height != offscreenBounds.height)
 	{
-		Com_Printf("Antialias render target size %ux%u\n",offscreenBounds.width, offscreenBounds.height);
 		R_ResizeFBO(offscreenBounds.width, offscreenBounds.height, 1, GL_RGBA8, fbo);
 	}
 }
