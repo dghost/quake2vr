@@ -36,7 +36,7 @@ Note: I've made several changes to both names of and what files get bundled with
 #####Shareware Version
 1. Download the shareware package and unzip it to your preferred directory.
 2. Optionally download the high resolution texture package and unzip it to the same folder.
-3. Run `kmquake2`.
+3. Run `quake2vr`.
 
 #####Full Version Instructions
 1. Download binary or shareware package and unzip it to your preferred directory.
@@ -46,9 +46,9 @@ Note: I've made several changes to both names of and what files get bundled with
     - `players\` (optional - only if you want to play multiplayer. overwrite it if you downloaded the shareware version)
     - `videos\` (optional - only if you want cinematics)
 4. If you have the CD audio soundtrack in .ogg format you can optionally place these files in `baseq2\music\`. Music files need to be named `track02.ogg` to `track11.ogg`.
-5. Run `kmquake2` or choose one of the links provided in the extras pack. 
+5. Run `quake2vr` or choose one of the links provided in the extras pack. 
 
-You can alternately just copy the contents of the extracted `Quake2-Rift` directory on top of an existing Quake II installation, however there is always the risk that this breaks the original installation.
+You can alternately just copy the contents of the extracted `Quake2VR` directory on top of an existing Quake II installation, however there is always the risk that this breaks the original installation.
 
 If your Oculus Rift is connected and powered on it will enable support automatically at launch, but you can also enable Rift support by accessing the console using ~ and entering `vr_enable`. When it initializes it will attempt to locate the display that the Rift is configured as and use it, but if that fails it will default to the primary monitor.
 
