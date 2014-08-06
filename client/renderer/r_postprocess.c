@@ -368,10 +368,6 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 
 		R_DrawQuad();
 
-		glUseProgram(0);
-
-		GL_MBind(0,0);
-
 	} 
 }
 
@@ -461,8 +457,6 @@ void R_BloomFBO(fbo_t *source)
 
 		R_DrawQuad();
 
-		glUseProgram(0);
-		GL_MBind(0,0);
 		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		GL_Disable(GL_BLEND);
 
@@ -488,6 +482,12 @@ void R_ApplyPostProcess(fbo_t *source)
 		}
 
 
+
+		if (r_bloom->value)
+		{
+			R_BloomFBO(source);
+		}
+
 		if (r_polyblend->value && v_blend[3] > 0.0)
 		{
 			if (r_blur->value && r_flashblur->value)
@@ -504,11 +504,6 @@ void R_ApplyPostProcess(fbo_t *source)
 		{
 			float color[4] = {0.0,0.0,0.0,0.0};
 			R_BlurFBO(1,color,source);
-		}
-
-		if (r_bloom->value)
-		{
-			R_BloomFBO(source);
 		}
 
 		if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
@@ -540,15 +535,17 @@ void R_ApplyPostProcess(fbo_t *source)
 
 			R_DrawQuad();
 
-			GL_MBind(0,0);
-			glUseProgram(0);
 		} else {
 			R_DelFBO(&fxaaFBO);
 		}
 
+
+
 		GL_Enable(GL_DEPTH_TEST);
 		R_TeardownQuadState();
 		R_BindFBO(currentFBO);
+		GL_MBind(0,0);
+		glUseProgram(0);
 }
 
 

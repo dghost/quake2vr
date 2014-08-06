@@ -526,7 +526,6 @@ void VR_Move (usercmd_t *cmd)
 					//				yawOffset -= delta;
 					predAngles[YAW] += delta;
 					cl.aimdelta[YAW] -= delta;
-
 				}
 
 
