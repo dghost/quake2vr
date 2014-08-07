@@ -221,7 +221,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_lumaoverdrive_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_lumaoverdrive_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_lumaoverdrive_box.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_ovr_lumaoverdrive_box.generic.name		= "lumanence overdrive";
+	s_options_vr_ovr_lumaoverdrive_box.generic.name		= "luminance overdrive";
 	s_options_vr_ovr_lumaoverdrive_box.generic.callback	= LumaFunc;
 	s_options_vr_ovr_lumaoverdrive_box.itemnames			= yesno_names;
 	s_options_vr_ovr_lumaoverdrive_box.generic.statusbar	= "enables lumanance overdrive on DK2 and above";
