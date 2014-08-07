@@ -122,7 +122,6 @@ int32_t MapSDLKey (SDL_Keysym key)
 		case SDL_SCANCODE_DOWN:	 result = K_DOWNARROW; break;
 		case SDL_SCANCODE_UP:		 result = K_UPARROW;	 break;
 		case SDL_SCANCODE_ESCAPE: result = K_ESCAPE;		break;
-		case SDL_SCANCODE_KP_ENTER: result = K_KP_ENTER;	break;
 		case SDL_SCANCODE_RETURN: result = K_ENTER;		 break;
 		case SDL_SCANCODE_RETURN2: result = K_ENTER;		 break;
 		case SDL_SCANCODE_TAB:		result = K_TAB;			 break;
@@ -160,8 +159,21 @@ int32_t MapSDLKey (SDL_Keysym key)
 		case SDL_SCANCODE_KP_PLUS:  result = K_KP_PLUS; break;
 		case SDL_SCANCODE_KP_MINUS: result = K_KP_MINUS; break;
 		case SDL_SCANCODE_KP_DIVIDE: result = K_KP_SLASH; break;
+		case SDL_SCANCODE_KP_1: result = K_KP_END; break;
+		case SDL_SCANCODE_KP_2: result = K_KP_DOWNARROW; break;
+		case SDL_SCANCODE_KP_3: result = K_KP_PGDN; break;
+		case SDL_SCANCODE_KP_4: result = K_KP_LEFTARROW; break;
+		case SDL_SCANCODE_KP_5: result = K_KP_5; break;
+		case SDL_SCANCODE_KP_6: result = K_KP_RIGHTARROW; break;
+		case SDL_SCANCODE_KP_7: result = K_KP_HOME; break;
+		case SDL_SCANCODE_KP_8: result = K_KP_UPARROW; break;
+		case SDL_SCANCODE_KP_9: result = K_KP_PGUP; break;
+		case SDL_SCANCODE_KP_0: result = K_KP_INS; break;
+		case SDL_SCANCODE_KP_PERIOD: result = K_KP_DEL; break;
+		case SDL_SCANCODE_KP_ENTER: result = K_KP_ENTER;	break;
 
 		}
+
 	}
 
 	return result;
