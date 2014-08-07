@@ -22,8 +22,8 @@ Note: I've made several changes to both names of and what files get bundled with
 
 ######Unstable Packages w/ DK2 support (v1.9.2):
 
-- Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/xuL9)
-- Quake II VR Binaries w/ HD Textures + Soundtrack (497MB): [Download 2](http://dgho.st/3ir3)
+- Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/xxo)
+- Quake II VR Binaries w/ HD Textures + Soundtrack (497MB): [Download 2](http://dgho.st/Dr9N)
 
 ######Stable Packages (v1.3.1):
 
