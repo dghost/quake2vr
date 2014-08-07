@@ -1,4 +1,4 @@
-### Quake II VR v1.3.1
+### Quake II VR
 
 This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.
 
