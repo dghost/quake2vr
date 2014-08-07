@@ -413,7 +413,7 @@ void VR_Startup(void)
 	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_segments = Cvar_Get("vr_hud_segments","15",CVAR_ARCHIVE);
-	vr_hud_fov = Cvar_Get("vr_hud_fov","65",CVAR_ARCHIVE);
+	vr_hud_fov = Cvar_Get("vr_hud_fov","58",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","1.0",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
