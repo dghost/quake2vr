@@ -10,6 +10,7 @@ void VR_OVR_FrameEnd();
 int32_t VR_OVR_Enable();
 void VR_OVR_Disable();
 int32_t VR_OVR_Init();
+ovrBool VR_OVR_InitSensor();
 void VR_OVR_Shutdown();
 int32_t VR_OVR_getOrientation(float euler[3]);
 void VR_OVR_ResetHMDOrientation();
@@ -30,13 +31,14 @@ unsigned char ovrLatencyColor[3];
 
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
+
 qboolean withinFrame = false;
 
 ovrTrackingState trackingState;
 ovrFrameTiming frameTime;
 static ovrBool sensorEnabled = 0;
 
-static ovrBool hasBeenInitialized = 0;
+static ovrBool libovrInitialized = 0;
 
 static qboolean positionTracked;
 
@@ -141,28 +143,34 @@ int32_t VR_OVR_getOrientation(float euler[3])
 void SCR_CenterAlert (char *str);
 int32_t VR_OVR_getPosition(float pos[3])
 {
-	qboolean tracked;
+	qboolean tracked = 0;
 	if (!hmd)
 		return 0;
-	tracked = trackingState.StatusFlags & ovrStatus_PositionTracked ? 1 : 0;
-	if (tracked)
+
+	if (!sensorEnabled)
+		VR_OVR_InitSensor();
+
+	if (sensorEnabled)
 	{
-		ovrPosef pose = trackingState.HeadPose.ThePose;
-		VectorSet(pos,-pose.Position.z,pose.Position.x,pose.Position.y);
-		VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
+		tracked = trackingState.StatusFlags & ovrStatus_PositionTracked ? 1 : 0;
+		if (tracked)
+		{
+			ovrPosef pose = trackingState.HeadPose.ThePose;
+			VectorSet(pos,-pose.Position.z,pose.Position.x,pose.Position.y);
+			VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
+		}
+
+		if (hmd->TrackingCaps && ovrTrackingCap_Position)
+		{ 
+			if (tracked && !positionTracked)
+				SCR_CenterAlert("Position tracking enabled");
+			else if (!tracked && positionTracked)
+				SCR_CenterAlert("Position tracking interrupted");
+
+		}
+
+		positionTracked = tracked;
 	}
-
-	if (hmd->TrackingCaps && ovrTrackingCap_Position)
-	{ 
-		if (tracked && !positionTracked)
-			SCR_CenterAlert("Position tracking enabled");
-		else if (!tracked && positionTracked)
-			SCR_CenterAlert("Position tracking interrupted");
-
-	}
-	
-	positionTracked = tracked;
-
 	return tracked;
 }
 
@@ -173,7 +181,7 @@ void VR_OVR_ResetHMDOrientation()
 		ovrHmd_RecenterPose(hmd);
 }
 
-void VR_OVR_InitSensor()
+ovrBool VR_OVR_InitSensor()
 {
 	unsigned int sensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection;
 
@@ -182,16 +190,14 @@ void VR_OVR_InitSensor()
 		sensorEnabled = 0;
 	}
 
-	if (1)
-		sensorCaps |= ovrTrackingCap_Position;
+	sensorCaps |= ovrTrackingCap_Position;
 
-	Com_Printf("Initializing sensor: ");
 	sensorEnabled = ovrHmd_ConfigureTracking(hmd,sensorCaps, ovrTrackingCap_Orientation);
 	if (sensorEnabled)
 	{
 		ovrTrackingState ss;
-		ss = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds() + prediction_time);
-		Com_Printf("ok!\n");
+		ss = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
+		Com_Printf("VR_OVR: Successfully initialized sensors!\n");
 
 		if (ss.StatusFlags & ovrStatus_PositionConnected)
 			Com_Printf("...sensor has position tracking support\n");
@@ -199,9 +205,8 @@ void VR_OVR_InitSensor()
 			Com_Printf("...orientation tracking enabled\n");
 		if (ss.StatusFlags & ovrStatus_PositionTracked)
 			Com_Printf("...position tracking enabled\n");
-	} else {
-		Com_Printf("failed!\n");
 	}
+	return sensorEnabled;
 }
 
 int32_t VR_OVR_RenderLatencyTest(vec4_t color) 
@@ -273,10 +278,10 @@ int32_t VR_OVR_Enable()
 	if (!vr_ovr_enable->value)
 		return 0;
 
-	if (!hasBeenInitialized)
+	if (!libovrInitialized)
 	{
-		hasBeenInitialized = ovr_Initialize();
-		if (!hasBeenInitialized)
+		libovrInitialized = ovr_Initialize();
+		if (!libovrInitialized)
 		{
 			Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
 			return 0;
@@ -285,10 +290,26 @@ int32_t VR_OVR_Enable()
 		}
 	}
 
+	{
+		int numDevices = ovrHmd_Detect();
+		int i;
+		Com_Printf("VR_OVR: Enumerating devices...\n");
+		Com_Printf("VR_OVR: Found %i devices\n", numDevices);
+		for (i = 0 ; i < numDevices ; i++)
+		{
+			ovrHmd hmd = ovrHmd_Create(i);
+			if (hmd)
+			{
+				Com_Printf("VR_OVR: Found device '%s'\n",hmd->ProductName);
+				ovrHmd_Destroy(hmd);
+			}
+		}
+	}
+
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
 	withinFrame = false;
-	
+	ovrHmd_Detect();
 	hmd = ovrHmd_Create(0);
 	
 	if (!hmd)
@@ -347,7 +368,10 @@ int32_t VR_OVR_Enable()
 	Com_Printf("...has type %s\n", hmd->ProductName);
 	Com_Printf("...has %ux%u native resolution\n", hmd->Resolution.w, hmd->Resolution.h);
 
-	VR_OVR_InitSensor();
+	if (!VR_OVR_InitSensor())
+	{
+		Com_Printf("VR_OVR: Sensor initialization failed!\n");
+	}
 
 	ovrHmd_ResetFrameTiming(hmd,0);
 	return 1;
@@ -367,6 +391,18 @@ void VR_OVR_Disable()
 int32_t VR_OVR_Init()
 {
 
+	if (!libovrInitialized)
+	{
+		libovrInitialized = ovr_Initialize();
+		if (!libovrInitialized)
+		{
+			Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
+			return 0;
+		} else {
+			Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());
+		}
+	}
+
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
@@ -383,9 +419,9 @@ int32_t VR_OVR_Init()
 
 void VR_OVR_Shutdown()
 {
-	if (hasBeenInitialized)
+	if (libovrInitialized)
 		ovr_Shutdown();
-	hasBeenInitialized = 0;
+	libovrInitialized = 0;
 }
 
 
