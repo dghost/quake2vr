@@ -22,6 +22,7 @@ Note: I've made several changes to both names of and what files get bundled with
 
 ######Unstable Packages w/ DK2 support (v1.9.2):
 
+- Playable shareware Quake II VR package (54MB): [Download 1](http://dgho.st/JzEW)
 - Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/xxo)
 - Quake II VR Binaries w/ HD Textures + Soundtrack (497MB): [Download 2](http://dgho.st/Dr9N)
 
@@ -39,7 +40,7 @@ Note: I've made several changes to both names of and what files get bundled with
 3. Run `quake2vr`.
 
 #####Full Version Instructions
-1. Download binary or shareware package and unzip it to your preferred directory.
+1. Download binary package and unzip it to your preferred directory.
 2. Optionally download the extra's package and unzip it to the same folder.
 3. Copy the following files from your Quake II `baseq2` folder into the new `baseq2` folder:
     - `pak0.pak` (overwrite it if you downloaded the shareware version)
