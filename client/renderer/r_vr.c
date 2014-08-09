@@ -203,6 +203,28 @@ void R_VR_StartFrame()
 	hmd->frameStart(resolutionChanged);
 	hmd->getState(&vrState);
 
+	if (vr_hud_width->modified || vr_hud_height->modified)
+	{
+		int width, height;
+
+		width = vr_hud_width->value;
+		height = vr_hud_height->value;
+
+		if (width < 640)
+			width = 640;
+
+		if (height < 480)
+			height = 480;
+		Cvar_SetInteger("vr_hud_width",width);
+		Cvar_SetInteger("vr_hud_height",height);
+		vr_hud_width->modified = false;
+		vr_hud_height->modified = false;
+		Com_Printf("VR: New HUD resolution %ix%i\n",width,height);
+		if (hud.width != width || hud.height != height)
+			R_ResizeFBO(width,height,1,GL_RGBA8,&hud);
+
+	}
+
 	if (vr_hud_segments->modified)
 	{
 		// clamp value from 30-90 degrees
@@ -430,10 +452,7 @@ void R_VR_Enable()
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
-		// TODO: variable resolution HUD
-		// although in theory 640x480 should be plenty even at 1080p
-		success = (qboolean) R_GenFBO(640, 480, 1, GL_RGBA8, &hud);
-		success = success && hmd->enable && hmd->enable();
+		success = hmd->enable && hmd->enable();
 
 		// shader init
 		R_VR_InitDistortionShader(&vr_distort_shaders[0], &vr_shader_distort_norm);
