@@ -318,14 +318,10 @@ void OVR_GetState(vr_param_t *state)
 void R_Clear (void);
 void OVR_Present(qboolean loading)
 {
-	vec4_t debugColor;
+	vec4_t debugColor = {1.0,1.0,1.0,1.0};
 	int32_t latencyTest = VR_OVR_RenderLatencyTest(debugColor);
-	if (latencyTest)
-	{
-		GL_ClearColor(debugColor[0],debugColor[1],debugColor[2],debugColor[3]);
-	} else {
-		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	}
+
+	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	R_Clear();
 	GL_SetDefaultClearColor();	
 	{
@@ -420,27 +416,44 @@ void OVR_Present(qboolean loading)
 
 	}
 
-	if (latencyTest && hmd->Type < ovrHmd_DK2)
+	if (latencyTest)
 	{
-		glColor4fv(debugColor);
+		
+		if (hmd->Type < ovrHmd_DK2)
+		{
+			glColor4fv(debugColor);
 
-		glBegin(GL_TRIANGLE_STRIP);
-		glVertex2f(0.3, -0.4);
-		glVertex2f(0.3, 0.4);
-		glVertex2f(0.7, -0.4);
-		glVertex2f(0.7, 0.4); 
-		glEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+			glVertex2f(0.3, -0.4);
+			glVertex2f(0.3, 0.4);
+			glVertex2f(0.7, -0.4);
+			glVertex2f(0.7, 0.4); 
+			glEnd();
 
-		glBegin(GL_TRIANGLE_STRIP);
-		glVertex2f(-0.3, -0.4);
-		glVertex2f(-0.3, 0.4);
-		glVertex2f(-0.7, -0.4);
-		glVertex2f(-0.7, 0.4); 
-		glEnd();
+			glBegin(GL_TRIANGLE_STRIP);
+			glVertex2f(-0.3, -0.4);
+			glVertex2f(-0.3, 0.4);
+			glVertex2f(-0.7, -0.4);
+			glVertex2f(-0.7, 0.4); 
+			glEnd();
 
-		glColor4f(1.0,1.0,1.0,1.0);
+			glColor4f(1.0,1.0,1.0,1.0);
+		} else {
+			float resX = 2.0 / glConfig.screen_width;
+			float resY = 2.0 / glConfig.screen_height;
+			float x = 1.0 - 2 * resX;
+			float y = 1.0 - 2 * resY;
+
+			glColor4fv(debugColor);
+
+			glBegin(GL_TRIANGLE_STRIP);
+			glVertex2f(x, y);
+			glVertex2f(x, 1.0);
+			glVertex2f(1.0, y);
+			glVertex2f(1.0, 1.0); 
+			glEnd();
+		}
 	}
-
 }
 
 int32_t OVR_Enable()

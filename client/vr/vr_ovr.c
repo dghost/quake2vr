@@ -233,9 +233,13 @@ void VR_OVR_FrameStart()
 	const char *results = ovrHmd_GetLatencyTestResult(hmd);
 	if (results && strncmp(results,"",1))
 	{
+		static float lastms = 0;
 		float ms;
-		if (sscanf(results,"RESULT=%f ",&ms))
+		if (sscanf(results,"RESULT=%f ",&ms) && ms != lastms)
+		{
 			Cvar_SetInteger("vr_prediction",(int) ms);
+			lastms = ms;
+		}
 	}
 
 	if (vr_ovr_lowpersistence->modified)
