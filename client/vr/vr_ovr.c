@@ -274,6 +274,7 @@ int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;
 	unsigned int hmdCaps = 0;
+	qboolean isDebug = false;
 
 	if (!vr_ovr_enable->value)
 		return 0;
@@ -309,7 +310,6 @@ int32_t VR_OVR_Enable()
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
 	withinFrame = false;
-	ovrHmd_Detect();
 	hmd = ovrHmd_Create(0);
 	
 	if (!hmd)
@@ -339,6 +339,7 @@ int32_t VR_OVR_Enable()
 
 		}
 		hmd = ovrHmd_CreateDebug(temp);
+		isDebug = true;
 		Com_Printf("VR_OVR: Creating debug HMD...\n");
 	}
 
@@ -348,12 +349,15 @@ int32_t VR_OVR_Enable()
 	if (hmd->HmdCaps & ovrHmdCap_ExtendDesktop)
 	{
 		Com_Printf("...running in extended desktop mode\n");
-	} else {
+	} else if (!isDebug) {
 		Com_Printf("...running in Direct HMD mode\n");
 		Com_Printf("...Direct HMD mode is unsupported at this time\n");
 		VR_OVR_Disable();
 		VR_OVR_Shutdown();
 		return 0;
+	} else {
+		Com_Printf("...debug device positioned at (%i,%i)\n",hmd->WindowsPos.x,hmd->WindowsPos.y);
+
 	}
 
 	if (hmd->HmdCaps & ovrHmdCap_Available)
@@ -391,6 +395,7 @@ void VR_OVR_Disable()
 int32_t VR_OVR_Init()
 {
 
+	/*
 	if (!libovrInitialized)
 	{
 		libovrInitialized = ovr_Initialize();
@@ -402,6 +407,7 @@ int32_t VR_OVR_Init()
 			Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());
 		}
 	}
+	*/
 
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
