@@ -162,9 +162,9 @@ int32_t VR_OVR_getPosition(float pos[3])
 
 		if (hmd->TrackingCaps && ovrTrackingCap_Position)
 		{ 
-			if (tracked && !positionTracked)
+			if (tracked && !positionTracked && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking enabled");
-			else if (!tracked && positionTracked)
+			else if (!tracked && positionTracked && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking interrupted");
 
 		}
@@ -223,7 +223,8 @@ int32_t VR_OVR_RenderLatencyTest(vec4_t color)
 int32_t VR_OVR_SetPredictionTime(float time)
 {
 	prediction_time = time / 1000.0;
-	Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", time);
+	if (vr_ovr_debug->value)
+		Com_Printf("VR_OVR: Set HMD Prediction time to %.1fms\n", time);
 	return 1;
 }
 
@@ -359,10 +360,9 @@ int32_t VR_OVR_Enable()
 		VR_OVR_Disable();
 		VR_OVR_Shutdown();
 		return 0;
-	} else {
-		Com_Printf("...debug device positioned at (%i,%i)\n",hmd->WindowsPos.x,hmd->WindowsPos.y);
-
 	}
+
+	Com_Printf("...device positioned at (%i,%i)\n",hmd->WindowsPos.x,hmd->WindowsPos.y);
 
 	if (hmd->HmdCaps & ovrHmdCap_Available)
 		Com_Printf("...sensor is available\n");
