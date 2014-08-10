@@ -734,6 +734,8 @@ void VR_RenderStereo ()
 		if (vr_autofov->value)
 		{
 			R_VR_GetFOV(&cl.refdef.fov_x,&cl.refdef.fov_y);
+			cl.refdef.fov_x *= vr_autofov_scale->value;
+			cl.refdef.fov_y *= vr_autofov_scale->value;
 		}
 		else {
 			float width = vrState.eyeFBO[0]->width;
@@ -851,6 +853,8 @@ void VR_RenderStereo ()
 		if (vr_autofov->value)
 		{
 			params.projection = vrState.renderParams[index].projection;
+			params.projection.x.scale *= vr_autofov_scale->value;
+			params.projection.y.scale *= vr_autofov_scale->value;
 		} else {
 			float aspectRatio = (float)vrState.eyeFBO[index]->height/(float)vrState.eyeFBO[index]->width;
 			
