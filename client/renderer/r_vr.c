@@ -452,7 +452,8 @@ void R_VR_Enable()
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
-		success = hmd->enable && hmd->enable();
+		success = R_GenFBO(640,480,1,GL_RGBA8,&hud);
+		success = success && hmd->enable && hmd->enable();
 
 		// shader init
 		R_VR_InitDistortionShader(&vr_distort_shaders[0], &vr_shader_distort_norm);
