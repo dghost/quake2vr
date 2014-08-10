@@ -736,21 +736,21 @@ void VR_RenderStereo ()
 			R_VR_GetFOV(&cl.refdef.fov_x,&cl.refdef.fov_y);
 		}
 		else {
-			if (cl_widescreen_fov->value)
-			{
-				//	float standardRatio, currentRatio;
-				//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
-				//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
-				//	if (currentRatio > standardRatio)
-				//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
-				float aspectRatio = (float)cl.refdef.width/(float)cl.refdef.height;
-				// changed to improved algorithm by Dopefish
-				if (aspectRatio > STANDARD_ASPECT_RATIO)
-					cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
-				//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
-				cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
-			}
-			cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+			float width = vrState.eyeFBO[0]->width;
+			float height = vrState.eyeFBO[0]->height;
+			//	float standardRatio, currentRatio;
+			//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+			//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+			//	if (currentRatio > standardRatio)
+			//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
+			float aspectRatio = width/height;
+			// changed to improved algorithm by Dopefish
+			if (aspectRatio > STANDARD_ASPECT_RATIO)
+				cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
+			//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
+			cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
+
+			cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, width, height);
 		}
 
 		cl.refdef.time = cl.time*0.001;
@@ -848,8 +848,18 @@ void VR_RenderStereo ()
 		eye_param_t params;
 		int eyeSign = (-1 + index * 2);
 
-		params.projection = vrState.renderParams[index].projection;
-
+		if (vr_autofov->value)
+		{
+			params.projection = vrState.renderParams[index].projection;
+		} else {
+			float aspectRatio = (float)vrState.eyeFBO[index]->height/(float)vrState.eyeFBO[index]->width;
+			
+			params.projection.x.scale =  1.0f / tanf((cl.refdef.fov_x / 2.0f) * M_PI / 180);
+			params.projection.x.offset = vrState.renderParams[index].projection.x.offset;
+			params.projection.y.scale = params.projection.x.scale / aspectRatio;
+			params.projection.y.offset = 0.0;
+		}
+		
 		if (cl.refdef.rdflags & RDF_UNDERWATER)
 			params.projection = R_ApplyWarpToProjection(params.projection);
 		if (vr_autoipd->value)
