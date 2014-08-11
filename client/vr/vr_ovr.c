@@ -276,6 +276,14 @@ void VR_OVR_FrameEnd()
 	withinFrame = false;
 }
 
+float VR_OVR_GetGammaMin()
+{
+	float result = 0.0;
+	if (hmd && hmd->Type > ovrHmd_DK2)
+		result = 1.0/255.0;
+	return result;
+}
+
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;

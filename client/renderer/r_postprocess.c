@@ -269,7 +269,7 @@ void R_BlitTextureToScreen(GLuint texture)
 }
 
 extern cvar_t *vr_enabled, *vr_ovr_dk2_color_hack;
-
+float VR_OVR_GetGammaMin();
 void R_BlitWithGamma(GLuint texture, float gamma)
 {
 	GL_MBind(0,texture);
@@ -277,8 +277,10 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
 	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);		
 	if (((int32_t) vr_enabled->value) == HMD_RIFT && vr_ovr_dk2_color_hack->value)
-		glUniform3f(gammaAdjust.mincolor_uniform,1.0/255.0,1.0/255.0,1.0/255.0);
-	else
+	{
+		float value = VR_OVR_GetGammaMin();
+		glUniform3f(gammaAdjust.mincolor_uniform,value,value,value);
+	} else
 		glUniform3f(gammaAdjust.mincolor_uniform,0.0,0.0,0.0);	
 	R_DrawQuad();
 	GL_MBind(0,0);
