@@ -19,6 +19,7 @@ int32_t VR_OVR_getPosition(float pos[3]);
 
 cvar_t *vr_ovr_debug;
 cvar_t *vr_ovr_maxfov;
+cvar_t *vr_ovr_device;
 cvar_t *vr_ovr_supersample;
 cvar_t *vr_ovr_enable;
 cvar_t *vr_ovr_autoprediction;
@@ -280,7 +281,7 @@ int32_t VR_OVR_Enable()
 	int32_t failure = 0;
 	unsigned int hmdCaps = 0;
 	qboolean isDebug = false;
-
+	unsigned int device = 0;
 	if (!vr_ovr_enable->value)
 		return 0;
 
@@ -299,15 +300,21 @@ int32_t VR_OVR_Enable()
 	{
 		int numDevices = ovrHmd_Detect();
 		int i;
+		qboolean found = false;
 		Com_Printf("VR_OVR: Enumerating devices...\n");
 		Com_Printf("VR_OVR: Found %i devices\n", numDevices);
 		for (i = 0 ; i < numDevices ; i++)
 		{
-			ovrHmd hmd = ovrHmd_Create(i);
-			if (hmd)
+			ovrHmd tempHmd = ovrHmd_Create(i);
+			if (tempHmd)
 			{
-				Com_Printf("VR_OVR: Found device '%s'\n",hmd->ProductName);
-				ovrHmd_Destroy(hmd);
+				Com_Printf("VR_OVR: Found device #%i '%s' s/n:%s\n",i,tempHmd->ProductName, tempHmd->SerialNumber);
+				if (!strncmp(vr_ovr_device->string,tempHmd->SerialNumber,strlen(tempHmd->SerialNumber)))
+				{
+					device = i;
+					found = true;
+				}
+				ovrHmd_Destroy(tempHmd);
 			}
 		}
 	}
@@ -315,7 +322,7 @@ int32_t VR_OVR_Enable()
 	Com_Printf("VR_OVR: Initializing HMD: ");
 	
 	withinFrame = false;
-	hmd = ovrHmd_Create(0);
+	hmd = ovrHmd_Create(device);
 	
 	if (!hmd)
 	{
@@ -418,9 +425,9 @@ int32_t VR_OVR_Init()
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
 	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
 	vr_ovr_lumoverdrive = Cvar_Get("vr_ovr_lumoverdrive","1",CVAR_ARCHIVE);
-
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
+	vr_ovr_device = Cvar_Get("vr_ovr_device","",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
 
