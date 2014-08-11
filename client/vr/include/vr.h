@@ -65,6 +65,7 @@ extern cvar_t *vr_nosleep;
 extern cvar_t *vr_neckmodel;
 extern cvar_t *vr_neckmodel_up;
 extern cvar_t *vr_neckmodel_forward;
+extern cvar_t *vr_walkspeed;
 
 enum {
 	VR_AIMMODE_DISABLE,

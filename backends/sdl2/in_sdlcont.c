@@ -426,8 +426,11 @@ void IN_ControllerMove (usercmd_t *cmd)
 
 	if ( (in_speed.state & 1) ^ (int32_t)cl_run->value)
 		speed = 2;
+	else if (vr_enabled->value)
+		speed = vr_walkspeed->value;
 	else
 		speed = 1;
+
 	aspeed = cls.frametime;
 	if (autosensitivity->value)
 		aspeed *= (cl.refdef.fov_x/90.0);

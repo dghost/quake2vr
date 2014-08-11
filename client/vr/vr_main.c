@@ -21,6 +21,7 @@ cvar_t *vr_aimmode;
 cvar_t *vr_aimmode_deadzone_yaw;
 cvar_t *vr_aimmode_deadzone_pitch;
 cvar_t *vr_viewmove;
+cvar_t *vr_walkspeed;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
 cvar_t *vr_nosleep;
@@ -274,7 +275,15 @@ void VR_FrameStart()
 			hmd->setPrediction(vr_prediction->value);
 	}
 
+	if (vr_walkspeed->modified)
+	{
+		if (vr_walkspeed->value < 0.25)
+			Cvar_Set("vr_walkspeed","0.25");
+		else if (vr_walkspeed->value > 1.5)
+			Cvar_Set("vr_walkspeed","1.5");
 
+		vr_walkspeed->modified = false;
+	}
 
 	hmd->frameStart();
 
@@ -404,7 +413,7 @@ void VR_Startup(void)
 		if (available_hmds[i].init)
 			available_hmds[i].init();
 	}
-
+	vr_walkspeed = Cvar_Get("vr_walkspeed","1.0",CVAR_ARCHIVE);
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_ARCHIVE);
 	vr_positiontracking = Cvar_Get("vr_positiontracking","1",CVAR_ARCHIVE);
 	vr_prediction = Cvar_Get("vr_prediction","30",CVAR_ARCHIVE);

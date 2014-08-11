@@ -235,7 +235,6 @@ cvar_t	*cl_run;
 
 cvar_t	*cl_anglespeedkey;
 
-
 /*
 ================
 CL_AdjustAngles
@@ -311,7 +310,13 @@ void CL_BaseMove (usercmd_t *cmd)
 		cmd->forwardmove *= 2;
 		cmd->sidemove *= 2;
 		cmd->upmove *= 2;
-	}	
+	} else if (vr_enabled->value)
+	{
+		float scale = vr_walkspeed->value;
+		cmd->forwardmove *= scale;
+		cmd->sidemove *= scale;
+		cmd->upmove *= scale;
+	}
 }
 
 void CL_ClampPitch (void)
