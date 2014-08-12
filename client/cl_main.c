@@ -1486,7 +1486,7 @@ void CL_InitLocal (void)
 	cl_vwep = Cvar_Get ("cl_vwep", "1", CVAR_ARCHIVE);
 
 	// for the server to tell which version the client is
-	cl_engine = Cvar_Get ("cl_engine", "Quake II VR", CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
+	cl_engine = Cvar_Get ("cl_engine", "Q2VR", CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
 	cl_engine_version = Cvar_Get ("cl_engine_version", va("%s",VERSION), CVAR_USERINFO | CVAR_NOSET | CVAR_LATCH);
 
 	//
