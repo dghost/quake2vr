@@ -10,6 +10,12 @@ typedef enum {
 	NUM_RIFT
 } rift_t;
 
+typedef struct {
+	char label[50];
+	char serialnumber[24];
+} ovrname_t;
+
+extern cvar_t *vr_ovr_device;
 extern cvar_t *vr_ovr_prediction;
 extern cvar_t *vr_ovr_maxfov;
 extern cvar_t *vr_ovr_autoprediction;

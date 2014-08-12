@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client.h"
 #include "include/ui_local.h"
+#include "../../client/vr/include/vr_ovr.h"
 
 /*
 =======================================================================
@@ -38,6 +39,7 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
+static menulist_s		s_options_vr_ovr_device_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_prediction_box;
 static menulist_s		s_options_vr_ovr_lowpersistence_box;
@@ -49,6 +51,41 @@ static menulist_s		s_options_vr_ovr_debug_box;
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
 
+
+
+char *def = "default";
+
+static char *hmds[255];
+ovrname_t *VR_OVR_GetNameList();
+
+static void InitNames()
+{
+	int i =0;
+	ovrname_t *names = VR_OVR_GetNameList();
+
+	memset(hmds,0,sizeof(char *) * 255);
+	hmds[0] = def;
+	while (names[i].label[0] != 0 && i < 254)
+	{
+		hmds[i+1] = names[i].label;
+		i++;
+	}
+
+}
+
+static int FindSN()
+{
+	int i = 0;
+	ovrname_t *names = VR_OVR_GetNameList();
+
+	while (names[i].label[0] != 0 && i < 254)
+	{
+		if (!strncmp(vr_ovr_device->string,names[i].serialnumber,strlen(names[i].serialnumber)))
+			return i + 1;
+		i++;
+	}
+	return 0;
+}
 
 static void ScaleFunc( void *unused )
 {
@@ -90,6 +127,16 @@ static void ColorHackFunc( void *unused)
 	Cvar_SetInteger("vr_ovr_dk2_color_hack", s_options_vr_ovr_dk2_color_hack_box.curvalue);
 }
 
+static void DeviceFunc( void *unused )
+{
+	ovrname_t *names = VR_OVR_GetNameList();
+	int value = s_options_vr_ovr_device_box.curvalue;
+	if ( value == 0)
+		Cvar_Set("vr_ovr_device","");
+	else
+		Cvar_Set("vr_ovr_device",names[value -1].serialnumber);
+}
+
 static void VROVRSetMenuItemValues( void )
 {
 	s_options_vr_ovr_enable_box.curvalue = ( !! Cvar_VariableInteger("vr_ovr_enable") );
@@ -112,6 +159,7 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_lowpersistence");
 	Cvar_SetToDefault ("vr_ovr_lumoverdrive");
 	Cvar_SetToDefault ("vr_ovr_dk2_color_hack");
+	Cvar_SetToDefault ("vr_ovr_device");
 	VROVRSetMenuItemValues();
 }
 
@@ -137,7 +185,7 @@ void Options_VR_OVR_MenuInit ( void )
 
 	static const char *scale_names[] = 
 	{
-		"profile default",
+		"default",
 		"screen maximum",
 		0
 	};
@@ -165,7 +213,10 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
+
 	int32_t y = 3*MENU_LINE_SIZE;
+
+
 
 	s_options_vr_ovr_menu.x = SCREEN_WIDTH*0.5;
 	s_options_vr_ovr_menu.y = SCREEN_HEIGHT*0.5 - 58;
@@ -185,7 +236,21 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_enable_box.itemnames			= enable_names;
 	s_options_vr_ovr_enable_box.generic.statusbar	= "enable or disable native oculus rift support";
 
+	if (Cvar_VariableInteger("vr_enabled") == HMD_RIFT)
+	{
+		InitNames();
 
+		s_options_vr_ovr_device_box.generic.type		= MTYPE_SPINCONTROL;
+		s_options_vr_ovr_device_box.generic.x			= MENU_FONT_SIZE;
+		s_options_vr_ovr_device_box.generic.y			= y+=2*MENU_LINE_SIZE;
+		s_options_vr_ovr_device_box.generic.name		= "device";
+		s_options_vr_ovr_device_box.generic.callback	= DeviceFunc;
+		s_options_vr_ovr_device_box.itemnames			= hmds;
+		s_options_vr_ovr_device_box.generic.statusbar	= "selects device to use";
+	
+		s_options_vr_ovr_device_box.curvalue = FindSN();
+
+	}
 	s_options_vr_ovr_timewarp_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_timewarp_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_timewarp_box.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -200,7 +265,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_prediction_box.generic.name		= "auto motion prediction";
 	s_options_vr_ovr_prediction_box.generic.callback	= PredictionFunc;
 	s_options_vr_ovr_prediction_box.itemnames			= enable_names;
-	s_options_vr_ovr_prediction_box.generic.statusbar	= "uses sets motion prediction time automatically";
+	s_options_vr_ovr_prediction_box.generic.statusbar	= "sets motion prediction time automatically";
 
 	s_options_vr_ovr_maxfov_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_maxfov_box.generic.x			= MENU_FONT_SIZE;
@@ -260,7 +325,9 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_header );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_enable_box );
-
+	
+	if (Cvar_VariableInteger("vr_enabled") == HMD_RIFT)
+		Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_device_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );

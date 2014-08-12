@@ -60,6 +60,7 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_SetPredictionTime
 };
 
+static ovrname_t hmdnames[255];
 
 
 void VR_OVR_GetFOV(float *fovx, float *fovy)
@@ -284,6 +285,11 @@ float VR_OVR_GetGammaMin()
 	return result;
 }
 
+ovrname_t *VR_OVR_GetNameList()
+{
+	return hmdnames;
+}
+
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;
@@ -309,6 +315,9 @@ int32_t VR_OVR_Enable()
 		int numDevices = ovrHmd_Detect();
 		int i;
 		qboolean found = false;
+
+		memset(hmdnames,0,sizeof(ovrname_t) * 255);
+
 		Com_Printf("VR_OVR: Enumerating devices...\n");
 		Com_Printf("VR_OVR: Found %i devices\n", numDevices);
 		for (i = 0 ; i < numDevices ; i++)
@@ -317,6 +326,8 @@ int32_t VR_OVR_Enable()
 			if (tempHmd)
 			{
 				Com_Printf("VR_OVR: Found device #%i '%s' s/n:%s\n",i,tempHmd->ProductName, tempHmd->SerialNumber);
+				sprintf(hmdnames[i].label,"%i: %s",i + 1, tempHmd->ProductName);
+				sprintf(hmdnames[i].serialnumber,"%s",tempHmd->SerialNumber);
 				if (!strncmp(vr_ovr_device->string,tempHmd->SerialNumber,strlen(tempHmd->SerialNumber)))
 				{
 					device = i;
