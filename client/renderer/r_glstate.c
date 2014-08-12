@@ -749,7 +749,7 @@ void GL_SetDefaultState (void)
 	GL_UpdateSwapInterval();
 
 	memset(&screenFBO,0,sizeof(fbo_t));
-	screenFBO.width = glConfig.screen_width;
-	screenFBO.height = glConfig.screen_height;
+	screenFBO.width = glConfig.vid_width;
+	screenFBO.height = glConfig.vid_height;
 	R_BindFBO(&screenFBO);
 }

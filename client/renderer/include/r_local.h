@@ -761,6 +761,8 @@ typedef struct
 	int32_t		shader_version_minor;
 	int32_t		screen_width;
 	int32_t		screen_height;
+	int32_t		vid_width;
+	int32_t		vid_height;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;
@@ -1078,6 +1080,7 @@ void R_DelVAO(vao_t *VAO);
 void R_InitVAO(vao_t *VAO);
 void R_BindVAO(vao_t *VAO);
 */
+
 /*
 ====================================================================
 
@@ -1127,4 +1130,5 @@ void R_ReleaseIVBO();
 void R_DrawIVBO(vbo_t *buffer);
 void R_DrawRangeIVBO(vbo_t *buffer, GLsizei offset, GLsizei count);
 void R_DelIVBO(vbo_t *buffer);
+
 #endif

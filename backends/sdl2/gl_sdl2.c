@@ -120,12 +120,13 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_DisplayMode targetMode;
 	SDL_Surface *icon = NULL;
 
-	const char *win_fs[] = { "W", "FS" };
+	const char *win_fs[] = { "W", "FS", "FSW" };
 	char *title = NULL;
 
 	int32_t xpos = Cvar_VariableInteger("vid_xpos");
 	int32_t ypos = Cvar_VariableInteger("vid_ypos");
 	int32_t fullscreen = Cvar_VariableInteger("vid_fullscreen");
+	int32_t fs_desktop = Cvar_VariableInteger("vid_fullscreen_desktop");
 
 	if (vr_enabled->value)
 	{
@@ -133,12 +134,8 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	}
 
 
-	width = Cvar_VariableInteger("vid_width");
-	height = Cvar_VariableInteger("vid_height");
-
 	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	VID_Printf (PRINT_ALL, "...setting mode %dx%d %s\n", width, height, win_fs[fullscreen] );
 
 	// destroy the existing window
 	if (mainWindow)
@@ -170,20 +167,46 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 			}
 		}
 
-		idealMode.format = SDL_PIXELFORMAT_RGBA8888;
-		idealMode.w = width;
-		idealMode.h = height;
-		idealMode.refresh_rate = refresh;
-		idealMode.driverdata = 0;
-		if (!SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode))
-			return rserr_invalid_fullscreen;
-
-		if (width != targetMode.w || height != targetMode.h || (refresh && refresh != targetMode.refresh_rate ))
+		if (fs_desktop)
 		{
-			return rserr_invalid_fullscreen;
+			SDL_GetCurrentDisplayMode(targetDisplay,&targetMode);
+			/*
+			this may be a really terrible ideal, but allow rendering at higher resolution that the screen
+			if (Cvar_VariableInteger("vid_width") > targetMode.w || Cvar_VariableInteger("vid_height") > targetMode.h)
+			{
+				return rserr_invalid_fullscreen;
+			}
+			*/ 
+			width = targetMode.w;
+			height = targetMode.h;
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		}
-		flags |= SDL_WINDOW_FULLSCREEN;
+		else
+		{
+			width = Cvar_VariableInteger("vid_width");
+			height = Cvar_VariableInteger("vid_height");
+
+			idealMode.format = SDL_PIXELFORMAT_RGBA8888;
+			idealMode.w = width;
+			idealMode.h = height;
+			idealMode.refresh_rate = refresh;
+			idealMode.driverdata = 0;
+			if (!SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode))
+				return rserr_invalid_fullscreen;
+
+			if (width != targetMode.w || height != targetMode.h || (refresh && refresh != targetMode.refresh_rate ))
+			{
+				return rserr_invalid_fullscreen;
+			}
+
+			flags |= SDL_WINDOW_FULLSCREEN;
+		}
+	} else {
+		width = Cvar_VariableInteger("vid_width");
+		height = Cvar_VariableInteger("vid_height");
 	}
+
+	VID_Printf (PRINT_ALL, "...setting mode %dx%d %s\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0] );
 
 	if (modType("xatrix")) { // q2mp1
 		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);		
@@ -230,7 +253,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		SDL_FreeSurface(icon);
 	} else
 
-	if (fullscreen)
+	if (fullscreen && !fs_desktop)
 	{
 		if ( SDL_SetWindowDisplayMode(mainWindow,&targetMode) < 0)
 		{
@@ -248,8 +271,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		return rserr_unknown;
 	}
 
-	SDL_GL_GetDrawableSize(mainWindow,&width,&height);
-	printf("Set window to size %ix%i...\n",width,height);
+
 
 	SDL_VERSION(&mainWindowInfo.version); // initialize info structure with SDL version info
 	SDL_GetWindowWMInfo(mainWindow,&mainWindowInfo);
@@ -268,9 +290,28 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 	
 	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Available":"Not available");
-	VID_NewWindow (width, height);
-	*pwidth = width;
-	*pheight = height;
+
+	if (fs_desktop)
+	{
+		int32_t screenWidth, screenHeight;
+		width = Cvar_VariableInteger("vid_width");
+		height = Cvar_VariableInteger("vid_height");
+
+		SDL_GL_GetDrawableSize(mainWindow,&screenWidth,&screenHeight);
+		VID_Printf(PRINT_ALL,"Got desktop size %ix%i...\n",screenWidth,screenHeight);
+		VID_Printf(PRINT_ALL,"Set render target size to %ix%i...\n",width,height);
+		VID_NewWindow (width,height);
+		*pwidth = width;
+		*pheight = height;
+
+	} else {
+		SDL_GL_GetDrawableSize(mainWindow,&width,&height);
+		VID_Printf(PRINT_ALL,"Set window to size %ix%i...\n",width,height);
+		VID_NewWindow (width, height);
+		*pwidth = width;
+		*pheight = height;
+	}
+
 	return rserr_ok;
 }
 
@@ -343,6 +384,8 @@ qboolean GLimp_InitGL (void)
 	glConfig.srgb_framebuffer = srgb ? 1 : 0;
 	if (!glConfig.srgb_framebuffer)
 		Cvar_SetInteger("vid_srgb",0);
+
+	SDL_GL_GetDrawableSize(mainWindow,&glConfig.vid_width,&glConfig.vid_height);
 
 	return true;
 

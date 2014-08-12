@@ -111,6 +111,7 @@ static cinematic_t	cinematics[MAX_CINEMATICS];
 void Q_strncpyz (char *dst, const char *src, int32_t dstSize);
 
 
+
 typedef struct
 {
 	int32_t         rendType;
@@ -118,11 +119,17 @@ typedef struct
 	const char	*vendor_string;
 	const char	*version_string;
 	const char	*extensions_string;
-
+	const char  *shader_version_string;
 	// for parsing newer OpenGL versions
-	int32_t			version_major;
-	int32_t			version_minor;
-	int32_t			version_release;
+	int32_t		version_major;
+	int32_t		version_minor;
+	int32_t		version_release;
+	int32_t		shader_version_major;
+	int32_t		shader_version_minor;
+	int32_t		screen_width;
+	int32_t		screen_height;
+	int32_t		vid_width;
+	int32_t		vid_height;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;
@@ -142,12 +149,21 @@ typedef struct
 	qboolean	ext_packed_depth_stencil;
 	qboolean	ext_framebuffer_object;
 	qboolean	arb_sync;
-
+	qboolean	arb_texture_float;
+	qboolean	arb_texture_rg;
+	qboolean	ext_direct_state_access;
 	// anisotropic filtering
 	qboolean	anisotropic;
 	float		max_anisotropy;
+	uint32_t	refresh_rate;
+	qboolean	arb_vertex_buffer_object;
+	qboolean	arb_vertex_array_object;
 
+	qboolean	srgb_framebuffer;
+	qboolean	ext_texture_srgb;
+	qboolean	ext_framebuffer_srgb;
 } glconfig_t;
+
 extern	glconfig_t glConfig;
 
 
