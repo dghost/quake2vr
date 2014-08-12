@@ -279,7 +279,7 @@ void VR_OVR_FrameEnd()
 float VR_OVR_GetGammaMin()
 {
 	float result = 0.0;
-	if (hmd && hmd->Type > ovrHmd_DK2)
+	if (hmd && hmd->Type >= ovrHmd_DK2)
 		result = 1.0/255.0;
 	return result;
 }
