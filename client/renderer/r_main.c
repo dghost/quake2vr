@@ -1200,7 +1200,7 @@ void R_Register (void)
 	r_lightcutoff = Cvar_Get( "r_lightcutoff", "0", CVAR_ARCHIVE );	//** DMP dynamic light cutoffnow variable
 
 	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
-	r_fencesync = Cvar_Get("r_fencesync","1",CVAR_ARCHIVE );
+	r_fencesync = Cvar_Get("r_fencesync","0",CVAR_ARCHIVE );
 	r_lateframe_decay = Cvar_Get("r_lateframe_decay","10",CVAR_ARCHIVE);
 	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
 	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
