@@ -49,6 +49,7 @@ static menulist_s		s_options_vr_advanced_positiontracking_box;
 static menulist_s		s_options_vr_advanced_neckmodel_box;
 static menufield_s		s_options_vr_advanced_neckmodel_up_field;
 static menufield_s		s_options_vr_advanced_neckmodel_forward_field;
+static menulist_s		s_options_vr_advanced_autofov_box;
 
 static menuaction_s		s_options_vr_advanced_defaults_action;
 static menuaction_s		s_options_vr_advanced_back_action;
@@ -120,6 +121,13 @@ static void PositionFunc( void *unused )
 }
 
 
+
+static void AutoFOVFunc(void *unused)
+{
+	Cvar_SetInteger("vr_autofov", s_options_vr_advanced_autofov_box.curvalue);
+}
+
+
 static void CustomPredictionFunc(void *unused)
 {
 	float temp;
@@ -132,6 +140,8 @@ static void CustomPredictionFunc(void *unused)
 
 static void VRAdvSetMenuItemValues( void )
 {
+	s_options_vr_advanced_autofov_box.curvalue = (Cvar_VariableValue("vr_autofov"));
+
 	s_options_vr_advanced_autoenable_box.curvalue = ( Cvar_VariableInteger("vr_autoenable") );
 	s_options_vr_advanced_laser_box.curvalue = ( Cvar_VariableInteger("vr_aimlaser") );
 	s_options_vr_advanced_hud_depth_slider.curvalue = ( Cvar_VariableValue("vr_hud_depth") * 20.0f);
@@ -153,6 +163,7 @@ static void VRAdvSetMenuItemValues( void )
 
 static void VRAdvResetDefaultsFunc ( void *unused )
 {
+	Cvar_SetToDefault("vr_autofov");
 	Cvar_SetToDefault("vr_autoenable");
 	Cvar_SetToDefault("vr_chromatic");
 	Cvar_SetToDefault("vr_aimlaser");
@@ -198,6 +209,12 @@ void Options_VR_Advanced_MenuInit ( void )
 		0
 	};
 
+	static const char *fov_names[] =
+	{
+		"Quake II",
+		"HMD",
+		0
+	};
 	int32_t y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_advanced_menu.x = SCREEN_WIDTH*0.5;
@@ -233,6 +250,13 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_laser_box.itemnames				= yesno_names;
 	s_options_vr_advanced_laser_box.generic.statusbar		= "replaces the cursor with an aiming laser";
 
+	s_options_vr_advanced_autofov_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_vr_advanced_autofov_box.generic.x = MENU_FONT_SIZE;
+	s_options_vr_advanced_autofov_box.generic.y = y += MENU_LINE_SIZE;
+	s_options_vr_advanced_autofov_box.generic.name = "field of view";
+	s_options_vr_advanced_autofov_box.generic.callback = AutoFOVFunc;
+	s_options_vr_advanced_autofov_box.itemnames = fov_names;
+	s_options_vr_advanced_autofov_box.generic.statusbar = "choose whether to use auto or custom field of view";
 
 	s_options_vr_advanced_prediction_field.generic.type = MTYPE_FIELD;
 	s_options_vr_advanced_prediction_field.generic.flags = QMF_LEFT_JUSTIFY;
@@ -339,6 +363,8 @@ void Options_VR_Advanced_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autoenable_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_chroma_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_laser_box );
+
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autofov_box);
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_prediction_field );
 
