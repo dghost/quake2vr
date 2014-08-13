@@ -42,6 +42,8 @@ static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
 static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
 static menulist_s		s_options_vr_viewmove_box;
 
+static menuslider_s		s_options_vr_walkspeed_slider;
+
 static menulist_s		s_options_vr_autoipd_box;
 static menufield_s		s_options_vr_ipd_field;
 
@@ -91,6 +93,7 @@ static void VRSetMenuItemValues( void )
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
+	s_options_vr_walkspeed_slider.curvalue = (int) (( Cvar_VariableValue("vr_walkspeed") - 0.5) * 10.0);
 }
 
 static void VRResetDefaultsFunc ( void *unused )
@@ -101,6 +104,7 @@ static void VRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_aimmode_deadzone_yaw");
 	Cvar_SetToDefault ("vr_autoipd");
 	Cvar_SetToDefault ("vr_ipd");
+	Cvar_SetToDefault ("vr_walkspeed");
 	VRSetMenuItemValues();
 }
 
@@ -118,6 +122,13 @@ static void DeadzoneFunc ( void *unused )
 	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
+}
+
+static void WalkFunc (void *unused )
+{
+	float temp = s_options_vr_walkspeed_slider.curvalue / 10.0;
+	temp += 0.5;
+	Cvar_SetValue("vr_walkspeed",temp);
 }
 
 static void IPDFunc( void *unused )
@@ -246,9 +257,18 @@ void Options_VR_MenuInit ( void )
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 
+	s_options_vr_walkspeed_slider.generic.type		= MTYPE_SLIDER;
+	s_options_vr_walkspeed_slider.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_walkspeed_slider.generic.y			= y+=2*MENU_LINE_SIZE;
+	s_options_vr_walkspeed_slider.generic.name		= "walking speed";
+	s_options_vr_walkspeed_slider.generic.callback	= WalkFunc;
+	s_options_vr_walkspeed_slider.minvalue			= 0;
+	s_options_vr_walkspeed_slider.maxvalue			= 10;
+	s_options_vr_walkspeed_slider.generic.statusbar	= "sets the walking speed";
+
 	s_options_vr_autoipd_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_autoipd_box.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_autoipd_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_autoipd_box.generic.y			= y+= 2*MENU_LINE_SIZE;
 	s_options_vr_autoipd_box.generic.name			= "interpupillary distance";
 	s_options_vr_autoipd_box.generic.callback		= AutoIPDFunc;
 	s_options_vr_autoipd_box.itemnames			= auto_names;
@@ -315,6 +335,7 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_walkspeed_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
