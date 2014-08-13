@@ -165,6 +165,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 				ypos = displayBounds.y;
 				targetDisplay = i;
 			}
+			VID_Printf(PRINT_ALL,"...found display '%s' (%i,%i) %ix%i\n",SDL_GetDisplayName(i),displayBounds.x,displayBounds.y,displayBounds.w,displayBounds.h);
 		}
 
 		if (fs_desktop)
@@ -206,7 +207,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		height = Cvar_VariableInteger("vid_height");
 	}
 
-	VID_Printf (PRINT_ALL, "...setting mode %dx%d %s\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0] );
+	VID_Printf (PRINT_ALL, "...creating window %dx%d %s at (%i,%i)\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0], xpos,ypos );
 
 	if (modType("xatrix")) { // q2mp1
 		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);		
@@ -286,6 +287,30 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		SetWindowLong( mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST );
 #endif
 
+
+	{
+		int x, y, w, h;
+		SDL_DisplayMode mode;
+		if (!SDL_GetWindowDisplayMode(mainWindow,&mode))
+		{
+			VID_Printf(PRINT_ALL, "...display set to %ix%i\n",mode.w,mode.h);
+		}
+
+		SDL_GetWindowPosition(mainWindow,&x,&y);
+		SDL_GetWindowSize(mainWindow,&w,&h);
+
+		if (fullscreen)
+		{
+			SDL_Rect rect;
+			int index;
+			index = SDL_GetWindowDisplayIndex(mainWindow);
+			SDL_GetDisplayBounds(index,&rect);
+			x += rect.x;
+			y += rect.y;
+		}
+
+		VID_Printf(PRINT_ALL,"...window is %ix%i and at (%i,%i)\n",w,h,x,y);
+	}
 
 	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
 	
