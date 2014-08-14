@@ -1795,8 +1795,8 @@ void R_BeginFrame()
 	//
 	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
-
-		GLimp_SetFullscreen((qboolean) vid_fullscreen->value);
+		if (!vr_enabled->value || !vr_force_fullscreen->value)
+			GLimp_SetFullscreen((qboolean) vid_fullscreen->value);
 		vid_fullscreen->modified=false;
 	}
 

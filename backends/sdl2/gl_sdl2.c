@@ -131,8 +131,10 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	if (vr_enabled->value)
 	{
 		VR_GetHMDPos(&xpos,&ypos);
+		if (vr_force_fullscreen->value)
+			fullscreen = 1;
 	}
-
+	
 
 	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
@@ -142,7 +144,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	{
 		GLimp_Shutdown ();
 	}
-
+	
 	// do a CDS if needed
 	if ( fullscreen )
 	{
@@ -457,14 +459,10 @@ void GLimp_AppActivate( qboolean active )
 			SDL_ShowWindow(mainWindow);
 			SDL_RaiseWindow(mainWindow);
 #ifdef _WIN32
-			if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			if((vid_fullscreen->value || (vr_enabled->value && vr_force_fullscreen->value)) && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 				SetForegroundWindow(mainWindowInfo.info.win.window);
 #endif
 		}
 
-	} /*	else
-	{
-		if ( vid_fullscreen->value )
-
-	} */
+	}
 }

@@ -440,7 +440,7 @@ void IN_Frame (void)
 	if ( (!cl.refresh_prepped && cls.key_dest != key_menu) || cls.consoleActive) //mouse used in menus...
 	{
 		// temporarily deactivate if in fullscreen
-		if (Cvar_VariableValue ("vid_fullscreen") == 0)
+		if (Cvar_VariableValue ("vid_fullscreen") == 0 && !(vr_enabled->value && vr_force_fullscreen->value))
 		{
 			IN_DeactivateMouse ();
 			return;

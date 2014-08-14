@@ -256,7 +256,7 @@ void SDL_ProcEvent (SDL_Event *event)
 				GLimp_AppActivate ( false );
 			break;
 		case SDL_WINDOWEVENT_MOVED:
-			if (!vid_fullscreen->value)
+			if (!vid_fullscreen->value && !(vr_enabled->value && vr_force_fullscreen->value))
 			{
 				int32_t xPos = event->window.data1;    // horizontal position 
 				int32_t yPos = event->window.data2;    // vertical position 
@@ -353,7 +353,7 @@ void VID_Front_f( void )
 {
 	SDL_RaiseWindow(mainWindow);
 #ifdef _WIN32
-	if(vid_fullscreen->value && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+	if((vid_fullscreen->value || (vr_enabled->value && vr_force_fullscreen->value)) && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 	{
 		SetWindowLong( mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST );
 		SetForegroundWindow(mainWindowInfo.info.win.window);
@@ -505,7 +505,7 @@ void VID_CheckChanges (void)
 	// update our window position
 	if ( vid_xpos->modified || vid_ypos->modified )
 	{
-		if (!vid_fullscreen->value)
+		if (!vid_fullscreen->value && !(vr_enabled->value && vr_force_fullscreen->value))
 			VID_UpdateWindowPos( vid_xpos->value, vid_ypos->value );
 
 		vid_xpos->modified = false;
