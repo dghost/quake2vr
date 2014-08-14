@@ -21,4 +21,4 @@ void main()
    oTexCoord = TexCoord * EyeToSourceUVScale + EyeToSourceUVOffset;
    oTexCoord.y = 1.0 - oTexCoord.y;
    oColor = Color;              // Used for vignette fade.
-};
+}
