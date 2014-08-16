@@ -38,6 +38,7 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_menu;
 static menuseparator_s	s_options_vr_header;
 static menulist_s		s_options_vr_aimmode_box;
+static menulist_s		s_options_vr_laser_box;
 static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
 static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
 static menulist_s		s_options_vr_viewmove_box;
@@ -94,11 +95,15 @@ static void VRSetMenuItemValues( void )
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 	s_options_vr_walkspeed_slider.curvalue = (int) (( ClampCvar(0.5,1.5, Cvar_VariableValue("vr_walkspeed")) - 0.5) * 10.0);
+	s_options_vr_laser_box.curvalue = ( Cvar_VariableInteger("vr_aimlaser") );
+
 }
 
 static void VRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_aimmode");
+	Cvar_SetToDefault ("vr_aimlaser");
+
 	Cvar_SetToDefault ("vr_viewmove");
 	Cvar_SetToDefault ("vr_aimmode_deadzone_pitch");
 	Cvar_SetToDefault ("vr_aimmode_deadzone_yaw");
@@ -106,6 +111,11 @@ static void VRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ipd");
 	Cvar_SetToDefault ("vr_walkspeed");
 	VRSetMenuItemValues();
+}
+
+static void LaserFunc( void *unused )
+{
+	Cvar_SetInteger("vr_aimlaser",s_options_vr_laser_box.curvalue);
 }
 
 static void DeadzoneFunc ( void *unused )
@@ -224,6 +234,14 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_box.itemnames			= aimmode_names;
 	s_options_vr_aimmode_box.generic.statusbar	= "WARNING: items marked with a * do not work well in multiplayer";
 
+	s_options_vr_laser_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_laser_box.generic.x				= MENU_FONT_SIZE;
+	s_options_vr_laser_box.generic.y				= y+=MENU_LINE_SIZE;
+	s_options_vr_laser_box.generic.name			= "aiming laser";
+	s_options_vr_laser_box.generic.callback		= LaserFunc;
+	s_options_vr_laser_box.itemnames				= yesno_names;
+	s_options_vr_laser_box.generic.statusbar		= "replaces the cursor with an aiming laser";
+
 	s_options_vr_viewmove_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_viewmove_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_viewmove_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -332,6 +350,7 @@ void Options_VR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_header );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_laser_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );
