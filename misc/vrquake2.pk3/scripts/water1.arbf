@@ -1,0 +1,89 @@
+!!ARBfp1.0
+
+# Scroll and scale the distortion texture coordinates.
+# Scroll coordinates are specified externally.
+PARAM scroll1 = program.local[0];
+PARAM scroll2 = program.local[1];
+PARAM texScale1 = { 0.008, 0.008, 1.0, 1.0 };
+PARAM texScale2 = { 0.007, 0.007, 1.0, 1.0 };
+TEMP texCoord1;
+TEMP texCoord2;
+MUL texCoord1, fragment.texcoord[1], texScale1;
+MUL texCoord2, fragment.texcoord[1], texScale2;
+ADD texCoord1, texCoord1, scroll1;
+ADD texCoord2, texCoord2, scroll2;
+
+
+# Load the distortion textures and add them together.
+TEMP distortColor;
+TEMP distortColor2;
+TXP distortColor, texCoord1, texture[1], 2D;
+TXP distortColor2, texCoord2, texture[1], 2D;
+ADD distortColor, distortColor, distortColor2;
+
+
+# Subtract 1.0 and scale by 2.0.
+# Textures will be distorted from -2.0 to 2.0 texels.
+PARAM scaleFactor = { 2.0, 2.0, 2.0, 2.0 };
+PARAM one = { 1.0, 1.0, 1.0, 1.0 };
+SUB distortColor, distortColor, one;
+MUL distortColor, distortColor, scaleFactor;
+
+
+# Apply distortion to reflection texture coordinates.
+TEMP distortCoord;
+TEMP endColor;
+ADD distortCoord, distortColor, fragment.texcoord[0];
+TXP endColor, distortCoord, texture, 2D;
+
+
+# Get a vector from the surface to the view origin
+PARAM vieworg = program.local[2];
+TEMP eyeVec;
+TEMP trans;
+SUB eyeVec, vieworg, fragment.texcoord[1];
+
+
+# Normalize the vector to the eye position
+TEMP temp;
+TEMP invLen;
+DP3 temp, eyeVec, eyeVec;
+RSQ invLen, temp.x;
+MUL eyeVec, eyeVec, invLen;
+ABS eyeVec.z, eyeVec.z; # so it works underwater, too
+
+
+# Load the ripple normal map
+TEMP normalColor;
+TEMP normalColor2;
+# Scale texture
+MUL texCoord1, fragment.texcoord[2], texScale2;
+MUL texCoord2, fragment.texcoord[2], texScale1;
+# Scroll texture
+ADD texCoord1, texCoord1, scroll1;
+ADD texCoord2, texCoord2, scroll2;
+# Get texel color
+TXP normalColor, texCoord1, texture[2], 2D;
+TXP normalColor2, texCoord2, texture[2], 2D;
+# Combine normal maps
+ADD normalColor, normalColor, normalColor2;
+SUB normalColor, normalColor, 1.0;
+
+
+# Normalize normal texture
+DP3 temp, normalColor, normalColor;
+RSQ invLen, temp.x;
+MUL normalColor, invLen, normalColor;
+
+
+# Fresenel approximation
+DP3 trans.w, normalColor, eyeVec;
+SUB endColor.w, 1.0, trans.w;
+MAX endColor.w, endColor.w, 0.2; # MAX sets the min?  How odd.
+MIN endColor.w, endColor.w, 0.8; # Leave a LITTLE bit of transparency always
+
+
+# Put the color in the output (TODO: put this in final OP)
+MOV result.color, endColor;
+
+END

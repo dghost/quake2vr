@@ -1,0 +1,4 @@
+md2mesh.0
+{
+	glow models/weapons/v_enuke/od_skin_glow.tga wave sin .9 .1 0 10
+}

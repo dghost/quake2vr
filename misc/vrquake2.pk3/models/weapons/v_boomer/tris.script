@@ -1,0 +1,4 @@
+md2mesh.0
+{
+	glow models/weapons/v_boomer/od_r_skin_glow.tga wave sin .5 .5 0 10
+}

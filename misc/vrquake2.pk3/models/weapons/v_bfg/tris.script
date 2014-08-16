@@ -1,0 +1,4 @@
+md2mesh.0
+{
+	glow models/weapons/v_bfg/kman_bfgglow.tga wave sin 0 0.5 0 0.6
+}
