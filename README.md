@@ -12,19 +12,20 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Xbox 360 / Xinput compatible gamepad support
 
 ####Requirements
-- Full version of [Quake II](http://store.steampowered.com/app/2320/)
+- Full version of [Quake II](http://store.steampowered.com/app/2320/) or the demo version below
 - Windows XP or higher
 - Oculus Rift
 - Pretty much any video card that supports DirectX 9 or higher
+- [32bit MSVC 2012 runtime](http://www.microsoft.com/en-us/download/details.aspx?id=30679)
 
 ####Downloads
 Note: I've made several changes to both names of and what files get bundled with the executable and in the extras package for this release. If you run into any issues while upgrading, I suggest a clean install and copying saved games.
 
-######Unstable Packages w/ DK2 support (v1.9.2):
+######Unstable Packages w/ DK2 support (v1.9.3):
 
-- Playable shareware Quake II VR package (54MB): [Download 1](http://dgho.st/JzEW)
-- Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/xxo)
-- Quake II VR Binaries w/ HD Textures + Soundtrack (497MB): [Download 2](http://dgho.st/Dr9N)
+- Playable Quake II demo package w/ VR support (54MB): [Download 1](http://dgho.st/nSGn)
+- Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/s954)
+- Quake II VR Binaries w/ HD Textures, Soundtrack + Multiplayer Mods (562MB): [Download 1](http://dgho.st/Wh3j)
 
 ######Stable Packages (v1.3.1):
 
@@ -60,11 +61,11 @@ Aim modes that allow the mouse to adjust the view pitch are currently broken in 
 As this is based on KMQuake II, it supports any modification or add-on that is compatible with KMQuake II. The extra's package includes both high resolution model and world textures, and and I highly recommend turning on some of the advanced video options. That said, if you want a relatively pure experience the defaults settings will come pretty close to it.
 
 ####More Info
-- [Project Homepage](https://github.com/dghost/Quake2VR/)
-- [Latest Releases](https://github.com/dghost/Quake2VR/releases)
-- [Release Notes](https://github.com/dghost/Quake2VR/wiki/Changelog)
-- [FAQs](https://github.com/dghost/Quake2VR/wiki/FAQs)
-- [Bug Tracker](https://github.com/dghost/Quake2VR/issues)
+- [Project Homepage](https://github.com/q2vr/Quake2VR/)
+- [Latest Releases](https://github.com/q2vr/Quake2VR/releases)
+- [Release Notes](https://github.com/q2vr/Quake2VR/wiki/Changelog)
+- [FAQs](https://github.com/q2vr/Quake2VR/wiki/FAQs)
+- [Bug Tracker](https://github.com/q2vr/Quake2VR/issues)
 
 ####Acknowledgements
 
@@ -77,3 +78,5 @@ Thanks go out to:
 - [Isla Schanuel](http://islaes.com/) for the idea of applying counter-rotation to the HUD to help reduce nausea.
 - Karl B. for reporting bugs in multiplayer.
 - [Nick Patrick](http://enpat.net) for a truly amazing job finding bugs in pre-release builds.
+- [ubtri](https://www.youtube.com/user/ubtri) for a ton of ideas on how to improve it and for the multiplayer configuration.
+- D at [eVRydayVR](https://www.youtube.com/channel/UCTlgIRnl3viQb1zCJqFJwqw) for doing the most amazing video walkthrough/review I've ever seen. Seriously, [go watch it](https://www.youtube.com/watch?v=ehoEJqZVFB0&list=UUTlgIRnl3viQb1zCJqFJwqw).
