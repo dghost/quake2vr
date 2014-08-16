@@ -93,7 +93,7 @@ static void VRSetMenuItemValues( void )
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
-	s_options_vr_walkspeed_slider.curvalue = (int) (( ClampCvar( Cvar_VariableValue("vr_walkspeed"),0.5,1.5) - 0.5) * 10.0);
+	s_options_vr_walkspeed_slider.curvalue = (int) (( ClampCvar(0.5,1.5, Cvar_VariableValue("vr_walkspeed")) - 0.5) * 10.0);
 }
 
 static void VRResetDefaultsFunc ( void *unused )
