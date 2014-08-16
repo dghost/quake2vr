@@ -423,7 +423,7 @@ void VR_Startup(void)
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_ARCHIVE);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_ARCHIVE);
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_ARCHIVE);
-	vr_ipd = Cvar_Get("vr_ipd","-1", CVAR_ARCHIVE);
+	vr_ipd = Cvar_Get("vr_ipd","64", CVAR_ARCHIVE);
 	vr_hud_width = Cvar_Get("vr_hud_width","640",CVAR_ARCHIVE);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_ARCHIVE);
 	vr_hud_segments = Cvar_Get("vr_hud_segments","15",CVAR_ARCHIVE);
