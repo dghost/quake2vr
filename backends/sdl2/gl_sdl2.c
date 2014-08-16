@@ -128,6 +128,18 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	int32_t fullscreen = Cvar_VariableInteger("vid_fullscreen");
 	int32_t fs_desktop = Cvar_VariableInteger("vid_fullscreen_desktop");
 
+
+	{
+		int32_t numDisplays = SDL_GetNumVideoDisplays();
+		int32_t i = 0;
+		SDL_Rect displayBounds;
+
+		for (i = 0; i < numDisplays; i++)
+		{
+			if (!SDL_GetDisplayBounds(i,&displayBounds))
+				VID_Printf(PRINT_ALL,"...found display '%s' (%i,%i) %ix%i\n",SDL_GetDisplayName(i),displayBounds.x,displayBounds.y,displayBounds.w,displayBounds.h);
+		}
+	}
 	if (vr_enabled->value)
 	{
 		VR_GetHMDPos(&xpos,&ypos);
@@ -167,7 +179,6 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 				ypos = displayBounds.y;
 				targetDisplay = i;
 			}
-			VID_Printf(PRINT_ALL,"...found display '%s' (%i,%i) %ix%i\n",SDL_GetDisplayName(i),displayBounds.x,displayBounds.y,displayBounds.w,displayBounds.h);
 		}
 
 		if (fs_desktop)

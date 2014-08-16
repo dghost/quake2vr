@@ -6,10 +6,15 @@
 svr_settings_t svr_settings;
 static float predictionTime;
 static qboolean hasBeenInitialized = 0;
+static qboolean sensorThisFrame = false;
 
 cvar_t *vr_svr_distortion;
 cvar_t *vr_svr_debug;
 cvar_t *vr_svr_enable;
+cvar_t *vr_svr_positiontracking;
+
+static float orientation[3];
+static float position[3];
 
 int32_t VR_SVR_Enable()
 {
@@ -57,6 +62,18 @@ void VR_SVR_Disable()
 
 int32_t VR_SVR_Init()
 {
+	if (!hasBeenInitialized)
+	{
+		hasBeenInitialized = SteamVR_Init();
+		if (!hasBeenInitialized)
+		{
+			Com_Printf("VR_SVR: Fatal error initializing SteamVR support");
+			return 0;
+		}
+		Com_Printf("VR_SVR: SteamVR support initialized...\n");
+	}
+
+	vr_svr_positiontracking = Cvar_Get("vr_svr_positiontracking","0",0);
 	vr_svr_enable = Cvar_Get("vr_svr_enable","1",CVAR_ARCHIVE);
 	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_ARCHIVE);
 	vr_svr_debug = Cvar_Get("vr_svr_debug","0",0);
@@ -87,17 +104,34 @@ int32_t VR_SVR_SetPredictionTime(float time)
 	return 1;
 }
 
-int32_t VR_SVR_GetOrientation(float euler[3])
-{
-	vec3_t pos;
-	SteamVR_GetOrientationAndPosition(predictionTime,euler,pos);
-	return 1;
-}
 
 void VR_SVR_Frame()
 {
+	sensorThisFrame = false;
+
+}
 
 
+
+int32_t VR_SVR_GetOrientation(float euler[3])
+{
+	if (!sensorThisFrame)
+		SteamVR_GetOrientationAndPosition(predictionTime,orientation,position);
+
+	VectorCopy(orientation,euler);
+	return 1;
+}
+
+int32_t VR_SVR_GetPosition(float pos[3])
+{
+	if (!vr_svr_positiontracking->value)
+		return 0;
+
+	if (!sensorThisFrame)
+		SteamVR_GetOrientationAndPosition(predictionTime,orientation,position);
+
+	VectorCopy(position,pos);
+	return 1;
 }
 
 hmd_interface_t hmd_steam = {
@@ -111,7 +145,7 @@ hmd_interface_t hmd_steam = {
 	NULL,
 	SteamVR_ResetHMDOrientation,
 	VR_SVR_GetOrientation,
-	NULL,
+	VR_SVR_GetPosition,
 	VR_SVR_SetPredictionTime
 };
 

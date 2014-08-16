@@ -141,7 +141,6 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 		vr::HmdTrackingResult result;
 		hmd->GetTrackerFromHeadPose (prediction,&mat, &result);
 
-
 		pM = -mat.m[1][2];
 		if (pM < -1.0f + 0.0000001f)
 		{ // South pole singularity
@@ -165,7 +164,12 @@ void SteamVR_GetOrientationAndPosition(float prediction, float orientation[3], f
 		orientation[0] = (float) (-b * 180.0f / M_PI);
 		orientation[1] = (float) (a * 180.0f / M_PI);
 		orientation[2] = (float) (-c * 180.0f / M_PI);
+
+		position[0] = mat.m[0][3];
+		position[1] = mat.m[1][3];
+		position[2] = mat.m[2][3];
 	}
+
 }
 
 #endif //NO_STEAM
