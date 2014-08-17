@@ -319,13 +319,14 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_ovr_action.generic.callback	= OVRFunc;
 	s_options_vr_ovr_action.generic.statusbar	= "oculus rift configuration";
 
+#ifndef NO_STEAM
 	s_options_vr_svr_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_svr_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_svr_action.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_svr_action.generic.name		= "steam vr options";
 	s_options_vr_svr_action.generic.callback	= SVRFunc;
 	s_options_vr_svr_action.generic.statusbar	= "steam vr configuration";
-
+#endif
 
 	s_options_vr_enable_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_enable_action.generic.x			= MENU_FONT_SIZE;
@@ -359,7 +360,11 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ovr_action );
+
+#ifndef NO_STEAM
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_svr_action );
+#endif
+
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_enable_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_defaults_action );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_back_action );
