@@ -91,7 +91,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\SDL2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\glew\include\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
@@ -115,7 +115,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB ;MSVCRT.LIB</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -135,7 +135,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\SDL2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\glew\include\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -161,7 +161,7 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -180,7 +180,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)quake2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(SolutionDir)backends\sdl2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\SDL2\include;$(SolutionDir)external\Steam\public\;$(SolutionDir)external\OculusSDK\LibOVR\src\;$(SolutionDir)external\glew\include\;$(SolutionDir)external\OculusSDK\LibOVR\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -203,9 +203,9 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <SubSystem>Windows</SubSystem>
-      <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>backends\sdl2\lib\win32\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
