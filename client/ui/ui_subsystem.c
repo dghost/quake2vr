@@ -567,12 +567,12 @@ void UI_Draw (void)
 		return;
 
 	// dim everything behind it down
-	if (cl.cinematictime > 0 || cls.state == ca_disconnected)
+	if (!vr_enabled->value && (cl.cinematictime > 0 || cls.state == ca_disconnected))
 	{
 		if (R_DrawFindPic("/gfx/ui/menu_background.pcx"))
-			R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.pcx",menu_alpha->value);
+			R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.pcx",1.0);
 		else
-			R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int32_t)(menu_alpha->value*255));
+			R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,255);
 	}
 	// ingame menu uses alpha
 	else if (R_DrawFindPic("/gfx/ui/menu_background.pcx"))
