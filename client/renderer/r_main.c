@@ -159,7 +159,7 @@ cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
 cvar_t	*vid_fullscreen;
-cvar_t  *vid_fullscreen_desktop;
+cvar_t  *vid_desktop_fullscreen;
 cvar_t  *vid_brightness;
 cvar_t	*vid_ref;
 cvar_t  *vid_srgb;
@@ -1189,7 +1189,7 @@ void R_Register (void)
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
 	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
 
-	vid_fullscreen_desktop = Cvar_Get( "vid_fullscreen_desktop", "1", CVAR_ARCHIVE );
+	vid_desktop_fullscreen = Cvar_Get( "vid_desktop_fullscreen", "1", CVAR_ARCHIVE );
 	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
 	vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
 	vid_brightness = Cvar_Get("vid_brightness","0.6",CVAR_ARCHIVE);

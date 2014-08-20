@@ -56,6 +56,7 @@ static menuslider_s		s_blur_slider;
 static menulist_s  		s_screenshotjpeg_box;
 static menuslider_s  	s_screenshotjpegquality_slider;
 static menulist_s  		s_saveshotsize_box;
+static menulist_s  		s_fullscreenwindow_box;
 static menuaction_s		s_advanced_apply_action;
 static menuaction_s		s_back_action;
 
@@ -112,6 +113,10 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_saveshotsize", ClampCvar( 0, 1, Cvar_VariableValue("r_saveshotsize") ) );
 	s_saveshotsize_box.curvalue	= Cvar_VariableValue("r_saveshotsize");
+
+	Cvar_SetValue( "vid_desktop_fullscreen", ClampCvar( 0, 1, Cvar_VariableValue("vid_desktop_fullscreen") ) );
+	s_fullscreenwindow_box.curvalue	= Cvar_VariableValue("vid_desktop_fullscreen");
+
 }
 
 static void RGBSCaleCallback ( void *unused )
@@ -192,6 +197,12 @@ static void SaveshotSizeCallback ( void *unused )
 static void BlurCallback( void *unused )
 {
 	Cvar_SetValue( "r_blur_radius", s_blur_slider.curvalue);
+}
+
+static void FSWindowCallback( void *unused )
+{
+	Cvar_SetValue("vid_desktop_fullscreen", s_fullscreenwindow_box.curvalue);
+
 }
 
 static void AdvancedMenuApplyChanges ( void *unused )
@@ -397,6 +408,14 @@ void Menu_Video_Advanced_Init (void)
 	s_saveshotsize_box.itemnames				= yesno_names;
 	s_saveshotsize_box.generic.statusbar		= "hi-res saveshots when running at 800x600 or higher";
 
+	s_fullscreenwindow_box.generic.type			= MTYPE_SPINCONTROL;
+	s_fullscreenwindow_box.generic.x				= 0;
+	s_fullscreenwindow_box.generic.y				= y += 2*MENU_LINE_SIZE;
+	s_fullscreenwindow_box.generic.name			= "desktop fullscreen window";
+	s_fullscreenwindow_box.generic.callback		= FSWindowCallback;
+	s_fullscreenwindow_box.itemnames				= yesno_names;
+	s_fullscreenwindow_box.generic.statusbar		= "creates a fullscreen window at the current desktop resolution";
+
 	s_advanced_apply_action.generic.type		= MTYPE_ACTION;
 	s_advanced_apply_action.generic.name		= "apply changes";
 	s_advanced_apply_action.generic.x			= 0;
@@ -427,7 +446,9 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_shadows_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpeg_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpegquality_slider );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &	s_saveshotsize_box );
+	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_saveshotsize_box );
+
+	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_fullscreenwindow_box );
 
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_advanced_apply_action );
 

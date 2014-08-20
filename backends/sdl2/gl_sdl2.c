@@ -126,7 +126,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	int32_t xpos = Cvar_VariableInteger("vid_xpos");
 	int32_t ypos = Cvar_VariableInteger("vid_ypos");
 	int32_t fullscreen = Cvar_VariableInteger("vid_fullscreen");
-	int32_t fs_desktop = Cvar_VariableInteger("vid_fullscreen_desktop");
+	int32_t fs_desktop = Cvar_VariableInteger("vid_desktop_fullscreen");
 
 
 	{
