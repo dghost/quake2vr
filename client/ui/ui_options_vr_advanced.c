@@ -42,6 +42,7 @@ static menulist_s		s_options_vr_advanced_chroma_box;
 static menufield_s		s_options_vr_advanced_prediction_field;
 static menuslider_s		s_options_vr_advanced_hud_depth_slider;
 static menuslider_s		s_options_vr_advanced_hud_fov_slider;
+static menulist_s		s_options_vr_advanced_hud_resolution_box;
 static menulist_s		s_options_vr_advanced_hudtrans_box;
 static menulist_s		s_options_vr_advanced_hudbounce_box;
 static menulist_s		s_options_vr_advanced_positiontracking_box;
@@ -132,6 +133,24 @@ static void CustomPredictionFunc(void *unused)
 	s_options_vr_advanced_prediction_field.cursor = strlen( vr_prediction->string );
 }
 
+static void ResolutionFunc(void *unused)
+{
+	int temp = s_options_vr_advanced_hud_resolution_box.curvalue;
+	int height, width;
+	height = 480;
+	width = 640;
+
+	if (temp > 0)
+	{
+		width = 800;
+		height = 600;
+	}
+
+
+	Cvar_SetInteger("vr_hud_width",width);
+	Cvar_SetInteger("vr_hud_height",height);
+}
+
 static void VRAdvSetMenuItemValues( void )
 {
 	s_options_vr_advanced_autofov_box.curvalue = (Cvar_VariableValue("vr_autofov"));
@@ -151,6 +170,17 @@ static void VRAdvSetMenuItemValues( void )
 
 	strcpy( s_options_vr_advanced_prediction_field.buffer, vr_prediction->string );
 	s_options_vr_advanced_prediction_field.cursor = strlen( vr_prediction->string );
+	{
+		int height = Cvar_VariableInteger("vr_hud_height");
+		int width = Cvar_VariableInteger("vr_hud_width");
+		int value = 0;
+		if (height > 480 || width > 640) {
+			value = 1;
+		}
+		
+		s_options_vr_advanced_hud_resolution_box.curvalue = ClampCvar(0,2,value);
+
+	}
 
 }
 
@@ -169,6 +199,8 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault("vr_neckmodel_up");
 	Cvar_SetToDefault("vr_neckmodel_forward");
 	Cvar_SetToDefault("vr_positiontracking");
+	Cvar_SetToDefault("vr_hud_width");
+	Cvar_SetToDefault("vr_hud_height");
 	VRAdvSetMenuItemValues();
 }
 
@@ -207,6 +239,14 @@ void Options_VR_Advanced_MenuInit ( void )
 		"HMD",
 		0
 	};
+
+	static const char *res_names[] =
+	{
+		"640x480",
+		"800x600",
+		0
+	};
+
 	int32_t y = 3*MENU_LINE_SIZE;
 
 	s_options_vr_advanced_menu.x = SCREEN_WIDTH*0.5;
@@ -260,7 +300,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hud_depth_slider.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_advanced_hud_depth_slider.generic.name		= "hud depth";
 	s_options_vr_advanced_hud_depth_slider.generic.callback	= HUDFunc;
-	s_options_vr_advanced_hud_depth_slider.minvalue			= 5;
+	s_options_vr_advanced_hud_depth_slider.minvalue			= 10;
 	s_options_vr_advanced_hud_depth_slider.maxvalue			= 100;
 	s_options_vr_advanced_hud_depth_slider.generic.statusbar	= "changes hud depth";
 
@@ -272,6 +312,14 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_hud_fov_slider.minvalue			= 30;
 	s_options_vr_advanced_hud_fov_slider.maxvalue			= 90;
 	s_options_vr_advanced_hud_fov_slider.generic.statusbar	= "changes size of the hud";
+
+	s_options_vr_advanced_hud_resolution_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_advanced_hud_resolution_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_advanced_hud_resolution_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_advanced_hud_resolution_box.generic.name		= "hud resolution";
+	s_options_vr_advanced_hud_resolution_box.generic.callback	= ResolutionFunc;
+	s_options_vr_advanced_hud_resolution_box.itemnames			= res_names;
+	s_options_vr_advanced_hud_resolution_box.generic.statusbar	= "sets the resolution of the hud";
 
 	s_options_vr_advanced_hudtrans_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_hudtrans_box.generic.x			= MENU_FONT_SIZE;
@@ -353,6 +401,9 @@ void Options_VR_Advanced_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_depth_slider );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_fov_slider );
+
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hud_resolution_box );
+
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudtrans_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_hudbounce_box );
 	

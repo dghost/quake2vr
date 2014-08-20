@@ -210,11 +210,11 @@ void R_VR_StartFrame()
 		width = vr_hud_width->value;
 		height = vr_hud_height->value;
 
-		if (width < 640)
-			width = 640;
+		if (width < 320)
+			width = 320;
 
-		if (height < 480)
-			height = 480;
+		if (height < 240)
+			height = 240;
 		Cvar_SetInteger("vr_hud_width",width);
 		Cvar_SetInteger("vr_hud_height",height);
 		vr_hud_width->modified = false;
