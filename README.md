@@ -16,7 +16,7 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 - Windows XP or higher
 - Oculus Rift
 - Pretty much any video card that supports DirectX 9 or higher
-- [32bit MSVC 2012 runtime](http://www.microsoft.com/en-us/download/details.aspx?id=30679)
+- [32bit MSVC 2012 runtime](http://dgho.st/aXN5)
 
 ####Downloads
 Note: I've made several changes to both names of and what files get bundled with the executable and in the extras package for this release. If you run into any issues while upgrading, I suggest a clean install and copying saved games.
