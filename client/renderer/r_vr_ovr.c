@@ -56,7 +56,7 @@ r_attrib_t distAttribs[] = {
 	{"TexCoord",2},
 	{"Color",4},
 	{NULL,0}
-	};
+};
 
 // Default Lens Warp Shader
 static r_shaderobject_t ovr_shader_norm = {
@@ -86,7 +86,7 @@ r_attrib_t chromaAttribs[] = {
 	{"TexCoord2",3},
 	{"Color",4},
 	{NULL,0}
-	};
+};
 
 // Lens Warp Shader with Chromatic Aberration 
 static r_shaderobject_t ovr_shader_chrm = {
@@ -285,12 +285,18 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 	if (changeBackBuffers)
 	{
 		int i;
+		float width, height;
 		float ovrScale;
 
 		OVR_CalculateState(&currentState);
 
-		ovrScale = R_AntialiasGetScale();
-		ovrScale *= vr_ovr_supersample->value;
+
+		width = glConfig.screen_width / (float) hmd->Resolution.w;
+		height = glConfig.screen_height / (float) hmd->Resolution.h;
+		ovrScale = (width + height) / 2.0;
+		ovrScale *= R_AntialiasGetScale() * vr_ovr_supersample->value;
+		if (vr_ovr_debug->value)
+			Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
 		for (i = 0; i < 2; i++)
 		{
 			ovrRecti viewport = {0,0, 0,0};
@@ -301,7 +307,8 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 			if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
 			{
-				Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
+				if (vr_ovr_debug->value)
+					Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
 				R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
 			}
 
@@ -374,8 +381,8 @@ void OVR_Present(qboolean loading)
 
 			glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
 				renderInfo[eye].UVScaleOffset[1].x, renderInfo[eye].UVScaleOffset[1].y);
-	
-			
+
+
 
 
 			if (warp)
@@ -411,14 +418,14 @@ void OVR_Present(qboolean loading)
 		glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState (GL_VERTEX_ARRAY);
 
-//		glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
-//		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
+		//		glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
+		//		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
 
 	}
 
 	if (latencyTest)
 	{
-		
+
 		if (hmd->Type < ovrHmd_DK2)
 		{
 			glColor4fv(debugColor);
@@ -474,7 +481,7 @@ int32_t OVR_Enable()
 		if (offscreen[i].valid)
 			R_DelFBO(&offscreen[i]);
 	}
-	
+
 	R_CreateIVBO(&renderInfo[0].eye,GL_STATIC_DRAW);
 	R_CreateIVBO(&renderInfo[1].eye,GL_STATIC_DRAW);
 
@@ -518,7 +525,7 @@ int32_t OVR_Init()
 		R_InitFBO(&renderInfo[i].eyeFBO);
 		R_InitFBO(&offscreen[i]);
 		R_InitIVBO(&renderInfo[i].eye);
-		
+
 	}
 
 	return true;
