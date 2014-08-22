@@ -219,7 +219,7 @@ void Options_VR_OVR_MenuInit ( void )
 
 
 	s_options_vr_ovr_menu.x = SCREEN_WIDTH*0.5;
-	s_options_vr_ovr_menu.y = SCREEN_HEIGHT*0.5 - 58;
+	s_options_vr_ovr_menu.y = SCREEN_HEIGHT*0.5 - 80;
 	s_options_vr_ovr_menu.nitems = 0;
 
 	s_options_vr_ovr_header.generic.type		= MTYPE_SEPARATOR;

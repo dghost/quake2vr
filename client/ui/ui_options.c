@@ -78,7 +78,7 @@ static void MenuVRFunc ( void *unused )
 void Options_MenuInit ( void )
 {
 	s_options_menu.x = SCREEN_WIDTH*0.5 - 24;
-	s_options_menu.y = SCREEN_HEIGHT*0.5 - 58;
+	s_options_menu.y = SCREEN_HEIGHT*0.5 - 80;
 	s_options_menu.nitems = 0;
 
 	s_options_sound_section.generic.type	= MTYPE_ACTION;

@@ -310,7 +310,7 @@ void Options_Interface_MenuInit ( void )
 	int32_t y = 3*MENU_LINE_SIZE;
 
 	s_options_interface_menu.x = SCREEN_WIDTH*0.5;
-	s_options_interface_menu.y = SCREEN_HEIGHT*0.5 - 58;
+	s_options_interface_menu.y = SCREEN_HEIGHT*0.5 - 80;
 	s_options_interface_menu.nitems = 0;
 
 	s_options_interface_header.generic.type		= MTYPE_SEPARATOR;
