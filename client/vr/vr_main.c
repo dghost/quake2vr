@@ -33,6 +33,7 @@ cvar_t *vr_prediction;
 cvar_t *vr_hmdstring;
 cvar_t *vr_positiontracking;
 cvar_t *vr_force_fullscreen;
+cvar_t *vr_force_resolution;
 
 static vec3_t vr_lastOrientation;
 static vec3_t vr_orientation;
@@ -48,6 +49,7 @@ static hmd_interface_t *hmd;
 
 static hmd_interface_t hmd_none = {
 	HMD_NONE,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -82,7 +84,8 @@ int32_t VR_GetSensorOrientation()
 
 	if (!hmd)
 		return 0;
-	if (!hmd->getOrientation(euler))
+
+	if (!hmd->getOrientation || !hmd->getOrientation(euler))
 		VectorSet(euler,0,0,0);
 
 	EulerToQuat(vr_lastOrientation,currentPos);
@@ -163,10 +166,24 @@ int32_t VR_GetHeadOffset(vec3_t offset)
 	return (hmd->getHeadOffset && hmd->getHeadOffset(offset));
 }
 
-void VR_GetHMDPos(int32_t *xpos, int32_t *ypos)
+int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos)
 {
-	if (hmd)
+	if (hmd && hmd->getHMDPos)
+	{
 		hmd->getHMDPos(xpos,ypos);
+		return 1;
+	}
+	return 0;
+}
+
+int32_t VR_GetHMDResolution(int32_t *width, int32_t *height)
+{
+	if (hmd && hmd->getHMDResolution)
+	{
+		hmd->getHMDResolution(width,height);
+		return 1;
+	}
+	return 0;
 }
 
 void VR_GetOrientationEMAQuat(vec3_t quat) 
@@ -301,7 +318,7 @@ void VR_FrameEnd()
 
 void VR_ResetOrientation( void )
 {
-	if (hmd)
+	if (hmd && hmd->resetOrientation)
 	{
 		hmd->resetOrientation();
 		VR_GetSensorOrientation();
@@ -323,6 +340,7 @@ int32_t VR_Enable()
 {
 	char hmd_type[3];
 	int32_t i;
+
 	hmd = NULL;
 	for(i = 1 ; i < NUM_HMD_TYPES; i++)
 	{
@@ -433,6 +451,7 @@ void VR_Startup(void)
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
+	vr_force_resolution = Cvar_Get("vr_force_resolution","1",CVAR_ARCHIVE);
 	vr_force_fullscreen = Cvar_Get("vr_force_fullscreen","1",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_aimlaser = Cvar_Get("vr_aimlaser","0", CVAR_ARCHIVE);

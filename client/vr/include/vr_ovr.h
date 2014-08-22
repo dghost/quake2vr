@@ -3,13 +3,6 @@
 
 #include "vr.h"
 
-typedef enum {
-	RIFT_NONE,
-	RIFT_DK1,
-	RIFT_DKHD,
-	NUM_RIFT
-} rift_t;
-
 typedef struct {
 	char label[50];
 	char serialnumber[24];

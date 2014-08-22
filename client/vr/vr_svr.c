@@ -140,13 +140,14 @@ hmd_interface_t hmd_steam = {
 	VR_SVR_Shutdown,
 	VR_SVR_Enable,
 	VR_SVR_Disable,
-	VR_SVR_GetHMDPos,
 	VR_SVR_Frame,
 	NULL,
 	SteamVR_ResetHMDOrientation,
 	VR_SVR_GetOrientation,
 	VR_SVR_GetPosition,
-	VR_SVR_SetPredictionTime
+	VR_SVR_SetPredictionTime,
+	VR_SVR_GetHMDPos,
+	NULL
 };
 
 #else
@@ -163,6 +164,7 @@ hmd_interface_t hmd_steam = {
 	NULL,
 	NULL,
 	NULL,
+	NULL
 };
 
 

@@ -140,16 +140,28 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 				VID_Printf(PRINT_ALL,"...found display '%s' (%i,%i) %ix%i\n",SDL_GetDisplayName(i),displayBounds.x,displayBounds.y,displayBounds.w,displayBounds.h);
 		}
 	}
+
+	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
+
 	if (vr_enabled->value)
 	{
 		VR_GetHMDPos(&xpos,&ypos);
+
+		if (vr_force_resolution->value)
+		{
+			int32_t width, height;
+			if (VR_GetHMDResolution(&width,&height))
+			{
+				VID_Printf(PRINT_ALL, "...forcing HMD resolution of %ix%i\n",width,height);
+				Cvar_SetInteger("vid_width",width);
+				Cvar_SetInteger("vid_height",height);
+			}
+		}
+
 		if (vr_force_fullscreen->value)
 			fullscreen = 1;
 	}
 	
-
-	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
-
 
 	// destroy the existing window
 	if (mainWindow)

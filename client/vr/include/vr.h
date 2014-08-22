@@ -31,13 +31,21 @@ typedef struct {
 	void (*shutdown)();
 	int32_t (*enable)();
 	void (*disable)();
-	void (*getHMDPos)(int32_t *xpos, int32_t *ypos);
 	void (*frameStart)();
+	// frameEnd can be NULL if unsupported
 	void (*frameEnd)();
+	// resetOrientation can be NULL if not supported
 	void (*resetOrientation)();
+	// getOrientation can be NULL if unsupported
 	int32_t (*getOrientation)(float euler[3]);
+	// getHeadOffset can be NULL if position tracking is unsupported
 	int32_t (*getHeadOffset)(float offset[3]);
+	// setPrediction can be NULL if not supported by HMD
 	int32_t (*setPrediction)(float timeInMs);
+	// getHMDPos can be NULL if not supported
+	void (*getHMDPos)(int32_t *xpos, int32_t *ypos);
+	// getHMDResolution can be NULL if not supported
+	void (*getHMDResolution)(int32_t *width, int32_t *height);
 } hmd_interface_t;
 
 
@@ -67,6 +75,7 @@ extern cvar_t *vr_neckmodel_up;
 extern cvar_t *vr_neckmodel_forward;
 extern cvar_t *vr_walkspeed;
 extern cvar_t *vr_force_fullscreen;
+extern cvar_t *vr_force_resolution;
 
 enum {
 	VR_AIMMODE_DISABLE,
@@ -100,6 +109,7 @@ void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
 int32_t VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
-void VR_GetHMDPos(int32_t *xpos, int32_t *ypos);
+int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos);
+int32_t VR_GetHMDResolution(int32_t *width, int32_t *height);
 
 #endif

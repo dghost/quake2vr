@@ -800,7 +800,6 @@ void VR_RenderStereo ()
 		vec3_t out;
 		vec3_t flatView,forward,right,up;
 		float yaw;
-		float temp;
 		
 		VR_GetOrientation(orient);
 

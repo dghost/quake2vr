@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos);
+void VR_OVR_GetHMDResolution(int32_t *width, int32_t *height);
 void VR_OVR_FrameStart();
 void VR_OVR_FrameEnd();
 
@@ -51,13 +52,14 @@ hmd_interface_t hmd_rift = {
 	VR_OVR_Shutdown,
 	VR_OVR_Enable,
 	VR_OVR_Disable,
-	VR_OVR_GetHMDPos,
 	VR_OVR_FrameStart,
 	VR_OVR_FrameEnd,
 	VR_OVR_ResetHMDOrientation,
 	VR_OVR_getOrientation,
 	VR_OVR_getPosition,
-	VR_OVR_SetPredictionTime
+	VR_OVR_SetPredictionTime,
+	VR_OVR_GetHMDPos,
+	VR_OVR_GetHMDResolution
 };
 
 static ovrname_t hmdnames[255];
@@ -78,6 +80,16 @@ void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos)
 		*ypos = hmd->WindowsPos.y;
 	}
 }
+
+void VR_OVR_GetHMDResolution(int32_t *width, int32_t *height)
+{
+	if (hmd)
+	{
+		*width = hmd->Resolution.w;
+		*height = hmd->Resolution.h;
+	}
+}
+
 
 void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e)
 {
