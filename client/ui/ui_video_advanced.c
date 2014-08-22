@@ -411,10 +411,10 @@ void Menu_Video_Advanced_Init (void)
 	s_fullscreenwindow_box.generic.type			= MTYPE_SPINCONTROL;
 	s_fullscreenwindow_box.generic.x				= 0;
 	s_fullscreenwindow_box.generic.y				= y += 2*MENU_LINE_SIZE;
-	s_fullscreenwindow_box.generic.name			= "desktop fullscreen window";
+	s_fullscreenwindow_box.generic.name			= "fullscreen window";
 	s_fullscreenwindow_box.generic.callback		= FSWindowCallback;
 	s_fullscreenwindow_box.itemnames				= yesno_names;
-	s_fullscreenwindow_box.generic.statusbar		= "creates a fullscreen window at the current desktop resolution";
+	s_fullscreenwindow_box.generic.statusbar		= "creates a borderless fullscreen window at the current desktop resolution";
 
 	s_advanced_apply_action.generic.type		= MTYPE_ACTION;
 	s_advanced_apply_action.generic.name		= "apply changes";
