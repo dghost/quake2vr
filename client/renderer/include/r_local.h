@@ -297,6 +297,7 @@ extern	cvar_t	*r_texturesolidmode;
 extern  cvar_t  *r_lodbias;
 extern  cvar_t  *r_lockpvs;
 extern	cvar_t	*r_intensity;
+extern  cvar_t  *r_s3tc;
 
 extern	cvar_t	*r_skydistance; //Knightmare- variable sky range
 extern	cvar_t	*r_saturation;	//** DMP
@@ -795,6 +796,7 @@ typedef struct
 	qboolean	srgb_framebuffer;
 	qboolean	ext_texture_srgb;
 	qboolean	ext_framebuffer_srgb;
+	qboolean	ext_texture_compression_s3tc;
 } glconfig_t;
 
 

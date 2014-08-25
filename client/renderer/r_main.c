@@ -159,6 +159,7 @@ cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
+cvar_t  *r_s3tc;
 cvar_t	*vid_fullscreen;
 cvar_t  *vid_desktop_fullscreen;
 cvar_t  *vid_brightness;
@@ -1160,6 +1161,7 @@ void R_Register (void)
 	r_anisotropic = Cvar_Get( "r_anisotropic", "0", CVAR_ARCHIVE );
 	r_anisotropic_avail = Cvar_Get( "r_anisotropic_avail", "0", 0 );
 	r_lockpvs = Cvar_Get( "r_lockpvs", "0", 0 );
+	r_s3tc = Cvar_Get("r_s3tc","1", CVAR_ARCHIVE);
 
 	//gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "0", CVAR_ARCHIVE );
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
@@ -1582,7 +1584,15 @@ qboolean R_Init ( char *reason )
 		glConfig.arb_vertex_array_object = false;
 	}
 
-
+	glConfig.ext_texture_compression_s3tc = false;
+	if (GLEW_EXT_texture_compression_s3tc)
+	{
+		VID_Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+		glConfig.ext_texture_compression_s3tc = true;
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
+		glConfig.ext_texture_compression_s3tc = false;
+	}
 
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);

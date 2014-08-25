@@ -162,6 +162,7 @@ typedef struct
 	qboolean	srgb_framebuffer;
 	qboolean	ext_texture_srgb;
 	qboolean	ext_framebuffer_srgb;
+	qboolean	ext_texture_compression_s3tc;
 } glconfig_t;
 
 extern	glconfig_t glConfig;

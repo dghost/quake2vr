@@ -44,6 +44,8 @@ int32_t		gl_solid_format = GL_RGB;
 int32_t		gl_alpha_format = GL_RGBA;
 int32_t		gl_tex_solid_format = GL_RGB;
 int32_t		gl_tex_alpha_format = GL_RGBA;
+int32_t		gl_compressed_tex_solid_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+int32_t		gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
@@ -1555,9 +1557,19 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mi
 	}
 
 	if (samples == gl_solid_format)
-		comp = gl_tex_solid_format;
+	{
+		if (r_s3tc->value && glConfig.ext_texture_compression_s3tc)
+			comp = gl_compressed_tex_solid_format;
+		else
+			comp = gl_tex_solid_format;
+	}
 	else if (samples == gl_alpha_format)
-		comp = gl_tex_alpha_format;
+	{
+		if (r_s3tc->value && glConfig.ext_texture_compression_s3tc)
+			comp = gl_compressed_tex_alpha_format;
+		else
+			comp = gl_tex_alpha_format;
+	}
 
 	//
 	// find sizes to scale to
@@ -2211,6 +2223,8 @@ void R_InitImages (void)
 	gl_alpha_format = GL_RGBA;
 	gl_tex_solid_format = GL_RGB;
 	gl_tex_alpha_format = GL_RGBA;
+	gl_compressed_tex_solid_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+	gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 	gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 	gl_filter_max = GL_LINEAR;
 
