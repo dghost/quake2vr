@@ -230,6 +230,7 @@
     <ClCompile Include="client\renderer\r_misc.c" />
     <ClCompile Include="client\renderer\r_model.c" />
     <ClCompile Include="client\renderer\r_particle.c" />
+    <ClCompile Include="client\renderer\r_stereo.c" />
     <ClCompile Include="client\renderer\r_shaderobjects.c" />
     <ClCompile Include="client\renderer\r_sky.c" />
     <ClCompile Include="client\renderer\r_sprite.c" />
@@ -337,6 +338,7 @@
     <ClInclude Include="client\renderer\include\r_local.h" />
     <ClInclude Include="client\renderer\include\r_model.h" />
     <ClInclude Include="client\renderer\include\r_normals.h" />
+    <ClInclude Include="client\renderer\include\r_stereo.h" />
     <ClInclude Include="client\renderer\include\r_vr.h" />
     <ClInclude Include="client\renderer\include\r_vr_ovr.h" />
     <ClInclude Include="client\renderer\include\r_vr_svr.h" />

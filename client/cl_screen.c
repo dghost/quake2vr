@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "client.h"
 #include "ui/include/ui_local.h"
 #include "renderer/include/r_vr.h"
+#include "renderer/include/r_stereo.h"
 
 float		scr_con_current;	// aproaches scr_conlines at scr_conspeed
 float		scr_conlines;		// 0.0 to 1.0 lines of console to display
@@ -2368,6 +2369,24 @@ void VR_UpdateScreen (void)
 	R_EndFrame();
 }
 
+void Stereo_UpdateScreen (void)
+{
+	R_BeginFrame( );
+
+	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
+	{
+		R_RenderStereo();
+	} 
+
+	// draw into the hud
+	SCR_Draw2DintoFBO(&stereo_hud);	
+	
+	R_EndFrame();
+}
+
+
+
+
 
 /*
 ==================
@@ -2378,6 +2397,7 @@ text to the screen.
 ==================
 */
 void V_RenderViewIntoFBO (fbo_t *fbo);
+extern qboolean sbsEnabled;
 void SCR_UpdateScreen (void)
 {
 	fbo_t *view;
@@ -2402,6 +2422,10 @@ void SCR_UpdateScreen (void)
 
 	if (vr_enabled->value) {
 		VR_UpdateScreen();
+		return;
+	} else if (sbsEnabled)
+	{
+		Stereo_UpdateScreen();
 		return;
 	}
 

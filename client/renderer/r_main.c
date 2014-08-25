@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "include/r_local.h"
 #include "include/vlights.h"
 #include "include/r_vr.h"
+#include "include/r_stereo.h"
 
 void R_Clear (void);
 
@@ -1031,7 +1032,6 @@ R_RenderFrame
 @@@@@@@@@@@@@@@@@@@@@
 */
 void V_RenderViewIntoFBO (fbo_t *fbo);
-void V_RenderView ();
 void R_RenderFrame (refdef_t *fd)
 {
 	eye_param_t params;
@@ -1622,6 +1622,11 @@ qboolean R_Init ( char *reason )
 	if ( err != GL_NO_ERROR )
 		VID_Printf (PRINT_ALL, "R_VR_Init: glGetError() = 0x%x\n", err);
 
+	R_StereoInit();
+	err = glGetError();
+	if ( err != GL_NO_ERROR )
+		VID_Printf (PRINT_ALL, "R_StereoInit: glGetError() = 0x%x\n", err);
+
 	R_InitImages ();
 	err = glGetError();
 	if ( err != GL_NO_ERROR )
@@ -1740,6 +1745,7 @@ void R_Shutdown (void)
 	R_AntialiasShutdown();
 	R_ShaderObjectsShutdown();
 	R_ShutdownImages ();
+	R_StereoShutdown();
 	R_VR_Shutdown();
 	R_DelFBO(&viewFBO);
 
@@ -1846,6 +1852,8 @@ void R_BeginFrame()
 	} else {
 		R_AntialiasSetFBOSize(&viewFBO);
 		R_ClearFBO(&viewFBO);
+		R_StereoFrame(&viewFBO);
+
 	}
 	
 	//
@@ -1910,6 +1918,7 @@ void R_EndFrame(void)
 	GL_Disable(GL_ALPHA_TEST);
 
 	R_VR_EndFrame();
+	R_Stereo_EndFrame(frame);
 
 	R_BindFBO(&screenFBO);
 	glColor4f(1.0,1.0,1.0,1.0);

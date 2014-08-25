@@ -1001,4 +1001,11 @@ uint32_t *x86_TimerGetHistogram( void );
 void VR_UpdateScreen();
 void VR_RenderStereo();
 
+//
+// SBS3D related
+// 
+
+void R_RenderStereo();
+void Stereo_UpdateScreen();
+
 #endif

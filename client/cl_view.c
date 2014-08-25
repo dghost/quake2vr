@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "client.h"
 #include "renderer/include/r_vr.h"
+#include "renderer/include/r_stereo.h"
 
 
 //=============
@@ -600,6 +601,7 @@ void CL_PrepRefresh (void)
 CalcFov
 ====================
 */
+extern qboolean sbsEnabled;
 float CalcFov (float fov_x, float width, float height)
 {
 	float	a;
@@ -889,6 +891,155 @@ void VR_RenderStereo ()
 }
 
 
+/*
+==================
+R_RenderStereo
+==================
+*/
+
+void R_RenderStereo ()
+{
+	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
+	float f; // Barnes added
+	eye_param_t params;
+	int index;
+
+	if (cls.state != ca_active)
+		return;
+
+	if (!cl.refresh_prepped)
+		return;			// still loading
+
+	if (cl_timedemo->value)
+	{
+		if (!cl.timedemo_start)
+			cl.timedemo_start = Sys_Milliseconds ();
+		cl.timedemo_frames++;
+	}
+
+	// an invalid frame will just use the exact previous refdef
+	// we can't use the old frame if the video mode has changed, though...
+	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) )
+	{
+		cl.force_refdef = false;
+
+		V_ClearScene ();
+
+		// build a refresh entity list and calc cl.sim*
+		// this also calls CL_CalcViewValues which loads
+		// v_forward, etc.
+		CL_AddEntities ();
+
+		if (cl_testparticles->value)
+			V_TestParticles ();
+		if (cl_testentities->value)
+			V_TestEntities ();
+		if (cl_testlights->value)
+			V_TestLights ();
+		if (cl_testblend->value)
+		{
+			cl.refdef.blend[0] = 1;
+			cl.refdef.blend[1] = 0.5;
+			cl.refdef.blend[2] = 0.25;
+			cl.refdef.blend[3] = 0.5;
+		}
+
+		// never let it sit exactly on a node line, because a water plane can
+		// dissapear when viewed with the eye exactly on it.
+		// the server protocol only specifies to 1/8 pixel, so add 1/16 in each axis
+		cl.refdef.vieworg[0] += 1.0/16;
+		cl.refdef.vieworg[1] += 1.0/16;
+		cl.refdef.vieworg[2] += 1.0/16;
+
+		cl.refdef.x = 0;
+		cl.refdef.y = 0;
+		cl.refdef.width = stereo_fbo[0].width;
+		cl.refdef.height = stereo_fbo[0].height;
+
+		// adjust fov for wide aspect ratio
+		if (cl_widescreen_fov->value)
+		{
+		//	float standardRatio, currentRatio;
+		//	standardRatio = (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT;
+		//	currentRatio = (float)cl.refdef.width/(float)cl.refdef.height;
+		//	if (currentRatio > standardRatio)
+		//		cl.refdef.fov_x *= (1 + (0.5 * (currentRatio / standardRatio - 1)));
+			float aspectRatio = (float)(cl.refdef.width * 2.0)/(float)cl.refdef.height;
+			// changed to improved algorithm by Dopefish
+			if (aspectRatio > STANDARD_ASPECT_RATIO)
+				cl.refdef.fov_x = RAD2DEG( 2 * atan( (aspectRatio/ STANDARD_ASPECT_RATIO) * tan(DEG2RAD(cl.refdef.fov_x) * 0.5) ) );
+			//	cl.refdef.fov_x *= (1 + (0.5 * (aspectRatio / STANDARD_ASPECT_RATIO - 1)));
+			cl.refdef.fov_x = min(cl.refdef.fov_x, 160);
+		}
+		cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, (cl.refdef.width * 2.0), cl.refdef.height);
+		cl.refdef.time = cl.time*0.001;
+
+		// Barnes- Warp if underwater ala q3a :-)
+		if (cl.refdef.rdflags & RDF_UNDERWATER) {
+			f = sin(cl.time * 0.001 * 0.4 * (M_PI*2.7));
+			cl.refdef.fov_x += f * (cl.refdef.fov_x/90.0); // Knightmare- scale to fov
+			cl.refdef.fov_y -= f * (cl.refdef.fov_y/90.0); // Knightmare- scale to fov
+		} // end Barnes
+
+		cl.refdef.areabits = cl.frame.areabits;
+
+		if (!cl_add_entities->value)
+			r_numentities = 0;
+		if (!cl_add_particles->value)
+			r_numparticles = 0;
+		if (!cl_add_lights->value)
+			r_numdlights = 0;
+		if (!cl_add_blend->value)
+		{
+			VectorClear (cl.refdef.blend);
+		}
+
+		cl.refdef.num_entities = r_numentities;
+		cl.refdef.entities = r_entities;
+		cl.refdef.num_particles = r_numparticles;
+		cl.refdef.particles = r_particles;
+
+		cl.refdef.num_decals = r_numdecalfrags;
+		cl.refdef.decals = r_decalfrags;
+
+		cl.refdef.num_dlights = r_numdlights;
+		cl.refdef.dlights = r_dlights;
+		cl.refdef.lightstyles = r_lightstyles;
+
+		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
+        qsort( cl.refdef.entities, cl.refdef.num_entities, sizeof( cl.refdef.entities[0] ), (int32_t (*)(const void *, const void *))entitycmpfnc );
+	}
+
+	params.projection.y.scale = 1.0f / tanf((cl.refdef.fov_y / 2.0f) * M_PI / 180);
+	params.projection.y.offset = 0.0;
+	params.projection.x.scale = 1.0f / tanf((cl.refdef.fov_x / 2.0f) * M_PI / 180);
+
+	params.projection.x.offset = 0.0;
+
+
+	R_RenderCommon(&cl.refdef);
+
+	
+	// left eye rendering
+	for (index = 0; index < 2; index++)
+	{
+		int eyeSign = (-1 + index * 2);
+		float viewOffset = (r_stereo_separation->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		VectorSet(params.viewOffset,eyeSign * viewOffset ,0,0);
+		params.projection.x.offset = eyeSign * r_stereo_separation->value / 2000.0;
+
+		R_RenderViewIntoFBO( &cl.refdef, params,&stereo_fbo[index],NULL);	
+	}
+
+	// cleanup
+	R_SetLightLevel ();
+	R_SetGL2D ();
+
+	if (cl_stats->value)
+		Com_Printf ("ent:%i  lt:%i  part:%i\n", r_numentities, r_numdlights, r_numparticles);
+	if ( log_stats->value && ( log_stats_file != 0 ) )
+		fprintf( log_stats_file, "%i,%i,%i,",r_numentities, r_numdlights, r_numparticles);
+}
 
 /*
 ==================
