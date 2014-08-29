@@ -12,12 +12,11 @@ void main(void)
 {
 
 //	vec4 DestinationColor = texture2D( sourceTex, texCoords[4] );
-	vec4 FragmentColor = texture2D( blurTex, texCoords[4] ) * weight[0];
-    for (int i=1; i<5; i++) {
-		if (weight[i] > 0)
-		{
-			vec4 samples = texture2D( blurTex, texCoords[4 + i] ) + texture2D( blurTex, texCoords[4 - i] );
-			FragmentColor = samples * weight[i] + FragmentColor;
+	vec4 FragmentColor = vec4(0.0);
+    for (int i=-4; i<=4; i++) {
+		int w = (i >= 0 ? i : -i);
+		if (weight[w] > 0) {
+			FragmentColor += texture2D( blurTex, texCoords[4 + i]) * weight[w];
 		}
 	}
 	gl_FragColor = FragmentColor;// + (1.0 - DestinationColor);	

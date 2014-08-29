@@ -9,12 +9,11 @@ uniform float weight[5] = float[]( 0.2270270270, 0.1945945946, 0.1216216216,
 
 void main(void)
 {
-	vec4 FragmentColor = texture2D( tex, texCoords[4] ) * weight[0];
-    for (int i=1; i<5; i++) {
-		if (weight[i] > 0)
-		{
-			vec4 samples = texture2D( tex, texCoords[4 + i] ) + texture2D( tex, texCoords[4 - i] );
-			FragmentColor = samples * weight[i] + FragmentColor;
+	vec4 FragmentColor = vec4(0.0);
+    for (int i=-4; i<=4; i++) {
+		int w = (i >= 0 ? i : -i);
+		if (weight[w] > 0) {
+			FragmentColor += texture2D( tex, texCoords[4 + i]) * weight[w];
 		}
 	}
 	gl_FragColor = FragmentColor;	
