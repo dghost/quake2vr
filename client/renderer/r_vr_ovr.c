@@ -137,8 +137,8 @@ typedef struct {
 		GLuint EyeRotationStart;
 		GLuint EyeRotationEnd;
 		GLuint OverdriveScales;
+		GLuint VignetteFade;
 	} uniform;
-
 } r_ovr_shader_t;
 
 static r_ovr_shader_t ovr_distortion_shaders[2];
@@ -159,7 +159,9 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.EyeRotationEnd = glGetUniformLocation(shader->shader->program,"EyeRotationEnd");
 
 	shader->uniform.OverdriveScales = glGetUniformLocation(shader->shader->program,"OverdriveScales");
+	shader->uniform.VignetteFade = glGetUniformLocation(shader->shader->program,"VignetteFade");
 
+	
 	texloc = glGetUniformLocation(shader->shader->program,"currentFrame");
 	glUniform1i(texloc,0);
 	shader->uniform.currentFrame = texloc;
@@ -327,6 +329,7 @@ void OVR_Present(qboolean loading)
 {
 	vec4_t debugColor = {1.0,1.0,1.0,1.0};
 	int32_t latencyTest = VR_OVR_RenderLatencyTest(debugColor);
+	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
 
 	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 	R_Clear();
@@ -368,6 +371,7 @@ void OVR_Present(qboolean loading)
 		} else {
 			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
 		}
+		glUniform1f(currentShader->uniform.VignetteFade,fade);
 
 		for (i = 0; i < 2; i++)
 		{

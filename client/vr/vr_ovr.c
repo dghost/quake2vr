@@ -28,6 +28,7 @@ cvar_t *vr_ovr_timewarp;
 cvar_t *vr_ovr_dk2_color_hack;
 cvar_t *vr_ovr_lowpersistence;
 cvar_t *vr_ovr_lumoverdrive;
+cvar_t *vr_ovr_distortion_fade;
 
 unsigned char ovrLatencyColor[3];
 
@@ -460,6 +461,7 @@ int32_t VR_OVR_Init()
 	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
 	vr_ovr_device = Cvar_Get("vr_ovr_device","",CVAR_ARCHIVE);
 	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
+	vr_ovr_distortion_fade = Cvar_Get("vr_ovr_distortion_fade","0",CVAR_ARCHIVE);
 	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
 
 	return 1;
