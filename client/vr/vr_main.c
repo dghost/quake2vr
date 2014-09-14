@@ -451,7 +451,7 @@ void VR_Startup(void)
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
-	vr_force_resolution = Cvar_Get("vr_force_resolution","1",CVAR_ARCHIVE);
+	vr_force_resolution = Cvar_Get("vr_force_resolution","0",CVAR_ARCHIVE);
 	vr_force_fullscreen = Cvar_Get("vr_force_fullscreen","1",CVAR_ARCHIVE);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_aimlaser = Cvar_Get("vr_aimlaser","0", CVAR_ARCHIVE);
