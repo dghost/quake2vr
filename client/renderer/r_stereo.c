@@ -96,7 +96,7 @@ void R_StereoInit()
 
 	sbsEnabled = false;
 
-	if (glConfig.ext_framebuffer_object && r_stereo->value)
+	if (glConfig.ext_framebuffer_object && r_stereo->value && !vr_enabled->value)
 	{
 		sbsEnabled = true;
 		R_InitFBO(&stereo_fbo[0]);
