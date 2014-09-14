@@ -30,8 +30,6 @@ cvar_t *vr_ovr_lowpersistence;
 cvar_t *vr_ovr_lumoverdrive;
 cvar_t *vr_ovr_distortion_fade;
 
-unsigned char ovrLatencyColor[3];
-
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
 
@@ -226,7 +224,14 @@ ovrBool VR_OVR_InitSensor()
 
 int32_t VR_OVR_RenderLatencyTest(vec4_t color) 
 {
-	qboolean use = (qboolean) ovrHmd_ProcessLatencyTest(hmd,ovrLatencyColor);
+	unsigned char ovrLatencyColor[3] = {0, 0, 0};
+
+	qboolean use = (qboolean) false;
+	if (hmd->Type >= ovrHmd_DK2)
+		use = (qboolean) ovrHmd_GetLatencyTest2DrawColor(hmd,ovrLatencyColor);
+	else
+		use = (qboolean) ovrHmd_ProcessLatencyTest(hmd,ovrLatencyColor);
+
 	color[0] = ovrLatencyColor[0] / 255.0f;
 	color[1] = ovrLatencyColor[1] / 255.0f;
 	color[2] = ovrLatencyColor[2] / 255.0f;

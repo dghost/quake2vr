@@ -138,6 +138,7 @@ typedef struct {
 		GLuint EyeRotationEnd;
 		GLuint OverdriveScales;
 		GLuint VignetteFade;
+		GLuint InverseResolution;
 	} uniform;
 } r_ovr_shader_t;
 
@@ -160,7 +161,7 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 
 	shader->uniform.OverdriveScales = glGetUniformLocation(shader->shader->program,"OverdriveScales");
 	shader->uniform.VignetteFade = glGetUniformLocation(shader->shader->program,"VignetteFade");
-
+	shader->uniform.InverseResolution = glGetUniformLocation(shader->shader->program,"InverseResolution");
 	
 	texloc = glGetUniformLocation(shader->shader->program,"currentFrame");
 	glUniform1i(texloc,0);
@@ -312,6 +313,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 				if (vr_ovr_debug->value)
 					Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
 				R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
+				R_ClearFBO(&renderInfo[i].eyeFBO);
 			}
 
 		}
@@ -328,10 +330,8 @@ void R_Clear (void);
 void OVR_Present(qboolean loading)
 {
 	vec4_t debugColor = {1.0,1.0,1.0,1.0};
-	int32_t latencyTest = VR_OVR_RenderLatencyTest(debugColor);
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
-
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
+	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
 	R_Clear();
 	GL_SetDefaultClearColor();	
 	{
@@ -362,7 +362,7 @@ void OVR_Present(qboolean loading)
 
 		if (vr_ovr_lumoverdrive->value)
 		{
-			int lastFrame = (currentFrame + 1) % 2;
+			int lastFrame = (currentFrame ? 0 : 1);
 			static float overdriveScaleRegularRise = 0.1f;
 			static float overdriveScaleRegularFall = 0.05f;	// falling issues are hardly visible
 
@@ -371,6 +371,7 @@ void OVR_Present(qboolean loading)
 		} else {
 			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
 		}
+		glUniform2f(currentShader->uniform.InverseResolution,1.0/glState.currentFBO->width,1.0/glState.currentFBO->height);
 		glUniform1f(currentShader->uniform.VignetteFade,fade);
 
 		for (i = 0; i < 2; i++)
@@ -386,9 +387,6 @@ void OVR_Present(qboolean loading)
 			glUniform2f(currentShader->uniform.EyeToSourceUVOffset,
 				renderInfo[eye].UVScaleOffset[1].x, renderInfo[eye].UVScaleOffset[1].y);
 
-
-
-
 			if (warp)
 			{
 				ovrPosef framePose = trackingState.HeadPose.ThePose;
@@ -398,7 +396,6 @@ void OVR_Present(qboolean loading)
 				glUniformMatrix4fv(currentShader->uniform.EyeRotationEnd,1,GL_TRUE,(GLfloat *) timeWarpMatrices[1].M);
 			}
 
-
 			R_DrawIVBO(&renderInfo[eye].eye);
 			R_ReleaseIVBO();
 		}
@@ -406,7 +403,7 @@ void OVR_Present(qboolean loading)
 		if (vr_ovr_lumoverdrive->value)
 		{
 			GL_MBind(1,0);
-			currentFrame = (currentFrame + 1) % 2;
+			currentFrame = (currentFrame ? 0 : 1);
 		}
 
 		GL_MBind(0,0);
@@ -427,13 +424,13 @@ void OVR_Present(qboolean loading)
 
 	}
 
-	if (latencyTest)
+	if (VR_OVR_RenderLatencyTest(debugColor))
 	{
+		//Com_Printf("VR_OVR: Debug color ( %.2f, %.2f, %.2f)\n",debugColor[0],debugColor[1],debugColor[2]);
+		glColor4fv(debugColor);
 
 		if (hmd->Type < ovrHmd_DK2)
 		{
-			glColor4fv(debugColor);
-
 			glBegin(GL_TRIANGLE_STRIP);
 			glVertex2f(0.3, -0.4);
 			glVertex2f(0.3, 0.4);
@@ -448,14 +445,12 @@ void OVR_Present(qboolean loading)
 			glVertex2f(-0.7, 0.4); 
 			glEnd();
 
-			glColor4f(1.0,1.0,1.0,1.0);
 		} else {
 			float resX = 2.0 / glConfig.screen_width;
 			float resY = 2.0 / glConfig.screen_height;
-			float x = 1.0 - 2 * resX;
-			float y = 1.0 - 2 * resY;
+			float x = 1.0 - 10 * resX;
+			float y = 1.0 - 10 * resY;
 
-			glColor4fv(debugColor);
 
 			glBegin(GL_TRIANGLE_STRIP);
 			glVertex2f(x, y);
@@ -464,6 +459,7 @@ void OVR_Present(qboolean loading)
 			glVertex2f(1.0, 1.0); 
 			glEnd();
 		}
+		glColor4f(1.0,1.0,1.0,1.0);
 	}
 }
 
