@@ -51,7 +51,7 @@ static menulist_s		s_texfilter_box;
 static menulist_s		s_aniso_box;
 static menulist_s		s_antialias_box;
 //static menulist_s		s_npot_mipmap_box;
-//static menulist_s  		s_texcompress_box;
+static menulist_s  		s_texcompress_box;
 static menulist_s  		s_vsync_box;
 static menulist_s		s_fencesync_box;
 static menulist_s		s_refresh_box;	// Knightmare- refresh rate option
@@ -169,7 +169,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_screenshot_jpeg_quality");
 	Cvar_SetToDefault ("r_saveshotsize");
 	Cvar_SetToDefault ("r_antialias");
-
+	Cvar_SetToDefault ("r_s3tc");
 	Menu_Video_Init();
 }
 
@@ -198,8 +198,8 @@ static void ApplyChanges( void *unused )
 
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
 	Cvar_SetValue( "vid_brightness", s_brightness_slider.curvalue/20.0f );
-	Cvar_SetValue( "r_picmip", 3-s_texqual_box.curvalue );
-
+	Cvar_SetValue( "r_picmip", s_texqual_box.curvalue );
+	Cvar_SetValue( "r_s3tc",s_texcompress_box.curvalue);
 	// Knightmare- refesh rate option
 	switch (s_refresh_box.curvalue)
 	{
@@ -501,6 +501,19 @@ void Menu_Video_Init (void)
 
 	s_mode_list.curvalue			= temp; // offset for getting rid of < 640x480 resolutions
 	s_mode_list.generic.statusbar	= "changes screen resolution";
+	
+	if (glConfig.ext_framebuffer_object)
+	{
+		s_antialias_box.generic.type		= MTYPE_SPINCONTROL;
+		s_antialias_box.generic.x			= 0;
+		s_antialias_box.generic.y			= y += MENU_LINE_SIZE;
+		s_antialias_box.generic.name		= "post-process anti-aliasing";
+		s_antialias_box.generic.callback	= AntialiasCallback;
+		s_antialias_box.curvalue			= Cvar_VariableInteger("r_antialias");
+		s_antialias_box.itemnames			= antialias_names;
+		s_antialias_box.generic.statusbar	= "selects a software post-processing antialiasing technique";
+	}
+
 
 	s_fs_box.generic.type			= MTYPE_SPINCONTROL;
 	s_fs_box.generic.x				= 0;
@@ -512,7 +525,7 @@ void Menu_Video_Init (void)
 
 	s_brightness_slider.generic.type		= MTYPE_SLIDER;
 	s_brightness_slider.generic.x			= 0;
-	s_brightness_slider.generic.y			= y += MENU_LINE_SIZE;
+	s_brightness_slider.generic.y			= y += 2 * MENU_LINE_SIZE;
 	s_brightness_slider.generic.name		= "brightness";
 	s_brightness_slider.generic.callback	= BrightnessCallback;
 	s_brightness_slider.minvalue			= 0;
@@ -544,27 +557,17 @@ void Menu_Video_Init (void)
 	s_texqual_box.itemnames			= lmh_names;
 	s_texqual_box.generic.statusbar	= "changes maximum texture size (highest = no limit)";
 
-	if (glConfig.ext_framebuffer_object)
+	if (glConfig.ext_texture_compression_s3tc)
 	{
-		s_antialias_box.generic.type		= MTYPE_SPINCONTROL;
-		s_antialias_box.generic.x			= 0;
-		s_antialias_box.generic.y			= y += MENU_LINE_SIZE;
-		s_antialias_box.generic.name		= "post-process anti-aliasing";
-		s_antialias_box.generic.callback	= AntialiasCallback;
-		s_antialias_box.curvalue			= Cvar_VariableInteger("r_antialias");
-		s_antialias_box.itemnames			= antialias_names;
-		s_antialias_box.generic.statusbar	= "selects a software post-processing antialiasing technique";
+		s_texcompress_box.generic.type		= MTYPE_SPINCONTROL;
+		s_texcompress_box.generic.x			= 0;
+		s_texcompress_box.generic.y			= y += MENU_LINE_SIZE;
+		s_texcompress_box.generic.name		= "texture compression";
+		s_texcompress_box.itemnames			= yesno_names;
+		s_texcompress_box.curvalue			= ClampCvar(0,1,Cvar_VariableValue("r_s3tc"));
+		s_texcompress_box.generic.statusbar	= "enables texture compression";
 	}
-/*
-	s_npot_mipmap_box.generic.type		= MTYPE_SPINCONTROL;
-	s_npot_mipmap_box.generic.x			= 0;
-	s_npot_mipmap_box.generic.y			= y += MENU_LINE_SIZE;
-	s_npot_mipmap_box.generic.name		= "non-power-of-2 mipmaps";
-	s_npot_mipmap_box.itemnames			= yesno_names;
-	s_npot_mipmap_box.curvalue			= Cvar_VariableValue("r_nonpoweroftwo_mipmaps");
-	s_npot_mipmap_box.generic.statusbar	= "enables non-power-of-2 mipmapped textures (requires driver support)";
 
-*/
 	s_vsync_box.generic.type			= MTYPE_SPINCONTROL;
 	s_vsync_box.generic.x				= 0;
 	s_vsync_box.generic.y				= y += 2*MENU_LINE_SIZE;
@@ -631,15 +634,19 @@ void Menu_Video_Init (void)
 	s_backmain_action.generic.callback	= UI_BackMenu;
 
 	Menu_AddItem( &s_video_menu, ( void * ) &s_mode_list );
+	if (glConfig.ext_framebuffer_object)
+		Menu_AddItem( &s_video_menu, ( void * ) &s_antialias_box );
+
 	Menu_AddItem( &s_video_menu, ( void * ) &s_fs_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_brightness_slider );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_texfilter_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_aniso_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_texqual_box );
-	if (glConfig.ext_framebuffer_object)
-		Menu_AddItem( &s_video_menu, ( void * ) &s_antialias_box );
+
 //	Menu_AddItem( &s_video_menu, ( void * ) &s_npot_mipmap_box );
-//	Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
+	
+	if (glConfig.ext_texture_compression_s3tc)
+		Menu_AddItem( &s_video_menu, ( void * ) &s_texcompress_box );
 	Menu_AddItem( &s_video_menu, ( void * ) &s_vsync_box );
 
 	if (glConfig.arb_sync)
