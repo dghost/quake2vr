@@ -349,16 +349,19 @@ by Knightmare
 */
 void R_GrabScreen (void)
 {	
+	fbo_t *currentFBO = glState.currentFBO;
 	// Free saveshot buffer first
 	if (saveshotdata)
 		free(saveshotdata);
-
 	// Allocate room for a copy of the framebuffer
-	saveshotdata = malloc(vid.width * vid.height * 3);
+	saveshotdata = malloc(screenFBO.width * screenFBO.height * 3);
 	if (!saveshotdata)	return;
 
+	R_BindFBO(&screenFBO);
+
 	// Read the framebuffer into our storage
-	glReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
+	glReadPixels(0, 0, glState.currentFBO->width, glState.currentFBO->height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
+	R_BindFBO(currentFBO);
 }
 
 
@@ -377,6 +380,7 @@ void R_ScreenShot_JPG (qboolean silent)
 	FILE							*file;
 	char							picname[80], checkname[MAX_OSPATH];
 	int32_t								i, offset;
+	fbo_t *currentFBO = glState.currentFBO;
 
 	// Create the scrnshots directory if it doesn't exist
 	Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot", FS_Gamedir());
@@ -418,15 +422,17 @@ void R_ScreenShot_JPG (qboolean silent)
  	}
 
 	// Allocate room for a copy of the framebuffer
-	rgbdata = malloc(vid.width * vid.height * 3);
+	rgbdata = malloc(screenFBO.width * screenFBO.height * 3);
 	if(!rgbdata)
 	{
 		fclose(file);
 		return;
 	}
 
+	R_BindFBO(&screenFBO);
+
 	// Read the framebuffer into our storage
-	glReadPixels(0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
+	glReadPixels(0, 0, glState.currentFBO->width, glState.currentFBO->height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
 
 	// Initialise the JPEG compression object
 	cinfo.err = jpeg_std_error(&jerr);
@@ -434,8 +440,8 @@ void R_ScreenShot_JPG (qboolean silent)
 	jpeg_stdio_dest(&cinfo, file);
 
 	// Setup JPEG Parameters
-	cinfo.image_width = vid.width;
-	cinfo.image_height = vid.height;
+	cinfo.image_width = glState.currentFBO->width;
+	cinfo.image_height = glState.currentFBO->height;
 	cinfo.in_color_space = JCS_RGB;
 	cinfo.input_components = 3;
 	jpeg_set_defaults(&cinfo);
@@ -465,6 +471,8 @@ void R_ScreenShot_JPG (qboolean silent)
 
 	// Free Temp Framebuffer
 	free(rgbdata);
+
+	R_BindFBO(currentFBO);
 
 	// Done!
 	if (!silent)
