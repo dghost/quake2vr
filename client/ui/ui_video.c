@@ -198,7 +198,7 @@ static void ApplyChanges( void *unused )
 
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
 	Cvar_SetValue( "vid_brightness", s_brightness_slider.curvalue/20.0f );
-	Cvar_SetValue( "r_picmip", s_texqual_box.curvalue );
+	Cvar_SetValue( "r_picmip", 3-s_texqual_box.curvalue );
 	Cvar_SetValue( "r_s3tc",s_texcompress_box.curvalue);
 	// Knightmare- refesh rate option
 	switch (s_refresh_box.curvalue)
