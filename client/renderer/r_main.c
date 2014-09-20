@@ -1451,7 +1451,7 @@ qboolean R_Init ( char *reason )
 			glConfig.ext_swap_control_tear = true;
 			VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control_tear\n" );
 		} else {
-			VID_Printf (PRINT_ALL, "...ignoring WGL_EXT_swap_control_tear on AMD hardware\n" );
+			VID_Printf (PRINT_ALL, "...ignoring WGL_EXT_swap_control_tear on AMD GPUs\n" );
 			Cvar_SetInteger("r_adaptivevsync",0);
 		}
 	}
@@ -1506,8 +1506,18 @@ qboolean R_Init ( char *reason )
 	glConfig.arb_sync = false;
 	if (GLEW_ARB_sync)
 	{
-		VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
-		glConfig.arb_sync = true;
+		// This actually works on Intel GPUs
+		// We are ignoring it because it hurts performance
+		// and Intel GPUs need all the help they can get
+		if ( !(glConfig.rendType & GLREND_INTEL) )
+		{
+			VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
+			glConfig.arb_sync = true;
+		} else {
+			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_sync on Intel GPUs\n" );
+			glConfig.arb_sync = false;
+			Cvar_SetInteger("r_fencesync",0);
+		}
 	} else {
 		VID_Printf (PRINT_ALL, "...GL_ARB_sync not found\n" );
 		glConfig.arb_sync = false;
@@ -1587,8 +1597,17 @@ qboolean R_Init ( char *reason )
 	glConfig.ext_texture_compression_s3tc = false;
 	if (GLEW_EXT_texture_compression_s3tc)
 	{
-		VID_Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
-		glConfig.ext_texture_compression_s3tc = true;
+		// ignore GL_EXT_texture_compression_s3tc on Intel.
+		// Why? Because it causes a tremendous hit in performance
+		// 
+		if ( !(glConfig.rendType & GLREND_INTEL) )
+		{
+			VID_Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+			glConfig.ext_texture_compression_s3tc = true;
+		} else {
+			VID_Printf (PRINT_ALL, "...ignoring GL_EXT_texture_compression_s3tc on Intel GPUs\n" );
+			glConfig.ext_texture_compression_s3tc = false;
+		}
 	} else {
 		VID_Printf (PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
 		glConfig.ext_texture_compression_s3tc = false;

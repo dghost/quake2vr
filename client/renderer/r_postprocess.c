@@ -311,8 +311,8 @@ void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 			float two_oSq = 2.0 * size;
 			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
 
-//			if (temp > 1)
-//				temp = 1;
+			//			if (temp > 1)
+			//				temp = 1;
 			if (temp < 0)
 				temp = 0;
 			weights[i] = temp;
@@ -400,8 +400,8 @@ void R_BloomFBO(fbo_t *source)
 			float two_oSq = 2.0 * size;
 			float temp = (1.0 / sqrt(two_oSq * M_PI)) * exp(-((i * i) / (two_oSq)));
 
-//			if (temp > 1)
-//				temp = 1;
+			//			if (temp > 1)
+			//				temp = 1;
 			if (temp < 0)
 				temp = 0;
 			weights[i] = temp;
@@ -447,7 +447,7 @@ void R_BloomFBO(fbo_t *source)
 		R_DrawQuad();
 
 		GL_MBind(0,pingFBO.texture);
-		
+
 		GL_BindFBO(source);
 		glViewport(0,0,source->width,source->height);
 
@@ -471,83 +471,83 @@ void R_PolyBlend ();
 
 void R_ApplyPostProcess(fbo_t *source)
 {
-		fbo_t *currentFBO = glState.currentFBO;
+	fbo_t *currentFBO = glState.currentFBO;
 
-		GL_ClearColor(0,0,0,0);
-		R_SetupQuadState();
-		GL_Disable(GL_DEPTH_TEST);
+	GL_ClearColor(0,0,0,0);
+	R_SetupQuadState();
+	GL_Disable(GL_DEPTH_TEST);
 
-		if (source->width > pongFBO.width || source->height > pongFBO.height)
+	if (source->width > pongFBO.width || source->height > pongFBO.height)
+	{
+		R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pongFBO);
+		R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pingFBO);
+	}
+
+
+
+	if (r_bloom->value)
+	{
+		R_BloomFBO(source);
+	}
+
+	if (r_polyblend->value && v_blend[3] > 0.0)
+	{
+		if (r_blur->value && r_flashblur->value)
 		{
-			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pongFBO);
-			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pingFBO);
-		}
-
-
-
-		if (r_bloom->value)
-		{
-			R_BloomFBO(source);
-		}
-
-		if (r_polyblend->value && v_blend[3] > 0.0)
-		{
-			if (r_blur->value && r_flashblur->value)
-			{
-				float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
-				float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
-				R_BlurFBO(weight,color,source);
-			} else {
-				R_TeardownQuadState();
-				R_PolyBlend();
-				R_SetupQuadState();
-			}
-		} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
-		{
-			float color[4] = {0.0,0.0,0.0,0.0};
-			R_BlurFBO(1,color,source);
-		}
-
-		if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
-		{
-			if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
-			{
-				R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
-			}
-
-			glViewport(0,0,source->width,source->height);
-
-			GL_MBind(0,source->texture);		
-			glUseProgram(fxaa.shader->program);
-			glUniform2f(fxaa.res_uniform,source->width,source->height);
-			glUniform2f(fxaa.scale_uniform,1.0,1.0);
-
-			GL_BindFBO(&fxaaFBO);
-			GL_ClearColor(0,0,0,0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-			R_DrawQuad();
-
-			glUseProgram(passthrough.shader->program);
-			glUniform2f(passthrough.scale_uniform,1.0,1.0);
-			GL_MBind(0,fxaaFBO.texture);
-			GL_BindFBO(source);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			R_DrawQuad();
-
+			float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
+			float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
+			R_BlurFBO(weight,color,source);
 		} else {
-			R_DelFBO(&fxaaFBO);
+			R_TeardownQuadState();
+			R_PolyBlend();
+			R_SetupQuadState();
+		}
+	} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
+	{
+		float color[4] = {0.0,0.0,0.0,0.0};
+		R_BlurFBO(1,color,source);
+	}
+
+	if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
+	{
+		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
+		{
+			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
 		}
 
+		glViewport(0,0,source->width,source->height);
+
+		GL_MBind(0,source->texture);		
+		glUseProgram(fxaa.shader->program);
+		glUniform2f(fxaa.res_uniform,source->width,source->height);
+		glUniform2f(fxaa.scale_uniform,1.0,1.0);
+
+		GL_BindFBO(&fxaaFBO);
+		GL_ClearColor(0,0,0,0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		GL_Enable(GL_DEPTH_TEST);
-		R_TeardownQuadState();
-		R_BindFBO(currentFBO);
-		GL_MBind(0,0);
-		glUseProgram(0);
+		R_DrawQuad();
+
+		glUseProgram(passthrough.shader->program);
+		glUniform2f(passthrough.scale_uniform,1.0,1.0);
+		GL_MBind(0,fxaaFBO.texture);
+		GL_BindFBO(source);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		R_DrawQuad();
+
+	} else {
+		R_DelFBO(&fxaaFBO);
+	}
+
+
+
+	GL_Enable(GL_DEPTH_TEST);
+	R_TeardownQuadState();
+	R_BindFBO(currentFBO);
+	GL_MBind(0,0);
+	glUseProgram(0);
 }
 
 
@@ -654,106 +654,108 @@ qboolean R_InitPostsprocessShaders()
 				Com_Printf("failed!\n");
 			}
 
-
-
-			Com_Printf("...loading blur shaders: ");
-			success = true;
-			if (R_CompileShaderFromFiles(&blurX_object))
+			if (!(glConfig.rendType & GLREND_INTEL))
 			{
-				GLint texloc;
-				blurXshader.shader = &blurX_object;
-				glUseProgram(blurXshader.shader->program);
-				texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
-				glUniform1i(texloc,0);
-				blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
-				blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
-				blurXshader.scale_uniform = glGetUniformLocation(blurXshader.shader->program,"texScale");			
-				glUseProgram(0);
 
-				success = success && true;
-			}
-			else {
-				success = false;
-			}
+				Com_Printf("...loading blur shaders: ");
+				success = true;
+				if (R_CompileShaderFromFiles(&blurX_object))
+				{
+					GLint texloc;
+					blurXshader.shader = &blurX_object;
+					glUseProgram(blurXshader.shader->program);
+					texloc = glGetUniformLocation(blurXshader.shader->program,"tex");
+					glUniform1i(texloc,0);
+					blurXshader.res_uniform = glGetUniformLocation(blurXshader.shader->program,"resolution");
+					blurXshader.weight_uniform = glGetUniformLocation(blurXshader.shader->program,"weight");
+					blurXshader.scale_uniform = glGetUniformLocation(blurXshader.shader->program,"texScale");			
+					glUseProgram(0);
 
-			if (R_CompileShaderFromFiles(&blurY_object))
-			{
-				GLint texloc;
-				blurYshader.shader = &blurY_object;
-				glUseProgram(blurYshader.shader->program);
-				texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
-				glUniform1i(texloc,0);
-				blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
-				blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
-				blurYshader.scale_uniform = glGetUniformLocation(blurYshader.shader->program,"texScale");
-				glUseProgram(0);
-				success = success && true;
-			}
-			else {
-				success = false;
-			}
+					success = success && true;
+				}
+				else {
+					success = false;
+				}
 
-			blurSupported = success;
-			if (blurSupported)
-			{
-				Com_Printf("success!\n");
-			} else {
-				Com_Printf("failed!\n");
-			}
+				if (R_CompileShaderFromFiles(&blurY_object))
+				{
+					GLint texloc;
+					blurYshader.shader = &blurY_object;
+					glUseProgram(blurYshader.shader->program);
+					texloc = glGetUniformLocation(blurYshader.shader->program,"tex");
+					glUniform1i(texloc,0);
+					blurYshader.res_uniform = glGetUniformLocation(blurYshader.shader->program,"resolution");
+					blurYshader.weight_uniform = glGetUniformLocation(blurYshader.shader->program,"weight");
+					blurYshader.scale_uniform = glGetUniformLocation(blurYshader.shader->program,"texScale");
+					glUseProgram(0);
+					success = success && true;
+				}
+				else {
+					success = false;
+				}
+
+				blurSupported = success;
+				if (blurSupported)
+				{
+					Com_Printf("success!\n");
+				} else {
+					Com_Printf("failed!\n");
+				}
 
 
-			Com_Printf("...loading bloom shaders: ");
-			success = true;
+				Com_Printf("...loading bloom shaders: ");
+				success = true;
 
-			if (R_CompileShaderFromFiles(&bloomPass_object))
-			{
-				GLint texloc;
-				bloomPass.shader = &bloomPass_object;
-				glUseProgram(bloomPass.shader->program);
-				texloc = glGetUniformLocation(bloomPass.shader->program,"blurTex");
-				glUniform1i(texloc,0);
-				texloc = glGetUniformLocation(bloomPass.shader->program,"sourceTex");
-				glUniform1i(texloc,1);
-				bloomPass.brightpass_uniform = glGetUniformLocation(bloomPass.shader->program,"minThreshold");
-				bloomPass.conversion_uniform = glGetUniformLocation(bloomPass.shader->program,"lumConversion");
-				bloomPass.res_uniform = glGetUniformLocation(bloomPass.shader->program,"resolution");
-				bloomPass.weight_uniform = glGetUniformLocation(bloomPass.shader->program,"weight");
-				bloomPass.scale_uniform = glGetUniformLocation(bloomPass.shader->program,"texScale");
-				bloomPass.falloff_uniform = glGetUniformLocation(bloomPass.shader->program,"falloff");
-				glUseProgram(0);
-				success = success && true;
-			}
-			else {
-				success = false;
-			}
-			if (R_CompileShaderFromFiles(&brightPass_object))
-			{
-				GLint texloc;
-				brightPass.shader = &brightPass_object;
-				glUseProgram(brightPass.shader->program);
-				texloc = glGetUniformLocation(brightPass.shader->program,"tex");
-				glUniform1i(texloc,0);
-				texloc = glGetUniformLocation(brightPass.shader->program,"sourceTex");
-				glUniform1i(texloc,1);
-				brightPass.brightpass_uniform = glGetUniformLocation(brightPass.shader->program,"minThreshold");
-				brightPass.conversion_uniform = glGetUniformLocation(brightPass.shader->program,"lumConversion");
-				brightPass.res_uniform = glGetUniformLocation(brightPass.shader->program,"resolution");
-				brightPass.weight_uniform = glGetUniformLocation(brightPass.shader->program,"weight");
-				brightPass.scale_uniform = glGetUniformLocation(brightPass.shader->program,"texScale");
-				brightPass.falloff_uniform = glGetUniformLocation(brightPass.shader->program,"falloff");
-				glUseProgram(0);
-				success = success && true;
-			}
-			else {
-				success = false;
-			}
+				if (R_CompileShaderFromFiles(&bloomPass_object))
+				{
+					GLint texloc;
+					bloomPass.shader = &bloomPass_object;
+					glUseProgram(bloomPass.shader->program);
+					texloc = glGetUniformLocation(bloomPass.shader->program,"blurTex");
+					glUniform1i(texloc,0);
+					texloc = glGetUniformLocation(bloomPass.shader->program,"sourceTex");
+					glUniform1i(texloc,1);
+					bloomPass.brightpass_uniform = glGetUniformLocation(bloomPass.shader->program,"minThreshold");
+					bloomPass.conversion_uniform = glGetUniformLocation(bloomPass.shader->program,"lumConversion");
+					bloomPass.res_uniform = glGetUniformLocation(bloomPass.shader->program,"resolution");
+					bloomPass.weight_uniform = glGetUniformLocation(bloomPass.shader->program,"weight");
+					bloomPass.scale_uniform = glGetUniformLocation(bloomPass.shader->program,"texScale");
+					bloomPass.falloff_uniform = glGetUniformLocation(bloomPass.shader->program,"falloff");
+					glUseProgram(0);
+					success = success && true;
+				}
+				else {
+					success = false;
+				}
+				if (R_CompileShaderFromFiles(&brightPass_object))
+				{
+					GLint texloc;
+					brightPass.shader = &brightPass_object;
+					glUseProgram(brightPass.shader->program);
+					texloc = glGetUniformLocation(brightPass.shader->program,"tex");
+					glUniform1i(texloc,0);
+					texloc = glGetUniformLocation(brightPass.shader->program,"sourceTex");
+					glUniform1i(texloc,1);
+					brightPass.brightpass_uniform = glGetUniformLocation(brightPass.shader->program,"minThreshold");
+					brightPass.conversion_uniform = glGetUniformLocation(brightPass.shader->program,"lumConversion");
+					brightPass.res_uniform = glGetUniformLocation(brightPass.shader->program,"resolution");
+					brightPass.weight_uniform = glGetUniformLocation(brightPass.shader->program,"weight");
+					brightPass.scale_uniform = glGetUniformLocation(brightPass.shader->program,"texScale");
+					brightPass.falloff_uniform = glGetUniformLocation(brightPass.shader->program,"falloff");
+					glUseProgram(0);
+					success = success && true;
+				}
+				else {
+					success = false;
+				}
 
-			bloomSupported = success;
-			if (bloomSupported)
-			{
-				Com_Printf("success!\n");
-			} else {
-				Com_Printf("failed!\n");
+				bloomSupported = success;
+				if (bloomSupported)
+				{
+					Com_Printf("success!\n");
+				} else {
+					Com_Printf("failed!\n");
+				}
 			}
 			success = bloomSupported && blurSupported && fxaaSupported;
 		}
