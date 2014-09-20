@@ -168,7 +168,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	{
 		GLimp_Shutdown ();
 	}
-	
+
 	// do a CDS if needed
 	if ( fullscreen )
 	{

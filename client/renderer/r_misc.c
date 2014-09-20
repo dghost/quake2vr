@@ -292,7 +292,7 @@ void R_ScaledScreenshot (char *name)
 	if (!jpgdata)	return;
 
 	// Resize grabbed screen
-	R_ResampleShot(saveshotdata, vid.width, vid.height, jpgdata, saveshotWidth, saveshotHeight);
+	R_ResampleShot(saveshotdata, screenFBO.width, screenFBO.height, jpgdata, saveshotWidth, saveshotHeight);
 
 	// Open the file for Binary Output
 	Com_sprintf (shotname, sizeof(shotname), "%s", name);
@@ -360,7 +360,7 @@ void R_GrabScreen (void)
 	R_BindFBO(&screenFBO);
 
 	// Read the framebuffer into our storage
-	glReadPixels(0, 0, glState.currentFBO->width, glState.currentFBO->height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
+	glReadPixels(0, 0, screenFBO.width, screenFBO.height, GL_RGB, GL_UNSIGNED_BYTE, saveshotdata);
 	R_BindFBO(currentFBO);
 }
 
@@ -432,7 +432,9 @@ void R_ScreenShot_JPG (qboolean silent)
 	R_BindFBO(&screenFBO);
 
 	// Read the framebuffer into our storage
-	glReadPixels(0, 0, glState.currentFBO->width, glState.currentFBO->height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
+	glReadPixels(0, 0, screenFBO.width, screenFBO.height, GL_RGB, GL_UNSIGNED_BYTE, rgbdata);
+
+	R_BindFBO(currentFBO);
 
 	// Initialise the JPEG compression object
 	cinfo.err = jpeg_std_error(&jerr);
@@ -440,8 +442,9 @@ void R_ScreenShot_JPG (qboolean silent)
 	jpeg_stdio_dest(&cinfo, file);
 
 	// Setup JPEG Parameters
-	cinfo.image_width = glState.currentFBO->width;
-	cinfo.image_height = glState.currentFBO->height;
+	cinfo.image_width = screenFBO.width;
+	cinfo.image_height = screenFBO.height;
+
 	cinfo.in_color_space = JCS_RGB;
 	cinfo.input_components = 3;
 	jpeg_set_defaults(&cinfo);
@@ -472,7 +475,6 @@ void R_ScreenShot_JPG (qboolean silent)
 	// Free Temp Framebuffer
 	free(rgbdata);
 
-	R_BindFBO(currentFBO);
 
 	// Done!
 	if (!silent)
@@ -492,6 +494,7 @@ void R_ScreenShot_TGA (qboolean silent)
 	char		checkname[MAX_OSPATH];
 	int32_t			i, c, temp;
 	FILE		*f;
+	fbo_t *currentFBO = glState.currentFBO;
 
 /*	// Heffo - JPEG Screenshots
 	if (r_screenshot_jpeg->value)
@@ -535,19 +538,26 @@ void R_ScreenShot_TGA (qboolean silent)
  	}
 
 
-	buffer = malloc(vid.width*vid.height*3 + 18);
+	buffer = malloc(screenFBO.width*screenFBO.height*3 + 18);
 	memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
-	buffer[12] = vid.width&255;
-	buffer[13] = vid.width>>8;
-	buffer[14] = vid.height&255;
-	buffer[15] = vid.height>>8;
+	buffer[12] = screenFBO.width&255;
+	buffer[13] = screenFBO.width>>8;
+	buffer[14] = screenFBO.height&255;
+	buffer[15] = screenFBO.height>>8;
 	buffer[16] = 24;	// pixel size
 
-	glReadPixels (0, 0, vid.width, vid.height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
+	
+	R_BindFBO(&screenFBO);
+
+	// Read the framebuffer into our storage
+	glReadPixels (0, 0, screenFBO.width, screenFBO.height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
+
+	R_BindFBO(currentFBO);
+
 
 	// swap rgb to bgr
-	c = 18+vid.width*vid.height*3;
+	c = 18+screenFBO.width*screenFBO.height*3;
 	for (i=18; i<c; i+=3)
 	{
 		temp = buffer[i];

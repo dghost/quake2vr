@@ -635,7 +635,11 @@ int32_t main(int32_t argc, char *argv[])
 	int32_t				time, oldtime, newtime;
 	qboolean		cdscan = false; // Knightmare added
 
-	
+		
+#ifdef _WIN32
+	SetProcessDPIAware();
+#endif
+
 	/*
 	int32_t				i; // Knightmare added
 	char			*cddir;
