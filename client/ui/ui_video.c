@@ -507,7 +507,7 @@ void Menu_Video_Init (void)
 		s_antialias_box.generic.type		= MTYPE_SPINCONTROL;
 		s_antialias_box.generic.x			= 0;
 		s_antialias_box.generic.y			= y += MENU_LINE_SIZE;
-		s_antialias_box.generic.name		= "post-process anti-aliasing";
+		s_antialias_box.generic.name		= "anti-aliasing";
 		s_antialias_box.generic.callback	= AntialiasCallback;
 		s_antialias_box.curvalue			= Cvar_VariableInteger("r_antialias");
 		s_antialias_box.itemnames			= antialias_names;
