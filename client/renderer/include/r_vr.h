@@ -28,12 +28,13 @@ extern vr_param_t vrState;
 
 typedef struct {
 	hmd_t type;
-	int32_t (*init)();
-	int32_t (*enable)();
-	void (*disable)();
+	int32_t (*init)(void);
+	int32_t (*enable)(void);
+	void (*disable)(void);
 	void (*frameStart)(int32_t changeBackBuffers);
 	void (*getState)(vr_param_t *state);
 	void (*present)(qboolean loading);
+	void (*postPresent)(void);
 } hmd_render_t;
 
 typedef struct {
@@ -51,6 +52,7 @@ void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
 void R_VR_EndFrame();
+void R_VR_PostGammaPresent();
 void R_VR_GetFOV(float *fovx, float *fovy);
 fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();

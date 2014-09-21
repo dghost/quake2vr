@@ -1871,7 +1871,6 @@ void R_BeginFrame()
 	GLimp_BeginFrame(  );
 	R_BindFBO(&screenFBO);
 
-	R_Clear();
 	R_AntialiasStartFrame();
 
 
@@ -1950,6 +1949,7 @@ void R_EndFrame(void)
 	R_Stereo_EndFrame(frame);
 
 	R_BindFBO(&screenFBO);
+	R_Clear();
 	glColor4f(1.0,1.0,1.0,1.0);
 
 	if (vr_enabled->value)
@@ -1968,6 +1968,8 @@ void R_EndFrame(void)
 	{
 		glDisable(GL_FRAMEBUFFER_SRGB);
 	}	
+	if (vr_enabled->value)
+		R_VR_PostGammaPresent();
 
 	GLimp_EndFrame();
 	

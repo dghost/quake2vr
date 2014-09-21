@@ -7,10 +7,11 @@
 
 void OVR_FrameStart(int32_t changeBackBuffers);
 void OVR_Present(qboolean loading);
-int32_t OVR_Enable();
-void OVR_Disable();
-int32_t OVR_Init();
+int32_t OVR_Enable(void);
+void OVR_Disable(void);
+int32_t OVR_Init(void);
 void OVR_GetState(vr_param_t *state);
+void OVR_PostPresent(void);
 
 hmd_render_t vr_render_ovr = 
 {
@@ -20,7 +21,8 @@ hmd_render_t vr_render_ovr =
 	OVR_Disable,
 	OVR_FrameStart,
 	OVR_GetState,
-	OVR_Present
+	OVR_Present,
+	OVR_PostPresent
 };
 
 extern ovrHmd hmd;
@@ -329,7 +331,6 @@ void OVR_GetState(vr_param_t *state)
 void R_Clear (void);
 void OVR_Present(qboolean loading)
 {
-	vec4_t debugColor = {1.0,1.0,1.0,1.0};
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
 	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
 	R_Clear();
@@ -424,6 +425,11 @@ void OVR_Present(qboolean loading)
 
 	}
 
+}
+
+void OVR_PostPresent(void)
+{
+	vec4_t debugColor = {1.0,1.0,1.0,1.0};
 	if (VR_OVR_RenderLatencyTest(debugColor))
 	{
 		//Com_Printf("VR_OVR: Debug color ( %.2f, %.2f, %.2f)\n",debugColor[0],debugColor[1],debugColor[2]);
@@ -461,9 +467,10 @@ void OVR_Present(qboolean loading)
 		}
 		glColor4f(1.0,1.0,1.0,1.0);
 	}
+
 }
 
-int32_t OVR_Enable()
+int32_t OVR_Enable(void)
 {
 	int i;
 	if (!glConfig.arb_texture_float)
@@ -497,7 +504,7 @@ int32_t OVR_Enable()
 	return true;
 }
 
-void OVR_Disable()
+void OVR_Disable(void)
 {
 	int i;
 
@@ -517,7 +524,7 @@ void OVR_Disable()
 	}
 }
 
-int32_t OVR_Init()
+int32_t OVR_Init(void)
 {
 	int i;
 	for (i = 0; i < 2; i++)

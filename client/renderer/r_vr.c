@@ -14,6 +14,7 @@ static hmd_render_t vr_render_none =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	NULL
 };
 
@@ -414,6 +415,11 @@ void R_VR_EndFrame()
 	}
 }
 
+void R_VR_PostGammaPresent()
+{
+	if (hmd && hmd->postPresent)
+		hmd->postPresent();
+}
 
 // util function
 void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object)

@@ -211,14 +211,14 @@ void SVR_Present(qboolean loading)
 	}
 }
 
-int32_t SVR_Init()
+int32_t SVR_Init(void)
 {
 	R_InitFBO(&left);
 	R_InitFBO(&right);
 	return true;
 }
 
-void SVR_Disable()
+void SVR_Disable(void)
 {
 	if (left.valid)
 		R_DelFBO(&left);
@@ -239,7 +239,7 @@ void SVR_Disable()
 	rightDistortion[1] = 0;
 }
 
-int32_t SVR_Enable()
+int32_t SVR_Enable(void)
 {
 	char string[128];
 
@@ -279,7 +279,8 @@ hmd_render_t vr_render_svr =
 	SVR_Disable,
 	SVR_FrameStart,
 	SVR_GetState,
-	SVR_Present
+	SVR_Present,
+	NULL
 };
 
 #else
@@ -287,6 +288,7 @@ hmd_render_t vr_render_svr =
 hmd_render_t vr_render_svr = 
 {
 	HMD_STEAM,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
