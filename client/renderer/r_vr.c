@@ -216,6 +216,7 @@ void R_VR_StartFrame()
 
 		if (height < 240)
 			height = 240;
+
 		Cvar_SetInteger("vr_hud_width",width);
 		Cvar_SetInteger("vr_hud_height",height);
 		vr_hud_width->modified = false;
@@ -349,8 +350,6 @@ void R_VR_DrawHud()
 	}
 
 	// set proper mode
-//	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-//	glEnableClientState (GL_VERTEX_ARRAY);
 	glDisableClientState (GL_COLOR_ARRAY);
 
 	// bind vertex buffer and set tex coord parameters
@@ -364,7 +363,7 @@ void R_VR_DrawHud()
 		R_BindFBO(vrState.eyeFBO[index]);
 
 		// set the perspective matrix for that eye
-		R_PerspectiveScale(vrState.renderParams[index].projection, 0.24, 251.0);
+		R_PerspectiveScale(vrState.renderParams[index].projection, 0.01, 251.0);
 
 		// build the eye translation matrix
 		if (vr_autoipd->value)
