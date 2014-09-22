@@ -654,7 +654,7 @@ qboolean R_InitPostsprocessShaders()
 				Com_Printf("failed!\n");
 			}
 
-			if (!(glConfig.rendType & GLREND_INTEL))
+			if ( !((glConfig.rendType & GLREND_INTEL) && r_driver_workarounds->value) )
 			{
 
 				Com_Printf("...loading blur shaders: ");

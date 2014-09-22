@@ -178,6 +178,8 @@ cvar_t  *r_lateframe_threshold;
 cvar_t  *r_lateframe_ratio;
 cvar_t  *r_directstate;
 
+cvar_t  *r_driver_workarounds;
+
 float vid_gamma = 1.0;
 
 /*
@@ -1207,6 +1209,8 @@ void R_Register (void)
 	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
 	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
 	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
+	r_driver_workarounds = Cvar_Get("r_driver_workarounds","1",CVAR_ARCHIVE);
+
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
 	Cmd_AddCommand ("screenshot_silent", R_ScreenShot_Silent_f);
@@ -1446,7 +1450,7 @@ qboolean R_Init ( char *reason )
 		// either by periodocially running faster than vsync to buffer frames
 		// or simply by corrupting the image on the screen
 		// this is why we cannot have nice things
-		if ( !(glConfig.rendType & GLREND_ATI) )
+		if ( !((glConfig.rendType & GLREND_ATI) && r_driver_workarounds->value) )
 		{
 			glConfig.ext_swap_control_tear = true;
 			VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control_tear\n" );
@@ -1509,7 +1513,7 @@ qboolean R_Init ( char *reason )
 		// This actually works on Intel GPUs
 		// We are ignoring it because it hurts performance
 		// and Intel GPUs need all the help they can get
-		if ( !(glConfig.rendType & GLREND_INTEL) )
+		if ( !((glConfig.rendType & GLREND_INTEL) && r_driver_workarounds->value) )
 		{
 			VID_Printf (PRINT_ALL, "...using GL_ARB_sync\n" );
 			glConfig.arb_sync = true;
@@ -1600,7 +1604,7 @@ qboolean R_Init ( char *reason )
 		// ignore GL_EXT_texture_compression_s3tc on Intel.
 		// Why? Because it causes a tremendous hit in performance
 		// 
-		if ( !(glConfig.rendType & GLREND_INTEL) )
+		if ( !((glConfig.rendType & GLREND_INTEL) && r_driver_workarounds->value) )
 		{
 			VID_Printf (PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
 			glConfig.ext_texture_compression_s3tc = true;

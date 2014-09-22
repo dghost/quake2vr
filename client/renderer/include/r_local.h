@@ -312,6 +312,7 @@ extern	cvar_t	*vid_fullscreen;
 extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;
 extern	cvar_t  *r_directstate;
+extern  cvar_t  *r_driver_workarounds;
 
 extern  float	vid_gamma;
 
