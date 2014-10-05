@@ -40,6 +40,7 @@ static menuframework_s	s_options_vr_ovr_menu;
 static menuseparator_s	s_options_vr_ovr_header;
 static menulist_s		s_options_vr_ovr_enable_box;
 static menulist_s		s_options_vr_ovr_device_box;
+static menulist_s		s_options_vr_ovr_latencytest_box;
 static menulist_s		s_options_vr_ovr_maxfov_box;
 static menulist_s		s_options_vr_ovr_prediction_box;
 static menulist_s		s_options_vr_ovr_lowpersistence_box;
@@ -47,6 +48,7 @@ static menulist_s		s_options_vr_ovr_lumaoverdrive_box;
 static menulist_s		s_options_vr_ovr_dk2_color_hack_box;
 static menulist_s		s_options_vr_ovr_timewarp_box;
 static menulist_s		s_options_vr_ovr_debug_box;
+
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
 static menuaction_s		s_options_vr_ovr_back_action;
@@ -127,6 +129,11 @@ static void ColorHackFunc( void *unused)
 	Cvar_SetInteger("vr_ovr_dk2_color_hack", s_options_vr_ovr_dk2_color_hack_box.curvalue);
 }
 
+static void LatencyFunc( void *unused )
+{
+	Cvar_SetInteger("vr_ovr_latencytest", s_options_vr_ovr_latencytest_box.curvalue );
+}
+
 static void DeviceFunc( void *unused )
 {
 	ovrname_t *names = VR_OVR_GetNameList();
@@ -147,6 +154,7 @@ static void VROVRSetMenuItemValues( void )
 	s_options_vr_ovr_lowpersistence_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lowpersistence") );
 	s_options_vr_ovr_lumaoverdrive_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lumoverdrive") );
 	s_options_vr_ovr_dk2_color_hack_box.curvalue = ( Cvar_VariableInteger("vr_ovr_dk2_color_hack") );
+	s_options_vr_ovr_latencytest_box.curvalue = ( ClampCvar(0,1,Cvar_VariableInteger("vr_ovr_latencytest") ) );
 }
 
 static void VROVRResetDefaultsFunc ( void *unused )
@@ -160,6 +168,7 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_lumoverdrive");
 	Cvar_SetToDefault ("vr_ovr_dk2_color_hack");
 	Cvar_SetToDefault ("vr_ovr_device");
+	Cvar_SetToDefault ("vr_ovr_latencytest");
 	VROVRSetMenuItemValues();
 }
 
@@ -299,7 +308,13 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_dk2_color_hack_box.itemnames			= yesno_names;
 	s_options_vr_ovr_dk2_color_hack_box.generic.statusbar	= "boosts black levels to reduce bluring on DK2 and above";
 
-
+	s_options_vr_ovr_latencytest_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_latencytest_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_latencytest_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_latencytest_box.generic.name		= "DK1 latency tester";
+	s_options_vr_ovr_latencytest_box.generic.callback	= LatencyFunc;
+	s_options_vr_ovr_latencytest_box.itemnames			= yesno_names;
+	s_options_vr_ovr_latencytest_box.generic.statusbar	= "enables support for DK1 external latency tester";
 
 	s_options_vr_ovr_debug_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_debug_box.generic.x			= MENU_FONT_SIZE;
@@ -334,6 +349,7 @@ void Options_VR_OVR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lowpersistence_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lumaoverdrive_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_dk2_color_hack_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_latencytest_box );
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_debug_box );	
 
