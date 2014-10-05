@@ -361,7 +361,7 @@ void OVR_Present(qboolean loading)
 
 		glUseProgram(currentShader->shader->program);
 
-		if (vr_ovr_lumoverdrive->value)
+		if (hmd->Type >= ovrHmd_DK2 && vr_ovr_lumoverdrive->value)
 		{
 			int lastFrame = (currentFrame ? 0 : 1);
 			static float overdriveScaleRegularRise = 0.1f;
