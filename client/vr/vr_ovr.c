@@ -29,6 +29,7 @@ cvar_t *vr_ovr_dk2_color_hack;
 cvar_t *vr_ovr_lowpersistence;
 cvar_t *vr_ovr_lumoverdrive;
 cvar_t *vr_ovr_distortion_fade;
+cvar_t *vr_ovr_latencytest;
 
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
@@ -229,7 +230,7 @@ int32_t VR_OVR_RenderLatencyTest(vec4_t color)
 	qboolean use = (qboolean) false;
 	if (hmd->Type >= ovrHmd_DK2)
 		use = (qboolean) ovrHmd_GetLatencyTest2DrawColor(hmd,ovrLatencyColor);
-	else
+	else if (vr_ovr_latencytest->value)
 		use = (qboolean) ovrHmd_ProcessLatencyTest(hmd,ovrLatencyColor);
 
 	color[0] = ovrLatencyColor[0] / 255.0f;
@@ -251,15 +252,18 @@ int32_t VR_OVR_SetPredictionTime(float time)
 void VR_OVR_FrameStart()
 {
 
-	const char *results = ovrHmd_GetLatencyTestResult(hmd);
-	if (results && strncmp(results,"",1))
+	if (hmd->Type < ovrHmd_DK2 && vr_ovr_latencytest->value)
 	{
-		static float lastms = 0;
-		float ms;
-		if (sscanf(results,"RESULT=%f ",&ms) && ms != lastms)
+		const char *results = ovrHmd_GetLatencyTestResult(hmd);
+		if (results && strncmp(results,"",1))
 		{
-			Cvar_SetInteger("vr_prediction",(int) ms);
-			lastms = ms;
+			static float lastms = 0;
+			float ms;
+			if (sscanf(results,"RESULT=%f ",&ms) && ms != lastms)
+			{
+				Cvar_SetInteger("vr_prediction",(int) ms);
+				lastms = ms;
+			}
 		}
 	}
 
@@ -460,8 +464,9 @@ int32_t VR_OVR_Init()
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
-	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
 	vr_ovr_lumoverdrive = Cvar_Get("vr_ovr_lumoverdrive","1",CVAR_ARCHIVE);
+	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
+	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","1",CVAR_ARCHIVE);
 	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
 	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
 	vr_ovr_device = Cvar_Get("vr_ovr_device","",CVAR_ARCHIVE);
