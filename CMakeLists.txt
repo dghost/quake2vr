@@ -56,6 +56,7 @@ include_directories (${SDL2_INCLUDE_DIRS})
 #if (NOT HAVE_SDL2_IMAGE)
 #  message (SEND_ERROR "Could not find SDL2_image")
 #endif (NOT HAVE_SDL2_IMAGE)
+option(OVR_DYNAMIC                "Dynamically load the Oculus library" ON)
 
 set(BASE_SOURCES
   client/renderer/r_alias.c
@@ -174,6 +175,14 @@ set(BASE_SOURCES
   server/sv_user.c
   server/sv_world.c
 )
+if (OVR_DYNAMIC)
+  add_definitions(-DOCULUS_DYNAMIC)
+  set(BASE_SOURCES
+	${BASE_SOURCES}
+	client/vr/oculus_dynamic.c
+	)
+endif (OVR_DYNAMIC)
+
 set(LINUX_SOURCES
   backends/linux/net_udp.c
   backends/linux/q_shlinux.c
@@ -182,4 +191,8 @@ set(LINUX_SOURCES
 )
 add_definitions(-DNO_STEAM -DUSE_SYSTEM_JPEGLIB)
 add_executable(quake2vr ${BASE_SOURCES} ${LINUX_SOURCES})
-target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} -L${quake2vr_SOURCE_DIR} GLEW ogg vorbis vorbisfile jpeg ovr z)
+target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} GLEW ogg vorbis vorbisfile jpeg z)
+
+if (!OVR_DYNAMIC)
+target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
+endif (!OVR_DYNAMIC)

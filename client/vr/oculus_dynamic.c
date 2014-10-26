@@ -23,8 +23,6 @@ void *oculus_library_handle;
 #include "ovr_dynamic_funcs.h"
 
 ovr_dynamic_load_result oculus_dynamic_load_library(const char* libname, const char** failed_function) {
-    const char* current_function;
-
     if (!libname)
         libname = getenv("LIBOVR");
 
@@ -45,6 +43,8 @@ ovr_dynamic_load_result oculus_dynamic_load_library(const char* libname, const c
 
 }
 ovr_dynamic_load_result oculus_dynamic_load_handle(void* libhandle, const char** failed_function) {
+    const char* current_function;
+
 #define OVRFUNC(need, r, f, p, c)                                       \
     current_function = #f;                                              \
         d_##f = (pfn_##f)SDL_LoadFunction(libhandle, current_function); \
@@ -62,6 +62,6 @@ error_function:
 
 void oculus_dynamic_free_library() {
     if (oculus_library_handle)
-        SDL_FreeObject(oculus_library_handle);
+        SDL_UnloadObject(oculus_library_handle);
     oculus_library_handle = NULL;
 }

@@ -31,7 +31,7 @@ extern "C" {
 
 extern void *oculus_library_handle;
 extern ovr_dynamic_load_result oculus_dynamic_load_library(const char* libname, const char** failed_function);
-extern ovr_dynamic_load_result oculus_dynamic_load(void* libhandle, const char** failed_function);
+extern ovr_dynamic_load_result oculus_dynamic_load_handle(void* libhandle, const char** failed_function);
 extern void oculus_dynamic_free_library();
 
 #ifdef __cplusplus
