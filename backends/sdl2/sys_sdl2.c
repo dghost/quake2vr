@@ -596,7 +596,7 @@ void* Sys_FindLibrary(const char *dllnames[])
 	char	cwd[MAX_OSPATH];
 	int32_t i = 0;
 	const char *gamename = NULL;
-	void	*library;
+	void	*library = NULL;
 
 #ifdef NDEBUG
 	const char *debugdir = "release";
