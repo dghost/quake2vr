@@ -134,7 +134,8 @@ void Com_Printf (char *fmt, ...)
 #ifdef _DEBUG
 	OutputDebugString(msg);
 #endif
-
+#else
+        printf("%s", msg);
 #endif
 	// logfile
 	if (logfile_active && logfile_active->value)
