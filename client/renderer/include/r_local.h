@@ -36,6 +36,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qgl.h"
 #include "../../vid.h"
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef FAR
+#define FAR
+#endif
+
 // up / down
 #define	PITCH	0
 // left / right
