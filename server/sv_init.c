@@ -447,7 +447,7 @@ void SV_Map (qboolean attractloop, char *levelstring, qboolean loadgame)
 
 	// skip the end-of-unit flag if necessary
 	if (level[0] == '*')
-		strcpy (level, level+1);
+		memmove(level, level+1, strlen(level));
 
 	l = strlen(level);
 #ifdef	ROQ_SUPPORT
