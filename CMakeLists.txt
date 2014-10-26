@@ -196,3 +196,5 @@ target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_g
 if (!OVR_DYNAMIC)
 target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
 endif (!OVR_DYNAMIC)
+
+add_subdirectory(game)
