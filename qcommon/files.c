@@ -24,6 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // enables faster binary pak searck, still experimental
 #define BINARY_PACK_SEARCH
 
+#ifndef _WIN32
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#endif
 
 #pragma warning (disable : 4715)
 

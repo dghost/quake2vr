@@ -21,6 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcommon.h"
 
+#ifndef _WIN32
+#define _stricmp strcasecmp
+#define _strnicmp strncasecmp
+#endif
+
 void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
