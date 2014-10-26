@@ -588,32 +588,22 @@ Loads the game dll
 #else
 #define LIBEXT ".so"
 #endif
-void *Sys_GetGameAPI (void *parms)
+
+void* Sys_FindLibrary(const char *dllnames[])
 {
-	void	*(*GetGameAPI) (void *);
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
 	int32_t i = 0;
-	//Knightmare- changed DLL name for better cohabitation
-#ifdef KMQUAKE2_ENGINE_MOD
-	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
-#else
-	static const char *dllnames[] = {"game", "gamex86",0};
-	#endif
 	const char *gamename = NULL;
-	
+	void	*library;
+
 #ifdef NDEBUG
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
 #endif
 
-	if (game_library)
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
-	
-	
-	
 	// check the current debug directory first for development purposes
 #ifdef WIN32
 	_getcwd (cwd, sizeof(cwd));
@@ -621,15 +611,15 @@ void *Sys_GetGameAPI (void *parms)
 	getcwd (cwd, sizeof(cwd));
 #endif
 
-	for (i = 0; (dllnames[i] != 0) && (game_library == NULL); i++)
+	for (i = 0; (dllnames[i] != 0) && (library == NULL); i++)
 	{
 		gamename = dllnames[i];
 		Com_sprintf (name, sizeof(name), "%s/%s/%s%s", cwd, debugdir, gamename,LIBEXT);
-		game_library = SDL_LoadObject ( name );
-        	if (!game_library) 
-        		Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
+		library = SDL_LoadObject ( name );
+		if (!library)
+			Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
 	}
-	if (game_library)
+	if (library)
 	{
 		Com_DPrintf ("SDL_LoadObject (%s)\n", name);
 	}
@@ -638,8 +628,8 @@ void *Sys_GetGameAPI (void *parms)
 #ifdef DEBUG
 		// check the current directory for other development purposes
 		Com_sprintf (name, sizeof(name), "%s/%s%s", cwd, gamename,LIBEXT);
-		game_library = SDL_LoadObject ( name );
-		if (game_library)
+		library = SDL_LoadObject ( name );
+		if (library)
 		{
 			Com_DPrintf ("SDL_LoadObject (%s)\n", name);
 		}
@@ -653,15 +643,15 @@ void *Sys_GetGameAPI (void *parms)
 				path = FS_NextPath (path);
 				if (!path)
 					return NULL;		// couldn't find one anywhere
-				for (i = 0; dllnames[i] != 0 && (game_library == NULL); i++)
+				for (i = 0; dllnames[i] != 0 && (library == NULL); i++)
 				{
 					gamename = dllnames[i];
 					Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename,LIBEXT);
-					game_library = SDL_LoadObject (name);
-		        		if (!game_library) 
-        					Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
+					library = SDL_LoadObject (name);
+					if (!library) 
+						Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
 				}
-				if (game_library)
+				if (library)
 				{
 					Com_DPrintf ("SDL_LoadObject (%s)\n",name);
 					break;
@@ -669,6 +659,31 @@ void *Sys_GetGameAPI (void *parms)
 			}
 		}
 	}
+	return library;
+}
+
+
+void *Sys_GetGameAPI (void *parms)
+{
+	void	*(*GetGameAPI) (void *);
+	char	name[MAX_OSPATH];
+	char	*path;
+	char	cwd[MAX_OSPATH];
+	int32_t i = 0;
+	//Knightmare- changed DLL name for better cohabitation
+#ifdef KMQUAKE2_ENGINE_MOD
+	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
+#else
+	static const char *dllnames[] = {"game", "gamex86",0};
+#endif
+
+	if (game_library)
+		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+
+	game_library = Sys_FindLibrary(dllnames);
+
+	if (!game_library)
+		return NULL;
 
 	GetGameAPI = (void *(*)(void*)) SDL_LoadFunction (game_library, "GetGameAPI");
 	if (!GetGameAPI)
