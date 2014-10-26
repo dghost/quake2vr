@@ -220,8 +220,14 @@ void OVR_CalculateState(vr_param_t *state)
 		ov = meshData.pVertexData; 
 		for (i = 0; i < meshData.VertexCount; i++)
 		{
-			v->pos.x = ov->ScreenPosNDC.x;
-			v->pos.y = ov->ScreenPosNDC.y;
+			// DK2 display not rotated - rotate the coordinates manually
+			if (vid.width < vid.height) {
+				v->pos.x = -ov->ScreenPosNDC.y;
+				v->pos.y = ov->ScreenPosNDC.x;
+			} else {
+				v->pos.x = ov->ScreenPosNDC.x;
+				v->pos.y = ov->ScreenPosNDC.y;
+			}
 
 			v->texR = (*(ovrVector2f*)&ov->TanEyeAnglesR); 
 			v->texG = (*(ovrVector2f*)&ov->TanEyeAnglesG);
