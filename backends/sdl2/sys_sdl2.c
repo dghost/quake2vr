@@ -626,6 +626,8 @@ void *Sys_GetGameAPI (void *parms)
 		gamename = dllnames[i];
 		Com_sprintf (name, sizeof(name), "%s/%s/%s%s", cwd, debugdir, gamename,LIBEXT);
 		game_library = SDL_LoadObject ( name );
+        	if (!game_library) 
+        		Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
 	}
 	if (game_library)
 	{
@@ -656,6 +658,8 @@ void *Sys_GetGameAPI (void *parms)
 					gamename = dllnames[i];
 					Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename,LIBEXT);
 					game_library = SDL_LoadObject (name);
+		        		if (!game_library) 
+        					Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
 				}
 				if (game_library)
 				{
