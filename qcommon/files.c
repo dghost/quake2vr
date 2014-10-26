@@ -91,7 +91,7 @@ typedef struct fsLink_s {
 
 typedef struct {
 	char			name[MAX_QPATH];
-	long			hash;				// To speed up searching
+	int32_t			hash;				// To speed up searching
 	int32_t				size;
 	int32_t				offset;				// This is ignored in PK3 files
 	qboolean		ignore;				// Whether this file should be ignored
@@ -1182,7 +1182,7 @@ FS_PakFileCompare
 Used for sorting pak entries by hash
 =================
 */
-long *nameHashes = NULL;
+int32_t *nameHashes = NULL;
 int32_t FS_PakFileCompare (const void *f1, const void *f2)
 {
 	if (!nameHashes)
@@ -1214,7 +1214,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	unsigned		contentFlags = 0;
 #ifdef BINARY_PACK_SEARCH
 	int32_t				*sortIndices;
-	long			*sortHashes;
+	int32_t			*sortHashes;
 #endif	// BINARY_PACK_SEARCH
 
 	handle = fopen(packPath, "rb");
@@ -1247,7 +1247,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
 	sortIndices = Z_Malloc(numFiles * sizeof(int32_t));
-	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
+	sortHashes = Z_Malloc(numFiles * sizeof(int32_t));
 	nameHashes = sortHashes;
 	for (i = 0; i < numFiles; i++)
 	{
@@ -1341,7 +1341,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 #ifdef BINARY_PACK_SEARCH
 	fsPackFile_t	*tmpFiles;
 	int32_t				*sortIndices;
-	long			*sortHashes;
+	int32_t			*sortHashes;
 #endif	// BINARY_PACK_SEARCH
 
 	handle = unzOpen(packPath);
@@ -1365,7 +1365,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	// create sort table
 	tmpFiles = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 	sortIndices = Z_Malloc(numFiles * sizeof(int32_t));
-	sortHashes = Z_Malloc(numFiles * sizeof(unsigned));
+	sortHashes = Z_Malloc(numFiles * sizeof(int32_t));
 	nameHashes = sortHashes;	
 
 	// Parse the directory

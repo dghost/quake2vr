@@ -1714,7 +1714,7 @@ void Com_sprintf (char *dest, int32_t size, char *fmt, ...)
 Com_HashFileName
 =============
 */
-long Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized)
+int32_t Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized)
 {
 	int32_t		i = 0;
 	long	hash = 0;
