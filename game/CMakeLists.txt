@@ -79,5 +79,5 @@ set(GAME_SOURCES
 
 add_definitions(-DDISABLE_FOG)
 
-add_library(game MODULE ${GAME_SOURCES})
-set_target_properties(game PROPERTIES PREFIX "")
+add_library(vrgamex86 MODULE ${GAME_SOURCES})
+set_target_properties(vrgamex86 PROPERTIES PREFIX "")
