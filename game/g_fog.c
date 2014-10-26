@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void Fog_Init()
 {
 }
-void Fog(vec3_t viewpoint)
+void Fog(edict_t *player_ent)
 {
 }
 void Fog_Off()
