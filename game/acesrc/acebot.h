@@ -279,6 +279,15 @@ typedef struct item_table_s
 
 } item_table_t;
 
+
+// These names may conflict with variables in the base executable
+
+#define players __acebot_players
+#define nodes __acebot_nodes
+#define item_table __acebot_item_table
+#define debug_mode __acebot_debug_mode
+#define numnodes __acebot_numnodes
+
 extern int num_players;
 extern edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 
