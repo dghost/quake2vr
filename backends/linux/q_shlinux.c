@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../linux/glob.h"
 
-#include "../qcommon/qcommon.h"
+#include "../../qcommon/qcommon.h"
 
 //===============================================================================
 
@@ -91,7 +91,25 @@ void Hunk_Free (void *base)
 
 void Sys_Mkdir (char *path)
 {
-    mkdir (path, 0777);
+    mkdir (path, 0755);
+}
+
+//
+// added from Q2E
+//
+void Sys_Rmdir (char *path)
+{
+    rmdir(path);
+}
+
+char *Sys_GetCurrentDirectory (void)
+{
+	static char	dir[MAX_OSPATH];
+
+	if (!getcwd(dir, sizeof(dir)))
+		Sys_Error("Couldn't get current working directory");
+
+	return dir;
 }
 
 char *strlwr (char *s)

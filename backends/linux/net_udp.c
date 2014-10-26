@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // net_wins.c
 
-#include "../qcommon/qcommon.h"
+#include "../../qcommon/qcommon.h"
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -491,7 +491,7 @@ int NET_Socket (char *net_interface, int port)
 		return 0;
 	}
 
-	if (!net_interface || !net_interface[0] || !stricmp(net_interface, "localhost"))
+	if (!net_interface || !net_interface[0] || !strcasecmp(net_interface, "localhost"))
 		address.sin_addr.s_addr = INADDR_ANY;
 	else
 		NET_StringToSockaddr (net_interface, (struct sockaddr *)&address);
@@ -557,4 +557,3 @@ void NET_Sleep(int msec)
 	timeout.tv_usec = (msec%1000)*1000;
 	select(ip_sockets[NS_SERVER]+1, &fdset, NULL, NULL, &timeout);
 }
-
