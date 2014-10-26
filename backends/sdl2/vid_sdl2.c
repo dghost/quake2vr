@@ -78,7 +78,9 @@ void VID_Printf (int32_t print_level, char *fmt, ...)
 	else if ( print_level == PRINT_ALERT )
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,"PRINT_ALERT",msg,NULL);
+#ifdef _WIN32
 		OutputDebugString( msg );
+#endif
 	}
 }
 
@@ -179,7 +181,7 @@ int32_t MapSDLKey (SDL_Keysym key)
 	return result;
 }
 
-void AppActivate(BOOL fActive, BOOL minimize)
+void AppActivate(SDL_bool fActive, SDL_bool minimize)
 {
 	Minimized = (SDL_bool) !!minimize;
 

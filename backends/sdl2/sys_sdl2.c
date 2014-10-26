@@ -25,9 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 #include <fcntl.h>
 #include <stdio.h>
+#ifdef WIN32
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
+#else
+#include <unistd.h>
+#endif
 #include "../../client/vr/include/vr.h"
 
 #ifdef _WIN32
@@ -43,7 +47,9 @@ SDL_bool	ActiveApp;
 SDL_bool	Minimized;
 SDL_bool	RelativeMouse;
 
+#ifdef WIN32
 static HANDLE		hinput, houtput;
+#endif
 
 SDL_Window *mainWindow;
 uint32_t mainWindowID;
@@ -215,6 +221,52 @@ void Sys_ConsoleOutput (char *string)
 }
 
 //================================================================
+#else
+
+qboolean stdin_active = true;
+cvar_t *nostdout;
+
+char *Sys_ConsoleInput(void)
+{
+    static char text[256];
+    int     len;
+	fd_set	fdset;
+    struct timeval timeout;
+
+	if (!dedicated || !dedicated->value)
+		return NULL;
+
+	if (!stdin_active)
+		return NULL;
+
+	FD_ZERO(&fdset);
+	FD_SET(0, &fdset); // stdin
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+	if (select (1, &fdset, NULL, NULL, &timeout) == -1 || !FD_ISSET(0, &fdset))
+		return NULL;
+
+	len = read (0, text, sizeof(text));
+	if (len == 0) { // eof!
+		stdin_active = false;
+		return NULL;
+	}
+
+	if (len < 1)
+		return NULL;
+	text[len-1] = 0;    // rip off the /n and terminate
+
+	return text;
+}
+
+void Sys_ConsoleOutput (char *string)
+{
+	if (nostdout && nostdout->value)
+		return;
+
+	fputs(string, stdout);
+}
+
 #endif
 
 /*
@@ -249,23 +301,14 @@ char *Sys_GetClipboardData( void )
 {
 	char *data = NULL;
 	char *cliptext;
+        char *sdl_cliptext;
 
-	if ( OpenClipboard( NULL ) != 0 )
-	{
-		HANDLE hClipboardData;
-
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 )
-		{
-			if ( ( cliptext = GlobalLock( hClipboardData ) ) != 0 ) 
-			{
-				data = malloc( GlobalSize( hClipboardData ) + 1 );
-				strcpy( data, cliptext );
-				GlobalUnlock( hClipboardData );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
+        sdl_cliptext = SDL_GetClipboardText();
+        if (!sdl_cliptext)
+            return NULL;
+        data = strdup(sdl_cliptext);
+        SDL_free(sdl_cliptext);
+        return data;
 }
 
 
@@ -295,23 +338,28 @@ void Sys_Error (char *error, ...)
 	}
 
 // shut down QHOST hooks if necessary
+#ifdef _WIN32
 	DeinitConProc ();
-
+#endif
 	exit (1);
 }
 
 
 void Sys_Quit (void)
 {
+#ifdef _WIN32
 	timeEndPeriod( 1 );
-
+#endif
 	CL_Shutdown();
 	Qcommon_Shutdown ();
+
+#ifdef _WIN32
 	if (dedicated && dedicated->value)
 		FreeConsole ();
 
 // shut down QHOST hooks if necessary
 	DeinitConProc ();
+#endif
 
 	exit (0);
 }
@@ -339,6 +387,7 @@ char *Sys_ScanForCD (void)
 		return cddir;
 
 	// no abort/retry/fail errors
+#ifdef _WIN32
 	SetErrorMode (SEM_FAILCRITICALERRORS);
 
 	drive[0] = 'c';
@@ -385,7 +434,7 @@ char *Sys_ScanForCD (void)
 	}
 
 	Com_Printf(" could not find %s on any CDROM drive!\n", test);
-
+#endif
 	cddir[0] = 0;
 	
 	return NULL;
@@ -474,7 +523,9 @@ void Sys_Init (void)
 		Com_Printf("ERROR: The version of SDL in use differs from the intended version.\n");
 	}
 
+#ifdef _WIN32
 	Sys_InitConsole (); // show dedicated console, moved to function
+#endif
 }
 
 
@@ -564,8 +615,12 @@ void *Sys_GetGameAPI (void *parms)
 	
 	
 	// check the current debug directory first for development purposes
+#ifdef WIN32
 	_getcwd (cwd, sizeof(cwd));
-	
+#else
+	getcwd (cwd, sizeof(cwd));
+#endif
+
 	for (i = 0; (dllnames[i] != 0) && (game_library == NULL); i++)
 	{
 		gamename = dllnames[i];
@@ -675,7 +730,13 @@ int32_t main(int32_t argc, char *argv[])
 	*/
 	Qcommon_Init (argc, argv);
 	oldtime = Sys_Milliseconds ();
-
+#ifndef _WIN32
+	nostdout = Cvar_Get("nostdout", "0", 0);
+	if (!nostdout->value) {
+		fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
+//		printf ("Linux Quake -- Version %0.3f\n", LINUX_VERSION);
+	}
+#endif
     /* main window message loop */
 	while (1)
 	{
@@ -722,5 +783,5 @@ int32_t main(int32_t argc, char *argv[])
 	}
 
 	// never gets here
-    return TRUE;
+    return 0;
 }
