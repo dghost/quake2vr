@@ -1,7 +1,7 @@
 #include "include/r_vr_ovr.h"
 #include "../vr/include/vr_ovr.h"
 #include "include/r_local.h"
-#include "OVR_CAPI.h"
+#include "../OVR_CAPI.h"
 #include "../../backends/sdl2/sdl2quake.h"
 
 
@@ -209,9 +209,9 @@ void OVR_CalculateState(vr_param_t *state)
 		eyeDesc[eye] = ovrHmd_GetRenderDesc(hmd,(ovrEyeType) eye,renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
-			-eyeDesc[eye].ViewAdjust.x,
-			eyeDesc[eye].ViewAdjust.y,
-			eyeDesc[eye].ViewAdjust.z);
+			-eyeDesc[eye].HmdToEyeViewOffset.x,
+			eyeDesc[eye].HmdToEyeViewOffset.y,
+			eyeDesc[eye].HmdToEyeViewOffset.z);
 
 		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
 
@@ -478,7 +478,9 @@ int32_t OVR_Enable(void)
 
 	if (hmd && !(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
 	{
+#ifdef WIN32
 		ovrHmd_AttachToWindow(hmd,mainWindowInfo.info.win.window,NULL,NULL);
+#endif
 	}
 
 	for (i = 0; i < 2; i++)

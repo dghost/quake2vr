@@ -1,6 +1,6 @@
 #include "include/vr.h"
 #include "include/vr_ovr.h"
-#include "OVR_CAPI.h"
+#include "../OVR_CAPI.h"
 #include <SDL.h>
 
 void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos);
