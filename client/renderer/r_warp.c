@@ -223,7 +223,11 @@ void CreateDSTTex (void)
 	uint8_t	dist[DST_SIZE][DST_SIZE][4];
 	int32_t				x,y;
 
+#ifdef WIN32
 	srand(GetTickCount());
+#else
+	srand(time(NULL));
+#endif
 	for (x=0; x<DST_SIZE; x++)
 		for (y=0; y<DST_SIZE; y++) {
 			dist[x][y][0] = rand()%255;
