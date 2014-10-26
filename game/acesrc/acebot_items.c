@@ -68,13 +68,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 ///////////////////////////////////////////////////////////////////////
 //
-//  acebot_items.c - This file contains all of the 
-//                   item handling routines for the 
+//  acebot_items.c - This file contains all of the
+//                   item handling routines for the
 //                   ACE bot, including fact table support
-//           
+//
 ///////////////////////////////////////////////////////////////////////
 
-#include "..\g_local.h"
+#include "../g_local.h"
 #include "acebot.h"
 
 int	num_players = 0;

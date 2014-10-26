@@ -60,25 +60,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //  Telefragged.com - For giving ACE a home.
 //  Microsoft       - For giving us such a wonderful crash free OS.
 //  id              - Need I say more.
-//  
+//
 //  And to all the other testers, pathers, and players and people
 //  who I can't remember who the heck they were, but helped out.
 //
 ///////////////////////////////////////////////////////////////////////
-	
+
 ///////////////////////////////////////////////////////////////////////
 //
-//  acebot_ai.c -      This file contains all of the 
+//  acebot_ai.c -      This file contains all of the
 //                     AI routines for the ACE II bot.
 //
 //
 // NOTE: I went back and pulled out most of the brains from
-//       a number of these functions. They can be expanded on 
-//       to provide a "higher" level of AI. 
+//       a number of these functions. They can be expanded on
+//       to provide a "higher" level of AI.
 ////////////////////////////////////////////////////////////////////////
 
-#include "..\g_local.h"
-#include "..\monster\m_player.h"
+#include "../g_local.h"
+#include "../monster/m_player.h"
 
 #include "acebot.h"
 

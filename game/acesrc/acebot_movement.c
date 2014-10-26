@@ -60,19 +60,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //  Telefragged.com - For giving ACE a home.
 //  Microsoft       - For giving us such a wonderful crash free OS.
 //  id              - Need I say more.
-//  
+//
 //  And to all the other testers, pathers, and players and people
 //  who I can't remember who the heck they were, but helped out.
 //
 ///////////////////////////////////////////////////////////////////////
-	
+
 ///////////////////////////////////////////////////////////////////////
-//  acebot_movement.c - This file contains all of the 
+//  acebot_movement.c - This file contains all of the
 //                      movement routines for the ACE bot
-//           
+//
 ///////////////////////////////////////////////////////////////////////
 
-#include "..\g_local.h"
+#include "../g_local.h"
 #include "acebot.h"
 
 // Platform states

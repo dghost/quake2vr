@@ -1984,5 +1984,5 @@ qboolean	paused;
 //ZOID
 
 // ACEBOT_ADD
-#include "acesrc\acebot.h"
+#include "acesrc/acebot.h"
 // ACEBOT_END
