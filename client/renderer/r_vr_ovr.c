@@ -232,7 +232,9 @@ void OVR_CalculateState(vr_param_t *state)
 			v->texR = (*(ovrVector2f*)&ov->TanEyeAnglesR); 
 			v->texG = (*(ovrVector2f*)&ov->TanEyeAnglesG);
 			v->texB = (*(ovrVector2f*)&ov->TanEyeAnglesB); 
-			v->color[0] = v->color[1] = v->color[2] = (GLubyte)( ov->VignetteFactor * 255.99f );
+			float vignette_factor = ov->VignetteFactor;
+			if (vignette_factor < 0) vignette_factor = 0;
+			v->color[0] = v->color[1] = v->color[2] = (GLubyte)(vignette_factor  * 255.99f);
 			v->color[3] = (GLubyte)( ov->TimeWarpFactor * 255.99f );
 			v++; ov++;
 		}
