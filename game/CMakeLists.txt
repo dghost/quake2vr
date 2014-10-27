@@ -78,6 +78,6 @@ set(GAME_SOURCES
 )
 
 add_definitions(-DDISABLE_FOG)
-
 add_library(vrgamex86 MODULE ${GAME_SOURCES})
 set_target_properties(vrgamex86 PROPERTIES PREFIX "")
+target_compile_options(vrgamex86 PRIVATE -fvisibility=hidden)

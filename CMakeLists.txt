@@ -192,6 +192,7 @@ set(LINUX_SOURCES
 add_definitions(-DNO_STEAM -DUSE_SYSTEM_JPEGLIB)
 add_executable(quake2vr ${BASE_SOURCES} ${LINUX_SOURCES})
 target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} GLEW ogg vorbis vorbisfile jpeg z)
+target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 if (!OVR_DYNAMIC)
 target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
