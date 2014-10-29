@@ -206,7 +206,13 @@ Returns a pointer to the structure with all entry points
 and global variables
 =================
 */
-game_export_t *GetGameAPI (game_import_t *import)
+#ifdef __GNUC__
+#define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT
+#endif
+
+EXPORT game_export_t *GetGameAPI (game_import_t *import)
 {
 	gi = *import;
 

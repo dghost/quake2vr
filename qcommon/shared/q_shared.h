@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <time.h>
 
 
@@ -381,7 +382,7 @@ char *COM_Parse (char **data_p);
 char *COM_ParseExt (char **data_p, qboolean allowNewLines);
 
 void Com_sprintf (char *dest, int32_t size, char *fmt, ...);
-long Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized);
+int32_t Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized);
 
 void Com_PageInMemory (byte *buffer, int32_t size);
 
@@ -1566,4 +1567,3 @@ typedef struct
 extern int32_t vidref_val;
 // PGM
 // ==================
-

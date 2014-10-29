@@ -1,6 +1,10 @@
 #include "include/vr.h"
 #include "include/vr_ovr.h"
-#include "OVR_CAPI.h"
+#ifdef OCULUS_DYNAMIC
+#include "oculus_dynamic.h"
+#else
+#include "../OVR_CAPI.h"
+#endif
 #include <SDL.h>
 
 void VR_OVR_GetHMDPos(int32_t *xpos, int32_t *ypos);
@@ -312,6 +316,12 @@ ovrname_t *VR_OVR_GetNameList()
 	return hmdnames;
 }
 
+#ifdef _WIN32
+#define LIBEXT ".dll"
+#else
+#define LIBEXT ".so"
+#endif
+
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;
@@ -323,10 +333,36 @@ int32_t VR_OVR_Enable()
 
 	if (!libovrInitialized)
 	{
+#ifdef OCULUS_DYNAMIC
+		const char* failed_function;
+		static const char *dllnames[] = {"libovr", "libovr_043", 0};
+		oculus_library_handle = Sys_FindLibrary(dllnames);
+		if (!oculus_library_handle) {
+			Com_Printf("VR_OVR: Fatal error: could not load Oculus library\n");
+			return 0;
+		}
+
+		ovr_dynamic_load_result res = oculus_dynamic_load_handle(oculus_library_handle, &failed_function);
+		if (res != OVR_DYNAMIC_RESULT_SUCCESS) {
+			if (res == OVR_DYNAMIC_RESULT_LIBOVR_COULD_NOT_LOAD_FUNCTION) {
+				Com_Printf("VR_OVR: Fatal error: function %s not found in oculus library\n", failed_function);
+			} else {
+				Com_Printf("VR_OVR: Fatal error: could not load Oculus library\n");
+			}
+			SDL_UnloadObject(oculus_library_handle);
+			oculus_library_handle = NULL;
+			return 0;
+		}
+#endif
+
 		libovrInitialized = ovr_Initialize();
 		if (!libovrInitialized)
 		{
 			Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");
+#ifdef OCULUS_DYNAMIC
+			SDL_UnloadObject(oculus_library_handle);
+			oculus_library_handle = NULL;
+#endif
 			return 0;
 		} else {
 			Com_Printf("VR_OVR: %s initialized...\n",ovr_GetVersionString());

@@ -1,7 +1,7 @@
 #include "include/r_vr_ovr.h"
 #include "../vr/include/vr_ovr.h"
 #include "include/r_local.h"
-#include "OVR_CAPI.h"
+#include "../OVR_CAPI.h"
 #include "../../backends/sdl2/sdl2quake.h"
 
 
@@ -189,7 +189,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ovr_vert_t *v = NULL;
 		ovrDistortionVertex *ov = NULL;
 		int i = 0;
-
+		float vignette_factor;
 		if (vr_ovr_maxfov->value)
 		{
 			renderInfo[eye].eyeFov = hmd->MaxEyeFov[eye];
@@ -209,9 +209,9 @@ void OVR_CalculateState(vr_param_t *state)
 		eyeDesc[eye] = ovrHmd_GetRenderDesc(hmd,(ovrEyeType) eye,renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
-			-eyeDesc[eye].ViewAdjust.x,
-			eyeDesc[eye].ViewAdjust.y,
-			eyeDesc[eye].ViewAdjust.z);
+			-eyeDesc[eye].HmdToEyeViewOffset.x,
+			eyeDesc[eye].HmdToEyeViewOffset.y,
+			eyeDesc[eye].HmdToEyeViewOffset.z);
 
 		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
 
@@ -220,13 +220,22 @@ void OVR_CalculateState(vr_param_t *state)
 		ov = meshData.pVertexData; 
 		for (i = 0; i < meshData.VertexCount; i++)
 		{
-			v->pos.x = ov->ScreenPosNDC.x;
-			v->pos.y = ov->ScreenPosNDC.y;
+
+			// DK2 display not rotated - rotate the coordinates manually
+			if (vid.width < vid.height) {
+				v->pos.x = -ov->ScreenPosNDC.y;
+				v->pos.y = ov->ScreenPosNDC.x;
+			} else {
+				v->pos.x = ov->ScreenPosNDC.x;
+				v->pos.y = ov->ScreenPosNDC.y;
+			}
 
 			v->texR = (*(ovrVector2f*)&ov->TanEyeAnglesR); 
 			v->texG = (*(ovrVector2f*)&ov->TanEyeAnglesG);
 			v->texB = (*(ovrVector2f*)&ov->TanEyeAnglesB); 
-			v->color[0] = v->color[1] = v->color[2] = (GLubyte)( ov->VignetteFactor * 255.99f );
+			vignette_factor = ov->VignetteFactor;
+			if (vignette_factor < 0) vignette_factor = 0;
+			v->color[0] = v->color[1] = v->color[2] = (GLubyte)(vignette_factor  * 255.99f);
 			v->color[3] = (GLubyte)( ov->TimeWarpFactor * 255.99f );
 			v++; ov++;
 		}
@@ -478,7 +487,9 @@ int32_t OVR_Enable(void)
 
 	if (hmd && !(hmd->HmdCaps & ovrHmdCap_ExtendDesktop))
 	{
+#ifdef WIN32
 		ovrHmd_AttachToWindow(hmd,mainWindowInfo.info.win.window,NULL,NULL);
+#endif
 	}
 
 	for (i = 0; i < 2; i++)

@@ -25,6 +25,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../qcommon/shared/q_shared.h"
 #include "laz_misc.h"
 
+#ifndef _MAX_PATH
+#define _MAX_PATH 2048
+#endif
+
+#ifndef _WIN32
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+#define _mkdir(x) mkdir(x, 0755)
+#endif
+
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
 // because we define the full size ones in this file
@@ -688,10 +698,18 @@ extern	int	meansOfDeath;
 
 extern	edict_t			*g_edicts;
 
+#ifdef __GNUC__
+#include <stddef.h>
+#define FOFS(x) offsetof(edict_t, x)
+#define STOFS(x) offsetof(spawn_temp_t, x)
+#define LLOFS(x) offsetof(level_locals_t, x)
+#define CLOFS(x) offsetof(gclient_t, x)
+#else
 #define	FOFS(x) (int)&(((edict_t *)0)->x)
 #define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
 #define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
 #define	CLOFS(x) (int)&(((gclient_t *)0)->x)
+#endif
 
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
@@ -1984,5 +2002,5 @@ qboolean	paused;
 //ZOID
 
 // ACEBOT_ADD
-#include "acesrc\acebot.h"
+#include "acesrc/acebot.h"
 // ACEBOT_END

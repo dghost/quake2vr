@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "include/r_local.h"
 //#include "r_cin.h"
-#include "include/jpeglib.h"
+#include "include/jpeglib_local.h"
 
 image_t		gltextures[MAX_GLTEXTURES];
 int32_t			numgltextures;

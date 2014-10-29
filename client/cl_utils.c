@@ -130,7 +130,7 @@ ColorLookup
 Returns RGB values for color type, can be called from anywhere
 ================
 */
-void ColorLookup (color_t colornum, int32_t *red, int32_t *green, int32_t *blue)
+void ColorLookup (int32_t colornum, int32_t *red, int32_t *green, int32_t *blue)
 {
 	switch (colornum)
 	{

@@ -11,7 +11,11 @@
  * and perhaps jerror.h if they want to know the exact error codes.
  */
 
-#ifndef JPEGLIB_H
+#ifdef USE_SYSTEM_JPEGLIB
+#include <jpeglib.h>
+
+#elif !defined(JPEGLIB_H)
+
 #define JPEGLIB_H
 
 /*

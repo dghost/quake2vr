@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 static qboolean GLimp_SwitchFullscreen( int32_t width, int32_t height );
-qboolean GLimp_InitGL (void);
+int32_t GLimp_InitGL (void);
 
 SDL_GLContext glcontext;
 
@@ -262,11 +262,12 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+#ifdef _WIN32
 	if (vid_srgb->value)
 		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
 	else
 		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,0);
-
+#endif
 
 	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
@@ -391,12 +392,12 @@ void GLimp_Shutdown( void )
 ** of OpenGL.  Under Win32 this means dealing with the pixelformats and
 ** doing the wgl interface stuff.
 */
-qboolean GLimp_Init( )
+int32_t GLimp_Init( )
 {
 	return true;
 }
 
-qboolean GLimp_InitGL (void)
+int32_t GLimp_InitGL (void)
 {
 	SDL_DisplayMode currentMode;
 	int srgb = 0;

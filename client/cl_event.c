@@ -117,9 +117,13 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 	vec3_t	end;
 	int32_t		r;
 	int32_t		surface;
-	struct	sfx_s	*stepsound = NULL;
-	float	volume = 0.5;
+	struct	sfx_s	*stepsound;
+	float	volume;
 
+start_over:
+	stepsound = NULL;
+	volume = 0.5;
+	
 	r = (rand()&3);
 
 	VectorCopy(ent->origin,end);
@@ -181,13 +185,13 @@ void CL_FootSteps (entity_state_t *ent, qboolean loud)
 				if (strstr(tr.surface->name,tex_surf[i].tex) && tex_surf[i].step_id > 0)
 				{
 					tr.surface->flags |= (SURF_METAL << (tex_surf[i].step_id - 1));
-					CL_FootSteps (ent, loud); // start over
-					return;
+					// avoid deep stack recursion
+					goto start_over;
 				}
 		}
 		tr.surface->flags |= SURF_STANDARD;
-		CL_FootSteps (ent, loud); // start over
-		return;
+		// avoid deep stack recursion
+		goto start_over;
 	}
 
 	if (loud)
