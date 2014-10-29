@@ -208,6 +208,8 @@ and global variables
 */
 #ifdef __GNUC__
 #define EXPORT __attribute__((visibility("default")))
+#else
+#define EXPORT
 #endif
 
 EXPORT game_export_t *GetGameAPI (game_import_t *import)
