@@ -635,7 +635,7 @@ void ACEMV_Wander(edict_t *self, usercmd_t *ucmd)
 
 		self->s.angles[YAW] += random() * 180 - 90; 
 
-		if(!M_CheckBottom || !self->groundentity) // if there is ground continue otherwise wait for next move
+		if(!M_CheckBottom(self) || !self->groundentity) // if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 400;
 		
 		return;
