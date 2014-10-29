@@ -189,7 +189,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ovr_vert_t *v = NULL;
 		ovrDistortionVertex *ov = NULL;
 		int i = 0;
-
+		float vignette_factor;
 		if (vr_ovr_maxfov->value)
 		{
 			renderInfo[eye].eyeFov = hmd->MaxEyeFov[eye];
@@ -220,6 +220,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ov = meshData.pVertexData; 
 		for (i = 0; i < meshData.VertexCount; i++)
 		{
+
 			// DK2 display not rotated - rotate the coordinates manually
 			if (vid.width < vid.height) {
 				v->pos.x = -ov->ScreenPosNDC.y;
@@ -232,7 +233,7 @@ void OVR_CalculateState(vr_param_t *state)
 			v->texR = (*(ovrVector2f*)&ov->TanEyeAnglesR); 
 			v->texG = (*(ovrVector2f*)&ov->TanEyeAnglesG);
 			v->texB = (*(ovrVector2f*)&ov->TanEyeAnglesB); 
-			float vignette_factor = ov->VignetteFactor;
+			vignette_factor = ov->VignetteFactor;
 			if (vignette_factor < 0) vignette_factor = 0;
 			v->color[0] = v->color[1] = v->color[2] = (GLubyte)(vignette_factor  * 255.99f);
 			v->color[3] = (GLubyte)( ov->TimeWarpFactor * 255.99f );
