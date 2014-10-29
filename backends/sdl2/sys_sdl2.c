@@ -300,15 +300,14 @@ Sys_GetClipboardData
 char *Sys_GetClipboardData( void )
 {
 	char *data = NULL;
-	char *cliptext;
-        char *sdl_cliptext;
+	char *sdl_cliptext;
 
-        sdl_cliptext = SDL_GetClipboardText();
-        if (!sdl_cliptext)
-            return NULL;
-        data = strdup(sdl_cliptext);
-        SDL_free(sdl_cliptext);
-        return data;
+	sdl_cliptext = SDL_GetClipboardText();
+	if (!sdl_cliptext)
+		return NULL;
+	data = strdup(sdl_cliptext);
+	SDL_free(sdl_cliptext);
+	return data;
 }
 
 
@@ -666,9 +665,6 @@ void* Sys_FindLibrary(const char *dllnames[])
 void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
-	char	name[MAX_OSPATH];
-	char	*path;
-	char	cwd[MAX_OSPATH];
 	int32_t i = 0;
 	//Knightmare- changed DLL name for better cohabitation
 #ifdef KMQUAKE2_ENGINE_MOD
