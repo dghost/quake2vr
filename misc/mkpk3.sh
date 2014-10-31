@@ -7,10 +7,18 @@ else
 	outdir=../../build
 fi
 
-echo "Generating $outdir/vrquake2.pk3..."
+pk3file=$outdir/vrquake2.pk3
+
+echo "Generating $pk3file ..."
 cd vrquake2.pk3/
 if [ ! -d $outdir ]; then
   mkdir -p $outdir
 fi
-zip -q -9 -r $outdir/vrquake2.pk3 *
+if [ -e $pk3file ]; then
+	if [ -z "`find -newer $pk3file -print -quit`" ]; then
+		echo "$pk3file up to date."
+		exit
+	fi
+fi
+zip -q -9 -r $pk3file *
 
