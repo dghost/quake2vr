@@ -262,14 +262,25 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-#ifdef _WIN32
-	if (vid_srgb->value)
-		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
-	else
-		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,0);
-#endif
 
-	mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+	if (vid_srgb->value)
+	{
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
+		mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+	}
+
+	if (!mainWindow)
+	{
+		// When using GLX, if an SRGB context is requested but not available,
+		// then SDL can't create a window. Try again without SRGB.
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,0);
+		mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+		if (mainWindow && vid_srgb->value)
+		{
+			VID_Printf( PRINT_ALL, "Warning: SRGB enabled but not supported\n" );
+			Cvar_SetInteger("vid_srgb",0);
+		}
+	}
 
 	if (!mainWindow)
 		return rserr_invalid_mode;
