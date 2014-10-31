@@ -69,6 +69,8 @@ extern cvar_t *vr_aimmode_deadzone_pitch;
 extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
+extern cvar_t *vr_hud_deadzone_yaw;
+extern cvar_t *vr_hud_fixed;
 extern cvar_t *vr_nosleep;
 extern cvar_t *vr_neckmodel;
 extern cvar_t *vr_neckmodel_up;

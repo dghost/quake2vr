@@ -43,6 +43,9 @@ static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
 static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
 static menulist_s		s_options_vr_viewmove_box;
 
+static menufield_s		s_options_vr_hud_deadzone_yaw_field;
+static menulist_s		s_options_vr_hud_fixed_box;
+
 static menuslider_s		s_options_vr_walkspeed_slider;
 
 static menulist_s		s_options_vr_autoipd_box;
@@ -58,6 +61,7 @@ static menuaction_s		s_options_vr_back_action;
 
 extern cvar_t *vr_aimmode_deadzone_yaw;
 extern cvar_t *vr_aimmode_deadzone_pitch;
+extern cvar_t *vr_hud_deadzone_yaw;
 extern cvar_t *vr_ipd;
 
 static void AimmodeFunc( void *unused )
@@ -92,10 +96,13 @@ static void VRSetMenuItemValues( void )
 	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
+	strcpy( s_options_vr_hud_deadzone_yaw_field.buffer, vr_hud_deadzone_yaw->string );
+	s_options_vr_hud_deadzone_yaw_field.cursor = strlen( vr_hud_deadzone_yaw->string );
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 	s_options_vr_walkspeed_slider.curvalue = (int) (( ClampCvar(0.5,1.5, Cvar_VariableValue("vr_walkspeed")) - 0.5) * 10.0);
 	s_options_vr_laser_box.curvalue = ( Cvar_VariableInteger("vr_aimlaser") );
+	s_options_vr_hud_fixed_box.curvalue = ( Cvar_VariableInteger("vr_hud_fixed") );
 
 }
 
@@ -110,12 +117,21 @@ static void VRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_autoipd");
 	Cvar_SetToDefault ("vr_ipd");
 	Cvar_SetToDefault ("vr_walkspeed");
+
+	Cvar_SetToDefault ("vr_hud_deadzone_yaw");
+	Cvar_SetToDefault ("vr_hud_fixed");
+
 	VRSetMenuItemValues();
 }
 
 static void LaserFunc( void *unused )
 {
 	Cvar_SetInteger("vr_aimlaser",s_options_vr_laser_box.curvalue);
+}
+
+static void HudFixedFunc( void *unused )
+{
+	Cvar_SetInteger("vr_hud_fixed",s_options_vr_hud_fixed_box.curvalue);
 }
 
 static void DeadzoneFunc ( void *unused )
@@ -128,10 +144,15 @@ static void DeadzoneFunc ( void *unused )
 	temp = ClampCvar(0,360,atof(s_options_vr_aimmode_deadzone_yaw_field.buffer));
 	Cvar_SetInteger("vr_aimmode_deadzone_yaw",temp);
 
+	temp = ClampCvar(0,360,atof(s_options_vr_hud_deadzone_yaw_field.buffer));
+	Cvar_SetInteger("vr_hud_deadzone_yaw",temp);
+
 	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
 	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
+	strcpy( s_options_vr_hud_deadzone_yaw_field.buffer, vr_hud_deadzone_yaw->string );
+	s_options_vr_hud_deadzone_yaw_field.cursor = strlen( vr_hud_deadzone_yaw->string );
 }
 
 static void WalkFunc (void *unused )
@@ -275,6 +296,26 @@ void Options_VR_MenuInit ( void )
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 
+	s_options_vr_hud_fixed_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_hud_fixed_box.generic.x				= MENU_FONT_SIZE;
+	s_options_vr_hud_fixed_box.generic.y				= y+=2*MENU_LINE_SIZE;
+	s_options_vr_hud_fixed_box.generic.name			= "fixed hud";
+	s_options_vr_hud_fixed_box.generic.callback		= HudFixedFunc;
+	s_options_vr_hud_fixed_box.itemnames				= yesno_names;
+	s_options_vr_hud_fixed_box.generic.statusbar		= "fixes the HUD in front of the user's face";
+
+	s_options_vr_hud_deadzone_yaw_field.generic.type = MTYPE_FIELD;
+	s_options_vr_hud_deadzone_yaw_field.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_hud_deadzone_yaw_field.generic.name = "HUD horizontal deadzone";
+	s_options_vr_hud_deadzone_yaw_field.generic.statusbar	= "sets the horizontal HUD view deadzone in degrees (when not fixed)";
+	s_options_vr_hud_deadzone_yaw_field.generic.callback = DeadzoneFunc;
+	s_options_vr_hud_deadzone_yaw_field.generic.x		= MENU_FONT_SIZE;
+	s_options_vr_hud_deadzone_yaw_field.generic.y		= y+=2*MENU_LINE_SIZE;
+	s_options_vr_hud_deadzone_yaw_field.length	= 5;
+	s_options_vr_hud_deadzone_yaw_field.visible_length = 5;
+	strcpy( s_options_vr_hud_deadzone_yaw_field.buffer, vr_hud_deadzone_yaw->string );
+	s_options_vr_hud_deadzone_yaw_field.cursor = strlen( vr_hud_deadzone_yaw->string );
+
 	s_options_vr_walkspeed_slider.generic.type		= MTYPE_SLIDER;
 	s_options_vr_walkspeed_slider.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_walkspeed_slider.generic.y			= y+=2*MENU_LINE_SIZE;
@@ -355,6 +396,8 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_hud_fixed_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_hud_deadzone_yaw_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_walkspeed_slider );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
