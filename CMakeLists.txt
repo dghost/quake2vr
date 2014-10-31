@@ -204,6 +204,6 @@ endif (!OVR_DYNAMIC)
 add_subdirectory(game)
 
 add_custom_target(data ALL
-  COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh
+  COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh "${CMAKE_BINARY_DIR}"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/misc/
 )

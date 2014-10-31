@@ -1,9 +1,16 @@
-#! /bin/bash
+#!/bin/bash
 
-echo "Generating vrquake2.pk3..."
-cd vrquake2.pk3/
-if [ ! -d "../../build/" ]; then
-  mkdir ../../build
+IFS=
+if [ $# -ge 1 ]; then
+	outdir=$1
+else
+	outdir=../../build
 fi
-zip -q -9 -r ../../build/vrquake2.pk3 *
+
+echo "Generating $outdir/vrquake2.pk3..."
+cd vrquake2.pk3/
+if [ ! -d $outdir ]; then
+  mkdir -p $outdir
+fi
+zip -q -9 -r $outdir/vrquake2.pk3 *
 
