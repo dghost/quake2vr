@@ -65,6 +65,8 @@ static r_shaderobject_t vr_shader_distort_chrm = {
 vr_distort_shader_t vr_distort_shaders[2];
 vr_param_t vrState;
 
+vec_t vr_hud_yaw = 0;
+
 //
 // Rendering related functions
 //
@@ -314,8 +316,7 @@ void R_VR_DrawHud()
 	float depth = vr_hud_depth->value;
 	int numsegments = vr_hud_segments->value;
 	int index = 0;
-	vec_t mat[4][4], temp[4][4];
-
+	vec_t mat[4][4], temp[4][4], counter[4][4];
 
 	if (!vr_enabled->value)
 		return;
@@ -349,6 +350,36 @@ void R_VR_DrawHud()
 		TranslationMatrix(0,0,0,mat);
 	}
 
+	TranslationMatrix(0,0,0,counter);
+
+	if (!vr_hud_fixed->value && !loadingScreen && ((int32_t) vr_aimmode->value > 0))
+	{
+		vec_t tmat[4][4];
+		vec_t angle_diff;
+		vec3_t e;
+		VR_GetOrientation(e);
+
+		angle_diff = e[1] - vr_hud_yaw;
+		AngleClamp(&angle_diff);
+		if (angle_diff < -vr_hud_deadzone_yaw->value)
+		{
+			vr_hud_yaw = e[1] + vr_hud_deadzone_yaw->value;
+		}
+		else if (angle_diff > vr_hud_deadzone_yaw->value)
+		{
+			vr_hud_yaw = e[1] - vr_hud_deadzone_yaw->value;
+		}
+
+		RotationMatrix(vr_hud_yaw - e[1], 0.0, 1.0, 0.0, tmat);
+		MatrixMultiply(counter, tmat, counter);
+
+		RotationMatrix(e[0], 1.0, 0.0, 0.0, tmat);
+		MatrixMultiply(counter, tmat, counter);
+
+		RotationMatrix(e[2], 0.0, 0.0, 1.0, tmat);
+		MatrixMultiply(counter, tmat, counter);
+	}
+
 	// set proper mode
 	glDisableClientState (GL_COLOR_ARRAY);
 
@@ -376,6 +407,7 @@ void R_VR_DrawHud()
 
 		// load the view matrix
 		MatrixMultiply(temp, mat, temp);
+		MatrixMultiply(counter, temp, temp);
 		GL_LoadMatrix(GL_MODELVIEW, temp);
 
 		// draw the hud for that eye

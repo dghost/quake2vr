@@ -24,6 +24,8 @@ cvar_t *vr_viewmove;
 cvar_t *vr_walkspeed;
 cvar_t *vr_hud_bounce;
 cvar_t *vr_hud_bounce_falloff;
+cvar_t *vr_hud_deadzone_yaw;
+cvar_t *vr_hud_fixed;
 cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
@@ -249,6 +251,17 @@ void VR_FrameStart()
 		vr_aimmode_deadzone_yaw->modified = false;
 	}
 
+	if (vr_hud_deadzone_yaw->modified)
+	{
+		if (vr_hud_deadzone_yaw->value < 0.0)
+			Cvar_SetInteger("vr_hud_deadzone_yaw",0);
+		else if (vr_hud_deadzone_yaw->value > 360)
+			Cvar_SetInteger("vr_hud_deadzone_yaw",360);
+		else
+			Cvar_SetInteger("vr_hud_deadzone_yaw",(int32_t) vr_hud_deadzone_yaw->value);
+		vr_hud_deadzone_yaw->modified = false;
+	}
+
 	if (vr_aimlaser->modified)
 	{
 		Cvar_SetInteger("vr_aimlaser",!!vr_aimlaser->value);
@@ -449,6 +462,8 @@ void VR_Startup(void)
 	vr_hud_fov = Cvar_Get("vr_hud_fov","58",CVAR_ARCHIVE);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","1.0",CVAR_ARCHIVE);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_ARCHIVE);
+	vr_hud_deadzone_yaw = Cvar_Get("vr_hud_deadzone_yaw","20",CVAR_ARCHIVE);
+	vr_hud_fixed = Cvar_Get("vr_hud_fixed","1",CVAR_ARCHIVE);
 	vr_hud_bounce = Cvar_Get("vr_hud_bounce","2",CVAR_ARCHIVE);
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
 	vr_force_resolution = Cvar_Get("vr_force_resolution","0",CVAR_ARCHIVE);

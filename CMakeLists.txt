@@ -3,8 +3,8 @@ project (quake2vr)
 set (quake2vr_VERSION_MAJOR 1)
 set (quake2vr_VERSION_MINOR 0)
 
-set (EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/)
-set (LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/)
+set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 include (CheckLibraryExists)
 include (FindOpenGL)
@@ -204,6 +204,6 @@ endif (!OVR_DYNAMIC)
 add_subdirectory(game)
 
 add_custom_target(data ALL
-  COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh
+  COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh "${CMAKE_BINARY_DIR}"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/misc/
 )
