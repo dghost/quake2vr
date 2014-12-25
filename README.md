@@ -21,11 +21,13 @@ This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incor
 ####Downloads
 Note: I've made several changes to both names of and what files get bundled with the executable and in the extras package for this release. If you run into any issues while upgrading, I suggest a clean install and copying saved games.
 
+
 ######Unstable Packages w/ DK2 support (v1.9.3):
 
-- Playable Quake II demo package w/ VR support (54MB): [Download 1](http://dgho.st/nSGn)
-- Quake II VR Binaries package (35MB): [Download 1](http://dgho.st/s954)
-- Quake II VR Binaries w/ HD Textures, Soundtrack + Multiplayer Mods (562MB): [Download 1](http://dgho.st/Wh3j)
+- Playable Quake II demo package w/ VR support (54MB): ~~[Download 1](http://dgho.st/nSGn)~~ (Currently Offline)
+- Quake II VR Binaries package (35MB): ~~[Download 1](http://dgho.st/s954)~~ (Currently Offline)
+- Quake II VR Binaries w/ HD Textures, Soundtrack + Multiplayer Mods (562MB): ~~[Download 1](http://dgho.st/Wh3j)~~ (Currently Offline) [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wTTEyaEVRdXVURzQ)
+- v1.9.3 Nightly w/ libovr-0.4.4 [Download 2](https://docs.google.com/uc?export=download&id=0B3vzoY9q6d-wOTlEWWkteEUwRlE)
 
 ######Stable Packages (v1.3.1):
 
