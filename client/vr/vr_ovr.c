@@ -46,11 +46,11 @@ static ovrBool sensorEnabled = 0;
 
 static ovrBool libovrInitialized = 0;
 
-static qboolean positionTracked;
-
 static double prediction_time;
 
 float cameraYaw = 0.0;
+qboolean positionTracked = false;
+qboolean hasPositionLock = false;
 
 hmd_interface_t hmd_rift = {
 	HMD_RIFT,
@@ -152,7 +152,7 @@ int32_t VR_OVR_getOrientation(float euler[3])
 	else
 		time = ovr_GetTimeInSeconds() + prediction_time;
 	trackingState = ovrHmd_GetTrackingState(hmd, time);
-	if (trackingState.StatusFlags & (ovrStatus_OrientationTracked ) )
+	if (trackingState.StatusFlags & ovrStatus_OrientationTracked )
 	{
 		vec3_t temp;
 		VR_OVR_QuatToEuler(trackingState.HeadPose.ThePose.Orientation,euler);
@@ -174,11 +174,12 @@ int32_t VR_OVR_getPosition(float pos[3])
 	if (!hmd)
 		return 0;
 
-	if (!sensorEnabled)
-		VR_OVR_InitSensor();
+//	if (!sensorEnabled)
+//		VR_OVR_InitSensor();
 
-	if (sensorEnabled)
+	if (sensorEnabled && positionTracked)
 	{
+		
 		tracked = trackingState.StatusFlags & ovrStatus_PositionTracked ? 1 : 0;
 		if (tracked)
 		{
@@ -187,16 +188,16 @@ int32_t VR_OVR_getPosition(float pos[3])
 			VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
 		}
 
-		if (hmd->TrackingCaps && ovrTrackingCap_Position)
+		if (trackingState.StatusFlags & ovrStatus_PositionConnected)
 		{ 
-			if (tracked && !positionTracked && vr_ovr_debug->value)
+			if (tracked && !hasPositionLock && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking enabled");
-			else if (!tracked && positionTracked && vr_ovr_debug->value)
+			else if (!tracked && hasPositionLock && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking interrupted");
 
 		}
 
-		positionTracked = tracked;
+		hasPositionLock = tracked;
 	}
 	return tracked;
 }
@@ -220,19 +221,7 @@ ovrBool VR_OVR_InitSensor()
 	sensorCaps |= ovrTrackingCap_Position;
 
 	sensorEnabled = ovrHmd_ConfigureTracking(hmd,sensorCaps, ovrTrackingCap_Orientation);
-	if (sensorEnabled)
-	{
-		ovrTrackingState ss;
-		ss = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
-		Com_Printf("VR_OVR: Successfully initialized sensors!\n");
 
-		if (ss.StatusFlags & ovrStatus_PositionConnected)
-			Com_Printf("...sensor has position tracking support\n");
-		if (ss.StatusFlags & ovrStatus_OrientationTracked)
-			Com_Printf("...orientation tracking enabled\n");
-		if (ss.StatusFlags & ovrStatus_PositionTracked)
-			Com_Printf("...position tracking enabled\n");
-	}
 	return sensorEnabled;
 }
 
@@ -463,9 +452,12 @@ int32_t VR_OVR_Enable()
 		Com_Printf("...supports low persistance\n");
 	if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)
 		Com_Printf("...supports dynamic motion prediction\n");
-	if (hmd->TrackingCaps & ovrTrackingCap_Position)
+	if (hmd->TrackingCaps & ovrTrackingCap_Position) {
+		positionTracked = (qboolean) true;
 		Com_Printf("...supports position tracking\n");
-
+	} else {
+		positionTracked = (qboolean) false;
+	}
 	Com_Printf("...has type %s\n", hmd->ProductName);
 	Com_Printf("...has %ux%u native resolution\n", hmd->Resolution.w, hmd->Resolution.h);
 

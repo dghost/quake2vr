@@ -31,6 +31,9 @@ extern ovrTrackingState trackingState;
 extern ovrFrameTiming frameTime;
 extern qboolean withinFrame;
 extern float cameraYaw;
+extern qboolean positionTracked;
+extern qboolean hasPositionLock;
+
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
 
@@ -343,12 +346,19 @@ void R_Clear (void);
 void OVR_Present(qboolean loading)
 {
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
-	float desaturate = (abs(cameraYaw) - 105.0f) * 0.04;
-	if (desaturate < 0.0)
-		desaturate = 0.0;
-	else if (desaturate > 1.0)
-		desaturate = 1.0;
-
+	float desaturate = 0.0;
+	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected) {
+		if (hasPositionLock) {
+			float yawDiff = (abs(cameraYaw) - 105.0f) * 0.04;
+			if (yawDiff < 0.0)
+				yawDiff = 0.0;
+			else if (yawDiff > 1.0)
+				yawDiff = 1.0;
+			desaturate = yawDiff;
+		} else {
+			desaturate = 1.0;
+		}
+	}
 	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
 	R_Clear();
 	GL_SetDefaultClearColor();	
@@ -391,7 +401,7 @@ void OVR_Present(qboolean loading)
 		}
 		glUniform2f(currentShader->uniform.InverseResolution,1.0/glState.currentFBO->width,1.0/glState.currentFBO->height);
 		glUniform1f(currentShader->uniform.VignetteFade,fade);
-		
+
 		glUniform1f(currentShader->uniform.Desaturate, desaturate);
 
 		for (i = 0; i < 2; i++)
