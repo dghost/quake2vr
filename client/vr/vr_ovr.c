@@ -137,7 +137,6 @@ void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e)
 	e[PITCH] = -RAD2DEG(e[PITCH]);
 	e[YAW] = RAD2DEG(e[YAW]);
 	e[ROLL] = -RAD2DEG(e[ROLL]);
-
 }
 
 int32_t VR_OVR_getOrientation(float euler[3])

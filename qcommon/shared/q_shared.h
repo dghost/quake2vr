@@ -95,6 +95,9 @@ typedef enum {false, true}	qboolean;
 #ifndef max
 #define max(a,b)        (((a) > (b)) ? (a) : (b))
 #endif
+#ifndef clamp
+#define clamp(x,a,b)	(x < a ? a : (x > b ? b : x))
+#endif
 
 // from Quake3 source
 #ifdef WIN32

@@ -1051,7 +1051,7 @@ void R_FrameFence (void);
 int32_t R_FrameSync (void);
 void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 void R_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar);
-
+void R_MakePerspectiveFromScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar, vec4_t out[4]);
 //
 // r_blur.c
 //

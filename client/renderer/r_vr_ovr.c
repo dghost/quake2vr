@@ -33,6 +33,7 @@ extern qboolean withinFrame;
 extern float cameraYaw;
 extern qboolean positionTracked;
 extern qboolean hasPositionLock;
+static vec4_t cameraFrustum[4];
 
 extern void VR_OVR_GetFOV(float *fovx, float *fovy);
 extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
@@ -55,6 +56,7 @@ static qboolean useChroma;
 
 static fbo_t offscreen[2];
 static int currentFrame = 0;
+
 
 r_attrib_t distAttribs[] = {
 	{"Position",0},
@@ -343,18 +345,50 @@ void OVR_GetState(vr_param_t *state)
 }
 
 void R_Clear (void);
+
+void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e);
 void OVR_Present(qboolean loading)
 {
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
 	float desaturate = 0.0;
+
 	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected) {
 		if (hasPositionLock) {
-			float yawDiff = (abs(cameraYaw) - 105.0f) * 0.04;
-			if (yawDiff < 0.0)
-				yawDiff = 0.0;
-			else if (yawDiff > 1.0)
-				yawDiff = 1.0;
-			desaturate = yawDiff;
+			float yawDiff = (fabsf(cameraYaw) - 105.0f) * 0.04;
+			float xBound,yBound,zBound;
+			vec_t fin[4][4];
+			int i = 0;
+			vec3_t euler;
+			vec4_t pos = {0.0,0.0,0.0,1.0};
+			vec4_t out = {0,0,0,0};
+			ovrPosef camera, head;
+			vec4_t quat;
+			camera = trackingState.CameraPose;
+			head = trackingState.HeadPose.ThePose;
+
+			pos[0] = -(head.Position.x - camera.Position.x);
+			pos[1] = head.Position.y - camera.Position.y;
+			pos[2] = -(head.Position.z - camera.Position.z);
+
+			VR_OVR_QuatToEuler(camera.Orientation,euler);
+			EulerToQuat(euler,quat);
+			QuatToRotation(quat,fin);
+			MatrixMultiply (cameraFrustum,fin,fin);
+
+			for (i=0; i<4; i++) {
+				out[i] = fin[i][0]*pos[0] + fin[i][1]*pos[1] + fin[i][2]*pos[2] + fin[i][3]*pos[3];
+			}
+
+			xBound = (fabsf(out[0]) - 0.6) * 6.25;
+			yBound = (fabsf(out[1]) - 0.45) * 6.25;
+			zBound = (fabsf(out[2] - 0.5) - 0.5) * 10.0;
+
+			yawDiff = clamp(yawDiff,0.0,1.0);
+			xBound = clamp(xBound,0.0,1.0);
+			yBound = clamp(yBound,0.0,1.0);
+			zBound = clamp(zBound,0.0,1.0);
+
+			desaturate = max(max(max(xBound,yBound),zBound),yawDiff);
 		} else {
 			desaturate = 1.0;
 		}
@@ -499,9 +533,12 @@ void OVR_PostPresent(void)
 
 }
 
+
 int32_t OVR_Enable(void)
 {
 	int i;
+	eyeScaleOffset_t camera;
+
 	if (!glConfig.arb_texture_float)
 		return 0;
 
@@ -519,6 +556,13 @@ int32_t OVR_Enable(void)
 		if (offscreen[i].valid)
 			R_DelFBO(&offscreen[i]);
 	}
+
+	camera.x.offset = 0.0;
+	camera.x.scale = 1.0 / tanf(hmd->CameraFrustumHFovInRadians * 0.5);
+	camera.y.offset = 0.0;
+	camera.y.scale = 1.0 / tanf(hmd->CameraFrustumVFovInRadians * 0.5);
+	R_MakePerspectiveFromScale(camera,hmd->CameraFrustumNearZInMeters, hmd->CameraFrustumFarZInMeters, cameraFrustum);
+
 
 	R_CreateIVBO(&renderInfo[0].eye,GL_STATIC_DRAW);
 	R_CreateIVBO(&renderInfo[1].eye,GL_STATIC_DRAW);
