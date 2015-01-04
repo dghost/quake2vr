@@ -10,11 +10,19 @@ varying vec2 oTexCoord;
 uniform vec2 InverseResolution;
 uniform vec2 OverdriveScales;
 uniform float VignetteFade;
+uniform float Desaturate;
+vec3 lumConversion = vec3(0.299, 0.587, 0.114);  // ITU-R BT.601 luma coefficients
 
 void main()
 {
 	vec3 newColor = texture2DLod(currentFrame, oTexCoord, 0.0).rgb;
 	
+	if (Desaturate > 0.0)
+	{
+		float lum = dot(newColor,lumConversion);
+		newColor = mix(newColor,vec3(lum),Desaturate);
+	}
+
 	if (VignetteFade > 0.0)
 	{
 		newColor = newColor * oColor.xxx;

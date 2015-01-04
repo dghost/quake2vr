@@ -139,6 +139,7 @@ typedef struct {
 		GLuint EyeRotationStart;
 		GLuint EyeRotationEnd;
 		GLuint OverdriveScales;
+		GLuint Desaturate;
 		GLuint VignetteFade;
 		GLuint InverseResolution;
 	} uniform;
@@ -164,7 +165,8 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 	shader->uniform.OverdriveScales = glGetUniformLocation(shader->shader->program,"OverdriveScales");
 	shader->uniform.VignetteFade = glGetUniformLocation(shader->shader->program,"VignetteFade");
 	shader->uniform.InverseResolution = glGetUniformLocation(shader->shader->program,"InverseResolution");
-	
+	shader->uniform.Desaturate = glGetUniformLocation(shader->shader->program,"Desaturate");
+
 	texloc = glGetUniformLocation(shader->shader->program,"currentFrame");
 	glUniform1i(texloc,0);
 	shader->uniform.currentFrame = texloc;
@@ -383,6 +385,8 @@ void OVR_Present(qboolean loading)
 		}
 		glUniform2f(currentShader->uniform.InverseResolution,1.0/glState.currentFBO->width,1.0/glState.currentFBO->height);
 		glUniform1f(currentShader->uniform.VignetteFade,fade);
+		
+		glUniform1f(currentShader->uniform.Desaturate,0.0);
 
 		for (i = 0; i < 2; i++)
 		{
