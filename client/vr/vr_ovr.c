@@ -159,6 +159,7 @@ int32_t VR_OVR_getOrientation(float euler[3])
 		if (trackingState.StatusFlags & ovrStatus_PositionTracked) {
 			VR_OVR_QuatToEuler(trackingState.LeveledCameraPose.Orientation,temp);
 			cameraYaw = euler[YAW] - temp[YAW];
+			AngleClamp(&cameraYaw);
 		} else {
 			cameraYaw = 0.0;
 		}

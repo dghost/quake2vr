@@ -188,7 +188,7 @@ void R_VR_StartFrame()
 {
 	qboolean resolutionChanged = 0;
 	qboolean hudChanged = 0;
-
+	vec3_t rot, pos;
 	extern int32_t scr_draw_loading;
 
 
@@ -283,6 +283,11 @@ void R_VR_StartFrame()
 	hudStale = 1;
 
 	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
+
+	// force pumping of these values;
+	VR_GetOrientation(rot);
+	VR_GetHeadOffset(pos);
+
 }
 
 void R_VR_GetFOV(float *fovx, float *fovy)
