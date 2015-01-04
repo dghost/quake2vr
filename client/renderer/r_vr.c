@@ -188,7 +188,6 @@ void R_VR_StartFrame()
 {
 	qboolean resolutionChanged = 0;
 	qboolean hudChanged = 0;
-	vec3_t rot, pos;
 	extern int32_t scr_draw_loading;
 
 
@@ -284,10 +283,6 @@ void R_VR_StartFrame()
 
 	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
 
-	// force pumping of these values;
-	VR_GetOrientation(rot);
-	VR_GetHeadOffset(pos);
-
 }
 
 void R_VR_GetFOV(float *fovx, float *fovy)
@@ -322,10 +317,15 @@ void R_VR_DrawHud()
 	int numsegments = vr_hud_segments->value;
 	int index = 0;
 	vec_t mat[4][4], temp[4][4], counter[4][4];
+	vec3_t rot, pos;
 
 	if (!vr_enabled->value)
 		return;
-	
+
+	// force pumping of these values;
+	VR_GetOrientation(rot);
+	VR_GetHeadOffset(pos);
+
 	// enable alpha testing so only pixels that have alpha info get written out
 	// prevents black pixels from being rendered into the view
 	GL_Enable(GL_ALPHA_TEST);
