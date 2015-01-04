@@ -50,6 +50,8 @@ static qboolean positionTracked;
 
 static double prediction_time;
 
+float cameraYaw = 0.0;
+
 hmd_interface_t hmd_rift = {
 	HMD_RIFT,
 	VR_OVR_Init,
@@ -152,7 +154,14 @@ int32_t VR_OVR_getOrientation(float euler[3])
 	trackingState = ovrHmd_GetTrackingState(hmd, time);
 	if (trackingState.StatusFlags & (ovrStatus_OrientationTracked ) )
 	{
+		vec3_t temp;
 		VR_OVR_QuatToEuler(trackingState.HeadPose.ThePose.Orientation,euler);
+		if (trackingState.StatusFlags & ovrStatus_PositionTracked) {
+			VR_OVR_QuatToEuler(trackingState.LeveledCameraPose.Orientation,temp);
+			cameraYaw = euler[YAW] - temp[YAW];
+		} else {
+			cameraYaw = 0.0;
+		}
 		return 1;
 	}
 	return 0;
