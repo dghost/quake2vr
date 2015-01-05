@@ -352,7 +352,7 @@ void OVR_Present(qboolean loading)
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
 	float desaturate = 0.0;
 
-	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected) {
+	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_ovr_trackingloss->value > 0) {
 		if (hasPositionLock) {
 			float yawDiff = (fabsf(cameraYaw) - 105.0f) * 0.04;
 			float xBound,yBound,zBound;

@@ -15,6 +15,7 @@ extern cvar_t *vr_ovr_maxfov;
 extern cvar_t *vr_ovr_autoprediction;
 extern cvar_t *vr_ovr_supersample;
 extern cvar_t *vr_ovr_timewarp;
+extern cvar_t *vr_ovr_trackingloss;
 extern cvar_t *vr_ovr_dk2_color_hack;
 extern cvar_t *vr_ovr_lowpersistence;
 extern cvar_t *vr_ovr_lumoverdrive;

@@ -34,6 +34,7 @@ cvar_t *vr_ovr_lowpersistence;
 cvar_t *vr_ovr_lumoverdrive;
 cvar_t *vr_ovr_distortion_fade;
 cvar_t *vr_ovr_latencytest;
+cvar_t *vr_ovr_trackingloss;
 
 ovrHmd hmd;
 ovrEyeRenderDesc eyeDesc[2];
@@ -188,13 +189,12 @@ int32_t VR_OVR_getPosition(float pos[3])
 			VectorScale(pos,(PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M),pos);
 		}
 
-		if (trackingState.StatusFlags & ovrStatus_PositionConnected)
+		if (vr_ovr_trackingloss->value > 0 && trackingState.StatusFlags & ovrStatus_PositionConnected)
 		{ 
 			if (tracked && !hasPositionLock && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking enabled");
 			else if (!tracked && hasPositionLock && vr_ovr_debug->value)
 				SCR_CenterAlert("Position tracking interrupted");
-
 		}
 
 		hasPositionLock = tracked;
@@ -498,6 +498,7 @@ int32_t VR_OVR_Init()
 	}
 	*/
 
+	vr_ovr_trackingloss = Cvar_Get("vr_ovr_trackingloss", "1", CVAR_ARCHIVE);
 	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
 	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
 	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
