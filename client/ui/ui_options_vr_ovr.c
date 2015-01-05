@@ -48,6 +48,8 @@ static menulist_s		s_options_vr_ovr_lumaoverdrive_box;
 static menulist_s		s_options_vr_ovr_dk2_color_hack_box;
 static menulist_s		s_options_vr_ovr_timewarp_box;
 static menulist_s		s_options_vr_ovr_debug_box;
+static menulist_s		s_options_vr_ovr_tracking_loss_box;
+static menulist_s		s_options_vr_ovr_vignette_box;
 
 
 static menuaction_s		s_options_vr_ovr_defaults_action;
@@ -87,6 +89,16 @@ static int FindSN()
 		i++;
 	}
 	return 0;
+}
+
+static void TrackingLossFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_ovr_trackingloss", s_options_vr_ovr_tracking_loss_box.curvalue);
+}
+
+static void VignetteFunc( void *unused )
+{
+	Cvar_SetInteger( "vr_ovr_distortion_fade", s_options_vr_ovr_vignette_box.curvalue);
 }
 
 static void ScaleFunc( void *unused )
@@ -155,6 +167,9 @@ static void VROVRSetMenuItemValues( void )
 	s_options_vr_ovr_lumaoverdrive_box.curvalue = ( Cvar_VariableInteger("vr_ovr_lumoverdrive") );
 	s_options_vr_ovr_dk2_color_hack_box.curvalue = ( Cvar_VariableInteger("vr_ovr_dk2_color_hack") );
 	s_options_vr_ovr_latencytest_box.curvalue = ( ClampCvar(0,1,Cvar_VariableInteger("vr_ovr_latencytest") ) );
+	s_options_vr_ovr_tracking_loss_box.curvalue = ( ClampCvar(0,1,Cvar_VariableInteger("vr_ovr_trackingloss") ) );
+	s_options_vr_ovr_vignette_box.curvalue = ( ClampCvar(0,1,Cvar_VariableInteger("vr_ovr_distortion_fade") ) );
+
 }
 
 static void VROVRResetDefaultsFunc ( void *unused )
@@ -169,6 +184,8 @@ static void VROVRResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault ("vr_ovr_dk2_color_hack");
 	Cvar_SetToDefault ("vr_ovr_device");
 	Cvar_SetToDefault ("vr_ovr_latencytest");
+	Cvar_SetToDefault ("vr_ovr_trackingloss");
+	Cvar_SetToDefault ("vr_ovr_distortion_fade");
 	VROVRSetMenuItemValues();
 }
 
@@ -184,18 +201,10 @@ static void BackFunc ( void *unused )
 
 void Options_VR_OVR_MenuInit ( void )
 {
-	static const char *yesno_names[] =
-	{
-		"no",
-		"yes",
-		0
-	};
-
-
 	static const char *scale_names[] = 
 	{
 		"default",
-		"screen maximum",
+		"maximum",
 		0
 	};
 
@@ -208,10 +217,10 @@ void Options_VR_OVR_MenuInit ( void )
 
 	static const char *debug_names[] =
 	{
-		"disabled",
-		"DK1 emulation",
-		"HD DK emulation",
-		"DK2 Emulation",
+		"none",
+		"DK1",
+		"HD DK",
+		"DK2",
 		0
 	};
 
@@ -276,6 +285,23 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_prediction_box.itemnames			= enable_names;
 	s_options_vr_ovr_prediction_box.generic.statusbar	= "sets motion prediction time automatically";
 
+
+	s_options_vr_ovr_tracking_loss_box.generic.type			= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_tracking_loss_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_tracking_loss_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_tracking_loss_box.generic.name			= "tracking loss warnings";
+	s_options_vr_ovr_tracking_loss_box.generic.callback		= TrackingLossFunc;
+	s_options_vr_ovr_tracking_loss_box.itemnames			= enable_names;
+	s_options_vr_ovr_tracking_loss_box.generic.statusbar	= "provides warning when approaching the tracking camera frustum";
+
+	s_options_vr_ovr_vignette_box.generic.type		= MTYPE_SPINCONTROL;
+	s_options_vr_ovr_vignette_box.generic.x			= MENU_FONT_SIZE;
+	s_options_vr_ovr_vignette_box.generic.y			= y+=MENU_LINE_SIZE;
+	s_options_vr_ovr_vignette_box.generic.name		= "distortion fade";
+	s_options_vr_ovr_vignette_box.generic.callback	= VignetteFunc;
+	s_options_vr_ovr_vignette_box.itemnames			= enable_names;
+	s_options_vr_ovr_vignette_box.generic.statusbar	= "fades the edges of the distorted view";
+
 	s_options_vr_ovr_maxfov_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_ovr_maxfov_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_maxfov_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -289,7 +315,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_lowpersistence_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_lowpersistence_box.generic.name		= "low persistence";
 	s_options_vr_ovr_lowpersistence_box.generic.callback	= PersistenceFunc;
-	s_options_vr_ovr_lowpersistence_box.itemnames			= yesno_names;
+	s_options_vr_ovr_lowpersistence_box.itemnames			= enable_names;
 	s_options_vr_ovr_lowpersistence_box.generic.statusbar	= "enables low persistence on DK2 and above";
 
 	s_options_vr_ovr_lumaoverdrive_box.generic.type		= MTYPE_SPINCONTROL;
@@ -297,7 +323,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_lumaoverdrive_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_lumaoverdrive_box.generic.name		= "luminance overdrive";
 	s_options_vr_ovr_lumaoverdrive_box.generic.callback	= LumaFunc;
-	s_options_vr_ovr_lumaoverdrive_box.itemnames			= yesno_names;
+	s_options_vr_ovr_lumaoverdrive_box.itemnames			= enable_names;
 	s_options_vr_ovr_lumaoverdrive_box.generic.statusbar	= "enables lumanance overdrive on DK2 and above";
 
 	s_options_vr_ovr_dk2_color_hack_box.generic.type		= MTYPE_SPINCONTROL;
@@ -305,7 +331,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_dk2_color_hack_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_dk2_color_hack_box.generic.name		= "DK2 black boost";
 	s_options_vr_ovr_dk2_color_hack_box.generic.callback	= ColorHackFunc;
-	s_options_vr_ovr_dk2_color_hack_box.itemnames			= yesno_names;
+	s_options_vr_ovr_dk2_color_hack_box.itemnames			= enable_names;
 	s_options_vr_ovr_dk2_color_hack_box.generic.statusbar	= "boosts black levels to reduce bluring on DK2 and above";
 
 	s_options_vr_ovr_latencytest_box.generic.type		= MTYPE_SPINCONTROL;
@@ -313,7 +339,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_latencytest_box.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_latencytest_box.generic.name		= "DK1 latency tester";
 	s_options_vr_ovr_latencytest_box.generic.callback	= LatencyFunc;
-	s_options_vr_ovr_latencytest_box.itemnames			= yesno_names;
+	s_options_vr_ovr_latencytest_box.itemnames			= enable_names;
 	s_options_vr_ovr_latencytest_box.generic.statusbar	= "enables support for DK1 external latency tester";
 
 	s_options_vr_ovr_debug_box.generic.type			= MTYPE_SPINCONTROL;
@@ -345,6 +371,8 @@ void Options_VR_OVR_MenuInit ( void )
 		Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_device_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_tracking_loss_box );
+	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_vignette_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_maxfov_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lowpersistence_box );	
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_lumaoverdrive_box );
