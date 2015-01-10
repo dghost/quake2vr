@@ -21,8 +21,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_image.c
 
 #include "include/r_local.h"
-//#include "r_cin.h"
-#include "include/jpeglib_local.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_FAILURE_USERMSG
+// strictly speaking these are unnecessary, but i'm paranoid
+#define STBI_MALLOC(sz) malloc(sz)
+#define STBI_REALLOC(p,sz) realloc(p,sz)
+#define STBI_FREE(p) free(p)
+#include "include/stb_image.h"
+
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "include/stb_image_resize.h"
+
 
 image_t		gltextures[MAX_GLTEXTURES];
 int32_t			numgltextures;
@@ -458,689 +468,40 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 	FS_FreeFile (pcx);
 }
 
+
 /*
 =========================================================
 
-TARGA LOADING
+STB_IMAGE LOADING
 
 =========================================================
 */
 
-// Definitions for image types
-#define TGA_Null      0   // no image data
-#define TGA_Map         1   // Uncompressed, color-mapped images
-#define TGA_RGB         2   // Uncompressed, RGB images
-#define TGA_Mono      3   // Uncompressed, black and white images
-#define TGA_RLEMap      9   // Runlength encoded color-mapped images
-#define TGA_RLERGB      10   // Runlength encoded RGB images
-#define TGA_RLEMono      11   // Compressed, black and white images
-#define TGA_CompMap      32   // Compressed color-mapped data, using Huffman, Delta, and runlength encoding
-#define TGA_CompMap4   33   // Compressed color-mapped data, using Huffman, Delta, and runlength encoding. 4-pass quadtree-type process
-// Definitions for interleave flag
-#define TGA_IL_None      0   // non-interleaved
-#define TGA_IL_Two      1   // two-way (even/odd) interleaving
-#define TGA_IL_Four      2   // four way interleaving
-#define TGA_IL_Reserved   3   // reserved
-// Definitions for origin flag
-#define TGA_O_UPPER      0   // Origin in lower left-hand corner
-#define TGA_O_LOWER      1   // Origin in upper left-hand corner
-#define MAXCOLORS 16384
-
-typedef struct _TargaHeader {
-	uint8_t 	id_length, colormap_type, image_type;
-	uint16_t	colormap_index, colormap_length;
-	uint8_t	colormap_size;
-	uint16_t	x_origin, y_origin, width, height;
-	uint8_t	pixel_size, attributes;
-} TargaHeader;
-
-#if 1
-
-/*
-=============
-R_LoadTGA
-NiceAss: LoadTGA() from Q2Ice, it supports more formats
-=============
-*/
-void R_LoadTGA( char *filename, byte **pic, int32_t *width, int32_t *height )
+void R_LoadSTB( char *filename, byte **pic, int32_t *width, int32_t *height )
 {
-   int32_t         w, h, x, y, i, temp1, temp2;
-   int32_t         realrow, truerow, baserow, size, interleave, origin;
-   int32_t         pixel_size, map_idx, mapped, rlencoded, RLE_count, RLE_flag;
-   TargaHeader   header;
-   byte      tmp[2], r, g, b, a, j, k, l;
-   byte      *dst, *ColorMap, *data, *pdata;
-
-   // load file
-   FS_LoadFile( filename, &data );
-
-   if( !data )
-      return;
-
-   pdata = data;
-
-   header.id_length = *pdata++;
-   header.colormap_type = *pdata++;
-   header.image_type = *pdata++;
-   
-   tmp[0] = pdata[0];
-   tmp[1] = pdata[1];
-   header.colormap_index = LittleShort( *((int16_t *)tmp) );
-   pdata+=2;
-   tmp[0] = pdata[0];
-   tmp[1] = pdata[1];
-   header.colormap_length = LittleShort( *((int16_t *)tmp) );
-   pdata+=2;
-   header.colormap_size = *pdata++;
-   header.x_origin = LittleShort( *((int16_t *)pdata) );
-   pdata+=2;
-   header.y_origin = LittleShort( *((int16_t *)pdata) );
-   pdata+=2;
-   header.width = LittleShort( *((int16_t *)pdata) );
-   pdata+=2;
-   header.height = LittleShort( *((int16_t *)pdata) );
-   pdata+=2;
-   header.pixel_size = *pdata++;
-   header.attributes = *pdata++;
-
-   if( header.id_length )
-      pdata += header.id_length;
-
-   // validate TGA type
-   switch( header.image_type ) {
-      case TGA_Map:
-      case TGA_RGB:
-      case TGA_Mono:
-      case TGA_RLEMap:
-      case TGA_RLERGB:
-      case TGA_RLEMono:
-         break;
-      default:
-         VID_Error ( ERR_DROP, "R_LoadTGA: Only type 1 (map), 2 (RGB), 3 (mono), 9 (RLEmap), 10 (RLERGB), 11 (RLEmono) TGA images supported\n" );
-         return;
-   }
-
-   // validate color depth
-   switch( header.pixel_size ) {
-      case 8:
-      case 15:
-      case 16:
-      case 24:
-      case 32:
-         break;
-      default:
-         VID_Error ( ERR_DROP, "R_LoadTGA: Only 8, 15, 16, 24 and 32 bit images (with colormaps) supported\n" );
-         return;
-   }
-
-   r = g = b = a = l = 0;
-
-   // if required, read the color map information
-   ColorMap = NULL;
-   mapped = ( header.image_type == TGA_Map || header.image_type == TGA_RLEMap || header.image_type == TGA_CompMap || header.image_type == TGA_CompMap4 ) && header.colormap_type == 1;
-   if( mapped ) {
-      // validate colormap size
-      switch( header.colormap_size ) {
-         case 8:
-         case 16:
-         case 32:
-         case 24:
-            break;
-         default:
-            VID_Error ( ERR_DROP, "R_LoadTGA: Only 8, 16, 24 and 32 bit colormaps supported\n" );
-            return;
-      }
-
-      temp1 = header.colormap_index;
-      temp2 = header.colormap_length;
-      if( (temp1 + temp2 + 1) >= MAXCOLORS ) {
-         FS_FreeFile( data );
-         return;
-      }
-      ColorMap = (byte *)malloc( MAXCOLORS * 4 );
-      map_idx = 0;
-      for( i = temp1; i < temp1 + temp2; ++i, map_idx += 4 ) {
-         // read appropriate number of bytes, break into rgb & put in map
-         switch( header.colormap_size ) {
-            case 8:
-               r = g = b = *pdata++;
-               a = 255;
-               break;
-            case 15:
-               j = *pdata++;
-               k = *pdata++;
-               l = ((uint32_t) k << 8) + j;
-               r = (byte) ( ((k & 0x7C) >> 2) << 3 );
-               g = (byte) ( (((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3 );
-               b = (byte) ( (j & 0x1F) << 3 );
-               a = 255;
-               break;
-            case 16:
-               j = *pdata++;
-               k = *pdata++;
-               l = ((uint32_t) k << 8) + j;
-               r = (byte) ( ((k & 0x7C) >> 2) << 3 );
-               g = (byte) ( (((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3 );
-               b = (byte) ( (j & 0x1F) << 3 );
-               a = (k & 0x80) ? 255 : 0;
-               break;
-            case 24:
-               b = *pdata++;
-               g = *pdata++;
-               r = *pdata++;
-               a = 255;
-               l = 0;
-               break;
-            case 32:
-               b = *pdata++;
-               g = *pdata++;
-               r = *pdata++;
-               a = *pdata++;
-               l = 0;
-               break;
-         }
-         ColorMap[map_idx + 0] = r;
-         ColorMap[map_idx + 1] = g;
-         ColorMap[map_idx + 2] = b;
-         ColorMap[map_idx + 3] = a;
-      }
-   }
-
-   // check run-length encoding
-   rlencoded = header.image_type == TGA_RLEMap || header.image_type == TGA_RLERGB || header.image_type == TGA_RLEMono;
-   RLE_count = 0;
-   RLE_flag = 0;
-
-   w = header.width;
-   h = header.height;
-
-   if( width )
-      *width = w;
-   if( height )
-      *height = h;
-
-   size = w * h * 4;
-   *pic = (byte *)malloc( size );
-
-   memset( *pic, 0, size );
-
-   // read the Targa file body and convert to portable format
-   pixel_size = header.pixel_size;
-   origin = (header.attributes & 0x20) >> 5;
-   interleave = (header.attributes & 0xC0) >> 6;
-   truerow = 0;
-   baserow = 0;
-   for( y = 0; y < h; y++ ) {
-      realrow = truerow;
-      if( origin == TGA_O_UPPER )
-         realrow = h - realrow - 1;
-
-      dst = *pic + realrow * w * 4;
-
-      for( x = 0; x < w; x++ ) {
-         // check if run length encoded
-         if( rlencoded ) {
-            if( !RLE_count ) {
-               // have to restart run
-               i = *pdata++;
-               RLE_flag = (i & 0x80);
-               if( !RLE_flag ) {
-                  // stream of unencoded pixels
-                  RLE_count = i + 1;
-               } else {
-                  // single pixel replicated
-                  RLE_count = i - 127;
-               }
-               // decrement count & get pixel
-               --RLE_count;
-            } else {
-               // have already read count & (at least) first pixel
-               --RLE_count;
-               if( RLE_flag )
-                  // replicated pixels
-                  goto PixEncode;
-            }
-         }
-
-         // read appropriate number of bytes, break into RGB
-         switch( pixel_size ) {
-            case 8:
-               r = g = b = l = *pdata++;
-               a = 255;
-               break;
-            case 15:
-               j = *pdata++;
-               k = *pdata++;
-               l = ((uint32_t) k << 8) + j;
-               r = (byte) ( ((k & 0x7C) >> 2) << 3 );
-               g = (byte) ( (((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3 );
-               b = (byte) ( (j & 0x1F) << 3 );
-               a = 255;
-               break;
-            case 16:
-               j = *pdata++;
-               k = *pdata++;
-               l = ((uint32_t) k << 8) + j;
-               r = (byte) ( ((k & 0x7C) >> 2) << 3 );
-               g = (byte) ( (((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3 );
-               b = (byte) ( (j & 0x1F) << 3 );
-               a = 255;
-               break;
-            case 24:
-               b = *pdata++;
-               g = *pdata++;
-               r = *pdata++;
-               a = 255;
-               l = 0;
-               break;
-            case 32:
-               b = *pdata++;
-               g = *pdata++;
-               r = *pdata++;
-               a = *pdata++;
-               l = 0;
-               break;
-            default:
-               VID_Error( ERR_DROP, "Illegal pixel_size '%d' in file '%s'\n", filename );
-               return;
-         }
-
-PixEncode:
-         if ( mapped )
-         {
-            map_idx = l * 4;
-            *dst++ = ColorMap[map_idx + 0];
-            *dst++ = ColorMap[map_idx + 1];
-            *dst++ = ColorMap[map_idx + 2];
-            *dst++ = ColorMap[map_idx + 3];
-         }
-         else
-         {
-            *dst++ = r;
-            *dst++ = g;
-            *dst++ = b;
-            *dst++ = a;
-         }
-      }
-
-      if (interleave == TGA_IL_Four)
-         truerow += 4;
-      else if (interleave == TGA_IL_Two)
-         truerow += 2;
-      else
-         truerow++;
-
-      if (truerow >= h)
-         truerow = ++baserow;
-   }
-
-   if (mapped)
-      free( ColorMap );
-   
-   FS_FreeFile( data );
-}
-
-#else
-
-/*
-=============
-R_LoadTGA
-=============
-*/
-void R_LoadTGA (char *name, byte **pic, int32_t *width, int32_t *height)
-{
-	int32_t		columns, rows, numPixels;
-	byte	*pixbuf;
-	int32_t		row, column;
-	byte	*buf_p;
-	byte	*buffer;
+	byte      *data;
+	int w, h, c;
+	stbi_uc *rgbadata;
 	int32_t		length;
-	TargaHeader		targa_header;
-	byte			*targa_rgba;
-	byte tmp[2];
 
-	*pic = NULL;
+	// load file
+	length = FS_LoadFile( filename, (void **) &data );
 
-	//
-	// load the file
-	//
-	length = FS_LoadFile (name, (void **)&buffer);
-	if (!buffer)
-	{	// Knightmare- removed this because it spams the console
-		//VID_Printf (PRINT_DEVELOPER, "Bad tga file %s\n", name);
+	if( !data )
+		return;
+
+	rgbadata = stbi_load_from_memory(data, length, &w, &h, &c, 4);
+
+	FS_FreeFile( data );
+
+	if (!rgbadata)	{
+		VID_Printf(PRINT_DEVELOPER, "R_LoadSTB Failed on file %s: %s\n",filename, stbi_failure_reason());
 		return;
 	}
-
-	buf_p = buffer;
-
-	targa_header.id_length = *buf_p++;
-	targa_header.colormap_type = *buf_p++;
-	targa_header.image_type = *buf_p++;
-	
-	tmp[0] = buf_p[0];
-	tmp[1] = buf_p[1];
-	targa_header.colormap_index = LittleShort ( *((int16_t *)tmp) );
-	buf_p+=2;
-	tmp[0] = buf_p[0];
-	tmp[1] = buf_p[1];
-	targa_header.colormap_length = LittleShort ( *((int16_t *)tmp) );
-	buf_p+=2;
-	targa_header.colormap_size = *buf_p++;
-	targa_header.x_origin = LittleShort ( *((int16_t *)buf_p) );
-	buf_p+=2;
-	targa_header.y_origin = LittleShort ( *((int16_t *)buf_p) );
-	buf_p+=2;
-	targa_header.width = LittleShort ( *((int16_t *)buf_p) );
-	buf_p+=2;
-	targa_header.height = LittleShort ( *((int16_t *)buf_p) );
-	buf_p+=2;
-	targa_header.pixel_size = *buf_p++;
-	targa_header.attributes = *buf_p++;
-
-	// Knightmare- check for bad data
-	if (!targa_header.width || !targa_header.height) {
-		VID_Printf (PRINT_ALL, "Bad tga file %s\n", name);
-		FS_FreeFile (buffer);
-		return;
-	}
-
-	if (targa_header.image_type != 2 
-		&& targa_header.image_type != 10) {
-	//	VID_Error (ERR_DROP, "R_LoadTGA: Only type 2 and 10 targa RGB images supported\n");
-		VID_Printf (PRINT_ALL, "R_LoadTGA: %s has wrong image format; only type 2 and 10 targa RGB images supported.\n", name);
-		FS_FreeFile (buffer);
-		return;
-	}
-
-	if (targa_header.colormap_type !=0 
-		|| (targa_header.pixel_size!=32 && targa_header.pixel_size!=24)) {
-	//	VID_Error (ERR_DROP, "R_LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n");
-		VID_Printf (PRINT_ALL, "R_LoadTGA: %s has wrong image format; only 32 or 24 bit images supported (no colormaps).\n", name);
-		FS_FreeFile (buffer);
-		return;
-	}
-
-	columns = targa_header.width;
-	rows = targa_header.height;
-	numPixels = columns * rows;
-
-	if (width)
-		*width = columns;
-	if (height)
-		*height = rows;
-
-	targa_rgba = malloc (numPixels*4);
-	*pic = targa_rgba;
-
-	if (targa_header.id_length != 0)
-		buf_p += targa_header.id_length;  // skip TARGA image comment
-	
-	if (targa_header.image_type==2) {  // Uncompressed, RGB images
-		for(row=rows-1; row>=0; row--) {
-			pixbuf = targa_rgba + row*columns*4;
-			for(column=0; column<columns; column++) {
-				uint8_t red,green,blue,alphabyte;
-				switch (targa_header.pixel_size) {
-					case 24:
-							
-							blue = *buf_p++;
-							green = *buf_p++;
-							red = *buf_p++;
-							*pixbuf++ = red;
-							*pixbuf++ = green;
-							*pixbuf++ = blue;
-							*pixbuf++ = 255;
-							break;
-					case 32:
-							blue = *buf_p++;
-							green = *buf_p++;
-							red = *buf_p++;
-							alphabyte = *buf_p++;
-							*pixbuf++ = red;
-							*pixbuf++ = green;
-							*pixbuf++ = blue;
-							*pixbuf++ = alphabyte;
-							break;
-				}
-			}
-		}
-	}
-	else if (targa_header.image_type==10) {   // Runlength encoded RGB images
-		uint8_t red,green,blue,alphabyte,packetHeader,packetSize,j;
-		for(row=rows-1; row>=0; row--) {
-			pixbuf = targa_rgba + row*columns*4;
-			for(column=0; column<columns; ) {
-				packetHeader= *buf_p++;
-				packetSize = 1 + (packetHeader & 0x7f);
-				if (packetHeader & 0x80) {        // run-length packet
-					switch (targa_header.pixel_size) {
-						case 24:
-								blue = *buf_p++;
-								green = *buf_p++;
-								red = *buf_p++;
-								alphabyte = 255;
-								break;
-						case 32:
-								blue = *buf_p++;
-								green = *buf_p++;
-								red = *buf_p++;
-								alphabyte = *buf_p++;
-								break;
-					}
-	
-					for(j=0;j<packetSize;j++) {
-						*pixbuf++=red;
-						*pixbuf++=green;
-						*pixbuf++=blue;
-						*pixbuf++=alphabyte;
-						column++;
-						if (column==columns) { // run spans across rows
-							column=0;
-							if (row>0)
-								row--;
-							else
-								goto breakOut;
-							pixbuf = targa_rgba + row*columns*4;
-						}
-					}
-				}
-				else {                            // non run-length packet
-					for(j=0;j<packetSize;j++) {
-						switch (targa_header.pixel_size) {
-							case 24:
-									blue = *buf_p++;
-									green = *buf_p++;
-									red = *buf_p++;
-									*pixbuf++ = red;
-									*pixbuf++ = green;
-									*pixbuf++ = blue;
-									*pixbuf++ = 255;
-									break;
-							case 32:
-									blue = *buf_p++;
-									green = *buf_p++;
-									red = *buf_p++;
-									alphabyte = *buf_p++;
-									*pixbuf++ = red;
-									*pixbuf++ = green;
-									*pixbuf++ = blue;
-									*pixbuf++ = alphabyte;
-									break;
-						}
-						column++;
-						if (column==columns) { // pixel packet run spans across rows
-							column=0;
-							if (row>0)
-								row--;
-							else
-								goto breakOut;
-							pixbuf = targa_rgba + row*columns*4;
-						}						
-					}
-				}
-			}
-			breakOut:;
-		}
-	}
-
-	FS_FreeFile (buffer);
-}
-
-#endif
-
-/*
-=================================================================
-
-JPEG LOADING
-
-By Robert 'Heffo' Heffernan
-
-=================================================================
-*/
-
-void jpg_null(j_decompress_ptr cinfo)
-{
-}
-
-uint8_t jpg_fill_input_buffer(j_decompress_ptr cinfo)
-{
-    VID_Printf(PRINT_ALL, "Premature end of JPEG data\n");
-    return 1;
-}
-
-void jpg_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
-{
-        
-    cinfo->src->next_input_byte += (size_t) num_bytes;
-    cinfo->src->bytes_in_buffer -= (size_t) num_bytes;
-
-    if (cinfo->src->bytes_in_buffer < 0) 
-		VID_Printf(PRINT_ALL, "Premature end of JPEG data\n");
-}
-
-void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, unsigned long len)
-{
-    cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));
-    cinfo->src->init_source = jpg_null;
-    cinfo->src->fill_input_buffer = jpg_fill_input_buffer;
-    cinfo->src->skip_input_data = jpg_skip_input_data;
-    cinfo->src->resync_to_restart = jpeg_resync_to_restart;
-    cinfo->src->term_source = jpg_null;
-    cinfo->src->bytes_in_buffer = (size_t) len;
-    cinfo->src->next_input_byte = mem;
-}
-
-#define DSTATE_START	200	/* after create_decompress */
-#define DSTATE_INHEADER	201	/* reading header markers, no SOS yet */
-
-/*
-==============
-R_LoadJPG
-==============
-*/
-void R_LoadJPG (char *filename, byte **pic, int32_t *width, int32_t *height)
-{
-	struct jpeg_decompress_struct	cinfo;
-	struct jpeg_error_mgr			jerr;
-	byte							*rawdata, *rgbadata, *scanline, *p, *q;
-	int32_t								rawsize, i;
-
-	// Load JPEG file into memory
-	rawsize = FS_LoadFile(filename, (void **)&rawdata);
-	if (!rawdata)
-	{
-	VID_Printf (PRINT_DEVELOPER, "Bad jpg file %s\n", filename);
-		return;	
-	}
-
-	// Knightmare- check for bad data
-	if (	rawdata[6] != 'J'
-		||	rawdata[7] != 'F'
-		||	rawdata[8] != 'I'
-		||	rawdata[9] != 'F') {
-		VID_Printf (PRINT_ALL, "Bad jpg file %s\n", filename);
-		FS_FreeFile(rawdata);
-		return;
-	}
-
-	// Initialise libJpeg Object
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-
-	// Feed JPEG memory into the libJpeg Object
-	jpeg_mem_src(&cinfo, rawdata, rawsize);
-
-	// Process JPEG header
-	jpeg_read_header(&cinfo, true); // bombs out here
-
-	// Start Decompression
-	jpeg_start_decompress(&cinfo);
-
-	// Check Color Components
-	if(cinfo.output_components != 3)
-	{
-		VID_Printf(PRINT_ALL, "Invalid JPEG color components\n");
-		jpeg_destroy_decompress(&cinfo);
-		FS_FreeFile(rawdata);
-		return;
-	}
-
-	// Allocate Memory for decompressed image
-	rgbadata = malloc(cinfo.output_width * cinfo.output_height * 4);
-	if(!rgbadata)
-	{
-		VID_Printf(PRINT_ALL, "Insufficient RAM for JPEG buffer\n");
-		jpeg_destroy_decompress(&cinfo);
-		FS_FreeFile(rawdata);
-		return;
-	}
-
-	// Pass sizes to output
-	*width = cinfo.output_width; *height = cinfo.output_height;
-
-	// Allocate Scanline buffer
-	scanline = malloc(cinfo.output_width * 3);
-	if(!scanline)
-	{
-		VID_Printf(PRINT_ALL, "Insufficient RAM for JPEG scanline buffer\n");
-		free(rgbadata);
-		jpeg_destroy_decompress(&cinfo);
-		FS_FreeFile(rawdata);
-		return;
-	}
-
-	// Read Scanlines, and expand from RGB to RGBA
-	q = rgbadata;
-	while(cinfo.output_scanline < cinfo.output_height)
-	{
-		p = scanline;
-		jpeg_read_scanlines(&cinfo, &scanline, 1);
-
-		for(i=0; i<cinfo.output_width; i++)
-		{
-			q[0] = p[0];
-			q[1] = p[1];
-			q[2] = p[2];
-			q[3] = 255;
-
-			p+=3; q+=4;
-		}
-	}
-
-	// Free the scanline buffer
-	free(scanline);
-
-	// Finish Decompression
-	jpeg_finish_decompress(&cinfo);
-
-	// Destroy JPEG object
-	jpeg_destroy_decompress(&cinfo);
-
-	// Free raw data buffer
-	FS_FreeFile(rawdata);
-
-	// Return the 'rgbadata'
 	*pic = rgbadata;
+	*width = (int32_t) w;
+	*height = (int32_t) h;
+	VID_Printf(PRINT_DEVELOPER, "R_LoadSTB Succeed: %s\n",filename);
 }
 
 
@@ -1228,157 +589,6 @@ void R_FloodFillSkin( byte *skin, int32_t skinwidth, int32_t skinheight )
 }
 
 //=======================================================
-
-
-
-/*
-================
-GL_ResampleTextureLerpLine
-from DarkPlaces
-================
-*/
-
-void GL_ResampleTextureLerpLine (byte *in, byte *out, int32_t inwidth, int32_t outwidth) 
-{ 
-	int32_t j, xi, oldx = 0, f, fstep, l1, l2, endx;
-
-	fstep = (int32_t) (inwidth*65536.0f/outwidth); 
-	endx = (inwidth-1); 
-	for (j = 0,f = 0;j < outwidth;j++, f += fstep) 
-	{ 
-		xi = (int32_t) f >> 16; 
-		if (xi != oldx) 
-		{ 
-			in += (xi - oldx) * 4; 
-			oldx = xi; 
-		} 
-		if (xi < endx) 
-		{ 
-			l2 = f & 0xFFFF; 
-			l1 = 0x10000 - l2; 
-			*out++ = (byte) ((in[0] * l1 + in[4] * l2) >> 16);
-			*out++ = (byte) ((in[1] * l1 + in[5] * l2) >> 16); 
-			*out++ = (byte) ((in[2] * l1 + in[6] * l2) >> 16); 
-			*out++ = (byte) ((in[3] * l1 + in[7] * l2) >> 16); 
-		} 
-		else // last pixel of the line has no pixel to lerp to 
-		{ 
-			*out++ = in[0]; 
-			*out++ = in[1]; 
-			*out++ = in[2]; 
-			*out++ = in[3]; 
-		} 
-	} 
-}
-
-/*
-================
-GL_ResampleTexture
-================
-*/
-void GL_ResampleTexture (void *indata, int32_t inwidth, int32_t inheight, void *outdata, int32_t outwidth, int32_t outheight) 
-{ 
-	int32_t i, j, yi, oldy, f, fstep, l1, l2, endy = (inheight-1);
-	
-	byte *inrow, *out, *row1, *row2; 
-	out = outdata; 
-	fstep = (int32_t) (inheight*65536.0f/outheight); 
-
-	row1 = malloc(outwidth*4); 
-	row2 = malloc(outwidth*4); 
-	inrow = indata; 
-	oldy = 0; 
-	GL_ResampleTextureLerpLine (inrow, row1, inwidth, outwidth); 
-	GL_ResampleTextureLerpLine (inrow + inwidth*4, row2, inwidth, outwidth); 
-	for (i = 0, f = 0;i < outheight;i++,f += fstep) 
-	{ 
-		yi = f >> 16; 
-		if (yi != oldy) 
-		{ 
-			inrow = (byte *)indata + inwidth*4*yi; 
-			if (yi == oldy+1) 
-				memcpy(row1, row2, outwidth*4); 
-			else 
-				GL_ResampleTextureLerpLine (inrow, row1, inwidth, outwidth);
-
-			if (yi < endy) 
-				GL_ResampleTextureLerpLine (inrow + inwidth*4, row2, inwidth, outwidth); 
-			else 
-				memcpy(row2, row1, outwidth*4); 
-			oldy = yi; 
-		} 
-		if (yi < endy) 
-		{ 
-			l2 = f & 0xFFFF; 
-			l1 = 0x10000 - l2; 
-			for (j = 0;j < outwidth;j++) 
-			{ 
-				*out++ = (byte) ((*row1++ * l1 + *row2++ * l2) >> 16); 
-				*out++ = (byte) ((*row1++ * l1 + *row2++ * l2) >> 16); 
-				*out++ = (byte) ((*row1++ * l1 + *row2++ * l2) >> 16); 
-				*out++ = (byte) ((*row1++ * l1 + *row2++ * l2) >> 16); 
-			} 
-			row1 -= outwidth*4; 
-			row2 -= outwidth*4; 
-		} 
-		else // last line has no pixels to lerp to 
-		{ 
-			for (j = 0;j < outwidth;j++) 
-			{ 
-				*out++ = *row1++; 
-				*out++ = *row1++; 
-				*out++ = *row1++; 
-				*out++ = *row1++; 
-			} 
-			row1 -= outwidth*4; 
-		} 
-	} 
-	free(row1); 
-	free(row2); 
-} 
-/*
-void GL_ResampleTexture (unsigned *in, int32_t inwidth, int32_t inheight, unsigned *out,  int32_t outwidth, int32_t outheight)
-{
-	int32_t		i, j;
-	unsigned	*inrow, *inrow2;
-	unsigned	frac, fracstep;
-	unsigned	p1[1024], p2[1024];
-	byte		*pix1, *pix2, *pix3, *pix4;
-
-	fracstep = inwidth*0x10000/outwidth;
-
-	frac = fracstep>>2;
-	for (i=0 ; i<outwidth ; i++)
-	{
-		p1[i] = 4*(frac>>16);
-		frac += fracstep;
-	}
-	frac = 3*(fracstep>>2);
-	for (i=0 ; i<outwidth ; i++)
-	{
-		p2[i] = 4*(frac>>16);
-		frac += fracstep;
-	}
-
-	for (i=0 ; i<outheight ; i++, out += outwidth)
-	{
-		inrow = in + inwidth*(int32_t)((i+0.25)*inheight/outheight);
-		inrow2 = in + inwidth*(int32_t)((i+0.75)*inheight/outheight);
-		frac = fracstep >> 1;
-		for (j=0 ; j<outwidth ; j++)
-		{
-			pix1 = (byte *)inrow + p1[j];
-			pix2 = (byte *)inrow + p2[j];
-			pix3 = (byte *)inrow2 + p1[j];
-			pix4 = (byte *)inrow2 + p2[j];
-			((byte *)(out+j))[0] = (pix1[0] + pix2[0] + pix3[0] + pix4[0])>>2;
-			((byte *)(out+j))[1] = (pix1[1] + pix2[1] + pix3[1] + pix4[1])>>2;
-			((byte *)(out+j))[2] = (pix1[2] + pix2[2] + pix3[2] + pix4[2])>>2;
-			((byte *)(out+j))[3] = (pix1[3] + pix2[3] + pix3[3] + pix4[3])>>2;
-		}
-	}
-}*/
-
 
 /*
 ================
@@ -1618,7 +828,11 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mi
 	if (scaled_width != width || scaled_height != height) 
 	{
 		scaled = malloc((scaled_width * scaled_height) * 4);
-		GL_ResampleTexture (data, width, height, scaled, scaled_width, scaled_height);
+		if (!stbir_resize_uint8((unsigned char *) data, (int) width, (int) height, 0, (unsigned char *) scaled, (int) scaled_width, (int) scaled_height, 0, 4)) {
+			scaled_width = width;
+			scaled_height = height;
+			scaled = data;
+		}
 	}
 	else
 	{
@@ -1773,7 +987,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	len = strlen(name); 
 	strcpy(s,name);
 	// check if we have a tga/jpg pic
-	if ((type == it_pic) && (!strcmp(s+len-4, ".tga") || !strcmp(s+len-4, ".jpg")) )
+	if ((type == it_pic) && (strcmp(s+len-4, ".pcx") || strcmp(s+len-4, ".wal")))
 	{ 
 		byte	*pic, *palette;
 		int32_t		pcxwidth, pcxheight;
@@ -1983,24 +1197,23 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	// don't try again to load an image that just failed
 	if (R_CheckImgFailed (name))
 	{
-		if (!strcmp(name+len-4, ".tga")) { // fall back to jpg
-			strcpy(s,name);
-			s[len-3]='j'; s[len-2]='p'; s[len-1]='g';
-			return R_FindImage(s,type);
-		}
-		else
-			return NULL;
+		return NULL;
 	}
 
 	// MrG's automatic JPG & TGA loading
 	// search for TGAs or JPGs to replace .pcx and .wal images
 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal"))
 	{
+		char fext[3][4] = {"tga","jpg","png"};
+		int i = 0;
 		strcpy(s,name);
-		s[len-3]='t'; s[len-2]='g'; s[len-1]='a';
-		image = R_FindImage(s,type);
-		if (image)
-			return image;
+		for (i; i < 3; i++) {
+			char *e = fext[i];
+			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
+			image = R_FindImage(s,type);
+			if (image)
+				return image;
+		}
 	}
 
 	//
@@ -2021,21 +1234,10 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	{
 		image = R_LoadWal (name, type);
 	}
-	else if (!strcmp(name+len-4, ".tga"))
+	else if (!strcmp(name+len-4, ".tga") || !strcmp(name+len-4, ".jpg")  || !strcmp(name+len-4, ".png"))
 	{
-		R_LoadTGA (name, &pic, &width, &height);
-		if (pic)
-			image = R_LoadPic (name, pic, width, height, type, 32);
-		else { // fall back to jpg
-			R_AddToFailedImgList(name);
-			strcpy(s,name);
-			s[len-3]='j'; s[len-2]='p'; s[len-1]='g';
-			return R_FindImage(s,type);
-		}
-	}
-	else if (!strcmp(name+len-4, ".jpg")) // Heffo - JPEG support
-	{
-		R_LoadJPG(name, &pic, &width, &height);
+		// use new loading code
+		R_LoadSTB(name, &pic, &width, &height);
 		if (pic)
 			image = R_LoadPic(name, pic, width, height, type, 32);
 		else
@@ -2057,8 +1259,6 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 		newcin->texnum = image->texnum;
 		image->is_cin = true;
 	}*/
-	else
-		image = NULL;
 
 	if (!image)
 		R_AddToFailedImgList(name);

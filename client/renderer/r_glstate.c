@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "include/r_local.h"
 
 fbo_t screenFBO;
+fbo_t *lastFrame;
 
 /*
 =================

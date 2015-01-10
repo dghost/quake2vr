@@ -116,7 +116,7 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovrd.lib;wsock32.lib;winmm.lib;zlibstat.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB ;MSVCRT.LIB</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
@@ -162,7 +162,7 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;steam_api.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -206,7 +206,7 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <AdditionalLibraryDirectories>external\sdl2\lib\x86\;external\Steam\redistributable_bin\;external\OculusSDK\LibOVR\Lib\Win32\VS2012\;external\glew\lib\Release\Win32\;backends\win32\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;libjpeg.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;xinput9_1_0.lib;libovr.lib;winmm.lib;wsock32.lib;zlibstat.lib;ogg_static.lib;vorbisfile_static.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>

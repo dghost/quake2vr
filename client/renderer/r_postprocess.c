@@ -63,27 +63,44 @@ static quad_vert_t quad_verts[4] = {
 	{ 1,  1	,1, 1}
 };
 
+static quad_vert_t inv_quad_verts[4] = {
+	{-1, -1	,0, 1},
+	{-1,  1	,0, 0},
+	{ 1, -1 ,1, 1},	
+	{ 1,  1	,1, 0}
+};
 buffer_t quad;
+buffer_t inv_quad;
 
 
-static qboolean setForQuad = false;
+static buffer_t *currentBuffer = NULL;
 void R_SetupQuadState()
 {
-	if (setForQuad)
-		return;
+	currentBuffer = &quad;
 	glDisableClientState (GL_COLOR_ARRAY);
 	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState (GL_VERTEX_ARRAY);
 	glEnableVertexAttribArray (0);
 	glEnableVertexAttribArray (1);
-	R_BindBuffer(&quad);
+	R_BindBuffer(currentBuffer);
 	R_SetAttribsVBO(postprocess_attribs,2);
-	setForQuad = true;
+}
+
+void R_SetupInvQuadState()
+{
+	currentBuffer = &inv_quad;
+	glDisableClientState (GL_COLOR_ARRAY);
+	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState (GL_VERTEX_ARRAY);
+	glEnableVertexAttribArray (0);
+	glEnableVertexAttribArray (1);
+	R_BindBuffer(currentBuffer);
+	R_SetAttribsVBO(postprocess_attribs,2);
 }
 
 void R_TeardownQuadState()
 {
-	if (!setForQuad)
+	if (currentBuffer == NULL)
 		return;
 	R_ReleaseBuffer(&quad);
 	glDisableVertexAttribArray (0);
@@ -91,18 +108,19 @@ void R_TeardownQuadState()
 	glEnableClientState (GL_COLOR_ARRAY);
 	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState (GL_VERTEX_ARRAY);
-	setForQuad = false;
+	currentBuffer = NULL;
 }
 
 void R_DrawQuad()
 {
-	qboolean needsSetup = !setForQuad;
+	qboolean needsSetup = !currentBuffer;
 	if (needsSetup)
 		R_SetupQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 	if (needsSetup)
 		R_TeardownQuadState();
 }
+
 
 /*
 =============
@@ -275,7 +293,7 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 	GL_MBind(0,texture);
 	glUseProgram(gammaAdjust.shader->program);
 	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
-	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);		
+	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);
 	if (((int32_t) vr_enabled->value) == HMD_RIFT && vr_ovr_dk2_color_hack->value)
 	{
 		float value = VR_OVR_GetGammaMin();
@@ -286,6 +304,22 @@ void R_BlitWithGamma(GLuint texture, float gamma)
 	GL_MBind(0,0);
 	glUseProgram(0);
 }
+
+void R_BlitWithGammaFlipped(GLuint texture, float gamma)
+{
+	GL_MBind(0,texture);
+	glUseProgram(gammaAdjust.shader->program);
+	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
+	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);
+	glUniform3f(gammaAdjust.mincolor_uniform,0.0,0.0,0.0);	
+	R_SetupInvQuadState();
+	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+	R_TeardownQuadState();
+	GL_MBind(0,0);
+	glUseProgram(0);
+}
+
+
 
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source)
 {
@@ -603,7 +637,6 @@ qboolean R_InitPostsprocessShaders()
 		glUniform1i(texloc,0);
 		gammaAdjust.blend_uniform = glGetUniformLocation(gammaAdjust.shader->program,"blendColor");
 		gammaAdjust.scale_uniform = glGetUniformLocation(gammaAdjust.shader->program,"texScale");
-		glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);	
 		gammaAdjust.gamma_uniform = glGetUniformLocation(gammaAdjust.shader->program,"gamma");
 		gammaAdjust.mincolor_uniform = glGetUniformLocation(gammaAdjust.shader->program,"minColor");
 		glUseProgram(0);
@@ -806,6 +839,11 @@ void R_PostProcessInit()
 		R_BindBuffer(&quad);
 		R_SetBuffer(&quad, sizeof(quad_vert_t) * 4,(void *)&quad_verts[0]);
 		R_ReleaseBuffer(&quad);
+		R_InitBuffer(&inv_quad);
+		R_CreateBuffer(&inv_quad, GL_ARRAY_BUFFER,GL_STATIC_DRAW);
+		R_BindBuffer(&inv_quad);
+		R_SetBuffer(&inv_quad, sizeof(quad_vert_t) * 4,(void *)&inv_quad_verts[0]);
+		R_ReleaseBuffer(&inv_quad);
 		R_InitPostsprocessShaders();
 	}
 }

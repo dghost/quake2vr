@@ -192,9 +192,9 @@ set(LINUX_SOURCES
   backends/unix/zip/unzip.c
   backends/unix/zip/ioapi.c
 )
-add_definitions(-DNO_STEAM -DUSE_SYSTEM_JPEGLIB)
+add_definitions(-DNO_STEAM)
 add_executable(quake2vr ${BASE_SOURCES} ${LINUX_SOURCES})
-target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} GLEW ogg vorbis vorbisfile jpeg z)
+target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} GLEW ogg vorbis vorbisfile z)
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 if (!OVR_DYNAMIC)

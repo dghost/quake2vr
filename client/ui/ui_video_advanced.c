@@ -53,8 +53,6 @@ static menulist_s		s_modelshading_box;
 static menulist_s		s_shadows_box;
 static menulist_s  		s_glass_envmap_box;
 static menuslider_s		s_blur_slider;
-static menulist_s  		s_screenshotjpeg_box;
-static menuslider_s  	s_screenshotjpegquality_slider;
 static menulist_s  		s_saveshotsize_box;
 static menulist_s  		s_fullscreenwindow_box;
 static menuaction_s		s_advanced_apply_action;
@@ -104,12 +102,6 @@ static void Video_Advanced_MenuSetValues ( void )
 
 	Cvar_SetValue( "r_blur_radius", ClampCvar( 0, 8, Cvar_VariableValue("r_blur_radius")));
 	s_blur_slider.curvalue = Cvar_VariableValue("r_blur_radius");
-
-	Cvar_SetValue( "r_screenshot_jpeg", ClampCvar( 0, 1, Cvar_VariableValue("r_screenshot_jpeg") ) );
-	s_screenshotjpeg_box.curvalue = Cvar_VariableValue("r_screenshot_jpeg");
-
-	Cvar_SetValue( "r_screenshot_jpeg_quality", ClampCvar( 50, 100, Cvar_VariableValue("r_screenshot_jpeg_quality") ) );
-	s_screenshotjpegquality_slider.curvalue	= (Cvar_VariableValue("r_screenshot_jpeg_quality") -50) / 5;
 
 	Cvar_SetValue( "r_saveshotsize", ClampCvar( 0, 1, Cvar_VariableValue("r_saveshotsize") ) );
 	s_saveshotsize_box.curvalue	= Cvar_VariableValue("r_saveshotsize");
@@ -177,16 +169,6 @@ static void ModelShadingCallback ( void *unused )
 static void ShadowsCallback ( void *unused )
 {
 	Cvar_SetValue( "r_shadows", s_shadows_box.curvalue);
-}
-
-static void JPEGScreenshotCallback ( void *unused )
-{
-	Cvar_SetValue( "r_screenshot_jpeg", s_screenshotjpeg_box.curvalue);
-}
-
-static void JPEGScreenshotQualityCallback ( void *unused )
-{
-	Cvar_SetValue( "r_screenshot_jpeg_quality", (s_screenshotjpegquality_slider.curvalue * 5 + 50));
 }
 
 static void SaveshotSizeCallback ( void *unused )
@@ -383,26 +365,9 @@ void Menu_Video_Advanced_Init (void)
 	s_shadows_box.itemnames					= shadow_names;
 	s_shadows_box.generic.statusbar			= "type of model shadows to draw";
 
-	s_screenshotjpeg_box.generic.type			= MTYPE_SPINCONTROL;
-	s_screenshotjpeg_box.generic.x				= 0;
-	s_screenshotjpeg_box.generic.y				= y += 2*MENU_LINE_SIZE;
-	s_screenshotjpeg_box.generic.name			= "JPEG screenshots";
-	s_screenshotjpeg_box.generic.callback		= JPEGScreenshotCallback;
-	s_screenshotjpeg_box.itemnames				= yesno_names;
-	s_screenshotjpeg_box.generic.statusbar		= "whether to take JPG screenshots instead of TGA";
-
-	s_screenshotjpegquality_slider.generic.type			= MTYPE_SLIDER;
-	s_screenshotjpegquality_slider.generic.x			= 0;
-	s_screenshotjpegquality_slider.generic.y			= y += MENU_LINE_SIZE;
-	s_screenshotjpegquality_slider.generic.name			= "JPEG screenshot quality";
-	s_screenshotjpegquality_slider.generic.callback		= JPEGScreenshotQualityCallback;
-	s_screenshotjpegquality_slider.minvalue				= 0;
-	s_screenshotjpegquality_slider.maxvalue				= 10;
-	s_screenshotjpegquality_slider.generic.statusbar	= "quality of JPG screenshots, 50-100%";
-
 	s_saveshotsize_box.generic.type				= MTYPE_SPINCONTROL;
 	s_saveshotsize_box.generic.x				= 0;
-	s_saveshotsize_box.generic.y				= y += MENU_LINE_SIZE;
+	s_saveshotsize_box.generic.y				= y += 2*MENU_LINE_SIZE;
 	s_saveshotsize_box.generic.name				= "hi-res saveshots";
 	s_saveshotsize_box.generic.callback			= SaveshotSizeCallback;
 	s_saveshotsize_box.itemnames				= yesno_names;
@@ -410,7 +375,7 @@ void Menu_Video_Advanced_Init (void)
 
 	s_fullscreenwindow_box.generic.type			= MTYPE_SPINCONTROL;
 	s_fullscreenwindow_box.generic.x				= 0;
-	s_fullscreenwindow_box.generic.y				= y += 2*MENU_LINE_SIZE;
+	s_fullscreenwindow_box.generic.y				= y += MENU_LINE_SIZE;
 	s_fullscreenwindow_box.generic.name			= "fullscreen window";
 	s_fullscreenwindow_box.generic.callback		= FSWindowCallback;
 	s_fullscreenwindow_box.itemnames				= yesno_names;
@@ -444,8 +409,6 @@ void Menu_Video_Advanced_Init (void)
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_lightbloom_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_modelshading_box );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_shadows_box );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpeg_box );
-	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_screenshotjpegquality_slider );
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_saveshotsize_box );
 
 	Menu_AddItem( &s_video_advanced_menu, ( void * ) &s_fullscreenwindow_box );

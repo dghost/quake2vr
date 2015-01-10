@@ -269,9 +269,6 @@ extern	cvar_t	*r_shelltype; // entity shells: 0 = solid, 1 = warp, 2 = spheremap
 
 extern	cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-settable
 
-extern	cvar_t	*r_screenshot_jpeg;			// Heffo - JPEG Screenshots
-extern	cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
-
 extern	cvar_t	*r_bitdepth;
 extern	cvar_t	*r_lightmap;
 extern	cvar_t	*r_shadows;
@@ -664,14 +661,10 @@ void	r_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols,
 // r_image.c
 //
 int32_t		Draw_GetPalette (void);
-//void GL_ResampleTexture (unsigned *in, int32_t inwidth, int32_t inheight, unsigned *out,  int32_t outwidth, int32_t outheight);
-void GL_ResampleTexture (void *indata, int32_t inwidth, int32_t inheight, void *outdata,  int32_t outwidth, int32_t outheight);
 struct image_s *R_RegisterSkin (char *name);
 
 void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_t *height);
 //Knightmare added
-void LoadTGA (char *name, byte **pic, int32_t *width, int32_t *height);
-void LoadJPG (char *filename, byte **pic, int32_t *width, int32_t *height);
 
 image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imagetype_t type, int32_t bits);
 image_t	*R_FindImage (char *name, imagetype_t type);
@@ -879,6 +872,7 @@ extern glstate_t   glState;
 // r_glstate.c
 //
 extern fbo_t screenFBO;
+extern fbo_t *lastFrame;
 void	GL_Stencil (qboolean enable, qboolean shell);
 void	R_ParticleStencil (int32_t passnum);
 qboolean GL_HasStencil (void);
@@ -1063,6 +1057,7 @@ void R_SetupBlit();
 void R_TeardownBlit();
 void R_BlitTextureToScreen(GLuint texture);
 void R_BlitWithGamma(GLuint texture, float gamma);
+void R_BlitWithGammaFlipped(GLuint texture, float gamma);
 void R_FXAAFBO(fbo_t *source);
 void R_BlurFBO(float blurScale, float blendColor[4], fbo_t *source);
 void R_BloomFBO(fbo_t *source);

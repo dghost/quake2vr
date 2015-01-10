@@ -170,7 +170,7 @@ void SV_WipeSavegame (char *savename)
 	Com_sprintf (name, sizeof(name), "%s/save/%s/game.ssv", FS_Gamedir (), savename);
 	remove (name);
 	// Knightmare- delete screenshot
-	Com_sprintf (name, sizeof(name), "%s/save/%s/shot.jpg", FS_Gamedir (), savename);
+	Com_sprintf (name, sizeof(name), "%s/save/%s/shot.png", FS_Gamedir (), savename);
 	remove (name);
 
 	Com_sprintf (name, sizeof(name), "%s/save/%s/*.sav", FS_Gamedir (), savename);
@@ -256,8 +256,8 @@ void SV_CopySaveGame (char *src, char *dst)
 	// Knightmare- copy screenshot
 	if (strcmp(dst, "vrsave0")) // no screenshot for start of level autosaves
 	{
-		Com_sprintf (name, sizeof(name), "%s/save/%s/shot.jpg", FS_Gamedir(), src);
-		Com_sprintf (name2, sizeof(name2), "%s/save/%s/shot.jpg", FS_Gamedir(), dst);
+		Com_sprintf (name, sizeof(name), "%s/save/%s/shot.png", FS_Gamedir(), src);
+		Com_sprintf (name2, sizeof(name2), "%s/save/%s/shot.png", FS_Gamedir(), dst);
 		CopyFile (name, name2);
 	}
 
@@ -430,7 +430,7 @@ void SV_WriteScreenshot (void)
 
 	Com_DPrintf("SV_WriteScreenshot()\n");
 
-	Com_sprintf (name, sizeof(name), "%s/save/current/shot.jpg", FS_Gamedir());
+	Com_sprintf (name, sizeof(name), "%s/save/current/shot.png", FS_Gamedir());
 
 	R_ScaledScreenshot(name);
 }
@@ -682,9 +682,9 @@ void SV_Loadgame_f (void)
 	// Knightmare- set saveshot name
 	if ( !dedicated->value && (!strcmp(Cmd_Argv(1), "quick") || !strcmp(Cmd_Argv(1), "quik")) )
 	{
-		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "save/%s/shot.jpg", Cmd_Argv(1));
+		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "save/%s/shot.png", Cmd_Argv(1));
 		R_FreePic (sv_loadshotname);
-		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "/save/%s/shot.jpg", Cmd_Argv(1));
+		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "/save/%s/shot.png", Cmd_Argv(1));
 		load_saveshot = sv_loadshotname;
 	}
 

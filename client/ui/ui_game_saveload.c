@@ -138,9 +138,9 @@ void ValidateSaveshots (void)
 				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
 			else
 			{	// free previously loaded shots
-				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.jpg", i);
+				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.png", i);
 				R_FreePic (shotname);
-				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.jpg", i);
+				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.png", i);
 			}
 			if (R_DrawFindPic(shotname))
 				m_saveshotvalid[i] = true;
@@ -220,7 +220,7 @@ void DrawSaveshot (qboolean loadmenu)
 
 	if ( i != 0 && m_savevalid[i] && m_saveshotvalid[i] )
 	{
-		Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.jpg", i);
+		Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.png", i);
 
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, shotname, 1.0);
 	}
@@ -255,7 +255,7 @@ void LoadGameCallback( void *self )
 
 	// set saveshot name here
 	if ( m_saveshotvalid[ a->generic.localdata[0] ] ) {
-		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%i/shot.jpg", a->generic.localdata[0]);
+		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%i/shot.png", a->generic.localdata[0]);
 		load_saveshot = loadshotname; }
 	else
 		load_saveshot = NULL;

@@ -116,8 +116,6 @@ cvar_t	*r_entity_fliproll;		// allow disabling of backwards alias model roll
 cvar_t	*r_glass_envmaps; // Psychospaz's envmapping
 cvar_t	*r_trans_surf_sorting; // trans bmodel sorting
 cvar_t	*r_shelltype; // entity shells: 0 = solid, 1 = warp, 2 = spheremap
-cvar_t	*r_screenshot_jpeg;			// Heffo - JPEG Screenshots
-cvar_t	*r_screenshot_jpeg_quality;	// Heffo - JPEG Screenshots
 
 cvar_t	*r_lightcutoff;	//** DMP - allow dynamic light cutoff to be user-settable
 
@@ -1167,7 +1165,7 @@ void R_Register (void)
 
 	//gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "0", CVAR_ARCHIVE );
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
-	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
+	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "0", CVAR_ARCHIVE /*| CVAR_LATCH*/);
 
 	// allow disabling of lightmaps on trans surfaces
 	r_trans_lighting = Cvar_Get( "r_trans_lighting", "1", CVAR_ARCHIVE );
@@ -1185,10 +1183,6 @@ void R_Register (void)
 	r_glass_envmaps = Cvar_Get( "r_glass_envmaps", "1", CVAR_ARCHIVE );
 	r_trans_surf_sorting = Cvar_Get( "r_trans_surf_sorting", "0", CVAR_ARCHIVE );
 	r_shelltype = Cvar_Get( "r_shelltype", "1", CVAR_ARCHIVE );
-
-	r_screenshot_jpeg = Cvar_Get( "r_screenshot_jpeg", "1", CVAR_ARCHIVE );					// Heffo - JPEG Screenshots
-	r_screenshot_jpeg_quality = Cvar_Get( "r_screenshot_jpeg_quality", "85", CVAR_ARCHIVE );	// Heffo - JPEG Screenshots
-
 
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
 	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
@@ -1937,7 +1931,8 @@ void R_EndFrame(void)
 {
 	int32_t		err;
 	fbo_t *frame = &viewFBO;
-
+	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && vid_srgb->value);
+	qboolean vr = (qboolean) (vr_enabled->value != 0);
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
 
@@ -1956,24 +1951,26 @@ void R_EndFrame(void)
 	R_Clear();
 	glColor4f(1.0,1.0,1.0,1.0);
 
-	if (vr_enabled->value)
+	if (vr)
 	{
 		frame = R_VR_GetFrameFBO();
 	} 
 
-	if (glConfig.srgb_framebuffer && vid_srgb->value)
+	if (srgb)
 	{
 		glEnable(GL_FRAMEBUFFER_SRGB);
 	}	
 
 	R_BlitWithGamma(frame->texture,vid_gamma);
 
-	if (glConfig.srgb_framebuffer && vid_srgb->value)
+	if (srgb)
 	{
 		glDisable(GL_FRAMEBUFFER_SRGB);
 	}	
-	if (vr_enabled->value)
+	if (vr)
 		R_VR_PostGammaPresent();
+
+	lastFrame = frame;
 
 	GLimp_EndFrame();
 	

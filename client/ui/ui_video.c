@@ -165,8 +165,6 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_model_shading");
 	Cvar_SetToDefault ("r_shadows");
 	Cvar_SetToDefault ("r_shelltype");
-	Cvar_SetToDefault ("r_screenshot_jpeg");
-	Cvar_SetToDefault ("r_screenshot_jpeg_quality");
 	Cvar_SetToDefault ("r_saveshotsize");
 	Cvar_SetToDefault ("r_antialias");
 	Cvar_SetToDefault ("r_s3tc");
