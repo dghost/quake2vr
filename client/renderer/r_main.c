@@ -157,7 +157,7 @@ cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
-cvar_t  *r_s3tc;
+cvar_t  *r_texturecompression;
 cvar_t	*vid_fullscreen;
 cvar_t  *vid_desktop_fullscreen;
 cvar_t  *vid_brightness;
@@ -1161,7 +1161,7 @@ void R_Register (void)
 	r_anisotropic = Cvar_Get( "r_anisotropic", "0", CVAR_ARCHIVE );
 	r_anisotropic_avail = Cvar_Get( "r_anisotropic_avail", "0", 0 );
 	r_lockpvs = Cvar_Get( "r_lockpvs", "0", 0 );
-	r_s3tc = Cvar_Get("r_s3tc","1", CVAR_ARCHIVE);
+	r_texturecompression = Cvar_Get("r_texturecompression","2", CVAR_ARCHIVE);
 
 	//gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "0", CVAR_ARCHIVE );
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
@@ -1609,6 +1609,25 @@ qboolean R_Init ( char *reason )
 	} else {
 		VID_Printf (PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n" );
 		glConfig.ext_texture_compression_s3tc = false;
+	}
+
+	glConfig.arb_texture_compression_bptc = false;
+	if (GLEW_ARB_texture_compression_bptc)
+	{
+		// ignore GL_ARB_texture_compression_bptc on Intel.
+		// Does it suffer the same performance loss as s3tc? 
+		// 
+		if ( !((glConfig.rendType & GLREND_INTEL) && r_driver_workarounds->value) )
+		{
+			VID_Printf (PRINT_ALL, "...using GL_ARB_texture_compression_bptc\n" );
+			glConfig.arb_texture_compression_bptc = true;
+		} else {
+			VID_Printf (PRINT_ALL, "...ignoring GL_ARB_texture_compression_bptc on Intel GPUs\n" );
+			glConfig.arb_texture_compression_bptc = false;
+		}
+	} else {
+		VID_Printf (PRINT_ALL, "...GL_ARB_texture_compression_bptc not found\n" );
+		glConfig.arb_texture_compression_bptc = false;
 	}
 
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);

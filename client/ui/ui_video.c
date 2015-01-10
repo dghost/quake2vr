@@ -167,7 +167,7 @@ static void ResetVideoDefaults ( void *unused )
 	Cvar_SetToDefault ("r_shelltype");
 	Cvar_SetToDefault ("r_saveshotsize");
 	Cvar_SetToDefault ("r_antialias");
-	Cvar_SetToDefault ("r_s3tc");
+	Cvar_SetToDefault ("r_texturecompression");
 	Menu_Video_Init();
 }
 
@@ -197,7 +197,7 @@ static void ApplyChanges( void *unused )
 	Cvar_SetValue( "vid_fullscreen", s_fs_box.curvalue );
 	Cvar_SetValue( "vid_brightness", s_brightness_slider.curvalue/20.0f );
 	Cvar_SetValue( "r_picmip", 3-s_texqual_box.curvalue );
-	Cvar_SetValue( "r_s3tc",s_texcompress_box.curvalue);
+	Cvar_SetValue( "r_texturecompression",s_texcompress_box.curvalue);
 	// Knightmare- refesh rate option
 	switch (s_refresh_box.curvalue)
 	{
@@ -467,6 +467,15 @@ void Menu_Video_Init (void)
 		0
 	};
 
+	static const char *compression_names[] =
+	{
+		"off",
+		"low quality",
+		"high quality",
+		0
+	};
+
+
 	int32_t		y = 0;
 	float	temp;
 
@@ -555,14 +564,14 @@ void Menu_Video_Init (void)
 	s_texqual_box.itemnames			= lmh_names;
 	s_texqual_box.generic.statusbar	= "changes maximum texture size (highest = no limit)";
 
-	if (glConfig.ext_texture_compression_s3tc)
+	if (glConfig.ext_texture_compression_s3tc || glConfig.arb_texture_compression_bptc)
 	{
 		s_texcompress_box.generic.type		= MTYPE_SPINCONTROL;
 		s_texcompress_box.generic.x			= 0;
 		s_texcompress_box.generic.y			= y += MENU_LINE_SIZE;
 		s_texcompress_box.generic.name		= "texture compression";
-		s_texcompress_box.itemnames			= yesno_names;
-		s_texcompress_box.curvalue			= ClampCvar(0,1,Cvar_VariableValue("r_s3tc"));
+		s_texcompress_box.itemnames			= compression_names;
+		s_texcompress_box.curvalue			= ClampCvar(0,2,Cvar_VariableValue("r_texturecompression"));
 		s_texcompress_box.generic.statusbar	= "enables texture compression";
 	}
 

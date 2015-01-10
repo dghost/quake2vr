@@ -639,7 +639,7 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *r
 	else {
 		glMedia.rawtexture->upload_width = rawWidth;
 		glMedia.rawtexture->upload_height = rawHeight;
-		glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_solid_format, rawWidth, rawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw);
+		glTexImage2D(GL_TEXTURE_2D, 0, gl_raw_tex_solid_format, rawWidth, rawHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw);
 	}
 
 	//if (noDraw)
@@ -726,7 +726,7 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols,
 			}
 		}
 
-		glTexImage2D (GL_TEXTURE_2D, 0, gl_tex_solid_format, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, image32);
+		glTexImage2D (GL_TEXTURE_2D, 0, gl_raw_tex_solid_format, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, image32);
 	}
 	else
 	{

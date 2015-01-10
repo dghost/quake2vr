@@ -52,10 +52,10 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height,  qboolean m
 
 int32_t		gl_solid_format = GL_RGB;
 int32_t		gl_alpha_format = GL_RGBA;
-int32_t		gl_tex_solid_format = GL_RGB;
-int32_t		gl_tex_alpha_format = GL_RGBA;
-int32_t		gl_compressed_tex_solid_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-int32_t		gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+int32_t		gl_raw_tex_solid_format = GL_RGB;
+int32_t		gl_raw_tex_alpha_format = GL_RGBA;
+int32_t		gl_compressed_tex_solid_format = GL_RGB;
+int32_t		gl_compressed_tex_alpha_format = GL_RGBA;
 int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
@@ -207,7 +207,7 @@ void GL_TextureAlphaMode( char *string )
 		return;
 	}
 
-	gl_tex_alpha_format = gl_alpha_modes[i].mode;
+	gl_raw_tex_alpha_format = gl_alpha_modes[i].mode;
 }
 
 /*
@@ -231,7 +231,7 @@ void GL_TextureSolidMode( char *string )
 		return;
 	}
 
-	gl_tex_solid_format = gl_solid_modes[i].mode;
+	gl_raw_tex_solid_format = gl_solid_modes[i].mode;
 }
 
 /*
@@ -768,17 +768,11 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mi
 
 	if (samples == gl_solid_format)
 	{
-		if (r_s3tc->value && glConfig.ext_texture_compression_s3tc)
-			comp = gl_compressed_tex_solid_format;
-		else
-			comp = gl_tex_solid_format;
+		comp = gl_compressed_tex_solid_format;
 	}
 	else if (samples == gl_alpha_format)
 	{
-		if (r_s3tc->value && glConfig.ext_texture_compression_s3tc)
-			comp = gl_compressed_tex_alpha_format;
-		else
-			comp = gl_tex_alpha_format;
+		comp = gl_compressed_tex_alpha_format;
 	}
 
 	//
@@ -1421,10 +1415,20 @@ void R_InitImages (void)
 	// this is needed because the renderer is no longer a DLL
 	gl_solid_format = GL_RGB;
 	gl_alpha_format = GL_RGBA;
-	gl_tex_solid_format = GL_RGB;
-	gl_tex_alpha_format = GL_RGBA;
-	gl_compressed_tex_solid_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-	gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	gl_raw_tex_solid_format = GL_RGB;
+	gl_raw_tex_alpha_format = GL_RGBA;
+
+	if (r_texturecompression->value > 1 && glConfig.arb_texture_compression_bptc) 
+	{
+		gl_compressed_tex_solid_format = GL_COMPRESSED_RGBA_BPTC_UNORM;
+		gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_BPTC_UNORM;
+	} else if (r_texturecompression->value && glConfig.ext_texture_compression_s3tc) {
+		gl_compressed_tex_solid_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+		gl_compressed_tex_alpha_format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	} else {
+		gl_compressed_tex_solid_format = GL_RGB;
+		gl_compressed_tex_alpha_format = GL_RGBA;
+	}
 	gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 	gl_filter_max = GL_LINEAR;
 

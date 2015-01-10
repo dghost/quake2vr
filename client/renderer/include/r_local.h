@@ -304,7 +304,7 @@ extern	cvar_t	*r_texturesolidmode;
 extern  cvar_t  *r_lodbias;
 extern  cvar_t  *r_lockpvs;
 extern	cvar_t	*r_intensity;
-extern  cvar_t  *r_s3tc;
+extern  cvar_t  *r_texturecompression;
 
 extern	cvar_t	*r_skydistance; //Knightmare- variable sky range
 extern	cvar_t	*r_saturation;	//** DMP
@@ -326,8 +326,8 @@ extern  float	vid_gamma;
 extern	int32_t		gl_lightmap_format;
 extern	int32_t		gl_solid_format;
 extern	int32_t		gl_alpha_format;
-extern	int32_t		gl_tex_solid_format;
-extern	int32_t		gl_tex_alpha_format;
+extern	int32_t		gl_raw_tex_solid_format;
+extern	int32_t		gl_raw_tex_alpha_format;
 
 extern	int32_t		c_visible_lightmaps;
 extern	int32_t		c_visible_textures;
@@ -801,6 +801,7 @@ typedef struct
 	qboolean	ext_texture_srgb;
 	qboolean	ext_framebuffer_srgb;
 	qboolean	ext_texture_compression_s3tc;
+	qboolean	arb_texture_compression_bptc;
 } glconfig_t;
 
 
