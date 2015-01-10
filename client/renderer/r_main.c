@@ -151,8 +151,6 @@ cvar_t	*r_flashblend;
 cvar_t	*r_swapinterval;
 cvar_t  *r_adaptivevsync;
 cvar_t	*r_texturemode;
-cvar_t	*r_texturealphamode;
-cvar_t	*r_texturesolidmode;
 cvar_t  *r_lodbias;
 cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
@@ -1155,8 +1153,7 @@ void R_Register (void)
 	r_playermip = Cvar_Get ("r_playermip", "0", 0);
 	// changed default texture mode to bilinear
 	r_texturemode = Cvar_Get( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
-	r_texturealphamode = Cvar_Get( "r_texturealphamode", "default", CVAR_ARCHIVE );
-	r_texturesolidmode = Cvar_Get( "r_texturesolidmode", "default", CVAR_ARCHIVE );
+
 	r_lodbias = Cvar_Get("r_lodbias","0",CVAR_ARCHIVE);
 	r_anisotropic = Cvar_Get( "r_anisotropic", "0", CVAR_ARCHIVE );
 	r_anisotropic_avail = Cvar_Get( "r_anisotropic_avail", "0", 0 );
@@ -1910,17 +1907,6 @@ void R_BeginFrame()
 		r_texturemode->modified = false;
 	}
 
-	if ( r_texturealphamode->modified )
-	{
-		GL_TextureAlphaMode( r_texturealphamode->string );
-		r_texturealphamode->modified = false;
-	}
-
-	if ( r_texturesolidmode->modified )
-	{
-		GL_TextureSolidMode( r_texturesolidmode->string );
-		r_texturesolidmode->modified = false;
-	}
 
 	if ( r_lodbias->modified )
 	{

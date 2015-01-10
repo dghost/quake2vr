@@ -299,8 +299,7 @@ extern  cvar_t  *r_adaptivevsync;
 extern	cvar_t	*r_anisotropic;
 extern	cvar_t	*r_anisotropic_avail;
 extern	cvar_t	*r_texturemode;
-extern	cvar_t	*r_texturealphamode;
-extern	cvar_t	*r_texturesolidmode;
+
 extern  cvar_t  *r_lodbias;
 extern  cvar_t  *r_lockpvs;
 extern	cvar_t	*r_intensity;
@@ -675,8 +674,6 @@ void R_InitFailedImgList (void);
 void R_InitImages (void);
 void R_ShutdownImages (void);
 void R_FreeUnusedImages (void);
-void GL_TextureAlphaMode( char *string );
-void GL_TextureSolidMode( char *string );
 
 /*
 ** GL extension emulation functions
