@@ -333,8 +333,29 @@ void CL_RequestNextDownload (void)
 			precache_tex = 0;
 		}
 
-		// confirm existance of .jpg textures, try to download any that don't exist
+		// confirm existance of .png textures, try to download any that don't exist
 		if (precache_check == OLD_TEXTURE_CNT+2) {
+			// from qcommon/cmodel.c
+			extern int32_t			numtexinfo;
+			extern mapsurface_t	map_surfaces[];
+
+			if (allow_download->value && allow_download_maps->value)
+			{
+				while (precache_tex < numtexinfo)
+				{
+					char fn[MAX_OSPATH];
+
+					Com_sprintf(fn, sizeof(fn), "textures/%s.png", map_surfaces[precache_tex++].rname);
+					if (!CL_CheckOrDownloadFile(fn))
+						return; // started a download
+				}
+			}
+			precache_check = OLD_TEXTURE_CNT+3;
+			precache_tex = 0;
+		}
+
+		// confirm existance of .jpg textures, try to download any that don't exist
+		if (precache_check == OLD_TEXTURE_CNT+3) {
 			// from qcommon/cmodel.c
 			extern int32_t			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
@@ -350,12 +371,12 @@ void CL_RequestNextDownload (void)
 						return; // started a download
 				}
 			}
-			precache_check = OLD_TEXTURE_CNT+3;
+			precache_check = OLD_TEXTURE_CNT+4;
 			precache_tex = 0;
 		}
 
 		// confirm existance of .tga textures, try to download any that don't exist
-		if (precache_check == OLD_TEXTURE_CNT+3) {
+		if (precache_check == OLD_TEXTURE_CNT+4) {
 			// from qcommon/cmodel.c
 			extern int32_t			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
@@ -629,7 +650,7 @@ void CL_RequestNextDownload (void)
 			precache_tex = 0;
 		}
 
-		// confirm existance of .jpg textures, try to download any that don't exist
+		// confirm existance of .png textures, try to download any that don't exist
 		if (precache_check == TEXTURE_CNT+2) {
 			// from qcommon/cmodel.c
 			extern int32_t			numtexinfo;
@@ -641,7 +662,7 @@ void CL_RequestNextDownload (void)
 				{
 					char fn[MAX_OSPATH];
 
-					Com_sprintf(fn, sizeof(fn), "textures/%s.jpg", map_surfaces[precache_tex++].rname);
+					Com_sprintf(fn, sizeof(fn), "textures/%s.png", map_surfaces[precache_tex++].rname);
 					if (!CL_CheckOrDownloadFile(fn))
 						return; // started a download
 				}
@@ -650,8 +671,30 @@ void CL_RequestNextDownload (void)
 			precache_tex = 0;
 		}
 
+		// confirm existance of .jpg textures, try to download any that don't exist
+			if (precache_check == TEXTURE_CNT+3) {
+				// from qcommon/cmodel.c
+				extern int32_t			numtexinfo;
+				extern mapsurface_t	map_surfaces[];
+
+				if (allow_download->value && allow_download_maps->value && allow_download_textures_24bit->value && !Com_ServerState())
+				{
+					while (precache_tex < numtexinfo)
+					{
+						char fn[MAX_OSPATH];
+
+						Com_sprintf(fn, sizeof(fn), "textures/%s.jpg", map_surfaces[precache_tex++].rname);
+						if (!CL_CheckOrDownloadFile(fn))
+							return; // started a download
+					}
+				}
+				precache_check = TEXTURE_CNT+4;
+				precache_tex = 0;
+			}
+
+
 		// confirm existance of .tga textures, try to download any that don't exist
-		if (precache_check == TEXTURE_CNT+3) {
+		if (precache_check == TEXTURE_CNT+4) {
 			// from qcommon/cmodel.c
 			extern int32_t			numtexinfo;
 			extern mapsurface_t	map_surfaces[];
@@ -792,14 +835,20 @@ qboolean CL_CheckOrDownloadFile (char *filename)
 	if (CL_CheckDownloadFailed(filename))
 		return true;
 
-	// don't download a .tga texture which already has a .jpg counterpart
+	// don't download a .tga texture which already has a .jpg or .png counterpart
 	len = strlen(filename); 
 	strcpy(s,filename); 
 	if (strstr(s, "textures/") && !strcmp(s+len-4, ".tga")) // look if we have a .tga texture 
 	{ 
-		s[len-3]='j'; s[len-2]='p'; s[len-1]='g'; // replace extension 
-		if (FS_LoadFile (s, NULL) != -1)	// check for .jpg counterpart
-			return true;
+		char fext[3][4] = {"png","jpg"};
+		int i = 0;
+		strcpy(s,name);
+		for (i; i < 2; i++) {
+			char *e = fext[i];
+			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
+			if (FS_LoadFile (s, NULL) != -1)	// check for .jpg counterpart
+				return true;
+		}
 	}
 
 	strcpy (cls.downloadname, filename);

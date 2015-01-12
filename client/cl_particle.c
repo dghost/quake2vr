@@ -32,48 +32,48 @@ This initializes all particle images - mods play with this...
 void CL_SetParticleImages (void)
 {
 	R_SetParticlePicture(particle_solid,		"***whitetexture***");				// only used for sparks
-	R_SetParticlePicture(particle_generic,		"gfx/particles/basic.tga");
-	R_SetParticlePicture(particle_smoke,		"gfx/particles/smoke.tga");
-	R_SetParticlePicture(particle_blood,		"gfx/particles/blood.tga");
-	R_SetParticlePicture(particle_blooddrop,	"gfx/particles/blood_drop.tga");
-	R_SetParticlePicture(particle_blooddrip,	"gfx/particles/blood_drip.tga");
-	R_SetParticlePicture(particle_redblood,		"gfx/particles/blood_red.tga");
-	R_SetParticlePicture(particle_bubble,		"gfx/particles/bubble.tga");
-	R_SetParticlePicture(particle_blaster,		"gfx/particles/blaster.tga");
-	R_SetParticlePicture(particle_blasterblob,	"gfx/particles/blaster_blob.tga");
-	R_SetParticlePicture(particle_beam,			"gfx/particles/beam.tga");
-	R_SetParticlePicture(particle_beam2,		"gfx/particles/beam2.tga"); // only used for railgun
-	R_SetParticlePicture(particle_lightning,	"gfx/particles/lightning.tga");
-	R_SetParticlePicture(particle_inferno,		"gfx/particles/inferno.tga");
-//	R_SetParticlePicture(particle_lensflare,	"gfx/particles/lensflare.tga");
-//	R_SetParticlePicture(particle_lightflare,	"gfx/particles/lightflare.jpg");
-//	R_SetParticlePicture(particle_shield,		"gfx/particles/shield.jpg");
+	R_SetParticlePicture(particle_generic,		"gfx/particles/basic.any");
+	R_SetParticlePicture(particle_smoke,		"gfx/particles/smoke.any");
+	R_SetParticlePicture(particle_blood,		"gfx/particles/blood.any");
+	R_SetParticlePicture(particle_blooddrop,	"gfx/particles/blood_drop.any");
+	R_SetParticlePicture(particle_blooddrip,	"gfx/particles/blood_drip.any");
+	R_SetParticlePicture(particle_redblood,		"gfx/particles/blood_red.any");
+	R_SetParticlePicture(particle_bubble,		"gfx/particles/bubble.any");
+	R_SetParticlePicture(particle_blaster,		"gfx/particles/blaster.any");
+	R_SetParticlePicture(particle_blasterblob,	"gfx/particles/blaster_blob.any");
+	R_SetParticlePicture(particle_beam,			"gfx/particles/beam.any");
+	R_SetParticlePicture(particle_beam2,		"gfx/particles/beam2.any"); // only used for railgun
+	R_SetParticlePicture(particle_lightning,	"gfx/particles/lightning.any");
+	R_SetParticlePicture(particle_inferno,		"gfx/particles/inferno.any");
+//	R_SetParticlePicture(particle_lensflare,	"gfx/particles/lensflare.any");
+//	R_SetParticlePicture(particle_lightflare,	"gfx/particles/lightflare.any");
+//	R_SetParticlePicture(particle_shield,		"gfx/particles/shield.any");
 	//animations
 	//rocket explosion
-	R_SetParticlePicture(particle_rflash,		"gfx/particles/r_flash.tga");
-	R_SetParticlePicture(particle_rexplosion1,	"gfx/particles/r_explod_1.tga");
-	R_SetParticlePicture(particle_rexplosion2,	"gfx/particles/r_explod_2.tga");
-	R_SetParticlePicture(particle_rexplosion3,	"gfx/particles/r_explod_3.tga");
-	R_SetParticlePicture(particle_rexplosion4,	"gfx/particles/r_explod_4.tga");
-	R_SetParticlePicture(particle_rexplosion5,	"gfx/particles/r_explod_5.tga");
-	R_SetParticlePicture(particle_rexplosion6,	"gfx/particles/r_explod_6.tga");
-	R_SetParticlePicture(particle_rexplosion7,	"gfx/particles/r_explod_7.tga");
+	R_SetParticlePicture(particle_rflash,		"gfx/particles/r_flash.any");
+	R_SetParticlePicture(particle_rexplosion1,	"gfx/particles/r_explod_1.any");
+	R_SetParticlePicture(particle_rexplosion2,	"gfx/particles/r_explod_2.any");
+	R_SetParticlePicture(particle_rexplosion3,	"gfx/particles/r_explod_3.any");
+	R_SetParticlePicture(particle_rexplosion4,	"gfx/particles/r_explod_4.any");
+	R_SetParticlePicture(particle_rexplosion5,	"gfx/particles/r_explod_5.any");
+	R_SetParticlePicture(particle_rexplosion6,	"gfx/particles/r_explod_6.any");
+	R_SetParticlePicture(particle_rexplosion7,	"gfx/particles/r_explod_7.any");
 	//disruptor explosion		
-//	R_SetParticlePicture(particle_dexplosion1,	"gfx/particles/d_explod_1.tga");
-//	R_SetParticlePicture(particle_dexplosion2,	"gfx/particles/d_explod_2.tga");
-//	R_SetParticlePicture(particle_dexplosion3,	"gfx/particles/d_explod_3.tga");
+//	R_SetParticlePicture(particle_dexplosion1,	"gfx/particles/d_explod_1.any");
+//	R_SetParticlePicture(particle_dexplosion2,	"gfx/particles/d_explod_2.any");
+//	R_SetParticlePicture(particle_dexplosion3,	"gfx/particles/d_explod_3.any");
 
-	R_SetParticlePicture(particle_bfgmark,		"gfx/decals/bfgmark.tga");
-	R_SetParticlePicture(particle_burnmark,		"gfx/decals/burnmark.tga");
-	R_SetParticlePicture(particle_blooddecal1,	"gfx/decals/blood_1.tga");
-	R_SetParticlePicture(particle_blooddecal2,	"gfx/decals/blood_2.tga");
-	R_SetParticlePicture(particle_blooddecal3,	"gfx/decals/blood_3.tga");
-	R_SetParticlePicture(particle_blooddecal4,	"gfx/decals/blood_4.tga");
-	R_SetParticlePicture(particle_blooddecal5,	"gfx/decals/blood_5.tga");
-	R_SetParticlePicture(particle_shadow,		"gfx/decals/shadow.tga");
-	R_SetParticlePicture(particle_bulletmark,	"gfx/decals/bulletmark.tga");
-	R_SetParticlePicture(particle_trackermark,	"gfx/decals/trackermark.tga");
-//	R_SetParticlePicture(particle_footprint,	"gfx/decals/footprint.tga");
+	R_SetParticlePicture(particle_bfgmark,		"gfx/decals/bfgmark.any");
+	R_SetParticlePicture(particle_burnmark,		"gfx/decals/burnmark.any");
+	R_SetParticlePicture(particle_blooddecal1,	"gfx/decals/blood_1.any");
+	R_SetParticlePicture(particle_blooddecal2,	"gfx/decals/blood_2.any");
+	R_SetParticlePicture(particle_blooddecal3,	"gfx/decals/blood_3.any");
+	R_SetParticlePicture(particle_blooddecal4,	"gfx/decals/blood_4.any");
+	R_SetParticlePicture(particle_blooddecal5,	"gfx/decals/blood_5.any");
+	R_SetParticlePicture(particle_shadow,		"gfx/decals/shadow.any");
+	R_SetParticlePicture(particle_bulletmark,	"gfx/decals/bulletmark.any");
+	R_SetParticlePicture(particle_trackermark,	"gfx/decals/trackermark.any");
+//	R_SetParticlePicture(particle_footprint,	"gfx/decals/footprint.any");
 }
 
 

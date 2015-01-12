@@ -343,8 +343,7 @@ void Con_Init (void)
 
 	// whether to use new-style console background
 	halfconback = false;
-	if ( (FS_LoadFile("pics/halfconback.tga", NULL) != -1)
-		|| (FS_LoadFile("pics/halfconback.jpg", NULL) != -1) )
+	if (FS_LoadFile("pics/halfconback.pcx", NULL) != -1)
 		halfconback = true;
 
 	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);

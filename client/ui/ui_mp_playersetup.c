@@ -148,22 +148,25 @@ static qboolean IconOfSkinExists (char *skin, char **files, int32_t nfiles, char
 }
 
 
-// adds menu support for TGA and JPG skins
+// adds menu support for TGA, PNG, and JPG skins
 static qboolean IsValidSkin (char **filelist, int32_t numFiles, int32_t index)
 {
 	int32_t		len = strlen(filelist[index]);
 
 	if (	!strcmp (filelist[index]+max(len-4,0), ".pcx")
 		||  !strcmp (filelist[index]+max(len-4,0), ".jpg")
-		||	!strcmp (filelist[index]+max(len-4,0), ".tga") )
+		||	!strcmp (filelist[index]+max(len-4,0), ".tga")
+		||	!strcmp (filelist[index]+max(len-4,0), ".png"))
 	{
 		if (	strcmp (filelist[index]+max(len-6,0), "_i.pcx")
 			&&  strcmp (filelist[index]+max(len-6,0), "_i.jpg")
-			&&  strcmp (filelist[index]+max(len-6,0), "_i.tga") )
+			&&  strcmp (filelist[index]+max(len-6,0), "_i.tga")
+			&&  strcmp (filelist[index]+max(len-6,0), "_i.png"))
 
 			if (	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.pcx")
 				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.jpg")
-				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.tga"))
+				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.tga")
+				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.png"))
 				return true;
 	}
 	return false;
@@ -696,17 +699,17 @@ void PlayerConfig_DrawSkinSelection (void)
 
 	// left arrow
 	if (i>0)
-		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_left.pcx");
+		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_left.any");
 	else
-		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_left_d.pcx");
+		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_left_d.any");
 	SCR_DrawPic (icon_x-39, icon_y+2, 32, 32,  ALIGN_CENTER, scratch, 1.0);
 
 	// background
 	SCR_DrawFill (icon_x-3, icon_y-3, NUM_SKINBOX_ITEMS*34+4, 38, ALIGN_CENTER, 0,0,0,255);
-	if (R_DrawFindPic("/gfx/ui/listbox_background.pcx")) {
+	if (R_DrawFindPic("/gfx/ui/listbox_background.any")) {
 		x = icon_x-2;	y = icon_y-2;	w = NUM_SKINBOX_ITEMS*34+2;	h = 36;
 		SCR_AdjustFrom640 (&x, &y, &w, &h, ALIGN_CENTER);
-		R_DrawTileClear ((int32_t)x, (int32_t)y, (int32_t)w, (int32_t)h, "/gfx/ui/listbox_background.pcx");
+		R_DrawTileClear ((int32_t)x, (int32_t)y, (int32_t)w, (int32_t)h, "/gfx/ui/listbox_background.any");
 	}
 	else
 		SCR_DrawFill (icon_x-2, icon_y-2, NUM_SKINBOX_ITEMS*34+2, 36, ALIGN_CENTER, 60,60,60,255);
@@ -729,9 +732,9 @@ void PlayerConfig_DrawSkinSelection (void)
 	// right arrow
 	icon_offset = NUM_SKINBOX_ITEMS*34;
 	if (s_pmi[s_player_model_box.curvalue].nskins-i>0)
-		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_right.pcx");
+		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_right.any");
 	else
-		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_right_d.pcx"); 
+		Com_sprintf (scratch, sizeof(scratch), "/gfx/ui/arrows/arrow_right_d.any"); 
 	SCR_DrawPic (icon_x+icon_offset+5, icon_y+2, 32, 32,  ALIGN_CENTER, scratch, 1.0);
 }
 
