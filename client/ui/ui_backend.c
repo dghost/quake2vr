@@ -1295,18 +1295,18 @@ void UI_Draw_Cursor (void)
 			if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 				|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_click.pcx";
+				cur_img = "/gfx/ui/cursors/m_cur_click.any";
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 			else
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_hover.pcx";
+				cur_img = "/gfx/ui/cursors/m_cur_hover.any";
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 		}
 		else
-			cur_img = "/gfx/ui/cursors/m_cur_main.pcx";
-		overlay = "/gfx/ui/cursors/m_cur_over.pcx";
+			cur_img = "/gfx/ui/cursors/m_cur_main.any";
+		overlay = "/gfx/ui/cursors/m_cur_over.any";
 	}
 	else
 	{
@@ -1314,28 +1314,28 @@ void UI_Draw_Cursor (void)
 		{
 			if (cursor.menuitemtype == MENUITEM_TEXT)
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_text.pcx";
+				cur_img = "/gfx/ui/cursors/m_cur_text.any";
 			}
 			else
 			{
 				if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 					|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 				{
-					cur_img = "/gfx/ui/cursors/m_cur_click.pcx";
+					cur_img = "/gfx/ui/cursors/m_cur_click.any";
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
 				else
 				{
-					cur_img = "/gfx/ui/cursors/m_cur_hover.pcx";
+					cur_img = "/gfx/ui/cursors/m_cur_hover.any";
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
-				overlay = "/gfx/ui/cursors/m_cur_over.pcx";
+				overlay = "/gfx/ui/cursors/m_cur_over.any";
 			}
 		}
 		else
 		{
-			cur_img = "/gfx/ui/cursors/m_cur_main.pcx";
-			overlay = "/gfx/ui/cursors/m_cur_over.pcx";
+			cur_img = "/gfx/ui/cursors/m_cur_main.any";
+			overlay = "/gfx/ui/cursors/m_cur_over.any";
 		}
 	}
 	

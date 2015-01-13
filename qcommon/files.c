@@ -181,6 +181,8 @@ char *type_extensions[] =
 	"alias",
 	"arena",
 	"script",
+	"frag",
+	"vert",
 //	"shader",
 	"hud",
 //	"menu",

@@ -135,7 +135,7 @@ void ValidateSaveshots (void)
 		if ( m_savevalid[i] )
 		{
 			if (i == 0)
-				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
+				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.any", m_mapname);
 			else
 			{	// free previously loaded shots
 				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.png", i);
@@ -153,7 +153,7 @@ void ValidateSaveshots (void)
 /*	if (loadmenu)
 	{	// register mapshot for autosave
 		if (m_savevalid[0]) {
-			Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.pcx", m_mapname);
+			Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", m_mapname);
 			if (R_DrawFindPic(mapshotname))
 				m_mapshotvalid = true;
 			else
@@ -164,7 +164,7 @@ void ValidateSaveshots (void)
 	}
 
 	// register null saveshot, this is only done once
-	if (R_DrawFindPic("/gfx/ui/noscreen.pcx"))
+	if (R_DrawFindPic("/gfx/ui/noscreen.any"))
 		m_saveshotvalid[MAX_SAVEGAMES] = true;
 	else
 		m_saveshotvalid[MAX_SAVEGAMES] = false;
@@ -190,7 +190,7 @@ void UI_InitSavegameData (void)
 	ValidateSaveshots ();	// register saveshots
 
 	// register null saveshot, this is only done once
-	if (R_DrawFindPic("/gfx/ui/noscreen.pcx"))
+	if (R_DrawFindPic("/gfx/ui/noscreen.any"))
 		m_saveshotvalid[MAX_SAVEGAMES] = true;
 	else
 		m_saveshotvalid[MAX_SAVEGAMES] = false;
@@ -226,12 +226,12 @@ void DrawSaveshot (qboolean loadmenu)
 	}
 	else if ( loadmenu && i==0 && m_savevalid[i] && m_saveshotvalid[0])	// m_mapshotvalid ) // autosave shows mapshot
 	{
-		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.pcx", m_mapname);
+		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", m_mapname);
 
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, mapshotname, 1.0);
 	}
 	else if (m_saveshotvalid[MAX_SAVEGAMES])
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/ui/noscreen.pcx", 1.0);
+		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/ui/noscreen.any", 1.0);
 	else
 		SCR_DrawFill (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);
 

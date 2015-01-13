@@ -198,6 +198,7 @@ char **SetCrosshairNames (void)
 			if (	!strstr(p, ".tga")
 				&&	!strstr(p, ".jpg")
 				&&	!strstr(p, ".pcx")
+				&&	!strstr(p, ".png")
 				)
 				continue;
 
@@ -250,6 +251,7 @@ char **SetCrosshairNames (void)
 			if (	!strstr(p, ".tga")
 				&&	!strstr(p, ".jpg")
 				&&	!strstr(p, ".pcx")
+				&&	!strstr(p, ".png")
 				)
 				continue;
 

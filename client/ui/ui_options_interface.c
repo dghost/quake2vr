@@ -181,6 +181,7 @@ char **SetFontNames (void)
 			if (	!strstr(p, ".tga")
 				&&	!strstr(p, ".jpg")
 				&&	!strstr(p, ".pcx")
+				&&	!strstr(p, ".png")
 				)
 				continue;
 
@@ -219,6 +220,7 @@ char **SetFontNames (void)
 			if (	!strstr(p, ".tga")
 				&&	!strstr(p, ".jpg")
 				&&	!strstr(p, ".pcx")
+				&&	!strstr(p, ".png")
 				)
 				continue;
 

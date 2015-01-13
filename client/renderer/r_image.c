@@ -907,8 +907,8 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 // NOTE: replace this with shaders as soon as they are supported
 	len = strlen(name); 
 	strcpy(s,name);
-	// check if we have a tga/jpg pic
-	if ((type == it_pic) && (strcmp(s+len-4, ".pcx") || strcmp(s+len-4, ".wal")))
+	// check if we have a tga/jpg/png pic
+	if ((type == it_pic) && (!strcmp(s+len-4, ".png") || !strcmp(s+len-4, ".jpg") || !strcmp(s+len-4, ".tga")))
 	{ 
 		byte	*pic, *palette;
 		int32_t		pcxwidth, pcxheight;
@@ -1122,10 +1122,10 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	}
 
 	// MrG's automatic JPG & TGA loading
-	// search for TGAs or JPGs to replace .pcx and .wal images
-	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal"))
+	// search for TGAs, PNGs, and JPGs to replace .pcx and .wal images
+	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal") || !strcmp(name+len-4, ".any"))
 	{
-		char fext[3][4] = {"tga","jpg","png"};
+		char fext[3][4] = {"png","tga","jpg"};
 		int i = 0;
 		strcpy(s,name);
 		for (i; i < 3; i++) {

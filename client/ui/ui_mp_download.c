@@ -125,7 +125,7 @@ void DownloadOptions_MenuInit( void )
 	s_allow_download_textures_24bit_box.generic.y			= y += MENU_LINE_SIZE;
 	s_allow_download_textures_24bit_box.generic.name		= "24-bit textures";
 	s_allow_download_textures_24bit_box.generic.callback	= DownloadCallback;
-	s_allow_download_textures_24bit_box.generic.statusbar	= "enable to allow downloading of JPG and TGA textures";
+	s_allow_download_textures_24bit_box.generic.statusbar	= "enable to allow downloading of JPG, PNG, and TGA textures";
 	s_allow_download_textures_24bit_box.itemnames			= yes_no_names;
 	s_allow_download_textures_24bit_box.curvalue			= (Cvar_VariableValue("allow_download_textures_24bit") != 0);
 

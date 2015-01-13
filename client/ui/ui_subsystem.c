@@ -501,11 +501,11 @@ void UI_Precache (void)
 //	R_DrawFindPic ("/pics/yn.pcx");
 
 	// GUI elements
-	R_DrawFindPic ("/gfx/ui/listbox_background.pcx");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_left.pcx");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_left_d.pcx");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_right.pcx");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.pcx"); 
+	R_DrawFindPic ("/gfx/ui/listbox_background.any");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left.any");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left_d.any");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right.any");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.any"); 
 }
 
 
@@ -569,14 +569,14 @@ void UI_Draw (void)
 	// dim everything behind it down
 	if (!vr_enabled->value && (cl.cinematictime > 0 || cls.state == ca_disconnected))
 	{
-		if (R_DrawFindPic("/gfx/ui/menu_background.pcx"))
-			R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.pcx",1.0);
+		if (R_DrawFindPic("/gfx/ui/menu_background.any"))
+			R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.any",1.0);
 		else
 			R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,255);
 	}
 	// ingame menu uses alpha
-	else if (R_DrawFindPic("/gfx/ui/menu_background.pcx"))
-		R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.pcx", menu_alpha->value);
+	else if (R_DrawFindPic("/gfx/ui/menu_background.any"))
+		R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.any", menu_alpha->value);
 	else
 		R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int32_t)(menu_alpha->value*255));
 

@@ -1945,13 +1945,13 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 						V_AddEntity (&gun);
 						/*if (s1->effects & EF_COLOR_SHELL && gun.flags & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN))
 						{
-							gun.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun.skin = R_RegisterSkin ("gfx/shell_generic.any");
 
 							V_AddEntity (&gun);
 						}
 						if (s1->effects & EF_PENT)
 						{
-							gun.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun.skin = R_RegisterSkin ("gfx/shell_generic.any");
 							gun.flags = oldeffects | RF_TRANSLUCENT | RF_SHELL_RED;
 							V_AddLight (gun.origin, 130, 1, 0.25, 0.25);
 							V_AddLight (gun.origin, 100, 1, 0, 0);
@@ -1960,7 +1960,7 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 						}
 						if (s1->effects & EF_QUAD)
 						{
-							gun.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun.skin = R_RegisterSkin ("gfx/shell_generic.any");
 							gun.flags = oldeffects | RF_TRANSLUCENT | RF_SHELL_BLUE;
 							V_AddLight (gun.origin, 130, 0.25, 0.5, 1);
 							V_AddLight (gun.origin, 100, 0, 0.25, 1);
@@ -2030,14 +2030,14 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 						V_AddEntity (&gun2);
 						/*if (s1->effects & EF_COLOR_SHELL && gun2.flags & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN))
 						{
-							gun2.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun2.skin = R_RegisterSkin ("gfx/shell_generic.any");
 
 							V_AddEntity (&gun2);
 						}
 						
 						if (s1->effects & EF_PENT)
 						{
-							gun2.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun2.skin = R_RegisterSkin ("gfx/shell_generic.any");
 							gun2.flags = oldeffects | RF_TRANSLUCENT | RF_SHELL_RED;
 							V_AddLight (gun2.origin, 130, 1, 0.25, 0.25);
 							V_AddLight (gun2.origin, 100, 1, 0, 0);
@@ -2046,7 +2046,7 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 						}
 						if (s1->effects & EF_QUAD)
 						{
-							gun2.skin = R_RegisterSkin ("gfx/shell_generic.pcx");
+							gun2.skin = R_RegisterSkin ("gfx/shell_generic.any");
 							gun2.flags = oldeffects | RF_TRANSLUCENT | RF_SHELL_BLUE;
 							V_AddLight (gun2.origin, 130, 0.25, 0.5, 1);
 							V_AddLight (gun2.origin, 100, 0, 0.25, 1);
