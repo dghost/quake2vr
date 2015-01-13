@@ -261,8 +261,8 @@ projection shadows from BeefQuake R6
 */
 void R_BuildMD2ShadowVolume (dmdl_t *hdr, vec3_t light, float projectdistance, qboolean nocap)
 {
-	int32_t				i, j;
-	BOOL			trianglefacinglight[MAX_TRIANGLES];
+	int32_t			i, j;
+	qboolean		trianglefacinglight[MAX_TRIANGLES];
 	vec3_t			v0, v1, v2, v3;
 	float			thisAlpha;
 	dtriangle_t		*ot, *tris;

@@ -37,6 +37,10 @@ byte *membase;
 int maxhunksize;
 int curhunksize;
 
+#ifdef __APPLE__
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
 void *Hunk_Begin (int maxsize)
 {
 	// reserve a huge chunk of memory, but don't commit any yet
@@ -119,6 +123,7 @@ char *strlwr (char *s)
 		*s = tolower(*s);
 		s++;
 	}
+    return s;
 }
 
 //============================================

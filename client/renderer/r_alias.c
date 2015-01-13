@@ -449,7 +449,7 @@ based on code from BeefQuake R6
 void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, float projectdistance, qboolean nocap)
 {
 	int32_t				i, j;
-	BOOL			triangleFacingLight[MD3_MAX_TRIANGLES];
+	qboolean		triangleFacingLight[MD3_MAX_TRIANGLES];
 	vec3_t			v0, v1, v2, v3;
 	float			thisAlpha;
 	maliasmesh_t	mesh;
