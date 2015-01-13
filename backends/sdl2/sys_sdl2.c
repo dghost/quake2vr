@@ -208,13 +208,13 @@ void Sys_ConsoleOutput (char *string)
 	if (console_textlen)
 	{
 		text[0] = '\r';
-		memset(&text[1], ' ', console_textlen);
+		SDL_memset(&text[1], ' ', console_textlen);
 		text[console_textlen+1] = '\r';
 		text[console_textlen+2] = 0;
 		WriteFile(houtput, text, console_textlen+2, &dummy, NULL);
 	}
 
-	WriteFile(houtput, string, strlen(string), &dummy, NULL);
+	WriteFile(houtput, string, SDL_strlen(string), &dummy, NULL);
 
 	if (console_textlen)
 		WriteFile(houtput, console_text, console_textlen, &dummy, NULL);
@@ -305,7 +305,7 @@ char *Sys_GetClipboardData( void )
 	sdl_cliptext = SDL_GetClipboardText();
 	if (!sdl_cliptext)
 		return NULL;
-	data = strdup(sdl_cliptext);
+	data = SDL_strdup(sdl_cliptext);
 	SDL_free(sdl_cliptext);
 	return data;
 }
@@ -363,82 +363,6 @@ void Sys_Quit (void)
 	exit (0);
 }
 
-
-//================================================================
-
-/*
-================
-Sys_ScanForCD
-
-================
-*/
-char *Sys_ScanForCD (void)
-{
-	static char	cddir[MAX_OSPATH];
-	static qboolean	done;
-	char		drive[4];
-	FILE		*f;
-	char		test[MAX_QPATH];
-	qboolean	missionpack = false; // Knightmare added
-	int32_t			i; // Knightmare added
-
-	if (done)		// don't re-check
-		return cddir;
-
-	// no abort/retry/fail errors
-#ifdef _WIN32
-	SetErrorMode (SEM_FAILCRITICALERRORS);
-
-	drive[0] = 'c';
-	drive[1] = ':';
-	drive[2] = '\\';
-	drive[3] = 0;
-
-	Com_Printf("\nScanning for game CD data path...");
-
-	done = true;
-
-	// Knightmare- check if mission pack gamedir is set
-	for (i=0; i<argc; i++)
-		if (!strcmp(argv[i], "game") && (i+1<argc))
-		{
-			if (!strcmp(argv[i+1], "rogue") || !strcmp(argv[i+1], "xatrix"))
-				missionpack = true;
-			break; // game parameter only appears once in command line
-		}
-
-	// scan the drives
-	for (drive[0] = 'c' ; drive[0] <= 'z' ; drive[0]++)
-	{
-		// where activision put the stuff...
-		if (missionpack) // Knightmare- mission packs have cinematics in different path
-		{
-			sprintf (cddir, "%sdata\\max", drive);
-			sprintf (test, "%sdata\\patch\\quake2.exe", drive);
-		}
-		else
-		{
-			sprintf (cddir, "%sinstall\\data", drive);
-			sprintf (test, "%sinstall\\data\\quake2.exe", drive);
-		}
-		f = fopen(test, "r");
-		if (f)
-		{
-			fclose (f);
-			if (GetDriveType (drive) == DRIVE_CDROM) {
-				Com_Printf(" found %s\n", cddir);
-				return cddir;
-			}
-		}
-	}
-
-	Com_Printf(" could not find %s on any CDROM drive!\n", test);
-#endif
-	cddir[0] = 0;
-	
-	return NULL;
-}
-
 //================================================================
 
 /*
@@ -490,7 +414,7 @@ void Sys_Init (void)
 	timeBeginPeriod( 1 );
 #endif
 
-	strncpy(string,SDL_GetPlatform(),sizeof(string));
+	SDL_strlcpy(string,SDL_GetPlatform(),sizeof(string));
 	Com_Printf("OS: %s\n", string);
 	Cvar_Get("sys_osVersion", string, CVAR_NOSET|CVAR_LATCH);
 
@@ -506,14 +430,14 @@ void Sys_Init (void)
 	}
 
 	// Get physical memory
-	sprintf(string,"%u",SDL_GetSystemRAM());
+	SDL_snprintf(string,sizeof(string),"%u",SDL_GetSystemRAM());
 	Com_Printf("Memory: %s MB\n", string);
 	Cvar_Get("sys_ramMegs", string, CVAR_NOSET|CVAR_LATCH);
 	// end Q2E detection
 
 	SDL_VERSION(&compiled);
 	SDL_GetVersion(&linked);
-	sprintf(string,"%d.%d.%d",linked.major, linked.minor, linked.patch);
+	SDL_snprintf(string,sizeof(string),"%d.%d.%d",linked.major, linked.minor, linked.patch);
 	Cvar_Get("sys_sdlString",string,CVAR_NOSET|CVAR_LATCH);
 	Com_Printf("SDL Version: %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
 
@@ -710,39 +634,7 @@ int32_t main(int32_t argc, char *argv[])
 	SetProcessDPIAware();
 #endif
 
-	/*
-	int32_t				i; // Knightmare added
-	char			*cddir;
 
-
-	// Knightmare- scan for cd command line option
-	for (i=0; i<argc; i++)
-		if (!strcmp(argv[i], "scanforcd")) {
-			cdscan = true;
-			break;
-		}
-
-	// if we find the CD, add a +set cddir xxx command line
-	if (cdscan)
-	{
-		cddir = Sys_ScanForCD ();
-		if (cddir && argc < MAX_NUM_ARGVS - 3)
-		{
-			int32_t		i;
-
-			// don't override a cddir on the command line
-			for (i=0 ; i<argc ; i++)
-				if (!strcmp(argv[i], "cddir"))
-					break;
-			if (i == argc)
-			{
-				argv[argc++] = "+set";
-				argv[argc++] = "cddir";
-				argv[argc++] = cddir;
-			}
-		}
-	}
-	*/
 	Qcommon_Init (argc, argv);
 	oldtime = Sys_Milliseconds ();
 #ifndef _WIN32

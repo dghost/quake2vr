@@ -57,9 +57,9 @@ static qboolean VerifyDriver( void )
 {
 	char buffer[1024];
 
-	strcpy( buffer, glGetString( GL_RENDERER ) );
-	strlwr( buffer );
-	if ( strcmp( buffer, "gdi generic" ) == 0 )
+	SDL_strlcpy( buffer, glGetString( GL_RENDERER ), 1024 );
+	SDL_strlwr( buffer );
+	if ( SDL_strcmp( buffer, "gdi generic" ) == 0 )
 		return false;
 	return true;
 }

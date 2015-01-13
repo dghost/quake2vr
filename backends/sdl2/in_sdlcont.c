@@ -231,8 +231,8 @@ void IN_ControllerCommands (void)
 	if (currentController && SDL_GameControllerGetAttached(currentController) != SDL_TRUE)
 	{
 		char buffer[128];
-		memset(buffer,0,sizeof(buffer));
-		sprintf(buffer,"%s disconnected",SDL_GameControllerName(currentController));
+		SDL_memset(buffer,0,sizeof(buffer));
+		SDL_snprintf(buffer,sizeof(buffer),"%s disconnected",SDL_GameControllerName(currentController));
 		SCR_CenterPrint(buffer);
 
 		currentController = NULL;
@@ -250,8 +250,8 @@ void IN_ControllerCommands (void)
 				if (currentController)
 				{
 					char buffer[128];
-					memset(buffer,0,sizeof(buffer));
-					sprintf(buffer,"%s connected",SDL_GameControllerName(currentController));
+					SDL_memset(buffer,0,sizeof(buffer));
+					SDL_snprintf(buffer,sizeof(buffer),"%s connected",SDL_GameControllerName(currentController));
 					SCR_CenterPrint(buffer);
 					break;
 				}
@@ -260,8 +260,8 @@ void IN_ControllerCommands (void)
 
 		}
 
-		memset(newAxisState,0,sizeof(newAxisState));
-		memset(newButtonState,0,sizeof(newButtonState));
+		SDL_memset(newAxisState,0,sizeof(newAxisState));
+		SDL_memset(newButtonState,0,sizeof(newButtonState));
 	}
 
 	if (currentController)
@@ -356,7 +356,7 @@ void IN_ControllerCommands (void)
 
 	if (!gamepad_stick_toggle->value || cls.key_dest == key_menu)
 	{
-		memset(gamepad_sticktoggle,0,sizeof(gamepad_sticktoggle));
+		SDL_memset(gamepad_sticktoggle,0,sizeof(gamepad_sticktoggle));
 
 		for (i = SDL_CONTROLLER_BUTTON_LEFTSTICK ; i <= SDL_CONTROLLER_BUTTON_RIGHTSTICK ; i++)
 		{
@@ -408,8 +408,8 @@ void IN_ControllerCommands (void)
 			Key_Event (K_GAMEPAD_LT + j, false, 0);
 	}
 
-	memcpy(oldButtonState,newButtonState,sizeof(oldButtonState));
-	memcpy(oldAxisState,newAxisState,sizeof(oldAxisState));
+	SDL_memcpy(oldButtonState,newButtonState,sizeof(oldButtonState));
+	SDL_memcpy(oldAxisState,newAxisState,sizeof(oldAxisState));
 }
 
 void IN_ControllerMove (usercmd_t *cmd)

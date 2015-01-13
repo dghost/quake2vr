@@ -340,7 +340,7 @@ SDL_PaintChannels(int endtime)
 		/* clear the paint buffer */
 		if (s_rawend < paintedtime)
 		{
-			memset(paintbuffer, 0, (end - paintedtime)
+			SDL_memset(paintbuffer, 0, (end - paintedtime)
 					* sizeof(portable_samplepair_t));
 		}
 		else
@@ -359,7 +359,7 @@ SDL_PaintChannels(int endtime)
 
 			for ( ; i < end; i++)
 			{
-				memset(&paintbuffer[i - paintedtime], 0,
+				SDL_memset(&paintbuffer[i - paintedtime], 0,
 				   sizeof(paintbuffer[i - paintedtime]));
 			}
 		}
@@ -591,7 +591,7 @@ SDL_AddLoopSounds(void)
 		return;
 	}
 
-	memset(&sounds, 0, sizeof(int) * MAX_EDICTS);
+	SDL_memset(&sounds, 0, sizeof(int) * MAX_EDICTS);
 	S_BuildSoundList(sounds);
 
 	for (i = 0; i < cl.frame.num_entities; i++)
@@ -1023,7 +1023,7 @@ SDL_Update(void)
 		{
 			/* autosounds are regenerated
 			   fresh each frame */
-			memset(ch, 0, sizeof(*ch));
+			SDL_memset(ch, 0, sizeof(*ch));
 			continue;
 		}
 
@@ -1032,7 +1032,7 @@ SDL_Update(void)
 
 		if (!ch->leftvol && !ch->rightvol)
 		{
-			memset(ch, 0, sizeof(*ch));
+			SDL_memset(ch, 0, sizeof(*ch));
 			continue;
 		}
 	}
@@ -1135,7 +1135,7 @@ SDL_Callback(void *data, uint8_t *stream, int length)
 		playpos = pos = 0;
 	}
 
-	memset(stream, '\0', length);
+	SDL_memset(stream, '\0', length);
 
 	/* This can't happen! */
 	if (!snd_inited)
@@ -1156,7 +1156,7 @@ SDL_Callback(void *data, uint8_t *stream, int length)
 		length2 = 0;
 	}
 
-	memcpy(stream, backend->buffer + pos, length1);
+	SDL_memcpy(stream, backend->buffer + pos, length1);
 
 	/* Set new position */
 	if (length2 <= 0)
@@ -1165,7 +1165,7 @@ SDL_Callback(void *data, uint8_t *stream, int length)
 	}
 	else
 	{
-		memcpy(stream + length1, backend->buffer, length2);
+		SDL_memcpy(stream + length1, backend->buffer, length2);
 		playpos = (length2 / (backend->samplebits / 8));
 	}
 
@@ -1211,13 +1211,9 @@ SDL_BackendInit(void)
 	s_sdldriver = (Cvar_Get("s_sdldriver", "dsp", CVAR_ARCHIVE));
 #endif
 	*/
-	if (strncmp(s_sdldriver->string,"default",8) && strncmp(s_sdldriver->string,"auto",5))
+	if (SDL_strncmp(s_sdldriver->string,"default",8) && SDL_strncmp(s_sdldriver->string,"auto",5))
 	{
-#ifdef _WIN32
-		_snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
-#else
-		snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
-#endif
+		SDL_snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
 	}
 	putenv(reqdriver);
 
@@ -1255,8 +1251,8 @@ SDL_BackendInit(void)
 
 
 
-	memset(&desired, '\0', sizeof(desired));
-	memset(&obtained, '\0', sizeof(obtained));
+	SDL_memset(&desired, '\0', sizeof(desired));
+	SDL_memset(&obtained, '\0', sizeof(obtained));
 
 	/* Users are stupid */
 	if ((sndbits != 16) && (sndbits != 8))
@@ -1333,7 +1329,7 @@ SDL_BackendInit(void)
 	backend->submission_chunk = 1;
 	backend->speed = obtained.freq;
 	samplesize = (backend->samples * (backend->samplebits / 8));
-	backend->buffer = calloc(1, samplesize);
+	backend->buffer = SDL_calloc(1, samplesize);
 	s_numchannels = MAX_CHANNELS;
 
 	SDL_UpdateScaletable();
@@ -1358,7 +1354,7 @@ SDL_BackendShutdown(void)
     SDL_CloseAudioDevice(dev);
 	dev = 0;
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    free(backend->buffer);
+    SDL_free(backend->buffer);
     backend->buffer = NULL;
     playpos = samplesize = 0;
     snd_inited = 0;
