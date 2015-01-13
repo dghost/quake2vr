@@ -1694,6 +1694,18 @@ size_t Q_strlcpy(char *dest, char* src, size_t size)
 	return size;
 }
 
+char *Q_strlwr (char *string)
+{
+	char	*s = string;
+
+	while (*s) {
+		*s = tolower(*s);
+		s++;
+	}
+	return string;
+}
+
+
 void Com_sprintf (char *dest, int32_t size, char *fmt, ...)
 {
 	int32_t		len;

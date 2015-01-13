@@ -155,9 +155,6 @@ char *CopyString (char *in);
 
 void Q_strncpyz (char *dst, const char *src, int32_t dstSize);
 void Q_strncatz (char *dst, const char *src, int32_t dstSize);
-void Q_snprintfz (char *dst, int32_t dstSize, const char *fmt, ...);
-char *Q_strlwr (char *string);
-char *Q_strupr (char *string);
 
 void StripHighBits (char *string, int32_t highbits);
 void ExpandNewLines (char *string);

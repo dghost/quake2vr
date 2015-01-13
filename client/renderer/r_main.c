@@ -1370,11 +1370,11 @@ qboolean R_Init ( char *reason )
 			VID_Printf (PRINT_DEVELOPER, "\n" );
 	}
 
-	strcpy( renderer_buffer, glConfig.renderer_string );
-	strlwr( renderer_buffer );
+	Q_strlcpy( renderer_buffer, (char *) glConfig.renderer_string, sizeof(renderer_buffer));
+	Q_strlwr( renderer_buffer );
 
-	strcpy( vendor_buffer, glConfig.vendor_string );
-	strlwr( vendor_buffer );
+	Q_strlcpy( vendor_buffer, (char *) glConfig.vendor_string, sizeof(vendor_buffer) );
+	Q_strlwr( vendor_buffer );
 
 	// find out the renderer model
 	if (strstr(vendor_buffer, "nvidia")) {

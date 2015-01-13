@@ -442,6 +442,7 @@ int32_t Q_stricmp (char *s1, char *s2);
 int32_t Q_strcasecmp (char *s1, char *s2);
 int32_t Q_strncasecmp (char *s1, char *s2, int32_t n);
 size_t Q_strlcpy(char *dest, char* src, size_t size);
+char *Q_strlwr (char *string);
 
 //=============================================
 

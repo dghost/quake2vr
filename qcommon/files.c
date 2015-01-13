@@ -1959,7 +1959,7 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, unsigned musthave, unsig
 			{
 				list[nfiles] = strdup( s );
 #ifdef _WIN32
-				strlwr( list[nfiles] );
+				Q_strlwr( list[nfiles] );
 #endif
 				nfiles++;
 			}

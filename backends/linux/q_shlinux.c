@@ -117,15 +117,6 @@ char *Sys_GetCurrentDirectory (void)
 	return dir;
 }
 
-char *strlwr (char *s)
-{
-	while (*s) {
-		*s = tolower(*s);
-		s++;
-	}
-    return s;
-}
-
 //============================================
 
 static	char	findbase[MAX_OSPATH];
