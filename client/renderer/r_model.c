@@ -1568,7 +1568,7 @@ void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 
 	COM_StripExtension (mod->name, scriptname);
 	strcat (scriptname, ".script");
-	buf_size = FS_LoadFile (scriptname, &buf);
+	buf_size = FS_LoadFile (scriptname,(void **) &buf);
 
 	if (buf_size < 1)
 		return;

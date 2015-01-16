@@ -841,9 +841,9 @@ qboolean CL_CheckOrDownloadFile (char *filename)
 	if (strstr(s, "textures/") && !strcmp(s+len-4, ".tga")) // look if we have a .tga texture 
 	{ 
 		char fext[3][4] = {"png","jpg"};
-		int i = 0;
+		int i;
 		strcpy(s,name);
-		for (i; i < 2; i++) {
+		for (i = 0; i < 2; i++) {
 			char *e = fext[i];
 			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
 			if (FS_LoadFile (s, NULL) != -1)	// check for .jpg counterpart

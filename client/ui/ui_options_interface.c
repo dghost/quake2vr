@@ -206,7 +206,7 @@ char **SetFontNames (void)
 	}
 
 	// check pak after
-	if (fontfiles = FS_ListPak("fonts/", &nfonts))
+	if ((fontfiles = FS_ListPak("fonts/", &nfonts)))
 	{
 		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
 		{

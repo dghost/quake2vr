@@ -1126,9 +1126,9 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal") || !strcmp(name+len-4, ".any"))
 	{
 		char fext[3][4] = {"png","tga","jpg"};
-		int i = 0;
+		int i;
 		strcpy(s,name);
-		for (i; i < 3; i++) {
+		for (i = 0; i < 3; i++) {
 			char *e = fext[i];
 			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
 			image = R_FindImage(s,type);

@@ -110,69 +110,71 @@ int32_t MapSDLKey (SDL_Keysym key)
 	{
 		result = key.sym;
 	} else 
-	{
-		switch (key.scancode)
-		{
-		case SDL_SCANCODE_PAGEUP:	 result = K_PGUP; break;
-		case SDL_SCANCODE_PAGEDOWN: result = K_PGDN; break;
-		case SDL_SCANCODE_HOME: result = K_HOME; break;
-		case SDL_SCANCODE_END:  result = K_END; break;
-		case SDL_SCANCODE_LEFT:	 result = K_LEFTARROW; break;
-		case SDL_SCANCODE_RIGHT:	result = K_RIGHTARROW;		break;
-		case SDL_SCANCODE_DOWN:	 result = K_DOWNARROW; break;
-		case SDL_SCANCODE_UP:		 result = K_UPARROW;	 break;
-		case SDL_SCANCODE_ESCAPE: result = K_ESCAPE;		break;
-		case SDL_SCANCODE_RETURN: result = K_ENTER;		 break;
-		case SDL_SCANCODE_RETURN2: result = K_ENTER;		 break;
-		case SDL_SCANCODE_TAB:		result = K_TAB;			 break;
-		case SDL_SCANCODE_F1:		 result = K_F1;				break;
-		case SDL_SCANCODE_F2:		 result = K_F2;				break;
-		case SDL_SCANCODE_F3:		 result = K_F3;				break;
-		case SDL_SCANCODE_F4:		 result = K_F4;				break;
-		case SDL_SCANCODE_F5:		 result = K_F5;				break;
-		case SDL_SCANCODE_F6:		 result = K_F6;				break;
-		case SDL_SCANCODE_F7:		 result = K_F7;				break;
-		case SDL_SCANCODE_F8:		 result = K_F8;				break;
-		case SDL_SCANCODE_F9:		 result = K_F9;				break;
-		case SDL_SCANCODE_F10:		result = K_F10;			 break;
-		case SDL_SCANCODE_F11:		result = K_F11;			 break;
-		case SDL_SCANCODE_F12:		result = K_F12;			 break;
-		case SDL_SCANCODE_BACKSPACE: result = K_BACKSPACE; break;
-		case SDL_SCANCODE_DELETE: result = K_DEL; break;
-		case SDL_SCANCODE_PAUSE:	result = K_PAUSE;		 break;
-		case SDL_SCANCODE_LSHIFT:
-		case SDL_SCANCODE_RSHIFT:	result = K_SHIFT;		break;
-		case SDL_SCANCODE_LCTRL: 
-		case SDL_SCANCODE_RCTRL:	result = K_CTRL;		 break;
-		case SDL_SCANCODE_LALT:	
-		case SDL_SCANCODE_LGUI: 
-		case SDL_SCANCODE_RALT:	
-		case SDL_SCANCODE_RGUI: result = K_ALT;			break;
-		case SDL_SCANCODE_SPACE: result = K_SPACE; break;
-
-			//		case XK_KP_Begin: result = K_KP_5;	break;
-
-		case SDL_SCANCODE_INSERT:result = K_INS; break;
-			//		case XK_KP_Insert: result = K_KP_INS; break;
-
-		case SDL_SCANCODE_KP_MULTIPLY: result = '*'; break;
-		case SDL_SCANCODE_KP_PLUS:  result = K_KP_PLUS; break;
-		case SDL_SCANCODE_KP_MINUS: result = K_KP_MINUS; break;
-		case SDL_SCANCODE_KP_DIVIDE: result = K_KP_SLASH; break;
-		case SDL_SCANCODE_KP_1: result = K_KP_END; break;
-		case SDL_SCANCODE_KP_2: result = K_KP_DOWNARROW; break;
-		case SDL_SCANCODE_KP_3: result = K_KP_PGDN; break;
-		case SDL_SCANCODE_KP_4: result = K_KP_LEFTARROW; break;
-		case SDL_SCANCODE_KP_5: result = K_KP_5; break;
-		case SDL_SCANCODE_KP_6: result = K_KP_RIGHTARROW; break;
-		case SDL_SCANCODE_KP_7: result = K_KP_HOME; break;
-		case SDL_SCANCODE_KP_8: result = K_KP_UPARROW; break;
-		case SDL_SCANCODE_KP_9: result = K_KP_PGUP; break;
-		case SDL_SCANCODE_KP_0: result = K_KP_INS; break;
-		case SDL_SCANCODE_KP_PERIOD: result = K_KP_DEL; break;
-		case SDL_SCANCODE_KP_ENTER: result = K_KP_ENTER;	break;
-
-		}
+    {
+        switch (key.scancode)
+        {
+            case SDL_SCANCODE_PAGEUP:	 result = K_PGUP; break;
+            case SDL_SCANCODE_PAGEDOWN: result = K_PGDN; break;
+            case SDL_SCANCODE_HOME: result = K_HOME; break;
+            case SDL_SCANCODE_END:  result = K_END; break;
+            case SDL_SCANCODE_LEFT:	 result = K_LEFTARROW; break;
+            case SDL_SCANCODE_RIGHT:	result = K_RIGHTARROW;		break;
+            case SDL_SCANCODE_DOWN:	 result = K_DOWNARROW; break;
+            case SDL_SCANCODE_UP:		 result = K_UPARROW;	 break;
+            case SDL_SCANCODE_ESCAPE: result = K_ESCAPE;		break;
+            case SDL_SCANCODE_RETURN: result = K_ENTER;		 break;
+            case SDL_SCANCODE_RETURN2: result = K_ENTER;		 break;
+            case SDL_SCANCODE_TAB:		result = K_TAB;			 break;
+            case SDL_SCANCODE_F1:		 result = K_F1;				break;
+            case SDL_SCANCODE_F2:		 result = K_F2;				break;
+            case SDL_SCANCODE_F3:		 result = K_F3;				break;
+            case SDL_SCANCODE_F4:		 result = K_F4;				break;
+            case SDL_SCANCODE_F5:		 result = K_F5;				break;
+            case SDL_SCANCODE_F6:		 result = K_F6;				break;
+            case SDL_SCANCODE_F7:		 result = K_F7;				break;
+            case SDL_SCANCODE_F8:		 result = K_F8;				break;
+            case SDL_SCANCODE_F9:		 result = K_F9;				break;
+            case SDL_SCANCODE_F10:		result = K_F10;			 break;
+            case SDL_SCANCODE_F11:		result = K_F11;			 break;
+            case SDL_SCANCODE_F12:		result = K_F12;			 break;
+            case SDL_SCANCODE_BACKSPACE: result = K_BACKSPACE; break;
+            case SDL_SCANCODE_DELETE: result = K_DEL; break;
+            case SDL_SCANCODE_PAUSE:	result = K_PAUSE;		 break;
+            case SDL_SCANCODE_LSHIFT:
+            case SDL_SCANCODE_RSHIFT:	result = K_SHIFT;		break;
+            case SDL_SCANCODE_LCTRL:
+            case SDL_SCANCODE_RCTRL:	result = K_CTRL;		 break;
+            case SDL_SCANCODE_LALT:
+            case SDL_SCANCODE_LGUI:
+            case SDL_SCANCODE_RALT:
+            case SDL_SCANCODE_RGUI: result = K_ALT;			break;
+            case SDL_SCANCODE_SPACE: result = K_SPACE; break;
+                
+                //		case XK_KP_Begin: result = K_KP_5;	break;
+                
+            case SDL_SCANCODE_INSERT:result = K_INS; break;
+                //		case XK_KP_Insert: result = K_KP_INS; break;
+                
+            case SDL_SCANCODE_KP_MULTIPLY: result = '*'; break;
+            case SDL_SCANCODE_KP_PLUS:  result = K_KP_PLUS; break;
+            case SDL_SCANCODE_KP_MINUS: result = K_KP_MINUS; break;
+            case SDL_SCANCODE_KP_DIVIDE: result = K_KP_SLASH; break;
+            case SDL_SCANCODE_KP_1: result = K_KP_END; break;
+            case SDL_SCANCODE_KP_2: result = K_KP_DOWNARROW; break;
+            case SDL_SCANCODE_KP_3: result = K_KP_PGDN; break;
+            case SDL_SCANCODE_KP_4: result = K_KP_LEFTARROW; break;
+            case SDL_SCANCODE_KP_5: result = K_KP_5; break;
+            case SDL_SCANCODE_KP_6: result = K_KP_RIGHTARROW; break;
+            case SDL_SCANCODE_KP_7: result = K_KP_HOME; break;
+            case SDL_SCANCODE_KP_8: result = K_KP_UPARROW; break;
+            case SDL_SCANCODE_KP_9: result = K_KP_PGUP; break;
+            case SDL_SCANCODE_KP_0: result = K_KP_INS; break;
+            case SDL_SCANCODE_KP_PERIOD: result = K_KP_DEL; break;
+            case SDL_SCANCODE_KP_ENTER: result = K_KP_ENTER;	break;
+                
+                // any other scancodes need to be checked?
+            default: break;
+        }
 
 	}
 

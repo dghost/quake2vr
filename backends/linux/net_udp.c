@@ -106,25 +106,25 @@ Compares without the port
 */
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
-	if (a.type != b.type)
-		return false;
-
-	if (a.type == NA_LOOPBACK)
-		return true;
-
-	if (a.type == NA_IP)
-	{
-		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
-			return true;
-		return false;
-	}
-
-	if (a.type == NA_IPX)
-	{
-		if ((memcmp(a.ipx, b.ipx, 10) == 0))
-			return true;
-		return false;
-	}
+    if (a.type != b.type)
+        return false;
+    
+    switch (a.type) {
+        case NA_LOOPBACK:
+            return true;
+            break;
+        case NA_IP:
+            if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
+                return true;
+            break;
+        case NA_IPX:
+            if ((memcmp(a.ipx, b.ipx, 10) == 0))
+                return true;
+            break;
+        default:
+            break;
+    }
+    return false;
 }
 
 char	*NET_AdrToString (netadr_t a)
@@ -364,9 +364,11 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 		if (!net_socket)
 			return;
 	}
-	else
+    else {
 		Com_Error (ERR_FATAL, "NET_SendPacket: bad address type");
-
+        return;
+    }
+    
 	NetadrToSockadr (&to, &addr);
 
 	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );

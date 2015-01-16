@@ -320,7 +320,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 			Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
 		for (i = 0; i < 2; i++)
 		{
-			ovrRecti viewport = {0,0, 0,0};
+			ovrRecti viewport = {{0,0}, {0,0}};
 			renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
 			viewport.Size.w = renderInfo[i].renderTarget.w;
 			viewport.Size.h = renderInfo[i].renderTarget.h;

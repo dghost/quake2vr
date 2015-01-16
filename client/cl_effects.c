@@ -1831,7 +1831,7 @@ void CL_RocketTrail (vec3_t start, vec3_t end, centity_t *old)
 	VectorScale (vec, dec, vec);
 /*	len = totallen;
 	VectorCopy (start, move);
-	dec = 1.5;//*cl_particle_scale->value;
+	dec = 1.5;// *cl_particle_scale->value;
 	VectorScale (vec, dec, vec);*/
 
 	while (len > 0)
