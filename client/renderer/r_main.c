@@ -788,7 +788,7 @@ extern cvar_t *cl_paused;
 void R_DrawCameraEffect ();
 void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect)
 {
-	unsigned int oldWidth, oldHeight;
+	uint32_t oldWidth, oldHeight;
 	if (r_norefresh->value)
 		return;
 
@@ -1352,7 +1352,7 @@ qboolean R_Init ( char *reason )
 	if (developer->value > 0)	// print extensions 2 to a line
 	{
 		char		*extString, *extTok;
-		unsigned	line = 0;
+		uint32_t	line = 0;
 		VID_Printf (PRINT_DEVELOPER, "GL_EXTENSIONS: " );
 		extString = (char *)glConfig.extensions_string;
 		while (1)
@@ -1735,7 +1735,7 @@ GL_Strings_f
 void GL_Strings_f (void)
 {
 	char		*extString, *extTok;
-	unsigned	line = 0;
+	uint32_t	line = 0;
 
 	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
@@ -1987,7 +1987,7 @@ void R_EndFrame(void)
 R_SetPalette
 =============
 */
-unsigned r_rawpalette[256];
+uint32_t r_rawpalette[256];
 
 void R_SetPalette ( const uint8_t *palette)
 {

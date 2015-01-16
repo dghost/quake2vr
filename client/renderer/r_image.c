@@ -44,11 +44,11 @@ static uint8_t gammatable[256];
 // TODO: consider removing r_intensity
 cvar_t		*r_intensity;
 
-unsigned	d_8to24table[256];
+uint32_t	d_8to24table[256];
 float		d_8to24tablef[256][3]; //Knightmare- MrG's Vertex array stuff
 
 qboolean GL_Upload8 (byte *data, int32_t width, int32_t height,  qboolean mipmap, qboolean is_sky );
-qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height,  qboolean mipmap);
+qboolean GL_Upload32 (uint32_t *data, int32_t width, int32_t height,  qboolean mipmap);
 
 int32_t		gl_solid_format = GL_RGB;
 int32_t		gl_alpha_format = GL_RGBA;
@@ -59,7 +59,7 @@ int32_t		gl_compressed_tex_alpha_format = GL_RGBA;
 int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
-void GL_SetTexturePalette( unsigned palette[256] )
+void GL_SetTexturePalette( uint32_t palette[256] )
 {
 	int32_t i;
 	uint8_t temptable[768];
@@ -525,7 +525,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void GL_LightScaleTexture (unsigned *in, int32_t inwidth, int32_t inheight, qboolean only_gamma )
+void GL_LightScaleTexture (uint32_t *in, int32_t inwidth, int32_t inheight, qboolean only_gamma )
 {
 	if ( only_gamma )
 	{
@@ -667,10 +667,10 @@ GL_Upload32
 Returns has_alpha
 ===============
 */
-qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mipmap)
+qboolean GL_Upload32 (uint32_t *data, int32_t width, int32_t height, qboolean mipmap)
 {
 	int32_t			samples;
-	unsigned 	*scaled;
+	uint32_t 	*scaled;
 	int32_t			scaled_width, scaled_height;
 	int32_t			i, c;
 	byte		*scan;
@@ -749,7 +749,7 @@ qboolean GL_Upload32 (unsigned *data, int32_t width, int32_t height, qboolean mi
 	if (scaled_width != width || scaled_height != height) 
 	{
 		scaled = malloc((scaled_width * scaled_height) * 4);
-		if (!stbir_resize_uint8((unsigned char *) data, (int) width, (int) height, 0, (unsigned char *) scaled, (int) scaled_width, (int) scaled_height, 0, 4)) {
+		if (!stbir_resize_uint8((uint8_t *) data, (int) width, (int) height, 0, (uint8_t *) scaled, (int) scaled_width, (int) scaled_height, 0, 4)) {
 			scaled_width = width;
 			scaled_height = height;
 			scaled = data;
@@ -800,7 +800,7 @@ Returns has_alpha
 */
 qboolean GL_Upload8 (byte *data, int32_t width, int32_t height,  qboolean mipmap, qboolean is_sky )
 {
-	unsigned	trans[512*256];
+	uint32_t	trans[512*256];
 	int32_t			i, s;
 	int32_t			p;
 
@@ -958,7 +958,7 @@ nonscrap:
 		if (bits == 8)
 			image->has_alpha = GL_Upload8 (pic, width, height, (image->type != it_pic && image->type != it_sky), image->type == it_sky );
 		else
-			image->has_alpha = GL_Upload32 ((unsigned *)pic, width, height, (image->type != it_pic && image->type != it_sky) );
+			image->has_alpha = GL_Upload32 ((uint32_t *)pic, width, height, (image->type != it_pic && image->type != it_sky) );
 		image->upload_width = upload_width;		// after power of 2 and scales
 		image->upload_height = upload_height;
 		image->paletted = uploaded_paletted;
@@ -975,8 +975,8 @@ nonscrap:
 // store the names of last images that failed to load
 #define NUM_FAIL_IMAGES 256
 char lastFailedImage[NUM_FAIL_IMAGES][MAX_OSPATH];
-long lastFailedImageHash[NUM_FAIL_IMAGES];
-static unsigned failedImgListIndex;
+int32_t lastFailedImageHash[NUM_FAIL_IMAGES];
+static uint32_t failedImgListIndex;
 
 /*
 ===============
@@ -1003,7 +1003,7 @@ R_CheckImgFailed
 qboolean R_CheckImgFailed (char *name)
 {
 	int32_t		i;
-	long	hash;
+	int32_t	hash;
 
 	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
@@ -1265,7 +1265,7 @@ int32_t Draw_GetPalette (void)
 {
 	int32_t		i;
 	int32_t		r, g, b;
-	unsigned	v;
+	uint32_t	v;
 	byte	*pic, *pal;
 	int32_t		width, height;
 	//int32_t		avg, dr, dg, db, d1, d2, d3;	//** DMP

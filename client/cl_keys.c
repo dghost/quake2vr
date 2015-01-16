@@ -898,7 +898,7 @@ Should NOT be called during an interrupt!
 */
 extern int32_t scr_draw_loading;
 
-void Key_Event (int32_t key, qboolean down, unsigned time)
+void Key_Event (int32_t key, qboolean down, uint32_t time)
 {
 	char	*kb;
 	char	cmd[1024];

@@ -34,13 +34,13 @@ static float	rb_inverseSawtoothTable[TABLE_SIZE];
 static float	rb_noiseTable[TABLE_SIZE];
 
 // vertex arrays
-unsigned	indexArray[MAX_INDICES];
+uint32_t	indexArray[MAX_INDICES];
 float		texCoordArray[MAX_TEXTURE_UNITS][MAX_VERTICES][2];
 float		vertexArray[MAX_VERTICES][3];
 float		colorArray[MAX_VERTICES][4];
 float		inTexCoordArray[MAX_VERTICES][2];
 
-unsigned	rb_vertex, rb_index;
+uint32_t	rb_vertex, rb_index;
 
 /*
 =================

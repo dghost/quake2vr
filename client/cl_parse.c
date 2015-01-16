@@ -210,7 +210,7 @@ CL_ParseBaseline
 void CL_ParseBaseline (void)
 {
 	entity_state_t	*es;
-	int32_t				bits;
+	uint32_t				bits;
 	int32_t				newnum;
 	entity_state_t	nullstate;
 

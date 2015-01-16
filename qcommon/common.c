@@ -629,9 +629,9 @@ void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *
 		
 	if ( to->skinnum != from->skinnum )
 	{
-		if ((unsigned)to->skinnum < 256)
+		if ((uint32_t)to->skinnum < 256)
 			bits |= U_SKIN8;
-		else if ((unsigned)to->skinnum < 0x10000)
+		else if ((uint32_t)to->skinnum < 0x10000)
 			bits |= U_SKIN16;
 		else
 			bits |= (U_SKIN8|U_SKIN16);

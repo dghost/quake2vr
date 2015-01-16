@@ -173,7 +173,7 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 		if (*colon == ':')
 		{
 			*colon = 0;
-			((struct sockaddr_in *)sadr)->sin_port = htons((short)atoi(colon+1));	
+			((struct sockaddr_in *)sadr)->sin_port = htons((int16_t)atoi(colon+1));	
 		}
 	
 	if (copy[0] >= '0' && copy[0] <= '9')
@@ -278,7 +278,7 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 {
 	int 	ret;
 	struct sockaddr_in	from;
-	int		fromlen;
+	uint32_t fromlen;
 	int		net_socket;
 	int		protocol;
 	int		err;
@@ -499,7 +499,7 @@ int NET_Socket (char *net_interface, int port)
 	if (port == PORT_ANY)
 		address.sin_port = 0;
 	else
-		address.sin_port = htons((short)port);
+		address.sin_port = htons((int16_t)port);
 
 	address.sin_family = AF_INET;
 

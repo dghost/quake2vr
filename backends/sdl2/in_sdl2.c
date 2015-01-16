@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../client/vr/include/vr.h"
 #include "in_sdlcont.h"
 
-extern	unsigned	sys_msg_time;
+extern	uint32_t	sys_msg_time;
 
 enum _ControllerType
 {

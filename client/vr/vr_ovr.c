@@ -211,7 +211,7 @@ void VR_OVR_ResetHMDOrientation()
 
 ovrBool VR_OVR_InitSensor()
 {
-	unsigned int sensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection;
+	uint32_t sensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection;
 
 	if (sensorEnabled)
 	{
@@ -227,7 +227,7 @@ ovrBool VR_OVR_InitSensor()
 
 int32_t VR_OVR_RenderLatencyTest(vec4_t color) 
 {
-	unsigned char ovrLatencyColor[3] = {0, 0, 0};
+	uint8_t ovrLatencyColor[3] = {0, 0, 0};
 
 	qboolean use = (qboolean) false;
 	if (hmd->Type >= ovrHmd_DK2)
@@ -271,7 +271,7 @@ void VR_OVR_FrameStart()
 
 	if (vr_ovr_lowpersistence->modified)
 	{
-		unsigned int caps = 0;
+		uint32_t caps = 0;
 		if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)
 			caps |= ovrHmdCap_DynamicPrediction;
 
@@ -323,9 +323,9 @@ ovrname_t *VR_OVR_GetNameList()
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;
-	unsigned int hmdCaps = 0;
+	uint32_t hmdCaps = 0;
 	qboolean isDebug = false;
-	unsigned int device = 0;
+	uint32_t device = 0;
 	if (!vr_ovr_enable->value)
 		return 0;
 

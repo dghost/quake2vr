@@ -182,7 +182,7 @@ clients along with it.
 void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate, qboolean attractloop, qboolean loadgame)
 {
 	int32_t			i;
-	unsigned	checksum;
+	uint32_t	checksum;
 	fileHandle_t	f;
 
 	if (attractloop)

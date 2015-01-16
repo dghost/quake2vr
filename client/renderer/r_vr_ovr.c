@@ -249,7 +249,7 @@ void OVR_CalculateState(vr_param_t *state)
 
 		R_BindIVBO(&renderInfo[eye].eye,NULL,0);
 		R_VertexData(&renderInfo[eye].eye,sizeof(ovr_vert_t) * meshData.VertexCount, mesh);
-		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(unsigned short) * meshData.IndexCount,meshData.pIndexData);
+		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(uint16_t) * meshData.IndexCount,meshData.pIndexData);
 		R_ReleaseIVBO();
 		free(mesh);
 		ovrHmd_DestroyDistortionMesh( &meshData );

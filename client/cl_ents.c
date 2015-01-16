@@ -193,9 +193,9 @@ Returns the entity number and the header bits
 =================
 */
 int32_t	bitcounts[32];	/// just for protocol profiling
-int32_t CL_ParseEntityBits (unsigned *bits)
+int32_t CL_ParseEntityBits (uint32_t *bits)
 {
-	unsigned	b, total;
+	uint32_t	b, total;
 	int32_t			i;
 	int32_t			number;
 
@@ -509,7 +509,7 @@ rest of the data stream.
 void CL_ParsePacketEntities (frame_t *oldframe, frame_t *newframe)
 {
 	int32_t			newnum;
-	int32_t			bits;
+	uint32_t			bits;
 	entity_state_t	*oldstate;
 	int32_t			oldindex, oldnum;
 
@@ -2205,7 +2205,7 @@ void CL_CalcViewValues (void)
 	if ( (cl_predict->value) && !(cl.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION)
 		&& !cl.attractloop  && !cl_paused->value) // Fix for not viewing a demo and being paused
 	{	// use predicted values
-		unsigned	delta;
+		uint32_t	delta;
 
 		backlerp = 1.0 - lerp;
 		for (i=0 ; i<3 ; i++)

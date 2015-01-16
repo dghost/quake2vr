@@ -81,7 +81,7 @@ typedef struct {
 	int32_t				frameCount;
 	int32_t				frameTime;
 
-	unsigned		palette[256];
+	uint32_t		palette[256];
 
 	// PCX stuff
 	byte			*pcxBuffer;
@@ -604,7 +604,7 @@ CIN_Huff1Decompress
 static void CIN_Huff1Decompress (cinematic_t *cin, const byte *data, int32_t size)
 {
 	const byte	*input;
-	unsigned	*out;
+	uint32_t	*out;
 	int32_t			count;
 	int32_t			in;
 	int32_t			nodeNum;
@@ -616,7 +616,7 @@ static void CIN_Huff1Decompress (cinematic_t *cin, const byte *data, int32_t siz
 	// Get decompressed count
 	count = data[0] + (data[1]<<8) + (data[2]<<16) + (data[3]<<24);
 	input = data + 4;
-	out = (unsigned *)cin->hBuffer;
+	out = (uint32_t *)cin->hBuffer;
 
 	// Read bits
 	nodesBase = cin->hNodes1 - 256*2;	// Nodes 0-255 aren't stored
@@ -751,18 +751,18 @@ CIN_ResampleFrame
 static void CIN_ResampleFrame (cinematic_t *cin)
 {
 	int32_t			i, j;
-	unsigned	*src, *dst;
+	uint32_t	*src, *dst;
 	int32_t			frac, fracStep;
 
 	if (cin->rawWidth == cin->vidWidth && cin->rawHeight == cin->vidHeight)
 		return;
 
-	dst = (unsigned *)cin->rawBuffer;
+	dst = (uint32_t *)cin->rawBuffer;
 	fracStep = cin->vidWidth * 0x10000 / cin->rawWidth;
 
 	for (i = 0; i < cin->rawHeight; i++, dst += cin->rawWidth)
 	{
-		src = (unsigned *)cin->vidBuffer + cin->vidWidth * (i * cin->vidHeight / cin->rawHeight);
+		src = (uint32_t *)cin->vidBuffer + cin->vidWidth * (i * cin->vidHeight / cin->rawHeight);
 		frac = fracStep >> 1;
 
 		for (j = 0; j < cin->rawWidth; j++)
@@ -1204,7 +1204,7 @@ static qboolean CIN_StaticCinematic (cinematic_t *cin, const char *name)
 
 			while (runLength-- > 0)
 			{
-				*(unsigned *)out = cin->palette[dataByte];
+				*(uint32_t *)out = cin->palette[dataByte];
 
 				out += 4;
 				x++;

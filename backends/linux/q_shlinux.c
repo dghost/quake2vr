@@ -125,7 +125,7 @@ static	char	findpattern[MAX_OSPATH];
 static	DIR		*fdir;
 
 static qboolean CompareAttributes(char *path, char *name,
-	unsigned musthave, unsigned canthave )
+	uint32_t musthave, uint32_t canthave )
 {
 	struct stat st;
 	char fn[MAX_OSPATH];
@@ -148,7 +148,7 @@ static qboolean CompareAttributes(char *path, char *name,
 	return true;
 }
 
-char *Sys_FindFirst (char *path, unsigned musthave, unsigned canhave)
+char *Sys_FindFirst (char *path, uint32_t musthave, uint32_t canhave)
 {
 	struct dirent *d;
 	char *p;
@@ -183,7 +183,7 @@ char *Sys_FindFirst (char *path, unsigned musthave, unsigned canhave)
 	return NULL;
 }
 
-char *Sys_FindNext (unsigned musthave, unsigned canhave)
+char *Sys_FindNext (uint32_t musthave, uint32_t canhave)
 {
 	struct dirent *d;
 

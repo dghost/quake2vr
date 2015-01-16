@@ -93,7 +93,7 @@ void R_LightAliasModel (vec3_t baselight, vec3_t normal, vec3_t lightOut, byte n
 R_AliasMeshesAreBatchable
 =================
 */
-qboolean R_AliasMeshesAreBatchable (maliasmodel_t *paliashdr, unsigned meshnum1, unsigned meshnum2, unsigned skinnum)
+qboolean R_AliasMeshesAreBatchable (maliasmodel_t *paliashdr, uint32_t meshnum1, uint32_t meshnum2, uint32_t skinnum)
 {
 	maliasmesh_t	*mesh1, *mesh2;
 	renderparms_t	*skinParms1, *skinParms2;
@@ -150,7 +150,7 @@ RB_RenderAliasMesh
 Backend for R_DrawAliasMeshes
 =================
 */
-void RB_RenderAliasMesh (maliasmodel_t *paliashdr, unsigned meshnum, unsigned skinnum, image_t *skin)
+void RB_RenderAliasMesh (maliasmodel_t *paliashdr, uint32_t meshnum, uint32_t skinnum, image_t *skin)
 {
 	entity_t		*e = currententity;
 	maliasmesh_t	*mesh;
@@ -439,7 +439,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 }
 
 
-unsigned	shadow_va, shadow_index;
+uint32_t	shadow_va, shadow_index;
 /*
 =============
 R_BuildShadowVolume

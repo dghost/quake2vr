@@ -62,7 +62,7 @@ CL_RequestNextDownload
 */
 void CL_RequestNextDownload (void)
 {
-	unsigned	map_checksum;		// for detecting cheater maps
+	uint32_t	map_checksum;		// for detecting cheater maps
 	char fn[MAX_OSPATH];
 	dmdl_t *pheader;
 
@@ -113,7 +113,7 @@ void CL_RequestNextDownload (void)
 							precache_check++;
 							continue; // couldn't load it
 						}
-						if (LittleLong(*(unsigned *)precache_model) != IDALIASHEADER) {
+						if (LittleLong(*(uint32_t *)precache_model) != IDALIASHEADER) {
 							// not an alias model
 							FS_FreeFile(precache_model);
 							precache_model = 0;
@@ -445,7 +445,7 @@ void CL_RequestNextDownload (void)
 							precache_check++;
 							continue; // couldn't load it
 						}
-						if (LittleLong(*(unsigned *)precache_model) != IDALIASHEADER) {
+						if (LittleLong(*(uint32_t *)precache_model) != IDALIASHEADER) {
 							// not an alias model
 							FS_FreeFile(precache_model);
 							precache_model = 0;
@@ -737,7 +737,7 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 // Knightmare- store the names of last downloads that failed
 #define NUM_FAIL_DLDS 64
 char lastfaileddownload[NUM_FAIL_DLDS][MAX_OSPATH];
-static unsigned failedDlListIndex;
+static uint32_t failedDlListIndex;
 
 /*
 ===============

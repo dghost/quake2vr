@@ -524,7 +524,7 @@ Cmd_Argv
 */
 char	*Cmd_Argv (int32_t arg)
 {
-	if ( (unsigned)arg >= cmd_argc )
+	if ( (uint32_t)arg >= cmd_argc )
 		return cmd_null_string;
 	return cmd_argv[arg];	
 }

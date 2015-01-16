@@ -526,7 +526,7 @@ dynamic:
 	{
 		if ( (fa->styles[maps] >= 32 || fa->styles[maps] == 0) && (fa->dlightframe != r_framecount) )
 		{
-			unsigned	temp[34*34];
+			uint32_t	temp[34*34];
 			int32_t			smax, tmax;
 
 			smax = (fa->extents[0]>>4)+1;
@@ -715,7 +715,7 @@ void R_UpdateSurfaceLightmap (msurface_t *surf)
 
 	if (R_SurfIsDynamic (surf, &map))
 	{
-		unsigned	*base = gl_lms.lightmap_update[surf->lightmaptexturenum];
+		uint32_t	*base = gl_lms.lightmap_update[surf->lightmaptexturenum];
 		rect_t		*rect = &gl_lms.lightrect[surf->lightmaptexturenum];
 
 		base += (surf->light_t * LM_BLOCK_WIDTH) + surf->light_s;
@@ -960,12 +960,11 @@ Underwater caustic effect based on code by Kirk Barnes
 extern uint32_t dst_texture;
 static void RB_DrawCaustics (msurface_t *surf)
 {
-	int32_t			i, vert=0;	// nv
+	int32_t			i;	// nv
 	float		scrollh, scrollv, scaleh, scalev, dstscroll;	// *v,
 	image_t		*causticpic = RB_CausticForSurface (surf);
 	qboolean	previousBlend = false;
-	qboolean	previousFill = false;
-	GLfloat param[4];	
+	GLfloat param[4];
 
 	// adjustment for texture size and caustic image
 	scaleh = surf->texinfo->texWidth / (causticpic->width*0.5);
@@ -1035,7 +1034,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 	image_t		*glow = R_TextureAnimationGlow (surf);
 	int32_t			i;
 	float		alpha = colorArray[0][3];
-	unsigned	lmtex = surf->lightmaptexturenum;
+	uint32_t	lmtex = surf->lightmaptexturenum;
 	qboolean	glowLayer, glowPass, envMap, causticPass;
 #ifndef BATCH_LM_UPDATES
 	int32_t			map;
@@ -1055,7 +1054,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 #ifndef BATCH_LM_UPDATES
 	if (R_SurfIsDynamic (surf, &map))
 	{
-		unsigned	temp[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];
+		uint32_t	temp[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];
 		int32_t			smax, tmax;
 
 		smax = (surf->extents[0]>>4)+1;
@@ -2205,7 +2204,7 @@ R_CreateSurfaceLightmap
 void R_CreateSurfaceLightmap (msurface_t *surf)
 {
 	int32_t			smax, tmax;
-	unsigned	*base;
+	uint32_t	*base;
 
 	if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB))
 		return;
@@ -2255,7 +2254,7 @@ void R_BeginBuildingLightmaps (model_t *m)
 {
 	static lightstyle_t	lightstyles[MAX_LIGHTSTYLES];
 	int32_t				i;
-	unsigned		dummy[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];	// 128*128
+	uint32_t		dummy[LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT];	// 128*128
 
 	memset( gl_lms.allocated, 0, sizeof(gl_lms.allocated) );
 

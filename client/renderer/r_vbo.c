@@ -1,8 +1,8 @@
 #include "include/r_local.h"
 
-void R_SetAttribsVBO(attribs_t *attribs, unsigned int count)
+void R_SetAttribsVBO(attribs_t *attribs, uint32_t count)
 {
-	unsigned int i;
+	uint32_t i;
 	for (i = 0; i < count; i++)
 	{
 		attribs_t *a = &attribs[i];
@@ -89,7 +89,7 @@ void R_IndexData(vbo_t *buffer, GLenum mode, GLenum type, GLsizei count, GLsizei
 	}
 }
 
-void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, unsigned int attribCount)
+void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, uint32_t attribCount)
 {
 	if (buffer->handles[0])
 	{

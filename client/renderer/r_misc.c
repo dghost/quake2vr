@@ -181,7 +181,7 @@ void R_ScaledScreenshot (char *name)
 	if (!pngdata)	return;
 
 	// Resize grabbed screen
-	if (!stbir_resize_uint8((unsigned char *) saveshotdata, (int) glConfig.screen_width, (int) glConfig.screen_height, 0, (unsigned char *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3)) {
+	if (!stbir_resize_uint8((uint8_t *) saveshotdata, (int) glConfig.screen_width, (int) glConfig.screen_height, 0, (uint8_t *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3)) {
 		VID_Printf (PRINT_ALL, "Menu_ScreenShot: Couldn't create %s\n", name); 
 		return;
 	}

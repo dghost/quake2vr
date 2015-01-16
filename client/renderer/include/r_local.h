@@ -95,7 +95,7 @@ typedef struct image_s
 	int32_t			registration_sequence;		// 0 = free
 	struct		msurface_s	*texturechain;	// for sort-by-texture world drawing
 	struct		msurface_s	*warp_texturechain;	// same as above, for warp surfaces
-	int32_t			texnum;						// gl texture binding
+	uint32_t			texnum;						// gl texture binding
 	float		sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
 	qboolean	scrap;
 	qboolean	has_alpha;

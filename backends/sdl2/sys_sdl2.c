@@ -56,8 +56,8 @@ uint32_t mainWindowID;
 SDL_SysWMinfo mainWindowInfo;
 
 void SDL_ProcEvent(SDL_Event *event);
-unsigned	sys_msg_time;
-unsigned	sys_frame_time;
+uint32_t	sys_msg_time;
+uint32_t	sys_frame_time;
 
 
 #define	MAX_NUM_ARGVS	128

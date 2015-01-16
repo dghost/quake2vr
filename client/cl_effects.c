@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static vec3_t avelocities [NUMVERTEXNORMALS];
 
-extern	unsigned	d_8to24table[256];
+extern	uint32_t	d_8to24table[256];
 
 //=================================================
 

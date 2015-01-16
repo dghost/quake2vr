@@ -55,7 +55,7 @@ extern viddef_t viddef;
 int32_t stringLen (const char *string);
 int32_t stringLengthExtra (const char *string)
 {
-	unsigned i, j;
+	uint32_t i, j;
 	char modifier;
 	float len = strlen( string );
 
@@ -74,7 +74,7 @@ int32_t stringLengthExtra (const char *string)
 
 char *unformattedString (const char *string)
 {
-	unsigned i;
+	uint32_t i;
 	int32_t len;
 	char character;
 	char *newstring = "";

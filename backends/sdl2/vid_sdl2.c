@@ -42,9 +42,7 @@ cvar_t		*vid_fullscreen;
 viddef_t	viddef;				// global video state; used by other modules
 qboolean	kmgl_active = 0;
 
-static qboolean s_alttab_disabled;
-
-extern	unsigned	sys_msg_time;
+extern	uint32_t	sys_msg_time;
 
 
 /*

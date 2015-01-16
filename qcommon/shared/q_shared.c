@@ -458,7 +458,7 @@ float Q_fabs (float f)
 
 #if defined _M_IX86 && !defined C_ONLY
 #pragma warning (disable:4035)
-__declspec( naked ) long Q_ftol( float f )
+__declspec( naked ) int32_t Q_ftol( float f )
 {
 	static int32_t tmp;
 	__asm fld dword ptr [esp+4]
@@ -468,6 +468,7 @@ __declspec( naked ) long Q_ftol( float f )
 }
 #pragma warning (default:4035)
 #endif
+
 
 /*
 ===============
@@ -1729,7 +1730,7 @@ Com_HashFileName
 int32_t Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized)
 {
 	int32_t		i = 0;
-	long	hash = 0;
+	int32_t	hash = 0;
 	char	letter;
 
 	if (fname[0] == '/' || fname[0] == '\\') i++;	// skip leading slash
@@ -1738,7 +1739,7 @@ int32_t Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized)
 		letter = tolower(fname[i]);
 	//	if (letter == '.') break;
 		if (letter == '\\') letter = '/';	// fix filepaths
-		hash += (long)(letter)*(i+119);
+		hash += (int32_t)(letter)*(i+119);
 		i++;
 	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
