@@ -129,9 +129,7 @@ void R_VR_GenerateHud()
 			float xpos;
 			vert_t vert1, vert2;
 			GLushort vertNum1, vertNum2;
-			qboolean horizontalHalf = (i >= (numsegments+1) / 2);
 			
-
 			xpos = i * horizInterval - 1;
 
 			VectorSet(vert1.position, xpos, ypos, -1);
@@ -312,9 +310,6 @@ fbo_t* R_VR_GetFrameFBO()
 
 void R_VR_DrawHud()
 {
-	float fov = vr_hud_fov->value;
-	float depth = vr_hud_depth->value;
-	int numsegments = vr_hud_segments->value;
 	int index = 0;
 	vec_t mat[4][4], temp[4][4], counter[4][4];
 	vec3_t rot, pos;

@@ -1554,7 +1554,7 @@ md3 skin protoshaders
 void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 {
 	char		scriptname[MAX_QPATH];
-	char		*buf, *parse_data, *token=NULL, *token2=NULL;
+	char		*buf, *parse_data, *token=NULL;
 	int32_t			buf_size, i, j; //, k;
 	qboolean	skinname_found;
 	renderparms_t	*skinParms;

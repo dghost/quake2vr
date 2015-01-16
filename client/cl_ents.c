@@ -1927,8 +1927,6 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int32_t effects = s1->renderfx;
-
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
 					{
@@ -2012,8 +2010,6 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int32_t effects = s1->renderfx;
-
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
 					{

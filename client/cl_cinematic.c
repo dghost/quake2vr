@@ -319,7 +319,6 @@ CIN_ReadInfo
 */
 static void CIN_ReadInfo (cinematic_t *cin)
 {
-	roqChunk_t	*chunk = &cin->roqChunk;
 	int16_t		data[4];
 
 	FS_Read(data, sizeof(data), cin->file);

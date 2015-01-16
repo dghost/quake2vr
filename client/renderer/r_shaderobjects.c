@@ -99,7 +99,6 @@ qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader)
 		GLint status;
 		char buffer[MAX_OSPATH];
 		char *fragBuffer = NULL,*vertBuffer = NULL;
-		int size = 0;
 		program = glCreateProgram();
 		vert_shader = glCreateShader(GL_VERTEX_SHADER);
 		frag_shader = glCreateShader(GL_FRAGMENT_SHADER);

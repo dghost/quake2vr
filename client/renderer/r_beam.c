@@ -32,12 +32,10 @@ R_RenderBeam
 void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green, float blue, float alpha)
 {
 	float		len;
-	vec3_t		up		= {vup[0]    * 0.75f, vup[1]    * 0.75f, vup[2]    * 0.75f};
-	vec3_t		right	= {vright[0] * 0.75f, vright[1] * 0.75f, vright[2] * 0.75f};
 	vec3_t		vert[4], ang_up, ang_right, vdelta;
 	vec2_t		texCoord[4];
 	vec4_t		beamColor;
-	int32_t			oldrender=0, rendertype=0, i;
+	int32_t		i;
 
 	c_alias_polys += 2;
 

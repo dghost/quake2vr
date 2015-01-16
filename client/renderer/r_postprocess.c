@@ -251,7 +251,6 @@ static r_shaderobject_t FXAA_object = {
 };
 
 static qboolean setupForBlit = false;
-static qboolean wasSetupForQuad = false;
 void R_SetupBlit()
 {
 	if (setupForBlit)

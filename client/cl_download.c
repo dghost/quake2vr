@@ -782,7 +782,6 @@ void CL_AddToFailedDownloadList (char *name)
 {
 	int32_t			i;
 	qboolean	found = false;
-	qboolean	added = false;
 
 	// check if this name is already in the table
 	for (i=0; i<NUM_FAIL_DLDS; i++)
