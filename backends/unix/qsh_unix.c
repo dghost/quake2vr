@@ -29,10 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "glob.h"
 
-#include "../qcommon/qcommon.h"
+#include "../../qcommon/qcommon.h"
 
 #if defined(__FreeBSD__)
 #include <machine/param.h>
+#endif
+
+#if defined (__APPLE__)
+#include <mach/mach_init.h>
 #endif
 
 //===============================================================================
@@ -47,7 +51,7 @@ void *Hunk_Begin (int maxsize)
 	maxhunksize = maxsize + sizeof(int);
 	curhunksize = 0;
 
-#if (defined __FreeBSD__)
+#if (defined __FreeBSD__) || (defined __APPLE__)
 	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, 
 		MAP_PRIVATE|MAP_ANON, -1, 0);
 #else
@@ -66,9 +70,15 @@ void *Hunk_Begin (int maxsize)
 void *Hunk_Alloc (int size)
 {
 	byte *buf;
+    int cacheline = Cvar_VariableInteger("sys_cacheLine");
+    if (cacheline > 0)
+        cacheline -= 1;
+    else
+        cacheline = 31;
+    
+    // round to cacheline
+    size = (size+cacheline)&~cacheline;
 
-	// round to cacheline
-	size = (size+31)&~31;
 	if (curhunksize + size > maxhunksize)
 		Sys_Error("Hunk_Alloc overflow");
 	buf = membase + sizeof(int) + curhunksize;
@@ -80,7 +90,7 @@ int Hunk_End (void)
 {
 	byte *n;
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__APPLE__)
   size_t old_size = maxhunksize;
   size_t new_size = curhunksize + sizeof(int);
   void * unmap_base;
@@ -119,32 +129,6 @@ void Hunk_Free (void *base)
 }
 
 //===============================================================================
-
-
-/*
-================
-Sys_Milliseconds
-================
-*/
-int curtime;
-int Sys_Milliseconds (void)
-{
-	struct timeval tp;
-	struct timezone tzp;
-	static int		secbase;
-
-	gettimeofday(&tp, &tzp);
-	
-	if (!secbase)
-	{
-		secbase = tp.tv_sec;
-		return tp.tv_usec/1000;
-	}
-
-	curtime = (tp.tv_sec - secbase)*1000 + tp.tv_usec/1000;
-	
-	return curtime;
-}
 
 void Sys_Mkdir (char *path)
 {

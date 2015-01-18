@@ -46,11 +46,11 @@ uLong ZCALLBACK fwrite_file_func OF((
    const void* buf,
    uLong size));
 
-long ZCALLBACK ftell_file_func OF((
+int32_t ZCALLBACK ftell_file_func OF((
    voidpf opaque,
    voidpf stream));
 
-long ZCALLBACK fseek_file_func OF((
+int32_t ZCALLBACK fseek_file_func OF((
    voidpf opaque,
    voidpf stream,
    uLong offset,
@@ -110,23 +110,23 @@ uLong ZCALLBACK fwrite_file_func (opaque, stream, buf, size)
     return ret;
 }
 
-long ZCALLBACK ftell_file_func (opaque, stream)
+int32_t ZCALLBACK ftell_file_func (opaque, stream)
    voidpf opaque;
    voidpf stream;
 {
-    long ret;
+    int32_t ret;
     ret = ftell((FILE *)stream);
     return ret;
 }
 
-long ZCALLBACK fseek_file_func (opaque, stream, offset, origin)
+int32_t ZCALLBACK fseek_file_func (opaque, stream, offset, origin)
    voidpf opaque;
    voidpf stream;
    uLong offset;
    int origin;
 {
     int fseek_origin=0;
-    long ret;
+    int32_t ret;
     switch (origin)
     {
     case ZLIB_FILEFUNC_SEEK_CUR :
