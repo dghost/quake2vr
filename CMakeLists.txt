@@ -6,53 +6,19 @@ set (quake2vr_VERSION_MINOR 0)
 set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
+
 include (CheckLibraryExists)
-include (FindOpenGL)
+find_package(SDL2 REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(OpenGL REQUIRED)
 
-if (CMAKE_CROSSCOMPILING)
-  FIND_PATH(SDL2_INCLUDE_DIRS SDL.h
-    HINTS
-    $ENV{SDL2DIR}
-    PATH_SUFFIXES include/SDL2 include SDL2
-    ONLY_CMAKE_FIND_ROOT_PATH
-    )
-
-  MESSAGE("SDL2_INCLUDE_DIRS: ${SDL2_INCLUDE_DIRS}")
-
-  FIND_LIBRARY(SDL2_LIBRARY_TEMP
-    NAMES SDL2
-    HINTS
-    $ENV{SDL2DIR}
-    PATH_SUFFIXES lib64 lib
-    ONLY_CMAKE_FIND_ROOT_PATH
-    )
-
-  FIND_LIBRARY(SDL2_MAIN_LIBRARY
-    NAMES SDL2main
-    HINTS
-    $ENV{SDL2DIR}
-    PATH_SUFFIXES lib64 lib
-    ONLY_CMAKE_FIND_ROOT_PATH
-    )
-
-
-  set (SDL2_LIBRARIES ${SDL2_LIBRARY_TEMP} ${SDL2_MAIN_LIBRARY})
-  if (MINGW)
-    set (SDL2_LIBRARIES mingw32 ${SDL2_LIBRARIES})
-  endif (MINGW)
-
-  MESSAGE("SDL2_LIBRARIES: ${SDL2_LIBRARIES}")
-
-else (CMAKE_CROSSCOMPILING)
-  include (FindPkgConfig)
-  pkg_search_module (SDL2 REQUIRED sdl2)
-endif (CMAKE_CROSSCOMPILING)
 
 if (MINGW)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif (MINGW)
 
-include_directories (${SDL2_INCLUDE_DIRS})
+include_directories (${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
 
 #check_library_exists (SDL2_image IMG_Load "" HAVE_SDL2_IMAGE)
 
@@ -186,15 +152,19 @@ if (OVR_DYNAMIC)
 	)
 endif (OVR_DYNAMIC)
 
-set(LINUX_SOURCES
-  backends/linux/net_udp.c
-  backends/linux/q_shlinux.c
+set(UNIX_SOURCES
+  backends/unix/net_udp.c
+  backends/unix/qsh_unix.c
   backends/unix/zip/unzip.c
   backends/unix/zip/ioapi.c
 )
+
+if (UNIX)
 add_definitions(-DNO_STEAM)
-add_executable(quake2vr ${BASE_SOURCES} ${LINUX_SOURCES})
-target_link_libraries(quake2vr ${SDL2_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} GLEW ogg vorbis vorbisfile z)
+add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES})
+endif (UNIX)
+
+target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} z)
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 if (!OVR_DYNAMIC)
@@ -202,6 +172,7 @@ target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
 endif (!OVR_DYNAMIC)
 
 add_subdirectory(game)
+add_subdirectory(missionpacksrc)
 
 add_custom_target(data ALL
   COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh "${CMAKE_BINARY_DIR}"
