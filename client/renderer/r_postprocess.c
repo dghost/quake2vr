@@ -113,7 +113,7 @@ void R_TeardownQuadState()
 
 void R_DrawQuad()
 {
-	qboolean needsSetup = !currentBuffer;
+	qboolean needsSetup = !(currentBuffer == &quad);
 	if (needsSetup)
 		R_SetupQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);

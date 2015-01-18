@@ -31,8 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define GLEW_STATIC
 #define GLEW_NO_GLU
 
-#include "GL/glew.h"
-//#include <GL/gl.h>
+#include <GL/glew.h>
 
 #ifdef __linux__
 //#include <GL/fxmesa.h>
@@ -41,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #ifdef _WIN32
-#include "GL/wglew.h"
+#include <GL/wglew.h>
 #endif
 
 #endif
