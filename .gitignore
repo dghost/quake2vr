@@ -219,7 +219,11 @@ pip-log.txt
 *.exe
 
 external/
-
+vrquake2.pk3
+quake2vr.xcodeproj/
+vrgamex86.so
+mpgamex86.so
+quake2vr
 
 ################
 # CMake 
@@ -227,6 +231,7 @@ external/
 
 CMakeCache.txt
 CMakeFiles
+CMakeScripts
 Makefile
 cmake_install.cmake
 install_manifest.txt
