@@ -57,9 +57,14 @@ void *Hunk_Begin (int32_t maxsize)
 void *Hunk_Alloc (int32_t size)
 {
 	void	*buf;
+	int cacheline = Cvar_VariableInteger("sys_cacheLine");
+    	if (cacheline > 0)
+	    cacheline -= 1;
+    	else
+            cacheline = 31;
 
 	// round to cacheline
-	size = (size+31)&~31;
+	size = (size+cacheline)&~cacheline;
 
 #ifdef VIRTUAL_ALLOC
 	// commit pages as needed
