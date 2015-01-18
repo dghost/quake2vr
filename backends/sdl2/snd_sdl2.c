@@ -591,7 +591,7 @@ SDL_AddLoopSounds(void)
 		return;
 	}
 
-	SDL_memset(&sounds, 0, sizeof(int) * MAX_EDICTS);
+	SDL_memset(&sounds, 0, sizeof(sounds));
 	S_BuildSoundList(sounds);
 
 	for (i = 0; i < cl.frame.num_entities; i++)

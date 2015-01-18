@@ -389,7 +389,9 @@ static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
 
 #else
 	int32_t numCores = SDL_GetCPUCount();
-	Q_strncpyz(cpuString, "Unknown processor with %d logical cores\n",numCores);
+    char buffer[512];
+    memset(buffer,0,sizeof(buffer));
+    snprintf(cpuString, maxSize, "Unknown %d-core processor",numCores);
 	return true;
 #endif
 
@@ -419,23 +421,29 @@ void Sys_Init (void)
 	Cvar_Get("sys_osVersion", string, CVAR_NOSET|CVAR_LATCH);
 
 	// Detect CPU
-	Com_Printf("Detecting CPU... ");
+	Com_Printf("Detecting system...\n");
 	if (Sys_DetectCPU(string, sizeof(string))) {
-		Com_Printf("Found %s\n", string);
+		Com_Printf("CPU: %s\n", string);
 		Cvar_Get("sys_cpuString", string, CVAR_NOSET|CVAR_LATCH);
 	}
 	else {
-		Com_Printf("Unknown CPU found\n");
+		Com_Printf("CPU: Unknown CPU found\n");
 		Cvar_Get("sys_cpuString", "Unknown", CVAR_NOSET|CVAR_LATCH);
 	}
 
-	// Get physical memory
+    
+    SDL_snprintf(string,sizeof(string),"%u",SDL_GetCPUCacheLineSize());
+    Com_Printf("Cache Line Size: %s bytes\n", string);
+    Cvar_Get("sys_cacheLine", string, CVAR_NOSET|CVAR_LATCH);
+    
+    // Get physical memory
 	SDL_snprintf(string,sizeof(string),"%u",SDL_GetSystemRAM());
 	Com_Printf("Memory: %s MB\n", string);
 	Cvar_Get("sys_ramMegs", string, CVAR_NOSET|CVAR_LATCH);
 	// end Q2E detection
 
-	SDL_VERSION(&compiled);
+
+    SDL_VERSION(&compiled);
 	SDL_GetVersion(&linked);
 	SDL_snprintf(string,sizeof(string),"%d.%d.%d",linked.major, linked.minor, linked.patch);
 	Cvar_Get("sys_sdlString",string,CVAR_NOSET|CVAR_LATCH);

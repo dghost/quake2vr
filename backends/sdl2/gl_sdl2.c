@@ -33,16 +33,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <assert.h>
 //#include <windows.h>
 #include "../../client/renderer/include/r_local.h"
-#include "gl_sdl2.h"
 #include "sdl2quake.h"
 #include "../../client/vr/include/vr.h"
 
 #ifdef _WIN32
 #include "../win32/resource.h"
-#include <SDL_syswm.h>
 #endif
 
-static qboolean GLimp_SwitchFullscreen( int32_t width, int32_t height );
+#include <SDL_syswm.h>
+
 int32_t GLimp_InitGL (void);
 
 SDL_GLContext glcontext;
@@ -120,6 +119,10 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_DisplayMode targetMode;
 	SDL_Surface *icon = NULL;
 
+#ifdef __APPLE__
+    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
+    
 	const char *win_fs[] = { "W", "FS", "FSW" };
 	char *title = NULL;
 
@@ -235,7 +238,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	VID_Printf (PRINT_ALL, "...creating window %dx%d %s at (%i,%i)\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0], xpos,ypos );
 
 	if (modType("xatrix")) { // q2mp1
-		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);		
+		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);
 		title = WINDOW_TITLE_XATRIX;
 	}
 	else if (modType("rogue"))  { // q2mp2
@@ -360,7 +363,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		height = Cvar_VariableInteger("vid_height");
 
 		SDL_GL_GetDrawableSize(mainWindow,&screenWidth,&screenHeight);
-		VID_Printf(PRINT_ALL,"Got desktop size %ix%i...\n",screenWidth,screenHeight);
+		VID_Printf(PRINT_ALL,"Got framebuffer size %ix%i...\n",screenWidth,screenHeight);
 		VID_Printf(PRINT_ALL,"Set render target size to %ix%i...\n",width,height);
 		VID_NewWindow (width,height);
 		*pwidth = width;
