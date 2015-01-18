@@ -32,8 +32,8 @@
 //#include <sys/time.h>
 #include <errno.h>
 
-#include "../include/vorbisfile.h"
-
+//#include "../include/vorbisfile.h"
+#include "include/stb_vorbis.c"
 #include "../client.h"
 #include "include/local.h"
 #include "include/vorbis.h"
@@ -43,7 +43,7 @@ qboolean ogg_started = false;   /* Initialization flag. */
 int ogg_bigendian = 0;
 byte *ogg_buffer;				/* File buffer. */
 char **ogg_filelist;			/* List of Ogg Vorbis files. */
-char ovBuf[4096];               /* Buffer for sound. */
+short ovBuf[8192];               /* Buffer for sound. */
 int ogg_curfile;				/* Index of currently played file. */
 int ogg_numfiles;				/* Number of Ogg Vorbis files. */
 int ovSection;					/* Position in Ogg Vorbis file. */
@@ -53,8 +53,8 @@ cvar_t *ogg_check;				/* Check Ogg files or not. */
 cvar_t *ogg_playlist;			/* Playlist. */
 cvar_t *ogg_sequence;			/* Sequence play indicator. */
 cvar_t *ogg_volume;				/* Music volume. */
-OggVorbis_File ovFile;			/* Ogg Vorbis file. */
-vorbis_info *ogg_info;			/* Ogg Vorbis file information */
+stb_vorbis *ovFile;			/* Ogg Vorbis file. */
+stb_vorbis_info ogg_info;			/* Ogg Vorbis file information */
 int ogg_numbufs;				/* Number of buffers for OpenAL */
 
 /*
@@ -128,9 +128,9 @@ OGG_Init(void)
 	/* Initialize variables. */
 	if (ogg_first_init)
 	{
+        ovFile = NULL;
 		ogg_buffer = NULL;
 		ogg_curfile = -1;
-		ogg_info = NULL;
 		ogg_status = STOP;
 		ogg_first_init = false;
 	}
@@ -196,7 +196,8 @@ OGG_Check(char *name)
 	qboolean res;        /* Return value. */
 	byte *buffer;        /* File buffer. */
 	int size;            /* File size. */
-	OggVorbis_File ovf;  /* Ogg Vorbis file. */
+	stb_vorbis *ovf;  /* Ogg Vorbis file. */
+    int error = VORBIS__no_error;
 
 	if (ogg_check->value == 0)
 	{
@@ -207,12 +208,10 @@ OGG_Check(char *name)
 
 	if ((size = FS_LoadFile(name, (void **)&buffer)) > 0)
 	{
-		if (ov_test(NULL, &ovf, (char *)buffer, size) == 0)
-		{
-			res = true;
-			ov_clear(&ovf);
-		}
-
+        if ((ovf = stb_vorbis_open_memory(buffer, size, &error, NULL))) {
+            res = true;
+            stb_vorbis_close(ovf);
+        }
 		FS_FreeFile(buffer);
 	}
 
@@ -229,14 +228,15 @@ OGG_Seek(ogg_seek_t type, double offset)
 	double total; /* Length of file (in seconds). */
 
 	/* Check if the file is seekable. */
-	if (ov_seekable(&ovFile) == 0)
+//	if (ov_seekable(&ovFile) == 0)
 	{
 		Com_Printf("OGG_Seek: file is not seekable.\n");
 		return;
 	}
 
 	/* Get file information. */
-	pos = ov_time_tell(&ovFile);
+/*
+    pos = ov_time_tell(&ovFile);
 	total = ov_time_total(&ovFile, -1);
 
 	switch (type)
@@ -283,6 +283,7 @@ OGG_Seek(ogg_seek_t type, double offset)
 
 			break;
 	}
+ */
 }
 
 /*
@@ -394,8 +395,8 @@ OGG_Open(ogg_seek_t type, int offset)
 {
 	int size;     /* File size. */
 	int pos = -1; /* Absolute position. */
-	int res;      /* Error indicator. */
-
+	int res = 0;      /* Error indicator. */
+    int error = VORBIS__no_error;
 	switch (type)
 	{
 		case ABS:
@@ -457,7 +458,7 @@ OGG_Open(ogg_seek_t type, int offset)
 	}
 
 	/* Open ogg vorbis file. */
-	if ((res = ov_open(NULL, &ovFile, (char *)ogg_buffer, size)) < 0)
+    if (!(ovFile = stb_vorbis_open_memory(ogg_buffer, size, &error, NULL)))
 	{
 		Com_Printf("OGG_Open: '%s' is not a valid Ogg Vorbis file (error %i).\n",
 				ogg_filelist[pos], res); FS_FreeFile(ogg_buffer);
@@ -465,17 +466,7 @@ OGG_Open(ogg_seek_t type, int offset)
 		return false;
 	}
 
-	ogg_info = ov_info(&ovFile, 0);
-
-	if (!ogg_info)
-	{
-		Com_Printf("OGG_Open: Unable to get stream information for %s.\n",
-				ogg_filelist[pos]);
-		ov_clear(&ovFile);
-		FS_FreeFile(ogg_buffer);
-		ogg_buffer = NULL;
-		return false;
-	}
+    ogg_info = stb_vorbis_get_info(ovFile);
 
 	/* Play file. */
 	ovSection = 0;
@@ -530,13 +521,9 @@ int
 OGG_Read(void)
 {
 	int res; /* Number of bytes read. */
-
+    res = stb_vorbis_get_frame_short_interleaved(ovFile, ogg_info.channels, ovBuf, sizeof(ovBuf));
 	/* Read and resample. */
-	res = ov_read(&ovFile, ovBuf, sizeof(ovBuf),
-			ogg_bigendian, OGG_SAMPLEWIDTH, 1,
-			&ovSection);
-	S_RawSamples(res / (OGG_SAMPLEWIDTH * ogg_info->channels),
-			ogg_info->rate, OGG_SAMPLEWIDTH, ogg_info->channels,
+	S_RawSamples(res,ogg_info.sample_rate, OGG_SAMPLEWIDTH, ogg_info.channels,
 			(byte *)ovBuf, ogg_volume->value);
 
 	/* Check for end of file. */
@@ -600,9 +587,8 @@ OGG_Stop(void)
 	}
 #endif
 
-	ov_clear(&ovFile);
+    stb_vorbis_close(ovFile);
 	ogg_status = STOP;
-	ogg_info = NULL;
 	ogg_numbufs = 0;
 
 	if (ogg_buffer != NULL)
@@ -823,16 +809,26 @@ OGG_StatusCmd(void)
 	switch (ogg_status)
 	{
 		case PLAY:
-			Com_Printf("Playing file %d (%s) at %0.2f seconds.\n",
-				ogg_curfile + 1, ogg_filelist[ogg_curfile],
-				ov_time_tell(&ovFile));
+        {
+            unsigned int numSamples = stb_vorbis_stream_length_in_samples(ovFile);
+            unsigned int curSample = stb_vorbis_get_sample_offset(ovFile);
+            float trackLength = stb_vorbis_stream_length_in_seconds(ovFile);
+            
+            Com_Printf("Playing file %d (%s) at %0.2f seconds.\n",
+                       ogg_curfile + 1, ogg_filelist[ogg_curfile], (curSample /(float) numSamples) * trackLength);
+        }
 			break;
 		case PAUSE:
-			Com_Printf("Paused file %d (%s) at %0.2f seconds.\n",
-				ogg_curfile + 1, ogg_filelist[ogg_curfile],
-				ov_time_tell(&ovFile));
-			break;
-		case STOP:
+        {
+            unsigned int numSamples = stb_vorbis_stream_length_in_samples(ovFile);
+            unsigned int curSample = stb_vorbis_get_sample_offset(ovFile);
+            float trackLength = stb_vorbis_stream_length_in_seconds(ovFile);
+            
+            Com_Printf("Paused file %d (%s) at %0.2f seconds.\n",
+                       ogg_curfile + 1, ogg_filelist[ogg_curfile], (curSample /(float) numSamples) * trackLength);
+        }
+            break;
+        case STOP:
 
 			if (ogg_curfile == -1)
 			{
