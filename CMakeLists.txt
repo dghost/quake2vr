@@ -12,7 +12,7 @@ include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-
+find_package(ZLIB REQUIRED)
 
 if (MINGW)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
@@ -164,7 +164,7 @@ add_definitions(-DNO_STEAM)
 add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES})
 endif (UNIX)
 
-target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} z)
+target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 if (!OVR_DYNAMIC)
