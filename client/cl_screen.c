@@ -2353,7 +2353,7 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-
+void VR_RenderStereo();
 void VR_UpdateScreen (void)
 {
 	fbo_t *hud = R_VR_GetHUDFBO();
@@ -2371,6 +2371,7 @@ void VR_UpdateScreen (void)
 	R_EndFrame();
 }
 
+void R_RenderStereo ();
 void Stereo_UpdateScreen (void)
 {
 	R_BeginFrame( );

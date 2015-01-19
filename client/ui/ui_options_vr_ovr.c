@@ -208,12 +208,12 @@ void Options_VR_OVR_MenuInit ( void )
 		0
 	};
 
-	static const char *auto_names[] =
-	{
-		"custom",
-		"auto",
-		0
-	};
+//	static const char *auto_names[] =
+//	{
+//		"custom",
+//		"auto",
+//		0
+//	};
 
 	static const char *debug_names[] =
 	{
@@ -263,7 +263,7 @@ void Options_VR_OVR_MenuInit ( void )
 		s_options_vr_ovr_device_box.generic.y			= y+=2*MENU_LINE_SIZE;
 		s_options_vr_ovr_device_box.generic.name		= "device";
 		s_options_vr_ovr_device_box.generic.callback	= DeviceFunc;
-		s_options_vr_ovr_device_box.itemnames			= hmds;
+		s_options_vr_ovr_device_box.itemnames			= (const char **)hmds;
 		s_options_vr_ovr_device_box.generic.statusbar	= "selects device to use";
 	
 		s_options_vr_ovr_device_box.curvalue = FindSN();

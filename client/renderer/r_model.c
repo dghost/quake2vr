@@ -188,7 +188,7 @@ Loads in a model for the given name
 model_t *Mod_ForName (char *name, qboolean crash)
 {
 	model_t	*mod;
-	uint32_t *buf;
+	void *buf;
 	int32_t		i;
 	
 	if (!name[0])

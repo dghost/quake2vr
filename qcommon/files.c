@@ -408,6 +408,7 @@ fsHandle_t *FS_HandleForFile (const char *path, fileHandle_t *f)
 
 	// Failed
 	Com_Error(ERR_DROP, "FS_HandleForFile: none free");
+    return -1; // not called
 }
 
 
@@ -1031,6 +1032,7 @@ int32_t FS_Tell (fileHandle_t f)
 		return ftell(handle->file);
 	else if (handle->zip)
 		return unztell(handle->zip);
+    return -1;
 }
 
 /*
@@ -1473,7 +1475,7 @@ void FS_AddGameDirectory (const char *dir)
 	char			packPath[MAX_OSPATH];
 	int32_t				i, j;
 	// VoiD -S- *.pak support
-	char *path = NULL;
+//	char *path = NULL;
 	char findname[1024];
 	char **dirnames;
 	int32_t ndirs;

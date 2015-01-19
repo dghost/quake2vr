@@ -692,7 +692,7 @@ This is also called on Com_Error, so it shouldn't cause any errors
 extern	char	*currentweaponmodel;
 void CL_Disconnect (void)
 {
-	byte	final[32];
+	char	final[32];
 
 	if (cls.state == ca_disconnected)
 		return;
@@ -721,10 +721,10 @@ void CL_Disconnect (void)
 
 	// send a disconnect message to the server
 	final[0] = clc_stringcmd;
-	strcpy ((char *)final+1, "disconnect");
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
+	strcpy (final+1, "disconnect");
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
 
 	CL_ClearState ();
 

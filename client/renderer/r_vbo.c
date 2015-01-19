@@ -114,11 +114,11 @@ void R_DrawIVBO(vbo_t *buffer)
 	}
 }
 
-void R_DrawRangeIVBO(vbo_t *buffer, GLsizei offset, GLsizei count)
+void R_DrawRangeIVBO(vbo_t *buffer, GLvoid *offset, GLsizei count)
 {
 	if (buffer->handles[0])
 	{
-		glDrawElements(buffer->mode,count,buffer->type,(GLvoid *)offset);
+		glDrawElements(buffer->mode,count,buffer->type,offset);
 	}
 }
 

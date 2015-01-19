@@ -105,13 +105,13 @@ static void CreditsFunc( void *unused )
 
 void Game_MenuInit( void )
 {
-	static const char *difficulty_names[] =
-	{
-		"easy",
-		"medium",
-		"hard",
-		0
-	};
+//	static const char *difficulty_names[] =
+//	{
+//		"easy",
+//		"medium",
+//		"hard",
+//		0
+//	};
 	int32_t y = 0;
 
 	s_game_menu.x = SCREEN_WIDTH*0.5 - 24;

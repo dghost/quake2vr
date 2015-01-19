@@ -54,7 +54,10 @@ static menufield_s		s_options_vr_ipd_field;
 static menuaction_s		s_options_vr_enable_action;
 static menuaction_s		s_options_vr_advanced_action;
 static menuaction_s		s_options_vr_ovr_action;
+
+#ifndef NO_STEAM
 static menuaction_s		s_options_vr_svr_action;
+#endif
 
 static menuaction_s		s_options_vr_defaults_action;
 static menuaction_s		s_options_vr_back_action;
@@ -192,12 +195,13 @@ static void OVRFunc ( void *unused )
 	M_Menu_Options_VR_OVR_f();
 }
 
+#ifndef NO_STEAM
 static void SVRFunc ( void *unused )
 {
 	VRConfigAccept();
 	M_Menu_Options_VR_SVR_f();
 }
-
+#endif
 
 void BackFunc ( void *unused )
 {

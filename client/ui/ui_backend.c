@@ -56,7 +56,7 @@ int32_t stringLen (const char *string);
 int32_t stringLengthExtra (const char *string)
 {
 	uint32_t i, j;
-	char modifier;
+	uint8_t modifier;
 	float len = strlen( string );
 
 	for ( i = 0, j = 0; i < len; i++ )
@@ -170,7 +170,7 @@ void Field_Draw (menufield_s *f)
 		Menu_DrawStringR2LDark (f->generic.x + f->generic.parent->x + LCOLUMN_OFFSET,
 								f->generic.y + f->generic.parent->y, f->generic.name, 255);
 
-	if (xtra = stringLengthExtra(f->buffer))
+	if ((xtra = stringLengthExtra(f->buffer)))
 	{
 		strncpy( tempbuffer, f->buffer + f->visible_offset, f->visible_length );
 		offset = strlen(tempbuffer) - xtra;

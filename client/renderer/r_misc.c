@@ -428,7 +428,7 @@ void R_FrameFence (void)
 		glEnd();
 		glFence.fenced = true;
 		glFence.timeStart = Sys_Milliseconds();
-	} else if (!glConfig.arb_sync && r_fencesync->value || !r_swapinterval->value)
+	} else if ((!glConfig.arb_sync && r_fencesync->value) || !r_swapinterval->value)
 	{
 		Cvar_SetInteger("r_fencesync",0);
 	}

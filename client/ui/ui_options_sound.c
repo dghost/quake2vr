@@ -107,7 +107,7 @@ static void UpdateSoundQualityFunc ( void *unused )
 
 static void SoundSetMenuItemValues( void )
 {
-	int32_t i = 0;
+//	int32_t i = 0;
 	s_options_sound_sfxvolume_slider.curvalue		= Cvar_VariableValue( "s_volume" ) * 10;
 	s_options_sound_musicvolume_slider.curvalue	= Cvar_VariableValue( "ogg_volume" ) * 10;
 	s_options_sound_oggmusic_box.curvalue			= (Cvar_VariableValue("ogg_enable") > 0);

@@ -237,7 +237,7 @@ void UI_LoadArenas (void)
 	//
 	// check in paks for .arena files
 	//
-	if (arenafiles = FS_ListPak("scripts/", &narenas))
+	if ((arenafiles = FS_ListPak("scripts/", &narenas)))
 	{
 		for (i=0; i<narenas && narenanames<MAX_ARENAS; i++)
 		{
@@ -445,7 +445,7 @@ void UI_RefreshMapList (maptype_t maptype)
 		s_startmap_list.curvalue = 0;
 
 	UI_BuildMapList (maptype);
-	s_startmap_list.itemnames = ui_svr_mapnames;
+	s_startmap_list.itemnames = (const char **)ui_svr_mapnames;
 	for (i=0; s_startmap_list.itemnames[i]; i++);
 	s_startmap_list.numitemnames = i;
 
@@ -628,7 +628,7 @@ void StartServer_MenuInit (void)
 	s_startmap_list.generic.x		= 0;
 	s_startmap_list.generic.y		= y;
 	s_startmap_list.generic.name	= "initial map";
-	s_startmap_list.itemnames		= ui_svr_mapnames;
+	s_startmap_list.itemnames		= (const char **)ui_svr_mapnames;
 
 	s_rules_box.generic.type	= MTYPE_SPINCONTROL;
 	s_rules_box.generic.x		= 0;

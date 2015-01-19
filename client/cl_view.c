@@ -699,7 +699,7 @@ void VR_RenderStereo ()
 
 	// an invalid frame will just use the exact previous refdef
 	// we can't use the old frame if the video mode has changed, though...
-	if ( cl.frame.valid && (cl.force_refdef || !cl_paused->value) || cl_paused->value )
+	if ( (cl.frame.valid && (cl.force_refdef || !cl_paused->value)) || cl_paused->value )
 	{
 		cl.force_refdef = false;
 

@@ -1379,7 +1379,7 @@ void R_InitImages (void)
 
 	if (glColorTableEXT)
 	{
-		FS_LoadFile( "pics/16to8.dat", &glState.d_16to8table );
+		FS_LoadFile( "pics/16to8.dat", (void **) &glState.d_16to8table );
 		if ( !glState.d_16to8table )
 			VID_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}

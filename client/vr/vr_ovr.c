@@ -108,8 +108,6 @@ void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e)
     vec_t Q22 = Q[0]*Q[0];
     vec_t Q33 = Q[2]*Q[2];
 
-    vec_t psign = -1.0f;
-
     vec_t s2 = -2.0f * (-w*Q[0] + Q[1]*Q[2]);
 
     if (s2 < -1.0f + 0.0000001f)
@@ -323,7 +321,6 @@ ovrname_t *VR_OVR_GetNameList()
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;
-	uint32_t hmdCaps = 0;
 	qboolean isDebug = false;
 	uint32_t device = 0;
 	if (!vr_ovr_enable->value)

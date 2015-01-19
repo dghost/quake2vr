@@ -218,7 +218,6 @@ vec3_t		shadelight;
 // Particle batching struct
 // used for grouping particles by identical rendering state
 // and rendering in vertex arrays
-typedef struct particleRenderState_s particleRenderState_t;
 typedef struct particleRenderState_s
 {
 	GLenum		polymode;
@@ -231,7 +230,7 @@ typedef struct particleRenderState_s
 	GLenum		blendfunc_dst;
 	int32_t			imagenum;
 	int32_t			depth_hack;
-};
+} particleRenderState_t;
 particleRenderState_t	currentParticleState;
 
 //int32_t		particle_va, particle_index;

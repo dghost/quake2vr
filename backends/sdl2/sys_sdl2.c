@@ -597,7 +597,7 @@ void* Sys_FindLibrary(const char *dllnames[])
 void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
-	int32_t i = 0;
+//	int32_t i = 0;
 	//Knightmare- changed DLL name for better cohabitation
 #ifdef KMQUAKE2_ENGINE_MOD
 	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
@@ -609,7 +609,7 @@ void *Sys_GetGameAPI (void *parms)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
 	game_library = Sys_FindLibrary(dllnames);
-
+    
 	if (!game_library)
 		return NULL;
 
@@ -635,7 +635,7 @@ WinMain
 int32_t main(int32_t argc, char *argv[])
 {
 	int32_t				time, oldtime, newtime;
-	qboolean		cdscan = false; // Knightmare added
+//	qboolean		cdscan = false; // Knightmare added
 
 		
 #ifdef _WIN32

@@ -32,7 +32,7 @@ typedef struct vrect_s
 #define __VIDDEF_T
 typedef struct
 {
-	uint32_t		width, height;			// coordinates from main game
+	int32_t		width, height;			// coordinates from main game
 } viddef_t;
 #endif
 extern	viddef_t	viddef;				// global video state

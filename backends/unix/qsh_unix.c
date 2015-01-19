@@ -88,7 +88,7 @@ void *Hunk_Alloc (int size)
 
 int Hunk_End (void)
 {
-	byte *n;
+	byte *n = 0;
 
 #if defined(__FreeBSD__) || defined(__APPLE__)
   size_t old_size = maxhunksize;
@@ -98,9 +98,7 @@ int Hunk_End (void)
 
   new_size = round_page(new_size);
   old_size = round_page(old_size);
-  if (new_size > old_size)
-  	n = 0; /* error */
-  else if (new_size < old_size)
+  if (new_size < old_size)
   {
     unmap_base = (caddr_t)(membase + new_size);
     unmap_len = old_size - new_size;
