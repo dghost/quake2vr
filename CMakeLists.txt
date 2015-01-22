@@ -144,6 +144,92 @@ set(BASE_SOURCES
   server/sv_user.c
   server/sv_world.c
 )
+
+set(BASE_HEADERS
+	backends/sdl2/in_sdlcont.h
+	backends/sdl2/sdl2quake.h
+	client/adivtab.h
+	client/anorms.h
+	client/asm_i386.h
+	client/block16.h
+	client/block8.h
+	client/cinematic.h
+	client/client.h
+	client/console.h
+	client/include/altypes.h
+	client/include/codec.h
+	client/include/ogg.h
+	client/include/os_types.h
+	client/include/vorbisfile.h
+	client/input.h
+	client/keys.h
+	client/OVR_CAPI.h
+	client/OVR_CAPI_Keys.h
+	client/particles.h
+	client/q2palette.h
+	client/ref.h
+	client/renderer/include/anorms.h
+	client/renderer/include/anormtab.h
+	client/renderer/include/qgl.h
+	client/renderer/include/r_alias.h
+	client/renderer/include/r_cin.h
+	client/renderer/include/r_local.h
+	client/renderer/include/r_model.h
+	client/renderer/include/r_normals.h
+	client/renderer/include/r_stereo.h
+	client/renderer/include/r_vr.h
+	client/renderer/include/r_vr_ovr.h
+	client/renderer/include/r_vr_svr.h
+	client/renderer/include/stb_image.h
+	client/renderer/include/stb_image_resize.h
+	client/renderer/include/stb_image_write.h
+	client/renderer/include/vlights.h
+	client/renderer/include/warpsin.h
+	client/screen.h
+	client/sound/include/AL/al.h
+	client/sound/include/AL/alc.h
+	client/sound/include/AL/alconflict.h
+	client/sound/include/AL/alext.h
+	client/sound/include/AL/alunconflict.h
+	client/sound/include/AL/efx-creative.h
+	client/sound/include/AL/efx-presets.h
+	client/sound/include/AL/efx.h
+	client/sound/include/alConfigMob.h
+	client/sound/include/alConfigMobDefs_inl.h
+	client/sound/include/local.h
+	client/sound/include/qal.h
+	client/sound/include/sound.h
+	client/sound/include/vorbis.h
+	client/ui/include/ui_local.h
+	client/vid.h
+	client/vr/include/vr.h
+	client/vr/include/vr_ovr.h
+	client/vr/include/vr_steamvr.h
+	client/vr/include/vr_svr.h
+	client/vr/oculus_dynamic.h
+	client/vr/ovr_dynamic_funcs.h
+	qcommon/crc.h
+	qcommon/glob.h
+	qcommon/include/ioapi.h
+	qcommon/include/unzip.h
+	qcommon/include/zconf.h
+	qcommon/include/zlib.h
+	qcommon/qcommon.h
+	qcommon/qfiles.h
+	qcommon/shared/q_shared.h
+	qcommon/vid_modes.h
+	qcommon/wildcard.h
+	server/server.h
+)
+
+set(UNIX_HEADERS
+	backends/unix/glob.h
+	backends/unix/glw_unix.h
+	backends/unix/qasm.h
+	backends/unix/zip/crypt.h
+	backends/unix/zip/ioapi.h
+	backends/unix/zip/unzip.h
+)
 if (OVR_DYNAMIC)
   add_definitions(-DOCULUS_DYNAMIC)
   set(BASE_SOURCES
@@ -161,7 +247,7 @@ set(UNIX_SOURCES
 
 if (UNIX)
 add_definitions(-DNO_STEAM)
-add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES})
+add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES} ${BASE_HEADERS} ${UNIX_HEADERS})
 endif (UNIX)
 
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
