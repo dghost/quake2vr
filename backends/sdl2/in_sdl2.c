@@ -382,6 +382,8 @@ void IN_Init (void)
 
 	IN_StartupMouse ();
 	IN_ControllerInit ();
+    Com_Printf("------------------------------------\n");
+    
 }
 
 /*

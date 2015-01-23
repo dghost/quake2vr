@@ -188,7 +188,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	if (attractloop)
 		Cvar_Set ("paused", "0");
 
-	Com_Printf ("------- Server Initialization -------\n");
+	Com_Printf ("\n------- Server Initialization -------\n");
 
 	Com_DPrintf ("SpawnServer: %s\n",server);
 	if (sv.demofile)

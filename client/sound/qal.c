@@ -598,9 +598,10 @@ QAL_Init()
 			Com_Printf(" and using existing window handle");
 			qalSetWindowMOB(mainWindowInfo.info.win.window);
 		}
-		Com_Printf("\n");
 #endif
-	}
+        Com_Printf("\n");
+
+    }
 
 	/* Open the OpenAL device */
 	{

@@ -1856,7 +1856,16 @@ void CL_Init (void)
 
 	// all archived variables will now be loaded
 
-	Con_Init ();	
+    Con_Init ();
+    
+    // output system info
+    Com_Printf("------- Client Initialization -------\n");
+
+    Com_Printf("Quake II VR Version v%s\n", VR_VER);
+    Com_Printf("OS: %s\n", Cvar_VariableString("sys_os"));
+    Com_Printf("CPU: %s\n", Cvar_VariableString("sys_cpu"));
+    Com_Printf("RAM: %s MB\n", Cvar_VariableString("sys_ram"));
+    
 	VR_Startup ();
 
 	VID_Init ();

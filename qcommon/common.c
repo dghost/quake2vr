@@ -1712,7 +1712,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 		Cmd_AddCommand ("quit", Com_Quit);
 
 	Sys_Init ();
-
+    
 	NET_Init ();
 	Netchan_Init ();
 
@@ -1734,8 +1734,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 		SCR_EndLoadingPlaque ();
 	}
 
-	Com_Printf ("====== Quake II VR Initialized ======\n\n");
-	
+	Com_Printf ("\n====== Quake II VR Initialized ======\n\n");
 }
 
 /*

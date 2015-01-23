@@ -1004,7 +1004,7 @@ S_Init(void)
 	if (!cv->value)
 	{
 		Com_Printf("Not initializing.\n");
-		Com_Printf("------------------------------------\n\n");
+		Com_Printf("------------------------------------\n");
 		return;
 	}
 
@@ -1036,6 +1036,7 @@ S_Init(void)
 		if (SDL_BackendInit())
 		{
 			sound_started = SS_SDL;
+            Com_Printf("Sound sampling rate: %i\n", sound.speed);
 		}
 		else
 		{
@@ -1049,10 +1050,9 @@ S_Init(void)
 
 	OGG_Init();
 
-	Com_Printf("Sound sampling rate: %i\n", sound.speed);
 	S_StopAllSounds();
 
-	Com_Printf("------------------------------------\n\n");
+	Com_Printf("------------------------------------\n");
 }
 
 /*
