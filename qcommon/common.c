@@ -1736,23 +1736,6 @@ void Qcommon_Init (int32_t argc, char **argv)
 
 	Com_Printf ("====== Quake II VR Initialized ======\n\n");
 	
-	// testing crap
-	/*{
-		vec3_t	in[3], out[3], angles, axis[3];
-
-		VectorSet (in[0], 1280, 0, 0);
-		VectorSet (in[1], 0, 640, 0);
-		VectorSet (in[2], 0, 0, -640);
-		VectorSet (angles, -104, 108, 60);
-		AnglesToAxis (angles, axis);
-		VectorRotate (in[0], axis, out[0]);
-		VectorRotate (in[1], axis, out[1]);
-		VectorRotate (in[2], axis, out[2]);
-		Com_Printf ("Target vector: %f %f %f\nRight vector: %f %f %f\nUp vector: %f %f %f\n",
-			out[0][0], out[0][1], out[0][2],
-			out[1][0], out[1][1], out[1][2],
-			out[2][0], out[2][1], out[2][2]);
-	}*/
 }
 
 /*

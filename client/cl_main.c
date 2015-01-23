@@ -1859,14 +1859,10 @@ void CL_Init (void)
 	Con_Init ();	
 	VR_Startup ();
 
-#if defined __linux__ || defined __sgi
-	S_Init ();	
-	VID_Init ();
-#else
 	VID_Init ();
 	S_Init ();	// sound must be initialized after window is created
-#endif
-	V_Init ();
+
+    V_Init ();
 	
 	net_message.data = net_message_buffer;
 	net_message.maxsize = sizeof(net_message_buffer);

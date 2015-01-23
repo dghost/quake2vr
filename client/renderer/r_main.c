@@ -1294,13 +1294,7 @@ qboolean R_Init ( char *reason )
 	// place default error
 	memcpy (reason, "Unknown failure on intialization!\0", 34);
 	
-#ifdef _WIN32
-	// output system info
-	VID_Printf (PRINT_ALL, "OS: %s\n", Cvar_VariableString("sys_osVersion"));
-	VID_Printf (PRINT_ALL, "CPU: %s\n", Cvar_VariableString("sys_cpuString"));
-	VID_Printf (PRINT_ALL, "RAM: %s MB\n", Cvar_VariableString("sys_ramMegs"));
-#endif
-	glConfig.allowCDS = true;
+    glConfig.allowCDS = true;
 	// initialize OS-specific parts of OpenGL
 	if ( !GLimp_Init( ) )
 	{

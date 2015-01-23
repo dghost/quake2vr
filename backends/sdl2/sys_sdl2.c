@@ -529,7 +529,7 @@ void* Sys_FindLibrary(const char *dllnames[])
 	const char *gamename = NULL;
 	void	*library = NULL;
 
-#ifdef NDEBUG
+#ifndef _DEBUG
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
