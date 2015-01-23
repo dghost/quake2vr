@@ -150,22 +150,4 @@ hmd_interface_t hmd_steam = {
 	NULL
 };
 
-#else
-
-hmd_interface_t hmd_steam = {
-	HMD_STEAM,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-
 #endif //NO_STEAM
