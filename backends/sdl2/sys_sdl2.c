@@ -435,40 +435,31 @@ void Sys_Init (void)
 #endif
 
 	SDL_strlcpy(string,SDL_GetPlatform(),sizeof(string));
-	Com_Printf("OS: %s\n", string);
-	Cvar_Get("sys_osVersion", string, CVAR_NOSET|CVAR_LATCH);
+	Cvar_Get("sys_os", string, CVAR_NOSET|CVAR_LATCH);
 
 	// Detect CPU
-	Com_Printf("Detecting system...\n");
 	if (Sys_DetectCPU(string, sizeof(string))) {
-		Com_Printf("CPU: %s\n", string);
-		Cvar_Get("sys_cpuString", string, CVAR_NOSET|CVAR_LATCH);
+		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
 	else {
-		Com_Printf("CPU: Unknown CPU found\n");
-		Cvar_Get("sys_cpuString", "Unknown", CVAR_NOSET|CVAR_LATCH);
+        int cores = SDL_GetCPUCount();
+        char string[50];
+        memset(string, 0, sizeof(string));
+		snprintf(string, sizeof(string),"Unknown %d-core CPU", cores);
+		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
-
     
     sys_cacheline = SDL_GetCPUCacheLineSize();
     
     // Get physical memory
 	SDL_snprintf(string,sizeof(string),"%u",SDL_GetSystemRAM());
-	Com_Printf("Memory: %s MB\n", string);
-	Cvar_Get("sys_ramMegs", string, CVAR_NOSET|CVAR_LATCH);
+	Cvar_Get("sys_ram", string, CVAR_NOSET|CVAR_LATCH);
 	// end Q2E detection
-
 
     SDL_VERSION(&compiled);
 	SDL_GetVersion(&linked);
 	SDL_snprintf(string,sizeof(string),"%d.%d.%d",linked.major, linked.minor, linked.patch);
-	Cvar_Get("sys_sdlString",string,CVAR_NOSET|CVAR_LATCH);
-	Com_Printf("SDL Version: %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
-
-	if (compiled.major != linked.major || compiled.minor != linked.minor || compiled.patch != linked.patch)
-	{
-		Com_Printf("ERROR: The version of SDL in use differs from the intended version.\n");
-	}
+	Cvar_Get("sys_sdl",string,CVAR_NOSET|CVAR_LATCH);
 
 #ifdef _WIN32
 	Sys_InitConsole (); // show dedicated console, moved to function
