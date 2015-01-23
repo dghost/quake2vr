@@ -40,24 +40,9 @@
 #ifdef _WIN32
 #define DEFAULT_OPENAL_DRIVER "oal_mob.dll"
 #elif defined(__APPLE__)
-#define DEFAULT_OPENAL_DRIVER "oal_mob.dylib"
+#define DEFAULT_OPENAL_DRIVER "libOpenAL-MOB.dylib"
 #else
-#define DEFAULT_OPENAL_DRIVER "oal_mob.so"
-#endif
-
-#ifdef _WIN32
-#define FALLBACK_OPENAL_DRIVER "openal32.dll"
-#elif defined(__APPLE__)
-#define FALLBACK_OPENAL_DRIVER "openal32.dylib"
-#else
-#define FALLBACK_OPENAL_DRIVER "openal32.so"
-#endif
-
-
-#ifdef __APPLE__
-#define PLATFORM_OPENAL_DRIVER "/System/Library/Frameworks/OpenAL.framework/OpenAL"
-#else
-#define PLATFORM_OPENAL_DRIVER 0
+#define DEFAULT_OPENAL_DRIVER "libopenal.so"
 #endif
 
 #ifdef _WIN32
@@ -429,7 +414,14 @@ QAL_Shutdown()
 qboolean
 QAL_Init()
 {
-	char *libraries[] = {DEFAULT_OPENAL_DRIVER, FALLBACK_OPENAL_DRIVER, PLATFORM_OPENAL_DRIVER, 0};
+#ifdef _WIN32
+    char *libraries[] = {"oal_mob.dll", "openal32.dll", 0};
+#elif defined(__APPLE__)
+    char *libraries[] = {"libOpenAL-MOB.dylib", "OpenAL-Soft.framework/OpenAL-Soft", "libopenal.dylib", "OpenAL.framework/OpenAL", 0};
+#else
+    char *libraries[] = {"libOpenAL-MOB.so", "libopenal.so", 0};
+#endif
+
 	char name[256];
 
     int i = 0;
