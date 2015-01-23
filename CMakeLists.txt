@@ -246,7 +246,7 @@ set(UNIX_SOURCES
 )
 
 if (UNIX)
-add_definitions(-DNO_STEAM)
+add_definitions(-DNO_STEAM -DUSE_OPENAL)
 add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES} ${BASE_HEADERS} ${UNIX_HEADERS})
 endif (UNIX)
 
