@@ -365,36 +365,54 @@ void Sys_Quit (void)
 
 //================================================================
 
-/*
-=================
-Sys_DetectCPU
-Fixed to not be so clever
-=================
-*/
-static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
+#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+void cpuid(unsigned info, unsigned *eax, unsigned *ebx, unsigned *ecx, unsigned *edx)
 {
+    *eax = info;
+    __asm volatile
+    ("mov %%ebx, %%edi;" /* 32bit PIC: don't clobber ebx */
+     "cpuid;"
+     "mov %%ebx, %%esi;"
+     "mov %%edi, %%ebx;"
+     :"+a" (*eax), "=S" (*ebx), "=c" (*ecx), "=d" (*edx)
+     : :"edi");
+}
 
-#ifdef _WIN32
-	DWORD dwType = REG_SZ;
-	HKEY hKey = 0;
-	LONG succeeded = 0;
-	const char* subkey = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0";
-	succeeded = RegOpenKey(HKEY_LOCAL_MACHINE,subkey,&hKey);
-	if (succeeded != ERROR_SUCCESS)
-		return false;
+qboolean cpu_string(char* buffer, int size)
+{
+    char namestring[49];
+    int start;
+    
+    uint32_t *word = (uint32_t *) &namestring[0];
 
-	succeeded = RegQueryValueEx(hKey,"ProcessorNameString",NULL,&dwType,cpuString,&maxSize);
-	RegCloseKey(hKey);
-	return (succeeded == ERROR_SUCCESS);
+    memset(namestring,0,sizeof(namestring));
+    
+    cpuid(0x80000000,&word[0],&word[1],&word[2],&word[3]);
+    
+    if (word[0] < 0x80000004)
+        return false;
+    
+    cpuid(0x80000002,&word[0],&word[1],&word[2],&word[3]);
+    cpuid(0x80000003,&word[4],&word[5],&word[6],&word[7]);
+    cpuid(0x80000004,&word[8],&word[9],&word[10],&word[11]);
+    
+    for (start = 0; start < 49 && namestring[start]==' '; start++);
 
-#else
-	int32_t numCores = SDL_GetCPUCount();
-    char buffer[512];
-    memset(buffer,0,sizeof(buffer));
-    snprintf(cpuString, maxSize, "Unknown %d-core processor",numCores);
-	return true;
+    snprintf(buffer, size, "%s",&namestring[start]);
+    return true;
+}
 #endif
 
+/*
+ =================
+ Sys_DetectCPU
+ =================
+*/
+
+static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
+{
+    memset(cpuString,0,maxSize);
+    return cpu_string(cpuString,cpuString);
 }
 
 
