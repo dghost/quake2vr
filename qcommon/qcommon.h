@@ -118,7 +118,7 @@ int32_t		MSG_ReadPMCoordNew (sizebuf_t *msg_read);
 //============================================================================
 
 extern	qboolean		bigendien;
-
+extern  uint32_t        sys_cacheline;
 extern	int16_t	BigShort (int16_t l);
 extern	int16_t	LittleShort (int16_t l);
 extern	int32_t		BigLong (int32_t l);

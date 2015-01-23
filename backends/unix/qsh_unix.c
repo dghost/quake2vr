@@ -70,7 +70,7 @@ void *Hunk_Begin (int maxsize)
 void *Hunk_Alloc (int size)
 {
 	byte *buf;
-    int cacheline = Cvar_VariableInteger("sys_cacheLine");
+    int cacheline = sys_cacheline;
     if (cacheline > 0)
         cacheline -= 1;
     else

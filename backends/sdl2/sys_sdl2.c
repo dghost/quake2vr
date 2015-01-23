@@ -58,7 +58,7 @@ SDL_SysWMinfo mainWindowInfo;
 void SDL_ProcEvent(SDL_Event *event);
 uint32_t	sys_msg_time;
 uint32_t	sys_frame_time;
-
+uint32_t    sys_cacheline;
 
 #define	MAX_NUM_ARGVS	128
 int32_t			argc;
@@ -450,9 +450,7 @@ void Sys_Init (void)
 	}
 
     
-    SDL_snprintf(string,sizeof(string),"%u",SDL_GetCPUCacheLineSize());
-    Com_Printf("Cache Line Size: %s bytes\n", string);
-    Cvar_Get("sys_cacheLine", string, CVAR_NOSET|CVAR_LATCH);
+    sys_cacheline = SDL_GetCPUCacheLineSize();
     
     // Get physical memory
 	SDL_snprintf(string,sizeof(string),"%u",SDL_GetSystemRAM());
@@ -618,7 +616,7 @@ void *Sys_GetGameAPI (void *parms)
 //	int32_t i = 0;
 	//Knightmare- changed DLL name for better cohabitation
 #ifdef KMQUAKE2_ENGINE_MOD
-	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
+	static const char *dllnames[] = {"vrgamex86", "mpgamex86",0};
 #else
 	static const char *dllnames[] = {"game", "gamex86",0};
 #endif
