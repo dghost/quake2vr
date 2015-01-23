@@ -35,12 +35,29 @@
 
 #ifdef USE_OPENAL
 
-#define DEFAULT_OPENAL_DRIVER "oal_mob"
+
+// TODO - insert proper library names for OS X and Linux
+#ifdef _WIN32
+#define DEFAULT_OPENAL_DRIVER "oal_mob.dll"
+#elif defined(__APPLE__)
+#define DEFAULT_OPENAL_DRIVER "oal_mob.dylib"
+#else
+#define DEFAULT_OPENAL_DRIVER "oal_mob.so"
+#endif
 
 #ifdef _WIN32
-#define DEFAULT_LIBRARY_EXTENSION ".dll"
+#define FALLBACK_OPENAL_DRIVER "openal32.dll"
+#elif defined(__APPLE__)
+#define FALLBACK_OPENAL_DRIVER "openal32.dylib"
 #else
-#define DEFAULT_LIBRARY_EXTENSION ".so"
+#define FALLBACK_OPENAL_DRIVER "openal32.so"
+#endif
+
+
+#ifdef __APPLE__
+#define PLATFORM_OPENAL_DRIVER "/System/Library/Frameworks/OpenAL.framework/OpenAL"
+#else
+#define PLATFORM_OPENAL_DRIVER 0
 #endif
 
 #ifdef _WIN32
@@ -412,10 +429,10 @@ QAL_Shutdown()
 qboolean
 QAL_Init()
 {
-	char *libraries[] = {DEFAULT_OPENAL_DRIVER,"openal32",0};
+	char *libraries[] = {DEFAULT_OPENAL_DRIVER, FALLBACK_OPENAL_DRIVER, PLATFORM_OPENAL_DRIVER, 0};
 	char name[256];
-	char buffer[300];
-	int i = 0;
+
+    int i = 0;
 	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_ARCHIVE))->value;
 
 	if (sndfreq == 48)
@@ -442,21 +459,16 @@ QAL_Init()
 
 		
 	strncpy(name, al_driver->string, sizeof(name));
-	strncpy(buffer, name, sizeof(buffer));
-	strncat(buffer, DEFAULT_LIBRARY_EXTENSION, sizeof(buffer) -strlen(name));
-	Com_Printf("LoadLibrary(%s)\n", buffer);
+	Com_Printf("LoadLibrary(%s)\n", name);
 
 	/* Load the library */
-	handle = SDL_LoadObject(buffer);
+	handle = SDL_LoadObject(name);
 	
 	// prevent the user from screwing themselves by setting an invalid library
 	for (i = 0; !handle && libraries[i] != NULL ; i++)
 	{
-		strncpy(name, libraries[i], sizeof(name));
-		strncpy(buffer, name, sizeof(buffer));
-		strncat(buffer, DEFAULT_LIBRARY_EXTENSION, sizeof(buffer) -strlen(name));
-		Com_Printf("LoadLibrary(%s)\n", buffer);
-		handle = SDL_LoadObject(buffer);
+		Com_Printf("LoadLibrary(%s)\n", libraries[i]);
+		handle = SDL_LoadObject(libraries[i]);
 	}
 
 	if (!handle)

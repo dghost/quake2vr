@@ -625,7 +625,7 @@ AL_Update(void)
 void
 AL_Underwater()
 {
-	int i;
+    int i;
 
 	if (!filterSupport || sound_started != SS_OAL)
 	{
@@ -637,7 +637,6 @@ AL_Underwater()
 	{
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, underwaterFilter);
 	}
-
 }
 
 /*
@@ -715,7 +714,6 @@ AL_InitUnderwaterFilter()
 	qalFilterf(underwaterFilter, AL_LOWPASS_GAINHF, 0.25);
 
 	filterSupport = true;
-
 }
 
 /*
