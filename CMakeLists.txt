@@ -258,7 +258,7 @@ target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
 endif (!OVR_DYNAMIC)
 
 add_subdirectory(game)
-add_subdirectory(missionpacksrc)
+add_subdirectory(game_mp)
 
 add_custom_target(data ALL
   COMMAND ${CMAKE_SOURCE_DIR}/misc/mkpk3.sh "${CMAKE_BINARY_DIR}"
