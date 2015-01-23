@@ -34,35 +34,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DEFAULTMODEL		"male"
 #define DEFAULTSKIN			"grunt"
 
-#ifdef WIN32
-
-#ifdef NDEBUG
-#define BUILDSTRING "Win32 RELEASE"
-#else
-#define BUILDSTRING "Win32 DEBUG"
-#endif
-
-#ifdef _M_IX86
-#define	CPUSTRING	"x86"
-#else
-#define CPUSTRING "Unknown"
-#endif
-
-#elif defined __linux__
-
+#ifdef _WIN32
+#define BUILDSTRING "Windows"
+#elif defined(__linux__)
 #define BUILDSTRING "Linux"
-
-#ifdef __i386__
-#define CPUSTRING "i386"
+#elif defined(__APPLE__)
+#define BUILDSTRING "OS X"
 #else
-#define CPUSTRING "Unknown"
+#define BUILDSTRING "Unknown OS"
 #endif
 
-#else	// !WIN32
-
-#define BUILDSTRING "NON-WIN32"
-#define	CPUSTRING	"NON-WIN32"
-
+#if defined(_M_IX86) || defined(__i386__)
+#define	CPUSTRING	"x86"
+#elif defined(_M_X64) || defined(__x86_64__)
+#define CPUSTRING   "x86_64"
+#else
+#define CPUSTRING "Unknown"
 #endif
 
 //============================================================================
