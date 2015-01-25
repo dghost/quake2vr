@@ -53,7 +53,7 @@ typedef struct {
 
 static attribs_t postprocess_attribs[2] = {
 	{0, 2, GL_BYTE, GL_FALSE, sizeof(quad_vert_t), 0},
-	{1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(quad_vert_t), sizeof(GLbyte) * 2},
+	{1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(quad_vert_t), (GLvoid *) (sizeof(GLbyte) * 2)},
 };
 
 static quad_vert_t quad_verts[4] = {
@@ -113,7 +113,7 @@ void R_TeardownQuadState()
 
 void R_DrawQuad()
 {
-	qboolean needsSetup = !currentBuffer;
+	qboolean needsSetup = !(currentBuffer == &quad);
 	if (needsSetup)
 		R_SetupQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
@@ -251,7 +251,6 @@ static r_shaderobject_t FXAA_object = {
 };
 
 static qboolean setupForBlit = false;
-static qboolean wasSetupForQuad = false;
 void R_SetupBlit()
 {
 	if (setupForBlit)

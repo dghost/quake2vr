@@ -387,7 +387,7 @@ void GL_UnlockArrays (void)
 GL_EnableTexture
 =================
 */
-void GL_EnableTexture (unsigned tmu)
+void GL_EnableTexture (uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -404,7 +404,7 @@ void GL_EnableTexture (unsigned tmu)
 GL_DisableTexture
 =================
 */
-void GL_DisableTexture (unsigned tmu)
+void GL_DisableTexture (uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -442,7 +442,7 @@ void GL_EnableMultitexture (qboolean enable)
 GL_SelectTexture
 =================
 */
-void GL_SelectTexture (unsigned tmu)
+void GL_SelectTexture (uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -479,7 +479,7 @@ void GL_Bind (int32_t texnum)
 GL_MBind
 =================
 */
-void GL_MBind (unsigned tmu, int32_t texnum)
+void GL_MBind (uint32_t tmu, int32_t texnum)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;

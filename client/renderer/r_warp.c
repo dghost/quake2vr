@@ -277,8 +277,8 @@ backend for R_DrawWarpSurface
 */
 void RB_RenderWarpSurface (msurface_t *fa)
 {
-	float		args[7] = {0,0.05,0,0,0.04,0,0};
-	float		alpha = colorArray[0][3];
+//	float		args[7] = {0,0.05,0,0,0.04,0,0};
+//	float		alpha = colorArray[0][3];
 	image_t		*image = R_TextureAnimation (fa);
 	qboolean	light = r_warp_lighting->value && !(fa->texinfo->flags & SURF_NOLIGHTENV);
 	qboolean	texShaderWarp = r_waterquality->value;
@@ -306,7 +306,6 @@ void RB_RenderWarpSurface (msurface_t *fa)
 		GLfloat param[4];
 		float rdt = r_newrefdef.time;
 		float scale[2] = {0.025,0.05};
-		float distortion = 0;
 		r_warpshader_t *warp;
 
 		//GL_SelectTexture(0);

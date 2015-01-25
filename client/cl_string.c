@@ -90,8 +90,8 @@ DrawStringGeneric
 */
 void DrawStringGeneric (int32_t x, int32_t y, const char *string, int32_t alpha, textscaletype_t scaleType, qboolean altBit)
 {
-	unsigned i, j;
-	char modifier, character;
+	uint32_t i, j;
+	uint8_t modifier, character;
 	int32_t len, red, green, blue, italic, shadow, bold, reset;
 	qboolean modified = false;
 	float textSize, textScale;

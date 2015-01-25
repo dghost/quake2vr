@@ -93,7 +93,7 @@ static void ModelCallback (void *unused)
 {
 	char scratch[MAX_QPATH];
 
-	s_player_skin_box.itemnames = s_pmi[s_player_model_box.curvalue].skindisplaynames;
+	s_player_skin_box.itemnames = (const char **) s_pmi[s_player_model_box.curvalue].skindisplaynames;
 	s_player_skin_box.curvalue = 0;
 
 	// only register model and skin on starup or when changed
@@ -182,7 +182,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
 	char *path = NULL;
 	int32_t i;
 
-	//extern char **FS_ListFiles (char *, int32_t *, unsigned, unsigned);
+	//extern char **FS_ListFiles (char *, int32_t *, uint32_t, uint32_t);
 
 	s_numplayermodels = 0;
 
@@ -474,7 +474,7 @@ qboolean PlayerConfig_MenuInit (void)
 	s_player_model_box.generic.callback = ModelCallback;
 	s_player_model_box.generic.cursor_offset = -6*MENU_FONT_SIZE;
 	s_player_model_box.curvalue = currentdirectoryindex;
-	s_player_model_box.itemnames = s_pmnames;
+	s_player_model_box.itemnames = (const char **) s_pmnames;
 	
 	s_player_skin_title.generic.type = MTYPE_SEPARATOR;
 	s_player_skin_title.generic.flags = QMF_LEFT_JUSTIFY;
@@ -489,7 +489,7 @@ qboolean PlayerConfig_MenuInit (void)
 	s_player_skin_box.generic.callback = SkinCallback; // Knightmare added, was 0
 	s_player_skin_box.generic.cursor_offset = -6*MENU_FONT_SIZE;
 	s_player_skin_box.curvalue = currentskinindex;
-	s_player_skin_box.itemnames = s_pmi[currentdirectoryindex].skindisplaynames;
+	s_player_skin_box.itemnames = (const char **) s_pmi[currentdirectoryindex].skindisplaynames;
 	s_player_skin_box.generic.flags |= QMF_SKINLIST;
 	
 	s_player_hand_title.generic.type = MTYPE_SEPARATOR;
@@ -624,7 +624,7 @@ void PlayerConfig_MouseClick (void)
 	buttonmenuobject_t buttons[NUM_SKINBOX_ITEMS];
 
 	for (i=0; i<NUM_SKINBOX_ITEMS; i++)
-		buttons[i].index =- 1;
+		buttons[i].index = -1;
 
 	if (s_pmi[s_player_model_box.curvalue].nskins < NUM_SKINBOX_ITEMS || s_player_skin_box.curvalue < 4)
 		i=0;
@@ -760,7 +760,7 @@ void PlayerConfig_MenuDraw (void)
 	if ( s_pmi[s_player_model_box.curvalue].skindisplaynames )
 	{
 		int32_t			yaw;
-		int32_t			maxframe = 29;
+//		int32_t			maxframe = 29;
 		vec3_t		modelOrg;
 		// Psychopspaz's support for showing weapon model
 		entity_t	entity[2], *ent;

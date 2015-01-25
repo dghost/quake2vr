@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "qcommon.h"
-#include "include/unzip.h"
+#include "zip/unzip.h"
 
 // enables faster binary pak searck, still experimental
 #define BINARY_PACK_SEARCH
@@ -408,6 +408,7 @@ fsHandle_t *FS_HandleForFile (const char *path, fileHandle_t *f)
 
 	// Failed
 	Com_Error(ERR_DROP, "FS_HandleForFile: none free");
+    return NULL; // not called
 }
 
 
@@ -435,7 +436,7 @@ Performs a binary search by hashed filename
 to find pack items in a sorted pack
 =================
 */
-int32_t FS_FindPackItem (fsPack_t *pack, char *itemName, long itemHash)
+int32_t FS_FindPackItem (fsPack_t *pack, char *itemName, int32_t itemHash)
 {
 	int32_t		smax, smin, smidpt;	//, counter = 0;
 	int32_t		i;	//, matchStart, matchEnd;
@@ -553,7 +554,7 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 	fsSearchPath_t	*search;
 	fsPack_t		*pack;
 	char			path[MAX_OSPATH];
-	long			hash;
+	int32_t			hash;
 	int32_t				i;
 	uint32_t	typeFlag;
 
@@ -1031,6 +1032,7 @@ int32_t FS_Tell (fileHandle_t f)
 		return ftell(handle->file);
 	else if (handle->zip)
 		return unztell(handle->zip);
+    return -1;
 }
 
 /*
@@ -1213,7 +1215,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	FILE			*handle;
 	dpackheader_t		header;
 	dpackfile_t		info[MAX_FILES_IN_PACK];
-	unsigned		contentFlags = 0;
+	uint32_t		contentFlags = 0;
 #ifdef BINARY_PACK_SEARCH
 	int32_t				*sortIndices;
 	int32_t			*sortHashes;
@@ -1338,7 +1340,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	unz_global_info	global;
 	unz_file_info	info;
 	int32_t				status;
-	unsigned		contentFlags = 0;
+	uint32_t		contentFlags = 0;
 	char			fileName[MAX_QPATH];
 #ifdef BINARY_PACK_SEARCH
 	fsPackFile_t	*tmpFiles;
@@ -1473,7 +1475,7 @@ void FS_AddGameDirectory (const char *dir)
 	char			packPath[MAX_OSPATH];
 	int32_t				i, j;
 	// VoiD -S- *.pak support
-	char *path = NULL;
+//	char *path = NULL;
 	char findname[1024];
 	char **dirnames;
 	int32_t ndirs;
@@ -1923,7 +1925,7 @@ void FS_ExecAutoexec (void)
 FS_ListFiles
 ================
 */
-char **FS_ListFiles (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave)
+char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint32_t canthave)
 {
 	char *s;
 	int32_t nfiles = 0;
@@ -1977,8 +1979,8 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, unsigned musthave, unsig
  * SFF_SUBDIR it changes).
  */
 qboolean
-ComparePackFiles(const char *findname, const char *name, unsigned musthave,
-		unsigned canthave, char *output, int size)
+ComparePackFiles(const char *findname, const char *name, uint32_t musthave,
+		uint32_t canthave, char *output, int size)
 {
 	qboolean retval;
 	char *ptr;
@@ -2039,7 +2041,7 @@ ComparePackFiles(const char *findname, const char *name, unsigned musthave,
  */
 char **
 FS_ListFiles2(char *findname, int *numfiles,
-		unsigned musthave, unsigned canthave)
+		uint32_t musthave, uint32_t canthave)
 {
 	fsSearchPath_t *search; /* Search path. */
 	int i, j; /* Loop counters. */

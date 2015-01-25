@@ -125,7 +125,7 @@ void resetEntSortList (void)
 
 sortedelement_t *NewSortEnt (entity_t *ent)
 {
-	qboolean is_weapmodel = false;
+	//qboolean is_weapmodel = false;
 	//qboolean entinwater;
 	vec3_t distance;
 	sortedelement_t *element;
@@ -199,7 +199,6 @@ AddEntViewWeapTree
 */
 void AddEntViewWeapTree (entity_t *ent, qboolean trans)
 {
-	int32_t closer = 0;
 	sortedelement_t *thisEnt;
 
 	thisEnt = NewSortEnt(ent);
@@ -232,7 +231,6 @@ AddEntTransTree
 */
 void AddEntTransTree (entity_t *ent)
 {
-	int32_t closer = 0;
 	sortedelement_t *thisEnt;
 
 	thisEnt = NewSortEnt(ent);

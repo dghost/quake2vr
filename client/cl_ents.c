@@ -193,9 +193,9 @@ Returns the entity number and the header bits
 =================
 */
 int32_t	bitcounts[32];	/// just for protocol profiling
-int32_t CL_ParseEntityBits (unsigned *bits)
+int32_t CL_ParseEntityBits (uint32_t *bits)
 {
-	unsigned	b, total;
+	uint32_t	b, total;
 	int32_t			i;
 	int32_t			number;
 
@@ -509,7 +509,7 @@ rest of the data stream.
 void CL_ParsePacketEntities (frame_t *oldframe, frame_t *newframe)
 {
 	int32_t			newnum;
-	int32_t			bits;
+	uint32_t			bits;
 	entity_state_t	*oldstate;
 	int32_t			oldindex, oldnum;
 
@@ -1493,18 +1493,21 @@ void CL_AddPacketEntities (frame_t *frame)
 				if (renderfx & RF_SHELL_DOUBLE)
 				{
 					// lose the yellow shell if we have a red, blue, or green shell
-					if (renderfx & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN))
+                    if (renderfx & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN)) {
 						renderfx &= ~RF_SHELL_DOUBLE;
+                    }
 					// if we have a red shell, turn it to purple by adding blue
-					if (renderfx & RF_SHELL_RED)
+                    if (renderfx & RF_SHELL_RED) {
 						renderfx |= RF_SHELL_BLUE;
 					// if we have a blue shell (and not a red shell), turn it to cyan by adding green
-					else if (renderfx & RF_SHELL_BLUE)
+                    } else if (renderfx & RF_SHELL_BLUE) {
 						// go to green if it's on already, otherwise do cyan (flash green)
-						if (renderfx & RF_SHELL_GREEN)
+                        if (renderfx & RF_SHELL_GREEN) {
 							renderfx &= ~RF_SHELL_BLUE;
-						else
+                        } else {
 							renderfx |= RF_SHELL_GREEN;
+                        }
+                    }
 				}
 			}
 			// pmm
@@ -1924,8 +1927,6 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int32_t effects = s1->renderfx;
-
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
 					{
@@ -2009,8 +2010,6 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 			for (pnum = 0 ; pnum<cl.frame.num_entities ; pnum++)
 				if ((s1=&cl_parse_entities[(cl.frame.parse_entities+pnum)&(MAX_PARSE_ENTITIES-1)])->number == cl.playernum+1)
 				{
-					int32_t effects = s1->renderfx;
-
 					//if (effects & (RF_SHELL_RED|RF_SHELL_BLUE|RF_SHELL_GREEN) || s1->effects&(EF_PENT|EF_QUAD))
 					if (s1->effects&(EF_PENT|EF_QUAD|EF_DOUBLE|EF_HALF_DAMAGE))
 					{
@@ -2205,7 +2204,7 @@ void CL_CalcViewValues (void)
 	if ( (cl_predict->value) && !(cl.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION)
 		&& !cl.attractloop  && !cl_paused->value) // Fix for not viewing a demo and being paused
 	{	// use predicted values
-		unsigned	delta;
+		uint32_t	delta;
 
 		backlerp = 1.0 - lerp;
 		for (i=0 ; i<3 ; i++)

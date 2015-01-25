@@ -79,8 +79,8 @@ SDL_TransferPaintBuffer(int endtime)
 	int snd_linear_count;
 	int step;
 	int val;
-	short *snd_out;
-	unsigned char *pbuf;
+	int16_t *snd_out;
+	uint8_t *pbuf;
 
 	pbuf = sound.buffer;
 
@@ -108,7 +108,7 @@ SDL_TransferPaintBuffer(int endtime)
 		{
 			lpos = ls_paintedtime & ((sound.samples >> 1) - 1);
 
-			snd_out = (short *)pbuf + (lpos << 1);
+			snd_out = (int16_t *)pbuf + (lpos << 1);
 
 			snd_linear_count = (sound.samples >> 1) - lpos;
 
@@ -166,7 +166,7 @@ SDL_TransferPaintBuffer(int endtime)
 
 		if (sound.samplebits == 16)
 		{
-			short *out = (short *)pbuf;
+			int16_t *out = (int16_t *)pbuf;
 
 			while (count--)
 			{
@@ -189,7 +189,7 @@ SDL_TransferPaintBuffer(int endtime)
 		}
 		else if (sound.samplebits == 8)
 		{
-			unsigned char *out = (unsigned char *)pbuf;
+			uint8_t *out = (uint8_t *)pbuf;
 
 			while (count--)
 			{
@@ -221,7 +221,7 @@ SDL_PaintChannelFrom8(channel_t *ch, sfxcache_t *sc, int count, int offset)
 {
 	int data;
 	int *lscale, *rscale;
-	unsigned char *sfx;
+	uint8_t *sfx;
 	int i;
 	portable_samplepair_t *samp;
 
@@ -260,13 +260,13 @@ SDL_PaintChannelFrom16(channel_t *ch, sfxcache_t *sc, int count, int offset)
 	int data;
 	int left, right;
 	int leftvol, rightvol;
-	signed short *sfx;
+    int16_t *sfx;
 	int i;
 	portable_samplepair_t *samp;
 
 	leftvol = ch->leftvol * snd_vol;
 	rightvol = ch->rightvol * snd_vol;
-	sfx = (signed short *)sc->data + ch->pos;
+	sfx = (int16_t *)sc->data + ch->pos;
 
 	samp = &paintbuffer[offset];
 
@@ -591,7 +591,7 @@ SDL_AddLoopSounds(void)
 		return;
 	}
 
-	SDL_memset(&sounds, 0, sizeof(int) * MAX_EDICTS);
+	SDL_memset(&sounds, 0, sizeof(sounds));
 	S_BuildSoundList(sounds);
 
 	for (i = 0; i < cl.frame.num_entities; i++)
@@ -696,7 +696,7 @@ SDL_ClearBuffer(void)
 {
 	int clear;
 	int i;
-	unsigned char *ptr = sound.buffer;
+	uint8_t *ptr = sound.buffer;
 
 	if (!sound_started)
 	{
@@ -808,7 +808,7 @@ SDL_Cache(sfx_t *sfx, wavinfo_t *info, byte *data)
 	int sample;
 	int srcsample;
 	sfxcache_t *sc;
-	unsigned int samplefrac = 0;
+	uint32_t samplefrac = 0;
 
 	stepscale = (float)info->rate / sound.speed;
     len = (int)(info->samples / stepscale);
@@ -862,17 +862,17 @@ SDL_Cache(sfx_t *sfx, wavinfo_t *info, byte *data)
 
 		if (info->width == 2)
 		{
-			sample = LittleShort(((short *)data)[srcsample]);
+			sample = LittleShort(((int16_t *)data)[srcsample]);
 		}
 
 		else
 		{
-			sample = (int)((unsigned char)(data[srcsample]) - 128) << 8;
+			sample = (int)((uint8_t)(data[srcsample]) - 128) << 8;
 		}
 
 		if (sc->width == 2)
 		{
-			((short *)sc->data)[i] = sample;
+			((int16_t *)sc->data)[i] = sample;
 		}
 
 		else
@@ -915,8 +915,8 @@ SDL_RawSamples(int samples, int rate, int width,
 
 			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
 			s_rawend++;
-			s_rawsamples[dst].left = ((short *)data)[src * 2] * intVolume;
-			s_rawsamples[dst].right = ((short *)data)[src * 2 + 1] * intVolume;
+			s_rawsamples[dst].left = ((int16_t *)data)[src * 2] * intVolume;
+			s_rawsamples[dst].right = ((int16_t *)data)[src * 2 + 1] * intVolume;
 		}
 	}
 	else if ((channels == 1) && (width == 2))
@@ -932,8 +932,8 @@ SDL_RawSamples(int samples, int rate, int width,
 
 			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
 			s_rawend++;
-			s_rawsamples[dst].left = ((short *)data)[src] * intVolume;
-			s_rawsamples[dst].right = ((short *)data)[src] * intVolume;
+			s_rawsamples[dst].left = ((int16_t *)data)[src] * intVolume;
+			s_rawsamples[dst].right = ((int16_t *)data)[src] * intVolume;
 		}
 	}
 	else if ((channels == 2) && (width == 1))
@@ -990,7 +990,7 @@ SDL_Update(void)
 	int i;
 	int samps;
 	int total;
-	unsigned int endtime;
+	uint32_t endtime;
 
 	/* if the loading plaque is up, clear everything
 	   out to make sure we aren't looping a dirty

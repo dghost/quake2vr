@@ -182,13 +182,13 @@ clients along with it.
 void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate, qboolean attractloop, qboolean loadgame)
 {
 	int32_t			i;
-	unsigned	checksum;
+	uint32_t	checksum;
 	fileHandle_t	f;
 
 	if (attractloop)
 		Cvar_Set ("paused", "0");
 
-	Com_Printf ("------- Server Initialization -------\n");
+	Com_Printf ("\n------- Server Initialization -------\n");
 
 	Com_DPrintf ("SpawnServer: %s\n",server);
 	if (sv.demofile)

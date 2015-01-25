@@ -4,7 +4,6 @@ cvar_t *r_antialias;
 static viddef_t offscreenBounds;
 static viddef_t screenBounds;
 
-static GLuint currentFBO;
 static qboolean changed = false;
 
 

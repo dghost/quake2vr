@@ -62,7 +62,7 @@ CL_RequestNextDownload
 */
 void CL_RequestNextDownload (void)
 {
-	unsigned	map_checksum;		// for detecting cheater maps
+	uint32_t	map_checksum;		// for detecting cheater maps
 	char fn[MAX_OSPATH];
 	dmdl_t *pheader;
 
@@ -113,7 +113,7 @@ void CL_RequestNextDownload (void)
 							precache_check++;
 							continue; // couldn't load it
 						}
-						if (LittleLong(*(unsigned *)precache_model) != IDALIASHEADER) {
+						if (LittleLong(*(uint32_t *)precache_model) != IDALIASHEADER) {
 							// not an alias model
 							FS_FreeFile(precache_model);
 							precache_model = 0;
@@ -445,7 +445,7 @@ void CL_RequestNextDownload (void)
 							precache_check++;
 							continue; // couldn't load it
 						}
-						if (LittleLong(*(unsigned *)precache_model) != IDALIASHEADER) {
+						if (LittleLong(*(uint32_t *)precache_model) != IDALIASHEADER) {
 							// not an alias model
 							FS_FreeFile(precache_model);
 							precache_model = 0;
@@ -737,7 +737,7 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 // Knightmare- store the names of last downloads that failed
 #define NUM_FAIL_DLDS 64
 char lastfaileddownload[NUM_FAIL_DLDS][MAX_OSPATH];
-static unsigned failedDlListIndex;
+static uint32_t failedDlListIndex;
 
 /*
 ===============
@@ -782,7 +782,6 @@ void CL_AddToFailedDownloadList (char *name)
 {
 	int32_t			i;
 	qboolean	found = false;
-	qboolean	added = false;
 
 	// check if this name is already in the table
 	for (i=0; i<NUM_FAIL_DLDS; i++)
@@ -841,9 +840,9 @@ qboolean CL_CheckOrDownloadFile (char *filename)
 	if (strstr(s, "textures/") && !strcmp(s+len-4, ".tga")) // look if we have a .tga texture 
 	{ 
 		char fext[3][4] = {"png","jpg"};
-		int i = 0;
+		int i;
 		strcpy(s,name);
-		for (i; i < 2; i++) {
+		for (i = 0; i < 2; i++) {
 			char *e = fext[i];
 			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
 			if (FS_LoadFile (s, NULL) != -1)	// check for .jpg counterpart

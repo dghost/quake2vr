@@ -788,7 +788,7 @@ extern cvar_t *cl_paused;
 void R_DrawCameraEffect ();
 void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect)
 {
-	unsigned int oldWidth, oldHeight;
+	uint32_t oldWidth, oldHeight;
 	if (r_norefresh->value)
 		return;
 
@@ -1294,13 +1294,7 @@ qboolean R_Init ( char *reason )
 	// place default error
 	memcpy (reason, "Unknown failure on intialization!\0", 34);
 	
-#ifdef _WIN32
-	// output system info
-	VID_Printf (PRINT_ALL, "OS: %s\n", Cvar_VariableString("sys_osVersion"));
-	VID_Printf (PRINT_ALL, "CPU: %s\n", Cvar_VariableString("sys_cpuString"));
-	VID_Printf (PRINT_ALL, "RAM: %s MB\n", Cvar_VariableString("sys_ramMegs"));
-#endif
-	glConfig.allowCDS = true;
+    glConfig.allowCDS = true;
 	// initialize OS-specific parts of OpenGL
 	if ( !GLimp_Init( ) )
 	{
@@ -1328,8 +1322,8 @@ qboolean R_Init ( char *reason )
 	glConfig.version_string = glGetString (GL_VERSION);
 	glConfig.shader_version_string = glGetString (GL_SHADING_LANGUAGE_VERSION);
 
-	sscanf(glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);	
-	sscanf(glConfig.shader_version_string, "%d.%d", &glConfig.shader_version_major, &glConfig.shader_version_minor);	
+	sscanf((const char *)glConfig.version_string, "%d.%d.%d", &glConfig.version_major, &glConfig.version_minor, &glConfig.version_release);
+	sscanf((const char *)glConfig.shader_version_string, "%d.%d", &glConfig.shader_version_major, &glConfig.shader_version_minor);
 	
 	if (glConfig.version_major < 2)
 	{
@@ -1352,7 +1346,7 @@ qboolean R_Init ( char *reason )
 	if (developer->value > 0)	// print extensions 2 to a line
 	{
 		char		*extString, *extTok;
-		unsigned	line = 0;
+		uint32_t	line = 0;
 		VID_Printf (PRINT_DEVELOPER, "GL_EXTENSIONS: " );
 		extString = (char *)glConfig.extensions_string;
 		while (1)
@@ -1735,7 +1729,7 @@ GL_Strings_f
 void GL_Strings_f (void)
 {
 	char		*extString, *extTok;
-	unsigned	line = 0;
+	uint32_t	line = 0;
 
 	VID_Printf (PRINT_ALL, "GL_VENDOR: %s\n", glConfig.vendor_string );
 	VID_Printf (PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
@@ -1987,7 +1981,7 @@ void R_EndFrame(void)
 R_SetPalette
 =============
 */
-unsigned r_rawpalette[256];
+uint32_t r_rawpalette[256];
 
 void R_SetPalette ( const uint8_t *palette)
 {

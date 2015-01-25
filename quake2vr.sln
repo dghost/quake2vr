@@ -10,9 +10,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quake2vr", "quake2.vcxproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "baseq2", "game\game.vcxproj", "{09E58C1F-353D-58C5-DE43-60F70BB966AE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "missionpack", "missionpacksrc\gamemp.vcxproj", "{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "external\OculusSDK\LibOVR\Projects\Win32\VS2012\LibOVR.vcxproj", "{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "missionpack", "game_mp\gamemp.vcxproj", "{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,18 +33,18 @@ Global
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release - No SteamVR|Win32.Build.0 = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.ActiveCfg = Release|Win32
 		{09E58C1F-353D-58C5-DE43-60F70BB966AE}.Release|Win32.Build.0 = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.Build.0 = Debug|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release - No SteamVR|Win32.ActiveCfg = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release - No SteamVR|Win32.Build.0 = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.ActiveCfg = Release|Win32
-		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.Build.0 = Release|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug|Win32.Build.0 = Debug|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release - No SteamVR|Win32.ActiveCfg = Release|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release - No SteamVR|Win32.Build.0 = Release|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release|Win32.ActiveCfg = Release|Win32
 		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release|Win32.Build.0 = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Debug|Win32.Build.0 = Debug|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release - No SteamVR|Win32.ActiveCfg = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release - No SteamVR|Win32.Build.0 = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.ActiveCfg = Release|Win32
+		{0DDC01CC-74EB-43BF-8BC7-1807346B74B0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

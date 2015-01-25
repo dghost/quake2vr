@@ -263,10 +263,10 @@ for (i = 0, j = 0; j < len; i++, j += 4)
 
 //===================================================================
 
-unsigned Com_BlockChecksum (void *buffer, int32_t length)
+uint32_t Com_BlockChecksum (void *buffer, int32_t length)
 {
 	int32_t			digest[4];
-	unsigned	val;
+	uint32_t	val;
 	MD4_CTX		ctx;
 
 	MD4Init (&ctx);

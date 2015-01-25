@@ -75,7 +75,7 @@ float R_CharMapScale (void)
 }
 
 
-unsigned	char_count;
+uint32_t	char_count;
 /*
 ================
 R_InitChars
@@ -624,7 +624,7 @@ Cinematic streaming
 
 void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *raw, int32_t rawWidth, int32_t rawHeight) //qboolean noDraw)
 {
-	int32_t		i, width = 1, height = 1;
+	int32_t		i;
 	vec2_t	texCoord[4], verts[4];
 
 	// Make sure everything is flushed if needed
@@ -677,11 +677,11 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *r
 
 #else // old 8-bit, 256x256 version
 
-extern unsigned	r_rawpalette[256];
+extern uint32_t	r_rawpalette[256];
 
 void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols, int32_t rows, byte *data)
 {
-	unsigned		image32[256*256];
+	uint32_t		image32[256*256];
 	uint8_t	image8[256*256];
 	int32_t				i, j, trows;
 	int32_t				frac, fracstep, row;
@@ -708,7 +708,7 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols,
 
 	if ( !glColorTableEXT )
 	{
-		unsigned *dest;
+		uint32_t *dest;
 
 		for (i=0 ; i<trows ; i++)
 		{

@@ -67,7 +67,7 @@ static __declspec( naked ) uint32_t x86_TimerStopBias( void )
 }
 #pragma warning( default:4035 )
 
-void x86_TimerInit( uint32_t smallest, unsigned length )
+void x86_TimerInit( uint32_t smallest, uint32_t length )
 {
 	int32_t i;
 	uint32_t biastable[100];

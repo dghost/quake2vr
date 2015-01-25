@@ -33,10 +33,10 @@ byte *last_chunk;
 byte *iff_data;
 int iff_chunk_len;
 
-short
+int16_t
 GetLittleShort(void)
 {
-	short val = 0;
+	int16_t val = 0;
 
 	val = *data_p;
 	val = val + (*(data_p + 1) << 8);

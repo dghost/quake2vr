@@ -127,10 +127,10 @@ typedef struct {
 
 static attribs_t distortion_attribs[5] = {
 	{0, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), 0},
-	{1, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f)},
-	{2, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 2},
-	{3, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 3},
-	{4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 4},
+	{1, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f))},
+	{2, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 2)},
+	{3, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 3)},
+	{4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 4)},
 };
 
 
@@ -249,7 +249,7 @@ void OVR_CalculateState(vr_param_t *state)
 
 		R_BindIVBO(&renderInfo[eye].eye,NULL,0);
 		R_VertexData(&renderInfo[eye].eye,sizeof(ovr_vert_t) * meshData.VertexCount, mesh);
-		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(unsigned short) * meshData.IndexCount,meshData.pIndexData);
+		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(uint16_t) * meshData.IndexCount,meshData.pIndexData);
 		R_ReleaseIVBO();
 		free(mesh);
 		ovrHmd_DestroyDistortionMesh( &meshData );
@@ -320,7 +320,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 			Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
 		for (i = 0; i < 2; i++)
 		{
-			ovrRecti viewport = {0,0, 0,0};
+			ovrRecti viewport = {{0,0}, {0,0}};
 			renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
 			viewport.Size.w = renderInfo[i].renderTarget.w;
 			viewport.Size.h = renderInfo[i].renderTarget.h;

@@ -1084,9 +1084,11 @@ void SCR_DrawLoading (void)
 	scr_draw_loading = 0;	
 	/*
 	//SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
-	//SCR_DrawAlertMessagePicture("loading", true, 0);
+	//SCR_DrawAlertMessagePicture("loading", true, 0);    */
 
-	/* KMQuake II enhanced loading screen */
+	// KMQuake II enhanced loading screen 
+     
+ 
 
 	widescreen = (((float)viddef.width / (float)viddef.height) > STANDARD_ASPECT_RATIO);
 
@@ -2351,7 +2353,7 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-
+void VR_RenderStereo();
 void VR_UpdateScreen (void)
 {
 	fbo_t *hud = R_VR_GetHUDFBO();
@@ -2369,6 +2371,7 @@ void VR_UpdateScreen (void)
 	R_EndFrame();
 }
 
+void R_RenderStereo ();
 void Stereo_UpdateScreen (void)
 {
 	R_BeginFrame( );

@@ -224,7 +224,7 @@ Begins recording a demo from the current position
 void CL_Record_f (void)
 {
 	char	name[MAX_OSPATH];
-	char	buf_data[MAX_MSGLEN];
+	byte	buf_data[MAX_MSGLEN];
 	sizebuf_t	buf;
 	int32_t		i;
 	int32_t		len;
@@ -692,7 +692,7 @@ This is also called on Com_Error, so it shouldn't cause any errors
 extern	char	*currentweaponmodel;
 void CL_Disconnect (void)
 {
-	byte	final[32];
+	char	final[32];
 
 	if (cls.state == ca_disconnected)
 		return;
@@ -721,10 +721,10 @@ void CL_Disconnect (void)
 
 	// send a disconnect message to the server
 	final[0] = clc_stringcmd;
-	strcpy ((char *)final+1, "disconnect");
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
+	strcpy (final+1, "disconnect");
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
+	Netchan_Transmit (&cls.netchan, strlen(final), (byte *)final);
 
 	CL_ClearState ();
 
@@ -1329,7 +1329,7 @@ void CL_Precache_f (void)
 	// the old precache sequence
 	if (Cmd_Argc() < 2)
 	{
-		unsigned	map_checksum;		// for detecting cheater maps
+		uint32_t	map_checksum;		// for detecting cheater maps
 
 		CM_LoadMap (cl.configstrings[CS_MODELS+1], true, &map_checksum);
 		CL_RegisterSounds ();
@@ -1856,17 +1856,22 @@ void CL_Init (void)
 
 	// all archived variables will now be loaded
 
-	Con_Init ();	
+    Con_Init ();
+    
+    // output system info
+    Com_Printf("------- Client Initialization -------\n");
+
+    Com_Printf("Quake II VR Version v%s\n", VR_VER);
+    Com_Printf("OS: %s\n", Cvar_VariableString("sys_os"));
+    Com_Printf("CPU: %s\n", Cvar_VariableString("sys_cpu"));
+    Com_Printf("RAM: %s MB\n", Cvar_VariableString("sys_ram"));
+    
 	VR_Startup ();
 
-#if defined __linux__ || defined __sgi
-	S_Init ();	
-	VID_Init ();
-#else
 	VID_Init ();
 	S_Init ();	// sound must be initialized after window is created
-#endif
-	V_Init ();
+
+    V_Init ();
 	
 	net_message.data = net_message_buffer;
 	net_message.maxsize = sizeof(net_message_buffer);

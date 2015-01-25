@@ -283,18 +283,4 @@ hmd_render_t vr_render_svr =
 	NULL
 };
 
-#else
-
-hmd_render_t vr_render_svr = 
-{
-	HMD_STEAM,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
 #endif //NO_STEAM

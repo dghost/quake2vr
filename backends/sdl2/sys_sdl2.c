@@ -56,9 +56,9 @@ uint32_t mainWindowID;
 SDL_SysWMinfo mainWindowInfo;
 
 void SDL_ProcEvent(SDL_Event *event);
-unsigned	sys_msg_time;
-unsigned	sys_frame_time;
-
+uint32_t	sys_msg_time;
+uint32_t	sys_frame_time;
+uint32_t    sys_cacheline;
 
 #define	MAX_NUM_ARGVS	128
 int32_t			argc;
@@ -365,34 +365,55 @@ void Sys_Quit (void)
 
 //================================================================
 
-/*
-=================
-Sys_DetectCPU
-Fixed to not be so clever
-=================
-*/
-static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
+#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+void cpuid(uint32_t info, uint32_t *regs)
 {
-
 #ifdef _WIN32
-	DWORD dwType = REG_SZ;
-	HKEY hKey = 0;
-	LONG succeeded = 0;
-	const char* subkey = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0";
-	succeeded = RegOpenKey(HKEY_LOCAL_MACHINE,subkey,&hKey);
-	if (succeeded != ERROR_SUCCESS)
-		return false;
-
-	succeeded = RegQueryValueEx(hKey,"ProcessorNameString",NULL,&dwType,cpuString,&maxSize);
-	RegCloseKey(hKey);
-	return (succeeded == ERROR_SUCCESS);
-
+        __cpuid((int *)regs, (int)info);
+        
 #else
-	int32_t numCores = SDL_GetCPUCount();
-	Q_strncpyz(cpuString, "Unknown processor with %d logical cores\n",numCores);
-	return true;
+        asm volatile
+        ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+         : "a" (info), "c" (0));
+        // ECX is set to zero for CPUID function 4
+#endif
+}
+
+qboolean cpu_string(char* buffer, int size)
+{
+    char namestring[49];
+    int start;
+    
+    uint32_t *word = (uint32_t *) &namestring[0];
+
+    memset(namestring,0,sizeof(namestring));
+    
+    cpuid(0x80000000,&word[0]);
+    
+    if (word[0] < 0x80000004)
+        return false;
+    
+    cpuid(0x80000002,&word[0]);
+    cpuid(0x80000003,&word[4]);
+    cpuid(0x80000004,&word[8]);
+    
+    for (start = 0; start < 49 && namestring[start]==' '; start++);
+
+    SDL_snprintf(buffer, size, "%s",&namestring[start]);
+    return true;
+}
 #endif
 
+/*
+ =================
+ Sys_DetectCPU
+ =================
+*/
+
+static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
+{
+    memset(cpuString,0,maxSize);
+    return cpu_string(cpuString,maxSize);
 }
 
 
@@ -415,36 +436,31 @@ void Sys_Init (void)
 #endif
 
 	SDL_strlcpy(string,SDL_GetPlatform(),sizeof(string));
-	Com_Printf("OS: %s\n", string);
-	Cvar_Get("sys_osVersion", string, CVAR_NOSET|CVAR_LATCH);
+	Cvar_Get("sys_os", string, CVAR_NOSET|CVAR_LATCH);
 
 	// Detect CPU
-	Com_Printf("Detecting CPU... ");
 	if (Sys_DetectCPU(string, sizeof(string))) {
-		Com_Printf("Found %s\n", string);
-		Cvar_Get("sys_cpuString", string, CVAR_NOSET|CVAR_LATCH);
+		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
 	else {
-		Com_Printf("Unknown CPU found\n");
-		Cvar_Get("sys_cpuString", "Unknown", CVAR_NOSET|CVAR_LATCH);
+        int cores = SDL_GetCPUCount();
+        char string[50];
+        memset(string, 0, sizeof(string));
+		SDL_snprintf(string, sizeof(string),"Unknown %i-core CPU", cores);
+		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
-
-	// Get physical memory
+    
+    sys_cacheline = SDL_GetCPUCacheLineSize();
+    
+    // Get physical memory
 	SDL_snprintf(string,sizeof(string),"%u",SDL_GetSystemRAM());
-	Com_Printf("Memory: %s MB\n", string);
-	Cvar_Get("sys_ramMegs", string, CVAR_NOSET|CVAR_LATCH);
+	Cvar_Get("sys_ram", string, CVAR_NOSET|CVAR_LATCH);
 	// end Q2E detection
 
-	SDL_VERSION(&compiled);
+    SDL_VERSION(&compiled);
 	SDL_GetVersion(&linked);
 	SDL_snprintf(string,sizeof(string),"%d.%d.%d",linked.major, linked.minor, linked.patch);
-	Cvar_Get("sys_sdlString",string,CVAR_NOSET|CVAR_LATCH);
-	Com_Printf("SDL Version: %d.%d.%d.\n", linked.major, linked.minor, linked.patch);
-
-	if (compiled.major != linked.major || compiled.minor != linked.minor || compiled.patch != linked.patch)
-	{
-		Com_Printf("ERROR: The version of SDL in use differs from the intended version.\n");
-	}
+	Cvar_Get("sys_sdl",string,CVAR_NOSET|CVAR_LATCH);
 
 #ifdef _WIN32
 	Sys_InitConsole (); // show dedicated console, moved to function
@@ -521,7 +537,7 @@ void* Sys_FindLibrary(const char *dllnames[])
 	const char *gamename = NULL;
 	void	*library = NULL;
 
-#ifdef NDEBUG
+#ifndef _DEBUG
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
@@ -589,10 +605,10 @@ void* Sys_FindLibrary(const char *dllnames[])
 void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
-	int32_t i = 0;
+//	int32_t i = 0;
 	//Knightmare- changed DLL name for better cohabitation
 #ifdef KMQUAKE2_ENGINE_MOD
-	static const char *dllnames[] = {"vrgamex86", "kmq2gamex86",0};
+	static const char *dllnames[] = {"vrgamex86", "mpgamex86",0};
 #else
 	static const char *dllnames[] = {"game", "gamex86",0};
 #endif
@@ -601,7 +617,7 @@ void *Sys_GetGameAPI (void *parms)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
 	game_library = Sys_FindLibrary(dllnames);
-
+    
 	if (!game_library)
 		return NULL;
 
@@ -627,7 +643,7 @@ WinMain
 int32_t main(int32_t argc, char *argv[])
 {
 	int32_t				time, oldtime, newtime;
-	qboolean		cdscan = false; // Knightmare added
+//	qboolean		cdscan = false; // Knightmare added
 
 		
 #ifdef _WIN32

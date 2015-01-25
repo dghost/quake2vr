@@ -19,7 +19,9 @@ typedef struct {
 typedef enum {
 	HMD_NONE,
 	HMD_RIFT,
+#ifndef NO_STEAM
 	HMD_STEAM,
+#endif
 	NUM_HMD_TYPES
 } hmd_t;
 

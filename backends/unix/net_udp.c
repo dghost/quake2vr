@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // net_wins.c
 
-#include "../qcommon/qcommon.h"
+#include "../../qcommon/qcommon.h"
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <errno.h>
-#include <arpa/inet.h>
 
 #ifdef NeXT
 #include <libc.h>
@@ -107,26 +106,25 @@ Compares without the port
 */
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
-	if (a.type != b.type)
-		return false;
-
-	if (a.type == NA_LOOPBACK)
-		return true;
-
-	if (a.type == NA_IP)
-	{
-		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
-			return true;
-		return false;
-	}
-
-	if (a.type == NA_IPX)
-	{
-		if ((memcmp(a.ipx, b.ipx, 10) == 0))
-			return true;
-		return false;
-	}
-	return false;
+    if (a.type != b.type)
+        return false;
+    
+    switch (a.type) {
+        case NA_LOOPBACK:
+            return true;
+            break;
+        case NA_IP:
+            if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
+                return true;
+            break;
+        case NA_IPX:
+            if ((memcmp(a.ipx, b.ipx, 10) == 0))
+                return true;
+            break;
+        default:
+            break;
+    }
+    return false;
 }
 
 char	*NET_AdrToString (netadr_t a)
@@ -175,7 +173,7 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 		if (*colon == ':')
 		{
 			*colon = 0;
-			((struct sockaddr_in *)sadr)->sin_port = htons((short)atoi(colon+1));	
+			((struct sockaddr_in *)sadr)->sin_port = htons((int16_t)atoi(colon+1));	
 		}
 	
 	if (copy[0] >= '0' && copy[0] <= '9')
@@ -280,7 +278,7 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 {
 	int 	ret;
 	struct sockaddr_in	from;
-	int		fromlen;
+	uint32_t fromlen;
 	int		net_socket;
 	int		protocol;
 	int		err;
@@ -300,7 +298,7 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 
 		fromlen = sizeof(from);
 		ret = recvfrom (net_socket, net_message->data, net_message->maxsize
-			, 0, (struct sockaddr *)&from, (socklen_t *)&fromlen);
+			, 0, (struct sockaddr *)&from, &fromlen);
 
 		SockadrToNetadr (&from, net_from);
 
@@ -366,9 +364,11 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 		if (!net_socket)
 			return;
 	}
-	else
+    else {
 		Com_Error (ERR_FATAL, "NET_SendPacket: bad address type");
-
+        return;
+    }
+    
 	NetadrToSockadr (&to, &addr);
 
 	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
@@ -493,7 +493,7 @@ int NET_Socket (char *net_interface, int port)
 		return 0;
 	}
 
-	if (!net_interface || !net_interface[0] || !stricmp(net_interface, "localhost"))
+	if (!net_interface || !net_interface[0] || !strcasecmp(net_interface, "localhost"))
 		address.sin_addr.s_addr = INADDR_ANY;
 	else
 		NET_StringToSockaddr (net_interface, (struct sockaddr *)&address);
@@ -501,7 +501,7 @@ int NET_Socket (char *net_interface, int port)
 	if (port == PORT_ANY)
 		address.sin_port = 0;
 	else
-		address.sin_port = htons((short)port);
+		address.sin_port = htons((int16_t)port);
 
 	address.sin_family = AF_INET;
 
@@ -559,4 +559,3 @@ void NET_Sleep(int msec)
 	timeout.tv_usec = (msec%1000)*1000;
 	select(ip_sockets[NS_SERVER]+1, &fdset, NULL, NULL, &timeout);
 }
-

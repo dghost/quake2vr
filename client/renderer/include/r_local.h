@@ -95,7 +95,7 @@ typedef struct image_s
 	int32_t			registration_sequence;		// 0 = free
 	struct		msurface_s	*texturechain;	// for sort-by-texture world drawing
 	struct		msurface_s	*warp_texturechain;	// same as above, for warp surfaces
-	int32_t			texnum;						// gl texture binding
+	uint32_t			texnum;						// gl texture binding
 	float		sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
 	qboolean	scrap;
 	qboolean	has_alpha;
@@ -335,14 +335,14 @@ extern	int32_t		c_visible_textures;
 //extern	float	r_world_matrix[16];
 
 // entity sorting struct
-typedef struct sortedelement_s sortedelement_t;
-typedef struct sortedelement_s 
+//typedef struct sortedelement_s sortedelement_t;
+typedef struct sortedelement_s
 {
 	void  *data;
 	vec_t len;
 	vec3_t org;
-	sortedelement_t *left, *right;
-};
+	struct sortedelement_s *left, *right;
+} sortedelement_t;
 
 
 //
@@ -750,11 +750,11 @@ enum {
 typedef struct
 {
 	int32_t         rendType;
-	const char	*renderer_string;
-	const char	*vendor_string;
-	const char	*version_string;
-	const char	*extensions_string;
-	const char  *shader_version_string;
+	const byte	*renderer_string;
+	const byte	*vendor_string;
+	const byte	*version_string;
+	const byte	*extensions_string;
+	const byte  *shader_version_string;
 	// for parsing newer OpenGL versions
 	int32_t		version_major;
 	int32_t		version_minor;
@@ -1114,7 +1114,7 @@ typedef struct {
 	GLenum type;
 	GLboolean normalized;
 	GLsizei stride;
-	GLsizei offset;
+	GLvoid *offset;
 } attribs_t;
 
 void R_SetAttribsVBO(attribs_t *attribs, unsigned int count);
@@ -1134,7 +1134,7 @@ void R_IndexData(vbo_t *buffer, GLenum mode, GLenum type, GLsizei count, GLsizei
 void R_BindIVBO(vbo_t *buffer, attribs_t *attribs, unsigned int attribCount);
 void R_ReleaseIVBO();
 void R_DrawIVBO(vbo_t *buffer);
-void R_DrawRangeIVBO(vbo_t *buffer, GLsizei offset, GLsizei count);
+void R_DrawRangeIVBO(vbo_t *buffer, GLvoid *offset, GLsizei count);
 void R_DelIVBO(vbo_t *buffer);
 
 

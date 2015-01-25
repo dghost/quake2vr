@@ -584,13 +584,13 @@ CM_LoadMap
 Loads in the map and all submodels
 ==================
 */
-cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
+cmodel_t *CM_LoadMap (char *name, qboolean clientload, uint32_t *checksum)
 {
-	unsigned		*buf;
+	uint32_t		*buf;
 	int32_t				i;
 	dheader_t		header;
 	int32_t				length;
-	static unsigned	last_checksum;
+	static uint32_t	last_checksum;
 
 	map_noareas = Cvar_Get ("map_noareas", "0", 0);
 
@@ -662,7 +662,7 @@ cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
 /*	// Barnes- try to load entity replacement file
 	if (sv_entfile->value)
 	{
-		unsigned		*entbuf;
+		uint32_t		*entbuf;
 		int32_t				entlength;
 		char			entfile[MAX_QPATH];
 		qboolean		foundentfile;

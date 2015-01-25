@@ -177,7 +177,7 @@ sortedpart_t NewSortedPart (particle_t *p)
 
 void R_SortParticlesOnList (void)
 {
-	int32_t i, j=0, rangestart=0, rangecount=1;
+	int32_t i;
 
 	for (i=0; i<r_newrefdef.num_particles; i++)
 		sorted_parts[i] = NewSortedPart(&r_newrefdef.particles[i]);
@@ -218,7 +218,6 @@ vec3_t		shadelight;
 // Particle batching struct
 // used for grouping particles by identical rendering state
 // and rendering in vertex arrays
-typedef struct particleRenderState_s particleRenderState_t;
 typedef struct particleRenderState_s
 {
 	GLenum		polymode;
@@ -231,7 +230,7 @@ typedef struct particleRenderState_s
 	GLenum		blendfunc_dst;
 	int32_t			imagenum;
 	int32_t			depth_hack;
-};
+} particleRenderState_t;
 particleRenderState_t	currentParticleState;
 
 //int32_t		particle_va, particle_index;
@@ -531,7 +530,7 @@ R_RenderParticle
 void R_RenderParticle (particle_t *p)
 {
 	float		size, len, lighting = r_particle_lighting->value;
-	int32_t			oldrender=0, rendertype=0, numVerts, numIndex;
+	int32_t		numVerts, numIndex;
 	
 	vec3_t		shadelight, move;
 	vec4_t		partColor;

@@ -252,7 +252,7 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 }
 
 
-unsigned	md2shadow_va, md2shadow_index;
+uint32_t	md2shadow_va, md2shadow_index;
 /*
 =============
 R_BuildMD2ShadowVolume

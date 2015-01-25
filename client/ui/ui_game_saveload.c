@@ -111,7 +111,7 @@ void Load_Savestrings (qboolean update)
 						Com_sprintf (m_mapname, sizeof(m_mapname), mapname+1);
 					else
 						Com_sprintf (m_mapname, sizeof(m_mapname), mapname);
-					if (ch = strchr (m_mapname, '$'))
+					if ((ch = strchr (m_mapname, '$')))
 						*ch = 0; // terminate string at $ marker
 				}
 				FS_FCloseFile(f);

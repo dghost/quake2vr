@@ -105,7 +105,7 @@ static void FenceSyncCallback (void *unused )
 
 static void AntialiasCallback ( void *usused )
 {
-	int old = Cvar_VariableInteger("r_antialias");
+//	int old = Cvar_VariableInteger("r_antialias");
 	int newVal = s_antialias_box.curvalue;
 	float oldscale, newscale, ratio;
 	oldscale = R_AntialiasGetScale();
@@ -480,7 +480,7 @@ void Menu_Video_Init (void)
 	float	temp;
 
 	int32_t i;
-	int32_t j = sizeof(vid_modes) / sizeof(vidmode_t);
+//	int32_t j = sizeof(vid_modes) / sizeof(vidmode_t);
 	for (i = 0; i < NUM_VIDEO_MODES; i++)
 	{
 		if (vid_modes[i].width == Cvar_VariableInteger("vid_width") 

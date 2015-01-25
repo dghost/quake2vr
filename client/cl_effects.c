@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static vec3_t avelocities [NUMVERTEXNORMALS];
 
-extern	unsigned	d_8to24table[256];
+extern	uint32_t	d_8to24table[256];
 
 //=================================================
 
@@ -1831,7 +1831,7 @@ void CL_RocketTrail (vec3_t start, vec3_t end, centity_t *old)
 	VectorScale (vec, dec, vec);
 /*	len = totallen;
 	VectorCopy (start, move);
-	dec = 1.5;//*cl_particle_scale->value;
+	dec = 1.5;// *cl_particle_scale->value;
 	VectorScale (vec, dec, vec);*/
 
 	while (len > 0)
@@ -2413,7 +2413,6 @@ void CL_IonripperTrail (vec3_t start, vec3_t ent)
 	vec3_t  leftdir,up;
 	float	len;
 	int32_t		dec;
-	int32_t     left = 0;
 
 	VectorCopy (start, move);
 	VectorSubtract (ent, start, vec);
@@ -3450,7 +3449,6 @@ CL_WidowSplash
 */
 void CL_WidowSplash (vec3_t org)
 {
-	static int32_t colortable[4] = {2*8,13*8,21*8,18*8};
 	int32_t			i;
 	cparticle_t	*p;
 	vec3_t		dir;

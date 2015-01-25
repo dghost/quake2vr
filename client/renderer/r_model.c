@@ -188,7 +188,7 @@ Loads in a model for the given name
 model_t *Mod_ForName (char *name, qboolean crash)
 {
 	model_t	*mod;
-	unsigned *buf;
+	void *buf;
 	int32_t		i;
 	
 	if (!name[0])
@@ -253,7 +253,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 
 	// call the apropriate loader
 	
-	switch (LittleLong(*(unsigned *)buf))
+	switch (LittleLong(*(uint32_t *)buf))
 	{
 	case IDALIASHEADER:
 #ifdef MD2_AS_MD3
@@ -460,8 +460,8 @@ void Mod_LoadEdges (lump_t *l)
 // store the names of last textures that failed to load
 #define NUM_FAIL_TEXTURES 256
 char lastFailedTexture[NUM_FAIL_TEXTURES][MAX_OSPATH];
-long lastFailedTextureHash[NUM_FAIL_TEXTURES];
-static unsigned failedTexListIndex;
+int32_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
+static uint32_t failedTexListIndex;
 
 /*
 ===============
@@ -488,7 +488,7 @@ Mod_CheckTexFailed
 qboolean Mod_CheckTexFailed (char *name)
 {
 	int32_t		i;
-	long	hash;
+	int32_t	hash;
 
 	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_FAIL_TEXTURES; i++)
@@ -549,14 +549,14 @@ image_t	*Mod_FindTexture (char *name, imagetype_t type)
 typedef struct walsize_s
 {
 	char	name[MAX_OSPATH];
-	long	hash;
+	int32_t	hash;
 	int32_t		width;
 	int32_t		height;
 } walsize_t;
 
 #define NUM_WALSIZES 256
 walsize_t walSizeList[NUM_WALSIZES];
-static unsigned walSizeListIndex;
+static uint32_t walSizeListIndex;
 
 /*
 ===============
@@ -584,7 +584,7 @@ Mod_CheckWalSizeList
 qboolean Mod_CheckWalSizeList (const char *name, int32_t *width, int32_t *height)
 {
 	int32_t		i;
-	long	hash;
+	int32_t	hash;
 
 	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_WALSIZES; i++)
@@ -1554,7 +1554,7 @@ md3 skin protoshaders
 void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 {
 	char		scriptname[MAX_QPATH];
-	char		*buf, *parse_data, *token=NULL, *token2=NULL;
+	char		*buf, *parse_data, *token=NULL;
 	int32_t			buf_size, i, j; //, k;
 	qboolean	skinname_found;
 	renderparms_t	*skinParms;
@@ -1568,7 +1568,7 @@ void Mod_LoadModelScript (model_t *mod, maliasmodel_t *aliasmod)
 
 	COM_StripExtension (mod->name, scriptname);
 	strcat (scriptname, ".script");
-	buf_size = FS_LoadFile (scriptname, &buf);
+	buf_size = FS_LoadFile (scriptname,(void **) &buf);
 
 	if (buf_size < 1)
 		return;
@@ -1913,7 +1913,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	index_t				*poutindex;
 	char				name[MD3_MAX_PATH];
 	int32_t					indRemap[MAX_TRIANGLES*3];
-	unsigned			tempIndex[MAX_TRIANGLES*3], tempStIndex[MAX_TRIANGLES*3];
+	uint32_t			tempIndex[MAX_TRIANGLES*3], tempStIndex[MAX_TRIANGLES*3];
 	int32_t					numIndices, numVertices;
 	double				skinWidth, skinHeight;
 	vec3_t				normal;
@@ -1962,13 +1962,13 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 
 	for (i=0; i < poutmesh->num_tris; i++)
 	{
-		tempIndex[i*3+0] = (unsigned)LittleShort(pintri[i].index_xyz[0]);
-		tempIndex[i*3+1] = (unsigned)LittleShort(pintri[i].index_xyz[1]);
-		tempIndex[i*3+2] = (unsigned)LittleShort(pintri[i].index_xyz[2]);
+		tempIndex[i*3+0] = (uint32_t)LittleShort(pintri[i].index_xyz[0]);
+		tempIndex[i*3+1] = (uint32_t)LittleShort(pintri[i].index_xyz[1]);
+		tempIndex[i*3+2] = (uint32_t)LittleShort(pintri[i].index_xyz[2]);
 
-		tempStIndex[i*3+0] = (unsigned)LittleShort(pintri[i].index_st[0]);
-		tempStIndex[i*3+1] = (unsigned)LittleShort(pintri[i].index_st[1]);
-		tempStIndex[i*3+2] = (unsigned)LittleShort(pintri[i].index_st[2]);
+		tempStIndex[i*3+0] = (uint32_t)LittleShort(pintri[i].index_st[0]);
+		tempStIndex[i*3+1] = (uint32_t)LittleShort(pintri[i].index_st[1]);
+		tempStIndex[i*3+2] = (uint32_t)LittleShort(pintri[i].index_st[2]);
 	}
 
 	//

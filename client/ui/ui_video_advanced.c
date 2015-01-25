@@ -230,12 +230,7 @@ void Menu_Video_Advanced_Init (void)
 		"projection",
 		0
 	};
-	static const char *ifsupported_names[] =
-	{
-		"no",
-		"if supported",
-		0
-	};
+
 	static const char *quality_names[] =
 	{
 		"low",

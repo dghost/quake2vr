@@ -390,7 +390,7 @@ static const char *roguecredits[] =
 int32_t stringLengthExtra (const char *string);
 void M_Credits_MenuDraw (void)
 {
-	float		alpha, time = (cls.realtime - credits_start_time) * 0.05;
+    float		alpha; //, time = (cls.realtime - credits_start_time) * 0.05;
 	int32_t			i, y, x, len, stringoffset;
 	qboolean	bold;
 
@@ -488,7 +488,7 @@ void M_Menu_Credits_f (void)
 	char	*p;
 
 	creditsBuffer = NULL;
-	count = FS_LoadFile ("credits", &creditsBuffer);
+	count = FS_LoadFile ("credits", (void **) &creditsBuffer);
 	if (count != -1)
 	{
 		p = creditsBuffer;
@@ -512,7 +512,7 @@ void M_Menu_Credits_f (void)
 				break;
 		}
 		creditsIndex[++n] = 0;
-		credits = creditsIndex;
+		credits = (const char **)creditsIndex;
 	}
 	else
 	{	

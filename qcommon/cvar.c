@@ -117,7 +117,7 @@ float Cvar_DefaultValue (char *var_name)
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
-#ifdef 	NEW_CVAR_MEMBERS
+#ifdef NEW_CVAR_MEMBERS
 	return atof (var->default_string);
 #else
 	return var->value;

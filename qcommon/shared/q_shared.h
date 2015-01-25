@@ -63,7 +63,7 @@ typedef unsigned char uint8_t;
 typedef signed short int16_t;
 typedef unsigned short uint16_t;
 typedef signed int int32_t;
-typedef unsigned int uint32_t_t;
+typedef unsigned int uint32_t;
 typedef signed long long int64_t;
 typedef unsigned long long uint64_t;
 #ifndef _SIZE_T_DEFINED_
@@ -265,15 +265,11 @@ struct cplane_s;
 
 extern vec3_t vec3_origin;
 
-#define	nanmask (255<<23)
-
-#define	IS_NAN(x) (((*(int32_t *)&x)&nanmask)==nanmask)
-
 // microsoft's fabs seems to be ungodly slow...
 //float Q_fabs (float f);
 //#define	fabs(f) Q_fabs(f)
-#if !defined C_ONLY && !defined __linux__ && !defined __sgi
-extern long Q_ftol( float f );
+#if !defined C_ONLY && !defined __linux__ && !defined __sgi && !defined __APPLE__
+extern int32_t Q_ftol( float f );
 #else
 #define Q_ftol( f ) ( long ) (f)
 #endif
