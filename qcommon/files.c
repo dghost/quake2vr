@@ -408,7 +408,7 @@ fsHandle_t *FS_HandleForFile (const char *path, fileHandle_t *f)
 
 	// Failed
 	Com_Error(ERR_DROP, "FS_HandleForFile: none free");
-    return -1; // not called
+    return NULL; // not called
 }
 
 

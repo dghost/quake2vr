@@ -413,7 +413,7 @@ qboolean cpu_string(char* buffer, int size)
 static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
 {
     memset(cpuString,0,maxSize);
-    return cpu_string(cpuString,cpuString);
+    return cpu_string(cpuString,maxSize);
 }
 
 
@@ -446,7 +446,7 @@ void Sys_Init (void)
         int cores = SDL_GetCPUCount();
         char string[50];
         memset(string, 0, sizeof(string));
-		SDL_snprintf(string, sizeof(string),"Unknown %d-core CPU", cores);
+		SDL_snprintf(string, sizeof(string),"Unknown %i-core CPU", cores);
 		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
     

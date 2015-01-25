@@ -127,10 +127,10 @@ typedef struct {
 
 static attribs_t distortion_attribs[5] = {
 	{0, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), 0},
-	{1, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f)},
-	{2, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 2},
-	{3, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 3},
-	{4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ovr_vert_t), sizeof(ovrVector2f) * 4},
+	{1, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f))},
+	{2, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 2)},
+	{3, 2, GL_FLOAT, GL_FALSE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 3)},
+	{4, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ovr_vert_t), (GLvoid *) (sizeof(ovrVector2f) * 4)},
 };
 
 

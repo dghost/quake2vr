@@ -265,15 +265,11 @@ struct cplane_s;
 
 extern vec3_t vec3_origin;
 
-#define	nanmask (255<<23)
-
-#define	IS_NAN(x) (((*(int32_t *)&x)&nanmask)==nanmask)
-
 // microsoft's fabs seems to be ungodly slow...
 //float Q_fabs (float f);
 //#define	fabs(f) Q_fabs(f)
 #if !defined C_ONLY && !defined __linux__ && !defined __sgi && !defined __APPLE__
-extern long Q_ftol( float f );
+extern int32_t Q_ftol( float f );
 #else
 #define Q_ftol( f ) ( long ) (f)
 #endif
