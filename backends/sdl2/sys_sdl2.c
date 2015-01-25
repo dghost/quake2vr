@@ -366,16 +366,17 @@ void Sys_Quit (void)
 //================================================================
 
 #if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
-void cpuid(unsigned info, unsigned *eax, unsigned *ebx, unsigned *ecx, unsigned *edx)
+void cpuid(uint32_t info, uint32_t *regs)
 {
-    *eax = info;
-    __asm volatile
-    ("mov %%ebx, %%edi;" /* 32bit PIC: don't clobber ebx */
-     "cpuid;"
-     "mov %%ebx, %%esi;"
-     "mov %%edi, %%ebx;"
-     :"+a" (*eax), "=S" (*ebx), "=c" (*ecx), "=d" (*edx)
-     : :"edi");
+#ifdef _WIN32
+        __cpuid((int *)regs, (int)info;
+        
+#else
+        asm volatile
+        ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+         : "a" (info), "c" (0));
+        // ECX is set to zero for CPUID function 4
+#endif
 }
 
 qboolean cpu_string(char* buffer, int size)
@@ -387,14 +388,14 @@ qboolean cpu_string(char* buffer, int size)
 
     memset(namestring,0,sizeof(namestring));
     
-    cpuid(0x80000000,&word[0],&word[1],&word[2],&word[3]);
+    cpuid(0x80000000,&word[0]);
     
     if (word[0] < 0x80000004)
         return false;
     
-    cpuid(0x80000002,&word[0],&word[1],&word[2],&word[3]);
-    cpuid(0x80000003,&word[4],&word[5],&word[6],&word[7]);
-    cpuid(0x80000004,&word[8],&word[9],&word[10],&word[11]);
+    cpuid(0x80000002,&word[0]);
+    cpuid(0x80000003,&word[4]);
+    cpuid(0x80000004,&word[8]);
     
     for (start = 0; start < 49 && namestring[start]==' '; start++);
 
