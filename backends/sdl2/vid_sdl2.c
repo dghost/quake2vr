@@ -37,6 +37,9 @@ cvar_t		*vid_ref;			// Name of Refresh DLL loaded
 cvar_t		*vid_xpos;			// X coordinate of window position
 cvar_t		*vid_ypos;			// Y coordinate of window position
 cvar_t		*vid_fullscreen;
+cvar_t      *vid_desktop_fullscreen;
+cvar_t      *vid_srgb;
+cvar_t      *vid_brightness;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
@@ -518,11 +521,16 @@ VID_Init
 */
 void VID_Init (void)
 {
-	/* Create the video variables so we know how to start the graphics drivers */
+    /* Create the video variables so we know how to start the graphics drivers */
 	vid_ref = Cvar_Get ("vid_ref", "gl", CVAR_NOSET );
 	vid_xpos = Cvar_Get ("vid_xpos", "0", CVAR_ARCHIVE);
 	vid_ypos = Cvar_Get ("vid_ypos", "0", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "1", CVAR_ARCHIVE);
+    vid_desktop_fullscreen = Cvar_Get( "vid_desktop_fullscreen", "1", CVAR_ARCHIVE );
+    vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
+    vid_brightness = Cvar_Get("vid_brightness","0.6",CVAR_ARCHIVE);
+    vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
+    
 
 	// Knightmare- just here to enable command line option without error
 	scanforcd = Cvar_Get( "scanforcd", "0", 0 );

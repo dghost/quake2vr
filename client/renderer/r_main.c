@@ -156,11 +156,6 @@ cvar_t	*r_anisotropic;
 cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
 cvar_t  *r_texturecompression;
-cvar_t	*vid_fullscreen;
-cvar_t  *vid_desktop_fullscreen;
-cvar_t  *vid_brightness;
-cvar_t	*vid_ref;
-cvar_t  *vid_srgb;
 
 cvar_t  *r_bloom;	// BLOOMS
 
@@ -1183,12 +1178,6 @@ void R_Register (void)
 
 	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
 	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
-
-	vid_desktop_fullscreen = Cvar_Get( "vid_desktop_fullscreen", "1", CVAR_ARCHIVE );
-	vid_fullscreen = Cvar_Get( "vid_fullscreen", "1", CVAR_ARCHIVE );
-	vid_srgb = Cvar_Get("vid_srgb","1",CVAR_ARCHIVE);
-	vid_brightness = Cvar_Get("vid_brightness","0.6",CVAR_ARCHIVE);
-	vid_ref = Cvar_Get( "vid_ref", "gl", CVAR_NOSET );
 
 	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
 	r_saturation = Cvar_Get( "r_saturation", "1.0", CVAR_ARCHIVE );	//** DMP saturation setting (.89 good for nvidia)

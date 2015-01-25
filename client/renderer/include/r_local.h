@@ -314,6 +314,13 @@ extern  cvar_t  *r_blur;
 extern  cvar_t  *r_flashblur;
 
 extern	cvar_t	*vid_fullscreen;
+extern  cvar_t  *vid_desktop_fullscreen;
+extern  cvar_t	*vid_ref;
+extern  cvar_t	*vid_xpos;
+extern  cvar_t  *vid_ypos;
+extern  cvar_t  *vid_fullscreen;
+extern  cvar_t  *vid_srgb;
+extern  cvar_t  *vid_brightness;
 
 extern  cvar_t  *r_fencesync;
 extern  cvar_t	*r_antialias;

@@ -48,6 +48,7 @@ static SDL_GLContext glcontext;
 
 
 extern cvar_t *vid_fullscreen;
+extern cvar_t *vid_desktop_fullscreen;
 extern cvar_t *vid_ref;
 extern cvar_t *vid_refresh;
 extern cvar_t *vid_srgb;
@@ -128,8 +129,8 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	int32_t xpos = Cvar_VariableInteger("vid_xpos");
 	int32_t ypos = Cvar_VariableInteger("vid_ypos");
-	int32_t fullscreen = Cvar_VariableInteger("vid_fullscreen");
-	int32_t fs_desktop = Cvar_VariableInteger("vid_desktop_fullscreen");
+    int32_t fullscreen = (int32_t)vid_fullscreen->value;
+    int32_t fs_desktop = (int32_t)vid_desktop_fullscreen->value;
 
 
 	{
