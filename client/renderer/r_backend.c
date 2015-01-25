@@ -120,11 +120,15 @@ void RB_InitBackend (void)
 RB_CalcGlowColor
 =================
 */
+
 float RB_CalcGlowColor (renderparms_t parms)
 {
 	float	*table, rad, out=1.0f;
-
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 	if (parms.glow.type > -1)
+#pragma clang diagnostic pop
 	{
 		table = RB_TableForFunc(&parms.glow);
 		rad = parms.glow.params[2] + parms.glow.params[3] * r_newrefdef.time;
@@ -140,6 +144,7 @@ RB_ModifyTextureCoords
 borrowed from EGL & Q2E
 =================
 */
+
 void RB_ModifyTextureCoords (float *inArray, float *inVerts, int32_t numVerts, renderparms_t parms)
 {
 	int32_t		i;
@@ -166,8 +171,10 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int32_t numVerts, r
 			tcArray[1] = cost * (t2 - 0.5) + sint * (t1 - 0.5) + 0.5;
 		}
 	}
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 	if (parms.stretch.type > -1)
+#pragma clang diagnostic pop
 	{
 		table = RB_TableForFunc(&parms.stretch);
 		rad = parms.stretch.params[2] + parms.stretch.params[3] * r_newrefdef.time;
@@ -189,8 +196,12 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int32_t numVerts, r
 		for (tcArray=inArray, i=0; i<numVerts; i++, tcArray+=2)
 			tcArray[1] = tcArray[1] / parms.scale_y;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 	if (parms.turb.type > -1)
 	{
+#pragma clang diagnostic pop
+
 		table = RB_TableForFunc(&parms.turb);
 		t1 = parms.turb.params[2] + parms.turb.params[3] * r_newrefdef.time;
 
@@ -208,7 +219,6 @@ void RB_ModifyTextureCoords (float *inArray, float *inVerts, int32_t numVerts, r
 		for (tcArray=inArray, i=0; i<numVerts; i++, tcArray+=2)
 			tcArray[1] += r_newrefdef.time * parms.scroll_y;
 }
-
 /*
 =================
 RB_CheckArrayOverflow
