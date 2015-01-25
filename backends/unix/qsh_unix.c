@@ -17,6 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+
+#ifdef __linux__
+#define _GNU_SOURCE         /* for mremap */
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -91,21 +96,20 @@ int Hunk_End (void)
 	byte *n = 0;
 
 #if defined(__FreeBSD__) || defined(__APPLE__)
-  size_t old_size = maxhunksize;
-  size_t new_size = curhunksize + sizeof(int);
-  void * unmap_base;
-  size_t unmap_len;
+	size_t old_size = maxhunksize;
+	size_t new_size = curhunksize + sizeof(int);
+	void * unmap_base;
+	size_t unmap_len;
 
-  new_size = round_page(new_size);
-  old_size = round_page(old_size);
-  if (new_size < old_size)
-  {
-    unmap_base = (caddr_t)(membase + new_size);
-    unmap_len = old_size - new_size;
-    n = munmap(unmap_base, unmap_len) + membase;
-  }
-#endif
-#if defined(__linux__)
+	new_size = round_page(new_size);
+	old_size = round_page(old_size);
+	if (new_size < old_size)
+	{
+		unmap_base = (caddr_t)(membase + new_size);
+		unmap_len = old_size - new_size;
+		n = munmap(unmap_base, unmap_len) + membase;
+	}
+#else
 	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);
 #endif
 	if (n != membase)
