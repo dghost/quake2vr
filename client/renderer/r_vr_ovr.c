@@ -58,7 +58,7 @@ static fbo_t offscreen[2];
 static int currentFrame = 0;
 
 
-r_attrib_t distAttribs[] = {
+static r_attrib_t distAttribs[] = {
 	{"Position",0},
 	{"TexCoord",2},
 	{"Color",4},
@@ -86,7 +86,7 @@ static r_shaderobject_t ovr_shader_warp = {
 };
 
 
-r_attrib_t chromaAttribs[] = {
+static r_attrib_t chromaAttribs[] = {
 	{"Position",0},
 	{"TexCoord0",1},
 	{"TexCoord1",2},
@@ -195,7 +195,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ovr_vert_t *mesh = NULL;
 		ovr_vert_t *v = NULL;
 		ovrDistortionVertex *ov = NULL;
-		int i = 0;
+		unsigned int i = 0;
 		float vignette_factor;
 		if (vr_ovr_maxfov->value)
 		{
@@ -276,7 +276,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 	if (vr_ovr_maxfov->modified)
 	{
 		int newValue =  vr_ovr_maxfov->value ? 1 : 0;
-		if (newValue != vr_ovr_maxfov->value)
+		if (newValue != (int)vr_ovr_maxfov->value)
 			Cvar_SetInteger("vr_ovr_maxfov",newValue);
 		changeBackBuffers = 1;
 		vr_ovr_maxfov->modified = (qboolean) false;

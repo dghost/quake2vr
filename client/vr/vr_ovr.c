@@ -312,12 +312,6 @@ ovrname_t *VR_OVR_GetNameList()
 	return hmdnames;
 }
 
-#ifdef _WIN32
-#define LIBEXT ".dll"
-#else
-#define LIBEXT ".so"
-#endif
-
 int32_t VR_OVR_Enable()
 {
 	int32_t failure = 0;

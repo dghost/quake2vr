@@ -38,6 +38,6 @@ extern SDL_SysWMinfo mainWindowInfo;
 extern SDL_bool		ActiveApp, Minimized, RelativeMouse;
 
 void IN_Activate (qboolean active);
-void IN_MouseEvent (int32_t mstate);
+void IN_MouseEvent (int32_t mstate, uint32_t time);
 
 extern int32_t		window_center_x, window_center_y;

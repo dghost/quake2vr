@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
-int32_t			starttime;
+//static int32_t			starttime;
 SDL_bool	ActiveApp;
 SDL_bool	Minimized;
 SDL_bool	RelativeMouse;
@@ -55,14 +55,14 @@ SDL_Window *mainWindow;
 uint32_t mainWindowID;
 SDL_SysWMinfo mainWindowInfo;
 
-void SDL_ProcEvent(SDL_Event *event);
-uint32_t	sys_msg_time;
+void SDL_ProcEvent(SDL_Event *event, uint32_t time);
+static uint32_t	sys_msg_time;
 uint32_t	sys_frame_time;
 uint32_t    sys_cacheline;
 
-#define	MAX_NUM_ARGVS	128
-int32_t			argc;
-char		*argv[MAX_NUM_ARGVS];
+//#define	MAX_NUM_ARGVS	128
+//static int32_t			argc;
+//static char		*argv[MAX_NUM_ARGVS];
 
 /*
 ================
@@ -224,7 +224,7 @@ void Sys_ConsoleOutput (char *string)
 #else
 
 qboolean stdin_active = true;
-cvar_t *nostdout;
+static cvar_t *nostdout;
 
 char *Sys_ConsoleInput(void)
 {
@@ -282,7 +282,7 @@ void Sys_SendKeyEvents (void)
 	while (SDL_PollEvent(&event))
 	{
 		sys_msg_time = event.common.timestamp;
-		SDL_ProcEvent(&event);
+		SDL_ProcEvent(&event, sys_msg_time);
 	}
 
 
@@ -673,7 +673,7 @@ int32_t main(int32_t argc, char *argv[])
 		while (SDL_PollEvent(&event))
 		{
 			sys_msg_time = event.common.timestamp;
-			SDL_ProcEvent(&event);
+			SDL_ProcEvent(&event, sys_msg_time);
 		}
 
 

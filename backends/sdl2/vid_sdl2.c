@@ -42,8 +42,6 @@ cvar_t		*vid_fullscreen;
 viddef_t	viddef;				// global video state; used by other modules
 qboolean	kmgl_active = 0;
 
-extern	uint32_t	sys_msg_time;
-
 
 /*
 ==========================================================================
@@ -210,19 +208,19 @@ SDL_ProcEvent
 main window procedure
 ====================
 */
-void SDL_ProcEvent (SDL_Event *event)
+void SDL_ProcEvent (SDL_Event *event, uint32_t time)
 {
 	switch (event->type)
 	{
 	case SDL_MOUSEWHEEL:
 		if (event->wheel.y > 0)
 		{
-			Key_Event( K_MWHEELUP, true, sys_msg_time );
-			Key_Event( K_MWHEELUP, false, sys_msg_time );
+			Key_Event( K_MWHEELUP, true, time );
+			Key_Event( K_MWHEELUP, false, time );
 		} else if (event->wheel.y < 0)
 		{
-			Key_Event( K_MWHEELDOWN, true, sys_msg_time );
-			Key_Event( K_MWHEELDOWN, false, sys_msg_time );
+			Key_Event( K_MWHEELDOWN, true, time );
+			Key_Event( K_MWHEELDOWN, false, time );
 		}
 		break;
 
@@ -302,7 +300,7 @@ void SDL_ProcEvent (SDL_Event *event)
 			else
 				mask ^= temp;
 
-			IN_MouseEvent (mask);
+			IN_MouseEvent (mask, time);
 		}
 		break;
 	case SDL_KEYDOWN:
@@ -313,7 +311,7 @@ void SDL_ProcEvent (SDL_Event *event)
 		{
 			int32_t key = MapSDLKey(event->key.keysym);
 			if (key > 0)
-				Key_Event( key ,(qboolean) (event->key.type == SDL_KEYDOWN), sys_msg_time);
+				Key_Event( key ,(qboolean) (event->key.type == SDL_KEYDOWN), time);
 		}
 		break;
 	}

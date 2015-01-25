@@ -27,8 +27,6 @@
  * =======================================================================
  */
 
-#define OV_EXCLUDE_STATIC_CALLBACKS
-
 //#include <sys/time.h>
 #include <errno.h>
 
@@ -38,24 +36,24 @@
 #include "include/local.h"
 #include "include/vorbis.h"
 
-qboolean ogg_first_init = true; /* First initialization flag. */
-qboolean ogg_started = false;   /* Initialization flag. */
-int ogg_bigendian = 0;
-byte *ogg_buffer;				/* File buffer. */
-char **ogg_filelist;			/* List of Ogg Vorbis files. */
-short ovBuf[8192];               /* Buffer for sound. */
-int ogg_curfile;				/* Index of currently played file. */
-int ogg_numfiles;				/* Number of Ogg Vorbis files. */
-int ovSection;					/* Position in Ogg Vorbis file. */
-ogg_status_t ogg_status;		/* Status indicator. */
-cvar_t *ogg_autoplay;			/* Play this song when started. */
-cvar_t *ogg_check;				/* Check Ogg files or not. */
-cvar_t *ogg_playlist;			/* Playlist. */
-cvar_t *ogg_sequence;			/* Sequence play indicator. */
-cvar_t *ogg_volume;				/* Music volume. */
-stb_vorbis *ovFile;			/* Ogg Vorbis file. */
-stb_vorbis_info ogg_info;			/* Ogg Vorbis file information */
-int ogg_numbufs;				/* Number of buffers for OpenAL */
+static qboolean ogg_first_init = true; /* First initialization flag. */
+static qboolean ogg_started = false;   /* Initialization flag. */
+static int ogg_bigendian = 0;
+static byte *ogg_buffer;				/* File buffer. */
+static char **ogg_filelist;			/* List of Ogg Vorbis files. */
+static short ovBuf[8192];               /* Buffer for sound. */
+static int ogg_curfile;				/* Index of currently played file. */
+static int ogg_numfiles;				/* Number of Ogg Vorbis files. */
+static int ovSection;					/* Position in Ogg Vorbis file. */
+static ogg_status_t ogg_status;		/* Status indicator. */
+static cvar_t *ogg_autoplay;			/* Play this song when started. */
+static cvar_t *ogg_check;				/* Check Ogg files or not. */
+static cvar_t *ogg_playlist;			/* Playlist. */
+static cvar_t *ogg_sequence;			/* Sequence play indicator. */
+static cvar_t *ogg_volume;				/* Music volume. */
+static stb_vorbis *ovFile;			/* Ogg Vorbis file. */
+static stb_vorbis_info ogg_info;			/* Ogg Vorbis file information */
+static int ogg_numbufs;				/* Number of buffers for OpenAL */
 
 /*
  * Initialize the Ogg Vorbis subsystem.
@@ -75,7 +73,7 @@ OGG_Init(void)
 	/* Skip initialization if disabled. */
 	cv = Cvar_Get("ogg_enable", "1", CVAR_ARCHIVE);
 
-	if (cv->value != 1)
+	if (cv->value < 1)
 	{
 		Com_Printf("Ogg Vorbis not initializing.\n");
 		return;
@@ -199,7 +197,7 @@ OGG_Check(char *name)
 	stb_vorbis *ovf;  /* Ogg Vorbis file. */
     int error = VORBIS__no_error;
 
-	if (ogg_check->value == 0)
+	if (ogg_check->value <= 0)
 	{
 		return true;
 	}
@@ -720,7 +718,7 @@ OGG_ParseCmd(char *arg)
 			break;
 		default:
 
-			if (ogg_enable->value != 0)
+			if (ogg_enable->value > 0)
 			{
 				OGG_OpenName(arg);
 			}

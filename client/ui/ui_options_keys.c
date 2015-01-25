@@ -211,8 +211,8 @@ static void Keys_MenuInit( void )
 	int32_t BINDS_MAX;
 	int32_t i = 0;
 
-	s_keys_menu.x = SCREEN_WIDTH*0.5;
-	s_keys_menu.y = SCREEN_HEIGHT*0.5 - 72;
+	s_keys_menu.x = (int32_t) SCREEN_WIDTH*0.5;
+	s_keys_menu.y = (int32_t) SCREEN_HEIGHT*0.5 - 72;
 	s_keys_menu.nitems = 0;
 	s_keys_menu.cursordraw = KeyCursorDrawFunc;
 
@@ -226,7 +226,7 @@ static void Keys_MenuInit( void )
 	s_keys_back_action.generic.y	= (BINDS_MAX+2)*MENU_LINE_SIZE;
 	s_keys_back_action.generic.name	= " back";
 	s_keys_back_action.generic.callback = UI_BackMenu;
-	s_keys_back_action.generic.cursordraw = KeysBackCursorDrawFunc;
+	s_keys_back_action.generic.cursordraw = (void (*)(void *))KeysBackCursorDrawFunc;
 
 	for (i=0;i<BINDS_MAX;i++)
 		Menu_AddItem( &s_keys_menu, ( void * ) &s_keys_binds[i] );

@@ -81,7 +81,7 @@ extern cvar_t *vr_walkspeed;
 extern cvar_t *vr_force_fullscreen;
 extern cvar_t *vr_force_resolution;
 
-enum {
+typedef enum {
 	VR_AIMMODE_DISABLE,
 	VR_AIMMODE_HEAD_MYAW,
 	VR_AIMMODE_HEAD_MYAW_MPITCH,
@@ -94,7 +94,7 @@ enum {
 	NUM_VR_AIMMODE
 } vr_aimmode_t;
 
-enum {
+typedef enum {
 	VR_HUD_BOUNCE_NONE,
 	VR_HUD_BOUNCE_SES,
 	VR_HUD_BOUNCE_LES,

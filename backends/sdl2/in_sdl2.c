@@ -25,7 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../client/vr/include/vr.h"
 #include "in_sdlcont.h"
 
-extern	uint32_t	sys_msg_time;
+extern cursor_t cursor;
+
+int32_t	window_center_x, window_center_y;
 
 enum _ControllerType
 {
@@ -33,16 +35,23 @@ enum _ControllerType
 };
 
 
-cvar_t	*m_noaccel; //sul
-cvar_t	*in_mouse;
-cvar_t	*in_relativemouse;
-cvar_t	*in_controller;
-cvar_t	*autosensitivity;
+static cvar_t	*m_noaccel; //sul
+static cvar_t	*in_mouse;
+static cvar_t	*in_relativemouse;
+static cvar_t	*in_controller;
+static cvar_t	*autosensitivity;
+static cvar_t	*m_filter;
+static cvar_t	*v_centermove;
+static cvar_t	*v_centerspeed;
 
+static int32_t	mouse_buttons;
+static int32_t	mouse_oldbuttonstate;
+static int32_t  mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
+static qboolean	mouseactive;	// false when not focus app
+static qboolean	mouseinitialized;
+static qboolean	mlooking;
+static qboolean	in_appactive;
 
-extern cursor_t cursor;
-
-qboolean	in_appactive;
 
 /*
 ============================================================
@@ -53,9 +62,6 @@ MOUSE CONTROL
 */
 
 // mouse variables
-cvar_t	*m_filter;
-
-qboolean	mlooking;
 
 void IN_MLookDown (void) { mlooking = true; }
 void IN_MLookUp (void) {
@@ -63,18 +69,6 @@ void IN_MLookUp (void) {
 	if (!freelook->value && lookspring->value)
 		IN_CenterView ();
 }
-
-int32_t			mouse_buttons;
-int32_t			mouse_oldbuttonstate;
-int32_t			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
-
-int32_t			window_center_x, window_center_y;
-
-qboolean	mouseactive;	// false when not focus app
-
-qboolean	mouseinitialized;
-
-qboolean useRelativeMode;
 
 /*
 ===========
@@ -182,7 +176,7 @@ IN_MouseEvent
 ===========
 */
 void UI_Think_MouseCursor (void);
-void IN_MouseEvent (int32_t mstate)
+void IN_MouseEvent (int32_t mstate, uint32_t time)
 {
 	int32_t		i;
 
@@ -195,13 +189,13 @@ void IN_MouseEvent (int32_t mstate)
 		if ( (mstate & (1<<i)) &&
 			!(mouse_oldbuttonstate & (1<<i)) )
 		{
-			Key_Event (K_MOUSE1 + i, true, sys_msg_time);
+			Key_Event (K_MOUSE1 + i, true, time);
 		}
 
 		if ( !(mstate & (1<<i)) &&
 			(mouse_oldbuttonstate & (1<<i)) )
 		{
-			Key_Event (K_MOUSE1 + i, false, sys_msg_time);
+			Key_Event (K_MOUSE1 + i, false, time);
 		}
 	}	
 
@@ -216,7 +210,7 @@ void IN_MouseEvent (int32_t mstate)
 		{
 			if ( (mstate & (1<<i)) && !(mouse_oldbuttonstate & (1<<i)))
 			{	//mouse press down
-				if (sys_msg_time-cursor.buttontime[i] < multiclicktime)
+				if (time-cursor.buttontime[i] < multiclicktime)
 					cursor.buttonclicks[i] += 1;
 				else
 					cursor.buttonclicks[i] = 1;
@@ -224,7 +218,7 @@ void IN_MouseEvent (int32_t mstate)
 				if (cursor.buttonclicks[i]>max)
 					cursor.buttonclicks[i] = max;
 
-				cursor.buttontime[i] = sys_msg_time;
+				cursor.buttontime[i] = time;
 
 				cursor.buttondown[i] = true;
 				cursor.buttonused[i] = false;
@@ -274,8 +268,8 @@ void IN_MouseMove (usercmd_t *cmd)
 
 	if (m_filter->value)
 	{
-		mouse_x = (mx + old_mouse_x) * 0.5;
-		mouse_y = (my + old_mouse_y) * 0.5;
+		mouse_x = (int32_t) ((mx + old_mouse_x) * 0.5);
+		mouse_y = (int32_t) ((my + old_mouse_y) * 0.5);
 	}
 	else
 	{
@@ -349,9 +343,6 @@ VIEW CENTERING
 
 =========================================================================
 */
-
-cvar_t	*v_centermove;
-cvar_t	*v_centerspeed;
 
 
 /*
@@ -442,7 +433,7 @@ void IN_Frame (void)
 	if ( (!cl.refresh_prepped && cls.key_dest != key_menu) || cls.consoleActive) //mouse used in menus...
 	{
 		// temporarily deactivate if in fullscreen
-		if (Cvar_VariableValue ("vid_fullscreen") == 0 && !(vr_enabled->value && vr_force_fullscreen->value))
+		if (Cvar_VariableInteger("vid_fullscreen") == 0 && !(vr_enabled->value && vr_force_fullscreen->value))
 		{
 			IN_DeactivateMouse ();
 			return;

@@ -24,13 +24,13 @@ typedef enum _GamepadDirection {
 } dir_t;
 
 
-cvar_t  *autosensitivity;
-cvar_t	*gamepad_usernum;
-cvar_t	*gamepad_stick_mode;
-cvar_t	*gamepad_trigger_threshold;
-cvar_t	*gamepad_pitch_sensitivity;
-cvar_t	*gamepad_yaw_sensitivity;
-cvar_t  *gamepad_stick_toggle;
+static cvar_t  *autosensitivity;
+static cvar_t	*gamepad_usernum;
+static cvar_t	*gamepad_stick_mode;
+static cvar_t	*gamepad_trigger_threshold;
+static cvar_t	*gamepad_pitch_sensitivity;
+static cvar_t	*gamepad_yaw_sensitivity;
+static cvar_t  *gamepad_stick_toggle;
 
 static SDL_GameController *currentController;
 
@@ -39,8 +39,8 @@ static struct {
 	int32_t lastSendTime;
 }  gamepad_repeatstatus[K_GAMEPAD_RIGHT - K_GAMEPAD_LSTICK_UP + 1];
 
-int16_t oldAxisState[SDL_CONTROLLER_AXIS_MAX];
-uint8_t oldButtonState[SDL_CONTROLLER_BUTTON_MAX];
+static int16_t oldAxisState[SDL_CONTROLLER_AXIS_MAX];
+static uint8_t oldButtonState[SDL_CONTROLLER_BUTTON_MAX];
 
 static qboolean gamepad_sticktoggle[2];
 
@@ -225,7 +225,7 @@ void IN_ControllerCommands (void)
 
 	uint32_t i = 0;
 
-	uint32_t triggerThreshold = ClampCvar(0.04,0.96,gamepad_trigger_threshold->value) * 255.0f;
+	int16_t triggerThreshold = ClampCvar(0.04,0.96,gamepad_trigger_threshold->value) * 255.0f;
 
 
 	if (currentController && SDL_GameControllerGetAttached(currentController) != SDL_TRUE)
@@ -240,13 +240,13 @@ void IN_ControllerCommands (void)
 
 	if (!currentController)
 	{
-		int32_t i;
+		int32_t j;
 
-		for (i = 0; i < SDL_NumJoysticks(); i++)
+		for (j = 0; j < SDL_NumJoysticks(); j++)
 		{
-			if (SDL_IsGameController(i))
+			if (SDL_IsGameController(j))
 			{
-				currentController = SDL_GameControllerOpen(i);
+				currentController = SDL_GameControllerOpen(j);
 				if (currentController)
 				{
 					char buffer[128];

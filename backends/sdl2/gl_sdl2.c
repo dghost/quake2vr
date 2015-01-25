@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t GLimp_InitGL (void);
 
-SDL_GLContext glcontext;
+static SDL_GLContext glcontext;
 
 
 extern cvar_t *vid_fullscreen;
@@ -152,12 +152,12 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 		if (vr_force_resolution->value)
 		{
-			int32_t width, height;
-			if (VR_GetHMDResolution(&width,&height))
+			int32_t w, h;
+			if (VR_GetHMDResolution(&w,&h))
 			{
-				VID_Printf(PRINT_ALL, "...forcing HMD resolution of %ix%i\n",width,height);
-				Cvar_SetInteger("vid_width",width);
-				Cvar_SetInteger("vid_height",height);
+				VID_Printf(PRINT_ALL, "...forcing HMD resolution of %ix%i\n",w,h);
+				Cvar_SetInteger("vid_width",w);
+				Cvar_SetInteger("vid_height",h);
 			}
 		}
 
@@ -444,7 +444,7 @@ int32_t GLimp_InitGL (void)
 	}
 
 	SDL_GetWindowDisplayMode(mainWindow,&currentMode);
-	glConfig.refresh_rate = currentMode.refresh_rate;
+	glConfig.refresh_rate = (uint32_t) currentMode.refresh_rate;
 	SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,&srgb);
 	glConfig.srgb_framebuffer = srgb ? 1 : 0;
 	if (!glConfig.srgb_framebuffer)
