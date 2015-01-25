@@ -80,9 +80,9 @@ const MOB_ConfigKeyValue g_soundConfig[] =
 	{ MOB_ConfigKey_root_drivers, "dsound" },
 #endif // #if _WIN32
 	// If you want to use HRTFs, you should be outputting to Stereo sound
-	{ MOB_ConfigKey_root_channels, "stereo" },
-	{ MOB_ConfigKey_root_hrtf, (const char*) 0 }, // This is a union, and const char * is the first type, so we have to cast it.
-	{ MOB_ConfigKey_NULL, 0 }, // This is the terminator for the config array
+	{ MOB_ConfigKey_root_channels, {"stereo"} },
+	{ MOB_ConfigKey_root_hrtf, {(const char*) 0} }, // This is a union, and const char * is the first type, so we have to cast it.
+	{ MOB_ConfigKey_NULL, {0} }, // This is the terminator for the config array
 };
 
 /* Function pointers for OpenAL management */
@@ -266,7 +266,7 @@ void QAL_SetHRTF(qboolean enable)
 		ALboolean result = AL_FALSE;
 		ALboolean mode = (enable ? AL_TRUE : AL_FALSE);
 		result = qalcDeviceEnableHrtfMOB(device, mode);
-		if (result = !AL_TRUE)
+		if (result == !AL_TRUE)
 			Com_Printf("Error: cannot set HRTF mode\n");
 //		else
 //			Com_Printf("Successfully %s HRTF mode\n", (enable ? "enabled" : "disabled"));
@@ -606,7 +606,7 @@ QAL_Init()
 	/* Open the OpenAL device */
 	{
 		char* devices = (char*)qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
-		while(!device && devices && (void *) *devices != NULL)
+		while(!device && devices && *devices != 0)
 		{
 			Com_Printf("...found OpenAL device: %s\n",devices);
 			devices += strlen(devices) + 1; //next device
