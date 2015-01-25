@@ -97,7 +97,6 @@ OGG_Init(void)
 	Cmd_AddCommand("ogg_play", OGG_PlayCmd);
 	Cmd_AddCommand("ogg_reinit", OGG_Reinit);
 	Cmd_AddCommand("ogg_resume", OGG_ResumeCmd);
-	Cmd_AddCommand("ogg_seek", OGG_SeekCmd);
 	Cmd_AddCommand("ogg_status", OGG_StatusCmd);
 	Cmd_AddCommand("ogg_stop", OGG_Stop);
 
@@ -168,7 +167,6 @@ OGG_Shutdown(void)
 	Cmd_RemoveCommand("ogg_play");
 	Cmd_RemoveCommand("ogg_reinit");
 	Cmd_RemoveCommand("ogg_resume");
-	Cmd_RemoveCommand("ogg_seek");
 	Cmd_RemoveCommand("ogg_status");
 	Cmd_RemoveCommand("ogg_stop");
 
@@ -214,74 +212,6 @@ OGG_Check(char *name)
 	}
 
 	return res;
-}
-
-/*
- * Change position in the file.
- */
-void
-OGG_Seek(ogg_seek_t type, double offset)
-{
-	double pos; /* Position in file (in seconds). */
-	double total; /* Length of file (in seconds). */
-
-	/* Check if the file is seekable. */
-//	if (ov_seekable(&ovFile) == 0)
-	{
-		Com_Printf("OGG_Seek: file is not seekable.\n");
-		return;
-	}
-
-	/* Get file information. */
-/*
-    pos = ov_time_tell(&ovFile);
-	total = ov_time_total(&ovFile, -1);
-
-	switch (type)
-	{
-		case ABS:
-
-			if ((offset >= 0) && (offset <= total))
-			{
-				if (ov_time_seek(&ovFile, offset) != 0)
-				{
-					Com_Printf("OGG_Seek: could not seek.\n");
-				}
-
-				else
-				{
-					Com_Printf("%0.2f -> %0.2f of %0.2f.\n", pos, offset, total);
-				}
-			}
-			else
-			{
-				Com_Printf("OGG_Seek: invalid offset.\n");
-			}
-
-			break;
-		case REL:
-
-			if ((pos + offset >= 0) && (pos + offset <= total))
-			{
-				if (ov_time_seek(&ovFile, pos + offset) != 0)
-				{
-					Com_Printf("OGG_Seek: could not seek.\n");
-				}
-
-				else
-				{
-					Com_Printf("%0.2f -> %0.2f of %0.2f.\n",
-							pos, pos + offset, total);
-				}
-			}
-			else
-			{
-				Com_Printf("OGG_Seek: invalid offset.\n");
-			}
-
-			break;
-	}
- */
 }
 
 /*
@@ -764,37 +694,6 @@ OGG_ResumeCmd(void)
 	if (ogg_status == PAUSE)
 	{
 		ogg_status = PLAY;
-	}
-}
-
-/*
- * Change position in the file being played.
- */
-void
-OGG_SeekCmd(void)
-{
-	if (ogg_status != STOP)
-	{
-		return;
-	}
-
-	if (Cmd_Argc() < 2)
-	{
-		Com_Printf("Usage: ogg_seek {n | <n | >n}\n");
-		return;
-	}
-
-	switch (Cmd_Argv(1)[0])
-	{
-		case '>':
-			OGG_Seek(REL, strtod(Cmd_Argv(1) + 1, (char **)NULL));
-			break;
-		case '<':
-			OGG_Seek(REL, -strtod(Cmd_Argv(1) + 1, (char **)NULL));
-			break;
-		default:
-			OGG_Seek(ABS, strtod(Cmd_Argv(1), (char **)NULL));
-			break;
 	}
 }
 
