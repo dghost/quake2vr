@@ -369,7 +369,7 @@ void Sys_Quit (void)
 void cpuid(uint32_t info, uint32_t *regs)
 {
 #ifdef _WIN32
-        __cpuid((int *)regs, (int)info;
+        __cpuid((int *)regs, (int)info);
         
 #else
         asm volatile
@@ -399,7 +399,7 @@ qboolean cpu_string(char* buffer, int size)
     
     for (start = 0; start < 49 && namestring[start]==' '; start++);
 
-    snprintf(buffer, size, "%s",&namestring[start]);
+    SDL_snprintf(buffer, size, "%s",&namestring[start]);
     return true;
 }
 #endif
@@ -446,7 +446,7 @@ void Sys_Init (void)
         int cores = SDL_GetCPUCount();
         char string[50];
         memset(string, 0, sizeof(string));
-		snprintf(string, sizeof(string),"Unknown %d-core CPU", cores);
+		SDL_snprintf(string, sizeof(string),"Unknown %d-core CPU", cores);
 		Cvar_Get("sys_cpu", string, CVAR_NOSET|CVAR_LATCH);
 	}
     
