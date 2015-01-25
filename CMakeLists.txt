@@ -1,4 +1,15 @@
 cmake_minimum_required (VERSION 2.8)
+
+IF(DEFINED CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
+build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
+Release RelWithDebInfo MinSizeRel.")
+ELSE()
+   SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
+options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release
+RelWithDebInfo MinSizeRel.")
+ENDIF()
+
 project (quake2vr)
 set (quake2vr_VERSION_MAJOR 1)
 set (quake2vr_VERSION_MINOR 0)
@@ -7,6 +18,7 @@ set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
+
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
@@ -134,6 +146,7 @@ set(BASE_SOURCES
   qcommon/pmove.c
   qcommon/shared/m_flash.c
   qcommon/shared/q_shared.c
+  qcommon/zip/ioapi.c
   qcommon/zip/unzip.c
   qcommon/wildcard.c
   server/sv_ccmds.c
@@ -211,6 +224,7 @@ set(BASE_HEADERS
 	client/vr/ovr_dynamic_funcs.h
 	qcommon/crc.h
 	qcommon/glob.h
+        qcommon/zip/ioapi.h
 	qcommon/zip/unzip.h
 	qcommon/zip/zconf.h
 	qcommon/zip/zlib.h
@@ -222,12 +236,16 @@ set(BASE_HEADERS
 	server/server.h
 )
 
-set(UNIX_HEADERS
-	backends/unix/glob.h
-	backends/unix/glw_unix.h
-	backends/unix/qasm.h
-	qcommon/zip/ioapi.h
+set(UNIX_SOURCES
+  backends/unix/net_udp.c
+  backends/unix/qsh_unix.c
 )
+
+
+set(UNIX_HEADERS
+	backends/unix/glw_unix.h
+)
+
 
 if (OVR_DYNAMIC)
   add_definitions(-DOCULUS_DYNAMIC)
@@ -236,12 +254,6 @@ if (OVR_DYNAMIC)
 	client/vr/oculus_dynamic.c
 	)
 endif (OVR_DYNAMIC)
-
-set(UNIX_SOURCES
-  backends/unix/net_udp.c
-  backends/unix/qsh_unix.c
-  qcommon/zip/ioapi.c
-)
 
 if (UNIX)
 add_definitions(-DNO_STEAM -DUSE_OPENAL)
