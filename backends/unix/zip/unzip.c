@@ -146,8 +146,8 @@ typedef struct
                                         file if we are decompressing it */
     int encrypted;
 #    ifndef NOUNCRYPT
-    uint32_t keys[3];     /* keys defining the pseudo-random sequence */
-    const uint32_t* pcrc_32_tab;
+    unsigned long keys[3];     /* keys defining the pseudo-random sequence */
+    const unsigned long* pcrc_32_tab;
 #    endif
 } unz_s;
 
@@ -173,7 +173,7 @@ local int unzlocal_getByte(pzlib_filefunc_def,filestream,pi)
     voidpf filestream;
     int *pi;
 {
-    uint8_t c;
+    unsigned char c;
     int err = (int)ZREAD(*pzlib_filefunc_def,filestream,&c,1);
     if (err==1)
     {
@@ -332,7 +332,7 @@ local uLong unzlocal_SearchCentralDir(pzlib_filefunc_def,filestream)
     const zlib_filefunc_def* pzlib_filefunc_def;
     voidpf filestream;
 {
-    uint8_t* buf;
+    unsigned char* buf;
     uLong uSizeFile;
     uLong uBackRead;
     uLong uMaxBack=0xffff; /* maximum size of global comment */
@@ -347,7 +347,7 @@ local uLong unzlocal_SearchCentralDir(pzlib_filefunc_def,filestream)
     if (uMaxBack>uSizeFile)
         uMaxBack = uSizeFile;
 
-    buf = (uint8_t*)ALLOC(BUFREADCOMMENT+4);
+    buf = (unsigned char*)ALLOC(BUFREADCOMMENT+4);
     if (buf==NULL)
         return 0;
 
@@ -595,7 +595,7 @@ local int unzlocal_GetCurrentFileInfoInternal (file,
     unz_file_info_internal file_info_internal;
     int err=UNZ_OK;
     uLong uMagic;
-    int32_t lSeek=0;
+    long lSeek=0;
 
     if (file==NULL)
         return UNZ_PARAMERROR;
@@ -1229,7 +1229,7 @@ extern int ZEXPORT unzOpenCurrentFile2 (file,method,level,raw)
 extern int ZEXPORT unzReadCurrentFile  (file, buf, len)
     unzFile file;
     voidp buf;
-    uint32_t len;
+    unsigned len;
 {
     int err=UNZ_OK;
     uInt iRead = 0;
@@ -1244,7 +1244,7 @@ extern int ZEXPORT unzReadCurrentFile  (file, buf, len)
         return UNZ_PARAMERROR;
 
 
-    if (pfile_in_zip_read_info->read_buffer == NULL)
+    if ((pfile_in_zip_read_info->read_buffer == NULL))
         return UNZ_END_OF_LIST_OF_FILE;
     if (len==0)
         return 0;
@@ -1443,7 +1443,7 @@ extern int ZEXPORT unzeof (file)
 extern int ZEXPORT unzGetLocalExtrafield (file,buf,len)
     unzFile file;
     voidp buf;
-    uint32_t len;
+    unsigned len;
 {
     unz_s* s;
     file_in_zip_read_info_s* pfile_in_zip_read_info;
