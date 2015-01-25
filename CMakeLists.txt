@@ -134,6 +134,7 @@ set(BASE_SOURCES
   qcommon/pmove.c
   qcommon/shared/m_flash.c
   qcommon/shared/q_shared.c
+  qcommon/zip/unzip.c
   qcommon/wildcard.c
   server/sv_ccmds.c
   server/sv_ents.c
@@ -210,10 +211,9 @@ set(BASE_HEADERS
 	client/vr/ovr_dynamic_funcs.h
 	qcommon/crc.h
 	qcommon/glob.h
-	qcommon/include/ioapi.h
-	qcommon/include/unzip.h
-	qcommon/include/zconf.h
-	qcommon/include/zlib.h
+	qcommon/zip/unzip.h
+	qcommon/zip/zconf.h
+	qcommon/zip/zlib.h
 	qcommon/qcommon.h
 	qcommon/qfiles.h
 	qcommon/shared/q_shared.h
@@ -226,10 +226,9 @@ set(UNIX_HEADERS
 	backends/unix/glob.h
 	backends/unix/glw_unix.h
 	backends/unix/qasm.h
-	backends/unix/zip/crypt.h
-	backends/unix/zip/ioapi.h
-	backends/unix/zip/unzip.h
+	qcommon/zip/ioapi.h
 )
+
 if (OVR_DYNAMIC)
   add_definitions(-DOCULUS_DYNAMIC)
   set(BASE_SOURCES
@@ -241,8 +240,7 @@ endif (OVR_DYNAMIC)
 set(UNIX_SOURCES
   backends/unix/net_udp.c
   backends/unix/qsh_unix.c
-  backends/unix/zip/unzip.c
-  backends/unix/zip/ioapi.c
+  qcommon/zip/ioapi.c
 )
 
 if (UNIX)
