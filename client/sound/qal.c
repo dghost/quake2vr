@@ -419,7 +419,7 @@ QAL_Init()
 #elif defined(__APPLE__)
     char *libraries[] = {"libOpenAL-MOB.dylib", "OpenAL-Soft.framework/OpenAL-Soft", "libopenal.dylib", "OpenAL.framework/OpenAL", 0};
 #else
-    char *libraries[] = {"libOpenAL-MOB.so", "libopenal.so", 0};
+    char *libraries[] = {"libOpenAL-MOB.so", "libopenal.so", "libopenal.so.1", 0};
 #endif
 
 	char name[256];
