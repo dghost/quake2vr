@@ -278,8 +278,8 @@ void SDL_AudioActivate(int activate);
  #define     SOUND_LOOPATTENUATE 0.003
 
 /* number of buffers in flight (needed for ogg) */
-extern int active_buffers;
-
+extern int activeStreamBuffers;
+extern int maxStreamBuffers;
 /*
  * Informations about the
  * OpenAL backend

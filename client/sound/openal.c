@@ -47,11 +47,16 @@
    at least this number of sources */
 #define MIN_CHANNELS 16
 
+#define MIN_STREAM_BUFFERS 16
+#define MAX_STREAM_BUFFERS 256
+
 /* Globals */
 cvar_t *al_maxgain;
 cvar_t *al_hrtf;
+cvar_t *al_streambuffers;
+cvar_t *al_streamprealloc;
 
-int active_buffers;
+int sfx_buffers;
 qboolean streamPlaying;
 static ALuint s_srcnums[MAX_CHANNELS - 1];
 static ALuint streamSource;
@@ -60,6 +65,14 @@ static int s_framecount;
 static qboolean filterSupport;
 static ALuint underwaterFilter;
 static qboolean mute;
+
+static ALuint streamBuffers[MAX_STREAM_BUFFERS];
+static ALuint streamTempBuffers[MAX_STREAM_BUFFERS];
+
+
+static int currentStreamBuffer = 0;
+int maxStreamBuffers = 0;
+int activeStreamBuffers = 0;
 
 /* ----------------------------------------------------------------- */
 
@@ -75,15 +88,11 @@ AL_StreamDie(void)
 	qalSourceStop(streamSource);
 
 	/* Un-queue any buffers, and delete them */
-	qalGetSourcei(streamSource, AL_BUFFERS_QUEUED, &numBuffers);
-
-	while (numBuffers--)
-	{
-		ALuint buffer;
-		qalSourceUnqueueBuffers(streamSource, 1, &buffer);
-		qalDeleteBuffers(1, &buffer);
-		active_buffers--;
-	}
+    qalGetSourcei(streamSource, AL_BUFFERS_QUEUED, &numBuffers);
+    qalSourceUnqueueBuffers(streamSource,numBuffers, streamTempBuffers);
+    activeStreamBuffers -= numBuffers;
+    assert(activeStreamBuffers == 0);
+    currentStreamBuffer = 0;
 }
 
 /*
@@ -97,21 +106,16 @@ AL_StreamUpdate(void)
 	ALint state;
 
 	/* Un-queue any buffers, and delete them */
-	qalGetSourcei(streamSource, AL_BUFFERS_PROCESSED, &numBuffers);
-
-	while (numBuffers--)
-	{
-		ALuint buffer;
-		qalSourceUnqueueBuffers(streamSource, 1, &buffer);
-		qalDeleteBuffers(1, &buffer);
-		active_buffers--;
-	}
+    qalGetSourcei(streamSource, AL_BUFFERS_PROCESSED, &numBuffers);
+    
+    qalSourceUnqueueBuffers(streamSource,numBuffers, streamTempBuffers);
+    activeStreamBuffers -= numBuffers;
 
 	/* Start the streamSource playing if necessary */
 	qalGetSourcei(streamSource, AL_BUFFERS_QUEUED, &numBuffers);
 	qalGetSourcei(streamSource, AL_SOURCE_STATE, &state);
 
-	if (state == AL_STOPPED)
+	if (state != AL_PLAYING)
 	{
 		streamPlaying = false;
 	}
@@ -150,7 +154,7 @@ AL_UploadSfx(sfx_t *s, wavinfo_t *s_info, byte *data)
 	qalGetError();
 	qalGenBuffers(1, &name);
 	qalBufferData(name, format, data, size, s_info->rate);
-	active_buffers++;
+	sfx_buffers++;
 
 	if (qalGetError() != AL_NO_ERROR)
 	{
@@ -188,7 +192,7 @@ AL_DeleteSfx(sfx_t *s)
 
 	name = sc->bufnum;
 	qalDeleteBuffers(1, &name);
-	active_buffers--;
+	sfx_buffers--;
 }
 
 /* ----------------------------------------------------------------- */
@@ -471,8 +475,13 @@ void
 AL_RawSamples(int samples, int rate, int width, int channels,
 		byte *data, float volume)
 {
-	ALuint buffer;
-	ALuint format = 0;
+    ALuint format = 0;
+    ALenum error = AL_NO_ERROR;
+    ALuint buffer = 0;
+    
+    if (activeStreamBuffers >= maxStreamBuffers)
+        return;
+    
 
 	/* Work out format */
 	if (width == 1)
@@ -498,23 +507,32 @@ AL_RawSamples(int samples, int rate, int width, int channels,
 		}
 	}
 
-	/* Create a buffer, and stuff the data into it */
-	qalGenBuffers(1, &buffer);
-	qalBufferData(buffer, format, (ALvoid *)data,
-			(samples * width * channels), rate);
-	active_buffers++;
+    if (streamBuffers) {
+        buffer = streamBuffers[currentStreamBuffer];
+        currentStreamBuffer = (currentStreamBuffer + 1) % maxStreamBuffers;
+    } else {
+        qalGenBuffers(1, &buffer);
+    }
+    /* Create a buffer, and stuff the data into it */
+    qalBufferData(buffer, format, (ALvoid *)data,
+                  (samples * width * channels), rate);
 
     /* set volume */
-	if (volume > 1.0f)
-	{
-		volume = 1.0f;
-	}
+    if (volume > 1.0f)
+    {
+        volume = 1.0f;
+    }
+    error = qalGetError();
 
 	qalSourcef(streamSource, AL_GAIN, volume);
-
-	/* Shove the data onto the streamSource */
+    
 	qalSourceQueueBuffers(streamSource, 1, &buffer);
-
+    if ((error = qalGetError()) != AL_NO_ERROR)
+    {
+        Com_Printf("Error queueing buffer: %d\n", error);
+        return;
+    }
+    activeStreamBuffers++;
 	/* emulate behavior of S_RawSamples for s_rawend */
 	s_rawend += samples;
 }
@@ -528,6 +546,42 @@ void
 AL_UnqueueRawSamples()
 {
 	AL_StreamDie();
+}
+
+void AL_DeallocStreamBuffers() {
+    ALenum error = AL_NO_ERROR;
+    AL_StreamDie();
+    error = qalGetError();
+    qalDeleteBuffers((ALsizei)maxStreamBuffers,streamBuffers);
+    if ((error = qalGetError()) != AL_NO_ERROR)
+    {
+        Com_Printf("Error deallocating OpenAL Stream Buffers : %d\n", error);
+        return;
+    }
+    maxStreamBuffers = 0;
+    currentStreamBuffer = 0;
+
+}
+
+void AL_AllocStreamBuffers(int numBuffers)
+{
+    ALenum error = AL_NO_ERROR;
+    error = qalGetError();
+
+
+    AL_DeallocStreamBuffers();
+    
+    qalGenBuffers((ALsizei) numBuffers,streamBuffers);
+
+    if ((error = qalGetError()) != AL_NO_ERROR)
+    {
+        Com_Printf("Error allocating OpenAL Stream Buffers : %d\n", error);
+        return;
+    }
+    maxStreamBuffers = numBuffers;
+    currentStreamBuffer = 0;
+    Com_Printf("Preallocated %i OpenAL Stream Buffers\n",maxStreamBuffers);
+    
 }
 
 /*
@@ -547,7 +601,16 @@ AL_Update(void)
 		QAL_SetHRTF(al_hrtf->value);
 		al_hrtf->modified = false;
 	}
-
+    
+    if (al_streambuffers->modified)
+    {
+        int numBuffers = (int) al_streambuffers->value;
+        numBuffers = clamp(numBuffers,MIN_STREAM_BUFFERS, MAX_STREAM_BUFFERS);
+        al_streambuffers->value = (float) numBuffers;
+        al_streambuffers->modified = false;
+        AL_AllocStreamBuffers(numBuffers);
+    }
+    
 	paintedtime = cls.realtime;
 
 	/* set listener (player) parameters */
@@ -732,7 +795,9 @@ AL_Init(void)
 
 	al_maxgain = Cvar_Get("al_maxgain", "1.0", CVAR_ARCHIVE);
 	al_hrtf = Cvar_Get("al_hrtf", "1", CVAR_ARCHIVE);
-
+    al_streambuffers = Cvar_Get("al_streambuffers","64", CVAR_ARCHIVE);
+    al_streamprealloc = Cvar_Get("al_streamprealloc", "1", CVAR_ARCHIVE);
+    
 	/* check for linear distance extension */
 	if (!qalIsExtensionPresent("AL_EXT_LINEAR_DISTANCE"))
 	{
@@ -772,7 +837,8 @@ AL_Init(void)
 			return false;
 		}
 	}
-	QAL_SetHRTF(al_hrtf->value);
+    
+  	QAL_SetHRTF(al_hrtf->value);
 	al_hrtf->modified = false;
 	s_numchannels = i;
 	AL_InitStreamSource();
@@ -780,6 +846,17 @@ AL_Init(void)
 	AL_InitUnderwaterFilter();
 
 	Com_Printf("Number of OpenAL sources: %d\n\n", s_numchannels);
+    
+    maxStreamBuffers = 0;
+    currentStreamBuffer = 0;
+    activeStreamBuffers = 0;
+    
+    i = (int) al_streambuffers->value;
+    i = clamp(i,MIN_STREAM_BUFFERS, MAX_STREAM_BUFFERS);
+    al_streambuffers->value = (float) i;
+    al_streambuffers->modified = false;
+    AL_AllocStreamBuffers(i);
+    
 	return true;
 }
 
@@ -791,9 +868,9 @@ AL_Shutdown(void)
 {
 	Com_Printf("Shutting down OpenAL.\n");
 
-	AL_StreamDie();
+    AL_DeallocStreamBuffers();
 
-	qalDeleteSources(1, &streamSource);
+    qalDeleteSources(1, &streamSource);
 	if (filterSupport)
 		qalDeleteFilters(1, &underwaterFilter);
 

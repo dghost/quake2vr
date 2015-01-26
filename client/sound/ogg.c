@@ -541,6 +541,7 @@ OGG_Stream(void)
 #ifdef USE_OPENAL
 		if (sound_started == SS_OAL)
 		{
+            
 			/* Calculate the number of buffers used
 			   for storing decoded OGG/Vorbis data.
 			   We take the number of active buffers
@@ -553,15 +554,17 @@ OGG_Stream(void)
 			   seconds playback. The music won't
 			   stutter as long as the framerate
 			   stayes over 1 FPS. */
-			if (ogg_numbufs == 0)
-			{
-				ogg_numbufs = active_buffers + 64;
-			}
+            /* since moving to a pre-allocated streaming buffer model
+               the above is no longer accurate. I'm leaving the comment
+               intact because the information is useful
+               --dghost 01/25/2015 */
 
-			/* active_buffers are all active OpenAL buffers,
-			   buffering normal sfx _and_ ogg/vorbis samples. */
-			while (active_buffers <= ogg_numbufs)
+            
+			/* activeStreamBuffers is the count of stream buffers,
+               maxStreamBuffers is the total available stream buffers */
+			while (activeStreamBuffers < maxStreamBuffers)
 			{
+//                Com_Printf("%i %i\n",activeStreamBuffers, maxStreamBuffers);
 				OGG_Read();
 			}
 		}
