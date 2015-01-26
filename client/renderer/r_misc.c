@@ -181,7 +181,7 @@ void R_ScaledScreenshot (char *name)
 	if (!pngdata)	return;
 
 	// Resize grabbed screen
-	if (!stbir_resize_uint8((uint8_t *) saveshotdata, (int) glConfig.screen_width, (int) glConfig.screen_height, 0, (uint8_t *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3)) {
+	if (!stbir_resize_uint8((uint8_t *) saveshotdata, (int) glConfig.render_width, (int) glConfig.render_height, 0, (uint8_t *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3)) {
 		VID_Printf (PRINT_ALL, "Menu_ScreenShot: Couldn't create %s\n", name); 
 		return;
 	}
@@ -215,14 +215,14 @@ void R_GrabScreen (void)
 	if (saveshotdata)
 		free(saveshotdata);
 	// Allocate room for a copy of the framebuffer
-	saveshotdata = malloc(  glConfig.screen_width * glConfig.screen_height * 3);
+	saveshotdata = malloc(  glConfig.render_width * glConfig.render_height * 3);
 	R_InitFBO(&captureFBO);
 	if (srgb)
 	{
 		glEnable(GL_FRAMEBUFFER_SRGB);
-		R_GenFBO(glConfig.screen_width,glConfig.screen_height,0,GL_SRGB8,&captureFBO);
+		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_SRGB8,&captureFBO);
 	} else {
-		R_GenFBO(glConfig.screen_width,glConfig.screen_height,0,GL_RGB8,&captureFBO);
+		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
 	}
 	R_BindFBO(&captureFBO);
 	R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);
@@ -291,7 +291,7 @@ void R_ScreenShot_PNG (qboolean silent)
 	// Open the file for Binary Output
 
 	// Allocate room for a copy of the framebuffer
-	rgbdata = malloc(  glConfig.screen_width * glConfig.screen_height * 3);
+	rgbdata = malloc(  glConfig.render_width * glConfig.render_height * 3);
 	if(!rgbdata)
 	{
 		return;
@@ -300,9 +300,9 @@ void R_ScreenShot_PNG (qboolean silent)
 	if (srgb)
 	{
 		glEnable(GL_FRAMEBUFFER_SRGB);
-		R_GenFBO(glConfig.screen_width,glConfig.screen_height,0,GL_SRGB8,&captureFBO);
+		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_SRGB8,&captureFBO);
 	} else {
-		R_GenFBO(glConfig.screen_width,glConfig.screen_height,0,GL_RGB8,&captureFBO);
+		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
 	}
 	R_BindFBO(&captureFBO);
 	R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);

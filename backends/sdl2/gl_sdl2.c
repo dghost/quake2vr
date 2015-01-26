@@ -451,7 +451,7 @@ int32_t GLimp_InitGL (void)
 	if (!glConfig.srgb_framebuffer)
 		Cvar_SetInteger("vid_srgb",0);
 
-	SDL_GL_GetDrawableSize(mainWindow,&glConfig.vid_width,&glConfig.vid_height);
+	SDL_GL_GetDrawableSize(mainWindow,&glConfig.window_width,&glConfig.window_height);
 
 	return true;
 

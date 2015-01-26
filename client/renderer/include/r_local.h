@@ -768,10 +768,10 @@ typedef struct
 	int32_t		version_release;
 	int32_t		shader_version_major;
 	int32_t		shader_version_minor;
-	int32_t		screen_width;
-	int32_t		screen_height;
-	int32_t		vid_width;
-	int32_t		vid_height;
+	int32_t		render_width;
+	int32_t		render_height;
+	int32_t		window_width;
+	int32_t		window_height;
 
 	qboolean	allowCDS;
 	qboolean	ext_swap_control;

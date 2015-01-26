@@ -25,8 +25,8 @@ extern vr_distort_shader_t vr_bicubic_distort_shaders[2];
 void SVR_BuildDistortionTextures()
 {
 	GLfloat *normalTexture, *chromaTexture;
-	int width = glConfig.screen_width; // width of the distortion map
-	int height= glConfig.screen_height; // height of the distortion map
+	int width = glConfig.render_width; // width of the distortion map
+	int height= glConfig.render_height; // height of the distortion map
 	int bitsPerPixel = (glConfig.arb_texture_rg? 2 : 4);
 	float scale = (1.0 / pow(2,vr_svr_distortion->value));
 	
@@ -114,8 +114,8 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 		float scale = R_AntialiasGetScale();
 		origTargetRect.x = 0;
 		origTargetRect.y = 0;
-		origTargetRect.width = glConfig.screen_width * svr_settings.scaleX;
-		origTargetRect.height = glConfig.screen_height * svr_settings.scaleY;
+		origTargetRect.width = glConfig.render_width * svr_settings.scaleX;
+		origTargetRect.height = glConfig.render_height * svr_settings.scaleY;
 
 		renderTargetRect = origTargetRect;
 	

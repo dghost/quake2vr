@@ -26,10 +26,10 @@ void R_AntialiasStartFrame (void)
 		changed = true;
 	}
 
-	if (changed || glConfig.screen_width != screenBounds.width || glConfig.screen_height != screenBounds.height)
+	if (changed || glConfig.render_width != screenBounds.width || glConfig.render_height != screenBounds.height)
 	{
-		screenBounds.width = glConfig.screen_width;
-		screenBounds.height = glConfig.screen_height;
+		screenBounds.width = glConfig.render_width;
+		screenBounds.height = glConfig.render_height;
 		switch ((int) r_antialias->value)
 		{
 		case ANTIALIAS_4X_FSAA:

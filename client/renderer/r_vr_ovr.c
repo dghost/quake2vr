@@ -312,8 +312,8 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		OVR_CalculateState(&currentState);
 
 
-		width = glConfig.screen_width / (float) hmd->Resolution.w;
-		height = glConfig.screen_height / (float) hmd->Resolution.h;
+		width = glConfig.render_width / (float) hmd->Resolution.w;
+		height = glConfig.render_height / (float) hmd->Resolution.h;
 		ovrScale = (width + height) / 2.0;
 		ovrScale *= R_AntialiasGetScale() * vr_ovr_supersample->value;
 		if (vr_ovr_debug->value)
@@ -515,8 +515,8 @@ void OVR_PostPresent(void)
 			glEnd();
 
 		} else {
-			float resX = 2.0 / glConfig.screen_width;
-			float resY = 2.0 / glConfig.screen_height;
+			float resX = 2.0 / glConfig.render_width;
+			float resY = 2.0 / glConfig.render_height;
 			float x = 1.0 - 10 * resX;
 			float y = 1.0 - 10 * resY;
 

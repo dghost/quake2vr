@@ -1300,8 +1300,8 @@ qboolean R_Init ( char *reason )
 		return false;
 	}
 
-	glConfig.screen_height = vid.height;
-	glConfig.screen_width = vid.width;
+	glConfig.render_height = vid.height;
+	glConfig.render_width = vid.width;
 
 	//
 	// get our various GL strings
