@@ -177,8 +177,6 @@ set(BASE_HEADERS
 	client/include/vorbisfile.h
 	client/input.h
 	client/keys.h
-	client/OVR_CAPI.h
-	client/OVR_CAPI_Keys.h
 	client/particles.h
 	client/q2palette.h
 	client/ref.h
@@ -194,9 +192,6 @@ set(BASE_HEADERS
 	client/renderer/include/r_vr.h
 	client/renderer/include/r_vr_ovr.h
 	client/renderer/include/r_vr_svr.h
-	client/renderer/include/stb_image.h
-	client/renderer/include/stb_image_resize.h
-	client/renderer/include/stb_image_write.h
 	client/renderer/include/vlights.h
 	client/renderer/include/warpsin.h
 	client/screen.h
