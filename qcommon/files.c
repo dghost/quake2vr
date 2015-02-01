@@ -101,9 +101,9 @@ typedef struct {
 	char			name[MAX_OSPATH];
 	FILE			*pak;
 	unzFile			*pk3;
-	int32_t				numFiles;
+	int32_t			numFiles;
 	fsPackFile_t	*files;
-	uint32_t	contentFlags;
+	uint32_t        contentFlags;
 } fsPack_t;
 
 typedef struct fsSearchPath_s {

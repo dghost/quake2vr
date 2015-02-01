@@ -40,9 +40,9 @@
 #ifdef _WIN32
 #define DEFAULT_OPENAL_DRIVER "oal_mob.dll"
 #elif defined(__APPLE__)
-#define DEFAULT_OPENAL_DRIVER "libOpenAL-MOB.dylib"
+#define DEFAULT_OPENAL_DRIVER "liboalmob.dylib"
 #else
-#define DEFAULT_OPENAL_DRIVER "libopenal.so"
+#define DEFAULT_OPENAL_DRIVER "liboalmob.so"
 #endif
 
 #ifdef _WIN32
@@ -417,9 +417,9 @@ QAL_Init()
 #ifdef _WIN32
     char *libraries[] = {"oal_mob.dll", "openal32.dll", 0};
 #elif defined(__APPLE__)
-    char *libraries[] = {"libOpenAL-MOB.dylib", "OpenAL-Soft.framework/OpenAL-Soft", "libopenal.dylib", "OpenAL.framework/OpenAL", 0};
+    char *libraries[] = {"liboalmob.dylib", "libopenal.dylib", "OpenAL-Soft.framework/OpenAL-Soft", 0};
 #else
-    char *libraries[] = {"libOpenAL-MOB.so", "libopenal.so", "libopenal.so.1", 0};
+    char *libraries[] = {"liboalmob.so", "libopenal.so", "libopenal.so.1", 0};
 #endif
 
 	char name[256];
@@ -644,11 +644,11 @@ QAL_Init()
 		const ALint params[] =
 		{
 			ALC_FREQUENCY, sndfreq,   // The HRTF only works for 44.1KHz output.      
-			//ALC_FREQUENCY, 44100,   // The HRTF only works for 44.1KHz output.      
 			0,          // Null terminator
 		};
 		context = qalcCreateContext(device, params);
 	}
+    
 
 	if(!context)
 	{

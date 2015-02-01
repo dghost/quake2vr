@@ -560,7 +560,6 @@ void AL_DeallocStreamBuffers() {
     }
     maxStreamBuffers = 0;
     currentStreamBuffer = 0;
-
 }
 
 void AL_AllocStreamBuffers(int numBuffers)
@@ -568,9 +567,8 @@ void AL_AllocStreamBuffers(int numBuffers)
     ALenum error = AL_NO_ERROR;
     error = qalGetError();
 
-
     AL_DeallocStreamBuffers();
-    
+
     qalGenBuffers((ALsizei) numBuffers,streamBuffers);
 
     if ((error = qalGetError()) != AL_NO_ERROR)
@@ -581,7 +579,6 @@ void AL_AllocStreamBuffers(int numBuffers)
     maxStreamBuffers = numBuffers;
     currentStreamBuffer = 0;
     Com_Printf("Preallocated %i OpenAL Stream Buffers\n",maxStreamBuffers);
-    
 }
 
 /*
