@@ -173,17 +173,9 @@ set(CLIENT_BASE_SOURCES
 set(CLIENT_HEADERS
 	client/adivtab.h
 	client/anorms.h
-	client/asm_i386.h
-	client/block16.h
-	client/block8.h
 	client/cinematic.h
 	client/client.h
 	client/console.h
-	client/include/altypes.h
-	client/include/codec.h
-	client/include/ogg.h
-	client/include/os_types.h
-	client/include/vorbisfile.h
 	client/input.h
 	client/keys.h
 	client/particles.h
