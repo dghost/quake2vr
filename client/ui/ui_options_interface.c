@@ -149,25 +149,17 @@ char **SetFontNames (void)
 {
 	char *curFont;
 	char **list = 0, *p;//, *s;
-	char findname[1024];
 	int32_t nfonts = 0, nfontnames;
-	char **fontfiles;
-	char *path = NULL;
+	char **fontfiles = NULL;
 	int32_t i;//, j;
 
 	list = malloc( sizeof( char * ) * MAX_FONTS );
 	memset( list, 0, sizeof( char * ) * MAX_FONTS );
 
 	list[0] = strdup("default");
+    nfontnames = 1;
 
-	nfontnames = 1;
-
-	path = FS_NextPath( path );
-	while (path) 
-	{
-		Com_sprintf( findname, sizeof(findname), "%s/fonts/*.*", path );
-		fontfiles = FS_ListFiles( findname, &nfonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
-
+    if ((fontfiles = FS_ListFilesWithPaks("fonts/*.*", &nfonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))){
 		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
 		{
 			int32_t num;
@@ -175,8 +167,7 @@ char **SetFontNames (void)
 			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
 				continue;
 
-			p = strstr(fontfiles[i], "/fonts/"); p++;
-			p = strstr(p, "/"); p++;
+            p = strstr(fontfiles[i], "/"); p++;
 
 			if (	!strstr(p, ".tga")
 				&&	!strstr(p, ".jpg")
@@ -199,50 +190,9 @@ char **SetFontNames (void)
 			//set back so whole string get deleted.
 			p[num] = '.';
 		}
-		if (nfonts)
-			FS_FreeFileList( fontfiles, nfonts );
-		
-		path = FS_NextPath( path );
+        FS_FreeFileList( fontfiles, nfonts );
 	}
-
-	// check pak after
-	if ((fontfiles = FS_ListPak("fonts/", &nfonts)))
-	{
-		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
-		{
-			int32_t num;
-
-			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
-				continue;
-
-			p = strstr(fontfiles[i], "/"); p++;
-
-			if (	!strstr(p, ".tga")
-				&&	!strstr(p, ".jpg")
-				&&	!strstr(p, ".pcx")
-				&&	!strstr(p, ".png")
-				)
-				continue;
-
-			num = strlen(p)-4;
-			p[num] = 0; //NULL;
-
-			curFont = p;
-
-			if (!FS_ItemInList(curFont, nfontnames, list))
-			{
-				insertFont(list, strdup(curFont),nfontnames);
-				nfontnames++;
-			}
-			
-			//set back so whole string get deleted.
-			p[num] = '.';
-		}
-	}
-	if (nfonts)
-		FS_FreeFileList( fontfiles, nfonts );
-
-	numfonts = nfontnames;
+    numfonts = nfontnames;
 
 	return list;		
 }
