@@ -32,21 +32,87 @@ endif (MINGW)
 
 include_directories (${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
 
-#check_library_exists (SDL2_image IMG_Load "" HAVE_SDL2_IMAGE)
-
-#if (NOT HAVE_SDL2_IMAGE)
-#  message (SEND_ERROR "Could not find SDL2_image")
-#endif (NOT HAVE_SDL2_IMAGE)
 option(OVR_DYNAMIC                "Dynamically load the Oculus library" ON)
 
-set(BASE_SOURCES
-  client/renderer/r_alias.c
+
+
+set(COMMON_HEADERS
+	qcommon/crc.h
+	qcommon/glob.h
+	qcommon/qcommon.h
+	qcommon/qfiles.h
+	qcommon/shared/q_shared.h
+	qcommon/vid_modes.h
+	qcommon/wildcard.h
+	qcommon/zip/unzip.h
+	qcommon/zip/zconf.h
+	qcommon/zip/zlib.h
+    qcommon/zip/ioapi.h
+)
+
+set(COMMON_SOURCES 
+  qcommon/cmd.c
+  qcommon/cmodel.c
+  qcommon/common.c
+  qcommon/crc.c
+  qcommon/cvar.c
+  qcommon/files.c
+  qcommon/glob.c
+  qcommon/md4.c
+  qcommon/net_chan.c
+  qcommon/pmove.c
+  qcommon/shared/m_flash.c
+  qcommon/shared/q_shared.c
+  qcommon/wildcard.c
+  qcommon/zip/ioapi.c
+  qcommon/zip/unzip.c
+)
+
+set(CLIENT_UI_SOURCES
+  client/ui/ui_backend.c
+  client/ui/ui_game_credits.c
+  client/ui/ui_game_saveload.c
+  client/ui/ui_game.c
+  client/ui/ui_main.c
+  client/ui/ui_mp_addressbook.c
+  client/ui/ui_mp_dmoptions.c
+  client/ui/ui_mp_download.c
+  client/ui/ui_mp_joinserver.c
+  client/ui/ui_mp_playersetup.c
+  client/ui/ui_mp_startserver.c
+  client/ui/ui_multiplayer.c
+  client/ui/ui_options_controls.c
+  client/ui/ui_options_effects.c
+  client/ui/ui_options_interface.c
+  client/ui/ui_options_keys.c
+  client/ui/ui_options_screen.c
+  client/ui/ui_options_sound.c
+  client/ui/ui_options_vr_advanced.c
+  client/ui/ui_options_vr_ovr.c
+  client/ui/ui_options_vr_svr.c
+  client/ui/ui_options_vr.c
+  client/ui/ui_options.c
+  client/ui/ui_quit.c
+  client/ui/ui_subsystem.c
+  client/ui/ui_video_advanced.c
+  client/ui/ui_video.c
+)
+
+set(CLIENT_SOUND_SOURCES
+  client/sound/ogg.c
+  client/sound/openal.c
+  client/sound/qal.c
+  client/sound/sound.c
+  client/sound/wave.c
+)
+
+set(CLIENT_RENDERER_SOURCES
   client/renderer/r_alias_md2.c
   client/renderer/r_alias_misc.c
+  client/renderer/r_alias.c
   client/renderer/r_antialias.c
   client/renderer/r_backend.c
   client/renderer/r_beam.c
-  client/renderer/r_postprocess.c
   client/renderer/r_draw.c
   client/renderer/r_entity.c
   client/renderer/r_fbo.c
@@ -59,61 +125,29 @@ set(BASE_SOURCES
   client/renderer/r_misc.c
   client/renderer/r_model.c
   client/renderer/r_particle.c
-  client/renderer/r_stereo.c
+  client/renderer/r_postprocess.c
   client/renderer/r_shaderobjects.c
   client/renderer/r_sky.c
   client/renderer/r_sprite.c
+  client/renderer/r_stereo.c
   client/renderer/r_surface.c
   client/renderer/r_vao.c
   client/renderer/r_vbo.c
   client/renderer/r_vlights.c
-  client/renderer/r_vr.c
   client/renderer/r_vr_ovr.c
   client/renderer/r_vr_svr.c
+  client/renderer/r_vr.c
   client/renderer/r_warp.c
-  client/sound/ogg.c
-  client/sound/openal.c
-  client/sound/qal.c
-  client/sound/sound.c
-  client/sound/wave.c
-  client/ui/ui_backend.c
-  client/ui/ui_game.c
-  client/ui/ui_game_credits.c
-  client/ui/ui_game_saveload.c
-  client/ui/ui_main.c
-  client/ui/ui_mp_addressbook.c
-  client/ui/ui_mp_dmoptions.c
-  client/ui/ui_mp_download.c
-  client/ui/ui_mp_joinserver.c
-  client/ui/ui_mp_playersetup.c
-  client/ui/ui_mp_startserver.c
-  client/ui/ui_multiplayer.c
-  client/ui/ui_options.c
-  client/ui/ui_options_controls.c
-  client/ui/ui_options_effects.c
-  client/ui/ui_options_interface.c
-  client/ui/ui_options_keys.c
-  client/ui/ui_options_screen.c
-  client/ui/ui_options_sound.c
-  client/ui/ui_options_vr.c
-  client/ui/ui_options_vr_advanced.c
-  client/ui/ui_options_vr_ovr.c
-  client/ui/ui_options_vr_svr.c
-  client/ui/ui_quit.c
-  client/ui/ui_subsystem.c
-  client/ui/ui_video.c
-  client/ui/ui_video_advanced.c
+)
+
+set(CLIENT_VR_SOURCES
   client/vr/vr_main.c
   client/vr/vr_ovr.c
   client/vr/vr_steamvr.cpp
   client/vr/vr_svr.c
-  qcommon/glob.c
-  backends/sdl2/gl_sdl2.c
-  backends/sdl2/in_sdl2.c
-  backends/sdl2/in_sdlcont.c
-  backends/sdl2/snd_sdl2.c
-  backends/sdl2/sys_sdl2.c
-  backends/sdl2/vid_sdl2.c
+)
+
+set(CLIENT_BASE_SOURCES
   client/cl_cin.c
   client/cl_cinematic.c
   client/cl_console.c
@@ -134,34 +168,9 @@ set(BASE_SOURCES
   client/cl_tempent.c
   client/cl_utils.c
   client/cl_view.c
-  client/x86.c
-  qcommon/cmd.c
-  qcommon/cmodel.c
-  qcommon/common.c
-  qcommon/crc.c
-  qcommon/cvar.c
-  qcommon/files.c
-  qcommon/md4.c
-  qcommon/net_chan.c
-  qcommon/pmove.c
-  qcommon/shared/m_flash.c
-  qcommon/shared/q_shared.c
-  qcommon/zip/ioapi.c
-  qcommon/zip/unzip.c
-  qcommon/wildcard.c
-  server/sv_ccmds.c
-  server/sv_ents.c
-  server/sv_game.c
-  server/sv_init.c
-  server/sv_main.c
-  server/sv_send.c
-  server/sv_user.c
-  server/sv_world.c
-)
+) 
 
-set(BASE_HEADERS
-	backends/sdl2/in_sdlcont.h
-	backends/sdl2/sdl2quake.h
+set(CLIENT_HEADERS
 	client/adivtab.h
 	client/anorms.h
 	client/asm_i386.h
@@ -189,9 +198,9 @@ set(BASE_HEADERS
 	client/renderer/include/r_model.h
 	client/renderer/include/r_normals.h
 	client/renderer/include/r_stereo.h
-	client/renderer/include/r_vr.h
 	client/renderer/include/r_vr_ovr.h
 	client/renderer/include/r_vr_svr.h
+	client/renderer/include/r_vr.h
 	client/renderer/include/vlights.h
 	client/renderer/include/warpsin.h
 	client/screen.h
@@ -211,24 +220,60 @@ set(BASE_HEADERS
 	client/sound/include/vorbis.h
 	client/ui/include/ui_local.h
 	client/vid.h
-	client/vr/include/vr.h
 	client/vr/include/vr_ovr.h
 	client/vr/include/vr_steamvr.h
 	client/vr/include/vr_svr.h
+	client/vr/include/vr.h
+)
+
+
+if (OVR_DYNAMIC)
+  add_definitions(-DOCULUS_DYNAMIC)
+  set(CLIENT_VR_SOURCES
+	${CLIENT_VR_SOURCES}
+	client/vr/oculus_dynamic.c
+	)
+  set(CLIENT_HEADERS
+    ${CLIENT_HEADERS}
 	client/vr/oculus_dynamic.h
 	client/vr/ovr_dynamic_funcs.h
-	qcommon/crc.h
-	qcommon/glob.h
-        qcommon/zip/ioapi.h
-	qcommon/zip/unzip.h
-	qcommon/zip/zconf.h
-	qcommon/zip/zlib.h
-	qcommon/qcommon.h
-	qcommon/qfiles.h
-	qcommon/shared/q_shared.h
-	qcommon/vid_modes.h
-	qcommon/wildcard.h
+  )  
+endif (OVR_DYNAMIC)
+
+set(CLIENT_SOURCES
+  ${CLIENT_BASE_SOURCES}
+  ${CLIENT_RENDERER_SOURCES}
+  ${CLIENT_SOUND_SOURCES}
+  ${CLIENT_UI_SOURCES}
+  ${CLIENT_VR_SOURCES}
+)
+
+set(SERVER_SOURCES 
+  server/sv_ccmds.c
+  server/sv_ents.c
+  server/sv_game.c
+  server/sv_init.c
+  server/sv_main.c
+  server/sv_send.c
+  server/sv_user.c
+  server/sv_world.c
+)
+set(SERVER_HEADERS
 	server/server.h
+)
+
+set(SDL_SOURCES
+  backends/sdl2/gl_sdl2.c
+  backends/sdl2/in_sdl2.c
+  backends/sdl2/in_sdlcont.c
+  backends/sdl2/snd_sdl2.c
+  backends/sdl2/sys_sdl2.c
+  backends/sdl2/vid_sdl2.c
+)
+
+set(SDL_HEADERS
+	backends/sdl2/in_sdlcont.h
+	backends/sdl2/sdl2quake.h
 )
 
 set(UNIX_SOURCES
@@ -236,24 +281,50 @@ set(UNIX_SOURCES
   backends/unix/qsh_unix.c
 )
 
-
 set(UNIX_HEADERS
-	backends/unix/glw_unix.h
 )
 
+set(CLIENT_BASE
+	${COMMON_SOURCES}
+	${SERVER_SOURCES}	
+	${CLIENT_SOURCES}
+	${COMMON_HEADERS}
+	${SERVER_HEADERS}
+	${CLIENT_HEADERS}
+)
 
-if (OVR_DYNAMIC)
-  add_definitions(-DOCULUS_DYNAMIC)
-  set(BASE_SOURCES
-	${BASE_SOURCES}
-	client/vr/oculus_dynamic.c
-	)
-endif (OVR_DYNAMIC)
+add_definitions(-DUSE_OPENAL)
 
 if (UNIX)
-add_definitions(-DNO_STEAM -DUSE_OPENAL)
-add_executable(quake2vr ${BASE_SOURCES} ${UNIX_SOURCES} ${BASE_HEADERS} ${UNIX_HEADERS})
+add_definitions(-DNO_STEAM)
+set(BACKEND_SOURCES
+	${SDL_SOURCES}
+	${UNIX_SOURCES} 
+)
+set(BACKEND_HEADERS
+ ${SDL_HEADERS} 
+ ${UNIX_HEADERS}
+)
+set(BACKEND
+ ${BACKEND_SOURCES}
+ ${BACKEND_HEADERS}
+)
 endif (UNIX)
+
+source_group("Common" FILES ${COMMON_SOURCES})
+source_group("Common\\Headers" FILES ${COMMON_HEADERS})
+source_group("Client" FILES ${CLIENT_BASE_SOURCES})
+source_group("Client\\Renderer" FILES ${CLIENT_RENDERER_SOURCES})
+source_group("Client\\Sound" FILES ${CLIENT_SOUND_SOURCES})
+source_group("Client\\UI" FILES ${CLIENT_UI_SOURCES})
+source_group("Client\\VR" FILES ${CLIENT_VR_SOURCES})
+source_group("Client\\Headers" FILES ${CLIENT_HEADERS})
+source_group("Server" FILES ${SERVER_SOURCES})
+source_group("Server\\Headers" FILES ${SERVER_HEADERS})
+source_group("Backend" FILES ${BACKEND_SOURCES})
+source_group("Backend\\Headers" FILES ${BACKEND_HEADERS})
+
+add_executable(quake2vr ${CLIENT_BASE} ${BACKEND})
 
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)

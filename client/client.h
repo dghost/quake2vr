@@ -987,13 +987,6 @@ void CL_DrawInventory (void);
 //
 void CL_PredictMovement (void);
 
-#if id386
-void x86_TimerStart( void );
-void x86_TimerStop( void );
-void x86_TimerInit( uint32_t smallest, unsigned longest );
-uint32_t *x86_TimerGetHistogram( void );
-
-
 //
 // vr related
 // 
@@ -1008,4 +1001,3 @@ void VR_RenderStereo();
 void R_RenderStereo();
 void Stereo_UpdateScreen();
 
-#endif
