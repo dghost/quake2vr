@@ -167,10 +167,8 @@ char **SetCrosshairNames (void)
 {
 	char *curCrosshair;
 	char **list = 0, *p;
-	char findname[1024];
 	int32_t ncrosshairs = 0, ncrosshairnames;
-	char **crosshairfiles;
-	char *path = NULL;
+	char **crosshairfiles = NULL;
 	int32_t i;
 
 	list = malloc( sizeof( char * ) * MAX_CROSSHAIRS+1 );
@@ -179,116 +177,54 @@ char **SetCrosshairNames (void)
 	list[0] = strdup("none"); //was default
 	ncrosshairnames = 1;
 
-	path = FS_NextPath( path );
-	while (path) 
-	{
-		Com_sprintf( findname, sizeof(findname), "%s/pics/ch*.*", path );
-		crosshairfiles = FS_ListFiles( findname, &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
+    if ((crosshairfiles = FS_ListFiles2( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
+        for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
+        {
+            int32_t num, namelen;
+            
+            
+            p = strstr(crosshairfiles[i], "/"); p++;
+            
+            if (	!strstr(p, ".tga")
+                &&	!strstr(p, ".jpg")
+                &&	!strstr(p, ".pcx")
+                &&	!strstr(p, ".png")
+                )
+                continue;
+            
+            // filename must be chxxx
+            if (strncmp(p, "ch", 2))
+                continue;
+            namelen = strlen(strdup(p));
+            if (namelen < 7 || namelen > 9)
+                continue;
+            if (!isNumeric(p[2]))
+                continue;
+            if (namelen >= 8 && !isNumeric(p[3]))
+                continue;
+            // ch100 is only valid 5-char name
+            if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
+                continue;
+            
+            num = strlen(p)-4;
+            p[num] = 0; //NULL;
+            
+            curCrosshair = p;
+            
+            if (!FS_ItemInList(curCrosshair, ncrosshairnames, list))
+            {
+                FS_InsertInList(list, strdup(curCrosshair), ncrosshairnames, 1);	//i=1 so none stays first!
+                ncrosshairnames++;
+            }
+            
+            //set back so whole string get deleted.
+            p[num] = '.';
+        }
+        FS_FreeFileList( crosshairfiles, ncrosshairs );
+    }
 
-		for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
-		{
-			int32_t num, namelen;
-
-			if (!crosshairfiles || !crosshairfiles[i])
-				continue;
-
-			p = strstr(crosshairfiles[i], "/pics/"); p++;
-			p = strstr(p, "/"); p++;
-
-			if (	!strstr(p, ".tga")
-				&&	!strstr(p, ".jpg")
-				&&	!strstr(p, ".pcx")
-				&&	!strstr(p, ".png")
-				)
-				continue;
-
-			// filename must be chxxx
-			if (strncmp(p, "ch", 2)) 
-				continue;
-			namelen = strlen(strdup(p));
-			if (namelen < 7 || namelen > 9)
-				continue;
-			if (!isNumeric(p[2]))
-				continue;
-			if (namelen >= 8 && !isNumeric(p[3]))
-				continue;
-			// ch100 is only valid 5-char name
-			if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
-				continue;
-
-			num = strlen(p)-4;
-			p[num] = 0; //NULL;
-
-			curCrosshair = p;
-
-			if (!FS_ItemInList(curCrosshair, ncrosshairnames, list))
-			{
-				FS_InsertInList(list, strdup(curCrosshair), ncrosshairnames, 1);	//i=1 so none stays first!
-				ncrosshairnames++;
-			}
-			
-			//set back so whole string get deleted.
-			p[num] = '.';
-		}
-		if (ncrosshairs)
-			FS_FreeFileList( crosshairfiles, ncrosshairs );
-		
-		path = FS_NextPath( path );
-	}
-
-	// check pak after
-	if ((crosshairfiles = FS_ListPak("pics/", &ncrosshairs)))
-	{
-		for (i=0; i<ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
-		{
-			int32_t num, namelen;
-
-			if (!crosshairfiles || !crosshairfiles[i])
-				continue;
-
-			p = strstr(crosshairfiles[i], "/"); p++;
-
-			if (	!strstr(p, ".tga")
-				&&	!strstr(p, ".jpg")
-				&&	!strstr(p, ".pcx")
-				&&	!strstr(p, ".png")
-				)
-				continue;
-
-			// filename must be chxxx
-			if (strncmp(p, "ch", 2))
-				continue;
-			namelen = strlen(strdup(p));
-			if (namelen < 7 || namelen > 9)
-				continue;
-			if (!isNumeric(p[2]))
-				continue;
-			if (namelen >= 8 && !isNumeric(p[3]))
-				continue;
-			// ch100 is only valid 5-char name
-			if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
-				continue;
-
-			num = strlen(p)-4;
-			p[num] = 0; //NULL;
-
-			curCrosshair = p;
-
-			if (!FS_ItemInList(curCrosshair, ncrosshairnames, list))
-			{
-				FS_InsertInList(list, strdup(curCrosshair), ncrosshairnames, 1);	//i=1 so none stays first!
-				ncrosshairnames++;
-			}
-			
-			//set back so whole string get deleted.
-			p[num] = '.';
-		}
-	}
 	// sort the list
 	sortCrosshairs (list, ncrosshairnames);
-
-	if (ncrosshairs)
-		FS_FreeFileList( crosshairfiles, ncrosshairs );
 
 	numcrosshairs = ncrosshairnames;
 
