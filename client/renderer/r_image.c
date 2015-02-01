@@ -1087,13 +1087,13 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	int32_t		i, len;
 	byte	*pic, *palette;
 	int32_t		width, height;
-	char	s[128];
+	char	s[MAX_OSPATH];
 	char	*tmp;
 
 	if (!name)
 		return NULL;
 	len = strlen(name);
-	if (len<5)
+	if (len<5 || len > MAX_OSPATH)
 		return NULL;
 
 	// fix up bad image paths
