@@ -2148,9 +2148,9 @@ FS_ListFiles2(char *findname, int *numfiles,
 	/* Add a guard. */
 	if (nfiles > 0)
 	{
-		nfiles++;
-		list = realloc(list, nfiles * sizeof(char *));
-		list[nfiles - 1] = NULL;
+        int n = nfiles + 1;
+		list = realloc(list, n * sizeof(char *));
+        list[nfiles] = NULL;
 	}
 
 	else
@@ -2172,15 +2172,17 @@ void FS_FreeFileList (char **list, int32_t n)
 {
 	int32_t i;
 
-	for (i = 0; i < n; i++)
-	{
-		if (list && list[i])
-		{
-			free(list[i]);
-			list[i] = 0;
-		}
-	}
-	free(list);
+    if (list) {
+        for (i = 0; i < n; i++)
+        {
+            if (list[i])
+            {
+                free(list[i]);
+                list[i] = 0;
+            }
+        }
+        free(list);
+    }
 }
 
 /*
