@@ -175,151 +175,126 @@ static qboolean IsValidSkin (char **filelist, int32_t numFiles, int32_t index)
 
 static qboolean PlayerConfig_ScanDirectories (void)
 {
-	char findname[1024];
 	char scratch[1024];
 	int32_t ndirs = 0, npms = 0;
 	char **dirnames;
-	char *path = NULL;
 	int32_t i;
-
-	//extern char **FS_ListFiles (char *, int32_t *, uint32_t, uint32_t);
 
 	s_numplayermodels = 0;
 
-	// loop back to here if there were no valid player models found in the selected path
-	do
-	{
-		//
-		// get a list of directories
-		//
-		do 
-		{
-			path = FS_NextPath(path);
-			Com_sprintf( findname, sizeof(findname), "%s/players/*.*", path );
-
-			if ( (dirnames = FS_ListFiles(findname, &ndirs, SFF_SUBDIR, 0)) != 0 )
-				break;
-		} while (path);
-
-		if (!dirnames)
-			return false;
-
-		//
-		// go through the subdirectories
-		//
-		npms = ndirs;
-		if (npms > MAX_PLAYERMODELS)
-			npms = MAX_PLAYERMODELS;
-		if ( (s_numplayermodels + npms) > MAX_PLAYERMODELS )
-			npms = MAX_PLAYERMODELS - s_numplayermodels;
-
-		for (i = 0; i < npms; i++)
-		{
-			int32_t			k, s;
-			char		*a, *b, *c;
-			char		**skinnames;
-			char		**imagenames;
-			int32_t			nimagefiles;
-			int32_t			nskins = 0;
-			qboolean	already_added = false;	
-
-			if (dirnames[i] == 0)
-				continue;
-
-			// check if dirnames[i] is already added to the s_pmi[i].directory list
-			a = strrchr(dirnames[i], '/');
-			b = strrchr(dirnames[i], '\\');
-			c = (a > b) ? a : b;
-			for (k=0; k < s_numplayermodels; k++)
-				if (!strcmp(s_pmi[k].directory, c+1))
-				{	already_added = true;	break;	}
-			if (already_added)
-			{	// todo: add any skins for this model not already listed to skindisplaynames
-				continue;
-			}
-
-			// verify the existence of tris.md2
-			strcpy(scratch, dirnames[i]);
-			strcat(scratch, "/tris.md2");
-			if ( !Sys_FindFirst(scratch, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
-			{
-				free(dirnames[i]);
-				dirnames[i] = 0;
-				Sys_FindClose();
-				continue;
-			}
-			Sys_FindClose();
-
-			// verify the existence of at least one skin
-			strcpy(scratch, va("%s%s", dirnames[i], "/*.*")); // was "/*.pcx"
-			imagenames = FS_ListFiles (scratch, &nimagefiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
-
-			if (!imagenames)
-			{
-				free(dirnames[i]);
-				dirnames[i] = 0;
-				continue;
-			}
-
-			// count valid skins, which consist of a skin with a matching "_i" icon
-			for (k = 0; k < nimagefiles-1; k++)
-				if ( IsValidSkin(imagenames, nimagefiles, k) )
-					nskins++;
-
-			if (!nskins)
-				continue;
-
-			skinnames = malloc(sizeof(char *) * (nskins+1));
-			memset(skinnames, 0, sizeof(char *) * (nskins+1));
-
-			// copy the valid skins
-			if (nimagefiles)
-				for (s = 0, k = 0; k < nimagefiles-1; k++)
-				{
-					char *a, *b, *c;
-					if ( IsValidSkin(imagenames, nimagefiles, k) )
-					{
-						a = strrchr(imagenames[k], '/');
-						b = strrchr(imagenames[k], '\\');
-
-						c = (a > b) ? a : b;
-
-						strcpy(scratch, c+1);
-
-						if ( strrchr(scratch, '.') )
-							*strrchr(scratch, '.') = 0;
-
-						skinnames[s] = strdup(scratch);
-						s++;
-					}
-				}
-
-			// at this point we have a valid player model
-			s_pmi[s_numplayermodels].nskins = nskins;
-			s_pmi[s_numplayermodels].skindisplaynames = skinnames;
-
-			// make int16_t name for the model
-			a = strrchr(dirnames[i], '/');
-			b = strrchr(dirnames[i], '\\');
-
-			c = (a > b) ? a : b;
-
-			strncpy(s_pmi[s_numplayermodels].displayname, c+1, MAX_DISPLAYNAME-1);
-			strcpy(s_pmi[s_numplayermodels].directory, c+1);
-
-			FS_FreeFileList (imagenames, nimagefiles);
-
-			s_numplayermodels++;
-		}
-		
-		if (dirnames)
-			FS_FreeFileList (dirnames, ndirs);
-
-	// if no valid player models found in path,
-	// try next path, if there is one
-	} while (path);	// (s_numplayermodels == 0 && path);
-
-	return true;	//** DMP warning fix
+    // get a list of directories
+    //
+    
+    if ( (dirnames = FS_ListFiles2("players/*", &ndirs, SFF_SUBDIR, 0)) != 0 )
+    {
+        
+        //
+        // go through the subdirectories
+        //
+        npms = ndirs;
+        if (npms > MAX_PLAYERMODELS)
+            npms = MAX_PLAYERMODELS;
+        if ( (s_numplayermodels + npms) > MAX_PLAYERMODELS )
+            npms = MAX_PLAYERMODELS - s_numplayermodels;
+        
+        for (i = 0; i < npms; i++)
+        {
+            int32_t			k, s;
+            char		*a, *b, *c;
+            char		**skinnames;
+            char		**imagenames;
+            int32_t			nimagefiles;
+            int32_t			nskins = 0;
+            int         ntris = 0;
+            qboolean	already_added = false;
+            
+            if (dirnames[i] == 0)
+                continue;
+            
+            // check if dirnames[i] is already added to the s_pmi[i].directory list
+            a = strrchr(dirnames[i], '/');
+            b = strrchr(dirnames[i], '\\');
+            c = (a > b) ? a : b;
+            for (k=0; k < s_numplayermodels; k++)
+                if (!strcmp(s_pmi[k].directory, c+1))
+                {	already_added = true;	break;	}
+            if (already_added)
+            {	// todo: add any skins for this model not already listed to skindisplaynames
+                continue;
+            }
+            
+            // verify the existence of tris.md2
+            strcpy(scratch, dirnames[i]);
+            strcat(scratch, "/tris.md2");
+            if ( !FS_ListFiles2(scratch, &ntris, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
+            {
+                continue;
+            }
+            
+            // verify the existence of at least one skin
+            strcpy(scratch, va("%s%s", dirnames[i], "/*.*")); // was "/*.pcx"
+            imagenames = FS_ListFiles2(scratch, &nimagefiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
+            
+            if (!imagenames)
+            {
+                continue;
+            }
+            
+            // count valid skins, which consist of a skin with a matching "_i" icon
+            for (k = 0; k < nimagefiles-1; k++)
+                if ( IsValidSkin(imagenames, nimagefiles, k) )
+                    nskins++;
+            
+            if (!nskins)
+                continue;
+            
+            skinnames = malloc(sizeof(char *) * (nskins+1));
+            memset(skinnames, 0, sizeof(char *) * (nskins+1));
+            
+            // copy the valid skins
+            if (nimagefiles)
+                for (s = 0, k = 0; k < nimagefiles-1; k++)
+                {
+                    char *a, *b, *c;
+                    if ( IsValidSkin(imagenames, nimagefiles, k) )
+                    {
+                        a = strrchr(imagenames[k], '/');
+                        b = strrchr(imagenames[k], '\\');
+                        
+                        c = (a > b) ? a : b;
+                        
+                        strcpy(scratch, c+1);
+                        
+                        if ( strrchr(scratch, '.') )
+                            *strrchr(scratch, '.') = 0;
+                        
+                        skinnames[s] = strdup(scratch);
+                        s++;
+                    }
+                }
+            
+            // at this point we have a valid player model
+            s_pmi[s_numplayermodels].nskins = nskins;
+            s_pmi[s_numplayermodels].skindisplaynames = skinnames;
+            
+            // make int16_t name for the model
+            a = strrchr(dirnames[i], '/');
+            b = strrchr(dirnames[i], '\\');
+            
+            c = (a > b) ? a : b;
+            
+            strncpy(s_pmi[s_numplayermodels].displayname, c+1, MAX_DISPLAYNAME-1);
+            strcpy(s_pmi[s_numplayermodels].directory, c+1);
+            
+            FS_FreeFileList (imagenames, nimagefiles);
+            
+            s_numplayermodels++;
+        }
+        
+        FS_FreeFileList (dirnames, ndirs);
+        return true;
+    }
+	return false;	//** DMP warning fix
 }
 
 
