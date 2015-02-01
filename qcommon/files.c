@@ -2040,7 +2040,7 @@ ComparePackFiles(const char *findname, const char *name, uint32_t musthave,
  * including .pak and .pk3 files.
  */
 char **
-FS_ListFiles2(char *findname, int *numfiles,
+FS_ListFilesWithPaks(char *findname, int *numfiles,
 		uint32_t musthave, uint32_t canthave)
 {
 	fsSearchPath_t *search; /* Search path. */

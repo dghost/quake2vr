@@ -225,7 +225,7 @@ OGG_LoadFileList(void)
 	int j;		 /* Real position in list. */
 
 	/* Get file list. */
-	list = FS_ListFiles2(va("%s/*.ogg", OGG_DIR),
+	list = FS_ListFilesWithPaks(va("%s/*.ogg", OGG_DIR),
 		   	&ogg_numfiles, 0, SFF_SUBDIR | SFF_HIDDEN |
 			SFF_SYSTEM);
 

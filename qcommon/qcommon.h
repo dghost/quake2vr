@@ -799,7 +799,7 @@ void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
 char		**FS_ListFiles (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
-char		**FS_ListFiles2 (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
+char		**FS_ListFilesWithPaks (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
 void		FS_FreeFileList (char **list, int32_t n);
 qboolean	FS_ItemInList (char *check, int32_t num, char **list);
 void		FS_InsertInList (char **list, char *insert, int32_t len, int32_t start);

@@ -177,7 +177,7 @@ char **SetCrosshairNames (void)
 	list[0] = strdup("none"); //was default
 	ncrosshairnames = 1;
 
-    if ((crosshairfiles = FS_ListFiles2( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
+    if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
         for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
         {
             int32_t num, namelen;

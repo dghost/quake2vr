@@ -185,7 +185,8 @@ static qboolean PlayerConfig_ScanDirectories (void)
     // get a list of directories
     //
     
-    if ( (dirnames = FS_ListFiles2("players/*", &ndirs, SFF_SUBDIR, 0)) != 0 )
+
+    if ( (dirnames = FS_ListFilesWithPaks("players/*", &ndirs, SFF_SUBDIR, 0)) != 0 )
     {
         
         //
@@ -226,14 +227,14 @@ static qboolean PlayerConfig_ScanDirectories (void)
             // verify the existence of tris.md2
             strcpy(scratch, dirnames[i]);
             strcat(scratch, "/tris.md2");
-            if ( !FS_ListFiles2(scratch, &ntris, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
+            if ( !FS_ListFilesWithPaks(scratch, &ntris, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
             {
                 continue;
             }
             
             // verify the existence of at least one skin
             strcpy(scratch, va("%s%s", dirnames[i], "/*.*")); // was "/*.pcx"
-            imagenames = FS_ListFiles2(scratch, &nimagefiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
+            imagenames = FS_ListFilesWithPaks(scratch, &nimagefiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
             
             if (!imagenames)
             {
