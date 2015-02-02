@@ -147,9 +147,10 @@ SAVEGAME FILES
 
 ===============================================================================
 */
-void	R_GrabScreen (void); // Knightmare- screenshots for savegames
-void	R_ScaledScreenshot (char *name); // Knightmare- screenshots for savegames
-void	R_FreePic (char *name); // Knightmare- unregisters an image
+void            R_GrabScreen (void); // Knightmare- screenshots for savegames
+void            R_ScaledScreenshot (char *name); // Knightmare- screenshots for savegames
+void            R_FreePic (char *name); // Knightmare- unregisters an image
+struct image_s *R_DrawFindPic (char *name);
 
 /*
 =====================
@@ -640,7 +641,7 @@ void SV_Map_f (void)
 
 =====================================================================
 */
-extern	char *load_saveshot;
+extern struct image_s *load_saveshot;
 char sv_loadshotname[MAX_QPATH];
 
 /*
@@ -685,7 +686,7 @@ void SV_Loadgame_f (void)
 		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "save/%s/shot.png", Cmd_Argv(1));
 		R_FreePic (sv_loadshotname);
 		Com_sprintf(sv_loadshotname, sizeof(sv_loadshotname), "/save/%s/shot.png", Cmd_Argv(1));
-		load_saveshot = sv_loadshotname;
+		load_saveshot = R_DrawFindPic(sv_loadshotname);
 	}
 
 	SV_CopySaveGame (Cmd_Argv(1), "current");

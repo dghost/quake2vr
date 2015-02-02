@@ -52,7 +52,7 @@ char		m_savestrings[MAX_SAVEGAMES][32];
 qboolean	m_savevalid[MAX_SAVEGAMES];
 time_t		m_savetimestamps[MAX_SAVEGAMES];
 qboolean	m_savechanged[MAX_SAVEGAMES];
-qboolean	m_saveshotvalid[MAX_SAVEGAMES+1];
+struct image_s *m_saveshots[MAX_SAVEGAMES+1];
 
 char		m_mapname[MAX_QPATH];
 //qboolean	m_mapshotvalid;
@@ -142,33 +142,11 @@ void ValidateSaveshots (void)
 				R_FreePic (shotname);
 				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.png", i);
 			}
-			if (R_DrawFindPic(shotname))
-				m_saveshotvalid[i] = true;
-			else
-				m_saveshotvalid[i] = false;
+            m_saveshots[i] = R_DrawFindPic(shotname);
 		}
 		else
-			m_saveshotvalid[i] = false;
+            m_saveshots[i] = NULL;
 	}
-/*	if (loadmenu)
-	{	// register mapshot for autosave
-		if (m_savevalid[0]) {
-			Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", m_mapname);
-			if (R_DrawFindPic(mapshotname))
-				m_mapshotvalid = true;
-			else
-				m_mapshotvalid = false;
-		}
-		else
-			m_mapshotvalid = false;
-	}
-
-	// register null saveshot, this is only done once
-	if (R_DrawFindPic("/gfx/ui/noscreen.any"))
-		m_saveshotvalid[MAX_SAVEGAMES] = true;
-	else
-		m_saveshotvalid[MAX_SAVEGAMES] = false;
-*/
 }
 
 void UI_UpdateSavegameData (void)
@@ -190,19 +168,13 @@ void UI_InitSavegameData (void)
 	ValidateSaveshots ();	// register saveshots
 
 	// register null saveshot, this is only done once
-	if (R_DrawFindPic("/gfx/ui/noscreen.any"))
-		m_saveshotvalid[MAX_SAVEGAMES] = true;
-	else
-		m_saveshotvalid[MAX_SAVEGAMES] = false;
+    m_saveshots[MAX_SAVEGAMES] = R_DrawFindPic("/gfx/ui/noscreen.any");
 }
 
 
 void DrawSaveshot (qboolean loadmenu)
 {
-	char shotname [MAX_QPATH];
-	char mapshotname [MAX_QPATH];
 	int32_t i;
-
 	
 	if (loadmenu)
 	{
@@ -216,22 +188,15 @@ void DrawSaveshot (qboolean loadmenu)
 			return;
 		i = s_savegame_actions[s_savegame_menu.cursor].generic.localdata[0];
 	}
+    
 	SCR_DrawFill (SCREEN_WIDTH/2+44, SCREEN_HEIGHT/2-60, 244, 184, ALIGN_CENTER, 60,60,60,255);
 
-	if ( i != 0 && m_savevalid[i] && m_saveshotvalid[i] )
+	if (m_savevalid[i] && m_saveshots[i])
 	{
-		Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.png", i);
-
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, shotname, 1.0);
-	}
-	else if ( loadmenu && i==0 && m_savevalid[i] && m_saveshotvalid[0])	// m_mapshotvalid ) // autosave shows mapshot
-	{
-		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", m_mapname);
-
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, mapshotname, 1.0);
-	}
-	else if (m_saveshotvalid[MAX_SAVEGAMES])
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/ui/noscreen.any", 1.0);
+		SCR_DrawImage (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, m_saveshots[i], 1.0);
+    }
+	else if (m_saveshots[MAX_SAVEGAMES])
+		SCR_DrawImage(SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, m_saveshots[MAX_SAVEGAMES], 1.0);
 	else
 		SCR_DrawFill (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);
 
@@ -246,7 +211,7 @@ LOADGAME MENU
 =============================================================================
 */
 
-extern	char *load_saveshot;
+struct image_s *load_saveshot;
 char loadshotname[MAX_QPATH];
 
 void LoadGameCallback( void *self )
@@ -254,10 +219,10 @@ void LoadGameCallback( void *self )
 	menuaction_s *a = ( menuaction_s * ) self;
 
 	// set saveshot name here
-	if ( m_saveshotvalid[ a->generic.localdata[0] ] ) {
+	if ( m_saveshots[ a->generic.localdata[0] ] ) {
 		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%i/shot.png", a->generic.localdata[0]);
-		load_saveshot = loadshotname; }
-	else
+		load_saveshot = R_DrawFindPic(loadshotname) ;
+    } else
 		load_saveshot = NULL;
 
 	if ( m_savevalid[ a->generic.localdata[0] ] )

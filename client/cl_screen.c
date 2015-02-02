@@ -1075,7 +1075,7 @@ void SCR_DrawLoadingBar (float x, float y, float w, float h, int32_t percent, fl
 }
 
 
-char *load_saveshot;
+struct image_s *load_saveshot;
 //void Menu_DrawString( int32_t x, int32_t y, const char *string, int32_t alpha );
 int32_t stringLen (char *string);
 
@@ -1086,7 +1086,7 @@ SCR_DrawLoading
 */
 void SCR_DrawLoading (void)
 {
-	int32_t			plaqueOffset;
+	int32_t		plaqueOffset;
 	char		mapfile[32];
 	char		*loadMsg;
 	qboolean	isMap = false, haveMapPic = false, widescreen;
@@ -1117,8 +1117,8 @@ void SCR_DrawLoading (void)
 		mapfile[strlen(mapfile)-4] = 0;		// cut off ".bsp"
 
 		// show saveshot here
-		if (load_saveshot && strlen(load_saveshot) && (img = R_DrawFindPic(load_saveshot))) {
-			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, img, 1.0);
+		if (load_saveshot) {
+			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, load_saveshot, 1.0);
 			haveMapPic = true;
 		}
 		// else try levelshot
