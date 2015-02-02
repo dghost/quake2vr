@@ -228,7 +228,7 @@ char **SetCrosshairNames (void)
             
             if (!FS_ItemInList(curCrosshair, ncrosshairnames, list))
             {
-                FS_InsertInList(list, strdup(curCrosshair), ncrosshairnames, 1);	//i=1 so none stays first!
+                FS_InsertInList(list, curCrosshair, ncrosshairnames, 1);	//i=1 so none stays first!
                 ncrosshairnames++;
             }
             

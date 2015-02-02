@@ -183,7 +183,7 @@ char **SetFontNames (void)
 
 			if (!FS_ItemInList(curFont, nfontnames, list))
 			{
-				insertFont(list, strdup(curFont),nfontnames);
+				insertFont(list, curFont,nfontnames);
 				nfontnames++;
 			}
 			

@@ -290,7 +290,7 @@ void UI_LoadArenas (void)
 
 					//Com_Printf ("UI_LoadArenas: successfully loaded arena file %s: mapname: %s levelname: %s gametypes: %s\n", p, shortname, longname, gametypes);
 					narenanames++;
-					FS_InsertInList(tmplist, strdup(p), narenanames, 0); // add to list
+					FS_InsertInList(tmplist, p, narenanames, 0); // add to list
 				}
 			}
 		}
