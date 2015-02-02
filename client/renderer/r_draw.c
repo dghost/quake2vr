@@ -323,7 +323,7 @@ void R_DrawStretchPic (int32_t x, int32_t y, int32_t w, int32_t h, char *pic, fl
 
 /*
  =============
- R_DrawScaledPic
+ R_DrawScaledImage
  Psychospaz's code for drawing stretched crosshairs
  =============
  */

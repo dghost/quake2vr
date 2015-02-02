@@ -403,9 +403,9 @@ STB_IMAGE LOADING
 
 =========================================================
 */
-
-void R_LoadSTB( char *filename, byte **pic, int32_t *width, int32_t *height )
+image_t *R_LoadSTB(char *filename, imagetype_t type)
 {
+    image_t		*image;
 	byte      *data;
 	int w, h, c;
 	stbi_uc *rgbadata;
@@ -415,7 +415,7 @@ void R_LoadSTB( char *filename, byte **pic, int32_t *width, int32_t *height )
 	length = FS_LoadFile( filename, (void **) &data );
 
 	if( !data )
-		return;
+		return NULL;
 
 	rgbadata = stbi_load_from_memory(data, length, &w, &h, &c, 4);
 
@@ -423,12 +423,13 @@ void R_LoadSTB( char *filename, byte **pic, int32_t *width, int32_t *height )
 
 	if (!rgbadata)	{
 		VID_Printf(PRINT_DEVELOPER, "R_LoadSTB Failed on file %s: %s\n",filename, stbi_failure_reason());
-		return;
+		return NULL;
 	}
-	*pic = rgbadata;
-	*width = (int32_t) w;
-	*height = (int32_t) h;
+    
 	VID_Printf(PRINT_DEVELOPER, "R_LoadSTB Succeed: %s\n",filename);
+    image = R_LoadPic(filename, rgbadata, w, h, type, 32);
+    free(rgbadata);
+    return image;
 }
 
 
@@ -1158,11 +1159,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	else if (!strcmp(name+len-4, ".tga") || !strcmp(name+len-4, ".jpg")  || !strcmp(name+len-4, ".png"))
 	{
 		// use new loading code
-		R_LoadSTB(name, &pic, &width, &height);
-		if (pic)
-			image = R_LoadPic(name, pic, width, height, type, 32);
-		else
-			image = NULL;
+		image = R_LoadSTB(name, type);
 	}
 	/*else if (!strcmp(name+len-4, ".cin")) // Heffo
 	{										// WHY .cin files? because we can!

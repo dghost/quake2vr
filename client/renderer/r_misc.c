@@ -198,6 +198,8 @@ void R_ScaledScreenshot (char *name)
 
 	// Free Reduced screenshot
 	free(pngdata);
+    free(saveshotdata);
+    saveshotdata = NULL;
 }
 
 
