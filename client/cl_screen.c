@@ -87,6 +87,7 @@ cvar_t		*cl_drawfps;
 cvar_t		*cl_demomessage;
 cvar_t		*cl_loadpercent;
 
+struct      image_s *crosshair_img = NULL;
 char		crosshair_pic[MAX_QPATH];
 int32_t			crosshair_width, crosshair_height;
 
@@ -949,8 +950,8 @@ void SCR_DrawCrosshair (void)
 //	R_DrawScaledPic (scr_vrect.x + (int32_t)(((float)scr_vrect.width - scale*(float)crosshair_width)*0.5), // x
 //					scr_vrect.y + (int32_t)(((float)scr_vrect.height - scale*(float)crosshair_height)*0.5),	// y
 //					scale, alpha, crosshair_pic);
-	SCR_DrawPic ( ((float)SCREEN_WIDTH - scaledSize)*0.5, ((float)SCREEN_HEIGHT - scaledSize)*0.5,
-					scaledSize, scaledSize, ALIGN_CENTER, crosshair_pic, alpha);
+	SCR_DrawImage ( ((float)SCREEN_WIDTH - scaledSize)*0.5, ((float)SCREEN_HEIGHT - scaledSize)*0.5,
+					scaledSize, scaledSize, ALIGN_CENTER, crosshair_img, alpha);
 }
 
 
@@ -1034,7 +1035,7 @@ SCR_DrawLoadingTagProgress
 void SCR_DrawLoadingTagProgress (char *picName, int32_t yOffset, int32_t percent)
 {
 	int32_t		w, h, x, y, i, barPos;
-
+    struct image_s *img = R_DrawFindPic("loading_led1");
 	w = 160;	// size of loading_bar.tga = 320x80
 	h = 40;
 	x = (SCREEN_WIDTH - w)*0.5;
@@ -1042,10 +1043,12 @@ void SCR_DrawLoadingTagProgress (char *picName, int32_t yOffset, int32_t percent
 	barPos = min(max(percent, 0), 100) / 4;
 
 	SCR_DrawPic (x, y + yOffset, w, h, ALIGN_CENTER, picName, 1.0);
-
-	for (i=0; i<barPos; i++)
-		SCR_DrawPic (x + 33 + (i * LOADBAR_TIC_SIZE_X), y + 28 + yOffset, LOADBAR_TIC_SIZE_X, LOADBAR_TIC_SIZE_Y,
-					ALIGN_CENTER, "loading_led1", 1.0);
+    
+    if (img) {
+        for (i=0; i<barPos; i++)
+            SCR_DrawImage (x + 33 + (i * LOADBAR_TIC_SIZE_X), y + 28 + yOffset, LOADBAR_TIC_SIZE_X, LOADBAR_TIC_SIZE_Y,
+                           ALIGN_CENTER,img, 1.0);
+    }
 }
 
 
@@ -1088,7 +1091,7 @@ void SCR_DrawLoading (void)
 	char		*loadMsg;
 	qboolean	isMap = false, haveMapPic = false, widescreen;
 	qboolean	simplePlaque = (scr_simple_loadscreen->value != 0) || (vr_enabled->value);
-
+    struct image_s *img = NULL;
 
 	if (!scr_draw_loading) {
 		loadingPercent = 0;
@@ -1114,35 +1117,35 @@ void SCR_DrawLoading (void)
 		mapfile[strlen(mapfile)-4] = 0;		// cut off ".bsp"
 
 		// show saveshot here
-		if (load_saveshot && strlen(load_saveshot) && R_DrawFindPic(load_saveshot)) {
-			SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, load_saveshot, 1.0);
+		if (load_saveshot && strlen(load_saveshot) && (img = R_DrawFindPic(load_saveshot))) {
+			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, img, 1.0);
 			haveMapPic = true;
 		}
 		// else try levelshot
-		else if (widescreen && R_DrawFindPic(va("/levelshots/%s_widescreen.any", mapfile))) {
+		else if (widescreen && (img = R_DrawFindPic(va("/levelshots/%s_widescreen.any", mapfile)))) {
 		//	SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, va("/levelshots/%s_widescreen.any", mapfile), 1.0);
 			// Draw at 16:10 aspect, don't stretch to 16:9 or wider
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
-			SCR_DrawPic (-64, 0, SCREEN_WIDTH+128, SCREEN_HEIGHT, ALIGN_CENTER, va("/levelshots/%s_widescreen.any", mapfile), 1.0);
+			SCR_DrawImage (-64, 0, SCREEN_WIDTH+128, SCREEN_HEIGHT, ALIGN_CENTER, img, 1.0);
 			haveMapPic = true;
 		}
-		else if (R_DrawFindPic(va("/levelshots/%s.any", mapfile))) {
+		else if ((img = R_DrawFindPic(va("/levelshots/%s.any", mapfile)))) {
 			// Draw at 4:3 aspect, don't stretch to 16:9 or wider
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
-			SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_CENTER, va("/levelshots/%s.any", mapfile), 1.0); // was ALIGN_STRETCH
+			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_CENTER, img, 1.0); // was ALIGN_STRETCH
 			haveMapPic = true;
 		}
 		// else fall back on loadscreen
-		else if (R_DrawFindPic(LOADSCREEN_NAME))
-			SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, LOADSCREEN_NAME, 1.0);
+		else if ((img = R_DrawFindPic(LOADSCREEN_NAME)))
+			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, img, 1.0);
 		// else draw black screen
 		else
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 
 		isMap = true;
 	}
-	else if (!simplePlaque && R_DrawFindPic(LOADSCREEN_NAME))
-		SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, LOADSCREEN_NAME, 1.0);
+	else if (!simplePlaque && (img = R_DrawFindPic(LOADSCREEN_NAME)))
+		SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, img, 1.0);
 	else
 		SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 
@@ -1570,6 +1573,8 @@ char		*sb_nums[2][11] =
 	"anum_6", "anum_7", "anum_8", "anum_9", "anum_minus"}
 };
 
+struct image_s *sb_imgs[2][11];
+
 // Knghtmare- scaled HUD support functions
 float scaledHud (float param)
 {
@@ -1799,7 +1804,7 @@ void SCR_DrawField (int32_t x, int32_t y, int32_t color, int32_t width, int32_t 
 //		x += scaledHud(CHAR_WIDTH);
 //		R_DrawScaledPic (x, y, getScreenScale(), hud_alpha->value, sb_nums[color][frame]);
 //		x += scaleForScreen(CHAR_WIDTH);
-		R_DrawStretchPic (x, y, digitWidth, scaleForScreen(ICON_HEIGHT), sb_nums[color][frame], hud_alpha->value);
+		R_DrawStretchImage (x, y, digitWidth, scaleForScreen(ICON_HEIGHT), sb_imgs[color][frame], hud_alpha->value);
 		x += digitWidth;
 		ptr++;
 		l--;
@@ -1820,17 +1825,22 @@ void SCR_TouchPics (void)
 
 	for (i=0 ; i<2 ; i++)
 		for (j=0 ; j<11 ; j++)
-			R_DrawFindPic (sb_nums[i][j]);
+			sb_imgs[i][j] = R_DrawFindPic (sb_nums[i][j]);
 
+    crosshair_img = NULL;
 	if (crosshair->value)
 	{
 		if (crosshair->value > 100 || crosshair->value < 0) //Knightmare increased
 			crosshair->value = 1;
-
+        
 		Com_sprintf (crosshair_pic, sizeof(crosshair_pic), "ch%i", (int32_t)(crosshair->value));
-		R_DrawGetPicSize (&crosshair_width, &crosshair_height, crosshair_pic);
-		if (!crosshair_width)
+        crosshair_img = R_DrawFindPic(crosshair_pic);
+		R_DrawGetImageSize (&crosshair_width, &crosshair_height, crosshair_img);
+        if (!crosshair_width) {
 			crosshair_pic[0] = 0;
+            crosshair_img = NULL;
+        }
+        
 	}
 }
 
@@ -1982,7 +1992,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 			if (!ci->icon)
 				ci = &cl.baseclientinfo;
-			R_DrawScaledPic(x, y, getScreenScale(), hud_alpha->value,  ci->iconname);
+			R_DrawScaledImage(x, y, getScreenScale(), hud_alpha->value,  ci->icon);
 			continue;
 		}
 
