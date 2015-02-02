@@ -1126,7 +1126,6 @@ void SCR_DrawLoading (void)
 		}
 		// else try levelshot
 		else if (widescreen && (img = R_DrawFindPic(va("/levelshots/%s_widescreen.any", mapfile)))) {
-		//	SCR_DrawPic (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, va("/levelshots/%s_widescreen.any", mapfile), 1.0);
 			// Draw at 16:10 aspect, don't stretch to 16:9 or wider
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 			SCR_DrawImage (-64, 0, SCREEN_WIDTH+128, SCREEN_HEIGHT, ALIGN_CENTER, img, 1.0);
@@ -1949,7 +1948,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 				}
 				if (cl.configstrings[OLD_CS_IMAGES+value])
 				{
-					R_DrawScaledPic (x, y, getScreenScale(), hud_alpha->value, cl.configstrings[OLD_CS_IMAGES+value]);
+                    R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
 				}
 			}
 			else
@@ -1962,7 +1961,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 				}
 				if (cl.configstrings[CS_IMAGES+value])
 				{
-					R_DrawScaledPic (x, y, getScreenScale(), hud_alpha->value, cl.configstrings[CS_IMAGES+value]);
+					R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
 				}
 			}
 			//end Knightmare
@@ -2073,8 +2072,11 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 
 		if (!strcmp(token, "picn"))
 		{	// draw a pic from a name
-			token = COM_Parse (&s);
-			R_DrawScaledPic (x, y, getScreenScale(), hud_alpha->value, token);
+            struct image_s *img;
+            token = COM_Parse (&s);
+            if ((img = R_DrawFindPic(token))) {
+                R_DrawScaledImage(x, y, getScreenScale(), hud_alpha->value, img);
+            }
 			continue;
 		}
 
