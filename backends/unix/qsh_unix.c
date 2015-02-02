@@ -187,9 +187,17 @@ static qboolean CompareAttributes(char *path, char *name,
 	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
 		return false;
 
-	return true;
+    // ignore files that start with .
+    if ((canthave & SFF_HIDDEN) && name[0] == '.')
+        return false;
+    
+    // ignore files that start with .
+    if ((musthave & SFF_HIDDEN) && name[0] != '.')
+        return false;
+    
+    snprintf(fn, sizeof(fn), "%s/%s",path,name);
 
-	if (stat(fn, &st) == -1)
+    if (stat(fn, &st) == -1)
 		return false; // shouldn't happen
 
 	if ( ( st.st_mode & S_IFDIR ) && ( canthave & SFF_SUBDIR ) )
