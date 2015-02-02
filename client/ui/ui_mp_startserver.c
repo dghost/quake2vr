@@ -51,6 +51,7 @@ static menuaction_s	s_startserver_back_action;
 #define	M_MISSING 1
 #define	M_FOUND 2
 static	byte *ui_svr_mapshotvalid; // levelshot truth table
+static  struct image_s **ui_svr_mapshot;
 
 typedef enum {
 	MAP_DM,
@@ -450,12 +451,18 @@ void UI_RefreshMapList (maptype_t maptype)
 	s_startmap_list.numitemnames = i;
 
 	// levelshot found table
-	if (ui_svr_mapshotvalid)	free(ui_svr_mapshotvalid);
+	if (ui_svr_mapshotvalid)
+        free(ui_svr_mapshotvalid);
 	ui_svr_mapshotvalid = malloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
 	memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
+    if (ui_svr_mapshot)
+        free(ui_svr_mapshot);
+    ui_svr_mapshot = malloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+    memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+    
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if (R_DrawFindPic("/gfx/ui/noscreen.any"))
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.any")))
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -606,12 +613,19 @@ void StartServer_MenuInit (void)
 	UI_BuildMapList (ui_svr_maptype); // was MAP_DM
 
 	// levelshot found table
-	if (ui_svr_mapshotvalid)	free(ui_svr_mapshotvalid);
+	if (ui_svr_mapshotvalid)
+        free(ui_svr_mapshotvalid);
 	ui_svr_mapshotvalid = malloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
 	memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
+    
+    if (ui_svr_mapshot)
+        free(ui_svr_mapshot);
+    ui_svr_mapshot = malloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+    memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+    
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if (R_DrawFindPic("/gfx/ui/noscreen.any"))
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.any")) )
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -754,19 +768,17 @@ void DrawStartSeverLevelshot (void)
 
 	if ( ui_svr_mapshotvalid[i] == M_UNSET) { // init levelshot
 		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", startmap);
-		if (R_DrawFindPic(mapshotname))
+		if ((ui_svr_mapshot[i] = R_DrawFindPic(mapshotname)))
 			ui_svr_mapshotvalid[i] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[i] = M_MISSING;
 	}
-
-	if ( ui_svr_mapshotvalid[i] == M_FOUND) {
-		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", startmap);
-
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-68, 240, 180, ALIGN_CENTER, mapshotname, 1.0);
+   
+	if ( ui_svr_mapshot[i]) {
+		SCR_DrawImage (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-68, 240, 180, ALIGN_CENTER, ui_svr_mapshot[i], 1.0);
 	}
-	else if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_FOUND)
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-68, 240, 180, ALIGN_CENTER, "/gfx/ui/noscreen.any", 1.0);
+	else if (ui_svr_mapshot[ui_svr_nummaps])
+		SCR_DrawImage (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-68, 240, 180, ALIGN_CENTER, ui_svr_mapshot[ui_svr_nummaps], 1.0);
 	else
 		SCR_DrawFill (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-68, 240, 180, ALIGN_CENTER, 0,0,0,255);
 }

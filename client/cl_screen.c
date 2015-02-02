@@ -1035,19 +1035,22 @@ SCR_DrawLoadingTagProgress
 void SCR_DrawLoadingTagProgress (char *picName, int32_t yOffset, int32_t percent)
 {
 	int32_t		w, h, x, y, i, barPos;
-    struct image_s *img = R_DrawFindPic("loading_led1");
+    struct image_s *loading = R_DrawFindPic("loading_led1");
+    struct image_s *img = R_DrawFindPic(picName);
+    
 	w = 160;	// size of loading_bar.tga = 320x80
 	h = 40;
 	x = (SCREEN_WIDTH - w)*0.5;
 	y = (SCREEN_HEIGHT - h)*0.5;
 	barPos = min(max(percent, 0), 100) / 4;
 
-	SCR_DrawPic (x, y + yOffset, w, h, ALIGN_CENTER, picName, 1.0);
+    if (img)
+        SCR_DrawImage (x, y + yOffset, w, h, ALIGN_CENTER, img, 1.0);
     
-    if (img) {
+    if (loading) {
         for (i=0; i<barPos; i++)
             SCR_DrawImage (x + 33 + (i * LOADBAR_TIC_SIZE_X), y + 28 + yOffset, LOADBAR_TIC_SIZE_X, LOADBAR_TIC_SIZE_Y,
-                           ALIGN_CENTER,img, 1.0);
+                           ALIGN_CENTER,loading, 1.0);
     }
 }
 
@@ -1526,14 +1529,16 @@ void SCR_TileClear (void)
 {
 	int32_t		top, bottom, left, right;
 	int32_t		w, h;
-
+    image_t     *tile = R_DrawFindPic("backtile");
 	if (scr_con_current == 1.0)
 		return;		// full screen console
 	if (scr_viewsize->value == 100)
 		return;		// full screen rendering
 	if (cl.cinematictime > 0)
 		return;		// full screen cinematic
-
+    if (!tile)
+        return;
+    
 	w = viddef.width;
 	h = viddef.height;
 
@@ -1541,18 +1546,18 @@ void SCR_TileClear (void)
 	bottom = top + cl.refdef.height-1;
 	left = cl.refdef.x;
 	right = left + cl.refdef.width-1;
-
+    
 	// clear above view screen
-	R_DrawTileClear (0, 0, w, top, "backtile");
+	R_DrawTileImage (0, 0, w, top, tile);
 
 	// clear below view screen
-	R_DrawTileClear (0, bottom, w, h - bottom, "backtile");
+	R_DrawTileImage (0, bottom, w, h - bottom, tile);
 
 	// clear left of view screen
-	R_DrawTileClear (0, top, left, bottom - top + 1, "backtile");
+	R_DrawTileImage (0, top, left, bottom - top + 1, tile);
 
 	// clear right of view screen
-	R_DrawTileClear (right, top, w - right, bottom - top + 1, "backtile");
+	R_DrawTileImage (right, top, w - right, bottom - top + 1, tile);
 }
 
 
@@ -1574,6 +1579,7 @@ char		*sb_nums[2][11] =
 };
 
 struct image_s *sb_imgs[2][11];
+struct image_s *sb_flash = NULL;
 
 // Knghtmare- scaled HUD support functions
 float scaledHud (float param)
@@ -1789,8 +1795,8 @@ void SCR_DrawField (int32_t x, int32_t y, int32_t color, int32_t width, int32_t 
 	flashWidth = l*digitWidth;
 	flash_x = x;
 
-	if (flash)
-		R_DrawStretchPic (flash_x, y, flashWidth, scaleForScreen(ICON_HEIGHT), "field_3", hud_alpha->value);
+	if (flash && sb_flash)
+		R_DrawStretchImage (flash_x, y, flashWidth, scaleForScreen(ICON_HEIGHT), sb_flash, hud_alpha->value);
 
 	ptr = num;
 	while (*ptr && l)
@@ -1827,6 +1833,8 @@ void SCR_TouchPics (void)
 		for (j=0 ; j<11 ; j++)
 			sb_imgs[i][j] = R_DrawFindPic (sb_nums[i][j]);
 
+    sb_flash = R_DrawFindPic("field_3");
+    
     crosshair_img = NULL;
 	if (crosshair->value)
 	{
@@ -1842,6 +1850,7 @@ void SCR_TouchPics (void)
         }
         
 	}
+    
 }
 
 /*

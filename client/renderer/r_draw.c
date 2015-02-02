@@ -471,6 +471,52 @@ void R_DrawPic (int32_t x, int32_t y, char *pic)
 }
 
 /*
+ =============
+ R_DrawTileImage
+ 
+ This repeats a 64*64 tile graphic to fill the screen around a sized down
+ refresh window.
+ =============
+ */
+void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image)
+{
+    int32_t		i;
+    vec2_t	texCoord[4], verts[4];
+    
+    GL_Bind (image->texnum);
+    /*
+     Vector2Set(texCoord[0], x/64.0, y/64.0);
+     Vector2Set(texCoord[1], (x+w)/64.0, y/64.0);
+     Vector2Set(texCoord[2], (x+w)/64.0, (y+h)/64.0);
+     Vector2Set(texCoord[3], x/64.0, (y+h)/64.0);
+     */
+    Vector2Set(texCoord[0], (float)x/(float)image->width, (float)y/(float)image->height);
+    Vector2Set(texCoord[1], (float)(x+w)/(float)image->width, (float)y/(float)image->height);
+    Vector2Set(texCoord[2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
+    Vector2Set(texCoord[3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
+    
+    Vector2Set(verts[0], x, y);
+    Vector2Set(verts[1], x+w, y);
+    Vector2Set(verts[2], x+w, y+h);
+    Vector2Set(verts[3], x, y+h);
+    
+    rb_vertex = rb_index = 0;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+1;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+3;
+    for (i=0; i<4; i++) {
+        VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
+        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
+        VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, 1.0);
+        rb_vertex++;
+    }
+    RB_RenderMeshGeneric (false);
+}
+
+/*
 =============
 R_DrawTileClear
 
@@ -481,8 +527,6 @@ refresh window.
 void R_DrawTileClear (int32_t x, int32_t y, int32_t w, int32_t h, char *pic)
 {
 	image_t	*image;
-	int32_t		i;
-	vec2_t	texCoord[4], verts[4];
 
 	image = R_DrawFindPic (pic);
 
@@ -491,37 +535,7 @@ void R_DrawTileClear (int32_t x, int32_t y, int32_t w, int32_t h, char *pic)
 		return;
 	}
 
-	GL_Bind (image->texnum);
-/*
-	Vector2Set(texCoord[0], x/64.0, y/64.0);
-	Vector2Set(texCoord[1], (x+w)/64.0, y/64.0);
-	Vector2Set(texCoord[2], (x+w)/64.0, (y+h)/64.0);
-	Vector2Set(texCoord[3], x/64.0, (y+h)/64.0);
-*/
-	Vector2Set(texCoord[0], (float)x/(float)image->width, (float)y/(float)image->height);
-	Vector2Set(texCoord[1], (float)(x+w)/(float)image->width, (float)y/(float)image->height);
-	Vector2Set(texCoord[2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
-	Vector2Set(texCoord[3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
-
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+w, y);
-	Vector2Set(verts[2], x+w, y+h);
-	Vector2Set(verts[3], x, y+h);
-
-	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
-	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, 1.0);
-		rb_vertex++;
-	}
-	RB_RenderMeshGeneric (false);
+    R_DrawTileImage(x, y, w, h, image);
 }
 
 

@@ -659,6 +659,7 @@ void    R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, struc
 void	R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *name);
 // added char scaling from Quake2Max
 void	R_DrawChar (float x, float y, int32_t c, float scale, int32_t red, int32_t green, int32_t blue, int32_t alpha, qboolean italic, qboolean last);
+void	R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, struct image_s *image);
 void	R_DrawTileClear (int32_t x, int32_t y, int32_t w, int32_t h, char *name);
 void	R_DrawFill (int32_t x, int32_t y, int32_t w, int32_t h, int32_t red, int32_t green, int32_t blue, int32_t alpha);
 void	R_DrawCameraEffect (void);

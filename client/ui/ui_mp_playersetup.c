@@ -663,7 +663,8 @@ void PlayerConfig_DrawSkinSelection (void)
 	float	icon_offset = 0;
 	float	x, y, w, h;
 	int32_t		i, count, color[3];
-
+    struct image_s *img;
+    
 	ColorLookup((int32_t)Cvar_VariableValue("alt_text_color"), &color[0], &color[1], &color[2]);
 
 	if (s_pmi[s_player_model_box.curvalue].nskins<NUM_SKINBOX_ITEMS || s_player_skin_box.curvalue<4)
@@ -682,10 +683,10 @@ void PlayerConfig_DrawSkinSelection (void)
 
 	// background
 	SCR_DrawFill (icon_x-3, icon_y-3, NUM_SKINBOX_ITEMS*34+4, 38, ALIGN_CENTER, 0,0,0,255);
-	if (R_DrawFindPic("/gfx/ui/listbox_background.any")) {
+	if ((img = R_DrawFindPic("/gfx/ui/listbox_background.any"))) {
 		x = icon_x-2;	y = icon_y-2;	w = NUM_SKINBOX_ITEMS*34+2;	h = 36;
 		SCR_AdjustFrom640 (&x, &y, &w, &h, ALIGN_CENTER);
-		R_DrawTileClear ((int32_t)x, (int32_t)y, (int32_t)w, (int32_t)h, "/gfx/ui/listbox_background.any");
+		R_DrawTileImage ((int32_t)x, (int32_t)y, (int32_t)w, (int32_t)h,img);
 	}
 	else
 		SCR_DrawFill (icon_x-2, icon_y-2, NUM_SKINBOX_ITEMS*34+2, 36, ALIGN_CENTER, 60,60,60,255);
