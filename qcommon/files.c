@@ -1501,6 +1501,10 @@ void FS_AddGameDirectory (const char *dir)
 		Com_sprintf (packPath, sizeof(packPath), "%s/pak%i.pak", dir, i);
 		FS_AddPAKFile (packPath);
 	}
+
+    Com_sprintf (packPath, sizeof(packPath), "%s/vrquake2.pk3", dir, i);
+    FS_AddPK3File (packPath);
+
     //
     // NeVo - pak3's!
     // add any pk3 files in the format pak0.pk3 pak1.pk3, ...
@@ -1540,6 +1544,10 @@ void FS_AddGameDirectory (const char *dir)
 				char	buf[16];
 				char	buf2[16];
 				qboolean numberedpak = false;
+                
+                if (strstr(dirnames[j], "/vrquake2.pk3"))
+                    continue;
+                
 				for (k=0; k<100; k++)
 				{
 					Com_sprintf( buf, sizeof(buf), "/pak%i.pak", k);
@@ -1549,7 +1557,7 @@ void FS_AddGameDirectory (const char *dir)
 						break;
 					}
 				}
-				if (numberedpak)
+                if (numberedpak)
 					continue;
                 if ( strrchr( dirnames[j], '/' ) )
                 {
