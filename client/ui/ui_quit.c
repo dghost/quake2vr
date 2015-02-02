@@ -124,9 +124,11 @@ void M_Quit_Draw (void)
 	Menu_Draw( &s_quit_menu );
 #else // QUITMENU_NOKEY
 	int32_t		w, h;
-
-	R_DrawGetPicSize (&w, &h, "quit");
-	SCR_DrawPic (SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-h/2, w, h, ALIGN_CENTER, "quit", 1.0);
+    struct image_s *img = R_DrawFindPic("quit");
+    if (img) {
+        R_DrawGetImageSize (&w, &h, img);
+        SCR_DrawImage (SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-h/2, w, h, ALIGN_CENTER, img, 1.0);
+    }
 #endif // QUITMENU_NOKEY
 }
 

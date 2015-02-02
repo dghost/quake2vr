@@ -646,10 +646,16 @@ void	R_RenderFrame (refdef_t *fd);
 
 void	R_SetParticlePicture (int32_t num, char *name); // Knightmare added
 
+void    R_DrawGetImageSize(int32_t *w, int32_t *h, struct image_s *gl);
 void	R_DrawGetPicSize (int32_t *w, int32_t *h, char *name);	// will return 0 0 if not found
+
+void    R_DrawImage (int32_t x, int32_t y, struct image_s *gl);
 void	R_DrawPic (int32_t x, int32_t y, char *name);
 // added alpha for Psychospaz's transparent console
+void    R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, struct image_s *gl, float alpha);
 void	R_DrawStretchPic (int32_t x, int32_t y, int32_t w, int32_t h, char *name, float alpha);
+
+void    R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, struct image_s *gl);
 void	R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *name);
 // added char scaling from Quake2Max
 void	R_DrawChar (float x, float y, int32_t c, float scale, int32_t red, int32_t green, int32_t blue, int32_t alpha, qboolean italic, qboolean last);

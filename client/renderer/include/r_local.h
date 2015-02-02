@@ -642,11 +642,15 @@ void COM_StripExtension (char *in, char *out);
 //
 // r_draw.c
 //
+void    R_DrawGetImageSize(int32_t *w, int32_t *h, struct image_s *gl);
 void	R_DrawGetPicSize (int32_t *w, int32_t *h, char *name);
+void    R_DrawImage (int32_t x, int32_t y, struct image_s *gl);
 void	R_DrawPic (int32_t x, int32_t y, char *name);
 // added alpha for Psychospaz's transparent console
+void    R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, struct image_s *gl, float alpha);
 void	R_DrawStretchPic (int32_t x, int32_t y, int32_t w, int32_t h, char *name, float alpha);
 // Psychospaz's scaled crosshair support
+void    R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, struct image_s *gl);
 void	R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *pic);
 void	R_InitChars (void);
 void	R_FlushChars (void);

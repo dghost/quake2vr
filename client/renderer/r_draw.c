@@ -209,6 +209,20 @@ image_t	*R_DrawFindPic (char *name)
 	return gl;
 }
 
+
+
+/*
+ =============
+ R_DrawGetImageSize
+ =============
+ */
+void R_DrawGetImageSize(int32_t *w, int32_t *h, image_t *gl)
+{
+    // Factor in replace scale, so tga/jpg replacements are scaled down...
+    *w = (int32_t)((float)gl->width * gl->replace_scale_w);
+    *h = (int32_t)((float)gl->height * gl->replace_scale_w);
+}
+
 /*
 =============
 R_DrawGetPicSize
@@ -224,11 +238,68 @@ void R_DrawGetPicSize (int32_t *w, int32_t *h, char *pic)
 		*w = *h = -1;
 		return;
 	}
-	// Factor in replace scale, so tga/jpg replacements are scaled down...
-	*w = (int32_t)((float)gl->width * gl->replace_scale_w);
-	*h = (int32_t)((float)gl->height * gl->replace_scale_w);
+    R_DrawGetImageSize(w, h, gl);
 }
 
+
+/*
+ =============
+ R_DrawStretchImage
+ =============
+ */
+void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl, float alpha)
+{
+    int32_t			i;
+    vec2_t		texCoord[4], verts[4];
+    
+    if (scrap_dirty)
+        Scrap_Upload ();
+    
+    // Psychospaz's transparent console support
+    if (gl->has_alpha || alpha < 1.0)
+    {
+        GL_Disable (GL_ALPHA_TEST);
+        GL_TexEnv (GL_MODULATE);
+        GL_Enable (GL_BLEND);
+        GL_DepthMask (false);
+    }
+    
+    GL_Bind (gl->texnum);
+    
+    Vector2Set(texCoord[0], gl->sl, gl->tl);
+    Vector2Set(texCoord[1], gl->sh, gl->tl);
+    Vector2Set(texCoord[2], gl->sh, gl->th);
+    Vector2Set(texCoord[3], gl->sl, gl->th);
+    
+    Vector2Set(verts[0], x, y);
+    Vector2Set(verts[1], x+w, y);
+    Vector2Set(verts[2], x+w, y+h);
+    Vector2Set(verts[3], x, y+h);
+    
+    rb_vertex = rb_index = 0;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+1;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+3;
+    for (i=0; i<4; i++) {
+        VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
+        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
+        VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, alpha);
+        rb_vertex++;
+    }
+    RB_RenderMeshGeneric (false);
+    
+    // Psychospaz's transparent console support
+    if (gl->has_alpha || alpha < 1.0)
+    {
+        GL_DepthMask (true);
+        GL_TexEnv (GL_REPLACE);
+        GL_Disable (GL_BLEND);
+        GL_Enable (GL_ALPHA_TEST);
+    }
+}
 
 /*
 =============
@@ -238,8 +309,6 @@ R_DrawStretchPic
 void R_DrawStretchPic (int32_t x, int32_t y, int32_t w, int32_t h, char *pic, float alpha)
 {
 	image_t		*gl;
-	int32_t			i;
-	vec2_t		texCoord[4], verts[4];
 
 	gl = R_DrawFindPic (pic);
 	if (!gl)
@@ -248,55 +317,77 @@ void R_DrawStretchPic (int32_t x, int32_t y, int32_t w, int32_t h, char *pic, fl
 		return;
 	}
 
-	if (scrap_dirty)
-		Scrap_Upload ();
-
-	// Psychospaz's transparent console support
-	if (gl->has_alpha || alpha < 1.0)
-	{
-		GL_Disable (GL_ALPHA_TEST);
-		GL_TexEnv (GL_MODULATE);
-		GL_Enable (GL_BLEND);
-		GL_DepthMask (false);
-	}
-
-	GL_Bind (gl->texnum);
-
-	Vector2Set(texCoord[0], gl->sl, gl->tl);
-	Vector2Set(texCoord[1], gl->sh, gl->tl);
-	Vector2Set(texCoord[2], gl->sh, gl->th);
-	Vector2Set(texCoord[3], gl->sl, gl->th);
-
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+w, y);
-	Vector2Set(verts[2], x+w, y+h);
-	Vector2Set(verts[3], x, y+h);
-
-	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
-	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, alpha);
-		rb_vertex++;
-	}
-	RB_RenderMeshGeneric (false);
-
-	// Psychospaz's transparent console support
-	if (gl->has_alpha || alpha < 1.0)
-	{
-		GL_DepthMask (true);
-		GL_TexEnv (GL_REPLACE);
-		GL_Disable (GL_BLEND);
-		GL_Enable (GL_ALPHA_TEST);
-	}
+    R_DrawStretchImage(x, y, w, h, gl, alpha);
 }
 
+
+/*
+ =============
+ R_DrawScaledPic
+ Psychospaz's code for drawing stretched crosshairs
+ =============
+ */
+void R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, image_t *gl)
+{
+    float	xoff, yoff;
+    float	scale_x, scale_y;
+    int32_t		i;
+    vec2_t	texCoord[4], verts[4];
+    
+    if (scrap_dirty)
+        Scrap_Upload ();
+    
+    // add alpha support
+    if (gl->has_alpha || alpha < 1.0)
+    {
+        GL_Disable (GL_ALPHA_TEST);
+        GL_TexEnv (GL_MODULATE);
+        GL_Enable (GL_BLEND);
+        GL_DepthMask (false);
+    }
+    
+    GL_Bind (gl->texnum);
+    
+    scale_x = scale_y = scale;
+    scale_x *= gl->replace_scale_w; // scale down if replacing a pcx image
+    scale_y *= gl->replace_scale_h; // scale down if replacing a pcx image
+    
+    Vector2Set(texCoord[0], gl->sl, gl->tl);
+    Vector2Set(texCoord[1], gl->sh, gl->tl);
+    Vector2Set(texCoord[2], gl->sh, gl->th);
+    Vector2Set(texCoord[3], gl->sl, gl->th);
+    
+    xoff = gl->width*scale_x-gl->width;
+    yoff = gl->height*scale_y-gl->height;
+    
+    Vector2Set(verts[0], x, y);
+    Vector2Set(verts[1], x+gl->width+xoff, y);
+    Vector2Set(verts[2], x+gl->width+xoff, y+gl->height+yoff);
+    Vector2Set(verts[3], x, y+gl->height+yoff);
+    
+    rb_vertex = rb_index = 0;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+1;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+3;
+    for (i=0; i<4; i++) {
+        VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
+        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
+        VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, alpha);
+        rb_vertex++;
+    }
+    RB_RenderMeshGeneric (false);
+    
+    if (gl->has_alpha || alpha < 1.0)
+    {
+        GL_DepthMask (true);
+        GL_TexEnv (GL_REPLACE);
+        GL_Disable (GL_BLEND);
+        GL_Enable (GL_ALPHA_TEST); // add alpha support
+    }
+}
 
 /*
 =============
@@ -306,12 +397,8 @@ Psychospaz's code for drawing stretched crosshairs
 */
 void R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *pic)
 {
-	float	xoff, yoff;
-	float	scale_x, scale_y;
 	image_t *gl;
-	int32_t		i;
-	vec2_t	texCoord[4], verts[4];
-
+    
 	gl = R_DrawFindPic (pic);
 
 	if (!gl) {
@@ -319,59 +406,48 @@ void R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *pic)
 		return;
 	}
 
-	if (scrap_dirty)
-		Scrap_Upload ();
+    R_DrawScaledImage(x,y,scale,alpha,gl);
+}
 
-	// add alpha support
-	if (gl->has_alpha || alpha < 1.0)
-	{
-		GL_Disable (GL_ALPHA_TEST);
-		GL_TexEnv (GL_MODULATE);
-		GL_Enable (GL_BLEND);
-		GL_DepthMask (false);
-	}
-
-	GL_Bind (gl->texnum);
-
-	scale_x = scale_y = scale;
-	scale_x *= gl->replace_scale_w; // scale down if replacing a pcx image
-	scale_y *= gl->replace_scale_h; // scale down if replacing a pcx image
-
-	Vector2Set(texCoord[0], gl->sl, gl->tl);
-	Vector2Set(texCoord[1], gl->sh, gl->tl);
-	Vector2Set(texCoord[2], gl->sh, gl->th);
-	Vector2Set(texCoord[3], gl->sl, gl->th);
-
-	xoff = gl->width*scale_x-gl->width;
-	yoff = gl->height*scale_y-gl->height;
-
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+gl->width+xoff, y);
-	Vector2Set(verts[2], x+gl->width+xoff, y+gl->height+yoff);
-	Vector2Set(verts[3], x, y+gl->height+yoff);
-
-	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
-	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, alpha);
-		rb_vertex++;
-	}
-	RB_RenderMeshGeneric (false);
-
-	if (gl->has_alpha || alpha < 1.0)
-	{
-		GL_DepthMask (true);
-		GL_TexEnv (GL_REPLACE);
-		GL_Disable (GL_BLEND);
-		GL_Enable (GL_ALPHA_TEST); // add alpha support
-	}
+/*
+ =============
+ R_DrawPic
+ =============
+ */
+void R_DrawImage (int32_t x, int32_t y, image_t *gl)
+{
+    int32_t		i;
+    vec2_t	texCoord[4], verts[4];
+    
+    if (scrap_dirty)
+        Scrap_Upload ();
+    
+    GL_Bind (gl->texnum);
+    
+    Vector2Set(texCoord[0], gl->sl, gl->tl);
+    Vector2Set(texCoord[1], gl->sh, gl->tl);
+    Vector2Set(texCoord[2], gl->sh, gl->th);
+    Vector2Set(texCoord[3], gl->sl, gl->th);
+    
+    Vector2Set(verts[0], x, y);
+    Vector2Set(verts[1], x+gl->width, y);
+    Vector2Set(verts[2], x+gl->width, y+gl->height);
+    Vector2Set(verts[3], x, y+gl->height);
+    
+    rb_vertex = rb_index = 0;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+1;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+0;
+    indexArray[rb_index++] = rb_vertex+2;
+    indexArray[rb_index++] = rb_vertex+3;
+    for (i=0; i<4; i++) {
+        VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
+        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
+        VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, 1.0);
+        rb_vertex++;
+    }
+    RB_RenderMeshGeneric (false);
 }
 
 
@@ -383,9 +459,7 @@ R_DrawPic
 void R_DrawPic (int32_t x, int32_t y, char *pic)
 {
 	image_t	*gl;
-	int32_t		i;
-	vec2_t	texCoord[4], verts[4];
-
+    
 	gl = R_DrawFindPic (pic);
 
 	if (!gl) {
@@ -393,35 +467,7 @@ void R_DrawPic (int32_t x, int32_t y, char *pic)
 		return;
 	}
 
-	if (scrap_dirty)
-		Scrap_Upload ();
-
-	GL_Bind (gl->texnum);
-
-	Vector2Set(texCoord[0], gl->sl, gl->tl);
-	Vector2Set(texCoord[1], gl->sh, gl->tl);
-	Vector2Set(texCoord[2], gl->sh, gl->th);
-	Vector2Set(texCoord[3], gl->sl, gl->th);
-
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+gl->width, y);
-	Vector2Set(verts[2], x+gl->width, y+gl->height);
-	Vector2Set(verts[3], x, y+gl->height);
-
-	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
-	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4(colorArray[rb_vertex], 1.0, 1.0, 1.0, 1.0);
-		rb_vertex++;
-	}
-	RB_RenderMeshGeneric (false);
+    R_DrawImage(x, y, gl);
 }
 
 /*

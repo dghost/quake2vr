@@ -904,9 +904,11 @@ Menu_DrawBanner
 void Menu_DrawBanner (char *name)
 {
 	int32_t w, h;
-
-	R_DrawGetPicSize (&w, &h, name );
-	SCR_DrawPic (SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-150, w, h, ALIGN_CENTER, name, 1.0);
+    struct image_s *img;
+    if ((img = R_DrawFindPic(name))) {
+        R_DrawGetImageSize(&w, &h,img);
+        SCR_DrawImage(SCREEN_WIDTH/2-w/2, SCREEN_HEIGHT/2-150, w, h, ALIGN_CENTER, img, 1.0);
+    }
 }
 
 
@@ -1271,22 +1273,23 @@ void UI_Draw_Cursor (void)
 	int32_t		w, h;
 	float	ofs_x, ofs_y;
 	float	scale = SCR_ScaledVideo(ui_cursor_scale->value); // 0.4
-	char	*cur_img = UI_MOUSECURSOR_PIC;
-
-	//get sizing vars
-	R_DrawGetPicSize( &w, &h, UI_MOUSECURSOR_PIC );
-	ofs_x = SCR_ScaledVideo(w) * ui_cursor_scale->value * 0.5;
-	ofs_y = SCR_ScaledVideo(h) * ui_cursor_scale->value * 0.5;
-	
-	R_DrawScaledPic (cursor.x - ofs_x, cursor.y - ofs_y, scale, 1.0f, cur_img);
+    struct image_s *cursor_img = R_DrawFindPic(UI_MOUSECURSOR_PIC);
+    //get sizing vars
+    if (cursor_img) {
+        R_DrawGetImageSize( &w, &h, cursor_img );
+        ofs_x = SCR_ScaledVideo(w) * ui_cursor_scale->value * 0.5;
+        ofs_y = SCR_ScaledVideo(h) * ui_cursor_scale->value * 0.5;
+        
+        R_DrawScaledImage (cursor.x - ofs_x, cursor.y - ofs_y, scale, 1.0f, cursor_img);
+    }
 }
 #else
 void UI_Draw_Cursor (void)
 {
 	float	alpha = 1, scale = SCR_ScaledVideo(0.66);
 	int32_t		w, h;
-	char	*overlay = NULL;
-	char	*cur_img = NULL;
+	struct image_s	*overlay = NULL;
+    struct image_s *cur_img = NULL;
 
 	if (m_drawfunc == M_Main_Draw)
 	{
@@ -1295,18 +1298,18 @@ void UI_Draw_Cursor (void)
 			if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 				|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_click.any";
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.any");
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 			else
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_hover.any";
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.any");
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 		}
 		else
-			cur_img = "/gfx/ui/cursors/m_cur_main.any";
-		overlay = "/gfx/ui/cursors/m_cur_over.any";
+			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.any");
+		overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
 	}
 	else
 	{
@@ -1314,51 +1317,40 @@ void UI_Draw_Cursor (void)
 		{
 			if (cursor.menuitemtype == MENUITEM_TEXT)
 			{
-				cur_img = "/gfx/ui/cursors/m_cur_text.any";
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_text.any");
 			}
 			else
 			{
 				if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 					|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 				{
-					cur_img = "/gfx/ui/cursors/m_cur_click.any";
+					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.any");
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
 				else
 				{
-					cur_img = "/gfx/ui/cursors/m_cur_hover.any";
+					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.any");
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
-				overlay = "/gfx/ui/cursors/m_cur_over.any";
+				overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
 			}
 		}
 		else
 		{
-			cur_img = "/gfx/ui/cursors/m_cur_main.any";
-			overlay = "/gfx/ui/cursors/m_cur_over.any";
+			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.any");
+			overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
 		}
 	}
 	
 	if (cur_img)
 	{
-		R_DrawGetPicSize( &w, &h, cur_img );
-		R_DrawScaledPic( cursor.x - scale*w/2, cursor.y - scale*h/2, scale, alpha, cur_img);
+		R_DrawGetImageSize( &w, &h, cur_img );
+		R_DrawScaledImage( cursor.x - scale*w/2, cursor.y - scale*h/2, scale, alpha, cur_img);
 
 		if (overlay) {
-			R_DrawGetPicSize( &w, &h, overlay );
-			R_DrawScaledPic( cursor.x - scale*w/2, cursor.y - scale*h/2, scale, 1, overlay);
+			R_DrawGetImageSize( &w, &h, overlay );
+			R_DrawScaledImage( cursor.x - scale*w/2, cursor.y - scale*h/2, scale, 1, overlay);
 		}
 	}
 }
 #endif
-
-/*void UI_Draw_Cursor (void)
-{
-	int32_t w,h;
-
-	//get sizing vars
-	R_DrawGetPicSize( &w, &h, "m_mouse_cursor" );
-	w = SCR_ScaledVideo(w)*0.5;
-	h = SCR_ScaledVideo(h)*0.5;
-	R_DrawStretchPic (cursor.x-w/2, cursor.y-h/2, w, h, "m_mouse_cursor", 1.0);
-}*/

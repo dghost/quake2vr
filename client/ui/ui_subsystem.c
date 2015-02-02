@@ -563,22 +563,22 @@ UI_Draw
 */
 void UI_Draw (void)
 {
+    struct image_s *background;
+    float alpha = menu_alpha->value;
+    
 	if (cls.key_dest != key_menu)
 		return;
 
-	// dim everything behind it down
-	if (!vr_enabled->value && (cl.cinematictime > 0 || cls.state == ca_disconnected))
-	{
-		if (R_DrawFindPic("/gfx/ui/menu_background.any"))
-			R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.any",1.0);
-		else
-			R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,255);
-	}
-	// ingame menu uses alpha
-	else if (R_DrawFindPic("/gfx/ui/menu_background.any"))
-		R_DrawStretchPic (0, 0, viddef.width, viddef.height, "/gfx/ui/menu_background.any", menu_alpha->value);
-	else
-		R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int32_t)(menu_alpha->value*255));
+    if (!vr_enabled->value && (cl.cinematictime > 0 || cls.state == ca_disconnected))
+    {
+        // dim everything behind it down
+        alpha = 1.0;
+    }
+    
+    if ((background = R_DrawFindPic("/gfx/ui/menu_background.any")))
+        R_DrawStretchImage (0, 0, viddef.width, viddef.height, background,alpha);
+    else
+        R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int) (alpha * 255));
 
 	// Knigthmare- added Psychospaz's mouse support
 	UI_RefreshCursorMenu();

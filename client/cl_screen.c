@@ -314,6 +314,20 @@ void SCR_DrawFill (float x, float y, float width, float height, scralign_t align
 	R_DrawFill (x, y, width, height, red, green, blue, alpha);
 }
 
+
+/*
+ ================
+ SCR_DrawPic
+ Coordinates are 640*480 virtual values
+ =================
+ */
+void SCR_DrawImage (float x, float y, float width, float height, scralign_t align, image_t *img, float alpha)
+{
+    SCR_AdjustFrom640 (&x, &y, &width, &height, align);
+    R_DrawStretchImage(x, y, width, height, img, alpha);
+}
+
+
 /*
 ================
 SCR_DrawPic
@@ -966,23 +980,20 @@ void SCR_DrawAlertMessagePicture (char *name, qboolean center, int32_t yOffset)
 	int32_t w, h;
 
 	//scale = SCR_VideoScale();
-
-	R_DrawGetPicSize (&w, &h, name);
-	if (w)
-	{
-		ratio = 35.0/(float)h;
-		h = 35;
-		w *= ratio;
-	}
-	else
-		return;
-
-	if (center)
-		SCR_DrawPic((SCREEN_WIDTH - w)*0.5, (SCREEN_HEIGHT - h)*0.5,
-				w, h, ALIGN_CENTER, name, 1.0);
-	else
-		SCR_DrawPic((SCREEN_WIDTH - w)*0.5, SCREEN_HEIGHT*0.5 + yOffset,
-				w, h, ALIGN_CENTER, name, 1.0);
+    image_t *img;
+    
+    if ((img = R_DrawFindPic(name))) {
+        R_DrawGetImageSize(&w, &h, img);
+        ratio = 35.0/(float)h;
+        h = 35;
+        w *= ratio;
+        if (center)
+            SCR_DrawImage((SCREEN_WIDTH - w)*0.5, (SCREEN_HEIGHT - h)*0.5,
+                          w, h, ALIGN_CENTER, img, 1.0);
+        else
+            SCR_DrawImage((SCREEN_WIDTH - w)*0.5, SCREEN_HEIGHT*0.5 + yOffset,
+                          w, h, ALIGN_CENTER, img, 1.0);
+    }
 }
 
 
@@ -994,6 +1005,7 @@ SCR_DrawPause
 void SCR_DrawPause (void)
 {
 	int32_t		w, h;
+    image_t *img;
 
 	if (!scr_showpause->value)		// turn off for screenshots
 		return;
@@ -1004,9 +1016,11 @@ void SCR_DrawPause (void)
 	// Knightmare- no need to draw when in menu
 	if (cls.key_dest == key_menu)
 		return;
+    if ((img = R_DrawFindPic("pause"))) {
 
-	R_DrawGetPicSize (&w, &h, "pause");
-	SCR_DrawPic ((SCREEN_WIDTH-w)*0.5, (SCREEN_HEIGHT-h)*0.5, w, h, ALIGN_CENTER, "pause", 1.0);
+	R_DrawGetImageSize (&w, &h, img);
+	SCR_DrawImage ((SCREEN_WIDTH-w)*0.5, (SCREEN_HEIGHT-h)*0.5, w, h, ALIGN_CENTER, img, 1.0);
+    }
 }
 
 

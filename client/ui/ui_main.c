@@ -95,7 +95,7 @@ void UI_DrawMainCursor (int32_t x, int32_t y, int32_t f)
 	char	cursorname[80];
 	static	qboolean cached;
 	int32_t		w,h;
-
+    struct image_s *cursor_frame = NULL;
 	if (!cached)
 	{
 		int32_t i;
@@ -108,8 +108,10 @@ void UI_DrawMainCursor (int32_t x, int32_t y, int32_t f)
 	}
 
 	Com_sprintf (cursorname, sizeof(cursorname), "m_cursor%d", f);
-	R_DrawGetPicSize (&w, &h, cursorname);
-	SCR_DrawPic (x, y, w, h, ALIGN_CENTER, cursorname, 1.0);
+    if ((cursor_frame = R_DrawFindPic(cursorname))) {
+        R_DrawGetImageSize (&w, &h, cursor_frame);
+        SCR_DrawImage (x, y, w, h, ALIGN_CENTER, cursor_frame, 1.0);
+    }
 }
 
 
@@ -193,32 +195,44 @@ void M_Main_Draw (void)
 	int32_t widest = -1;
 	int32_t totalheight = 0;
 	char litname[80];
-
+    struct image_s *img;
 	FindMenuCoords (&xoffset, &ystart, &totalheight, &widest);
 
 	for (i = 0; main_names[i] != 0; i++)
 		if (i != m_main_cursor) {
-			R_DrawGetPicSize (&w, &h, main_names[i]);
-			SCR_DrawPic (xoffset, (ystart + i*40+3), w, h, ALIGN_CENTER, main_names[i], 1.0);
+            struct image_s *img;
+            if ((img = R_DrawFindPic(main_names[i]))) {
+                R_DrawGetImageSize (&w, &h, img );
+                SCR_DrawImage (xoffset, (ystart + i*40+3), w, h, ALIGN_CENTER, img , 1.0);
+            }
 		}
 
 	strcpy (litname, main_names[m_main_cursor]);
 	strcat (litname, "_sel");
-	R_DrawGetPicSize (&w, &h, litname);
-	SCR_DrawPic (xoffset-1, (ystart + m_main_cursor*40+2), w+2, h+2, ALIGN_CENTER, litname, 1.0);
-
+    img = NULL;
+    if ((img = R_DrawFindPic(litname))) {
+        R_DrawGetImageSize (&w, &h, img);
+        SCR_DrawImage (xoffset-1, (ystart + m_main_cursor*40+2), w+2, h+2, ALIGN_CENTER, img, 1.0);
+    }
 	// Draw our nifty quad damage model as a cursor if it's loaded.
 	if (quadModel_loaded)
 		UI_DrawMainCursor3D (xoffset-27, ystart+(m_main_cursor*40+1));
 	else
 		UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (int32_t)(cls.realtime/100)%NUM_MAINMENU_CURSOR_FRAMES);
 
-	R_DrawGetPicSize (&w, &h, "m_main_plaque");
-	SCR_DrawPic (xoffset-(w/2+50), ystart, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
-	last_h = h;
+    img = NULL;
+    if ((img = R_DrawFindPic("m_main_plaque"))) {
+        R_DrawGetImageSize (&w, &h, img);
+        SCR_DrawImage (xoffset-(w/2+50), ystart, w, h, ALIGN_CENTER, img, 1.0);
+        last_h = h;
+    }
 
-	R_DrawGetPicSize (&w, &h, "m_main_logo");
-	SCR_DrawPic (xoffset-(w/2+50), ystart+last_h+20, w, h, ALIGN_CENTER, "m_main_logo", 1.0);
+    img = NULL;
+    if ((img = R_DrawFindPic("m_main_logo"))) {
+        R_DrawGetImageSize (&w, &h, img);
+        SCR_DrawImage (xoffset-(w/2+50), ystart+last_h+20, w, h, ALIGN_CENTER, img, 1.0);
+        last_h = h;
+    }
 }
 
 

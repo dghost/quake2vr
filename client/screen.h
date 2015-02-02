@@ -77,6 +77,7 @@ float	SCR_VideoScale (void);
 
 void	SCR_AdjustFrom640 (float *x, float *y, float *w, float *h, scralign_t align);
 void	SCR_DrawFill (float x, float y, float width, float height, scralign_t align, int32_t red, int32_t green, int32_t blue, int32_t alpha);
+void    SCR_DrawImage (float x, float y, float width, float height, scralign_t align, struct image_s *img, float alpha);
 void	SCR_DrawPic (float x, float y, float width, float height, scralign_t align, char *pic, float alpha);
 void	SCR_DrawChar (float x, float y, scralign_t align, int32_t num, int32_t red, int32_t green, int32_t blue, int32_t alpha, qboolean italic, qboolean last);
 void	SCR_DrawString (float x, float y, scralign_t align, const char *string, int32_t alpha);
