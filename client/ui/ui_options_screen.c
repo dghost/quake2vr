@@ -98,6 +98,7 @@ Crosshair loading
 
 #define MAX_CROSSHAIRS 100
 char **crosshair_names;
+struct image_s **crosshairs;
 int32_t	numcrosshairs;
 
 /*static void OldCrosshairFunc( void *unused )
@@ -163,6 +164,20 @@ qboolean isNumeric (char ch)
 	else return false;
 }
 
+struct image_s **PreloadCrosshairs(void)
+{
+    struct image_s **list;
+    int i;
+    list = malloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
+    memset(list, 0, sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
+    for (i = 1; i < numcrosshairs; i++)
+    {
+        list[i] = R_DrawFindPic(crosshair_names[i]);
+    }
+    return list;
+}
+
+
 char **SetCrosshairNames (void)
 {
 	char *curCrosshair;
@@ -173,7 +188,7 @@ char **SetCrosshairNames (void)
 
 	list = malloc( sizeof( char * ) * MAX_CROSSHAIRS+1 );
 	memset( list, 0, sizeof( char * ) * MAX_CROSSHAIRS+1 );
-
+    
 	list[0] = strdup("none"); //was default
 	ncrosshairnames = 1;
 
@@ -227,8 +242,7 @@ char **SetCrosshairNames (void)
 	sortCrosshairs (list, ncrosshairnames);
 
 	numcrosshairs = ncrosshairnames;
-
-	return list;		
+	return list;
 }
 
 //=======================================================================
@@ -275,6 +289,16 @@ static void ScreenResetDefaultsFunc ( void *unused )
 	ScreenSetMenuItemValues();
 }
 
+void Options_Screen_MenuBack (void *unused)
+{
+    FS_FreeFileList(crosshair_names,numcrosshairs);
+    if (crosshairs)
+        free(crosshairs);
+    
+    UI_PopMenu();
+}
+
+
 void Options_Screen_MenuInit ( void )
 {
 	static const char *yesno_names[] =
@@ -294,8 +318,10 @@ void Options_Screen_MenuInit ( void )
 	s_options_screen_header.generic.name	= "Screen";
 	s_options_screen_header.generic.x		= MENU_FONT_SIZE/2 * strlen(s_options_screen_header.generic.name);
 	s_options_screen_header.generic.y		= 0;
-
+    
 	crosshair_names = SetCrosshairNames ();
+    crosshairs = PreloadCrosshairs();
+    
 	s_options_screen_crosshair_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_screen_crosshair_box.generic.x				= 0;
 	s_options_screen_crosshair_box.generic.y				= y;
@@ -380,7 +406,7 @@ void Options_Screen_MenuInit ( void )
 	s_options_screen_back_action.generic.x				= MENU_FONT_SIZE;
 	s_options_screen_back_action.generic.y				= y+=2*MENU_LINE_SIZE;
 	s_options_screen_back_action.generic.name			= "back to options";
-	s_options_screen_back_action.generic.callback		= UI_BackMenu;
+	s_options_screen_back_action.generic.callback		= Options_Screen_MenuBack;
 
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_header );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_crosshair_box );
@@ -453,8 +479,8 @@ void DrawMenuCrosshair (void)
 	if (s_options_screen_crosshair_box.curvalue < 1)
 		return;
 
-	SCR_DrawPic (SCREEN_WIDTH*0.5-16, s_options_screen_menu.y + 44,
-					32, 32, ALIGN_CENTER, crosshair_names[s_options_screen_crosshair_box.curvalue], 1.0);
+	SCR_DrawImage (SCREEN_WIDTH*0.5-16, s_options_screen_menu.y + 44,
+					32, 32, ALIGN_CENTER, crosshairs[s_options_screen_crosshair_box.curvalue], 1.0);
 }
 
 void Options_Screen_MenuDraw (void)
@@ -468,7 +494,19 @@ void Options_Screen_MenuDraw (void)
 
 const char *Options_Screen_MenuKey( int32_t key )
 {
-	return Default_MenuKey( &s_options_screen_menu, key );
+    switch ( key )
+    {
+        case K_GAMEPAD_START:
+            Options_Screen_MenuBack(NULL);
+            return Default_MenuKey( &s_options_screen_menu, key );         
+        case K_GAMEPAD_B:
+        case K_GAMEPAD_BACK:
+        case K_ESCAPE:
+            Options_Screen_MenuBack(NULL);
+            return menu_out_sound;
+        default:
+            return Default_MenuKey( &s_options_screen_menu, key );
+    }
 }
 
 void M_Menu_Options_Screen_f (void)
