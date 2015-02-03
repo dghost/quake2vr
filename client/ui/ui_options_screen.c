@@ -111,7 +111,7 @@ static void CrosshairFunc( void *unused )
 	if (s_options_screen_crosshair_box.curvalue == 0) {
 		Cvar_SetValue( "crosshair", 0); return; }
 	else
-		Cvar_SetValue( "crosshair", atoi(strdup(crosshair_names[s_options_screen_crosshair_box.curvalue]+2)) );
+		Cvar_SetValue( "crosshair", atoi((char *)(crosshair_names[s_options_screen_crosshair_box.curvalue]+2)) );
 }
 
 void SetCrosshairCursor (void)
@@ -145,7 +145,7 @@ void sortCrosshairs (char **list, int32_t len)
 		for (j=0; j<i; j++)
 		{
 			if (!list[j]) break;
-			if ( atoi(strdup(list[j]+2)) > atoi(strdup(list[j+1]+2)) )
+			if ( atoi((char *)(list[j]+2)) > atoi((char *)(list[j+1]+2)) )
 			{
 				temp = list[j];
 				list[j] = list[j+1];
@@ -210,7 +210,7 @@ char **SetCrosshairNames (void)
             // filename must be chxxx
             if (strncmp(p, "ch", 2))
                 continue;
-            namelen = strlen(strdup(p));
+            namelen = strlen(p);
             if (namelen < 7 || namelen > 9)
                 continue;
             if (!isNumeric(p[2]))
