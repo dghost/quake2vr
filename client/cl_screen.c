@@ -1948,7 +1948,9 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 				}
 				if (cl.configstrings[OLD_CS_IMAGES+value])
 				{
-                    R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
+                    if (cl.image_precache[value]) {
+                        R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
+                    }
 				}
 			}
 			else
@@ -1961,7 +1963,9 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 				}
 				if (cl.configstrings[CS_IMAGES+value])
 				{
-					R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
+                    if (cl.image_precache[value]) {
+                        R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
+                    }
 				}
 			}
 			//end Knightmare
