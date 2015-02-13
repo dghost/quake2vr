@@ -280,8 +280,7 @@ void UI_LoadArenas (void)
 
 					for (j=0; j<NUM_MAPTYPES; j++)
 						if (type_supported[j]) {
-							ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = malloc(strlen( scratch ) + 1);
-							strcpy(ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]], scratch);
+							ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = strdup( scratch );
 							ui_svr_arena_nummaps[j]++;
 						}
 
@@ -350,46 +349,43 @@ void UI_LoadMapList (void)
 
 	s = buffer;
 
-	i = 0;
-	while (i < length)
+    for (i = 0; i < length; i++)
 	{
-		if (s[i] == '\r')
-			ui_svr_listfile_nummaps++;
-		i++;
-	}
+		if (s[i] == '\n')
+            ui_svr_listfile_nummaps++;
+    }
+    
+    if (ui_svr_listfile_nummaps > 0)
+    {
+        ui_svr_listfile_mapnames = malloc( sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ) );
+        memset( ui_svr_listfile_mapnames, 0, sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ) );
+        
+        for (i = 0; i < ui_svr_listfile_nummaps; i++)
+        {
+            char	shortname[MAX_TOKEN_CHARS];
+            char	*longname;
+            char	scratch[2 * MAX_TOKEN_CHARS + 2];
+            
+            strcpy(shortname,COM_Parse( &s ));
+            longname = COM_Parse(&s);
+            Com_sprintf( scratch, sizeof( scratch ), "%s\n%s", longname, shortname );
 
-	if (ui_svr_listfile_nummaps == 0)
-	{	// hack in a default map list
-		ui_svr_listfile_nummaps = 1;
-		buffer = "base1 \"Outer Base\"\n";
-	}
-
-	ui_svr_listfile_mapnames = malloc( sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ) );
-	memset( ui_svr_listfile_mapnames, 0, sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ) );
-
-	s = buffer;
-
-	for (i = 0; i < ui_svr_listfile_nummaps; i++)
-	{
-		char	shortname[MAX_TOKEN_CHARS];
-		char	longname[MAX_TOKEN_CHARS];
-		char	scratch[200];
-
-		strcpy( shortname, COM_Parse( &s ) );
-		strcpy( longname, COM_Parse( &s ) );
-		Com_sprintf( scratch, sizeof( scratch ), "%s\n%s", longname, shortname );
-		ui_svr_listfile_mapnames[i] = malloc( strlen( scratch ) + 1 );
-		strcpy( ui_svr_listfile_mapnames[i], scratch );
-	}
-	ui_svr_listfile_mapnames[ui_svr_listfile_nummaps] = 0;
-
-	if ( fp != 0 )
-	{
-		fp = 0;
-		free( buffer );
-	}
-	else
-		FS_FreeFile( buffer );
+            ui_svr_listfile_mapnames[i] = strdup( scratch );
+        }
+    } else {
+        ui_svr_listfile_mapnames = malloc( sizeof( char * ) * ( 2 ) );
+        memset( ui_svr_listfile_mapnames, 0, sizeof( char * ) * ( 2) );
+        ui_svr_listfile_nummaps = 1;
+        ui_svr_listfile_mapnames[0] = strdup("\"Outer Base\"\nbase1");
+    }
+    
+    if ( fp != 0 )
+    {
+        fp = 0;
+        free( buffer );
+    }
+    else
+        FS_FreeFile( buffer );
 
 	UI_LoadArenas ();
 
