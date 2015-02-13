@@ -214,7 +214,6 @@ UI_LoadArenas
 */
 void UI_LoadArenas (void)
 {
-	char		*p, *s, *s2, *tok, *tok2;
 	char		**arenafiles;
 	char		**tmplist = 0;
 	int32_t			i, j, narenas = 0, narenanames = 0;
@@ -242,6 +241,7 @@ void UI_LoadArenas (void)
 	{
 		for (i=0; i<narenas && narenanames<MAX_ARENAS; i++)
 		{
+            char *p;
 			if (!arenafiles || !arenafiles[i])
 				continue;
 
@@ -258,28 +258,25 @@ void UI_LoadArenas (void)
 				char	scratch[200];
 				if (UI_ParseArenaFromFile (p, shortname, longname, gametypes))
 				{
+                    char *s = gametypes;
 					Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
 					
 					for (j=0; j<NUM_MAPTYPES; j++)
 						type_supported[j] = false;
-					s = gametypes;
-					tok = strdup(COM_Parse (&s));
+                    
 					while (s != NULL)
 					{
+                        char *tok = COM_Parse (&s);
 						for (j=0; j<NUM_MAPTYPES; j++)
 						{
-							s2 = gametype_names[j].tokens;
-							tok2 = COM_Parse (&s2);
+							char *s2 = gametype_names[j].tokens;
 							while (s2 != NULL) {
+                                char *tok2 = COM_Parse (&s2);
 								if ( !Q_strcasecmp(tok, tok2) )
 									type_supported[j] = true;
-								tok2 = COM_Parse (&s2);
 							}
 						}
-						if (tok)	free (tok);
-						tok = strdup(COM_Parse(&s));
 					}
-					if (tok)	free (tok);
 
 					for (j=0; j<NUM_MAPTYPES; j++)
 						if (type_supported[j]) {
