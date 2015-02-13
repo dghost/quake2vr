@@ -1946,11 +1946,9 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 					Com_Printf (S_COLOR_YELLOW"Warning: Pic >= MAX_IMAGES\n");
 					value = OLD_MAX_IMAGES-1;
 				}
-				if (cl.configstrings[OLD_CS_IMAGES+value])
+				if (cl.configstrings[OLD_CS_IMAGES+value] && cl.image_precache[value])
 				{
-                    if (cl.image_precache[value]) {
-                        R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
-                    }
+                    R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
 				}
 			}
 			else
@@ -1961,11 +1959,10 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 					Com_Printf (S_COLOR_YELLOW"Warning: Pic >= MAX_IMAGES\n");
 					value = MAX_IMAGES-1;
 				}
-				if (cl.configstrings[CS_IMAGES+value])
+				if (cl.configstrings[CS_IMAGES+value] && cl.image_precache[value])
 				{
-                    if (cl.image_precache[value]) {
-                        R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
-                    }
+                    R_DrawScaledImage (x, y, getScreenScale(), hud_alpha->value, cl.image_precache[value]);
+
 				}
 			}
 			//end Knightmare
