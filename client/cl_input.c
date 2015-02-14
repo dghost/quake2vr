@@ -547,13 +547,13 @@ void VR_Move (usercmd_t *cmd)
 
 				diffYaw = view[YAW] - predAngles[YAW];
 
-				if (abs(diffYaw) > deadzoneYaw)
+				if (fabsf(diffYaw) > deadzoneYaw)
 				{
 					predAngles[YAW] += orientationDelta[YAW];
 					view[YAW] += cl.in_delta[YAW];
 					diffYaw = view[YAW] - predAngles[YAW];
 
-					if (abs(diffYaw) > deadzoneYaw)
+					if (fabsf(diffYaw) > deadzoneYaw)
 					{
 						if (diffYaw > 0.0)
 							predAngles[YAW] = view[YAW] - deadzoneYaw;

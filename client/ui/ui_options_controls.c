@@ -90,7 +90,7 @@ static void GamePadViewFunc ( void *unused )
 	temp = s_options_controls_gamepad_pitch_sensitivity_slider.curvalue - 8.0f;
 	if (temp < 0)
 	{
-		temp = 4.0f / (abs(temp) + 4.0f);
+		temp = 4.0f / (fabsf(temp) + 4.0f);
 	} else if (temp > 0)
 	{
 		temp = (temp + 4.0f) / 4.0f;
@@ -105,7 +105,7 @@ static void GamePadViewFunc ( void *unused )
 
 	if (temp < 0)
 	{
-		temp = 4.0f / (abs(temp) + 4.0f);
+		temp = 4.0f / (fabsf(temp) + 4.0f);
 	} else if (temp > 0)
 	{
 		temp = (temp + 4.0f) / 4.0f;

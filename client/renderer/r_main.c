@@ -568,7 +568,7 @@ void VR_DrawCrosshair()
 
 		// calculate coordinates for hud
 
-		depth = abs(DotProduct(forward,delta));
+		depth = fabsf(DotProduct(forward,delta));
 		x = tanf(scaledSize * (M_PI/180.0f) * 0.5) * depth;
 		y = x;
 

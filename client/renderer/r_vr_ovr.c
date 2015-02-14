@@ -379,9 +379,9 @@ void OVR_Present(qboolean loading)
 				out[i] = fin[i][0]*pos[0] + fin[i][1]*pos[1] + fin[i][2]*pos[2] + fin[i][3]*pos[3];
 			}
 
-			xBound = (fabsf(out[0]) - 0.6) * 6.25;
-			yBound = (fabsf(out[1]) - 0.45) * 6.25;
-			zBound = (fabsf(out[2] - 0.5) - 0.5) * 10.0;
+			xBound = (fabsf(out[0]) - 0.6f) * 6.25f;
+			yBound = (fabsf(out[1]) - 0.45f) * 6.25f;
+			zBound = (fabsf(out[2] - 0.5f) - 0.5f) * 10.0f;
 
 			yawDiff = clamp(yawDiff,0.0,1.0);
 			xBound = clamp(xBound,0.0,1.0);

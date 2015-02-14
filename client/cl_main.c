@@ -1681,7 +1681,7 @@ void CL_Frame (int32_t msec)
 	static int32_t	extratime;
 	static int32_t  lasttimecalled;
 	static float	averageFrameTime;
-	const float alpha = 2.0 / (abs(r_lateframe_decay->value + 1.0));
+	const float alpha = 2.0 / (fabsf(r_lateframe_decay->value + 1.0f));
 	if (dedicated->value)
 		return;
 
@@ -1713,7 +1713,7 @@ void CL_Frame (int32_t msec)
 				lastSyncTime = Sys_Milliseconds();
 				lastTimeWaited = timeWaited;
 			}
-			if (abs(r_fencesync->value) == 2)
+			if (abs((int)r_fencesync->value) == 2)
 			{
 				lateFrameDelay = floor(averageFrameTime * r_lateframe_ratio->value);
 				if (Sys_Milliseconds() < (lastSyncTime + lateFrameDelay))
@@ -1739,7 +1739,7 @@ void CL_Frame (int32_t msec)
 		}
 	}
 
-	if ( !scr_draw_loading && (extratime <= abs(r_lateframe_threshold->value)))
+	if ( !scr_draw_loading && (extratime <= fabsf(r_lateframe_threshold->value)))
 		averageFrameTime = alpha * extratime + (1.0f - alpha) * averageFrameTime;
 	else 
 		averageFrameTime = 0.0f;

@@ -389,7 +389,7 @@ void GL_UpdateSwapInterval (void)
 	{
 		int32_t sync = 0;
 		int32_t tear = (r_adaptivevsync->value ? -1 : 1);
-		Cvar_SetInteger("r_swapinterval", abs(r_swapinterval->value));
+		Cvar_SetInteger("r_swapinterval", abs((int)r_swapinterval->value));
 		r_swapinterval->modified = false;
 		
 		sync = r_swapinterval->value;

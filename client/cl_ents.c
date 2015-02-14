@@ -463,9 +463,9 @@ void CL_DeltaEntity (frame_t *frame, int32_t newnum, entity_state_t *old, int32_
 		|| state->modelindex8 != ent->current.modelindex8
 #endif
 #endif
-		|| abs(state->origin[0] - ent->current.origin[0]) > 512
-		|| abs(state->origin[1] - ent->current.origin[1]) > 512
-		|| abs(state->origin[2] - ent->current.origin[2]) > 512
+		|| fabsf(state->origin[0] - ent->current.origin[0]) > 512
+		|| fabsf(state->origin[1] - ent->current.origin[1]) > 512
+		|| fabsf(state->origin[2] - ent->current.origin[2]) > 512
 		|| state->event == EV_PLAYER_TELEPORT
 		|| state->event == EV_OTHER_TELEPORT
 		)
@@ -2193,7 +2193,7 @@ void CL_CalcViewValues (void)
 	ops = &oldframe->playerstate;
 
 	// see if the player entity was teleported this frame
-	if (fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8
+	if (abs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8
 		|| abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8
 		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
 		ops = ps;		// don't interpolate
