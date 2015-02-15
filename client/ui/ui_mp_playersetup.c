@@ -249,7 +249,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             if (!nskins)
                 continue;
             
-            skinnames = Z_Malloc(sizeof(char *) * (nskins+1));
+            skinnames = Z_TagMalloc(sizeof(char *) * (nskins+1), ZONE_MENU);
             memset(skinnames, 0, sizeof(char *) * (nskins+1));
             
             // copy the valid skins
@@ -269,7 +269,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
                         if ( strrchr(scratch, '.') )
                             *strrchr(scratch, '.') = 0;
                         
-                        skinnames[s] = Z_Strdup(scratch);
+                        skinnames[s] = Z_TagStrdup(scratch, ZONE_MENU);
                         s++;
                     }
                 }

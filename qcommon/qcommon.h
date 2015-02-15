@@ -138,8 +138,6 @@ void COM_AddParm (char *parm);
 void COM_Init (void);
 void COM_InitArgv (int32_t argc, char **argv);
 
-char *CopyString (char *in);
-
 void Q_strncpyz (char *dst, const char *src, int32_t dstSize);
 void Q_strncatz (char *dst, const char *src, int32_t dstSize);
 

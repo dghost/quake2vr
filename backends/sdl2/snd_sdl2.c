@@ -820,7 +820,7 @@ SDL_Cache(sfx_t *sfx, wavinfo_t *info, byte *data)
 	}
 
 	len = len * info->width * info->channels;
-	sc = sfx->cache = Z_Malloc(len + sizeof(sfxcache_t));
+	sc = sfx->cache = Z_TagMalloc(len + sizeof(sfxcache_t), ZONE_AUDIO);
 
 	if (!sc)
 	{

@@ -1259,17 +1259,6 @@ int32_t	memsearch (byte *start, int32_t count, int32_t search)
 	return -1;
 }
 
-
-char *CopyString (char *in)
-{
-	char	*out;
-	
-	out = Z_Malloc (strlen(in)+1);
-	strcpy (out, in);
-	return out;
-}
-
-
 void Info_Print (char *s)
 {
 	char	key[512];

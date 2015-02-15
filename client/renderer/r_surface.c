@@ -1991,7 +1991,7 @@ static void LM_InitBlock (void)
 #ifdef BATCH_LM_UPDATES
 	// alloc lightmap update buffer if needed
 	if (!gl_lms.lightmap_update[gl_lms.current_lightmap_texture]) {
-		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_Malloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES);
+		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, ZONE_CLIENT);
 	}
 #endif	// BATCH_LM_UPDATES
 }
@@ -2301,7 +2301,7 @@ void R_BeginBuildingLightmaps (model_t *m)
 #ifdef BATCH_LM_UPDATES
 	// alloc lightmap update buffer if needed
 	if (!gl_lms.lightmap_update[gl_lms.current_lightmap_texture]) {
-		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_Malloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES);
+		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, ZONE_CLIENT);
 	}
 #endif	// BATCH_LM_UPDATES
 

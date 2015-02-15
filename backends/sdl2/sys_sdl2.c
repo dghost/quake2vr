@@ -657,7 +657,6 @@ int32_t main(int32_t argc, char *argv[])
 	nostdout = Cvar_Get("nostdout", "0", 0);
 	if (!nostdout->value) {
 		fcntl(0, F_SETFL, fcntl (0, F_GETFL, 0) | FNDELAY);
-//		printf ("Linux Quake -- Version %0.3f\n", LINUX_VERSION);
 	}
 #endif
     /* main window message loop */

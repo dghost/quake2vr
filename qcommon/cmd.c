@@ -125,7 +125,7 @@ void Cbuf_InsertText (char *text)
 	templen = cmd_text.cursize;
 	if (templen)
 	{
-		temp = Z_Malloc (templen);
+		temp = Z_TagMalloc (templen, ZONE_SYSTEM);
 		memcpy (temp, cmd_text.data, templen);
 		SZ_Clear (&cmd_text);
 	}
@@ -318,7 +318,7 @@ qboolean Cbuf_AddLateCommands (void)
 	if (!s)
 		return false;
 		
-	text = Z_Malloc (s+1);
+	text = Z_TagMalloc (s+1, ZONE_SYSTEM);
 	text[0] = 0;
 	for (i=1 ; i<argc ; i++)
 	{
@@ -328,7 +328,7 @@ qboolean Cbuf_AddLateCommands (void)
 	}
 	
 // pull out the commands
-	build = Z_Malloc (s+1);
+	build = Z_TagMalloc (s+1, ZONE_SYSTEM);
 	build[0] = 0;
 	
 	for (i=0 ; i<s-1 ; i++)
@@ -395,7 +395,7 @@ void Cmd_Exec_f (void)
 	Com_Printf ("execing %s\n",Cmd_Argv(1));
 	
 	// the file doesn't have a trailing 0, so we need to copy it off
-	f2 = Z_Malloc(len+2); // Echon fix- was len+1
+	f2 = Z_TagMalloc(len+2, ZONE_SYSTEM); // Echon fix- was len+1
 	memcpy (f2, f, len);
 	f2[len] = '\n';  // Echon fix added
 	f2[len+1] = '\0'; // Echon fix- was len, = 0
@@ -464,7 +464,7 @@ void Cmd_Alias_f (void)
 
 	if (!a)
 	{
-		a = Z_Malloc (sizeof(cmdalias_t));
+		a = Z_TagMalloc (sizeof(cmdalias_t), ZONE_SYSTEM);
 		a->next = cmd_alias;
 		cmd_alias = a;
 	}
@@ -481,7 +481,7 @@ void Cmd_Alias_f (void)
 	}
 	strcat (cmd, "\n");
 	
-	a->value = CopyString (cmd);
+	a->value = Z_TagStrdup (cmd, ZONE_SYSTEM);
 }
 
 /*
@@ -685,7 +685,7 @@ void Cmd_TokenizeString (char *text, qboolean macroExpand)
 
 		if (cmd_argc < MAX_STRING_TOKENS)
 		{
-			cmd_argv[cmd_argc] = Z_Malloc (strlen(com_token)+1);
+			cmd_argv[cmd_argc] = Z_TagMalloc (strlen(com_token)+1, ZONE_SYSTEM);
 			strcpy (cmd_argv[cmd_argc], com_token);
 			cmd_argc++;
 		}
@@ -720,7 +720,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 		}
 	}
 
-	cmd = Z_Malloc (sizeof(cmd_function_t));
+	cmd = Z_TagMalloc (sizeof(cmd_function_t), ZONE_SYSTEM);
 	cmd->name = cmd_name;
 	cmd->function = function;
 	cmd->next = cmd_functions;

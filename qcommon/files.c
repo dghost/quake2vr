@@ -1108,7 +1108,7 @@ int32_t FS_LoadFile (char *path, void **buffer)
 		FS_FCloseFile(f);
 		return size;
 	}
-	buf = Z_Malloc(size);
+	buf = Z_TagMalloc(size, ZONE_SYSTEM);
 	*buffer = buf;
 
 	FS_Read(buf, size, f);
@@ -1243,15 +1243,15 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 		Com_Error(ERR_FATAL, "FS_LoadPAK: %s has %i files", packPath, numFiles);
 	}
 
-	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
 
 	fseek(handle, header.dirofs, SEEK_SET);
 	fread(info, 1, header.dirlen, handle);
 
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
-	sortIndices = Z_Malloc(numFiles * sizeof(int32_t));
-	sortHashes = Z_Malloc(numFiles * sizeof(int32_t));
+	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
+	sortHashes = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
 	nameHashes = sortHashes;
 	for (i = 0; i < numFiles; i++)
 	{
@@ -1289,7 +1289,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	}
 #endif	// BINARY_PACK_SEARCH
 
-	pack = Z_Malloc(sizeof(fsPack_t));
+	pack = Z_TagMalloc(sizeof(fsPack_t), ZONE_SYSTEM);
 	strcpy(pack->name, packPath);
 	pack->pak = handle;
 	pack->pk3 = NULL;
@@ -1315,7 +1315,7 @@ void FS_AddPAKFile (const char *packPath)
     pack = FS_LoadPAK (packPath);
     if (!pack)
         return;
-    search = Z_Malloc (sizeof(fsSearchPath_t));
+    search = Z_TagMalloc (sizeof(fsSearchPath_t), ZONE_SYSTEM);
     search->pack = pack;
     search->next = fs_searchPaths;
     fs_searchPaths = search;
@@ -1363,13 +1363,13 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		unzClose(handle);
 		Com_Error(ERR_FATAL, "FS_LoadPK3: %s has %i files", packPath, numFiles);
 	}
-	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
 
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
-	tmpFiles = Z_Malloc(numFiles * sizeof(fsPackFile_t));
-	sortIndices = Z_Malloc(numFiles * sizeof(int32_t));
-	sortHashes = Z_Malloc(numFiles * sizeof(int32_t));
+	tmpFiles = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
+	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
+	sortHashes = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
 	nameHashes = sortHashes;	
 
 	// Parse the directory
@@ -1426,7 +1426,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	}
 #endif	// BINARY_PACK_SEARCH
 
-	pack = Z_Malloc(sizeof(fsPack_t));
+	pack = Z_TagMalloc(sizeof(fsPack_t), ZONE_SYSTEM);
 	strcpy(pack->name, packPath);
 	pack->pak = NULL;
 	pack->pk3 = handle;
@@ -1452,7 +1452,7 @@ void FS_AddPK3File (const char *packPath)
     pack = FS_LoadPK3 (packPath);
     if (!pack)
         return;
-    search = Z_Malloc (sizeof(fsSearchPath_t));
+    search = Z_TagMalloc (sizeof(fsSearchPath_t), ZONE_SYSTEM);
     search->pack = pack;
     search->next = fs_searchPaths;
     fs_searchPaths = search;
@@ -1487,7 +1487,7 @@ void FS_AddGameDirectory (const char *dir)
 	//
 	// Add the directory to the search path
 	//
-	search = Z_Malloc(sizeof(fsSearchPath_t));
+	search = Z_TagMalloc(sizeof(fsSearchPath_t), ZONE_SYSTEM);
 	strcpy(search->path, dir);
 	search->path[sizeof(search->path)-1] = 0;
 	search->next = fs_searchPaths;
@@ -1892,19 +1892,19 @@ void FS_Link_f (void)
 				Z_Free (l);
 				return;
 			}
-			l->to = CopyString (Cmd_Argv(2));
+			l->to = Z_TagStrdup (Cmd_Argv(2), ZONE_SYSTEM);
 			return;
 		}
 		prev = &l->next;
 	}
 
 	// create a new link
-	l = Z_Malloc(sizeof(*l));
+	l = Z_TagMalloc(sizeof(*l), ZONE_SYSTEM);
 	l->next = fs_links;
 	fs_links = l;
-	l->from = CopyString(Cmd_Argv(1));
+	l->from = Z_TagStrdup(Cmd_Argv(1), ZONE_SYSTEM);
 	l->length = strlen(l->from);
-	l->to = CopyString(Cmd_Argv(2));
+	l->to = Z_TagStrdup(Cmd_Argv(2), ZONE_SYSTEM);
 }
 
 
