@@ -89,8 +89,8 @@ Font loading
 */
 cvar_t *con_font;
 #define MAX_FONTS 32
-char **font_names;
-int32_t	numfonts;
+static char **font_names = NULL;
+int32_t	numfonts = 0;
 
 static void FontSizeFunc( void *unused )
 {
@@ -122,27 +122,32 @@ void SetFontCursor (void)
 }
 
 
-void insertFont (char **list, char *insert, int32_t len )
+int32_t insertFont (char **list, char *insert, int32_t len )
 {
 	int32_t i, j;
-	if (!list) return;
-
+	if (!list || !(Q_strcasecmp(list[0],insert))) return 0;
+    
 	//i=1 so default stays first!
 	for (i=1; i<len; i++)
 	{
+        int32_t res = 0;
 		if (!list[i])
 			break;
-
-		if (strcmp( list[i], insert ))
+        res = Q_strcasecmp(list[i], insert);
+        Com_Printf("%s %s %i\n", list[i], insert, res);
+        if (res > 0)
 		{
 			for (j=len; j>i ;j--)
 				list[j] = list[j-1];
 
 			list[i] = strdup(insert);
-			return;
-		}
+			return 1;
+        } else if (res == 0) {
+            return 0;
+        }
 	}
 	list[len] = strdup(insert);
+    return 1;
 }
 
 char **SetFontNames (void)
@@ -181,9 +186,8 @@ char **SetFontNames (void)
 
 			curFont = p;
 
-			if (!FS_ItemInList(curFont, nfontnames, list))
+			if (insertFont(list, curFont,nfontnames))
 			{
-				insertFont(list, curFont,nfontnames);
 				nfontnames++;
 			}
 			
@@ -280,7 +284,8 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_menumouse_slider.maxvalue			= 8;
 	s_options_interface_menumouse_slider.generic.statusbar	= "changes sensitivity of mouse in menus";
 	*/
-	font_names = SetFontNames ();
+    if (!font_names)
+        font_names = SetFontNames ();
 	s_options_interface_font_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_interface_font_box.generic.x					= 0;
 	s_options_interface_font_box.generic.y					= y;
@@ -383,8 +388,21 @@ const char *Options_Interface_MenuKey( int32_t key )
 	return Default_MenuKey( &s_options_interface_menu, key );
 }
 
+void Options_Interface_Teardown (void) {
+    if (font_names) {
+        int i;
+        for (i=0;i < numfonts; i++)
+        {
+            free(font_names[i]);
+            font_names[i] = NULL;
+        }
+        free(font_names);
+        font_names = NULL;
+    }
+}
+
 void M_Menu_Options_Interface_f (void)
 {
 	Options_Interface_MenuInit();
-	UI_PushMenu ( Options_Interface_MenuDraw, Options_Interface_MenuKey, NULL );
+	UI_PushMenu ( Options_Interface_MenuDraw, Options_Interface_MenuKey, Options_Interface_Teardown );
 }
