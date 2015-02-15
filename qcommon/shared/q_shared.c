@@ -1665,8 +1665,8 @@ int32_t Q_stricmp (char *s1, char *s2)
 int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
 {
 	int32_t		c1, c2;
-	
-	do
+
+    do
 	{
 		c1 = *s1++;
 		c2 = *s2++;
@@ -1680,12 +1680,14 @@ int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
 				c1 -= ('a' - 'A');
 			if (c2 >= 'a' && c2 <= 'z')
 				c2 -= ('a' - 'A');
-			if (c1 != c2)
-				return -1;		// strings not equal
 		}
-	} while (c1);
+	} while ((c1 && c2) && (c1 == c2));
 	
-	return 0;		// strings are equal
+    if (c1 == c2)
+        return 0;		// strings are equal
+    else
+        return ((c1 > c2) ? 1 : -1);		// strings not equal
+
 }
 
 int32_t Q_strcasecmp (char *s1, char *s2)
