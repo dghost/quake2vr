@@ -134,19 +134,19 @@ int32_t insertFont (char **list, char *insert, int32_t len )
 		if (!list[i])
 			break;
         res = Q_strcasecmp(list[i], insert);
-        Com_Printf("%s %s %i\n", list[i], insert, res);
+        
         if (res > 0)
 		{
 			for (j=len; j>i ;j--)
 				list[j] = list[j-1];
 
-			list[i] = strdup(insert);
+			list[i] = Z_Strdup(insert);
 			return 1;
         } else if (res == 0) {
             return 0;
         }
 	}
-	list[len] = strdup(insert);
+	list[len] = Z_Strdup(insert);
     return 1;
 }
 
@@ -158,10 +158,10 @@ char **SetFontNames (void)
 	char **fontfiles = NULL;
 	int32_t i;//, j;
 
-	list = malloc( sizeof( char * ) * MAX_FONTS );
+	list = Z_Malloc( sizeof( char * ) * MAX_FONTS );
 	memset( list, 0, sizeof( char * ) * MAX_FONTS );
 
-	list[0] = strdup("default");
+	list[0] = Z_Strdup("default");
     nfontnames = 1;
 
     if ((fontfiles = FS_ListFilesWithPaks("fonts/*.*", &nfonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))){
@@ -393,10 +393,10 @@ void Options_Interface_Teardown (void) {
         int i;
         for (i=0;i < numfonts; i++)
         {
-            free(font_names[i]);
+            Z_Free(font_names[i]);
             font_names[i] = NULL;
         }
-        free(font_names);
+        Z_Free(font_names);
         font_names = NULL;
     }
 }
