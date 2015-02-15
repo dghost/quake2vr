@@ -317,5 +317,5 @@ const char *Options_Effects_MenuKey( int32_t key )
 void M_Menu_Options_Effects_f (void)
 {
 	Options_Effects_MenuInit();
-	UI_PushMenu ( Options_Effects_MenuDraw, Options_Effects_MenuKey );
+	UI_PushMenu ( Options_Effects_MenuDraw, Options_Effects_MenuKey, NULL );
 }

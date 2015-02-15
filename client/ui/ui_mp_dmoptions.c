@@ -531,5 +531,5 @@ const char *DMOptions_MenuKey( int32_t key )
 void M_Menu_DMOptions_f (void)
 {
 	DMOptions_MenuInit();
-	UI_PushMenu( DMOptions_MenuDraw, DMOptions_MenuKey );
+	UI_PushMenu( DMOptions_MenuDraw, DMOptions_MenuKey, NULL );
 }

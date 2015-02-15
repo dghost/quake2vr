@@ -349,13 +349,6 @@ void PConfigAccept (void)
 	}
 }
 
-static void BackCallback (void *unused)
-{
-	PConfigAccept();
-	UI_BackMenu(NULL);
-}
-
-
 qboolean PlayerConfig_MenuInit (void)
 {
 	extern cvar_t *name;
@@ -508,7 +501,7 @@ qboolean PlayerConfig_MenuInit (void)
 	s_player_back_action.generic.x	= -5*MENU_FONT_SIZE;
 	s_player_back_action.generic.y	= y += 2*MENU_LINE_SIZE;
 	s_player_back_action.generic.statusbar = NULL;
-	s_player_back_action.generic.callback = BackCallback;
+	s_player_back_action.generic.callback = UI_BackMenu;
 
 	// only register model and skin on starup or when changed
 	Com_sprintf( scratch, sizeof( scratch ), "players/%s/tris.md2", s_pmi[s_player_model_box.curvalue].directory );
@@ -828,11 +821,6 @@ void PlayerConfig_MenuDraw (void)
 
 const char *PlayerConfig_MenuKey (int32_t key)
 {
-	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
-		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
-		)
-		PConfigAccept();
-
 	return Default_MenuKey( &s_player_config_menu, key );
 }
 
@@ -845,5 +833,5 @@ void M_Menu_PlayerConfig_f (void)
 		return;
 	}
 	Menu_SetStatusBar( &s_multiplayer_menu, NULL );
-	UI_PushMenu( PlayerConfig_MenuDraw, PlayerConfig_MenuKey );
+	UI_PushMenu( PlayerConfig_MenuDraw, PlayerConfig_MenuKey, PConfigAccept );
 }

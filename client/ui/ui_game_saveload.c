@@ -293,7 +293,7 @@ const char *LoadGame_MenuKey( int32_t key )
 void M_Menu_LoadGame_f (void)
 {
 	LoadGame_MenuInit();
-	UI_PushMenu( LoadGame_MenuDraw, LoadGame_MenuKey );
+	UI_PushMenu( LoadGame_MenuDraw, LoadGame_MenuKey, NULL );
 }
 
 
@@ -377,6 +377,6 @@ void M_Menu_SaveGame_f (void)
 		return;		// not playing a game
 
 	SaveGame_MenuInit();
-	UI_PushMenu( SaveGame_MenuDraw, SaveGame_MenuKey );
+	UI_PushMenu( SaveGame_MenuDraw, SaveGame_MenuKey, NULL );
 //	Load_Savestrings ();
 }

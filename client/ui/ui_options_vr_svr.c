@@ -73,12 +73,6 @@ static void VRSVRConfigAccept (void)
 	DistortionFunc(NULL);
 }
 
-static void BackFunc ( void *unused )
-{
-	VRSVRConfigAccept();
-	UI_BackMenu(NULL);
-}
-
 void Options_VR_SVR_MenuInit ( void )
 {
 	static const char *distortion_names[] =
@@ -136,7 +130,7 @@ void Options_VR_SVR_MenuInit ( void )
 	s_options_vr_svr_back_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_svr_back_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_svr_back_action.generic.name		= "back to options";
-	s_options_vr_svr_back_action.generic.callback	= BackFunc;
+	s_options_vr_svr_back_action.generic.callback	= UI_BackMenu;
 
 	Menu_AddItem( &s_options_vr_svr_menu, ( void * ) &s_options_vr_svr_header );
 
@@ -159,15 +153,11 @@ void Options_VR_SVR_MenuDraw (void)
 
 const char *Options_VR_SVR_MenuKey( int32_t key )
 {
-	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
-		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
-		)
-		VRSVRConfigAccept();
 	return Default_MenuKey( &s_options_vr_svr_menu, key );
 }
 
 void M_Menu_Options_VR_SVR_f (void)
 {
 	Options_VR_SVR_MenuInit();
-	UI_PushMenu ( Options_VR_SVR_MenuDraw, Options_VR_SVR_MenuKey );
+	UI_PushMenu ( Options_VR_SVR_MenuDraw, Options_VR_SVR_MenuKey, VRSVRConfigAccept );
 }

@@ -158,12 +158,6 @@ static void SoundResetDefaultsFunc ( void *unused )
 	SoundSetMenuItemValues();
 }
 
-void Options_Sound_MenuBack (void *unused)
-{
-	UI_BackMenu (NULL);
-}
-
-
 void Options_Sound_MenuInit(void)
 {
 	static const char *enabled_items [] =
@@ -264,7 +258,7 @@ void Options_Sound_MenuInit(void)
 	s_options_sound_back_action.generic.x				= MENU_FONT_SIZE;
 	s_options_sound_back_action.generic.y				= 20*MENU_LINE_SIZE;
 	s_options_sound_back_action.generic.name			= "back to options";
-	s_options_sound_back_action.generic.callback		= Options_Sound_MenuBack;
+	s_options_sound_back_action.generic.callback		= UI_BackMenu;
 
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_header );
 	Menu_AddItem( &s_options_sound_menu, ( void * ) &s_options_sound_sfxvolume_slider );
@@ -300,5 +294,5 @@ const char *Options_Sound_MenuKey( int32_t key )
 void M_Menu_Options_Sound_f (void)
 {
 	Options_Sound_MenuInit();
-	UI_PushMenu ( Options_Sound_MenuDraw, Options_Sound_MenuKey );
+	UI_PushMenu ( Options_Sound_MenuDraw, Options_Sound_MenuKey, NULL );
 }

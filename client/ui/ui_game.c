@@ -117,8 +117,8 @@ void Game_MenuInit( void )
 	s_game_menu.x = SCREEN_WIDTH*0.5 - 24;
 	//s_game_menu.y = 0;
 	s_game_menu.nitems = 0;
-
-	s_easy_game_action.generic.type	= MTYPE_ACTION;
+    
+    s_easy_game_action.generic.type	= MTYPE_ACTION;
 	s_easy_game_action.generic.flags  = QMF_LEFT_JUSTIFY;
 	s_easy_game_action.generic.x		= 0;
 	s_easy_game_action.generic.y		= y; // 0
@@ -197,19 +197,19 @@ void Game_MenuInit( void )
 
 void Game_MenuDraw( void )
 {
-	Menu_DrawBanner( "m_banner_game" );
-	Menu_AdjustCursor( &s_game_menu, 1 );
-	Menu_Draw( &s_game_menu );
+    Menu_DrawBanner( "m_banner_game" );
+    Menu_AdjustCursor( &s_game_menu, 1 );
+    Menu_Draw( &s_game_menu );
 }
 
 const char *Game_MenuKey( int32_t key )
 {
-	return Default_MenuKey( &s_game_menu, key );
+    return Default_MenuKey( &s_game_menu, key );
 }
 
 void M_Menu_Game_f (void)
 {
 	Game_MenuInit();
-	UI_PushMenu( Game_MenuDraw, Game_MenuKey );
+    UI_PushMenu(Game_MenuDraw, Game_MenuKey, NULL);
 	m_game_cursor = 1;
 }

@@ -702,5 +702,5 @@ const char *Video_MenuKey( int32_t key )
 void M_Menu_Video_f (void)
 {
 	Menu_Video_Init();
-	UI_PushMenu( Menu_Video_Draw, Video_MenuKey );
+	UI_PushMenu( Menu_Video_Draw, Video_MenuKey, NULL );
 }

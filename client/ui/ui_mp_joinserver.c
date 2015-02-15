@@ -322,5 +322,5 @@ const char *JoinServer_MenuKey( int32_t key )
 void M_Menu_JoinServer_f (void)
 {
 	JoinServer_MenuInit();
-	UI_PushMenu( JoinServer_MenuDraw, JoinServer_MenuKey );
+	UI_PushMenu( JoinServer_MenuDraw, JoinServer_MenuKey, NULL );
 }

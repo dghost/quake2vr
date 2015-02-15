@@ -31,6 +31,7 @@ cvar_t	*ui_cursor_scale;
 
 void	(*m_drawfunc) (void);
 const char *(*m_keyfunc) (int32_t key);
+void    (*m_teardownfunc) (void);
 
 /*
 =======================================================================
@@ -113,6 +114,7 @@ typedef struct
 {
 	void	(*draw) (void);
 	const char *(*key) (int32_t k);
+    void    (*teardown) (void);
 } menulayer_t;
 
 
@@ -194,47 +196,50 @@ UI_PushMenu
 =================
 */
 extern cvar_t *vr_enabled;
-void UI_PushMenu ( void (*draw) (void), const char *(*key) (int32_t k) )
+void UI_PushMenu ( void (*draw) (void), const char *(*key) (int32_t k), void (*teardown)(void) )
 {
-	int32_t		i;
-
-	if (Cvar_VariableValue ("maxclients") == 1 && Com_ServerState () && !cls.consoleActive) // Knightmare added
-		Cvar_Set ("paused", "1");
-
-	// Knightmare- if just opened menu, and ingame and not DM, grab screen first
-	if (cls.key_dest != key_menu && !Cvar_VariableValue("deathmatch")
-		&& Com_ServerState() == 2) //ss_game
-		//&& !cl.cinematictime && Com_ServerState())
-		R_GrabScreen();
-
-	// if this menu is already present, drop back to that level
-	// to avoid stacking menus by hotkeys
-	for (i=0 ; i<m_menudepth ; i++)
-		if (m_layers[i].draw == draw &&
-			m_layers[i].key == key)
-		{
-			m_menudepth = i;
-		}
-
-	if (i == m_menudepth)
-	{
-		if (m_menudepth >= MAX_MENU_DEPTH)
-			Com_Error (ERR_FATAL, "UI_PushMenu: MAX_MENU_DEPTH");
-		m_layers[m_menudepth].draw = m_drawfunc;
-		m_layers[m_menudepth].key = m_keyfunc;
-		m_menudepth++;
-	}
-
-	m_drawfunc = draw;
-	m_keyfunc = key;
-
-	m_entersound = true;
-
-	// Knightmare- added Psychospaz's mouse support
-	UI_RefreshCursorLink();
-	UI_RefreshCursorButtons();
-
-	cls.key_dest = key_menu;
+    int32_t		i;
+    
+    if (Cvar_VariableValue ("maxclients") == 1 && Com_ServerState () && !cls.consoleActive) // Knightmare added
+        Cvar_Set ("paused", "1");
+    
+    // Knightmare- if just opened menu, and ingame and not DM, grab screen first
+    if (cls.key_dest != key_menu && !Cvar_VariableValue("deathmatch")
+        && Com_ServerState() == 2) //ss_game
+        //&& !cl.cinematictime && Com_ServerState())
+        R_GrabScreen();
+    
+    // if this menu is already present, drop back to that level
+    // to avoid stacking menus by hotkeys
+    for (i=0 ; i<m_menudepth ; i++)
+        if (m_layers[i].draw == draw &&
+            m_layers[i].key == key &&
+            m_layers[i].teardown == teardown)
+        {
+            m_menudepth = i;
+        }
+    
+    if (i == m_menudepth)
+    {
+        if (m_menudepth >= MAX_MENU_DEPTH)
+            Com_Error (ERR_FATAL, "UI_PushMenu: MAX_MENU_DEPTH");
+        m_layers[m_menudepth].draw = m_drawfunc;
+        m_layers[m_menudepth].key = m_keyfunc;
+        m_layers[m_menudepth].teardown = m_teardownfunc;
+        m_menudepth++;
+    }
+    
+    m_drawfunc = draw;
+    m_keyfunc = key;
+    m_teardownfunc = teardown;
+    
+    m_entersound = true;
+    
+    // Knightmare- added Psychospaz's mouse support
+    UI_RefreshCursorLink();
+    UI_RefreshCursorButtons();
+    
+    cls.key_dest = key_menu;
 }
 
 /*
@@ -265,11 +270,17 @@ void UI_PopMenu (void)
 	S_StartLocalSound( menu_out_sound );
 	if (m_menudepth < 1)
 		Com_Error (ERR_FATAL, "UI_PopMenu: depth < 1");
+
+    if (m_teardownfunc) {
+        m_teardownfunc();
+    }
+    
 	m_menudepth--;
 
 	m_drawfunc = m_layers[m_menudepth].draw;
 	m_keyfunc = m_layers[m_menudepth].key;
-
+    m_teardownfunc = m_layers[m_menudepth].teardown;
+    
 	// Knightmare- added Psychospaz's mouse support
 	UI_RefreshCursorLink();
 	UI_RefreshCursorButtons();
@@ -283,7 +294,7 @@ void UI_PopMenu (void)
 UI_BackMenu
 =================
 */
-void UI_BackMenu (void *unused)
+void UI_BackMenu (void *self)
 {
 	UI_PopMenu();
 }

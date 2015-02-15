@@ -277,13 +277,15 @@ static const char *Keys_MenuKey( int32_t key )
 		return menu_out_sound;
 	}
 
+    if (item == &s_keys_back_action) { // back action hack
+        return Default_MenuKey( &s_keys_menu, key );
+    }
+
 	switch ( key )
 	{
 	case K_GAMEPAD_A:
 	case K_KP_ENTER:
 	case K_ENTER:
-		if (item == &s_keys_back_action) { // back action hack
-			UI_BackMenu(item); return NULL; }
 		KeyBindingFunc( item );
 		return menu_in_sound;
 	case K_GAMEPAD_X:
@@ -300,5 +302,5 @@ static const char *Keys_MenuKey( int32_t key )
 void M_Menu_Keys_f (void)
 {
 	Keys_MenuInit();
-	UI_PushMenu( Keys_MenuDraw, Keys_MenuKey );
+	UI_PushMenu( Keys_MenuDraw, Keys_MenuKey, NULL );
 }

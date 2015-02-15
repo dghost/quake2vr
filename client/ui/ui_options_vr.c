@@ -203,12 +203,6 @@ static void SVRFunc ( void *unused )
 }
 #endif
 
-void BackFunc ( void *unused )
-{
-	VRConfigAccept();
-	UI_BackMenu(NULL);
-}
-
 void Options_VR_MenuInit ( void )
 {
 	static const char *yesno_names[] =
@@ -391,7 +385,7 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_back_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_back_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_back_action.generic.name		= "back to options";
-	s_options_vr_back_action.generic.callback	= BackFunc;
+	s_options_vr_back_action.generic.callback	= UI_BackMenu;
 
 
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_header );
@@ -428,11 +422,6 @@ void Options_VR_MenuDraw (void)
 
 const char *Options_VR_MenuKey( int32_t key )
 {
-	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
-		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
-		)
-		VRConfigAccept();
-
 	return Default_MenuKey( &s_options_vr_menu, key );
 }
 
@@ -440,5 +429,5 @@ const char *Options_VR_MenuKey( int32_t key )
 void M_Menu_Options_VR_f (void)
 {
 	Options_VR_MenuInit();
-	UI_PushMenu ( Options_VR_MenuDraw, Options_VR_MenuKey );
+	UI_PushMenu ( Options_VR_MenuDraw, Options_VR_MenuKey, VRConfigAccept );
 }

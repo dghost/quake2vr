@@ -227,12 +227,6 @@ static void VRAdvancedConfigAccept (void)
 	CustomPredictionFunc(NULL);
 }
 
-static void BackFunc ( void *unused )
-{
-	VRAdvancedConfigAccept();
-	UI_BackMenu(NULL);
-}
-
 void Options_VR_Advanced_MenuInit ( void )
 {
 	static const char *yesno_names[] =
@@ -421,7 +415,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_back_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_advanced_back_action.generic.y			= y+=2*MENU_LINE_SIZE;
 	s_options_vr_advanced_back_action.generic.name		= "back to options";
-	s_options_vr_advanced_back_action.generic.callback	= BackFunc;
+	s_options_vr_advanced_back_action.generic.callback	= UI_BackMenu;
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_header );
 
@@ -462,16 +456,11 @@ void Options_VR_Advanced_MenuDraw (void)
 
 const char *Options_VR_Advanced_MenuKey( int32_t key )
 {
-	if ( key == K_ESCAPE		|| key == K_GAMEPAD_B
-		|| key == K_GAMEPAD_BACK	|| key == K_GAMEPAD_START
-		)
-		VRAdvancedConfigAccept();
-
 	return Default_MenuKey( &s_options_vr_advanced_menu, key );
 }
 
 void M_Menu_Options_VR_Advanced_f (void)
 {
 	Options_VR_Advanced_MenuInit();
-	UI_PushMenu ( Options_VR_Advanced_MenuDraw, Options_VR_Advanced_MenuKey );
+	UI_PushMenu ( Options_VR_Advanced_MenuDraw, Options_VR_Advanced_MenuKey, VRAdvancedConfigAccept );
 }

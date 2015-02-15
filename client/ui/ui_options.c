@@ -164,5 +164,5 @@ const char *Options_MenuKey( int32_t key )
 void M_Menu_Options_f (void)
 {
 	Options_MenuInit();
-	UI_PushMenu ( Options_MenuDraw, Options_MenuKey );
+	UI_PushMenu ( Options_MenuDraw, Options_MenuKey, NULL );
 }

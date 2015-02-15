@@ -357,5 +357,5 @@ const char *Options_Controls_MenuKey( int32_t key )
 void M_Menu_Options_Controls_f (void)
 {
 	Options_Controls_MenuInit();
-	UI_PushMenu ( Options_Controls_MenuDraw, Options_Controls_MenuKey );
+	UI_PushMenu ( Options_Controls_MenuDraw, Options_Controls_MenuKey, NULL );
 }

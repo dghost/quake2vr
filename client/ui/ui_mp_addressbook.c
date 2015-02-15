@@ -54,12 +54,6 @@ void AddressBook_SaveEntries (void)
 	}
 }
 
-static void AddressBookBack (void *unused)
-{
-	AddressBook_SaveEntries ();
-	UI_BackMenu (unused);
-}
-
 void AddressBook_MenuInit( void )
 {
 	int32_t i;
@@ -96,7 +90,7 @@ void AddressBook_MenuInit( void )
 	s_addressbook_back_action.generic.x	= 24;
 	s_addressbook_back_action.generic.y	= (NUM_ADDRESSBOOK_ENTRIES*2.25+0.5)*MENU_LINE_SIZE;
 	s_addressbook_back_action.generic.name	= " back";
-	s_addressbook_back_action.generic.callback = AddressBookBack; // UI_BackMenu;
+	s_addressbook_back_action.generic.callback = UI_BackMenu; // UI_BackMenu;
 
 	Menu_AddItem(&s_addressbook_menu, &s_addressbook_back_action);
 }
@@ -104,9 +98,6 @@ void AddressBook_MenuInit( void )
 
 const char *AddressBook_MenuKey (int32_t key)
 {
-	if (key == K_ESCAPE)
-		AddressBook_SaveEntries ();
-
 	return Default_MenuKey (&s_addressbook_menu, key);
 }
 
@@ -119,5 +110,5 @@ void AddressBook_MenuDraw (void)
 void M_Menu_AddressBook_f(void)
 {
 	AddressBook_MenuInit();
-	UI_PushMenu( AddressBook_MenuDraw, AddressBook_MenuKey );
+	UI_PushMenu( AddressBook_MenuDraw, AddressBook_MenuKey, AddressBook_SaveEntries);
 }

@@ -134,7 +134,7 @@ const char *Multiplayer_MenuKey( int32_t key )
 void M_Menu_Multiplayer_f( void )
 {
 	Multiplayer_MenuInit();
-	UI_PushMenu( Multiplayer_MenuDraw, Multiplayer_MenuKey );
+	UI_PushMenu( Multiplayer_MenuDraw, Multiplayer_MenuKey, NULL );
 }
 
 

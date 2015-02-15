@@ -289,13 +289,11 @@ static void ScreenResetDefaultsFunc ( void *unused )
 	ScreenSetMenuItemValues();
 }
 
-void Options_Screen_MenuBack (void *unused)
+void Options_Screen_Teardown ()
 {
     FS_FreeFileList(crosshair_names,numcrosshairs);
     if (crosshairs)
         free(crosshairs);
-    
-    UI_PopMenu();
 }
 
 
@@ -406,7 +404,7 @@ void Options_Screen_MenuInit ( void )
 	s_options_screen_back_action.generic.x				= MENU_FONT_SIZE;
 	s_options_screen_back_action.generic.y				= y+=2*MENU_LINE_SIZE;
 	s_options_screen_back_action.generic.name			= "back to options";
-	s_options_screen_back_action.generic.callback		= Options_Screen_MenuBack;
+	s_options_screen_back_action.generic.callback		= UI_BackMenu;
 
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_header );
 	Menu_AddItem( &s_options_screen_menu, ( void * ) &s_options_screen_crosshair_box );
@@ -494,23 +492,11 @@ void Options_Screen_MenuDraw (void)
 
 const char *Options_Screen_MenuKey( int32_t key )
 {
-    switch ( key )
-    {
-        case K_GAMEPAD_START:
-            Options_Screen_MenuBack(NULL);
-            return Default_MenuKey( &s_options_screen_menu, key );         
-        case K_GAMEPAD_B:
-        case K_GAMEPAD_BACK:
-        case K_ESCAPE:
-            Options_Screen_MenuBack(NULL);
-            return menu_out_sound;
-        default:
-            return Default_MenuKey( &s_options_screen_menu, key );
-    }
+    return Default_MenuKey( &s_options_screen_menu, key );
 }
 
 void M_Menu_Options_Screen_f (void)
 {
 	Options_Screen_MenuInit();
-	UI_PushMenu ( Options_Screen_MenuDraw, Options_Screen_MenuKey );
+	UI_PushMenu ( Options_Screen_MenuDraw, Options_Screen_MenuKey, Options_Screen_Teardown );
 }

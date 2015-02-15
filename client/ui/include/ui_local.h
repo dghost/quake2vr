@@ -68,7 +68,6 @@ typedef struct _tag_menuframework
 	const char *statusbar;
 
 	void (*cursordraw)( struct _tag_menuframework *m );
-	
 } menuframework_s;
 
 typedef struct
@@ -273,10 +272,10 @@ void UI_AddMainButton (mainmenuobject_t *thisObj, int32_t index, int32_t x, int3
 void UI_RefreshCursorMenu (void);
 void UI_RefreshCursorLink (void);
 void UI_RefreshCursorButtons (void);
-void UI_PushMenu ( void (*draw) (void), const char *(*key) (int32_t k) );
+void UI_PushMenu ( void (*draw) (void), const char *(*key) (int32_t k), void (*teardown)(void) );
 void UI_ForceMenuOff (void);
 void UI_PopMenu (void);
-void UI_BackMenu (void *unused);
+void UI_BackMenu (void *self);
 const char *Default_MenuKey( menuframework_s *m, int32_t key );
 
 // ui_main.c
@@ -300,6 +299,5 @@ void UI_LoadMapList (void);
 // ui_mp_playersetup.c
 void PlayerConfig_MenuDraw (void);
 void PlayerConfig_MouseClick (void);
-void PConfigAccept (void);
 
 #endif

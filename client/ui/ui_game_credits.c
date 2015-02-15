@@ -526,5 +526,5 @@ void M_Menu_Credits_f (void)
 
 	credits_start_time = cls.realtime;
 	credits_start_line = 0; // allow credits to scroll past top of screen
-	UI_PushMenu (M_Credits_MenuDraw, M_Credits_Key);
+	UI_PushMenu (M_Credits_MenuDraw, M_Credits_Key, NULL);
 }

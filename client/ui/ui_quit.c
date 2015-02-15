@@ -138,5 +138,5 @@ void M_Menu_Quit_f (void)
 #ifdef QUITMENU_NOKEY
 	Quit_MenuInit();
 #endif
-	UI_PushMenu (M_Quit_Draw, M_Quit_Key);
+	UI_PushMenu (M_Quit_Draw, M_Quit_Key, NULL);
 }

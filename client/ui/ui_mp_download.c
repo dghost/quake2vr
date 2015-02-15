@@ -194,5 +194,5 @@ const char *DownloadOptions_MenuKey( int32_t key )
 void M_Menu_DownloadOptions_f (void)
 {
 	DownloadOptions_MenuInit();
-	UI_PushMenu( DownloadOptions_MenuDraw, DownloadOptions_MenuKey );
+	UI_PushMenu( DownloadOptions_MenuDraw, DownloadOptions_MenuKey, NULL );
 }

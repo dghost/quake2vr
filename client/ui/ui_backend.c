@@ -1238,9 +1238,6 @@ void UI_Think_MouseCursor (void)
 	else if (!cursor.buttonused[MOUSEBUTTON2] && (cursor.buttonclicks[MOUSEBUTTON2] == 2)
 		&& cursor.buttondown[MOUSEBUTTON2])
 	{
-		if (m_drawfunc==PlayerConfig_MenuDraw)
-			PConfigAccept();
-
 		UI_PopMenu();
 
 		sound = menu_out_sound;

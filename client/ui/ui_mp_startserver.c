@@ -785,17 +785,11 @@ void StartServer_MenuDraw (void)
 
 const char *StartServer_MenuKey (int32_t key)
 {
-	/*if ( key == K_ESCAPE )
-	{
-		if (ui_svr_mapnames)
-			FS_FreeFileList (ui_svr_mapnames, ui_svr_nummaps);
-	}*/
-
 	return Default_MenuKey( &s_startserver_menu, key );
 }
 
 void M_Menu_StartServer_f (void)
 {
 	StartServer_MenuInit();
-	UI_PushMenu( StartServer_MenuDraw, StartServer_MenuKey );
+	UI_PushMenu( StartServer_MenuDraw, StartServer_MenuKey, NULL );
 }

@@ -419,5 +419,5 @@ M_Menu_Main_f
 void M_Menu_Main_f (void)
 {
 	UI_CheckQuadModel ();
-	UI_PushMenu (M_Main_Draw, M_Main_Key);
+	UI_PushMenu (M_Main_Draw, M_Main_Key, NULL);
 }
