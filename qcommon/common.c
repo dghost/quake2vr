@@ -1332,11 +1332,40 @@ typedef struct zhead_s
 	struct zhead_s	*prev, *next;
 	int16_t	magic;
 	int16_t	tag;			// for group free
-	int32_t		size;
+	int32_t	size;
 } zhead_t;
 
-zhead_t		z_chain;
-int32_t		z_count, z_bytes;
+typedef struct ztag_s {
+    struct ztag_s *next;
+    int16_t tag;
+    int32_t count, bytes;
+    zhead_t chain;
+} ztag_t;
+
+static ztag_t      *z_tagchain;
+
+ztag_t *Z_GetTagChain (int16_t tag) {
+    ztag_t	*z = NULL;
+    ztag_t  *last = NULL;
+    
+    for (z=z_tagchain ; z != NULL ; z=z->next)
+    {
+        last = z;
+        if (z->tag == tag)
+            return z;
+    }
+    
+    z = malloc(sizeof(ztag_t));
+    memset(z, 0, sizeof(ztag_t));
+    z->chain.prev = z->chain.next = &z->chain;
+    z->tag = tag;
+    if (last) {
+        last->next = z;
+    } else {
+        z_tagchain = z;
+    }
+    return z;
+}
 
 /*
 ========================
@@ -1346,7 +1375,8 @@ Z_Free
 void Z_Free (void *ptr)
 {
 	zhead_t	*z;
-
+    ztag_t *tag;
+    
 	z = ((zhead_t *)ptr) - 1;
 
 	if (z->magic != Z_MAGIC)
@@ -1355,11 +1385,33 @@ void Z_Free (void *ptr)
 	z->prev->next = z->next;
 	z->next->prev = z->prev;
 
-	z_count--;
-	z_bytes -= z->size;
+    tag = Z_GetTagChain(z->tag);
+    tag->count--;
+    tag->bytes -= z->size;
 	free (z);
 }
 
+/*
+ ========================
+ Z_FreeWithChain
+ ========================
+ */
+void Z_FreeWithChain (void *ptr, ztag_t *tag)
+{
+    zhead_t	*z;
+    
+    z = ((zhead_t *)ptr) - 1;
+    
+    if (z->magic != Z_MAGIC)
+        Com_Error (ERR_FATAL, "Z_Free: bad magic");
+    
+    z->prev->next = z->next;
+    z->next->prev = z->prev;
+    
+    tag->count--;
+    tag->bytes -= z->size;
+    free (z);
+}
 
 /*
 ========================
@@ -1368,7 +1420,11 @@ Z_Stats_f
 */
 void Z_Stats_f (void)
 {
-	Com_Printf ("%i bytes in %i blocks\n", z_bytes, z_count);
+    ztag_t *z;
+    for (z = z_tagchain; z != NULL; z = z->next) {
+        Com_Printf ("Tag %i has %i bytes in %i blocks\n", z->tag, z->bytes, z->count);
+
+    }
 }
 
 /*
@@ -1379,13 +1435,15 @@ Z_FreeTags
 void Z_FreeTags (int16_t tag)
 {
 	zhead_t	*z, *next;
-
-	for (z=z_chain.next ; z != &z_chain ; z=next)
-	{
-		next = z->next;
-		if (z->tag == tag)
-			Z_Free ((void *)(z+1));
-	}
+    ztag_t *chain = Z_GetTagChain(tag);
+    
+    if (chain) {
+        for (z=chain->chain.next ; z != &(chain->chain) ; z=next)
+        {
+            next = z->next;
+            Z_FreeWithChain ((void *)(z+1),chain);
+        }
+    }
 }
 
 /*
@@ -1396,23 +1454,26 @@ Z_TagMalloc
 void *Z_TagMalloc (int32_t size, int16_t tag)
 {
 	zhead_t	*z;
-	
+    ztag_t *chain;
+    
+    chain = Z_GetTagChain(tag);
+    
 	size = size + sizeof(zhead_t);
 	z = malloc(size);
 	if (!z)
 		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
 
 	memset (z, 0, size);
-	z_count++;
-	z_bytes += size;
+	chain->count++;
+	chain->bytes += size;
 	z->magic = Z_MAGIC;
 	z->tag = tag;
 	z->size = size;
 
-	z->next = z_chain.next;
-	z->prev = &z_chain;
-	z_chain.next->prev = z;
-	z_chain.next = z;
+	z->next = chain->chain.next;
+	z->prev = &(chain->chain);
+	chain->chain.next->prev = z;
+	chain->chain.next = z;
 
 	return (void *)(z+1);
 }
@@ -1665,8 +1726,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 	if (setjmp (abortframe) )
 		Sys_Error ("Error during initialization");
 
-	z_chain.next = z_chain.prev = &z_chain;
-
+    z_tagchain = NULL;
 	// prepare enough of the subsystems to handle
 	// cvar and command buffer management
 	COM_InitArgv (argc, argv);
