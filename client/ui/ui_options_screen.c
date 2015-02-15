@@ -168,7 +168,7 @@ struct image_s **PreloadCrosshairs(void)
 {
     struct image_s **list;
     int i;
-    list = malloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
+    list = Z_Malloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
     memset(list, 0, sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
     for (i = 1; i < numcrosshairs; i++)
     {
@@ -293,7 +293,7 @@ void Options_Screen_Teardown ()
 {
     FS_FreeFileList(crosshair_names,numcrosshairs);
     if (crosshairs)
-        free(crosshairs);
+        Z_Free(crosshairs);
 }
 
 
