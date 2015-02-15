@@ -1327,6 +1327,24 @@ just cleared malloc with counters now...
 #define	Z_MAGIC		0x1d1d
 
 
+typedef struct
+{
+    int16_t tag;
+    char *name;
+} zonelist_t;
+
+zonelist_t zonenames[] = {
+    {ZONE_UNTAGGED, "Untagged"},
+    {ZONE_SYSTEM, "System"},
+    {ZONE_SERVER, "Server"},
+    {ZONE_CLIENT, "Client"},
+    {ZONE_AUDIO, "Audio"},
+    {ZONE_MENU, "Menu"},
+    {ZONE_GAME, "Game"},
+    {ZONE_LEVEL, "Level"},
+    {-1, NULL},
+};
+
 typedef struct zhead_s
 {
 	struct zhead_s	*prev, *next;
@@ -1340,27 +1358,43 @@ typedef struct ztag_s {
     int16_t tag;
     int32_t count, bytes;
     zhead_t chain;
+    char *name;
 } ztag_t;
+
 
 static ztag_t      *z_tagchain;
 
 ztag_t *Z_GetTagChain (int16_t tag) {
-    ztag_t	*z = NULL;
-    ztag_t  *last = NULL;
+    ztag_t	*z = z_tagchain;
+    ztag_t  *prev = NULL;
+    int i;
     
-    for (z=z_tagchain ; z != NULL ; z=z->next)
+    while (z && (tag > z->tag))
     {
-        last = z;
-        if (z->tag == tag)
-            return z;
+        prev = z;
+        z=z->next;
     }
+    
+    if (z && z->tag == tag)
+        return z;
     
     z = malloc(sizeof(ztag_t));
     memset(z, 0, sizeof(ztag_t));
+    
     z->chain.prev = z->chain.next = &z->chain;
     z->tag = tag;
-    if (last) {
-        last->next = z;
+    
+    for (i=0;zonenames[i].tag != -1; i++) {
+        if (zonenames[i].tag == tag) {
+            break;
+        }
+    }
+    
+    z->name = zonenames[i].name;
+
+    if (prev) {
+        z->next = prev->next;
+        prev->next = z;
     } else {
         z_tagchain = z;
     }
@@ -1422,8 +1456,10 @@ void Z_Stats_f (void)
 {
     ztag_t *z;
     for (z = z_tagchain; z != NULL; z = z->next) {
-        Com_Printf ("Tag %i has %i bytes in %i blocks\n", z->tag, z->bytes, z->count);
-
+        if (z->name)
+            Com_Printf ("%s has %i bytes in %i blocks\n", z->name, z->bytes, z->count);
+        else
+            Com_Printf ("Zone %i has %i bytes in %i blocks\n", z->tag, z->bytes, z->count);
     }
 }
 
@@ -1485,7 +1521,7 @@ Z_Malloc
 */
 void *Z_Malloc (int32_t size)
 {
-	return Z_TagMalloc (size, 0);
+	return Z_TagMalloc (size, ZONE_UNTAGGED);
 }
 
 
@@ -1513,7 +1549,7 @@ void *Z_TagStrdup (char *string, int16_t tag)
  */
 void *Z_Strdup (char *string)
 {
-    return Z_TagStrdup(string, 0);
+    return Z_TagStrdup(string, ZONE_UNTAGGED);
 }
 
 

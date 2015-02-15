@@ -874,6 +874,18 @@ extern	int32_t		time_after_game;
 extern	int32_t		time_before_ref;
 extern	int32_t		time_after_ref;
 
+enum {
+    ZONE_UNTAGGED = 0,
+    ZONE_SYSTEM = 10,
+    ZONE_SERVER = 20,
+    ZONE_CLIENT = 30,
+    ZONE_AUDIO = 100,
+    ZONE_GAME = 765,
+    ZONE_LEVEL = 766,
+    ZONE_MENU = 999,
+    NUM_ZONES
+};
+
 void Z_Free (void *ptr);
 void *Z_Malloc (int32_t size);			// returns 0 filled memory
 void *Z_TagMalloc (int32_t size, int16_t tag);
