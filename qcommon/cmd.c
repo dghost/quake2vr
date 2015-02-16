@@ -74,6 +74,7 @@ sizebuf_t	cmd_text;
 byte		cmd_text_buf[32768]; // Knightmare increased, was 8192
 
 byte		defer_text_buf[32768]; // Knightmare increased, was 8192
+char		temp_text_buf[32768]; // Knightmare increased, was 8192
 
 /*
 ============
@@ -118,19 +119,16 @@ FIXME: actually change the command buffer to do less copying
 */
 void Cbuf_InsertText (char *text)
 {
-	char	*temp;
+	char	*temp = temp_text_buf;
 	int32_t		templen;
 
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
 	if (templen)
 	{
-		temp = Z_TagMalloc (templen, ZONE_SYSTEM);
 		memcpy (temp, cmd_text.data, templen);
 		SZ_Clear (&cmd_text);
 	}
-	else
-		temp = NULL;	// shut up compiler
 		
 // add the entire text of the file
 	Cbuf_AddText (text);
@@ -139,7 +137,6 @@ void Cbuf_InsertText (char *text)
 	if (templen)
 	{
 		SZ_Write (&cmd_text, temp, templen);
-		Z_Free (temp);
 	}
 }
 
@@ -304,7 +301,7 @@ qboolean Cbuf_AddLateCommands (void)
 {
 	int32_t		i, j;
 	int32_t		s;
-	char	*text, *build, c;
+	char	*text, c;
 	int32_t		argc;
 	qboolean	ret;
 
@@ -318,19 +315,15 @@ qboolean Cbuf_AddLateCommands (void)
 	if (!s)
 		return false;
 		
-	text = Z_TagMalloc (s+1, ZONE_SYSTEM);
-	text[0] = 0;
+	text = temp_text_buf;
+    memset(text, 0, s+1);
 	for (i=1 ; i<argc ; i++)
 	{
 		strcat (text,COM_Argv(i));
 		if (i != argc-1)
 			strcat (text, " ");
 	}
-	
-// pull out the commands
-	build = Z_TagMalloc (s+1, ZONE_SYSTEM);
-	build[0] = 0;
-	
+		
 	for (i=0 ; i<s-1 ; i++)
 	{
 		if (text[i] == '+')
@@ -339,24 +332,15 @@ qboolean Cbuf_AddLateCommands (void)
 
 			for (j=i ; (text[j] != '+') && (text[j] != '-') && (text[j] != 0) ; j++)
 				;
-
-			c = text[j];
-			text[j] = 0;
+			text[j] = '\n';
 			
-			strcat (build, text+i);
-			strcat (build, "\n");
-			text[j] = c;
-			i = j-1;
 		}
 	}
 
-	ret = (build[0] != 0);
+	ret = (text[0] != 0);
 	if (ret)
-		Cbuf_AddText (build);
-	
-	Z_Free (text);
-	Z_Free (build);
-
+		Cbuf_AddText (text);
+    
 	return ret;
 }
 
@@ -501,7 +485,7 @@ typedef struct cmd_function_s
 
 
 static	int32_t			cmd_argc;
-static	char		*cmd_argv[MAX_STRING_TOKENS];
+static	char		cmd_argv[MAX_STRING_TOKENS][MAX_TOKEN_CHARS];
 static	char		*cmd_null_string = "";
 static	char		cmd_args[MAX_STRING_CHARS];
 
@@ -627,12 +611,9 @@ $Cvars will be expanded unless they are in a quoted token
 */
 void Cmd_TokenizeString (char *text, qboolean macroExpand)
 {
-	int32_t		i;
 	char	*com_token;
 
-// clear the args from the last string
-	for (i=0 ; i<cmd_argc ; i++)
-		Z_Free (cmd_argv[i]);
+    memset(cmd_argv,0,sizeof(cmd_argv));
 		
 	cmd_argc = 0;
 	cmd_args[0] = 0;
@@ -685,8 +666,7 @@ void Cmd_TokenizeString (char *text, qboolean macroExpand)
 
 		if (cmd_argc < MAX_STRING_TOKENS)
 		{
-			cmd_argv[cmd_argc] = Z_TagMalloc (strlen(com_token)+1, ZONE_SYSTEM);
-			strcpy (cmd_argv[cmd_argc], com_token);
+			strncpy (cmd_argv[cmd_argc], com_token, MAX_TOKEN_CHARS);
 			cmd_argc++;
 		}
 	}
