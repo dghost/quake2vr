@@ -235,7 +235,7 @@ S_AliasName(char *aliasname, char *truename)
 	char *s;
 	int i;
 
-	s = Z_TagMalloc(MAX_QPATH, ZONE_CLIENT);
+	s = Z_TagMalloc(MAX_QPATH, ZONE_AUDIO);
 	strcpy(s, truename);
 
 	/* find a free sfx */

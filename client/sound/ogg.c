@@ -223,7 +223,8 @@ OGG_LoadFileList(void)
 	char **list; /* List of .ogg files. */
 	int i;		 /* Loop counter. */
 	int j;		 /* Real position in list. */
-
+    int numValidFiles = 0;
+    
 	/* Get file list. */
 	list = FS_ListFilesWithPaks(va("%s/*.ogg", OGG_DIR),
 		   	&ogg_numfiles, 0, SFF_SUBDIR | SFF_HIDDEN |
@@ -235,28 +236,36 @@ OGG_LoadFileList(void)
 		return;
 	}
 
+    for (i = 0; i < ogg_numfiles; i++)
+    {
+        if (!OGG_Check(list[i]))
+        {
+            Z_Free(list[i]);
+            list[i] = NULL;
+            continue;
+        }
+        numValidFiles++;
+    }
+
 	/* Allocate list of files. */
-	ogg_filelist = malloc(sizeof(char *) * ogg_numfiles);
+	ogg_filelist = Z_TagMalloc(sizeof(char *) * numValidFiles, ZONE_AUDIO);
 
 	/* Add valid Ogg Vorbis file to the list. */
 	for (i = 0, j = 0; i < ogg_numfiles; i++)
 	{
-		if (!OGG_Check(list[i]))
+		if (list[i])
 		{
-			free(list[i]);
-			continue;
+            ogg_filelist[j++] = list[i];
 		}
 
-		ogg_filelist[j++] = list[i];
 	}
 
 	/* Free the file list. */
-	free(list);
+	Z_Free(list);
 
 	/* Adjust the list size (remove 
 	   space for invalid music files). */
 	ogg_numfiles = j;
-	ogg_filelist = realloc(ogg_filelist, sizeof(char *) * ogg_numfiles);
 }
 
 /*
@@ -296,7 +305,7 @@ OGG_LoadPlaylist(char *playlist)
 	}
 
 	/* Allocate file list. */
-	ogg_filelist = malloc(sizeof(char *) * ogg_numfiles);
+	ogg_filelist = Z_TagMalloc(sizeof(char *) * ogg_numfiles, ZONE_AUDIO);
 
 	i = 0;
 
@@ -306,7 +315,7 @@ OGG_LoadPlaylist(char *playlist)
 	{
 		if (OGG_Check(va("%s/%s", OGG_DIR, ptr)))
 		{
-			ogg_filelist[i++] = strdup(va("%s/%s", OGG_DIR, ptr));
+			ogg_filelist[i++] = Z_TagStrdup(va("%s/%s", OGG_DIR, ptr), ZONE_AUDIO);
 		}
 	}
 

@@ -111,10 +111,10 @@ void R_VR_GenerateHud()
 	vec3_t offsetScale;
 	VectorSet(offsetScale, xoff, xoff, zoff);
 
-	hudverts = (vert_t *) malloc(vboSize);
+	hudverts = (vert_t *) Z_TagMalloc(vboSize, ZONE_RENDERER);
 	memset(hudverts, 0, vboSize);
 
-	indices = (GLushort *) malloc(iboSize);
+	indices = (GLushort *) Z_TagMalloc(iboSize, ZONE_RENDERER);
 	memset(indices, 0, iboSize);
 
 	for (j = 0; j < numsegments; j++)
@@ -175,8 +175,8 @@ void R_VR_GenerateHud()
 	R_VertexData(&hudVBO,hudNumVerts * sizeof(vert_t),hudverts);
 	R_IndexData(&hudVBO,GL_TRIANGLE_STRIP,GL_UNSIGNED_SHORT,currIndex,currIndex * sizeof(GLushort),indices);
 	R_ReleaseIVBO();
-	free(hudverts);
-	free(indices);
+	Z_Free(hudverts);
+	Z_Free(indices);
 }
 
 // executed once per frame

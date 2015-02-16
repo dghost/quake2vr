@@ -919,7 +919,7 @@ char **FS_ListPak (char *find, int32_t *num)
 		}
 	}
 
-	list =  (char **) malloc( sizeof( char * ) * nfiles );
+	list =  (char **) Z_TagMalloc( sizeof( char * ) * nfiles , ZONE_SYSTEM);
 	memset( list, 0, sizeof( char * ) * nfiles );
 
 	for (search = fs_searchPaths; search; search = search->next)
@@ -934,7 +934,7 @@ char **FS_ListPak (char *find, int32_t *num)
 		{
 			if (!pak->files[i].ignore && strstr(pak->files[i].name, find))
 			{
-				list[nfound] = strdup(pak->files[i].name);
+				list[nfound] = Z_TagStrdup(pak->files[i].name, ZONE_SYSTEM);
 				nfound++;
 			}
 		}
@@ -1566,9 +1566,9 @@ void FS_AddGameDirectory (const char *dir)
 					else
 						FS_AddPAKFile (dirnames[j]);
                 }
-                free( dirnames[j] );
+                Z_Free( dirnames[j] );
             }
-            free( dirnames );
+            Z_Free( dirnames );
         }
         // VoiD -E- *.pack support
     } 
@@ -1956,7 +1956,7 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint3
 	nfiles++; // add space for a guard
 	*numfiles = nfiles;
 
-	list = malloc( sizeof( char * ) * nfiles );
+	list = Z_TagMalloc( sizeof( char * ) * nfiles, ZONE_SYSTEM );
 	if (list)
 	{
 		memset( list, 0, sizeof( char * ) * nfiles );
@@ -1967,7 +1967,7 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint3
 		{
 			if ( s[strlen(s)-1] != '.' )
 			{
-				list[nfiles] = strdup( s );
+				list[nfiles] = Z_TagStrdup( s , ZONE_SYSTEM);
 #ifdef _WIN32
 				Q_strlwr( list[nfiles] );
 #endif
@@ -2060,7 +2060,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	char path[MAX_OSPATH]; /* Temporary path. */
 
 	nfiles = 0;
-	list = malloc(sizeof(char *));
+	list = Z_TagMalloc(sizeof(char *), ZONE_SYSTEM);
 
 	for (search = fs_searchPaths; search != NULL; search = search->next)
 	{
@@ -2081,14 +2081,14 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 			}
 
 			nfiles += j;
-			list = realloc(list, nfiles * sizeof(char *));
+			list = Z_Realloc(list, nfiles * sizeof(char *));
 
 			for (i = 0, j = nfiles - j; i < search->pack->numFiles; i++)
 			{
 				if (ComparePackFiles(findname, search->pack->files[i].name,
 							musthave, canthave, path, sizeof(path)))
 				{
-					list[j++] = strdup(path);
+					list[j++] = Z_TagStrdup(path, ZONE_SYSTEM);
 				}
 			}
 		}
@@ -2102,11 +2102,11 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 			{
 				tmpnfiles--;
 				nfiles += tmpnfiles;
-				list = realloc(list, nfiles * sizeof(char *));
+				list = Z_Realloc(list, nfiles * sizeof(char *));
 
 				for (i = 0, j = nfiles - tmpnfiles; i < tmpnfiles; i++, j++)
 				{
-					list[j] = strdup(tmplist[i] + strlen(search->path) + 1);
+					list[j] = Z_TagStrdup(tmplist[i] + strlen(search->path) + 1, ZONE_SYSTEM);
 				}
 
 				FS_FreeFileList(tmplist, tmpnfiles + 1);
@@ -2129,7 +2129,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 			if ((list[j] != NULL) &&
 				(strcmp(list[i], list[j]) == 0))
 			{
-				free(list[j]);
+				Z_Free(list[j]);
 				list[j] = NULL;
 				tmpnfiles++;
 			}
@@ -2139,7 +2139,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	if (tmpnfiles > 0)
 	{
 		nfiles -= tmpnfiles;
-		tmplist = malloc(nfiles * sizeof(char *));
+		tmplist = Z_TagMalloc(nfiles * sizeof(char *), ZONE_SYSTEM);
 
 		for (i = 0, j = 0; i < nfiles + tmpnfiles; i++)
 		{
@@ -2149,7 +2149,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 			}
 		}
 
-		free(list);
+		Z_Free(list);
 		list = tmplist;
 	}
 
@@ -2157,13 +2157,13 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	if (nfiles > 0)
 	{
         int n = nfiles + 1;
-		list = realloc(list, n * sizeof(char *));
+		list = Z_Realloc(list, n * sizeof(char *));
         list[nfiles] = NULL;
 	}
 
 	else
 	{
-		free(list);
+		Z_Free(list);
 		list = NULL;
 	}
 
@@ -2185,11 +2185,11 @@ void FS_FreeFileList (char **list, int32_t n)
         {
             if (list[i])
             {
-                free(list[i]);
+                Z_Free(list[i]);
                 list[i] = 0;
             }
         }
-        free(list);
+        Z_Free(list);
     }
 }
 
@@ -2221,11 +2221,11 @@ void FS_InsertInList (char **list, char *insert, int32_t len, int32_t start)
 	{
 		if (!list[i])
 		{
-			list[i] = strdup(insert);
+			list[i] = Z_TagStrdup(insert, ZONE_SYSTEM);
 			return;
 		}
 	}
-	list[len] = strdup(insert);
+	list[len] = Z_TagStrdup(insert, ZONE_SYSTEM);
 }
 
 /*
@@ -2272,9 +2272,9 @@ void FS_Dir_f (void)
 				else
 					Com_Printf( "%s\n", dirnames[i] );
 
-				free( dirnames[i] );
+				Z_Free( dirnames[i] );
 			}
-			free( dirnames );
+			Z_Free( dirnames );
 		}
 		Com_Printf( "\n" );
 	};

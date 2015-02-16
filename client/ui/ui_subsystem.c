@@ -55,8 +55,8 @@ void FreeFileList (char **list, int32_t n)
 	{
 		if (list && list[i])
 		{
-			free(list[i]);
-			list[i] = 0;
+			Z_Free(list[i]);
+			Z_Free[i] = 0;
 		}
 	}
 	free(list);

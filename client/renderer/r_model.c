@@ -1787,7 +1787,7 @@ void Mod_LoadAliasMD2Model (model_t *mod, void *buffer)
 	mod->maxs[2] = 32;
 
 #ifdef PROJECTION_SHADOWS // projection shadows from BeefQuake R6
-	mod->edge_tri = malloc(sizeof(int32_t) * pheader->num_tris * 3);
+	mod->edge_tri = Z_TagMalloc(sizeof(int32_t) * pheader->num_tris * 3, ZONE_RENDERER);
 	Mod_BuildMD2TriangleNeighbors (mod);
 #endif // end projection shadows from BeefQuake R6
 
@@ -2574,7 +2574,7 @@ void Mod_Free (model_t *mod)
 
 #ifdef PROJECTION_SHADOWS // projection shadows from BeefQuake R6
 	if (mod->edge_tri)
-		free (mod->edge_tri);
+		Z_Free (mod->edge_tri);
 #endif // end projection shadows from BeefQuake R6
 
 	memset (mod, 0, sizeof(*mod));

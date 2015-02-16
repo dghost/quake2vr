@@ -186,10 +186,10 @@ char **SetCrosshairNames (void)
 	char **crosshairfiles = NULL;
 	int32_t i;
 
-	list = malloc( sizeof( char * ) * MAX_CROSSHAIRS+1 );
+	list = Z_TagMalloc( sizeof( char * ) * MAX_CROSSHAIRS+1 , ZONE_MENU);
 	memset( list, 0, sizeof( char * ) * MAX_CROSSHAIRS+1 );
     
-	list[0] = strdup("none"); //was default
+	list[0] = Z_TagStrdup("none",ZONE_MENU); //was default
 	ncrosshairnames = 1;
 
     if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {

@@ -35,8 +35,8 @@ void SVR_BuildDistortionTextures()
 	
 	Com_Printf("VR_SVR: Generating %dx%d distortion textures...\n",width,height);
 	
-	normalTexture = malloc(sizeof(GLfloat) * width * height * bitsPerPixel);
-	chromaTexture = malloc(sizeof(GLfloat) * width * height * 4);
+	normalTexture = Z_TagMalloc(sizeof(GLfloat) * width * height * bitsPerPixel, ZONE_RENDERER);
+	chromaTexture = Z_TagMalloc(sizeof(GLfloat) * width * height * 4, ZONE_RENDERER);
 
 	if (SteamVR_GetDistortionTextures(SVR_Left,width,height,bitsPerPixel,normalTexture,chromaTexture))
 	{
@@ -84,8 +84,8 @@ void SVR_BuildDistortionTextures()
 	}
 	GL_MBind(0,0);
 
-	free(chromaTexture);
-	free(normalTexture);
+	Z_Free(chromaTexture);
+	Z_Free(normalTexture);
 }
 
 

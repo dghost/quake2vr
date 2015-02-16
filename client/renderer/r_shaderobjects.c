@@ -55,10 +55,10 @@ qboolean R_CompileShader(GLuint shader, const char *source)
 		char *info;
 
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-		info = (char *) malloc(sizeof(char) * length+1);
+		info = (char *) Z_TagMalloc(sizeof(char) * length+1, ZONE_RENDERER);
 		glGetShaderInfoLog(shader, length, NULL, info);
 		VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to compile shader:\n%s\n%s", source, info);
-		free(info);
+		Z_Free(info);
 	}
 	err = glGetError();
 	if (err != GL_NO_ERROR)
@@ -76,7 +76,7 @@ char* R_LoadShader(char*path)
 	size = FS_LoadFile(path,(void **) &buffer);
 	if (buffer)
 	{
-		char *temp = (void *) Z_TagMalloc(size + 2, ZONE_CLIENT);
+		char *temp = (void *) Z_TagMalloc(size + 2, ZONE_RENDERER);
 		memcpy(temp,buffer,size);
 		temp[size]='\n';
 		temp[size+1]= 0;
@@ -156,10 +156,10 @@ qboolean R_CompileShaderFromFiles(r_shaderobject_t *shader)
 				char *info;
 
 				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-				info = (char *) malloc(sizeof(char) * length+1);
+				info = (char *) Z_TagMalloc(sizeof(char) * length+1, ZONE_RENDERER);
 				glGetProgramInfoLog(program, length, NULL, info);
 				VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to link program:\n%s", info);
-				free(info);		
+				Z_Free(info);
 				success = false;
 			} 		
 		}
@@ -231,10 +231,10 @@ qboolean R_CompileShaderProgram(r_shaderobject_t *shader)
 				char *info;
 
 				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-				info = (char *) malloc(sizeof(char) * length+1);
+				info = (char *) Z_TagMalloc(sizeof(char) * length+1, ZONE_RENDERER);
 				glGetProgramInfoLog(program, length, NULL, info);
 				VID_Printf(PRINT_ALL,S_COLOR_RED "Failed to link program:\n%s", info);
-				free(info);		
+				Z_Free(info);
 				success = false;
 			} 		
 		}

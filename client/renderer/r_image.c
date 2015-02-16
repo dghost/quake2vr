@@ -348,7 +348,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 		return;
 	}
 
-	out = malloc ( (pcx->ymax+1) * (pcx->xmax+1) );
+	out = Z_TagMalloc ( (pcx->ymax+1) * (pcx->xmax+1) , ZONE_RENDERER);
 
 	*pic = out;
 
@@ -356,7 +356,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 
 	if (palette)
 	{
-		*palette = malloc(768);
+		*palette = Z_TagMalloc(768, ZONE_RENDERER);
 		memcpy (*palette, (byte *)pcx + len - 768, 768);
 	}
 
@@ -388,7 +388,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 	if ( raw - (byte *)pcx > len)
 	{
 		VID_Printf (PRINT_DEVELOPER, "PCX file %s was malformed", filename);
-		free (*pic);
+		Z_Free (*pic);
 		*pic = NULL;
 	}
 
@@ -428,7 +428,7 @@ image_t *R_LoadSTB(char *filename, imagetype_t type)
     
 	VID_Printf(PRINT_DEVELOPER, "R_LoadSTB Succeed: %s\n",filename);
     image = R_LoadPic(filename, rgbadata, w, h, type, 32);
-    free(rgbadata);
+    STBI_FREE(rgbadata);
     return image;
 }
 
@@ -749,7 +749,7 @@ qboolean GL_Upload32 (uint32_t *data, int32_t width, int32_t height, qboolean mi
 	//
 	if (scaled_width != width || scaled_height != height) 
 	{
-		scaled = malloc((scaled_width * scaled_height) * 4);
+		scaled = Z_TagMalloc((scaled_width * scaled_height) * 4, ZONE_RENDERER);
 		if (!stbir_resize_uint8((uint8_t *) data, (int) width, (int) height, 0, (uint8_t *) scaled, (int) scaled_width, (int) scaled_height, 0, 4)) {
 			scaled_width = width;
 			scaled_height = height;
@@ -778,7 +778,7 @@ qboolean GL_Upload32 (uint32_t *data, int32_t width, int32_t height, qboolean mi
 		glTexImage2D (GL_TEXTURE_2D, 0, comp, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaled);
 
 	if (scaled_width != width || scaled_height != height)
-		free(scaled);
+		Z_Free(scaled);
 
 	upload_width = scaled_width;	upload_height = scaled_height;
 
@@ -920,8 +920,8 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 			image->replace_scale_w = (float)pcxwidth/image->width;
 			image->replace_scale_h = (float)pcxheight/image->height;
 		}
-		if (pic) free(pic);
-		if (palette) free(palette);
+		if (pic) Z_Free(pic);
+		if (palette) Z_Free(palette);
 	}	
 
 	// load little pics into the scrap
@@ -1169,7 +1169,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 		if(!newcin)
 			return NULL;
 
-		pic = malloc(256*256*4);
+		pic = Z_TagMalloc(256*256*4, ZONE_RENDERER);
 		memset(pic, 192, (256*256*4));
 
 		image = R_LoadPic (name, pic, 256, 256, type, 32);
@@ -1182,9 +1182,9 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 		R_AddToFailedImgList(name);
 
 	if (pic)
-		free(pic);
+		Z_Free(pic);
 	if (palette)
-		free(palette);
+		Z_Free(palette);
 
 	return image;
 }
@@ -1318,8 +1318,8 @@ int32_t Draw_GetPalette (void)
 
 	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
 
-	free (pic);
-	free (pal);
+	Z_Free (pic);
+	Z_Free (pal);
 
 	return 0;
 }

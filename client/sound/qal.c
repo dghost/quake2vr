@@ -247,14 +247,14 @@ void QAL_SoundInfo()
 		ALCint * attributes;
 		int i = 0;
 		qalcGetIntegerv(device, ALC_ATTRIBUTES_SIZE, sizeof(attr_size), &attr_size);
-		attributes = (ALCint *) malloc(attr_size * sizeof(ALCint));
+		attributes = (ALCint *) Z_TagMalloc(attr_size * sizeof(ALCint), ZONE_AUDIO);
 		qalcGetIntegerv(device, ALC_ALL_ATTRIBUTES, attr_size, attributes);
 		for (i = 0; i < attr_size; i += 2)
 		{
 			if (attributes[i] == ALC_FREQUENCY)
 				Com_Printf("ALC_FREQUENCY: %i\n", attributes[i + 1]);
 		}
-		free(attributes);
+		Z_Free(attributes);
 	}
 
 }

@@ -222,7 +222,7 @@ void OVR_CalculateState(vr_param_t *state)
 
 		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
 
-		mesh = (ovr_vert_t *) malloc(sizeof(ovr_vert_t) * meshData.VertexCount);
+		mesh = (ovr_vert_t *) Z_TagMalloc(sizeof(ovr_vert_t) * meshData.VertexCount, ZONE_RENDERER);
 		v = mesh;
 		ov = meshData.pVertexData; 
 		for (i = 0; i < meshData.VertexCount; i++)
@@ -251,7 +251,7 @@ void OVR_CalculateState(vr_param_t *state)
 		R_VertexData(&renderInfo[eye].eye,sizeof(ovr_vert_t) * meshData.VertexCount, mesh);
 		R_IndexData(&renderInfo[eye].eye,GL_TRIANGLES,GL_UNSIGNED_SHORT,meshData.IndexCount,sizeof(uint16_t) * meshData.IndexCount,meshData.pIndexData);
 		R_ReleaseIVBO();
-		free(mesh);
+		Z_Free(mesh);
 		ovrHmd_DestroyDistortionMesh( &meshData );
 	}
 	{

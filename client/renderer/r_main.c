@@ -1763,7 +1763,7 @@ void R_Shutdown (void)
 
 	// Knightmare- Free saveshot buffer
 	if (saveshotdata)
-		free(saveshotdata);
+		Z_Free(saveshotdata);
 	saveshotdata = NULL;	// make sure this is null after a vid restart!
 
 	Mod_FreeAll ();
