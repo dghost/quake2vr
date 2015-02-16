@@ -1327,6 +1327,7 @@ zonelist_t zonenames[] = {
     {ZONE_SYSTEM, "System"},
     {ZONE_SERVER, "Server"},
     {ZONE_CLIENT, "Client"},
+    {ZONE_RENDERER, "Renderer"},
     {ZONE_AUDIO, "Audio"},
     {ZONE_MENU, "Menu"},
     {ZONE_GAME, "Game"},

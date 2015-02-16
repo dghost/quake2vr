@@ -875,6 +875,7 @@ extern	int32_t		time_after_ref;
 enum {
     ZONE_UNTAGGED = 0x8000,
     ZONE_MENU = -1000,
+    ZONE_RENDERER = -150,
     ZONE_AUDIO = -100,
     ZONE_SERVER = -10,
     ZONE_CLIENT = -1,
