@@ -881,7 +881,6 @@ enum {
     ZONE_GAME = 765,
     ZONE_LEVEL = 766,
     ZONE_SYSTEM = 0x7FFF,
-    NUM_ZONES
 };
 
 void Z_Free (void *ptr);

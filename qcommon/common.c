@@ -1331,7 +1331,7 @@ zonelist_t zonenames[] = {
     {ZONE_MENU, "Menu"},
     {ZONE_GAME, "Game"},
     {ZONE_LEVEL, "Level"},
-    {-1, NULL},
+    {0, NULL},
 };
 
 typedef struct zhead_s
@@ -1374,9 +1374,8 @@ ztag_t *Z_GetTagChain (int16_t tag) {
     z->tag = tag;
     
     for (i=0;zonenames[i].name != NULL; i++) {
-        if (zonenames[i].tag == tag) {
+        if (zonenames[i].tag == tag)
             break;
-        }
     }
     
     z->name = zonenames[i].name;
@@ -1385,6 +1384,8 @@ ztag_t *Z_GetTagChain (int16_t tag) {
         z->next = prev->next;
         prev->next = z;
     } else {
+        if (z_tagchain)
+            z->next = z_tagchain;
         z_tagchain = z;
     }
     return z;
@@ -1469,9 +1470,15 @@ Z_TagMalloc
 void *Z_TagMalloc (int32_t size, int16_t tag)
 {
 	zhead_t	*z;
-    ztag_t *chain;
+    ztag_t *chain = z_tagchain;
+
+    // fast local search for the chain
+    while (chain != NULL && chain->tag != tag) {
+        chain = chain->next;
+    }
     
-    chain = Z_GetTagChain(tag);
+    if (!chain)
+        chain = Z_GetTagChain(tag);
     
 	size = size + sizeof(zhead_t);
 	z = malloc(size);
@@ -1741,6 +1748,13 @@ void Qcommon_Init (int32_t argc, char **argv)
 	if (setjmp (abortframe) )
 		Sys_Error ("Error during initialization");
 
+    if (!z_tagchain) {
+        int i;
+        for (i=0;zonenames[i].name != NULL; i++) {
+            Z_GetTagChain(zonenames[i].tag);
+        }
+    }
+    
     // prepare enough of the subsystems to handle
 	// cvar and command buffer management
 	COM_InitArgv (argc, argv);
