@@ -1343,11 +1343,12 @@ typedef struct zhead_s
 } zhead_t;
 
 typedef struct ztag_s {
-    struct ztag_s *next;
-    int16_t tag;
-    int32_t count, bytes;
     zhead_t chain;
+    struct ztag_s *next;
     char *name;
+    int64_t bytes;
+    int32_t count;
+    int16_t tag;
 } ztag_t;
 
 
@@ -1498,6 +1499,50 @@ void *Z_TagMalloc (int32_t size, int16_t tag)
 	chain->chain.next = z;
 
 	return (void *)(z+1);
+}
+
+void *Z_Realloc(void* ptr, int32_t size) {
+    zhead_t	*z, *newZ, *prev, *next;
+    ztag_t *chain = z_tagchain;
+    int64_t sizeDiff;
+    int32_t newSize;
+    int32_t oldSize;
+    
+    if (!ptr)
+        return Z_Malloc(size);
+    
+    z = ((zhead_t *)ptr) - 1;
+
+    prev = z->prev;
+    next = z->next;
+    oldSize = z->size;
+    // fast local search for the chain
+    while (chain != NULL && chain->tag != z->tag) {
+        chain = chain->next;
+    }
+
+    if (!chain)
+        chain = Z_GetTagChain(z->tag);
+    
+
+    newSize = size + sizeof(zhead_t);
+    sizeDiff = newSize - oldSize;
+    
+    newZ = realloc(z, newSize);
+    
+    if (newZ) {
+        newZ->size = newSize;
+        prev->next = newZ;
+        next->prev = newZ;
+        chain->bytes += sizeDiff;
+        return (void *)(newZ+1);
+    } else {
+        prev->next = next;
+        next->prev = prev;
+        chain->bytes -= oldSize;
+        chain->count--;
+    }
+    return NULL;
 }
 
 /*
