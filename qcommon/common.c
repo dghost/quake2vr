@@ -1351,14 +1351,14 @@ typedef struct ztag_s {
 } ztag_t;
 
 
-static ztag_t      *z_tagchain;
+static ztag_t *z_tagchain = NULL;
 
 ztag_t *Z_GetTagChain (int16_t tag) {
     ztag_t	*z = z_tagchain;
     ztag_t  *prev = NULL;
     int i;
     
-    while (z && (tag > z->tag))
+    while (z && (tag < z->tag))
     {
         prev = z;
         z=z->next;
@@ -1373,7 +1373,7 @@ ztag_t *Z_GetTagChain (int16_t tag) {
     z->chain.prev = z->chain.next = &z->chain;
     z->tag = tag;
     
-    for (i=0;zonenames[i].tag != -1; i++) {
+    for (i=0;zonenames[i].name != NULL; i++) {
         if (zonenames[i].tag == tag) {
             break;
         }
@@ -1398,7 +1398,7 @@ Z_Free
 void Z_Free (void *ptr)
 {
 	zhead_t	*z;
-    ztag_t *tag;
+    ztag_t *tag = z_tagchain;
     
 	z = ((zhead_t *)ptr) - 1;
 
@@ -1408,29 +1408,13 @@ void Z_Free (void *ptr)
 	z->prev->next = z->next;
 	z->next->prev = z->prev;
 
-    tag = Z_GetTagChain(z->tag);
-    tag->count--;
-    tag->bytes -= z->size;
-	free (z);
-}
+    while (tag != NULL && tag->tag != z->tag)
+    {
+        tag = tag->next;
+    }
 
-/*
- ========================
- Z_FreeWithChain
- ========================
- */
-void Z_FreeWithChain (void *ptr, ztag_t *tag)
-{
-    zhead_t	*z;
-    
-    z = ((zhead_t *)ptr) - 1;
-    
-    if (z->magic != Z_MAGIC)
-        Com_Error (ERR_FATAL, "Z_Free: bad magic");
-    
-    z->prev->next = z->next;
-    z->next->prev = z->prev;
-    
+    // if we've gotten here and tag is NULL (e.g., it couldn't find the proper tag chain)
+    // we are so past fucked up that it's not even worth checking for errors
     tag->count--;
     tag->bytes -= z->size;
     free (z);
@@ -1462,12 +1446,18 @@ void Z_FreeTags (int16_t tag)
 	zhead_t	*z, *next;
     ztag_t *chain = Z_GetTagChain(tag);
     
-    if (chain) {
-        for (z=chain->chain.next ; z != &(chain->chain) ; z=next)
-        {
-            next = z->next;
-            Z_FreeWithChain ((void *)(z+1),chain);
-        }
+    for (z=chain->chain.next ; z != &(chain->chain) ; z=next)
+    {
+        next = z->next;
+        
+        if (z->magic != Z_MAGIC)
+            Com_Error (ERR_FATAL, "Z_Free: bad magic");
+        
+        z->prev->next = z->next;
+        z->next->prev = z->prev;
+        chain->bytes -= z->size;
+        chain->count--;
+        free (z);
     }
 }
 
@@ -1751,8 +1741,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 	if (setjmp (abortframe) )
 		Sys_Error ("Error during initialization");
 
-    z_tagchain = NULL;
-	// prepare enough of the subsystems to handle
+    // prepare enough of the subsystems to handle
 	// cvar and command buffer management
 	COM_InitArgv (argc, argv);
 

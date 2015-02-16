@@ -873,14 +873,14 @@ extern	int32_t		time_before_ref;
 extern	int32_t		time_after_ref;
 
 enum {
-    ZONE_UNTAGGED = 0,
-    ZONE_SYSTEM = 10,
-    ZONE_SERVER = 20,
-    ZONE_CLIENT = 30,
-    ZONE_AUDIO = 100,
+    ZONE_UNTAGGED = 0x8000,
+    ZONE_MENU = -1000,
+    ZONE_AUDIO = -100,
+    ZONE_SERVER = -10,
+    ZONE_CLIENT = -1,
     ZONE_GAME = 765,
     ZONE_LEVEL = 766,
-    ZONE_MENU = 999,
+    ZONE_SYSTEM = 0x7FFF,
     NUM_ZONES
 };
 
