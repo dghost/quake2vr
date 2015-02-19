@@ -301,7 +301,7 @@ qboolean Cbuf_AddLateCommands (void)
 {
 	int32_t		i, j;
 	int32_t		s;
-	char	*text, c;
+	char	*text;
 	int32_t		argc;
 	qboolean	ret;
 
