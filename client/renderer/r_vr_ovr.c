@@ -351,12 +351,12 @@ void OVR_Present(qboolean loading)
 {
 	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
 	float desaturate = 0.0;
-
+    
 	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_ovr_trackingloss->value > 0) {
 		if (hasPositionLock) {
 			float yawDiff = (fabsf(cameraYaw) - 105.0f) * 0.04;
 			float xBound,yBound,zBound;
-			vec_t fin[4][4];
+			vec_t temp[4][4], fin[4][4];
 			int i = 0;
 			vec3_t euler;
 			vec4_t pos = {0.0,0.0,0.0,1.0};
@@ -372,8 +372,8 @@ void OVR_Present(qboolean loading)
 
 			VR_OVR_QuatToEuler(camera.Orientation,euler);
 			EulerToQuat(euler,quat);
-			QuatToRotation(quat,fin);
-			MatrixMultiply (cameraFrustum,fin,fin);
+			QuatToRotation(quat,temp);
+			MatrixMultiply (cameraFrustum,temp,fin);
 
 			for (i=0; i<4; i++) {
 				out[i] = fin[i][0]*pos[0] + fin[i][1]*pos[1] + fin[i][2]*pos[2] + fin[i][3]*pos[3];

@@ -414,7 +414,7 @@ void R_SetupGL(void)
 	//	float	yfov;
 	vec3_t vieworigin;
 
-	vec_t temp[4][4], fin[4][4];
+	vec_t temp1[4][4], temp2[4][4], fin[4][4];
 
 	// Knightmare- update r_modulate in real time
 	if (r_modulate->modified && (r_worldmodel)) //Don't do this if no map is loaded
@@ -428,16 +428,16 @@ void R_SetupGL(void)
 		r_modulate->modified = 0;
 	}
 
-	RotationMatrix (-r_newrefdef.viewangles[2],  1, 0, 0, temp);
-	MatrixMultiply (temp,glState.axisRotation,fin);
-	RotationMatrix (-r_newrefdef.viewangles[0],  0, 1, 0, temp);
-	MatrixMultiply (temp,fin,fin);
-	RotationMatrix (-r_newrefdef.viewangles[1],  0, 0, 1, temp);
-	MatrixMultiply (temp,fin,fin);
+	RotationMatrix (-r_newrefdef.viewangles[2],  1, 0, 0, temp2);
+	MatrixMultiply (temp2,glState.axisRotation,temp1);
+	RotationMatrix (-r_newrefdef.viewangles[0],  0, 1, 0, temp2);
+	MatrixMultiply (temp2,temp1,fin);
+	RotationMatrix (-r_newrefdef.viewangles[1],  0, 0, 1, temp2);
+	MatrixMultiply (temp2,fin,temp1);
 
 	VectorCopy(r_newrefdef.vieworg,vieworigin);
-	TranslationMatrix (-vieworigin[0],  -vieworigin[1],  -vieworigin[2],temp);
-	MatrixMultiply (temp,fin,fin);
+	TranslationMatrix (-vieworigin[0],  -vieworigin[1],  -vieworigin[2],temp2);
+	MatrixMultiply (temp2,temp1,fin);
 
 	GL_LoadMatrix(GL_MODELVIEW, fin);
 

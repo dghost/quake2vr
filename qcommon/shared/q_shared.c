@@ -359,25 +359,22 @@ MatrixMultiply
 */
 void MatrixMultiply (vec_t in1[4][4], vec_t in2[4][4], vec_t out[4][4])
 {
-	vec_t result[4][4];
-	
-	result[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0] + in1[0][3] * in2[3][0]; 
-	result[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1] + in1[0][3] * in2[3][1]; 
-	result[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2] + in1[0][3] * in2[3][2]; 
-	result[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] + in1[0][2] * in2[2][3] + in1[0][3] * in2[3][3]; 
-	result[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0] + in1[1][3] * in2[3][0]; 
-	result[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1] + in1[1][3] * in2[3][1]; 
-	result[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2] + in1[1][3] * in2[3][2]; 
-	result[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] + in1[1][2] * in2[2][3] + in1[1][3] * in2[3][3]; 
-	result[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0] + in1[2][3] * in2[3][0]; 
-	result[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1] + in1[2][3] * in2[3][1]; 
-	result[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2] + in1[2][3] * in2[3][2]; 
-	result[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] + in1[2][2] * in2[2][3] + in1[2][3] * in2[3][3]; 
-	result[3][0] = in1[3][0] * in2[0][0] + in1[3][1] * in2[1][0] + in1[3][2] * in2[2][0] + in1[3][3] * in2[3][0]; 
-	result[3][1] = in1[3][0] * in2[0][1] + in1[3][1] * in2[1][1] + in1[3][2] * in2[2][1] + in1[3][3] * in2[3][1]; 
-	result[3][2] = in1[3][0] * in2[0][2] + in1[3][1] * in2[1][2] + in1[3][2] * in2[2][2] + in1[3][3] * in2[3][2]; 
-	result[3][3] = in1[3][0] * in2[0][3] + in1[3][1] * in2[1][3] + in1[3][2] * in2[2][3] + in1[3][3] * in2[3][3]; 
-	memcpy(out,result,sizeof(vec_t)*16);
+	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0] + in1[0][3] * in2[3][0];
+	out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1] + in1[0][3] * in2[3][1];
+	out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2] + in1[0][3] * in2[3][2];
+	out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] + in1[0][2] * in2[2][3] + in1[0][3] * in2[3][3];
+	out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0] + in1[1][3] * in2[3][0];
+	out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1] + in1[1][3] * in2[3][1];
+	out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2] + in1[1][3] * in2[3][2];
+	out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] + in1[1][2] * in2[2][3] + in1[1][3] * in2[3][3];
+	out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0] + in1[2][3] * in2[3][0];
+	out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1] + in1[2][3] * in2[3][1];
+	out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2] + in1[2][3] * in2[3][2];
+	out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] + in1[2][2] * in2[2][3] + in1[2][3] * in2[3][3];
+	out[3][0] = in1[3][0] * in2[0][0] + in1[3][1] * in2[1][0] + in1[3][2] * in2[2][0] + in1[3][3] * in2[3][0];
+	out[3][1] = in1[3][0] * in2[0][1] + in1[3][1] * in2[1][1] + in1[3][2] * in2[2][1] + in1[3][3] * in2[3][1];
+	out[3][2] = in1[3][0] * in2[0][2] + in1[3][1] * in2[1][2] + in1[3][2] * in2[2][2] + in1[3][3] * in2[3][2];
+	out[3][3] = in1[3][0] * in2[0][3] + in1[3][1] * in2[1][3] + in1[3][2] * in2[2][3] + in1[3][3] * in2[3][3];
 }
 
 
@@ -869,21 +866,16 @@ void VectorClamp(vec3_t angles)
 	VectorCopy(temp,angles);
 }
 
-void QuatNormalize(vec4_t quat, vec4_t out)
+void QuatNormalize(vec4_t quat)
 {
 	float mag = QuatMagnitude(quat);
 	if (fabs(mag) > 0.00001f && fabs(mag - 1.0f) > 0.00001f) {
         float overmag = 1.0 / mag;
-		out[0] = quat[0] * overmag;
-		out[1] = quat[1] * overmag;
-		out[2] = quat[2] * overmag;
-		out[3] = quat[3] * overmag;
-	} else {
-        memcpy(out, quat, sizeof(vec4_t));
-//		QuatCopy(quat, out);
+		quat[0] *= overmag;
+		quat[1] *= overmag;
+		quat[2] *= overmag;
+		quat[3] *= overmag;
 	}
-
-
 }
 
 void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out)
@@ -898,9 +890,10 @@ void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out)
 	VectorScale(&q1[1], q2[0], temp2);
 
 	CrossProduct(&q1[1], &q2[1], &o[1]);
+    VectorAdd(temp1, temp2, temp1);
 	_VectorAdd(&o[1], temp1, &o[1]);
-	_VectorAdd(&o[1], temp2, &o[1]);
-	QuatCopy(o,out);
+
+    QuatCopy(o,out);
 
 }
 
@@ -927,7 +920,7 @@ void LerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
     int i;
     for (i = 0 ; i < 4 ; i++)
         out[i] = a * q1[i] + fraction * q2[i];
-	QuatNormalize(out,out);
+	QuatNormalize(out);
 }
 
 
@@ -1021,7 +1014,7 @@ void EulerToQuat(vec3_t in, vec4_t out)
 	out[1] = c[YAW] * s[PITCH] * c[ROLL] + s[YAW] * c[PITCH] * s[ROLL];
 	out[2] = s[YAW] * c[PITCH] * c[ROLL] - c[YAW] * s[PITCH] * s[ROLL];
 	out[3] = c[YAW] * c[PITCH] * s[ROLL] - s[YAW] * s[PITCH] * c[ROLL];
-	QuatNormalize(out, out);
+	QuatNormalize(out);
 }
 
 void QuatToRotation(vec4_t q, vec_t out[4][4])

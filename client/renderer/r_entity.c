@@ -30,18 +30,18 @@ R_RotateForEntity
 */
 void R_RotateForEntity (entity_t *e, qboolean full)
 {
-	vec_t model[4][4], trans[4][4];
+	vec_t model[4][4], trans[4][4], rot[4][4];
 	TranslationMatrix(e->origin[0],  e->origin[1],  e->origin[2],trans);
-	RotationMatrix(e->angles[1],  0, 0, 1,model);
-	MatrixMultiply(model,trans,model);
+	RotationMatrix(e->angles[1],  0, 0, 1,rot);
+	MatrixMultiply(rot,trans,model);
 
 	if (full==true)
 	{
 		vec_t temp[4][4];
-		RotationMatrix(e->angles[0],  0, 1, 0, temp);
-		MatrixMultiply(temp,model,model);
-		RotationMatrix(e->angles[2],  1, 0, 0, temp);
-		MatrixMultiply(temp,model,model);
+		RotationMatrix(e->angles[0],  0, 1, 0, rot);
+		MatrixMultiply(rot,model,temp);
+		RotationMatrix(e->angles[2],  1, 0, 0, rot);
+		MatrixMultiply(rot,temp,model);
 	}
 	GL_MultiplyMatrix(GL_MODELVIEW,model);
 }

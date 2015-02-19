@@ -319,7 +319,7 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3]);
 void AngleClamp(vec_t *angle);
 void VectorClamp(vec3_t angles);
 
-void QuatNormalize(vec4_t quat, vec4_t out);
+void QuatNormalize(vec4_t quat);
 void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out);
 void QuatInverse(vec4_t q1, vec4_t out);
 void QuatDifference(vec4_t q1, vec4_t q2, vec4_t out);

@@ -311,7 +311,7 @@ fbo_t* R_VR_GetFrameFBO()
 void R_VR_DrawHud()
 {
 	int index = 0;
-	vec_t mat[4][4], temp[4][4], counter[4][4];
+	vec_t mat[4][4], temp[4][4], counter[4][4], accum[4][4];
 	vec3_t rot, pos;
 
 	if (!vr_enabled->value)
@@ -371,13 +371,13 @@ void R_VR_DrawHud()
 		}
 
 		RotationMatrix(vr_hud_yaw - e[1], 0.0, 1.0, 0.0, tmat);
-		MatrixMultiply(counter, tmat, counter);
+		MatrixMultiply(counter, tmat, accum);
 
 		RotationMatrix(e[0], 1.0, 0.0, 0.0, tmat);
-		MatrixMultiply(counter, tmat, counter);
+		MatrixMultiply(accum, tmat, temp);
 
 		RotationMatrix(e[2], 0.0, 0.0, 1.0, tmat);
-		MatrixMultiply(counter, tmat, counter);
+		MatrixMultiply(temp, tmat, counter);
 	}
 
 	// set proper mode
@@ -390,6 +390,7 @@ void R_VR_DrawHud()
 
 	for (index = 0; index < 2; index++)
 	{
+        vec_t fin[4][4];
 		// bind the eye FBO
 		R_BindFBO(vrState.eyeFBO[index]);
 
@@ -406,9 +407,9 @@ void R_VR_DrawHud()
 		}
 
 		// load the view matrix
-		MatrixMultiply(temp, mat, temp);
-		MatrixMultiply(counter, temp, temp);
-		GL_LoadMatrix(GL_MODELVIEW, temp);
+		MatrixMultiply(temp, mat, accum);
+		MatrixMultiply(counter, accum, fin);
+		GL_LoadMatrix(GL_MODELVIEW, fin);
 
 		// draw the hud for that eye
 		R_DrawIVBO(&hudVBO);

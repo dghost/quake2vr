@@ -329,7 +329,7 @@ int32_t	skytexorder[6] = {0,2,1,3,4,5};
 void R_DrawSkyBox (void)
 {
 	int32_t		i;
-	vec_t rot[4][4], trans[4][4];
+	vec_t rot[4][4], trans[4][4], fin[4][4];
 	if (skyrotate)
 	{	// check for no sky at all
 		for (i=0 ; i<6 ; i++)
@@ -343,8 +343,8 @@ void R_DrawSkyBox (void)
 	GL_PushMatrix(GL_MODELVIEW);
 	TranslationMatrix (r_origin[0], r_origin[1], r_origin[2],trans);
 	RotationMatrix (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2], rot);
-	MatrixMultiply(rot,trans,rot);
-	GL_MultiplyMatrix(GL_MODELVIEW, rot);
+	MatrixMultiply(rot,trans,fin);
+	GL_MultiplyMatrix(GL_MODELVIEW, fin);
 	for (i=0; i<6; i++)
 	{
 		if (skyrotate)
