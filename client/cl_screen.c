@@ -1516,6 +1516,7 @@ void SCR_TimeRefresh_f (void)
 	Com_Printf ("%f seconds (%f fps)\n", time, 128/time);
 }
 
+struct image_s *sb_backtile = NULL;
 
 /*
 ==============
@@ -1528,16 +1529,16 @@ void SCR_TileClear (void)
 {
 	int32_t		top, bottom, left, right;
 	int32_t		w, h;
-    image_t     *tile = R_DrawFindPic("backtile");
-	if (scr_con_current == 1.0)
+
+    if (scr_con_current == 1.0)
 		return;		// full screen console
 	if (scr_viewsize->value == 100)
 		return;		// full screen rendering
 	if (cl.cinematictime > 0)
 		return;		// full screen cinematic
-    if (!tile)
+    if (!sb_backtile)
         return;
-    
+
 	w = viddef.width;
 	h = viddef.height;
 
@@ -1547,16 +1548,16 @@ void SCR_TileClear (void)
 	right = left + cl.refdef.width-1;
     
 	// clear above view screen
-	R_DrawTileImage (0, 0, w, top, tile);
+	R_DrawTileImage (0, 0, w, top, sb_backtile);
 
 	// clear below view screen
-	R_DrawTileImage (0, bottom, w, h - bottom, tile);
+	R_DrawTileImage (0, bottom, w, h - bottom, sb_backtile);
 
 	// clear left of view screen
-	R_DrawTileImage (0, top, left, bottom - top + 1, tile);
+	R_DrawTileImage (0, top, left, bottom - top + 1, sb_backtile);
 
 	// clear right of view screen
-	R_DrawTileImage (right, top, w - right, bottom - top + 1, tile);
+	R_DrawTileImage (right, top, w - right, bottom - top + 1, sb_backtile);
 }
 
 
@@ -1833,7 +1834,7 @@ void SCR_TouchPics (void)
 			sb_imgs[i][j] = R_DrawFindPic (sb_nums[i][j]);
 
     sb_flash = R_DrawFindPic("field_3");
-    
+    sb_backtile = R_DrawFindPic("backtile");
     crosshair_img = NULL;
 	if (crosshair->value)
 	{
