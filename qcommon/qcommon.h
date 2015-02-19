@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __QCOMMON_H
 
 #include "shared/q_shared.h"
+#include "shared/q_hash.h"
 #include "glob.h"
 
 #define	VERSION	"4.2" //was 3.21

@@ -43,6 +43,7 @@ set(COMMON_HEADERS
 	qcommon/qfiles.h
 	qcommon/shared/game.h
 	qcommon/shared/q_shared.h
+	qcommon/shared/q_hash.h
 	qcommon/vid_modes.h
 	qcommon/wildcard.h
 	qcommon/zip/unzip.h
@@ -64,7 +65,9 @@ set(COMMON_SOURCES
   qcommon/pmove.c
   qcommon/shared/m_flash.c
   qcommon/shared/q_shared.c
+  qcommon/shared/q_hash.c
   qcommon/wildcard.c
+  qcommon/murmur3/murmur3.c
   qcommon/zip/ioapi.c
   qcommon/zip/unzip.c
 )
