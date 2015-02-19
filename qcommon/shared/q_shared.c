@@ -1007,11 +1007,11 @@ void QuatToEuler(vec4_t q, vec3_t e)
 
 void EulerToQuat(vec3_t in, vec4_t out)
 {
-	vec3_t s, c;
+	vec3_t s, c, t;
 
-
-	VectorSet(s, sin(DEG2RAD(in[0]) / 2.0f), sin(DEG2RAD(in[1])/2.0f), sin(DEG2RAD(in[2])/2.0f));
-	VectorSet(c, cos(DEG2RAD(in[0]) / 2.0f), cos(DEG2RAD(in[1]) / 2.0f), cos(DEG2RAD(in[2]) / 2.0f));
+	VectorScale(in, 0.5 * M_PI / 180.0f, t);
+	VectorSet(s, sin(t[0]), sin(t[1]), sin(t[2]));
+	VectorSet(c, cos(t[0]), cos(t[1]), cos(t[2]));
 
 	/*
 	out[0] = 2 * acos(cos(temp[ROLL] / 2)*cos(temp[PITCH] / 2)*cos(temp[YAW] / 2) + sin(temp[ROLL] / 2)*sin(temp[PITCH] / 2)*sin(temp[YAW] / 2));
