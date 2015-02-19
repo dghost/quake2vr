@@ -60,9 +60,6 @@ static uint32_t	sys_msg_time;
 uint32_t	sys_frame_time;
 uint32_t    sys_cacheline;
 
-//#define	MAX_NUM_ARGVS	128
-//static int32_t			argc;
-//static char		*argv[MAX_NUM_ARGVS];
 
 /*
 ================
@@ -93,6 +90,10 @@ DEDICATED CONSOLE
 
 ===============================================================================
 */
+#define	MAX_NUM_ARGVS	128
+static int32_t			argc;
+static char		*argv[MAX_NUM_ARGVS];
+
 static char	console_text[256];
 static int32_t	console_textlen;
 
