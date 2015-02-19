@@ -41,13 +41,14 @@ set(COMMON_HEADERS
 	qcommon/glob.h
 	qcommon/qcommon.h
 	qcommon/qfiles.h
+	qcommon/shared/game.h
 	qcommon/shared/q_shared.h
 	qcommon/vid_modes.h
 	qcommon/wildcard.h
 	qcommon/zip/unzip.h
 	qcommon/zip/zconf.h
 	qcommon/zip/zlib.h
-    qcommon/zip/ioapi.h
+	qcommon/zip/ioapi.h
 )
 
 set(COMMON_SOURCES 
