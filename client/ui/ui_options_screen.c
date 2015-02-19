@@ -289,7 +289,7 @@ static void ScreenResetDefaultsFunc ( void *unused )
 	ScreenSetMenuItemValues();
 }
 
-void Options_Screen_Teardown ()
+void Options_Screen_Teardown (void)
 {
     FS_FreeFileList(crosshair_names,numcrosshairs);
     if (crosshairs)
