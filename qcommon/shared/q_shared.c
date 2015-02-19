@@ -647,8 +647,8 @@ vec_t VectorNormalize (vec3_t v)
 
 	if (length)
 	{
-		ilength = 1/length;
         int32_t i;
+		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
             v[i] *= ilength;
 	}
@@ -665,8 +665,8 @@ vec_t VectorNormalize2 (vec3_t v, vec3_t out)
 
 	if (length)
 	{
-		ilength = 1/length;
         int32_t i;
+		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
             out[i] = v[i]*ilength;
 	}

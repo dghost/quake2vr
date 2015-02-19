@@ -1444,7 +1444,7 @@ void Z_Stats_f (void)
 Z_FreeTags
 ========================
 */
-void Z_FreeTags (int16_t tag)
+void Z_FreeTags (int32_t tag)
 {
 	zhead_t	*z, *next;
     ztag_t *chain = Z_GetTagChain(tag);
@@ -1469,7 +1469,7 @@ void Z_FreeTags (int16_t tag)
 Z_TagMalloc
 ========================
 */
-void *Z_TagMalloc (int32_t size, int16_t tag)
+void *Z_TagMalloc (int32_t size, int32_t tag)
 {
 	zhead_t	*z;
     ztag_t *chain = z_tagchain;
@@ -1564,7 +1564,7 @@ void *Z_Malloc (int32_t size)
  Z_TagStrdup
  ========================
  */
-void *Z_TagStrdup (char *string, int16_t tag)
+void *Z_TagStrdup (char *string, int32_t tag)
 {
     size_t size = strlen(string) + 1;
     void *new_string = Z_TagMalloc (size, tag);
