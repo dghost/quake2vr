@@ -70,15 +70,15 @@ void R_LightAliasModel (vec3_t baselight, vec3_t normal, vec3_t lightOut, byte n
 		if (model_dlights_num)
 			for (i=0; i<model_dlights_num; i++)
 			{
-				l = 2.0 * VLight_GetLightValue (normal, model_dlights[i].direction,
-					currententity->angles[PITCH], currententity->angles[YAW], true);
+				l = 2.0 * VLight_GetDLightValue (normal, model_dlights[i].direction,
+					currententity->angles[PITCH], currententity->angles[YAW]);
 				VectorMA(lightOut, l, model_dlights[i].color, lightOut);
 			}
 	}
 	else
 	{
 		l = 2.0 * VLight_GetLightValue (normal, aliasLightDir, currententity->angles[PITCH],
-			currententity->angles[YAW], false);
+			currententity->angles[YAW]);
 
 		VectorScale(baselight, l, lightOut);
 	}

@@ -85,15 +85,15 @@ void R_LightAliasMD2Model (vec3_t baselight, dtrivertx_t *verts, dtrivertx_t *ov
 		if (model_dlights_num)
 			for (i=0; i<model_dlights_num; i++)
 			{
-				l = 2.0 * VLight_LerpLight (verts->lightnormalindex, ov->lightnormalindex,
-					backlerp, model_dlights[i].direction, currententity->angles, true );
+				l = 2.0 * VLight_LerpDLight (verts->lightnormalindex, ov->lightnormalindex,
+					backlerp, model_dlights[i].direction, currententity->angles);
 				VectorMA(lightOut, l, model_dlights[i].color, lightOut);
 			}
 	}
 	else
 	{
 		l = 2.0 * VLight_LerpLight (verts->lightnormalindex, ov->lightnormalindex,
-								backlerp, lightdir_md2, currententity->angles, false);
+								backlerp, lightdir_md2, currententity->angles);
 		VectorScale(baselight, l, lightOut);
 	}
 
