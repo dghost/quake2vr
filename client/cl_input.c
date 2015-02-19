@@ -329,22 +329,22 @@ void CL_ClampPitch (void)
 
 	if (cl.aimangles[PITCH] + pitch < -360)
 		cl.aimangles[PITCH] += 360; // wrapped
-	if (cl.aimangles[PITCH] + pitch > 360)
+	else if (cl.aimangles[PITCH] + pitch > 360)
 		cl.aimangles[PITCH] -= 360; // wrapped
 
 	if (cl.aimangles[PITCH] + pitch > 89)
 		cl.aimangles[PITCH] = 89 - pitch;
-	if (cl.aimangles[PITCH] + pitch < -89)
+	else if (cl.aimangles[PITCH] + pitch < -89)
 		cl.aimangles[PITCH] = -89 - pitch;
 
 	if (cl.bodyangles[PITCH] + pitch < -360)
 		cl.bodyangles[PITCH] += 360; // wrapped
-	if (cl.bodyangles[PITCH] + pitch > 360)
+	else if (cl.bodyangles[PITCH] + pitch > 360)
 		cl.bodyangles[PITCH] -= 360; // wrapped
 
 	if (cl.bodyangles[PITCH] + pitch > 89)
 		cl.bodyangles[PITCH] = 89 - pitch;
-	if (cl.bodyangles[PITCH] + pitch < -89)
+	else if (cl.bodyangles[PITCH] + pitch < -89)
 		cl.bodyangles[PITCH] = -89 - pitch;
 }
 

@@ -293,18 +293,16 @@ void RotationMatrix(vec_t angle, vec_t x, vec_t y, vec_t z, vec_t out[4][4])
     vec_t zz = z * z;
 
     // build rotation matrix
+    memset(out,0,sizeof(vec_t) * 16);
     out[0][0] = xx * (1 - c) + c;
     out[1][0] = xy * (1 - c) - z * s;
     out[2][0] = xz * (1 - c) + y * s;
-    out[3][0] = 0;
     out[0][1] = xy * (1 - c) + z * s;
     out[1][1] = yy * (1 - c) + c;
     out[2][1] = yz * (1 - c) - x * s;
-    out[3][1] = 0;
     out[0][2] = xz * (1 - c) - y * s;
     out[1][2] = yz * (1 - c) + x * s;
     out[2][2] = zz * (1 - c) + c;
-    out[3][2] = out[0][3] = out[1][3] = out[2][3] = 0;
 	out[3][3] = 1;
 }
 
@@ -653,9 +651,9 @@ vec_t VectorNormalize (vec3_t v)
 	if (length)
 	{
 		ilength = 1/length;
-		v[0] *= ilength;
-		v[1] *= ilength;
-		v[2] *= ilength;
+        int32_t i;
+        for (i=0 ; i< 3 ; i++)
+            v[i] *= ilength;
 	}
 		
 	return length;
@@ -671,9 +669,9 @@ vec_t VectorNormalize2 (vec3_t v, vec3_t out)
 	if (length)
 	{
 		ilength = 1/length;
-		out[0] = v[0]*ilength;
-		out[1] = v[1]*ilength;
-		out[2] = v[2]*ilength;
+        int32_t i;
+        for (i=0 ; i< 3 ; i++)
+            out[i] = v[i]*ilength;
 	}
 		
 	return length;
@@ -681,9 +679,9 @@ vec_t VectorNormalize2 (vec3_t v, vec3_t out)
 
 void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 {
-	vecc[0] = veca[0] + scale*vecb[0];
-	vecc[1] = veca[1] + scale*vecb[1];
-	vecc[2] = veca[2] + scale*vecb[2];
+    int32_t i;
+    for (i=0 ; i< 3 ; i++)
+        vecc[i] = veca[i] + scale*vecb[i];
 }
 
 
@@ -694,23 +692,21 @@ vec_t _DotProduct (vec3_t v1, vec3_t v2)
 
 void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out)
 {
-	out[0] = veca[0]-vecb[0];
-	out[1] = veca[1]-vecb[1];
-	out[2] = veca[2]-vecb[2];
+    int32_t i;
+    for (i=0 ; i< 3 ; i++)
+        out[i] = veca[i]-vecb[i];
 }
 
 void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out)
 {
-	out[0] = veca[0]+vecb[0];
-	out[1] = veca[1]+vecb[1];
-	out[2] = veca[2]+vecb[2];
+    int32_t i;
+    for (i=0 ; i< 3 ; i++)
+        out[i] = veca[i]+vecb[i];
 }
 
 void _VectorCopy (vec3_t in, vec3_t out)
 {
-	out[0] = in[0];
-	out[1] = in[1];
-	out[2] = in[2];
+    memcpy(out, in, sizeof(vec3_t));
 }
 
 void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross)
@@ -737,9 +733,9 @@ vec_t VectorLength(vec3_t v)
 
 void VectorInverse (vec3_t v)
 {
-	v[0] = -v[0];
-	v[1] = -v[1];
-	v[2] = -v[2];
+    int32_t i;
+    for (i=0 ; i< 3 ; i++)
+        v[i] = -v[i];
 }
 
 void VectorScale (vec3_t in, vec_t scale, vec3_t out)
@@ -810,14 +806,9 @@ From Q2E
 */
 void AxisClear (vec3_t axis[3])
 {
+    memset(axis,0, sizeof(vec3_t) * 3);
 	axis[0][0] = 1;
-	axis[0][1] = 0;
-	axis[0][2] = 0;
-	axis[1][0] = 0;
 	axis[1][1] = 1;
-	axis[1][2] = 0;
-	axis[2][0] = 0;
-	axis[2][1] = 0;
 	axis[2][2] = 1;
 }
 
@@ -829,15 +820,7 @@ From Q2E
 */
 void AxisCopy (const vec3_t in[3], vec3_t out[3])
 {
-	out[0][0] = in[0][0];
-	out[0][1] = in[0][1];
-	out[0][2] = in[0][2];
-	out[1][0] = in[1][0];
-	out[1][1] = in[1][1];
-	out[1][2] = in[1][2];
-	out[2][0] = in[2][0];
-	out[2][1] = in[2][1];
-	out[2][2] = in[2][2];
+    memcpy(out, in, sizeof(vec3_t) * 3);
 }
 
 /*
@@ -863,51 +846,41 @@ qboolean AxisCompare (const vec3_t axis1[3], const vec3_t axis2[3])
 
 void AngleClamp(vec_t *angle)
 {
-	vec_t temp1;
+	vec_t temp;
 
-	temp1 = floor((*angle + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-	
-	temp1 = *angle - temp1;
+    temp = fmodf(*angle + 180.0f, 360.0f);
+    if (temp > 180.0f)
+        temp -= 360.0f;
 
-	if (temp1 > 180.0f)
-		temp1 -= 360.0f;
-
-	*angle = temp1;
+	*angle = temp;
 }
 
 void VectorClamp(vec3_t angles)
 {
+    int i = 0;
+	vec3_t temp;
+    
+    for (i = 0; i < 3 ; i++) {
+        temp[i] = fmodf(angles[i] + 180.0f, 360.0f);
+        if (temp[i] > 180.0f)
+            temp[i] -= 360.0f;
+    }
 
-	vec3_t temp1;
-
-	temp1[0] = floor((angles[0] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-	temp1[1] = floor((angles[1] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-	temp1[2] = floor((angles[2] + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-
-	VectorSubtract(angles, temp1, temp1);
-
-	if (temp1[0] > 180.0f)
-		temp1[0] -= 360.0f;
-
-	if (temp1[1] > 180.0f)
-		temp1[1] -= 360.0f;
-
-	if (temp1[2] > 180.0f)
-		temp1[2] -= 360.0f;
-
-	VectorCopy(temp1,angles);
+	VectorCopy(temp,angles);
 }
 
 void QuatNormalize(vec4_t quat, vec4_t out)
 {
 	float mag = QuatMagnitude(quat);
 	if (fabs(mag) > 0.00001f && fabs(mag - 1.0f) > 0.00001f) {
-		out[0] = quat[0] / mag;
-		out[1] = quat[1] / mag;
-		out[2] = quat[2] / mag;
-		out[3] = quat[3] / mag;
+        float overmag = 1.0 / mag;
+		out[0] = quat[0] * overmag;
+		out[1] = quat[1] * overmag;
+		out[2] = quat[2] * overmag;
+		out[3] = quat[3] * overmag;
 	} else {
-		QuatCopy(quat, out);
+        memcpy(out, quat, sizeof(vec4_t));
+//		QuatCopy(quat, out);
 	}
 
 
@@ -933,11 +906,11 @@ void QuatMultiply(vec4_t q1, vec4_t q2, vec4_t out)
 
 void QuatInverse(vec4_t q1, vec4_t out)
 {
-	vec_t mag = QuatMagnitude(q1);
-	out[0] = -q1[0] / mag;
-	out[1] = q1[1] / mag;
-	out[2] = q1[2] / mag;
-	out[3] = q1[3] / mag;
+	vec_t mag = 1.0 / QuatMagnitude(q1);
+	out[0] = -q1[0] * mag;
+	out[1] = q1[1] * mag;
+	out[2] = q1[2] * mag;
+	out[3] = q1[3] * mag;
 }
 
 void QuatDifference(vec4_t q1, vec4_t q2, vec4_t out)
@@ -951,10 +924,9 @@ void QuatDifference(vec4_t q1, vec4_t q2, vec4_t out)
 void LerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
 {
 	float a = 1 - fraction;
-	out[0] = a * q1[0] + fraction * q2[0];
-	out[1] = a * q1[1] + fraction * q2[1];
-	out[2] = a * q1[2] + fraction * q2[2];
-	out[3] = a * q1[3] + fraction * q2[3];
+    int i;
+    for (i = 0 ; i < 4 ; i++)
+        out[i] = a * q1[i] + fraction * q2[i];
 	QuatNormalize(out,out);
 }
 
@@ -964,7 +936,7 @@ void SlerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
 	vec4_t temp;
 	float cosOmega = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
 	float k0, k1;
-
+    int i;
 	QuatCopy(q2, temp);
 	if (cosOmega < 0.0f)
 	{
@@ -984,11 +956,8 @@ void SlerpQuat(vec4_t q1, vec4_t q2, vec_t fraction, vec4_t out)
 		k0 = sin((1.0f - fraction) * omega) * oneOverSinOmega;
 		k1 = sin(fraction * omega) * oneOverSinOmega;
 	}
-
-	out[0] = q1[0] * k0 + temp[0] * k1;
-	out[1] = q1[1] * k0 + temp[1] * k1;
-	out[2] = q1[2] * k0 + temp[2] * k1;
-	out[3] = q1[3] * k0 + temp[3] * k1;
+    for (i = 0 ; i < 4 ; i++)
+        out[i] = q1[i] * k0 + temp[i] * k1;
 }
 
 void QuatToEuler(vec4_t q, vec3_t e)
@@ -1069,6 +1038,7 @@ void QuatToRotation(vec4_t q, vec_t out[4][4])
 	vec_t zz = q[3] * q[3];
 	vec_t zw = q[3] * q[0];
 
+    memset(out, 0, sizeof(vec3_t[3]));
 	out[0][0] = 1 - 2 * (yy + zz);
 	out[1][0] = 2 * (xy - zw);
 	out[2][0] = 2 * (xz + yw);
@@ -1081,7 +1051,6 @@ void QuatToRotation(vec4_t q, vec_t out[4][4])
 	out[1][2] = 2 * (yz + xw);
 	out[2][2] = 1 - 2 * (xx + yy);
 
-	out[3][0] = out[3][1] = out[3][2] = out[0][3] = out[1][3] = out[2][3] = 0;
 	out[3][3] = 1;
 
 
