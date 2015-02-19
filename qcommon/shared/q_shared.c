@@ -1042,7 +1042,7 @@ void QuatToRotation(vec4_t q, vec_t out[4][4])
 	vec_t zz = q[3] * q[3];
 	vec_t zw = q[3] * q[0];
 
-    memset(out, 0, sizeof(vec3_t[3]));
+    memset(out, 0, sizeof(vec_t)* 16);
 	out[0][0] = 1 - 2 * (yy + zz);
 	out[1][0] = 2 * (xy - zw);
 	out[2][0] = 2 * (xz + yw);
