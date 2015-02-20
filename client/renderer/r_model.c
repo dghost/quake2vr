@@ -190,7 +190,8 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	model_t	*mod;
 	void *buf;
 	int32_t		i;
-	
+    hash_t nameHash;
+    
 	if (!name[0])
 		VID_Error (ERR_DROP, "Mod_ForName: NULL name");
 		
@@ -204,7 +205,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
-
+    nameHash = Q_Hash(name, strlen(name));
 	//
 	// search the currently loaded models
 	//
@@ -212,7 +213,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!strcmp (mod->name, name) )
+		if (!Q_HashCompare(mod->hash, nameHash) && !strcmp (mod->name, name) )
 			return mod;
 	}
 	
@@ -231,7 +232,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 		mod_numknown++;
 	}
 	strcpy (mod->name, name);
-	
+    mod->hash = nameHash;
 	//
 	// load the file
 	//
@@ -460,7 +461,7 @@ void Mod_LoadEdges (lump_t *l)
 // store the names of last textures that failed to load
 #define NUM_FAIL_TEXTURES 256
 char lastFailedTexture[NUM_FAIL_TEXTURES][MAX_OSPATH];
-int32_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
+hash_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
 static uint32_t failedTexListIndex;
 
 /*
@@ -472,9 +473,9 @@ void Mod_InitFailedTexList (void)
 {
 	int32_t		i;
 
+    memset(lastFailedTextureHash, 0, sizeof(lastFailedTextureHash));
 	for (i=0; i<NUM_FAIL_TEXTURES; i++) {
 		Com_sprintf(lastFailedTexture[i], sizeof(lastFailedTexture[i]), "\0");
-		lastFailedTextureHash[i] = 0;
 	}
 
 	failedTexListIndex = 0;
@@ -485,15 +486,13 @@ void Mod_InitFailedTexList (void)
 Mod_CheckTexFailed
 ===============
 */
-qboolean Mod_CheckTexFailed (char *name)
+qboolean Mod_CheckTexFailed (char *name, hash_t hash)
 {
 	int32_t		i;
-	int32_t	hash;
-
-	hash = Com_HashFileName(name, 0, false);
+    
 	for (i=0; i<NUM_FAIL_TEXTURES; i++)
 	{
-		if (hash == lastFailedTextureHash[i]) {	// compare hash first
+		if (!Q_HashCompare(hash,lastFailedTextureHash[i])) {	// compare hash first
 			if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
 				&& !strcmp(name, lastFailedTexture[i]))
 			{	// we already tried to load this image, didn't find it
@@ -509,10 +508,10 @@ qboolean Mod_CheckTexFailed (char *name)
 Mod_AddToFailedTexList
 ===============
 */
-void Mod_AddToFailedTexList (char *name)
+void Mod_AddToFailedTexList (char *name, hash_t hash)
 {
 	Com_sprintf(lastFailedTexture[failedTexListIndex], sizeof(lastFailedTexture[failedTexListIndex]), "%s", name);
-	lastFailedTextureHash[failedTexListIndex] = Com_HashFileName(name, 0, false);
+	lastFailedTextureHash[failedTexListIndex] = hash;
 	failedTexListIndex++;
 
 	// wrap around to start of list
@@ -530,15 +529,18 @@ to speed map load times
 image_t	*Mod_FindTexture (char *name, imagetype_t type)
 {
 	image_t	*image;
-
+    hash_t	hash;
+    
+    hash = Q_Hash(name, strlen(name));
+    
 	// don't try again to load a texture that just failed
-	if (Mod_CheckTexFailed (name))
+	if (Mod_CheckTexFailed (name,hash))
 		return glMedia.notexture;
 
 	image = R_FindImage (name, type);
 
 	if (!image || (image == glMedia.notexture))
-		Mod_AddToFailedTexList (name);
+		Mod_AddToFailedTexList (name,hash);
 
 	return image;
 }
