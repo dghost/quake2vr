@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __QCOMMON_H
 
 #include "shared/q_shared.h"
-#include "shared/q_hash.h"
 #include "glob.h"
 
 #define	VERSION	"4.2" //was 3.21
@@ -903,6 +902,17 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 // this is in the client code, but can be used for debugging from server
 void SCR_DebugGraph (float value, int32_t color);
 
+/*
+ ==============================================================
+ 
+ 128-BIT HASHING FUNCTIONS
+ 
+ ==============================================================
+ */
+
+hash_t Q_Hash(const char *string, uint32_t len);
+
+int32_t Q_HashCompare(hash_t hash1, hash_t hash2);
 
 /*
 ==============================================================

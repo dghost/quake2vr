@@ -149,6 +149,9 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 #endif
 
+#ifdef Q2VR_ENGINE_MOD
+typedef struct hash_t { uint32_t v[4]; } hash_t;
+#endif
 
 #define ROQ_SUPPORT // whether to use new cinematic system
 

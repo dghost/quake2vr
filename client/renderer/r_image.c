@@ -1014,7 +1014,7 @@ qboolean R_CheckImgFailed (char *name)
 			if (lastFailedImage[i] && strlen(lastFailedImage[i])
 				&& !strcmp(name, lastFailedImage[i]))
 			{	// we already tried to load this image, didn't find it
-				VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
+//				VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
 				return true;
 			}
 		}
@@ -1033,7 +1033,7 @@ void R_AddToFailedImgList (char *name)
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
 
-	VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
+//	VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
 
 	Com_sprintf(lastFailedImage[failedImgListIndex], sizeof(lastFailedImage[failedImgListIndex]), "%s", name);
 	lastFailedImageHash[failedImgListIndex] = Q_Hash(name,strlen(name));
