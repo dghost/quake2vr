@@ -537,7 +537,6 @@ CVARS (console variables)
 typedef struct cvar_s
 {
 	char		*name;
-    hash_t      hash;    
 	char		*string;
 	char		*latched_string;	// for CVAR_LATCH vars
 	int32_t			flags;
@@ -549,6 +548,7 @@ typedef struct cvar_s
 	char		*default_string;
 	int32_t			integer;
 #endif
+    hash_t      hash;
 } cvar_t;
 
 #endif		// CVAR
