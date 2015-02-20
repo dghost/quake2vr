@@ -902,6 +902,7 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 // this is in the client code, but can be used for debugging from server
 void SCR_DebugGraph (float value, int32_t color);
 
+
 /*
  ==============================================================
  
@@ -909,6 +910,9 @@ void SCR_DebugGraph (float value, int32_t color);
  
  ==============================================================
  */
+#ifndef Q2VR_ENGINE_MOD
+typedef struct hash_t { uint32_t v[4]; } hash_t;
+#endif
 
 hash_t Q_Hash(const char *string, uint32_t len);
 

@@ -131,7 +131,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 
 #ifdef KMQUAKE2_ENGINE_MOD
 
-// enable Q2VR specific enhancements to the KMQ2 enhancements
+// enable Q2VR specific enhancements to game dll's
 #define Q2VR_ENGINE_MOD
 
 #ifndef ERASER_COMPAT_BUILD
