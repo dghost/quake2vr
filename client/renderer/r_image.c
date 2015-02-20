@@ -1002,12 +1002,10 @@ void R_InitFailedImgList (void)
 R_CheckImgFailed
 ===============
 */
-qboolean R_CheckImgFailed (char *name)
+qboolean R_CheckImgFailed (char *name, hash_t hash)
 {
 	int32_t		i;
-	hash_t	hash;
 
-	hash = Q_Hash(name,strlen(name));
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
 	{
 		if (!Q_HashCompare(hash,lastFailedImageHash[i])) {	// compare hash first
@@ -1028,7 +1026,7 @@ qboolean R_CheckImgFailed (char *name)
 R_AddToFailedImgList
 ===============
 */
-void R_AddToFailedImgList (char *name)
+void R_AddToFailedImgList (char *name, hash_t hash)
 {
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
@@ -1036,7 +1034,7 @@ void R_AddToFailedImgList (char *name)
 //	VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
 
 	Com_sprintf(lastFailedImage[failedImgListIndex], sizeof(lastFailedImage[failedImgListIndex]), "%s", name);
-	lastFailedImageHash[failedImgListIndex] = Q_Hash(name,strlen(name));
+	lastFailedImageHash[failedImgListIndex] = hash;
 	failedImgListIndex++;
 
 	// wrap around to start of list
@@ -1091,7 +1089,8 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	int32_t		width, height;
 	char	s[MAX_OSPATH];
 	char	*tmp;
-
+    hash_t hash;
+    
 	if (!name)
 		return NULL;
 	len = strlen(name);
@@ -1106,11 +1105,12 @@ image_t	*R_FindImage (char *name, imagetype_t type)
             *tmp = '/';
         tmp++;
     }
-
+    hash = Q_Hash(name, strlen(name));
+    
 	// look for it
 	for (i=0, image=gltextures; i<numgltextures; i++,image++)
 	{
-		if (!strcmp(name, image->name))
+		if (!Q_HashCompare(hash, image->hash) && !strcmp(name, image->name))
 		{
 			image->registration_sequence = registration_sequence;
 			return image;
@@ -1118,7 +1118,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	}
 
 	// don't try again to load an image that just failed
-	if (R_CheckImgFailed (name))
+	if (R_CheckImgFailed (name, hash))
 	{
 		return NULL;
 	}
@@ -1180,7 +1180,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	}*/
 
 	if (!image)
-		R_AddToFailedImgList(name);
+		R_AddToFailedImgList(name, hash);
 
 	if (pic)
 		Z_Free(pic);
