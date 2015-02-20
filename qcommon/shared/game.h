@@ -192,6 +192,12 @@ typedef struct
 	int32_t		(*LoadFile) (char *name, void **buf);
 	void	(*FreeFile) (void *buf);
 	void	(*FreeFileList) (char **list, int32_t n);
+#ifdef Q2VR_ENGINE_MOD
+    hash_t (*Hash)(const char *string, uint32_t len);
+    int32_t (*HashCompare)(hash_t hash1, hash_t hash2);
+    
+#endif
+    
 #endif
 
 } game_import_t;

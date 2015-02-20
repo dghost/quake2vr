@@ -893,7 +893,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	if (strlen(name) >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
-	image->hash = Com_HashFileName(name, 0, false);	// Knightmare added
+	image->hash = Q_Hash(name, strlen(name));	// Knightmare added
 	image->registration_sequence = registration_sequence;
 
 	image->width = width;
@@ -976,7 +976,7 @@ nonscrap:
 // store the names of last images that failed to load
 #define NUM_FAIL_IMAGES 256
 char lastFailedImage[NUM_FAIL_IMAGES][MAX_OSPATH];
-int32_t lastFailedImageHash[NUM_FAIL_IMAGES];
+hash_t lastFailedImageHash[NUM_FAIL_IMAGES];
 static uint32_t failedImgListIndex;
 
 /*
@@ -987,10 +987,11 @@ R_InitFailedImgList
 void R_InitFailedImgList (void)
 {
 	int32_t		i;
+    
+    memset(lastFailedImageHash, 0, sizeof(lastFailedImageHash));
 
 	for (i=0; i<NUM_FAIL_IMAGES; i++) {
 		Com_sprintf(lastFailedImage[i], sizeof(lastFailedImage[i]), "\0");
-		lastFailedImageHash[i] = 0;
 	}
 
 	failedImgListIndex = 0;
@@ -1004,16 +1005,16 @@ R_CheckImgFailed
 qboolean R_CheckImgFailed (char *name)
 {
 	int32_t		i;
-	int32_t	hash;
+	hash_t	hash;
 
-	hash = Com_HashFileName(name, 0, false);
+	hash = Q_Hash(name,strlen(name));
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
 	{
-		if (hash == lastFailedImageHash[i]) {	// compare hash first
+		if (!Q_HashCompare(hash,lastFailedImageHash[i])) {	// compare hash first
 			if (lastFailedImage[i] && strlen(lastFailedImage[i])
 				&& !strcmp(name, lastFailedImage[i]))
 			{	// we already tried to load this image, didn't find it
-				//VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
+//				VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
 				return true;
 			}
 		}
@@ -1032,10 +1033,10 @@ void R_AddToFailedImgList (char *name)
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
 
-	//VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
+//	VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
 
 	Com_sprintf(lastFailedImage[failedImgListIndex], sizeof(lastFailedImage[failedImgListIndex]), "%s", name);
-	lastFailedImageHash[failedImgListIndex] = Com_HashFileName(name, 0, false);
+	lastFailedImageHash[failedImgListIndex] = Q_Hash(name,strlen(name));
 	failedImgListIndex++;
 
 	// wrap around to start of list

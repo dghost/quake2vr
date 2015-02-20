@@ -115,6 +115,8 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 // Knightmare- whether to include new engine enhancements
 #define	KMQUAKE2_ENGINE_MOD
 
+
+
 // enable to build exe that is compatible with Eraser bot
 // Eraser Bot's precompiled p_trail.c not compatible with modified entity state structure
 //#define ERASER_COMPAT_BUILD
@@ -128,6 +130,10 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #define NEW_CVAR_MEMBERS
 
 #ifdef KMQUAKE2_ENGINE_MOD
+
+// enable Q2VR specific enhancements to game dll's
+#define Q2VR_ENGINE_MOD
+
 #ifndef ERASER_COMPAT_BUILD
 #define NEW_ENTITY_STATE_MEMBERS
 #endif
@@ -143,6 +149,9 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 #endif
 
+#ifdef Q2VR_ENGINE_MOD
+typedef struct hash_t { uint32_t v[4]; } hash_t;
+#endif
 
 #define ROQ_SUPPORT // whether to use new cinematic system
 
