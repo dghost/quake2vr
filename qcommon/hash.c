@@ -1,5 +1,3 @@
-#define Q2VR_ENGINE_MOD
-
 #include "shared/q_shared.h"
 #include "murmur3/murmur3.h"
 
@@ -27,5 +25,8 @@ hash_t Q_Hash(const char *string, uint32_t len) {
 }
 
 int32_t Q_HashCompare(hash_t hash1, hash_t hash2) {
-    return memcmp(hash1.v, hash2.v, sizeof(uint32_t) * 4);
+    return (hash1.v[0] ^ hash2.v[0]) ||
+            (hash1.v[1] ^ hash2.v[1]) ||
+            (hash1.v[2] ^ hash2.v[2]) ||
+            (hash1.v[3] ^ hash2.v[3]);
 }
