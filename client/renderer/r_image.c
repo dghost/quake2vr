@@ -1421,14 +1421,14 @@ void R_FreePic (char *name)
 {
 	int32_t		i;
 	image_t	*image;
-
+    hash_t hash = Q_Hash(name, strlen(name));
 	for (i=0, image=gltextures; i<numgltextures; i++, image++)
 	{
 		if (!image->registration_sequence)
 			continue;		// free image_t slot
 		if (image->type != it_pic)
 			continue;		// only free pics
-		if (!strcmp(name, image->name))
+		if (!Q_HashCompare(hash, image->hash) && !strcmp(name, image->name))
 		{
 			//Heffo - Free Cinematic
 			//if (image->is_cin)
