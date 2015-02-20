@@ -34,6 +34,7 @@ typedef struct cmdalias_s
 {
 	struct cmdalias_s	*next;
 	char	name[MAX_ALIAS_NAME];
+    hash_t  hash;
 	char	*value;
 } cmdalias_t;
 
@@ -420,7 +421,8 @@ void Cmd_Alias_f (void)
 	char		cmd[1024];
 	int32_t			i, c;
 	char		*s;
-
+    hash_t      nameHash;
+    
 	if (Cmd_Argc() == 1)
 	{
 		Com_Printf ("Current alias commands:\n");
@@ -435,11 +437,13 @@ void Cmd_Alias_f (void)
 		Com_Printf ("Alias name is too long\n");
 		return;
 	}
+    
+    nameHash = Q_Hash(s, strlen(s));
 
 	// if the alias already exists, reuse it
 	for (a = cmd_alias ; a ; a=a->next)
 	{
-		if (!strcmp(s, a->name))
+		if (!Q_HashCompare(nameHash, a->hash) && !strcmp(s, a->name))
 		{
 			Z_Free (a->value);
 			break;
@@ -453,7 +457,7 @@ void Cmd_Alias_f (void)
 		cmd_alias = a;
 	}
 	strcpy (a->name, s);	
-
+    a->hash = nameHash;
 // copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
 	c = Cmd_Argc();
@@ -480,6 +484,7 @@ typedef struct cmd_function_s
 {
 	struct cmd_function_s	*next;
 	char					*name;
+    hash_t                  hash;
 	xcommand_t				function;
 } cmd_function_t;
 
@@ -682,7 +687,7 @@ Cmd_AddCommand
 void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
-	
+    hash_t nameHash;
 // fail if the command is a variable name
 	if (Cvar_VariableString(cmd_name)[0])
 	{
@@ -690,10 +695,12 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 		return;
 	}
 	
+    nameHash = Q_Hash(cmd_name, strlen(cmd_name));
+    
 // fail if the command already exists
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!strcmp (cmd_name, cmd->name))
+		if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
 			return;
@@ -702,6 +709,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 
 	cmd = Z_TagMalloc (sizeof(cmd_function_t), ZONE_SYSTEM);
 	cmd->name = cmd_name;
+    cmd->hash = nameHash;
 	cmd->function = function;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
@@ -715,6 +723,7 @@ Cmd_RemoveCommand
 void	Cmd_RemoveCommand (char *cmd_name)
 {
 	cmd_function_t	*cmd, **back;
+    hash_t nameHash = Q_Hash(cmd_name, strlen(cmd_name));
 
 	back = &cmd_functions;
 	while (1)
@@ -725,7 +734,7 @@ void	Cmd_RemoveCommand (char *cmd_name)
 			Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
 			return;
 		}
-		if (!strcmp (cmd_name, cmd->name))
+		if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			*back = cmd->next;
 			Z_Free (cmd);
@@ -743,10 +752,11 @@ Cmd_Exists
 qboolean	Cmd_Exists (char *cmd_name)
 {
 	cmd_function_t	*cmd;
+    hash_t nameHash = Q_Hash(cmd_name, strlen(cmd_name));
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!strcmp (cmd_name,cmd->name))
+        if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 			return true;
 	}
 
@@ -803,13 +813,13 @@ char *Cmd_CompleteCommand (char *partial)
 	cvar_t			*cvar;
 	char			*pmatch[1024];
 	qboolean		diff = false;
-	
+    
 	len = strlen(partial);
-	
+
 	if (!len)
 		return NULL;
-		
-// check for exact match
+
+    // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 		if (!_stricmp (partial,cmd->name))
 			return cmd->name;
