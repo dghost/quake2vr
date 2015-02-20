@@ -51,7 +51,7 @@ static cvar_t *Cvar_FindVar (char *var_name)
 	cvar_t	*var;
     hash_t hash = Q_Hash(var_name, strlen(var_name));
 	for (var=cvar_vars ; var ; var=var->next)
-		if (!Q_HashCompare(hash, var->hash) && !strcmp (var_name, var->name))
+		if (!Q_HashEquals(hash, var->hash) && !strcmp (var_name, var->name))
 			return var;
 
 	return NULL;
@@ -163,7 +163,7 @@ char *Cvar_CompleteVariable (char *partial)
     hash = Q_Hash(partial, len);
 	// check exact match
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!Q_HashCompare(hash, cvar->hash) && !strcmp (partial,cvar->name))
+		if (!Q_HashEquals(hash, cvar->hash) && !strcmp (partial,cvar->name))
 			return cvar->name;
 
 	// check partial match

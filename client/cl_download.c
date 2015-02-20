@@ -767,7 +767,7 @@ qboolean CL_CheckDownloadFailed (char *name)
     hash_t hash = Q_Hash(name, strlen(name));
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashCompare(hash, lastfaileddownloadhash[i])
+            && !Q_HashEquals(hash, lastfaileddownloadhash[i])
 			&& !strcmp(name, lastfaileddownload[i]))
 		{	// we already tried downlaoding this, server didn't have it
 			return true;
@@ -790,7 +790,7 @@ void CL_AddToFailedDownloadList (char *name)
 	// check if this name is already in the table
 	for (i=0; i<NUM_FAIL_DLDS; i++)
         if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashCompare(hash, lastfaileddownloadhash[i])
+            && !Q_HashEquals(hash, lastfaileddownloadhash[i])
             && !strcmp(name, lastfaileddownload[i]))
 		{
 			found = true;

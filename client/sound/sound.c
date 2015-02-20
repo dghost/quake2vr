@@ -187,7 +187,7 @@ S_FindName(char *name, qboolean create)
 	/* see if already loaded */
 	for (i = 0; i < num_sfx; i++)
 	{
-		if (!Q_HashCompare(known_sfx[i].hash, hash) && !strcmp(known_sfx[i].name, name))
+		if (!Q_HashEquals(known_sfx[i].hash, hash) && !strcmp(known_sfx[i].name, name))
 		{
 			return &known_sfx[i];
 		}

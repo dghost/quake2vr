@@ -1008,7 +1008,7 @@ qboolean R_CheckImgFailed (char *name, hash_t hash)
 
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
 	{
-		if (!Q_HashCompare(hash,lastFailedImageHash[i])) {	// compare hash first
+		if (!Q_HashEquals(hash,lastFailedImageHash[i])) {	// compare hash first
 			if (lastFailedImage[i] && strlen(lastFailedImage[i])
 				&& !strcmp(name, lastFailedImage[i]))
 			{	// we already tried to load this image, didn't find it
@@ -1110,7 +1110,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	// look for it
 	for (i=0, image=gltextures; i<numgltextures; i++,image++)
 	{
-		if (!Q_HashCompare(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals(hash, image->hash) && !strcmp(name, image->name))
 		{
 			image->registration_sequence = registration_sequence;
 			return image;
@@ -1428,7 +1428,7 @@ void R_FreePic (char *name)
 			continue;		// free image_t slot
 		if (image->type != it_pic)
 			continue;		// only free pics
-		if (!Q_HashCompare(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals(hash, image->hash) && !strcmp(name, image->name))
 		{
 			//Heffo - Free Cinematic
 			//if (image->is_cin)

@@ -213,7 +213,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!Q_HashCompare(mod->hash, nameHash) && !strcmp (mod->name, name) )
+		if (!Q_HashEquals(mod->hash, nameHash) && !strcmp (mod->name, name) )
 			return mod;
 	}
 	
@@ -492,7 +492,7 @@ qboolean Mod_CheckTexFailed (char *name, hash_t hash)
     
 	for (i=0; i<NUM_FAIL_TEXTURES; i++)
 	{
-		if (!Q_HashCompare(hash,lastFailedTextureHash[i])) {	// compare hash first
+		if (!Q_HashEquals(hash,lastFailedTextureHash[i])) {	// compare hash first
 			if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
 				&& !strcmp(name, lastFailedTexture[i]))
 			{	// we already tried to load this image, didn't find it
@@ -551,7 +551,7 @@ image_t	*Mod_FindTexture (char *name, imagetype_t type)
 typedef struct walsize_s
 {
 	char	name[MAX_OSPATH];
-	int32_t	hash;
+	hash_t	hash;
 	int32_t		width;
 	int32_t		height;
 } walsize_t;
@@ -571,7 +571,7 @@ void Mod_InitWalSizeList (void)
 
 	for (i=0; i<NUM_WALSIZES; i++) {
 		Com_sprintf(walSizeList[i].name, sizeof(walSizeList[i].name), "\0");
-		walSizeList[i].hash = 0;
+        memset(&walSizeList[i].hash, 0, sizeof(hash_t));
 		walSizeList[i].width = 0;
 		walSizeList[i].height = 0;
 	}
@@ -586,16 +586,16 @@ Mod_CheckWalSizeList
 qboolean Mod_CheckWalSizeList (const char *name, int32_t *width, int32_t *height)
 {
 	int32_t		i;
-	int32_t	hash;
+	hash_t	hash = Q_Hash(name, strlen(name));
 
-	hash = Com_HashFileName(name, 0, false);
 	for (i=0; i<NUM_WALSIZES; i++)
 	{
-		if (hash == walSizeList[i].hash) {	// compare hash first
+		if (!Q_HashEquals(hash,walSizeList[i].hash)) {	// compare hash first
 			if (walSizeList[i].name && strlen(walSizeList[i].name)
 				&& !strcmp(name, walSizeList[i].name))
 			{	// return size of texture
-				if (width)
+
+                if (width)
 					*width = walSizeList[i].width;
 				if (height)
 					*height = walSizeList[i].height;
@@ -614,8 +614,8 @@ Mod_AddToWalSizeList
 void Mod_AddToWalSizeList (const char *name, int32_t width, int32_t height)
 {
 	Com_sprintf(walSizeList[walSizeListIndex].name, sizeof(walSizeList[walSizeListIndex].name), "%s", name);
-	walSizeList[walSizeListIndex].hash = Com_HashFileName(name, 0, false);
-	walSizeList[walSizeListIndex].width = width;
+    walSizeList[walSizeListIndex].hash = Q_Hash(name, strlen(name));
+    walSizeList[walSizeListIndex].width = width;
 	walSizeList[walSizeListIndex].height = height;
 	walSizeListIndex++;
 

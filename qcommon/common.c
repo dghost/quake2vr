@@ -1184,7 +1184,7 @@ int32_t COM_CheckParm (char *parm)
     hash_t hash = Q_Hash(parm, strlen(parm));
 	for (i=1 ; i<com_argc ; i++)
 	{
-		if (!Q_HashCompare(hash, com_argv_hash[i]) && !strcmp (parm,com_argv[i]))
+		if (!Q_HashEquals(hash, com_argv_hash[i]) && !strcmp (parm,com_argv[i]))
 			return i;
 	}
 		

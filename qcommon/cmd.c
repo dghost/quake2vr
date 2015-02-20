@@ -443,7 +443,7 @@ void Cmd_Alias_f (void)
 	// if the alias already exists, reuse it
 	for (a = cmd_alias ; a ; a=a->next)
 	{
-		if (!Q_HashCompare(nameHash, a->hash) && !strcmp(s, a->name))
+		if (!Q_HashEquals(nameHash, a->hash) && !strcmp(s, a->name))
 		{
 			Z_Free (a->value);
 			break;
@@ -700,7 +700,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 // fail if the command already exists
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+		if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
 			return;
@@ -734,7 +734,7 @@ void	Cmd_RemoveCommand (char *cmd_name)
 			Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
 			return;
 		}
-		if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+		if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			*back = cmd->next;
 			Z_Free (cmd);
@@ -756,7 +756,7 @@ qboolean	Cmd_Exists (char *cmd_name)
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-        if (!Q_HashCompare(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+        if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 			return true;
 	}
 
