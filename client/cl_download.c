@@ -737,6 +737,7 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 // Knightmare- store the names of last downloads that failed
 #define NUM_FAIL_DLDS 64
 char lastfaileddownload[NUM_FAIL_DLDS][MAX_OSPATH];
+hash_t lastfaileddownloadhash[NUM_FAIL_DLDS];
 static uint32_t failedDlListIndex;
 
 /*
@@ -748,6 +749,7 @@ void CL_InitFailedDownloadList (void)
 {
 	int32_t		i;
 
+    memset(lastfaileddownloadhash,0,sizeof(lastfaileddownloadhash));
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		Com_sprintf(lastfaileddownload[i], sizeof(lastfaileddownload[i]), "\0");
 
@@ -762,9 +764,10 @@ CL_CheckDownloadFailed
 qboolean CL_CheckDownloadFailed (char *name)
 {
 	int32_t		i;
-
+    hash_t hash = Q_Hash(name, strlen(name));
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
+            && !Q_HashCompare(hash, lastfaileddownloadhash[i])
 			&& !strcmp(name, lastfaileddownload[i]))
 		{	// we already tried downlaoding this, server didn't have it
 			return true;
@@ -782,11 +785,13 @@ void CL_AddToFailedDownloadList (char *name)
 {
 	int32_t			i;
 	qboolean	found = false;
-
+    hash_t      hash = Q_Hash(name, strlen(name));
+    
 	// check if this name is already in the table
 	for (i=0; i<NUM_FAIL_DLDS; i++)
-		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-			&& !strcmp(name, lastfaileddownload[i]))
+        if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
+            && !Q_HashCompare(hash, lastfaileddownloadhash[i])
+            && !strcmp(name, lastfaileddownload[i]))
 		{
 			found = true;
 			break;
@@ -795,8 +800,8 @@ void CL_AddToFailedDownloadList (char *name)
 	// if it isn't already in the table, then we need to add it
 	if (!found)
 	{
-		Com_sprintf(lastfaileddownload[failedDlListIndex++], sizeof(lastfaileddownload[failedDlListIndex++]), "%s", name);
-
+		Com_sprintf(lastfaileddownload[failedDlListIndex], sizeof(lastfaileddownload[failedDlListIndex]), "%s", name);
+        lastfaileddownloadhash[failedDlListIndex++] = hash;
 		// wrap around to start of list
 		if (failedDlListIndex >= NUM_FAIL_DLDS)
 			failedDlListIndex = 0;
