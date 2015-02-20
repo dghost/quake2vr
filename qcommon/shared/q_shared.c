@@ -1702,33 +1702,6 @@ void Com_sprintf (char *dest, int32_t size, char *fmt, ...)
 }
 
 /*
-=============
-Com_HashFileName
-=============
-*/
-int32_t Com_HashFileName (const char *fname, int32_t hashSize, qboolean sized)
-{
-	int32_t		i = 0;
-	int32_t	hash = 0;
-	char	letter;
-
-	if (fname[0] == '/' || fname[0] == '\\') i++;	// skip leading slash
-	while (fname[i] != '\0')
-	{
-		letter = tolower(fname[i]);
-	//	if (letter == '.') break;
-		if (letter == '\\') letter = '/';	// fix filepaths
-		hash += (int32_t)(letter)*(i+119);
-		i++;
-	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
-	if (sized) {
-		hash &= (hashSize-1);
-	}
-	return hash;
-}
-
-/*
 =====================================================================
 
   INFO STRINGS
