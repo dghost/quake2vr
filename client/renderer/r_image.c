@@ -893,7 +893,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	if (strlen(name) >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
-	image->hash = Q_Hash128(name, strlen(name));	// Knightmare added
+	image->hash = Q_Hash32(name, strlen(name));	// Knightmare added
 	image->registration_sequence = registration_sequence;
 
 	image->width = width;
@@ -976,7 +976,7 @@ nonscrap:
 // store the names of last images that failed to load
 #define NUM_FAIL_IMAGES 256
 char lastFailedImage[NUM_FAIL_IMAGES][MAX_OSPATH];
-hash128_t lastFailedImageHash[NUM_FAIL_IMAGES];
+hash32_t lastFailedImageHash[NUM_FAIL_IMAGES];
 static uint32_t failedImgListIndex;
 
 /*
@@ -1002,13 +1002,13 @@ void R_InitFailedImgList (void)
 R_CheckImgFailed
 ===============
 */
-qboolean R_CheckImgFailed (char *name, hash128_t hash)
+qboolean R_CheckImgFailed (char *name, hash32_t hash)
 {
 	int32_t		i;
 
 	for (i=0; i<NUM_FAIL_IMAGES; i++)
 	{
-		if (!Q_HashEquals128(hash,lastFailedImageHash[i])) {	// compare hash first
+		if (!Q_HashEquals32(hash,lastFailedImageHash[i])) {	// compare hash first
 			if (lastFailedImage[i] && strlen(lastFailedImage[i])
 				&& !strcmp(name, lastFailedImage[i]))
 			{	// we already tried to load this image, didn't find it
@@ -1026,7 +1026,7 @@ qboolean R_CheckImgFailed (char *name, hash128_t hash)
 R_AddToFailedImgList
 ===============
 */
-void R_AddToFailedImgList (char *name, hash128_t hash)
+void R_AddToFailedImgList (char *name, hash32_t hash)
 {
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
@@ -1089,7 +1089,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	int32_t		width, height;
 	char	s[MAX_OSPATH];
 	char	*tmp;
-    hash128_t hash;
+    hash32_t hash;
     
 	if (!name)
 		return NULL;
@@ -1105,12 +1105,12 @@ image_t	*R_FindImage (char *name, imagetype_t type)
             *tmp = '/';
         tmp++;
     }
-    hash = Q_Hash128(name, strlen(name));
+    hash = Q_Hash32(name, strlen(name));
     
 	// look for it
 	for (i=0, image=gltextures; i<numgltextures; i++,image++)
 	{
-		if (!Q_HashEquals128(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals32(hash, image->hash) && !strcmp(name, image->name))
 		{
 			image->registration_sequence = registration_sequence;
 			return image;
@@ -1421,14 +1421,14 @@ void R_FreePic (char *name)
 {
 	int32_t		i;
 	image_t	*image;
-    hash128_t hash = Q_Hash128(name, strlen(name));
+    hash32_t hash = Q_Hash32(name, strlen(name));
 	for (i=0, image=gltextures; i<numgltextures; i++, image++)
 	{
 		if (!image->registration_sequence)
 			continue;		// free image_t slot
 		if (image->type != it_pic)
 			continue;		// only free pics
-		if (!Q_HashEquals128(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals32(hash, image->hash) && !strcmp(name, image->name))
 		{
 			//Heffo - Free Cinematic
 			//if (image->is_cin)

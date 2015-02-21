@@ -190,7 +190,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	model_t	*mod;
 	void *buf;
 	int32_t		i;
-    hash128_t nameHash;
+    hash32_t nameHash;
     
 	if (!name[0])
 		VID_Error (ERR_DROP, "Mod_ForName: NULL name");
@@ -205,7 +205,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
-    nameHash = Q_Hash128(name, strlen(name));
+    nameHash = Q_Hash32(name, strlen(name));
 	//
 	// search the currently loaded models
 	//
@@ -213,7 +213,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!Q_HashEquals128(mod->hash, nameHash) && !strcmp (mod->name, name) )
+		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, name) )
 			return mod;
 	}
 	
@@ -461,7 +461,7 @@ void Mod_LoadEdges (lump_t *l)
 // store the names of last textures that failed to load
 #define NUM_FAIL_TEXTURES 256
 char lastFailedTexture[NUM_FAIL_TEXTURES][MAX_OSPATH];
-hash128_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
+hash32_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
 static uint32_t failedTexListIndex;
 
 /*
@@ -486,13 +486,13 @@ void Mod_InitFailedTexList (void)
 Mod_CheckTexFailed
 ===============
 */
-qboolean Mod_CheckTexFailed (char *name, hash128_t hash)
+qboolean Mod_CheckTexFailed (char *name, hash32_t hash)
 {
 	int32_t		i;
     
 	for (i=0; i<NUM_FAIL_TEXTURES; i++)
 	{
-		if (!Q_HashEquals128(hash,lastFailedTextureHash[i])) {	// compare hash first
+		if (!Q_HashEquals32(hash,lastFailedTextureHash[i])) {	// compare hash first
 			if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
 				&& !strcmp(name, lastFailedTexture[i]))
 			{	// we already tried to load this image, didn't find it
@@ -508,7 +508,7 @@ qboolean Mod_CheckTexFailed (char *name, hash128_t hash)
 Mod_AddToFailedTexList
 ===============
 */
-void Mod_AddToFailedTexList (char *name, hash128_t hash)
+void Mod_AddToFailedTexList (char *name, hash32_t hash)
 {
 	Com_sprintf(lastFailedTexture[failedTexListIndex], sizeof(lastFailedTexture[failedTexListIndex]), "%s", name);
 	lastFailedTextureHash[failedTexListIndex] = hash;
@@ -529,9 +529,9 @@ to speed map load times
 image_t	*Mod_FindTexture (char *name, imagetype_t type)
 {
 	image_t	*image;
-    hash128_t	hash;
+    hash32_t	hash;
     
-    hash = Q_Hash128(name, strlen(name));
+    hash = Q_Hash32(name, strlen(name));
     
 	// don't try again to load a texture that just failed
 	if (Mod_CheckTexFailed (name,hash))
@@ -551,7 +551,7 @@ image_t	*Mod_FindTexture (char *name, imagetype_t type)
 typedef struct walsize_s
 {
 	char	name[MAX_OSPATH];
-	hash128_t	hash;
+	hash32_t	hash;
 	int32_t		width;
 	int32_t		height;
 } walsize_t;
@@ -571,7 +571,7 @@ void Mod_InitWalSizeList (void)
 
 	for (i=0; i<NUM_WALSIZES; i++) {
 		Com_sprintf(walSizeList[i].name, sizeof(walSizeList[i].name), "\0");
-        memset(&walSizeList[i].hash, 0, sizeof(hash128_t));
+        memset(&walSizeList[i].hash, 0, sizeof(hash32_t));
 		walSizeList[i].width = 0;
 		walSizeList[i].height = 0;
 	}
@@ -586,11 +586,11 @@ Mod_CheckWalSizeList
 qboolean Mod_CheckWalSizeList (const char *name, int32_t *width, int32_t *height)
 {
 	int32_t		i;
-	hash128_t	hash = Q_Hash128(name, strlen(name));
+	hash32_t	hash = Q_Hash32(name, strlen(name));
 
 	for (i=0; i<NUM_WALSIZES; i++)
 	{
-		if (!Q_HashEquals128(hash,walSizeList[i].hash)) {	// compare hash first
+		if (!Q_HashEquals32(hash,walSizeList[i].hash)) {	// compare hash first
 			if (walSizeList[i].name && strlen(walSizeList[i].name)
 				&& !strcmp(name, walSizeList[i].name))
 			{	// return size of texture
@@ -614,7 +614,7 @@ Mod_AddToWalSizeList
 void Mod_AddToWalSizeList (const char *name, int32_t width, int32_t height)
 {
 	Com_sprintf(walSizeList[walSizeListIndex].name, sizeof(walSizeList[walSizeListIndex].name), "%s", name);
-    walSizeList[walSizeListIndex].hash = Q_Hash128(name, strlen(name));
+    walSizeList[walSizeListIndex].hash = Q_Hash32(name, strlen(name));
     walSizeList[walSizeListIndex].width = width;
 	walSizeList[walSizeListIndex].height = height;
 	walSizeListIndex++;

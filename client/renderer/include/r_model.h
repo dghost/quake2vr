@@ -221,7 +221,7 @@ typedef enum {mod_bad, mod_brush, mod_sprite, mod_alias, mod_md2 } modtype_t;
 typedef struct model_s
 {
 	char		name[MAX_QPATH];
-    hash128_t      hash;
+    hash32_t      hash;
     
 	Sint32			registration_sequence;
 
