@@ -21,11 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcommon.h"
 
-#ifndef _WIN32
-#define _stricmp strcasecmp
-#define _strnicmp strncasecmp
-#endif
-
 void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
@@ -821,13 +816,13 @@ char *Cmd_CompleteCommand (char *partial)
 
     // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!_stricmp (partial,cmd->name))
+		if (!Q_strcasecmp (partial,cmd->name))
 			return cmd->name;
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!_stricmp (partial, a->name))
+		if (!Q_strcasecmp (partial, a->name))
 			return a->name;
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!_stricmp (partial,cvar->name))
+		if (!Q_strcasecmp (partial,cvar->name))
 			return cvar->name;
 
 	for (i=0; i<1024; i++)
@@ -836,17 +831,17 @@ char *Cmd_CompleteCommand (char *partial)
 
 // check for partial match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!_strnicmp (partial,cmd->name, len)) {
+		if (!Q_strncasecmp (partial,cmd->name, len)) {
 			pmatch[i]=cmd->name;
 			i++;
 		}
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!_strnicmp (partial, a->name, len)) {
+		if (!Q_strncasecmp (partial, a->name, len)) {
 			pmatch[i]=a->name;
 			i++;
 		}
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!_strnicmp (partial,cvar->name, len)) {
+		if (!Q_strncasecmp (partial,cvar->name, len)) {
 			pmatch[i]=cvar->name;
 			i++;
 		}
@@ -887,13 +882,13 @@ qboolean Cmd_IsComplete (char *command)
 			
 // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!_stricmp (command,cmd->name))
+		if (!Q_strcasecmp (command,cmd->name))
 			return true;
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!_stricmp (command, a->name))
+		if (!Q_strcasecmp (command, a->name))
 			return true;
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!_stricmp (command,cvar->name))
+		if (!Q_strcasecmp (command,cvar->name))
 			return true;
 
 	return false;

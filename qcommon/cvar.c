@@ -490,7 +490,7 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 		if (!(var->flags & CVAR_CHEAT))
 			continue;
 
-		if (!Q_stricmp(var->string, var->default_string))
+		if (!Q_strcasecmp(var->string, var->default_string))
 			continue;
 
 		Cvar_Set2 (var->name, var->default_string, true);

@@ -118,7 +118,7 @@ void GL_TextureMode( char *string )
 
 	for (i=0 ; i< NUM_GL_MODES ; i++)
 	{
-		if ( !Q_stricmp( modes[i].name, string ) )
+		if ( !Q_strcasecmp( modes[i].name, string ) )
 			break;
 	}
 

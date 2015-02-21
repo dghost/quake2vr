@@ -203,7 +203,7 @@ uint32_t FS_TypeFlagForPakItem (char *itemName)
 
 	Com_FileExtension (itemName, extension, sizeof(extension));
 	for (i=0; type_extensions[i]; i++) {
-		if ( !Q_stricmp(extension, type_extensions[i]) )
+		if ( !Q_strcasecmp(extension, type_extensions[i]) )
 			return (1<<i);
 	}
 	return 0;
@@ -462,7 +462,7 @@ int32_t FS_FindPackItem (fsPack_t *pack, char *itemName, hash32_t itemHash)
 	for (i=smin; i<smax; i++)
 	{	// make sure this entry is not blacklisted & compare filenames
 		if ( !Q_HashEquals32(pack->files[i].hash, itemHash) && !pack->files[i].ignore
-			&& !Q_stricmp(pack->files[i].name, itemName) )
+			&& !Q_strcasecmp(pack->files[i].name, itemName) )
 			return i;
 	}
 	// found a match, scan for identical hashes
@@ -473,7 +473,7 @@ int32_t FS_FindPackItem (fsPack_t *pack, char *itemName, hash32_t itemHash)
 		for (i = matchStart; i < matchEnd; i++)
 		{	// make sure this entry is not blacklisted & compare filenames
 			if ( pack->files[i].hash == itemHash && !pack->files[i].ignore
-				&& !Q_stricmp(pack->files[i].name, itemName) )
+				&& !Q_strcasecmp(pack->files[i].name, itemName) )
 				return i;
 		}
 	}*/
@@ -593,7 +593,7 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 					continue;
 				if (Q_HashEquals32(hash,pack->files[i].hash))	// compare hash first
 					continue;
-				if (!Q_stricmp(pack->files[i].name, handle->name))
+				if (!Q_strcasecmp(pack->files[i].name, handle->name))
 #endif	// 	BINARY_PACK_SEARCH
                 {
 					// Found it!

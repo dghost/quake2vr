@@ -194,7 +194,7 @@ void UI_SortArenas (char **list, int32_t len)
 			if (!list[j]) break;
 			s1 = strchr(list[j], '\n')+1;
 			s2 = strchr(list[j+1], '\n')+1;
-			if (Q_stricmp(s1, s2) > 0)
+			if (Q_strcasecmp(s1, s2) > 0)
 			{
 				temp = list[j];
 				list[j] = list[j+1];
@@ -547,21 +547,21 @@ void StartServerActionFunc (void *self)
 	spot = NULL;
 	if (s_rules_box.curvalue == 1)		// PGM
 	{
- 		if(Q_stricmp(startmap, "bunk1") == 0)
+ 		if(Q_strcasecmp(startmap, "bunk1") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "mintro") == 0)
+ 		else if(Q_strcasecmp(startmap, "mintro") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "fact1") == 0)
+ 		else if(Q_strcasecmp(startmap, "fact1") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "power1") == 0)
+ 		else if(Q_strcasecmp(startmap, "power1") == 0)
   			spot = "pstart";
- 		else if(Q_stricmp(startmap, "biggun") == 0)
+ 		else if(Q_strcasecmp(startmap, "biggun") == 0)
   			spot = "bstart";
- 		else if(Q_stricmp(startmap, "hangar1") == 0)
+ 		else if(Q_strcasecmp(startmap, "hangar1") == 0)
   			spot = "unitstart";
- 		else if(Q_stricmp(startmap, "city1") == 0)
+ 		else if(Q_strcasecmp(startmap, "city1") == 0)
   			spot = "unitstart";
- 		else if(Q_stricmp(startmap, "boss1") == 0)
+ 		else if(Q_strcasecmp(startmap, "boss1") == 0)
 			spot = "bosstart";
 	}
 

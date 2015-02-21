@@ -129,7 +129,7 @@ void CL_DrawInventory (void)
 
 		bind = "";
 		for (j=0; j<MAX_KEYEVENTS; j++)
-			if (keybindings[j] && !Q_stricmp (keybindings[j], binding))
+			if (keybindings[j] && !Q_strcasecmp (keybindings[j], binding))
 			{
 				bind = Key_KeynumToString(j);
 				break;

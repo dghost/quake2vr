@@ -399,7 +399,7 @@ qboolean PlayerConfig_MenuInit (void)
 	for ( i = 0; i < s_numplayermodels; i++ )
 	{
 		s_pmnames[i] = s_pmi[i].displayname;
-		if ( Q_stricmp( s_pmi[i].directory, currentdirectory ) == 0 )
+		if ( Q_strcasecmp( s_pmi[i].directory, currentdirectory ) == 0 )
 		{
 			int32_t j;
 
@@ -407,7 +407,7 @@ qboolean PlayerConfig_MenuInit (void)
 
 			for ( j = 0; j < s_pmi[i].nskins; j++ )
 			{
-				if ( Q_stricmp( s_pmi[i].skindisplaynames[j], currentskin ) == 0 )
+				if ( Q_strcasecmp( s_pmi[i].skindisplaynames[j], currentskin ) == 0 )
 				{
 					currentskinindex = j;
 					break;
