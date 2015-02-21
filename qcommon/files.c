@@ -564,7 +564,7 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 	file_from_pak = 0;
 	file_from_pk3 = 0;
 	Com_sprintf(last_pk3_name, sizeof(last_pk3_name), "\0");
-	hash = Q_HashFile32(handle->name);
+	hash = Q_HashSanitized32(handle->name);
 	typeFlag = FS_TypeFlagForPakItem(handle->name);
 
 	// Search through the path, one element at a time
@@ -1267,7 +1267,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		sortIndices[i] = i;
-		sortHashes[i] = Q_HashFile32(info[i].name);
+		sortHashes[i] = Q_HashSanitized32(info[i].name);
 	}
 	qsort((void *)sortIndices, numFiles, sizeof(int32_t), FS_PakFileCompare);
 
@@ -1291,7 +1291,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		strcpy(files[i].name, info[i].name);
-		files[i].hash = Q_HashFile32(info[i].name);	// Added to speed up seaching
+		files[i].hash = Q_HashSanitized32(info[i].name);	// Added to speed up seaching
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].ignore = FS_FileInPakBlacklist(info[i].name, info[i].hash, false);	// check against pak loading blacklist
@@ -1391,7 +1391,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
 		sortIndices[i] = i;
 		strcpy(tmpFiles[i].name, fileName);
-		tmpFiles[i].hash = sortHashes[i] = Q_HashFile32(fileName);	// Added to speed up seaching
+		tmpFiles[i].hash = sortHashes[i] = Q_HashSanitized32(fileName);	// Added to speed up seaching
 		tmpFiles[i].offset = -1;		// Not used in ZIP files
 		tmpFiles[i].size = info.uncompressed_size;
 		tmpFiles[i].ignore = FS_FileInPakBlacklist(fileName, tmpFiles[i].hash, true);	// check against pak loading blacklist
@@ -1425,7 +1425,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
 
 		strcpy(files[i].name, fileName);
-		files[i].hash = Q_HashFile32(fileName);	// Added to speed up seaching
+		files[i].hash = Q_HashSanitized32(fileName);	// Added to speed up seaching
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
 		files[i].ignore = FS_FileInPakBlacklist(fileName, files[i].hash, true);	// check against pak loading blacklist
@@ -1732,7 +1732,7 @@ void FS_InitFilesystem (void)
 	Cmd_AddCommand("dir", FS_Dir_f);
 
     while (pakfile_ignore_names[i].name != 0) {
-        pakfile_ignore_names[i].hash = Q_HashFile32(pakfile_ignore_names[i].name);
+        pakfile_ignore_names[i].hash = Q_HashSanitized32(pakfile_ignore_names[i].name);
         i++;
     }
     

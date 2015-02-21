@@ -31,7 +31,7 @@ hash32_t Q_Hash32(const char *string, uint32_t len) {
     return result;
 }
 
-hash128_t Q_HashFile128(const char *string) {
+hash128_t Q_HashSanitized128(const char *string) {
     int32_t		i = 0, j=0;
     char	buffer[MAX_OSPATH];
 
@@ -47,7 +47,7 @@ hash128_t Q_HashFile128(const char *string) {
     return Q_Hash128(buffer, j);
 }
 
-hash32_t Q_HashFile32(const char *string) {
+hash32_t Q_HashSanitized32(const char *string) {
     int32_t		i = 0, j=0;
     char	buffer[MAX_OSPATH];
     

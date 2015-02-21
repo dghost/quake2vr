@@ -394,11 +394,11 @@ void SV_InitGameProgs (void)
 	import.FreeFileList = FS_FreeFileList;
 #ifdef Q2VR_ENGINE_MOD
     import.Hash128 = Q_Hash128;
-    import.HashFile128 = Q_HashFile128;
+    import.HashSanitized128 = Q_HashSanitized128;
     import.HashEquals128 = Q_HashEquals128;
     import.HashCompare128 = Q_HashCompare128;
     import.Hash32 = Q_Hash32;
-    import.HashFile32 = Q_HashFile32;
+    import.HashSanitized32 = Q_HashSanitized32;
     import.HashEquals32 = Q_HashEquals32;
     import.HashCompare32 = Q_HashCompare32;
 
