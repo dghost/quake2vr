@@ -737,7 +737,7 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 // Knightmare- store the names of last downloads that failed
 #define NUM_FAIL_DLDS 64
 char lastfaileddownload[NUM_FAIL_DLDS][MAX_OSPATH];
-hash128_t lastfaileddownloadhash[NUM_FAIL_DLDS];
+hash32_t lastfaileddownloadhash[NUM_FAIL_DLDS];
 static uint32_t failedDlListIndex;
 
 /*
@@ -764,10 +764,10 @@ CL_CheckDownloadFailed
 qboolean CL_CheckDownloadFailed (char *name)
 {
 	int32_t		i;
-    hash128_t hash = Q_Hash128(name, strlen(name));
+    hash32_t hash = Q_Hash32(name, strlen(name));
 	for (i=0; i<NUM_FAIL_DLDS; i++)
 		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashEquals128(hash, lastfaileddownloadhash[i])
+            && !Q_HashEquals32(hash, lastfaileddownloadhash[i])
 			&& !strcmp(name, lastfaileddownload[i]))
 		{	// we already tried downlaoding this, server didn't have it
 			return true;
@@ -785,12 +785,12 @@ void CL_AddToFailedDownloadList (char *name)
 {
 	int32_t			i;
 	qboolean	found = false;
-    hash128_t      hash = Q_Hash128(name, strlen(name));
+    hash32_t      hash = Q_Hash32(name, strlen(name));
     
 	// check if this name is already in the table
 	for (i=0; i<NUM_FAIL_DLDS; i++)
         if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashEquals128(hash, lastfaileddownloadhash[i])
+            && !Q_HashEquals32(hash, lastfaileddownloadhash[i])
             && !strcmp(name, lastfaileddownload[i]))
 		{
 			found = true;
