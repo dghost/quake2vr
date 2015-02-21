@@ -808,21 +808,24 @@ char *Cmd_CompleteCommand (char *partial)
 	cvar_t			*cvar;
 	char			*pmatch[1024];
 	qboolean		diff = false;
+    hash32_t        hash;
     
 	len = strlen(partial);
 
 	if (!len)
 		return NULL;
 
+    hash = Q_HashSanitized32(partial);
+    
     // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!Q_strcasecmp (partial,cmd->name))
+		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (partial,cmd->name))
 			return cmd->name;
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!Q_strcasecmp (partial, a->name))
+		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (partial, a->name))
 			return a->name;
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!Q_strcasecmp (partial,cvar->name))
+		if (!Q_HashEquals32(hash, cvar->hash) && !Q_strcasecmp (partial,cvar->name))
 			return cvar->name;
 
 	for (i=0; i<1024; i++)
