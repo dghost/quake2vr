@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t		com_argc;
 char	*com_argv[MAX_NUM_ARGVS+1];
-hash_t  com_argv_hash[MAX_NUM_ARGVS+1];
+hash128_t  com_argv_hash[MAX_NUM_ARGVS+1];
 
 int32_t		realtime;
 
@@ -1181,10 +1181,10 @@ where the given parameter apears, or 0 if not present
 int32_t COM_CheckParm (char *parm)
 {
 	int32_t		i;
-    hash_t hash = Q_Hash(parm, strlen(parm));
+    hash128_t hash = Q_Hash128(parm, strlen(parm));
 	for (i=1 ; i<com_argc ; i++)
 	{
-		if (!Q_HashEquals(hash, com_argv_hash[i]) && !strcmp (parm,com_argv[i]))
+		if (!Q_HashEquals128(hash, com_argv_hash[i]) && !strcmp (parm,com_argv[i]))
 			return i;
 	}
 		
@@ -1208,7 +1208,7 @@ void COM_ClearArgv (int32_t arg)
 	if (arg < 0 || arg >= com_argc || !com_argv[arg])
 		return;
 	com_argv[arg] = "";
-    memset(&com_argv_hash[arg], 0, sizeof(hash_t));
+    memset(&com_argv_hash[arg], 0, sizeof(hash128_t));
 }
 
 
@@ -1232,7 +1232,7 @@ void COM_InitArgv (int32_t argc, char **argv)
 			com_argv[i] = "";
         else {
 			com_argv[i] = argv[i];
-            com_argv_hash[i] = Q_Hash(argv[i], strlen(argv[i]));
+            com_argv_hash[i] = Q_Hash128(argv[i], strlen(argv[i]));
         }
 	}
 }
@@ -1249,7 +1249,7 @@ void COM_AddParm (char *parm)
 	if (com_argc == MAX_NUM_ARGVS)
 		Com_Error (ERR_FATAL, "COM_AddParm: MAX_NUM)ARGS");
 	com_argv[com_argc] = parm;
-    com_argv_hash[com_argc++] = Q_Hash(parm, strlen(parm));
+    com_argv_hash[com_argc++] = Q_Hash128(parm, strlen(parm));
 }
 
 

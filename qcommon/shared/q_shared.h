@@ -149,7 +149,8 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 #endif
 
-typedef struct hash_t { uint32_t v[4]; } hash_t;
+typedef struct hash128_t { uint32_t v[4]; } hash128_t;
+typedef struct hash32_t {uint32_t h; } hash32_t;
 
 #define ROQ_SUPPORT // whether to use new cinematic system
 
@@ -547,7 +548,7 @@ typedef struct cvar_s
 	char		*default_string;
 	int32_t			integer;
 #endif
-    hash_t      hash;
+    hash32_t      hash;
 } cvar_t;
 
 #endif		// CVAR

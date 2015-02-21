@@ -911,14 +911,18 @@ void SCR_DebugGraph (float value, int32_t color);
  ==============================================================
  */
 #ifndef Q2VR_ENGINE_MOD
-typedef struct hash_t { uint32_t v[4]; } hash_t;
+typedef struct hash128_t { uint32_t v[4]; } hash128_t;
+typedef struct hash32_t {uint32_t h; } hash32_t;
 #endif
 
-hash_t Q_Hash(const char *string, uint32_t len);
-hash_t Q_HashSanitize(const char *string);
-int32_t Q_HashEquals(hash_t hash1, hash_t hash2);
-int32_t Q_HashCompare(hash_t hash1, hash_t hash2);
-
+hash128_t Q_Hash128(const char *string, uint32_t len);
+hash128_t Q_HashFile128(const char *string);
+int32_t Q_HashEquals128(hash128_t hash1, hash128_t hash2);
+int32_t Q_HashCompare128(hash128_t hash1, hash128_t hash2);
+hash32_t Q_Hash32(const char *string, uint32_t len);
+hash32_t Q_HashFile32(const char *string);
+int32_t Q_HashEquals32(hash32_t hash1, hash32_t hash2);
+int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
 /*
 ==============================================================
 

@@ -34,7 +34,7 @@ typedef struct cmdalias_s
 {
 	struct cmdalias_s	*next;
 	char	name[MAX_ALIAS_NAME];
-    hash_t  hash;
+    hash32_t  hash;
 	char	*value;
 } cmdalias_t;
 
@@ -421,7 +421,7 @@ void Cmd_Alias_f (void)
 	char		cmd[1024];
 	int32_t			i, c;
 	char		*s;
-    hash_t      nameHash;
+    hash32_t      nameHash;
     
 	if (Cmd_Argc() == 1)
 	{
@@ -438,12 +438,12 @@ void Cmd_Alias_f (void)
 		return;
 	}
     
-    nameHash = Q_Hash(s, strlen(s));
+    nameHash = Q_Hash32(s, strlen(s));
 
 	// if the alias already exists, reuse it
 	for (a = cmd_alias ; a ; a=a->next)
 	{
-		if (!Q_HashEquals(nameHash, a->hash) && !strcmp(s, a->name))
+		if (!Q_HashEquals32(nameHash, a->hash) && !strcmp(s, a->name))
 		{
 			Z_Free (a->value);
 			break;
@@ -484,7 +484,7 @@ typedef struct cmd_function_s
 {
 	struct cmd_function_s	*next;
 	char					*name;
-    hash_t                  hash;
+    hash32_t                  hash;
 	xcommand_t				function;
 } cmd_function_t;
 
@@ -687,7 +687,7 @@ Cmd_AddCommand
 void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
-    hash_t nameHash;
+    hash32_t nameHash;
 // fail if the command is a variable name
 	if (Cvar_VariableString(cmd_name)[0])
 	{
@@ -695,12 +695,12 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 		return;
 	}
 	
-    nameHash = Q_Hash(cmd_name, strlen(cmd_name));
+    nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
     
 // fail if the command already exists
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+		if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
 			return;
@@ -723,7 +723,7 @@ Cmd_RemoveCommand
 void	Cmd_RemoveCommand (char *cmd_name)
 {
 	cmd_function_t	*cmd, **back;
-    hash_t nameHash = Q_Hash(cmd_name, strlen(cmd_name));
+    hash32_t nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
 
 	back = &cmd_functions;
 	while (1)
@@ -734,7 +734,7 @@ void	Cmd_RemoveCommand (char *cmd_name)
 			Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
 			return;
 		}
-		if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+		if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
 			*back = cmd->next;
 			Z_Free (cmd);
@@ -752,11 +752,11 @@ Cmd_Exists
 qboolean	Cmd_Exists (char *cmd_name)
 {
 	cmd_function_t	*cmd;
-    hash_t nameHash = Q_Hash(cmd_name, strlen(cmd_name));
+    hash32_t nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-        if (!Q_HashEquals(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
+        if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 			return true;
 	}
 

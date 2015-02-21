@@ -193,8 +193,8 @@ typedef struct
 	void	(*FreeFile) (void *buf);
 	void	(*FreeFileList) (char **list, int32_t n);
 #ifdef Q2VR_ENGINE_MOD
-    hash_t (*Hash)(const char *string, uint32_t len);
-    int32_t (*HashCompare)(hash_t hash1, hash_t hash2);
+    hash128_t (*Hash)(const char *string, uint32_t len);
+    int32_t (*HashCompare)(hash128_t hash1, hash128_t hash2);
     
 #endif
     

@@ -393,8 +393,8 @@ void SV_InitGameProgs (void)
 	import.FreeFile = FS_FreeFile;
 	import.FreeFileList = FS_FreeFileList;
 #ifdef Q2VR_ENGINE_MOD
-    import.Hash = Q_Hash;
-    import.HashCompare = Q_HashCompare;
+    import.Hash = Q_Hash128;
+    import.HashCompare = Q_HashCompare128;
 #endif
 #endif
 	import.SetAreaPortalState = CM_SetAreaPortalState;

@@ -167,7 +167,7 @@ S_FindName(char *name, qboolean create)
 {
 	int i;
 	sfx_t *sfx;
-    hash_t hash;
+    hash128_t hash;
 	if (!name)
 	{
 		Com_Error(ERR_FATAL, "S_FindName: NULL\n");
@@ -183,11 +183,11 @@ S_FindName(char *name, qboolean create)
 		Com_Error(ERR_FATAL, "Sound name too long: %s", name);
 	}
 
-    hash = Q_Hash(name, strlen(name));
+    hash = Q_Hash128(name, strlen(name));
 	/* see if already loaded */
 	for (i = 0; i < num_sfx; i++)
 	{
-		if (!Q_HashEquals(known_sfx[i].hash, hash) && !strcmp(known_sfx[i].name, name))
+		if (!Q_HashEquals128(known_sfx[i].hash, hash) && !strcmp(known_sfx[i].name, name))
 		{
 			return &known_sfx[i];
 		}
@@ -220,7 +220,7 @@ S_FindName(char *name, qboolean create)
 	sfx = &known_sfx[i];
 	sfx->truename = NULL;
 	strcpy(sfx->name, name);
-    sfx->hash = Q_Hash(name, strlen(name));
+    sfx->hash = Q_Hash128(name, strlen(name));
 	sfx->registration_sequence = s_registration_sequence;
 
 	return sfx;
@@ -261,7 +261,7 @@ S_AliasName(char *aliasname, char *truename)
 	sfx = &known_sfx[i];
 	sfx->cache = NULL;
 	strcpy(sfx->name, aliasname);
-    sfx->hash = Q_Hash(aliasname, strlen(aliasname));
+    sfx->hash = Q_Hash128(aliasname, strlen(aliasname));
 	sfx->registration_sequence = s_registration_sequence;
 	sfx->truename = s;
 
