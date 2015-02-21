@@ -49,7 +49,7 @@ Cvar_FindVar
 static cvar_t *Cvar_FindVar (char *var_name)
 {
 	cvar_t	*var;
-    hash32_t hash = Q_Hash32(var_name, strlen(var_name));
+    hash32_t hash = Q_HashSanitized32(var_name);
 	for (var=cvar_vars ; var ; var=var->next)
 		if (!Q_HashEquals32(hash, var->hash) && !strcmp (var_name, var->name))
 			return var;
@@ -160,7 +160,7 @@ char *Cvar_CompleteVariable (char *partial)
 	if (!len)
 		return NULL;
 		
-    hash = Q_Hash32(partial, len);
+    hash = Q_HashSanitized32(partial);
 	// check exact match
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
 		if (!Q_HashEquals32(hash, cvar->hash) && !strcmp (partial,cvar->name))
@@ -233,7 +233,7 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 #endif
 	var->modified = true;
 	var->value = atof (var->string);
-    var->hash = Q_Hash32(var_name, strlen(var_name));
+    var->hash = Q_HashSanitized32(var_name);
 
 	// link the variable in
 	var->next = cvar_vars;

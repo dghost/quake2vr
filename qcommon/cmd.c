@@ -438,7 +438,7 @@ void Cmd_Alias_f (void)
 		return;
 	}
     
-    nameHash = Q_Hash32(s, strlen(s));
+    nameHash = Q_HashSanitized32(s);
 
 	// if the alias already exists, reuse it
 	for (a = cmd_alias ; a ; a=a->next)
@@ -695,7 +695,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 		return;
 	}
 	
-    nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
+    nameHash = Q_HashSanitized32(cmd_name);
     
 // fail if the command already exists
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
@@ -723,7 +723,7 @@ Cmd_RemoveCommand
 void	Cmd_RemoveCommand (char *cmd_name)
 {
 	cmd_function_t	*cmd, **back;
-    hash32_t nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
+    hash32_t nameHash = Q_HashSanitized32(cmd_name);
 
 	back = &cmd_functions;
 	while (1)
@@ -752,7 +752,7 @@ Cmd_Exists
 qboolean	Cmd_Exists (char *cmd_name)
 {
 	cmd_function_t	*cmd;
-    hash32_t nameHash = Q_Hash32(cmd_name, strlen(cmd_name));
+    hash32_t nameHash = Q_HashSanitized32(cmd_name);
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
@@ -911,17 +911,20 @@ void	Cmd_ExecuteString (char *text)
 {	
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
-
+    hash32_t hash;
+    
 	Cmd_TokenizeString (text, true);
 			
 	// execute the command line
 	if (!Cmd_Argc())
 		return;		// no tokens
 
+    hash = Q_HashSanitized32(cmd_argv[0]);
+    
 	// check functions
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!Q_strcasecmp (cmd_argv[0],cmd->name))
+		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (cmd_argv[0],cmd->name))
 		{
 			if (!cmd->function)
 			{	// forward to server command
@@ -936,7 +939,7 @@ void	Cmd_ExecuteString (char *text)
 	// check alias
 	for (a=cmd_alias ; a ; a=a->next)
 	{
-		if (!Q_strcasecmp (cmd_argv[0], a->name))
+		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (cmd_argv[0], a->name))
 		{
 			if (++alias_count == ALIAS_LOOP_COUNT)
 			{
