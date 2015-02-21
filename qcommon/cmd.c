@@ -797,10 +797,15 @@ Cmd_CompleteCommand
 
 	return NULL;
 }*/
+char            retval[256];
 
-// Knightmare - added command auto-complete
-char			retval[256];
-char *Cmd_CompleteCommand (char *partial)
+int strsort(const void *str1, const void *str2) {
+    char *a = *(char **)str1;
+    char *b = *(char **)str2;
+    return strcasecmp(a,b);
+}
+
+completion_t Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
 	int32_t				len,i,o,p;
@@ -809,31 +814,16 @@ char *Cmd_CompleteCommand (char *partial)
 	char			*pmatch[1024];
 	qboolean		diff = false;
     hash32_t        hash;
-    
+    completion_t    result = {0, NULL};
 	len = strlen(partial);
 
-	if (!len)
-		return NULL;
+    if (!len)
+        return result;
 
-    hash = Q_HashSanitized32(partial);
-    
-    // check for exact match
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (partial,cmd->name))
-			return cmd->name;
-	for (a=cmd_alias ; a ; a=a->next)
-		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (partial, a->name))
-			return a->name;
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!Q_HashEquals32(hash, cvar->hash) && !Q_strcasecmp (partial,cvar->name))
-			return cvar->name;
+    memset(pmatch, 0, sizeof(pmatch));
+    i=0;
 
-	for (i=0; i<1024; i++)
-		pmatch[i]=NULL;
-	i=0;
-
-// check for partial match
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
+    for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 		if (!Q_strncasecmp (partial,cmd->name, len)) {
 			pmatch[i]=cmd->name;
 			i++;
@@ -850,10 +840,14 @@ char *Cmd_CompleteCommand (char *partial)
 		}
 
 	if (i) {
-		if (i == 1)
-			return pmatch[0];
-
-		Com_Printf("\nListing matches for '%s'...\n",partial);
+        result.number = i;
+        if (i == 1) {
+            result.match = pmatch[0];
+            return result;
+        }
+        heapsort(pmatch,i, sizeof(char *), strsort);
+        
+        Com_Printf("\nListing matches for '%s'...\n",partial);
 		for (o=0; o<i; o++)
 			Com_Printf("  %s\n",pmatch[o]);
 
@@ -871,10 +865,10 @@ char *Cmd_CompleteCommand (char *partial)
 			p++;
 		}
 		Com_Printf("Found %i matches\n",i);
-		return retval;
+        result.match = retval;
 	}
 
-	return NULL;
+    return result;
 }
 
 qboolean Cmd_IsComplete (char *command)

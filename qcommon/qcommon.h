@@ -437,7 +437,12 @@ void	Cmd_RemoveCommand (char *cmd_name);
 qboolean Cmd_Exists (char *cmd_name);
 // used by the cvar code to check for cvar / command name overlap
 
-char 	*Cmd_CompleteCommand (char *partial);
+typedef struct completion_t {
+    uint32_t number;
+    char *match;
+} completion_t;
+
+completion_t Cmd_CompleteCommand (char *partial);
 // attempts to match a partial command for automatic command line completion
 // returns NULL if nothing fits
 

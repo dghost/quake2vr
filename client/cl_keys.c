@@ -172,20 +172,21 @@ qboolean Cmd_IsComplete (char *cmd);
 
 void CompleteCommand (void)
 {
-	char	*cmd, *s;
-
+    completion_t cmd;
+    char	*s;
+    
 	s = key_lines[edit_line]+1;
 	if (*s == '\\' || *s == '/')
 		s++;
 
 	cmd = Cmd_CompleteCommand (s);
 	// Knightmare - added command auto-complete
-	if (cmd)
+	if (cmd.number > 0)
 	{
 		key_lines[edit_line][1] = '/';
-		strcpy (key_lines[edit_line]+2, cmd);
-		key_linepos = strlen(cmd)+2;
-		if (Cmd_IsComplete(cmd)) {
+		strcpy (key_lines[edit_line]+2, cmd.match);
+		key_linepos = strlen(cmd.match)+2;
+		if (cmd.number == 1 && Cmd_IsComplete(cmd.match)) {
 			key_lines[edit_line][key_linepos] = ' ';
 			key_linepos++;
 			key_lines[edit_line][key_linepos] = 0;
