@@ -28,6 +28,8 @@ vec3_t vec3_origin = {0,0,0};
 #ifdef _WIN32
 #include <ctype.h>
 #pragma optimize( "", off )
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #endif
 
 #ifdef __APPLE__
@@ -1624,20 +1626,13 @@ void Com_PageInMemory (byte *buffer, int32_t size)
 ============================================================================
 */
 
-// FIXME: replace all Q_stricmp with Q_strcasecmp
-int32_t Q_stricmp (char *s1, char *s2)
-{
-#if defined(WIN32)
-	return _stricmp (s1, s2);
-#else
-	return strcasecmp (s1, s2);
-#endif
-}
-
 
 int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
 {
-	int32_t		c1, c2;
+#if 1
+    return strncasecmp(s1, s2, n);
+#else
+    int32_t		c1, c2;
 
     do
 	{
@@ -1660,12 +1655,14 @@ int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
         return 0;		// strings are equal
     else
         return ((c1 > c2) ? 1 : -1);		// strings not equal
+#endif
 
 }
 
 int32_t Q_strcasecmp (char *s1, char *s2)
 {
-	return Q_strncasecmp (s1, s2, 99999);
+    // do this to ensure termination
+    return Q_strncasecmp (s1, s2, 99999);
 }
 
 size_t Q_strlcpy(char *dest, char* src, size_t size)
@@ -1676,13 +1673,17 @@ size_t Q_strlcpy(char *dest, char* src, size_t size)
 
 char *Q_strlwr (char *string)
 {
-	char	*s = string;
+#ifdef _WIN32
+    return _strlwr(string);
+#else
+    char	*s = string;
 
 	while (*s) {
 		*s = tolower(*s);
 		s++;
 	}
 	return string;
+#endif
 }
 
 
