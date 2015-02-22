@@ -1304,8 +1304,7 @@ void CL_AddPacketEntities (frame_t *frame)
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					255, 150, 50, 0, -90, -30, 10, 3);
 				drawEnt = false;
-			}
-			if ( (!Q_strcasecmp((char *)ent.model, "models/proj/laser2/tris.md2")
+			} else if ( (!Q_strcasecmp((char *)ent.model, "models/proj/laser2/tris.md2")
 				|| !Q_strcasecmp((char *)ent.model, "models/objects/laser2/tris.md2")
 				|| !Q_strcasecmp((char *)ent.model, "models/objects/glaser/tris.md2") )
 				&& !(effects & EF_BLASTER))
@@ -1313,15 +1312,13 @@ void CL_AddPacketEntities (frame_t *frame)
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					50, 235, 50, -10, 0, -10, 10, 3);
 				drawEnt = false;
-			}
-			if (!Q_strcasecmp((char *)ent.model, "models/objects/blaser/tris.md2")
+			} else if (!Q_strcasecmp((char *)ent.model, "models/objects/blaser/tris.md2")
 				&& !(effects & EF_BLASTER))
 			{	// give the bolt a blue particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					50, 50, 235, 0, -10, 0, -10, 3);
 				drawEnt = false;
-			}
-			if (!Q_strcasecmp((char *)ent.model, "models/objects/rlaser/tris.md2")
+			} else if (!Q_strcasecmp((char *)ent.model, "models/objects/rlaser/tris.md2")
 				&& !(effects & EF_BLASTER))
 			{	// give the bolt a red particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
