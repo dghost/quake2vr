@@ -117,12 +117,12 @@ void Cbuf_InsertText (char *text)
 {
 	char	*temp = temp_text_buf;
 	int32_t		templen;
-
 // copy off any commands still remaining in the exec buffer
 	templen = cmd_text.cursize;
 	if (templen)
 	{
-		memcpy (temp, cmd_text.data, templen);
+        memset(temp,0,(templen + 1) * sizeof(char));
+		memcpy(temp, cmd_text.data, templen);
 		SZ_Clear (&cmd_text);
 	}
 		
@@ -297,7 +297,7 @@ qboolean Cbuf_AddLateCommands (void)
 {
 	int32_t		i, j;
 	int32_t		s;
-	char	*text;
+	char	*text = temp_text_buf;
 	int32_t		argc;
 	qboolean	ret;
 
@@ -306,18 +306,22 @@ qboolean Cbuf_AddLateCommands (void)
 	argc = COM_Argc();
 	for (i=1 ; i<argc ; i++)
 	{
-		s += strlen (COM_Argv(i)) + 1;
+        if (COM_Argv(i)[0]) {
+            s += strlen (COM_Argv(i)) + 1;
+        }
 	}
 	if (!s)
 		return false;
 		
-	text = temp_text_buf;
-    memset(text, 0, s+1);
+    memset(text, 0, (s+1)*sizeof(char));
 	for (i=1 ; i<argc ; i++)
 	{
-		strcat (text,COM_Argv(i));
-		if (i != argc-1)
-			strcat (text, " ");
+        if (COM_Argv(i)[0]) {
+            strcat (text,COM_Argv(i));
+            if (i != argc-1)
+                strcat (text, " ");
+        }
+
 	}
 		
 	for (i=0 ; i<s-1 ; i++)
