@@ -813,7 +813,6 @@ completion_t Cmd_CompleteCommand (char *partial)
 	cvar_t			*cvar;
 	char			*pmatch[1024];
 	qboolean		diff = false;
-    hash32_t        hash;
     completion_t    result = {0, NULL};
 	len = strlen(partial);
 
@@ -845,7 +844,7 @@ completion_t Cmd_CompleteCommand (char *partial)
             result.match = pmatch[0];
             return result;
         }
-        heapsort(pmatch,i, sizeof(char *), strsort);
+        qsort(pmatch,i, sizeof(char *), strsort);
         
         Com_Printf("\nListing matches for '%s'...\n",partial);
 		for (o=0; o<i; o++)
