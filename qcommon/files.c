@@ -1674,7 +1674,7 @@ void FS_Startup (void)
 	}
 
 	// Check for game override
-	if (stricmp(fs_gamedirvar->string, fs_currentGame))
+	if (Q_strcasecmp(fs_gamedirvar->string, fs_currentGame))
 	{
 		fsSearchPath_t	*next;
 		fsPack_t		*pack;
@@ -1700,7 +1700,7 @@ void FS_Startup (void)
 			fs_searchPaths = next;
 		}
 
-		if (!stricmp(fs_gamedirvar->string, BASEDIRNAME))	// Don't add baseq2 again
+		if (!Q_strcasecmp(fs_gamedirvar->string, BASEDIRNAME))	// Don't add baseq2 again
 			strcpy(fs_gamedir, fs_basedir->string);
 		else
 		{
