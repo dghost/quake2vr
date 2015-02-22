@@ -44,37 +44,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdint.h>
 #include <time.h>
 
-
-#if !defined(_STDINT_H_) && (!defined(HAVE_STDINT_H) || !_HAVE_STDINT_H)
-#if defined(__GNUC__) || defined(__DMC__) || defined(__WATCOMC__)
-#elif defined(_MSC_VER)
-typedef signed __int8 int8_t;
-typedef unsigned __int8 uint8_t;
-typedef signed __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef signed __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef signed __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-/* Older Visual C++ headers don't have the Win64-compatible typedefs... */
-#else /* !__GNUC__ && !_MSC_VER */
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef signed short int16_t;
-typedef unsigned short uint16_t;
-typedef signed int int32_t;
-typedef unsigned int uint32_t;
-typedef signed long long int64_t;
-typedef unsigned long long uint64_t;
-#ifndef _SIZE_T_DEFINED_
-#define _SIZE_T_DEFINED_
-typedef unsigned int size_t;
-#endif
-typedef unsigned int uintptr_t;
-#endif /* __GNUC__ || _MSC_VER */
-#endif /* !_STDINT_H_ && !HAVE_STDINT_H */
-
-
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY
 #define id386	1
 #else
