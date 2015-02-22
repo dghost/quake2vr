@@ -193,6 +193,7 @@ typedef struct
 	void	(*FreeFile) (void *buf);
 	void	(*FreeFileList) (char **list, int32_t n);
 #ifdef Q2VR_ENGINE_MOD
+    void *(*TagRealloc)(void* ptr, int32_t size);
     hash128_t (*Hash128)(const char *string, uint32_t len);
     hash128_t (*HashSanitized128)(const char *string);
     int32_t (*HashEquals128)(hash128_t hash1, hash128_t hash2);
