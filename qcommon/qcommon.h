@@ -880,12 +880,12 @@ extern	int32_t		time_after_ref;
 enum {
     ZONE_UNTAGGED = 0x8000,
     ZONE_MENU = -1000,
-    ZONE_RENDERER = -150,
-    ZONE_AUDIO = -100,
     ZONE_SERVER = -10,
     ZONE_CLIENT = -1,
     ZONE_GAME = 765,
     ZONE_LEVEL = 766,
+    ZONE_RENDERER = 0x7FFD,
+    ZONE_AUDIO = 0x7FFE,
     ZONE_SYSTEM = 0x7FFF,
 };
 
