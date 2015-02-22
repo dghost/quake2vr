@@ -875,16 +875,18 @@ qboolean Cmd_IsComplete (char *command)
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
 	cvar_t			*cvar;
-			
+    hash32_t        hash;
+    hash = Q_HashSanitized32(command);
+
 // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!Q_strcasecmp (command,cmd->name))
+		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (command,cmd->name))
 			return true;
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!Q_strcasecmp (command, a->name))
+		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (command, a->name))
 			return true;
 	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!Q_strcasecmp (command,cvar->name))
+		if (!Q_HashEquals32(hash, cvar->hash) && !Q_strcasecmp (command,cvar->name))
 			return true;
 
 	return false;
