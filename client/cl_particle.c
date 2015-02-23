@@ -503,15 +503,22 @@ void CL_ParticleBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *al
 {
 	float clipsize;
 	trace_t tr;
-	vec3_t velocity;
-
+    vec3_t velocity;
+    vec3_t maxs, mins;
+    
+    
 	clipsize = *size*0.5;
 	if (clipsize<0.25) clipsize = 0.25;
-	tr = CL_BrushTrace (p->oldorg, org, clipsize, MASK_SOLID); // was 1
-	
+//	tr = CL_BrushTrace (p->oldorg, org, clipsize, MASK_SOLID); // was 1
+    VectorSet(maxs, clipsize, clipsize, clipsize);
+    VectorSet(mins, -clipsize, -clipsize, -clipsize);
+
+    tr = CL_PMSurfaceTrace(0,p->oldorg,mins,maxs,org,MASK_SOLID);
 	if (tr.fraction < 1)
 	{
 		CL_CalcPartVelocity(p, 1, time, velocity);
+        velocity[2] = (velocity[2] < -75) ? -75 : velocity[2];
+
 		CL_ClipParticleVelocity(velocity, tr.plane.normal, p->vel);
 
 		VectorCopy(vec3_origin, p->accel);
