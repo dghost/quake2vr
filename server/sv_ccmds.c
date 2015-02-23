@@ -358,7 +358,8 @@ void SV_WriteServerFile (qboolean autosave)
 	char	comment[32];
 	time_t	aclock;
 	struct tm	*newtime;
-
+    int i;
+    
 	Com_DPrintf("SV_WriteServerFile(%s)\n", autosave ? "true" : "false");
 
 	Com_sprintf (fileName, sizeof(fileName), "%s/save/current/server.ssv", FS_Gamedir());
@@ -392,24 +393,25 @@ void SV_WriteServerFile (qboolean autosave)
 
 	// write all CVAR_LATCH cvars
 	// these will be things like coop, skill, deathmatch, etc
-	for (var = cvar_vars ; var ; var=var->next)
-	{
-		if (!(var->flags & CVAR_LATCH))
-			continue;
-		if (strlen(var->name) >= sizeof(varName)-1
-			|| strlen(var->string) >= sizeof(string)-1)
-		{
-			Com_Printf ("Cvar too long: %s = %s\n", var->name, var->string);
-			continue;
-		}
-		memset (varName, 0, sizeof(varName));
-		memset (string, 0, sizeof(string));
-		strcpy (varName, var->name);
-		strcpy (string, var->string);
-		fwrite (varName, 1, sizeof(varName), f);
-		fwrite (string, 1, sizeof(string), f);
-	}
-
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (var = cvar_vars[i] ; var ; var=var->next)
+        {
+            if (!(var->flags & CVAR_LATCH))
+                continue;
+            if (strlen(var->name) >= sizeof(varName)-1
+                || strlen(var->string) >= sizeof(string)-1)
+            {
+                Com_Printf ("Cvar too long: %s = %s\n", var->name, var->string);
+                continue;
+            }
+            memset (varName, 0, sizeof(varName));
+            memset (string, 0, sizeof(string));
+            strcpy (varName, var->name);
+            strcpy (string, var->string);
+            fwrite (varName, 1, sizeof(varName), f);
+            fwrite (string, 1, sizeof(string), f);
+        }
+    }
 	fclose (f);
 
 	// write game state

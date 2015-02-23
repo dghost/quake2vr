@@ -488,7 +488,9 @@ Cvars are restricted from having the same names as commands to keep this
 interface from being ambiguous.
 */
 
-extern	cvar_t	*cvar_vars;
+#define CVAR_HASHMAP_WIDTH 0x80
+#define CVAR_HASHMAP_MASK 0x7F
+extern	cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 cvar_t *Cvar_Get (char *var_name, char *value, int32_t flags);
 // creates the variable if it doesn't exist, or returns the existing one

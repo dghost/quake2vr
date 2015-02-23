@@ -33,7 +33,9 @@ typedef struct cmdalias_s
 	char	*value;
 } cmdalias_t;
 
-cmdalias_t	*cmd_alias;
+#define CMDALIAS_HASHMAP_WIDTH 0x8
+#define CMDALIAS_HASHMAP_MASK 0x7
+cmdalias_t	*cmd_alias[CMDALIAS_HASHMAP_WIDTH];
 
 qboolean	cmd_wait;
 
@@ -421,12 +423,16 @@ void Cmd_Alias_f (void)
 	int32_t			i, c;
 	char		*s;
     hash32_t      nameHash;
+    int32_t     index;
     
 	if (Cmd_Argc() == 1)
 	{
+        int j;
 		Com_Printf ("Current alias commands:\n");
-		for (a = cmd_alias ; a ; a=a->next)
-			Com_Printf ("%s : %s\n", a->name, a->value);
+        for (j = 0; j < CMDALIAS_HASHMAP_WIDTH; j++) {
+            for (a = cmd_alias[j] ; a ; a=a->next)
+                Com_Printf ("  %s : %s", a->name, a->value);
+        }
 		return;
 	}
 
@@ -438,9 +444,9 @@ void Cmd_Alias_f (void)
 	}
     
     nameHash = Q_HashSanitized32(s);
-
+    index = nameHash.h & CMDALIAS_HASHMAP_MASK;
 	// if the alias already exists, reuse it
-	for (a = cmd_alias ; a ; a=a->next)
+	for (a = cmd_alias[index] ; a ; a=a->next)
 	{
 		if (!Q_HashEquals32(nameHash, a->hash) && !strcmp(s, a->name))
 		{
@@ -452,8 +458,8 @@ void Cmd_Alias_f (void)
 	if (!a)
 	{
 		a = Z_TagMalloc (sizeof(cmdalias_t), ZONE_SYSTEM);
-		a->next = cmd_alias;
-		cmd_alias = a;
+		a->next = cmd_alias[index];
+		cmd_alias[index] = a;
 	}
 	strcpy (a->name, s);	
     a->hash = nameHash;
@@ -493,7 +499,10 @@ static	char		cmd_argv[MAX_STRING_TOKENS][MAX_TOKEN_CHARS];
 static	char		*cmd_null_string = "";
 static	char		cmd_args[MAX_STRING_CHARS];
 
-static	cmd_function_t	*cmd_functions;		// possible commands to execute
+#define CMD_HASHMAP_WIDTH 0x80
+#define CMD_HASHMAP_MASK 0x7F
+
+static	cmd_function_t	*cmd_functions[CMD_HASHMAP_WIDTH];		// possible commands to execute
 
 /*
 ============
@@ -687,6 +696,8 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
     hash32_t nameHash;
+    int index;
+    
 // fail if the command is a variable name
 	if (Cvar_VariableString(cmd_name)[0])
 	{
@@ -695,9 +706,9 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 	}
 	
     nameHash = Q_HashSanitized32(cmd_name);
-    
+    index = nameHash.h&CMD_HASHMAP_MASK;
 // fail if the command already exists
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
+	for (cmd=cmd_functions[index] ; cmd ; cmd=cmd->next)
 	{
 		if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 		{
@@ -710,8 +721,8 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 	cmd->name = cmd_name;
     cmd->hash = nameHash;
 	cmd->function = function;
-	cmd->next = cmd_functions;
-	cmd_functions = cmd;
+	cmd->next = cmd_functions[index];
+	cmd_functions[index] = cmd;
 }
 
 /*
@@ -724,7 +735,7 @@ void	Cmd_RemoveCommand (char *cmd_name)
 	cmd_function_t	*cmd, **back;
     hash32_t nameHash = Q_HashSanitized32(cmd_name);
 
-	back = &cmd_functions;
+	back = &cmd_functions[nameHash.h&CMD_HASHMAP_MASK];
 	while (1)
 	{
 		cmd = *back;
@@ -753,7 +764,7 @@ qboolean	Cmd_Exists (char *cmd_name)
 	cmd_function_t	*cmd;
     hash32_t nameHash = Q_HashSanitized32(cmd_name);
 
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
+	for (cmd=cmd_functions[nameHash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
 	{
         if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
 			return true;
@@ -812,7 +823,7 @@ int strsort(const void *str1, const void *str2) {
 completion_t Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	int32_t				len,i,o,p;
+	int32_t				len,i,j,o,p;
 	cmdalias_t		*a;
 	cvar_t			*cvar;
 	char			*pmatch[1024];
@@ -825,23 +836,30 @@ completion_t Cmd_CompleteCommand (char *partial)
 
     memset(pmatch, 0, sizeof(pmatch));
     i=0;
-
-    for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!Q_strncasecmp (partial,cmd->name, len)) {
-			pmatch[i]=cmd->name;
-			i++;
-		}
-	for (a=cmd_alias ; a ; a=a->next)
-		if (!Q_strncasecmp (partial, a->name, len)) {
-			pmatch[i]=a->name;
-			i++;
-		}
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!Q_strncasecmp (partial,cvar->name, len)) {
-			pmatch[i]=cvar->name;
-			i++;
-		}
-
+    for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
+        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next)
+            if (!Q_strncasecmp (partial,cmd->name, len)) {
+                pmatch[i]=cmd->name;
+                i++;
+            }
+    }
+    
+    for (j= 0; j < CMDALIAS_HASHMAP_WIDTH; j++ ){
+        for (a=cmd_alias[j] ; a ; a=a->next)
+            if (!Q_strncasecmp (partial, a->name, len)) {
+                pmatch[i]=a->name;
+                i++;
+            }
+    }
+    
+    for (j = 0; j < CVAR_HASHMAP_WIDTH; j++) {
+        for (cvar=cvar_vars[j] ; cvar ; cvar=cvar->next)
+            if (!Q_strncasecmp (partial,cvar->name, len)) {
+                pmatch[i]=cvar->name;
+                i++;
+            }
+    }
+    
 	if (i) {
         result.number = i;
         if (i == 1) {
@@ -883,13 +901,13 @@ qboolean Cmd_IsComplete (char *command)
     hash = Q_HashSanitized32(command);
 
 // check for exact match
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
+	for (cmd=cmd_functions[hash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
 		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (command,cmd->name))
 			return true;
-	for (a=cmd_alias ; a ; a=a->next)
+	for (a=cmd_alias[hash.h&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
 		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (command, a->name))
 			return true;
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
+	for (cvar=cvar_vars[hash.h&CVAR_HASHMAP_MASK] ; cvar ; cvar=cvar->next)
 		if (!Q_HashEquals32(hash, cvar->hash) && !Q_strcasecmp (command,cvar->name))
 			return true;
 
@@ -919,7 +937,7 @@ void	Cmd_ExecuteString (char *text)
     hash = Q_HashSanitized32(cmd_argv[0]);
     
 	// check functions
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
+	for (cmd=cmd_functions[hash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
 	{
 		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (cmd_argv[0],cmd->name))
 		{
@@ -934,7 +952,7 @@ void	Cmd_ExecuteString (char *text)
 	}
 
 	// check alias
-	for (a=cmd_alias ; a ; a=a->next)
+	for (a=cmd_alias[hash.h&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
 	{
 		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (cmd_argv[0], a->name))
 		{
@@ -964,11 +982,13 @@ Cmd_List_f
 void Cmd_List_f (void)
 {
 	cmd_function_t	*cmd;
-	int32_t				i;
+	int32_t			i,j;
 
 	i = 0;
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next, i++)
-		Com_Printf ("%s\n", cmd->name);
+    for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
+        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next, i++)
+            Com_Printf ("%s\n", cmd->name);
+    }
 	Com_Printf ("%i commands\n", i);
 }
 
@@ -982,6 +1002,7 @@ void Cmd_Init (void)
 //
 // register our commands
 //
+    memset(cmd_functions,0,sizeof(cmd_functions));
 	Cmd_AddCommand ("cmdlist",Cmd_List_f);
 	Cmd_AddCommand ("exec",Cmd_Exec_f);
 	Cmd_AddCommand ("echo",Cmd_Echo_f);

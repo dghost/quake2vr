@@ -21,7 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcommon.h"
 #include "wildcard.h"
-cvar_t	*cvar_vars;
+
+cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
 
@@ -50,7 +51,7 @@ static cvar_t *Cvar_FindVar (char *var_name)
 {
 	cvar_t	*var;
     hash32_t hash = Q_HashSanitized32(var_name);
-	for (var=cvar_vars ; var ; var=var->next)
+	for (var=cvar_vars[hash.h&CVAR_HASHMAP_MASK] ; var ; var=var->next)
 		if (!Q_HashEquals32(hash, var->hash) && !strcmp (var_name, var->name))
 			return var;
 
@@ -155,6 +156,7 @@ char *Cvar_CompleteVariable (char *partial)
 	cvar_t		*cvar;
 	int32_t			len;
     hash32_t hash;
+    int i;
 	len = strlen(partial);
 	
 	if (!len)
@@ -162,15 +164,16 @@ char *Cvar_CompleteVariable (char *partial)
 		
     hash = Q_HashSanitized32(partial);
 	// check exact match
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
+	for (cvar=cvar_vars[hash.h&CVAR_HASHMAP_MASK] ; cvar ; cvar=cvar->next)
 		if (!Q_HashEquals32(hash, cvar->hash) && !strcmp (partial,cvar->name))
 			return cvar->name;
 
-	// check partial match
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!strncmp (partial,cvar->name, len))
-			return cvar->name;
-
+    // check partial match
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next)
+            if (!strncmp (partial,cvar->name, len))
+                return cvar->name;
+    }
 	return NULL;
 }
 
@@ -186,6 +189,7 @@ The flags will be or'ed in if the variable exists.
 cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 {
 	cvar_t	*var;
+    int index;
     
 	if (flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
@@ -234,10 +238,10 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 	var->modified = true;
 	var->value = atof (var->string);
     var->hash = Q_HashSanitized32(var_name);
-
+    index = var->hash.h & CVAR_HASHMAP_MASK;
 	// link the variable in
-	var->next = cvar_vars;
-	cvar_vars = var;
+	var->next = cvar_vars[index];
+    cvar_vars[index] = var;
 
 	var->flags = flags;
 
@@ -446,21 +450,23 @@ Any variables with latched values will now be updated
 void Cvar_GetLatchedVars (void)
 {
 	cvar_t	*var;
-
-	for (var = cvar_vars ; var ; var = var->next)
-	{
-		if (!var->latched_string)
-			continue;
-		Z_Free (var->string);
-		var->string = var->latched_string;
-		var->latched_string = NULL;
-		var->value = atof(var->string);
-		if (!strcmp(var->name, "game"))
-		{
-			FS_SetGamedir (var->string);
-			FS_ExecAutoexec ();
-		}
-	}
+    int i;
+    for (i = 0; i< CVAR_HASHMAP_WIDTH; i++) {
+        for (var = cvar_vars[i] ; var ; var = var->next)
+        {
+            if (!var->latched_string)
+                continue;
+            Z_Free (var->string);
+            var->string = var->latched_string;
+            var->latched_string = NULL;
+            var->value = atof(var->string);
+            if (!strcmp(var->name, "game"))
+            {
+                FS_SetGamedir (var->string);
+                FS_ExecAutoexec ();
+            }
+        }
+    }
 }
 
 
@@ -477,7 +483,8 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 
 #ifdef NEW_CVAR_MEMBERS
 	cvar_t	*var;
-
+    int i;
+    
 	if (cvar_allowCheats == allowCheats)
 		return;
 	cvar_allowCheats = allowCheats;
@@ -485,16 +492,18 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 	if (cvar_allowCheats)
 		return;
 
-	for (var = cvar_vars; var; var = var->next)
-	{
-		if (!(var->flags & CVAR_CHEAT))
-			continue;
-
-		if (!Q_strcasecmp(var->string, var->default_string))
-			continue;
-
-		Cvar_Set2 (var->name, var->default_string, true);
-	}
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (var = cvar_vars[i]; var; var = var->next)
+        {
+            if (!(var->flags & CVAR_CHEAT))
+                continue;
+            
+            if (!Q_strcasecmp(var->string, var->default_string))
+                continue;
+            
+            Cvar_Set2 (var->name, var->default_string, true);
+        }
+    }
 #endif
 }
 
@@ -648,16 +657,19 @@ void Cvar_WriteVariables (char *path)
 	cvar_t	*var;
 	char	buffer[1024];
 	FILE	*f;
-
+    int i = 0;
+    
 	f = fopen (path, "a");
-	for (var = cvar_vars ; var ; var = var->next)
-	{
-		if (var->flags & CVAR_ARCHIVE)
-		{
-			Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
-			fprintf (f, "%s", buffer);
-		}
-	}
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (var = cvar_vars[i] ; var ; var = var->next)
+        {
+            if (var->flags & CVAR_ARCHIVE)
+            {
+                Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
+                fprintf (f, "%s", buffer);
+            }
+        }
+    }
 	fclose (f);
 }
 
@@ -670,7 +682,7 @@ Cvar_List_f
 void Cvar_List_f (void)
 {
 	cvar_t	*var;
-	int32_t		i, j, c;
+	int32_t		i, j, k, c;
 	char	*wc;
 
 	// RIOT's Quake3-sytle cvarlist
@@ -689,54 +701,56 @@ void Cvar_List_f (void)
 
 	i = 0;
 	j = 0;
-	for (var = cvar_vars; var; var = var->next, i++)
-	{
-		if (wildcardfit (wc, var->name))
-		//if (strstr (var->name, Cmd_Argv(1)))
-		{
-			j++;
-			if (var->flags & CVAR_ARCHIVE)
-				Com_Printf ("A");
-			else
-				Com_Printf (" ");
-
-			if (var->flags & CVAR_USERINFO)
-				Com_Printf ("U");
-			else
-				Com_Printf (" ");
-
-			if (var->flags & CVAR_SERVERINFO)
-				Com_Printf ("S");
-			else
-				Com_Printf (" ");
-
-			if (var->flags & CVAR_NOSET)
-				Com_Printf ("-");
-			else if (var->flags & CVAR_LATCH)
-				Com_Printf ("L");
-			else
-				Com_Printf (" ");
-
-			if (var->flags & CVAR_CHEAT)
-				Com_Printf("C");
-			else
-				Com_Printf(" ");
-
-			// show latched value if applicable
+    for (k = 0; k < CVAR_HASHMAP_WIDTH; k++) {
+        for (var = cvar_vars[k]; var; var = var->next, i++)
+        {
+            if (wildcardfit (wc, var->name))
+                //if (strstr (var->name, Cmd_Argv(1)))
+            {
+                j++;
+                if (var->flags & CVAR_ARCHIVE)
+                    Com_Printf ("A");
+                else
+                    Com_Printf (" ");
+                
+                if (var->flags & CVAR_USERINFO)
+                    Com_Printf ("U");
+                else
+                    Com_Printf (" ");
+                
+                if (var->flags & CVAR_SERVERINFO)
+                    Com_Printf ("S");
+                else
+                    Com_Printf (" ");
+                
+                if (var->flags & CVAR_NOSET)
+                    Com_Printf ("-");
+                else if (var->flags & CVAR_LATCH)
+                    Com_Printf ("L");
+                else
+                    Com_Printf (" ");
+                
+                if (var->flags & CVAR_CHEAT)
+                    Com_Printf("C");
+                else
+                    Com_Printf(" ");
+                
+                // show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
-			if ((var->flags & CVAR_LATCH) && var->latched_string)
-				Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, var->default_string, var->latched_string);
-			else
-				Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, var->default_string);
+                if ((var->flags & CVAR_LATCH) && var->latched_string)
+                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, var->default_string, var->latched_string);
+                else
+                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, var->default_string);
 #else
-			if ((var->flags & CVAR_LATCH) && var->latched_string)
-				Com_Printf (" %s \"%s\" - latched: \"%s\"\n", var->name, var->string, var->latched_string);
-			else
-				Com_Printf (" %s \"%s\"\n", var->name, var->string);
-
+                if ((var->flags & CVAR_LATCH) && var->latched_string)
+                    Com_Printf (" %s \"%s\" - latched: \"%s\"\n", var->name, var->string, var->latched_string);
+                else
+                    Com_Printf (" %s \"%s\"\n", var->name, var->string);
+                
 #endif
-		}
-	}
+            }
+        }
+    }
 	Com_Printf (" %i cvars, %i matching\n", i, j);
 }
 
@@ -748,14 +762,16 @@ char	*Cvar_BitInfo (int32_t bit)
 {
 	static char	info[MAX_INFO_STRING];
 	cvar_t	*var;
-
+    int i;
+    
 	info[0] = 0;
-
-	for (var = cvar_vars ; var ; var = var->next)
-	{
-		if (var->flags & bit)
-			Info_SetValueForKey (info, var->name, var->string);
-	}
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (var = cvar_vars[i] ; var ; var = var->next)
+        {
+            if (var->flags & bit)
+                Info_SetValueForKey (info, var->name, var->string);
+        }
+    }
 	return info;
 }
 
@@ -780,6 +796,7 @@ Reads in all archived cvars
 */
 void Cvar_Init (void)
 {
+    memset(cvar_vars, 0, sizeof(cvar_vars));
 	Cmd_AddCommand ("set", Cvar_Set_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_AddCommand ("reset", Cvar_Reset_f);
