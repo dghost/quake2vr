@@ -430,7 +430,7 @@ char *Sys_GetBaseDir (void) {
             Com_Printf("Got base path %s\n", basepath);
             i = strlen(basepath) - 1;
             if (i > 0) {
-                while(basepath[i] == '\\' || basepath[i] == '/') {
+                while(i >= 0 && (basepath[i] == '\\' || basepath[i] == '/')) {
                     basepath[i] = '\0';
                     i--;
                 }
