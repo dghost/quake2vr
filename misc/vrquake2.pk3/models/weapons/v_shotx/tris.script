@@ -1,4 +1,4 @@
 md2mesh.0
 {
-	glow models/weapons/v_shotx/od_post_drk_glow.tga wave sin .9 .1 0 10
+	glow models/weapons/v_shotx/od_post_drk_glow.png wave sin .9 .1 0 10
 }

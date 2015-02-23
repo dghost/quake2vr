@@ -1,4 +1,4 @@
 md2mesh.0
 {
-	glow models/weapons/v_blast/od_blasterglow.tga wave sin .8 .2 0 10
+	glow models/weapons/v_blast/od_blasterglow.jpg wave sin .8 .2 0 10
 }

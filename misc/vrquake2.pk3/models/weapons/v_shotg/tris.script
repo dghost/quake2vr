@@ -1,4 +1,4 @@
 md2mesh.0
 {
-	glow models/weapons/v_shotg/kman_shotgunglow.tga wave sin .9 .1 0 10
+	glow models/weapons/v_shotg/kman_shotgunglow.jpg wave sin .9 .1 0 10
 }
