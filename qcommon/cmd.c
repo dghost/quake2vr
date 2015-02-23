@@ -806,7 +806,7 @@ char            retval[256];
 int strsort(const void *str1, const void *str2) {
     char *a = *(char **)str1;
     char *b = *(char **)str2;
-    return strcasecmp(a,b);
+	return Q_strcasecmp(a,b);
 }
 
 completion_t Cmd_CompleteCommand (char *partial)

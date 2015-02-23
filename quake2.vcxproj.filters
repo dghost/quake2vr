@@ -396,6 +396,12 @@
     <ClCompile Include="qcommon\zip\ioapi.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="qcommon\hash.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\murmur3\murmur3.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
