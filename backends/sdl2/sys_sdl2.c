@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../qcommon/qcommon.h"
 #include "sdl2quake.h"
+#include <SDL_main.h>
 #include <errno.h>
 #include <float.h>
 #include <fcntl.h>
@@ -417,6 +418,20 @@ static qboolean Sys_DetectCPU (char *cpuString, int32_t maxSize)
     return cpu_string(cpuString,maxSize);
 }
 
+char* basepath = NULL;
+
+char *Sys_GetBaseDir (void) {
+    if (!basepath) {
+        char* dir = SDL_GetBasePath();
+        if (dir) {
+            basepath = Z_TagStrdup(dir, TAG_SYSTEM);
+            SDL_free(dir);
+        } else {
+            basepath = Z_TagStrdup(".", TAG_SYSTEM);
+        }
+    }
+    return basepath;
+}
 
 /*
 ================
@@ -426,12 +441,15 @@ Sys_Init
 void Sys_Init (void)
 {
 	char string[64];
+  
 	SDL_version compiled;
 	SDL_version linked;
 
 	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0){
 		Sys_Error("SDL_Init failed!");
 	}
+
+    
 #ifdef _WIN32
 	timeBeginPeriod( 1 );
 #endif
@@ -462,7 +480,6 @@ void Sys_Init (void)
 	SDL_GetVersion(&linked);
 	SDL_snprintf(string,sizeof(string),"%d.%d.%d",linked.major, linked.minor, linked.patch);
 	Cvar_Get("sys_sdl",string,CVAR_NOSET|CVAR_LATCH);
-
 #ifdef _WIN32
 	Sys_InitConsole (); // show dedicated console, moved to function
 #endif
@@ -636,7 +653,7 @@ void *Sys_GetGameAPI (void *parms)
 
 /*
 ==================
-WinMain
+main
 
 ==================
 */

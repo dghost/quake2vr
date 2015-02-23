@@ -1722,7 +1722,7 @@ FS_Init
 void FS_Dir_f (void);
 void FS_Link_f (void);
 char *Sys_GetCurrentDirectory (void);
-
+char *Sys_GetBaseDir (void);
 void FS_InitFilesystem (void)
 {
     int i = 0;
@@ -1740,7 +1740,7 @@ void FS_InitFilesystem (void)
 
 	// basedir <path>
 	// allows the game to run from outside the data tree
-	fs_basedir = Cvar_Get ("basedir", ".", CVAR_NOSET);
+	fs_basedir = Cvar_Get ("basedir", Sys_GetBaseDir(), CVAR_NOSET);
 
 	// cddir <path>
 	// Logically concatenates the cddir after the basedir for 
