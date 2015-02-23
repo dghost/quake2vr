@@ -200,10 +200,7 @@ void RB_RenderAliasMesh (maliasmodel_t *paliashdr, uint32_t meshnum, uint32_t sk
 	if (mesh->skins[skinnum].glowimage && !shellModel)
 	{
 		float	glowcolor;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 		if (skinParms.glow.type > -1)
-#pragma clang diagnostic pop            
 			glowcolor = RB_CalcGlowColor (skinParms);
 		else
 			glowcolor = 1.0;
