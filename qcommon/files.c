@@ -923,7 +923,7 @@ char **FS_ListPak (char *find, int32_t *num)
 		}
 	}
 
-	list =  (char **) Z_TagMalloc( sizeof( char * ) * nfiles , ZONE_SYSTEM);
+	list =  (char **) Z_TagMalloc( sizeof( char * ) * nfiles , TAG_SYSTEM);
 	memset( list, 0, sizeof( char * ) * nfiles );
 
 	for (search = fs_searchPaths; search; search = search->next)
@@ -938,7 +938,7 @@ char **FS_ListPak (char *find, int32_t *num)
 		{
 			if (!pak->files[i].ignore && strstr(pak->files[i].name, find))
 			{
-				list[nfound] = Z_TagStrdup(pak->files[i].name, ZONE_SYSTEM);
+				list[nfound] = Z_TagStrdup(pak->files[i].name, TAG_SYSTEM);
 				nfound++;
 			}
 		}
@@ -1112,7 +1112,7 @@ int32_t FS_LoadFile (char *path, void **buffer)
 		FS_FCloseFile(f);
 		return size;
 	}
-	buf = Z_TagMalloc(size, ZONE_SYSTEM);
+	buf = Z_TagMalloc(size, TAG_SYSTEM);
 	*buffer = buf;
 
 	FS_Read(buf, size, f);
@@ -1254,15 +1254,15 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 		Com_Error(ERR_FATAL, "FS_LoadPAK: %s has %i files", packPath, numFiles);
 	}
 
-	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
+	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
 
 	fseek(handle, header.dirofs, SEEK_SET);
 	fread(info, 1, header.dirlen, handle);
 
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
-	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
-	sortHashes = Z_TagMalloc(numFiles * sizeof(hash32_t), ZONE_SYSTEM);
+	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), TAG_SYSTEM);
+	sortHashes = Z_TagMalloc(numFiles * sizeof(hash32_t), TAG_SYSTEM);
 	nameHashes = sortHashes;
 	for (i = 0; i < numFiles; i++)
 	{
@@ -1300,7 +1300,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	}
 #endif	// BINARY_PACK_SEARCH
 
-	pack = Z_TagMalloc(sizeof(fsPack_t), ZONE_SYSTEM);
+	pack = Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
 	strcpy(pack->name, packPath);
 	pack->pak = handle;
 	pack->pk3 = NULL;
@@ -1326,7 +1326,7 @@ void FS_AddPAKFile (const char *packPath)
     pack = FS_LoadPAK (packPath);
     if (!pack)
         return;
-    search = Z_TagMalloc (sizeof(fsSearchPath_t), ZONE_SYSTEM);
+    search = Z_TagMalloc (sizeof(fsSearchPath_t), TAG_SYSTEM);
     search->pack = pack;
     search->next = fs_searchPaths;
     fs_searchPaths = search;
@@ -1374,13 +1374,13 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		unzClose(handle);
 		Com_Error(ERR_FATAL, "FS_LoadPK3: %s has %i files", packPath, numFiles);
 	}
-	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
+	files = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
 
 #ifdef BINARY_PACK_SEARCH
 	// create sort table
-	tmpFiles = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), ZONE_SYSTEM);
-	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), ZONE_SYSTEM);
-	sortHashes = Z_TagMalloc(numFiles * sizeof(hash32_t), ZONE_SYSTEM);
+	tmpFiles = Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
+	sortIndices = Z_TagMalloc(numFiles * sizeof(int32_t), TAG_SYSTEM);
+	sortHashes = Z_TagMalloc(numFiles * sizeof(hash32_t), TAG_SYSTEM);
 	nameHashes = sortHashes;	
 
 	// Parse the directory
@@ -1437,7 +1437,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	}
 #endif	// BINARY_PACK_SEARCH
 
-	pack = Z_TagMalloc(sizeof(fsPack_t), ZONE_SYSTEM);
+	pack = Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
 	strcpy(pack->name, packPath);
 	pack->pak = NULL;
 	pack->pk3 = handle;
@@ -1463,7 +1463,7 @@ void FS_AddPK3File (const char *packPath)
     pack = FS_LoadPK3 (packPath);
     if (!pack)
         return;
-    search = Z_TagMalloc (sizeof(fsSearchPath_t), ZONE_SYSTEM);
+    search = Z_TagMalloc (sizeof(fsSearchPath_t), TAG_SYSTEM);
     search->pack = pack;
     search->next = fs_searchPaths;
     fs_searchPaths = search;
@@ -1498,7 +1498,7 @@ void FS_AddGameDirectory (const char *dir)
 	//
 	// Add the directory to the search path
 	//
-	search = Z_TagMalloc(sizeof(fsSearchPath_t), ZONE_SYSTEM);
+	search = Z_TagMalloc(sizeof(fsSearchPath_t), TAG_SYSTEM);
 	strcpy(search->path, dir);
 	search->path[sizeof(search->path)-1] = 0;
 	search->next = fs_searchPaths;
@@ -1909,19 +1909,19 @@ void FS_Link_f (void)
 				Z_Free (l);
 				return;
 			}
-			l->to = Z_TagStrdup (Cmd_Argv(2), ZONE_SYSTEM);
+			l->to = Z_TagStrdup (Cmd_Argv(2), TAG_SYSTEM);
 			return;
 		}
 		prev = &l->next;
 	}
 
 	// create a new link
-	l = Z_TagMalloc(sizeof(*l), ZONE_SYSTEM);
+	l = Z_TagMalloc(sizeof(*l), TAG_SYSTEM);
 	l->next = fs_links;
 	fs_links = l;
-	l->from = Z_TagStrdup(Cmd_Argv(1), ZONE_SYSTEM);
+	l->from = Z_TagStrdup(Cmd_Argv(1), TAG_SYSTEM);
 	l->length = strlen(l->from);
-	l->to = Z_TagStrdup(Cmd_Argv(2), ZONE_SYSTEM);
+	l->to = Z_TagStrdup(Cmd_Argv(2), TAG_SYSTEM);
 }
 
 
@@ -1973,7 +1973,7 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint3
 	nfiles++; // add space for a guard
 	*numfiles = nfiles;
 
-	list = Z_TagMalloc( sizeof( char * ) * nfiles, ZONE_SYSTEM );
+	list = Z_TagMalloc( sizeof( char * ) * nfiles, TAG_SYSTEM );
 	if (list)
 	{
 		memset( list, 0, sizeof( char * ) * nfiles );
@@ -1984,7 +1984,7 @@ char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint3
 		{
 			if ( s[strlen(s)-1] != '.' )
 			{
-				list[nfiles] = Z_TagStrdup( s , ZONE_SYSTEM);
+				list[nfiles] = Z_TagStrdup( s , TAG_SYSTEM);
 #ifdef _WIN32
 				Q_strlwr( list[nfiles] );
 #endif
@@ -2077,7 +2077,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	char path[MAX_OSPATH]; /* Temporary path. */
 
 	nfiles = 0;
-	list = Z_TagMalloc(sizeof(char *), ZONE_SYSTEM);
+	list = Z_TagMalloc(sizeof(char *), TAG_SYSTEM);
 
 	for (search = fs_searchPaths; search != NULL; search = search->next)
 	{
@@ -2105,7 +2105,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 				if (ComparePackFiles(findname, search->pack->files[i].name,
 							musthave, canthave, path, sizeof(path)))
 				{
-					list[j++] = Z_TagStrdup(path, ZONE_SYSTEM);
+					list[j++] = Z_TagStrdup(path, TAG_SYSTEM);
 				}
 			}
 		}
@@ -2123,7 +2123,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 
 				for (i = 0, j = nfiles - tmpnfiles; i < tmpnfiles; i++, j++)
 				{
-					list[j] = Z_TagStrdup(tmplist[i] + strlen(search->path) + 1, ZONE_SYSTEM);
+					list[j] = Z_TagStrdup(tmplist[i] + strlen(search->path) + 1, TAG_SYSTEM);
 				}
 
 				FS_FreeFileList(tmplist, tmpnfiles + 1);
@@ -2156,7 +2156,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	if (tmpnfiles > 0)
 	{
 		nfiles -= tmpnfiles;
-		tmplist = Z_TagMalloc(nfiles * sizeof(char *), ZONE_SYSTEM);
+		tmplist = Z_TagMalloc(nfiles * sizeof(char *), TAG_SYSTEM);
 
 		for (i = 0, j = 0; i < nfiles + tmpnfiles; i++)
 		{
@@ -2238,11 +2238,11 @@ void FS_InsertInList (char **list, char *insert, int32_t len, int32_t start)
 	{
 		if (!list[i])
 		{
-			list[i] = Z_TagStrdup(insert, ZONE_SYSTEM);
+			list[i] = Z_TagStrdup(insert, TAG_SYSTEM);
 			return;
 		}
 	}
-	list[len] = Z_TagStrdup(insert, ZONE_SYSTEM);
+	list[len] = Z_TagStrdup(insert, TAG_SYSTEM);
 }
 
 /*

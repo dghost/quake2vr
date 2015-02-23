@@ -248,7 +248,7 @@ OGG_LoadFileList(void)
     }
 
 	/* Allocate list of files. */
-	ogg_filelist = Z_TagMalloc(sizeof(char *) * numValidFiles, ZONE_AUDIO);
+	ogg_filelist = Z_TagMalloc(sizeof(char *) * numValidFiles, TAG_AUDIO);
 
 	/* Add valid Ogg Vorbis file to the list. */
 	for (i = 0, j = 0; i < ogg_numfiles; i++)
@@ -305,7 +305,7 @@ OGG_LoadPlaylist(char *playlist)
 	}
 
 	/* Allocate file list. */
-	ogg_filelist = Z_TagMalloc(sizeof(char *) * ogg_numfiles, ZONE_AUDIO);
+	ogg_filelist = Z_TagMalloc(sizeof(char *) * ogg_numfiles, TAG_AUDIO);
 
 	i = 0;
 
@@ -315,7 +315,7 @@ OGG_LoadPlaylist(char *playlist)
 	{
 		if (OGG_Check(va("%s/%s", OGG_DIR, ptr)))
 		{
-			ogg_filelist[i++] = Z_TagStrdup(va("%s/%s", OGG_DIR, ptr), ZONE_AUDIO);
+			ogg_filelist[i++] = Z_TagStrdup(va("%s/%s", OGG_DIR, ptr), TAG_AUDIO);
 		}
 	}
 

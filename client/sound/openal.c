@@ -162,7 +162,7 @@ AL_UploadSfx(sfx_t *s, wavinfo_t *s_info, byte *data)
 	}
 
 	/* allocate placeholder sfxcache */
-	sc = s->cache = Z_TagMalloc(sizeof(*sc), ZONE_AUDIO);
+	sc = s->cache = Z_TagMalloc(sizeof(*sc), TAG_AUDIO);
 	sc->length = s_info->samples * 1000 / s_info->rate;
 	sc->loopstart = s_info->loopstart;
 	sc->width = s_info->width;

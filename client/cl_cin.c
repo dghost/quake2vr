@@ -101,7 +101,7 @@ void SCR_LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, in
 		return;
 	}
 
-	out = Z_TagMalloc ( (pcx->ymax+1) * (pcx->xmax+1), ZONE_CLIENT );
+	out = Z_TagMalloc ( (pcx->ymax+1) * (pcx->xmax+1), TAG_CLIENT );
 
 	*pic = out;
 
@@ -109,7 +109,7 @@ void SCR_LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, in
 
 	if (palette)
 	{
-		*palette = Z_TagMalloc(768, ZONE_CLIENT);
+		*palette = Z_TagMalloc(768, TAG_CLIENT);
 		memcpy (*palette, (byte *)pcx + len - 768, 768);
 	}
 
@@ -259,7 +259,7 @@ void Huff1TableInit (void)
 	byte	counts[256];
 	int32_t		numhnodes;
 
-	cin.hnodes1 = Z_TagMalloc (256*256*2*4, ZONE_CLIENT);
+	cin.hnodes1 = Z_TagMalloc (256*256*2*4, TAG_CLIENT);
 	memset (cin.hnodes1, 0, 256*256*2*4);
 
 	for (prev=0 ; prev<256 ; prev++)
@@ -316,7 +316,7 @@ cblock_t Huff1Decompress (cblock_t in)
 	// get decompressed count
 	count = in.data[0] + (in.data[1]<<8) + (in.data[2]<<16) + (in.data[3]<<24);
 	input = in.data + 4;
-	out_p = out.data = Z_TagMalloc (count, ZONE_CLIENT);
+	out_p = out.data = Z_TagMalloc (count, TAG_CLIENT);
 
 	// read bits
 

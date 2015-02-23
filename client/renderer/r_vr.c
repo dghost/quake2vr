@@ -111,10 +111,10 @@ void R_VR_GenerateHud()
 	vec3_t offsetScale;
 	VectorSet(offsetScale, xoff, xoff, zoff);
 
-	hudverts = (vert_t *) Z_TagMalloc(vboSize, ZONE_RENDERER);
+	hudverts = (vert_t *) Z_TagMalloc(vboSize, TAG_RENDERER);
 	memset(hudverts, 0, vboSize);
 
-	indices = (GLushort *) Z_TagMalloc(iboSize, ZONE_RENDERER);
+	indices = (GLushort *) Z_TagMalloc(iboSize, TAG_RENDERER);
 	memset(indices, 0, iboSize);
 
 	for (j = 0; j < numsegments; j++)

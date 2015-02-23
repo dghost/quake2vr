@@ -209,7 +209,7 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 		if (var_value)
 		{
 			Z_Free(var->default_string);
-			var->default_string = Z_TagStrdup (var_value, ZONE_SYSTEM);
+			var->default_string = Z_TagStrdup (var_value, TAG_SYSTEM);
 		}
 #endif
 		return var;
@@ -227,12 +227,12 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 		}
 	}
 
-	var = Z_TagMalloc (sizeof(*var), ZONE_SYSTEM);
-	var->name = Z_TagStrdup (var_name, ZONE_SYSTEM);
-	var->string = Z_TagStrdup (var_value, ZONE_SYSTEM);
+	var = Z_TagMalloc (sizeof(*var), TAG_SYSTEM);
+	var->name = Z_TagStrdup (var_name, TAG_SYSTEM);
+	var->string = Z_TagStrdup (var_value, TAG_SYSTEM);
 	// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
-	var->default_string = Z_TagStrdup (var_value, ZONE_SYSTEM);
+	var->default_string = Z_TagStrdup (var_value, TAG_SYSTEM);
 	var->integer = atoi(var->string);
 #endif
 	var->modified = true;
@@ -303,11 +303,11 @@ cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
 			if (Com_ServerState())
 			{
 				Com_Printf ("%s will be changed for next game.\n", var_name);
-				var->latched_string = Z_TagStrdup(value, ZONE_SYSTEM);
+				var->latched_string = Z_TagStrdup(value, TAG_SYSTEM);
 			}
 			else
 			{
-				var->string = Z_TagStrdup(value, ZONE_SYSTEM);
+				var->string = Z_TagStrdup(value, TAG_SYSTEM);
 				var->value = atof (var->string);
 				if (!strcmp(var->name, "game"))
 				{
@@ -337,7 +337,7 @@ cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
 	
 	Z_Free (var->string);	// free the old value string
 	
-	var->string = Z_TagStrdup(value, ZONE_SYSTEM);
+	var->string = Z_TagStrdup(value, TAG_SYSTEM);
 	var->value = atof (var->string);
 #ifdef NEW_CVAR_MEMBERS
 	var->integer = atoi(var->string);
@@ -401,7 +401,7 @@ cvar_t *Cvar_FullSet (char *var_name, char *value, int32_t flags)
 	
 	Z_Free (var->string);	// free the old value string
 	
-	var->string = Z_TagStrdup(value, ZONE_SYSTEM);
+	var->string = Z_TagStrdup(value, TAG_SYSTEM);
 	var->value = atof (var->string);
 	var->flags = flags;
 

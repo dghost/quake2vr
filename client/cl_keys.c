@@ -674,7 +674,7 @@ void Key_SetBinding (int32_t keynum, char *binding)
 			
 // allocate memory for new binding
 	l = strlen (binding);	
-	new = Z_TagMalloc (l+1, ZONE_CLIENT);
+	new = Z_TagMalloc (l+1, TAG_CLIENT);
 	strcpy (new, binding);
 	new[l] = 0;
 	keybindings[keynum] = new;	

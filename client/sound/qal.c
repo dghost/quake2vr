@@ -247,7 +247,7 @@ void QAL_SoundInfo()
 		ALCint * attributes;
 		int i = 0;
 		qalcGetIntegerv(device, ALC_ATTRIBUTES_SIZE, sizeof(attr_size), &attr_size);
-		attributes = (ALCint *) Z_TagMalloc(attr_size * sizeof(ALCint), ZONE_AUDIO);
+		attributes = (ALCint *) Z_TagMalloc(attr_size * sizeof(ALCint), TAG_AUDIO);
 		qalcGetIntegerv(device, ALC_ALL_ATTRIBUTES, attr_size, attributes);
 		for (i = 0; i < attr_size; i += 2)
 		{

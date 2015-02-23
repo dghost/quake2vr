@@ -381,7 +381,7 @@ void Cmd_Exec_f (void)
 	Com_Printf ("execing %s\n",Cmd_Argv(1));
 	
 	// the file doesn't have a trailing 0, so we need to copy it off
-	f2 = Z_TagMalloc(len+2, ZONE_SYSTEM); // Echon fix- was len+1
+	f2 = Z_TagMalloc(len+2, TAG_SYSTEM); // Echon fix- was len+1
 	memcpy (f2, f, len);
 	f2[len] = '\n';  // Echon fix added
 	f2[len+1] = '\0'; // Echon fix- was len, = 0
@@ -457,7 +457,7 @@ void Cmd_Alias_f (void)
 
 	if (!a)
 	{
-		a = Z_TagMalloc (sizeof(cmdalias_t), ZONE_SYSTEM);
+		a = Z_TagMalloc (sizeof(cmdalias_t), TAG_SYSTEM);
 		a->next = cmd_alias[index];
 		cmd_alias[index] = a;
 	}
@@ -474,7 +474,7 @@ void Cmd_Alias_f (void)
 	}
 	strcat (cmd, "\n");
 	
-	a->value = Z_TagStrdup (cmd, ZONE_SYSTEM);
+	a->value = Z_TagStrdup (cmd, TAG_SYSTEM);
 }
 
 /*
@@ -717,7 +717,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 		}
 	}
 
-	cmd = Z_TagMalloc (sizeof(cmd_function_t), ZONE_SYSTEM);
+	cmd = Z_TagMalloc (sizeof(cmd_function_t), TAG_SYSTEM);
 	cmd->name = cmd_name;
     cmd->hash = nameHash;
 	cmd->function = function;

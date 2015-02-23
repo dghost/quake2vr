@@ -168,7 +168,7 @@ struct image_s **PreloadCrosshairs(void)
 {
     struct image_s **list;
     int i;
-    list = Z_TagMalloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1, ZONE_MENU);
+    list = Z_TagMalloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1, TAG_MENU);
     memset(list, 0, sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
     for (i = 1; i < numcrosshairs; i++)
     {
@@ -186,10 +186,10 @@ char **SetCrosshairNames (void)
 	char **crosshairfiles = NULL;
 	int32_t i;
 
-	list = Z_TagMalloc( sizeof( char * ) * MAX_CROSSHAIRS+1 , ZONE_MENU);
+	list = Z_TagMalloc( sizeof( char * ) * MAX_CROSSHAIRS+1 , TAG_MENU);
 	memset( list, 0, sizeof( char * ) * MAX_CROSSHAIRS+1 );
     
-	list[0] = Z_TagStrdup("none",ZONE_MENU); //was default
+	list[0] = Z_TagStrdup("none",TAG_MENU); //was default
 	ncrosshairnames = 1;
 
     if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {

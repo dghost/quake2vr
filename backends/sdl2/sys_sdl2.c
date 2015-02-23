@@ -306,7 +306,7 @@ char *Sys_GetClipboardData( void )
 	sdl_cliptext = SDL_GetClipboardText();
 	if (!sdl_cliptext)
 		return NULL;
-	data = Z_TagStrdup(sdl_cliptext, ZONE_SYSTEM);
+	data = Z_TagStrdup(sdl_cliptext, TAG_SYSTEM);
 	SDL_free(sdl_cliptext);
 	return data;
 }

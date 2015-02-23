@@ -1330,15 +1330,17 @@ typedef struct
 } zonelist_t;
 
 zonelist_t zonenames[] = {
-    {ZONE_UNTAGGED, "Untagged"},
-    {ZONE_SYSTEM, "System"},
-    {ZONE_SERVER, "Server"},
-    {ZONE_CLIENT, "Client"},
-    {ZONE_RENDERER, "Renderer"},
-    {ZONE_AUDIO, "Audio"},
-    {ZONE_MENU, "Menu"},
-    {ZONE_GAME, "Game"},
-    {ZONE_LEVEL, "Level"},
+    {TAG_UNTAGGED, "Untagged"},
+    {TAG_SYSTEM, "System"},
+    {TAG_SERVER, "Server"},
+    {TAG_CLIENT, "Client"},
+    {TAG_RENDERER, "Renderer"},
+    {TAG_AUDIO, "Audio"},
+    {TAG_MENU, "Menu"},
+    {TAG_GAME, "Game"},
+    {TAG_LEVEL, "Level"},
+    {TAG_GAME_LEGACY, "Game (old)"},
+    {TAG_LEVEL_LEGACY, "Level (old)"},
     {0, NULL},
 };
 
@@ -1359,11 +1361,14 @@ typedef struct ztag_s {
     int16_t tag;
 } ztag_t;
 
+#define ZONE_HASHMAP_WIDTH 0x10
+#define ZONE_HASHMAP_MASK 0x0F
 
-static ztag_t *z_tagchain = NULL;
+static ztag_t *z_tagchain[ZONE_HASHMAP_WIDTH];
 
 ztag_t *Z_GetTagChain (int16_t tag) {
-    ztag_t	*z = z_tagchain;
+    int index = tag&ZONE_HASHMAP_MASK;
+    ztag_t	*z = z_tagchain[index];
     ztag_t  *prev = NULL;
     int i;
     
@@ -1393,9 +1398,9 @@ ztag_t *Z_GetTagChain (int16_t tag) {
         z->next = prev->next;
         prev->next = z;
     } else {
-        if (z_tagchain)
-            z->next = z_tagchain;
-        z_tagchain = z;
+        if (z_tagchain[index])
+            z->next = z_tagchain[index];
+        z_tagchain[index] = z;
     }
     return z;
 }
@@ -1407,14 +1412,14 @@ Z_Free
 */
 void Z_Free (void *ptr)
 {
-	zhead_t	*z;
-    ztag_t *tag = z_tagchain;
+	zhead_t	*z = ((zhead_t *)ptr) - 1;
+    ztag_t *tag;
     
-	z = ((zhead_t *)ptr) - 1;
 
 	if (z->magic != Z_MAGIC)
 		Com_Error (ERR_FATAL, "Z_Free: bad magic");
 
+    tag = z_tagchain[z->tag&ZONE_HASHMAP_MASK];
 	z->prev->next = z->next;
 	z->next->prev = z->prev;
 
@@ -1438,11 +1443,14 @@ Z_Stats_f
 void Z_Stats_f (void)
 {
     ztag_t *z;
-    for (z = z_tagchain; z != NULL; z = z->next) {
-        if (z->name)
-            Com_Printf ("%s has %i bytes in %i blocks\n", z->name, z->bytes, z->count);
-        else
-            Com_Printf ("Zone %i has %i bytes in %i blocks\n", z->tag, z->bytes, z->count);
+    int i;
+    for (i = 0; i < ZONE_HASHMAP_WIDTH; i++) {
+        for (z = z_tagchain[i]; z != NULL; z = z->next) {
+            if (z->name)
+                Com_Printf ("C%02u: %8i bytes %4i blocks - %s\n", i, z->bytes, z->count, z->name);
+            else
+                Com_Printf ("C%02u: %8i bytes %4i blocks - Tag %i\n", i, z->bytes, z->count, z->tag);
+        }
     }
 }
 
@@ -1459,7 +1467,7 @@ void Z_FreeTags (int16_t tag)
     for (z=chain->chain.next ; z != &(chain->chain) ; z=next)
     {
         next = z->next;
-        
+
         if (z->magic != Z_MAGIC)
             Com_Error (ERR_FATAL, "Z_Free: bad magic");
         
@@ -1479,7 +1487,7 @@ Z_TagMalloc
 void *Z_TagMalloc (int32_t size, int16_t tag)
 {
 	zhead_t	*z;
-    ztag_t *chain = z_tagchain;
+    ztag_t *chain = z_tagchain[tag&ZONE_HASHMAP_MASK];
 
     // fast local search for the chain
     while (chain != NULL && chain->tag != tag) {
@@ -1510,8 +1518,9 @@ void *Z_TagMalloc (int32_t size, int16_t tag)
 }
 
 void *Z_Realloc(void* ptr, int32_t size) {
-    zhead_t	*z, *newZ, *prev, *next;
-    ztag_t *chain = z_tagchain;
+    zhead_t	*z = ((zhead_t *)ptr) - 1;
+    zhead_t *newZ, *prev, *next;
+    ztag_t *chain = z_tagchain[z->tag&ZONE_HASHMAP_MASK];
     int64_t sizeDiff;
     int32_t newSize;
     int32_t oldSize;
@@ -1519,8 +1528,6 @@ void *Z_Realloc(void* ptr, int32_t size) {
     if (!ptr)
         return Z_Malloc(size);
     
-    z = ((zhead_t *)ptr) - 1;
-
     prev = z->prev;
     next = z->next;
     oldSize = z->size;
@@ -1560,7 +1567,7 @@ Z_Malloc
 */
 void *Z_Malloc (int32_t size)
 {
-	return Z_TagMalloc (size, ZONE_UNTAGGED);
+	return Z_TagMalloc (size, TAG_UNTAGGED);
 }
 
 
@@ -1588,7 +1595,7 @@ void *Z_TagStrdup (char *string, int16_t tag)
  */
 void *Z_Strdup (char *string)
 {
-    return Z_TagStrdup(string, ZONE_UNTAGGED);
+    return Z_TagStrdup(string, TAG_UNTAGGED);
 }
 
 
@@ -1796,17 +1803,13 @@ Qcommon_Init
 void Qcommon_Init (int32_t argc, char **argv)
 {
 	char	*s;
-	//char	*cfgfile; // Knightmare added
+
+    //char	*cfgfile; // Knightmare added
 
 	if (setjmp (abortframe) )
 		Sys_Error ("Error during initialization");
-
-    if (!z_tagchain) {
-        int i;
-        for (i=0;zonenames[i].name != NULL; i++) {
-            Z_GetTagChain(zonenames[i].tag);
-        }
-    }
+    
+    memset(z_tagchain,0,sizeof(z_tagchain));
     
     // prepare enough of the subsystems to handle
 	// cvar and command buffer management

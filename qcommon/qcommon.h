@@ -880,15 +880,20 @@ extern	int32_t		time_before_ref;
 extern	int32_t		time_after_ref;
 
 enum {
-    ZONE_UNTAGGED = 0x8000,
-    ZONE_MENU = -1000,
-    ZONE_SERVER = -10,
-    ZONE_CLIENT = -1,
-    ZONE_GAME = 765,
-    ZONE_LEVEL = 766,
-    ZONE_RENDERER = 0x7FFD,
-    ZONE_AUDIO = 0x7FFE,
-    ZONE_SYSTEM = 0x7FFF,
+    // untagged always has the lowest priority. It should not be being used. period.
+    TAG_UNTAGGED = 0x8000,
+    // the following pre-defined zones have the highest priority on any tag chain
+    TAG_MENU = 0x7FF8,
+    TAG_SERVER = 0x7FF9,
+    TAG_CLIENT = 0x7FFA,
+    TAG_RENDERER = 0x7FFB,
+    TAG_AUDIO = 0x7FFC,
+    TAG_GAME = 0x7FFD,
+    TAG_LEVEL = 0x7FFE,
+    TAG_SYSTEM = 0x7FFF,
+    // these correspond with legacy game libraries
+    TAG_GAME_LEGACY = 765,
+    TAG_LEVEL_LEGACY = 766,
 };
 
 void Z_Free (void *ptr);
