@@ -1418,10 +1418,10 @@ void SCR_BeginLoadingPlaque (void)
 
 	cls.consoleActive = false; // Knightmare added
 
-	/*if (cls.state == ca_disconnected)
+	if (cls.state == ca_disconnected)
 		return;	// if at console, don't bring up the plaque
 	if (cls.key_dest == key_console)
-		return;*/
+		return;
 	if (cl.cinematictime > 0)
 		scr_draw_loading = 2;	// clear to black first
 	else
