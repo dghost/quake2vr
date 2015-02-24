@@ -889,11 +889,15 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 		numgltextures++;
 	}
 	image = &gltextures[i];
-
-	if (strlen(name) >= sizeof(image->name))
+    len = strlen(name);
+	if (len + 1 >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
-	image->hash = Q_Hash32(name, strlen(name));	// Knightmare added
+    image->name[len-3] = 'i';
+    image->name[len-2] = 'm';
+    image->name[len-1] = 'g';
+
+	image->hash = Q_Hash32(image->name, strlen(image->name));	// Knightmare added
 	image->registration_sequence = registration_sequence;
 
 	image->width = width;
@@ -1073,6 +1077,35 @@ image_t *R_LoadWal (char *name, imagetype_t type)
 	return image;
 }
 
+image_t *R_LoadImage(char *name, imagetype_t type) {
+    image_t	*image = NULL;
+    int32_t	width, height;
+    int32_t len = strlen(name);
+
+    if (!strcmp(name+len-4, ".pcx"))
+    {
+        byte	*pic = NULL;
+        byte    *palette = NULL;
+        
+        LoadPCX (name, &pic, &palette, &width, &height);
+        if (pic) {
+            image = R_LoadPic (name, pic, width, height, type, 8);
+            Z_Free(pic);
+        }
+        if (palette)
+            Z_Free(palette);
+    }
+    else if (!strcmp(name+len-4, ".wal"))
+    {
+        image = R_LoadWal (name, type);
+    }
+    else if (!strcmp(name+len-4, ".tga") || !strcmp(name+len-4, ".jpg")  || !strcmp(name+len-4, ".png"))
+    {
+        // use new loading code
+        image = R_LoadSTB(name, type);
+    }
+    return image;
+}
 
 /*
 ===============
@@ -1085,8 +1118,6 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 {
 	image_t	*image;
 	int32_t		i, len;
-	byte	*pic, *palette;
-	int32_t		width, height;
 	char	s[MAX_OSPATH];
 	char	*tmp;
     hash32_t hash;
@@ -1096,7 +1127,9 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	len = strlen(name);
 	if (len<5 || len > MAX_OSPATH)
 		return NULL;
-
+    if (name[len-4] != '.')
+        return NULL;
+    
 	// fix up bad image paths
     tmp = name;
     while ( *tmp != 0 )
@@ -1105,12 +1138,16 @@ image_t	*R_FindImage (char *name, imagetype_t type)
             *tmp = '/';
         tmp++;
     }
-    hash = Q_Hash32(name, strlen(name));
+    strcpy(s, name);
+    s[len-3] = 'i';
+    s[len-2] = 'm';
+    s[len-1] = 'g';
+    hash = Q_Hash32(s, len);
     
 	// look for it
 	for (i=0, image=gltextures; i<numgltextures; i++,image++)
 	{
-		if (!Q_HashEquals32(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals32(hash, image->hash) && !strcmp(s, image->name))
 		{
 			image->registration_sequence = registration_sequence;
 			return image;
@@ -1118,74 +1155,47 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	}
 
 	// don't try again to load an image that just failed
-	if (R_CheckImgFailed (name, hash))
+	if (R_CheckImgFailed (s, hash))
 	{
 		return NULL;
 	}
 
 	// MrG's automatic JPG & TGA loading
 	// search for TGAs, PNGs, and JPGs to replace .pcx and .wal images
-	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal") || !strcmp(name+len-4, ".any"))
-	{
-		char fext[3][4] = {"png","tga","jpg"};
-		int i;
-		strcpy(s,name);
-		for (i = 0; i < 3; i++) {
-			char *e = fext[i];
-			s[len-3] = e[0]; s[len-2] =e [1]; s[len-1] = e[2];
-			image = R_FindImage(s,type);
-			if (image)
-				return image;
-		}
-	}
+    if (!strcmp(name+len-4, ".tga"))
+    {
+        char fext[2][4] = {"png","jpg"};
+        char temp[MAX_OSPATH];
+        
+        int i;
+        strcpy(temp,name);
+        for (i = 0; i < 2; i++) {
+            char *e = fext[i];
+            temp[len-3] = e[0]; temp[len-2] =e [1]; temp[len-1] = e[2];
+            image = R_LoadImage(temp,type);
+            if (image)
+                return image;
+        }
+    } else 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal") || !strcmp(name+len-4, ".any"))
+    {
+        char fext[3][4] = {"png","jpg","tga"};
+        char temp[MAX_OSPATH];
+        
+        int i;
+        strcpy(temp,name);
+        for (i = 0; i < 3; i++) {
+            char *e = fext[i];
+            temp[len-3] = e[0]; temp[len-2] =e [1]; temp[len-1] = e[2];
+            image = R_LoadImage(temp,type);
+            if (image)
+                return image;
+        }
+    }
 
-	//
-	// load the pic from disk
-	//
-	pic = NULL;
-	palette = NULL;
-
-	if (!strcmp(name+len-4, ".pcx"))
-	{
-		LoadPCX (name, &pic, &palette, &width, &height);
-		if (pic)
-			image = R_LoadPic (name, pic, width, height, type, 8);
-		else
-			image = NULL;
-	}
-	else if (!strcmp(name+len-4, ".wal"))
-	{
-		image = R_LoadWal (name, type);
-	}
-	else if (!strcmp(name+len-4, ".tga") || !strcmp(name+len-4, ".jpg")  || !strcmp(name+len-4, ".png"))
-	{
-		// use new loading code
-		image = R_LoadSTB(name, type);
-	}
-	/*else if (!strcmp(name+len-4, ".cin")) // Heffo
-	{										// WHY .cin files? because we can!
-		cinematics_t *newcin;
-
-		newcin = CIN_OpenCin(name);
-		if(!newcin)
-			return NULL;
-
-		pic = Z_TagMalloc(256*256*4, TAG_RENDERER);
-		memset(pic, 192, (256*256*4));
-
-		image = R_LoadPic (name, pic, 256, 256, type, 32);
-
-		newcin->texnum = image->texnum;
-		image->is_cin = true;
-	}*/
-
+    image = R_LoadImage(name, type);
+    
 	if (!image)
-		R_AddToFailedImgList(name, hash);
-
-	if (pic)
-		Z_Free(pic);
-	if (palette)
-		Z_Free(palette);
+		R_AddToFailedImgList(s, hash);
 
 	return image;
 }
