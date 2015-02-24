@@ -191,6 +191,8 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	void *buf;
 	int32_t		i;
     hash32_t nameHash;
+    char s[MAX_QPATH];
+    int32_t len = strlen(name);
     
 	if (!name[0])
 		VID_Error (ERR_DROP, "Mod_ForName: NULL name");
@@ -205,7 +207,12 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
-    nameHash = Q_Hash32(name, strlen(name));
+    strcpy(s, name);
+    if (!strcmp(s+len-4, ".md2") || !strcmp(s+len-4, ".md3")) // look if we have a .md2 file
+    {
+        s[len-1]='s';
+    }
+    nameHash = Q_Hash32(s, len);
 	//
 	// search the currently loaded models
 	//
@@ -213,7 +220,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, name) )
+		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, s) )
 			return mod;
 	}
 	
@@ -231,12 +238,24 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
 		mod_numknown++;
 	}
-	strcpy (mod->name, name);
+	strcpy (mod->name, s);
     mod->hash = nameHash;
 	//
 	// load the file
 	//
-	modfilelen = FS_LoadFile (mod->name, &buf);
+    if (!strcmp(s+len-4, ".mds")) // look if we have a .md3 file
+    {
+        s[len-1] = '3';
+        modfilelen = FS_LoadFile (s, &buf);
+        
+        // if the original file was a .md2 file, try it
+        if (!buf && !strcmp(name+len-4, ".md2")) {
+            s[len-1] = '2';
+            modfilelen = FS_LoadFile (s, &buf);
+        }
+    } else {
+        modfilelen = FS_LoadFile (s, &buf);
+    }
 	if (!buf)
 	{
 		if (crash)
@@ -2472,19 +2491,6 @@ struct model_s *R_RegisterModel (char *name)
 // Harven++ MD3
 	maliasmodel_t	*pheader3;
 // Harven-- MD3
-
-	// Knightmare- MD3 autoreplace code
-	int32_t len = strlen(name);
-	if (!strcmp(name+len-4, ".md2")) // look if we have a .md2 file
-	{
-		char s[128];
-		strcpy(s,name);
-		s[len-1]='3';
-		mod = R_RegisterModel (s);
-		if (mod)
-			return mod;
-	}
-	// end Knightmare
 
 	mod = Mod_ForName (name, false);
 	if (mod)
