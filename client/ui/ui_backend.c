@@ -1295,18 +1295,18 @@ void UI_Draw_Cursor (void)
 			if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 				|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 			{
-				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.any");
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.pcx");
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 			else
 			{
-				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.any");
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.pcx");
 				alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 			}
 		}
 		else
-			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.any");
-		overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
+			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.pcx");
+		overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.pcx");
 	}
 	else
 	{
@@ -1314,28 +1314,28 @@ void UI_Draw_Cursor (void)
 		{
 			if (cursor.menuitemtype == MENUITEM_TEXT)
 			{
-				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_text.any");
+				cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_text.pcx");
 			}
 			else
 			{
 				if ((cursor.buttonused[0] && cursor.buttonclicks[0])
 					|| (cursor.buttonused[1] && cursor.buttonclicks[1]))
 				{
-					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.any");
+					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_click.pcx");
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
 				else
 				{
-					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.any");
+					cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_hover.pcx");
 					alpha = 0.85 + 0.15*sin(anglemod(cls.realtime*0.005));
 				}
-				overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
+				overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.pcx");
 			}
 		}
 		else
 		{
-			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.any");
-			overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.any");
+			cur_img = R_DrawFindPic("/gfx/ui/cursors/m_cur_main.pcx");
+			overlay = R_DrawFindPic("/gfx/ui/cursors/m_cur_over.pcx");
 		}
 	}
 	

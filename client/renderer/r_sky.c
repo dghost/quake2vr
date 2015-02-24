@@ -402,7 +402,7 @@ void R_SetSky (char *name, float rotate, vec3_t axis)
 			r_picmip->value++;
 
 		// Look for an environment map
-		Com_sprintf (pathname, sizeof(pathname), "env/%s%s.any", skyname, suf[i]);
+		Com_sprintf (pathname, sizeof(pathname), "env/%s%s.tga", skyname, suf[i]);
 		sky_images[i] = R_FindImage (pathname, it_sky);
 
 		if (!sky_images[i])

@@ -205,17 +205,17 @@ void	UI_Draw_Cursor (void);
 #define MOUSEBUTTON1 0
 #define MOUSEBUTTON2 1
 
-#define LOADSCREEN_NAME		"/gfx/ui/unknownmap.any"
-#define UI_BACKGROUND_NAME	"/gfx/ui/menu_background.any"
-#define UI_NOSCREEN_NAME	"/gfx/ui/noscreen.any"
+#define LOADSCREEN_NAME		"/gfx/ui/unknownmap.pcx"
+#define UI_BACKGROUND_NAME	"/gfx/ui/menu_background.pcx"
+#define UI_NOSCREEN_NAME	"/gfx/ui/noscreen.pcx"
 
-#define UI_MOUSECURSOR_MAIN_PIC		"/gfx/ui/cursors/m_cur_main.any"
-#define UI_MOUSECURSOR_HOVER_PIC	"/gfx/ui/cursors/m_cur_hover.any"
-#define UI_MOUSECURSOR_CLICK_PIC	"/gfx/ui/cursors/m_cur_click.any"
-#define UI_MOUSECURSOR_OVER_PIC		"/gfx/ui/cursors/m_cur_over.any"
-#define UI_MOUSECURSOR_TEXT_PIC		"/gfx/ui/cursors/m_cur_text.any"
+#define UI_MOUSECURSOR_MAIN_PIC		"/gfx/ui/cursors/m_cur_main.pcx"
+#define UI_MOUSECURSOR_HOVER_PIC	"/gfx/ui/cursors/m_cur_hover.pcx"
+#define UI_MOUSECURSOR_CLICK_PIC	"/gfx/ui/cursors/m_cur_click.pcx"
+#define UI_MOUSECURSOR_OVER_PIC		"/gfx/ui/cursors/m_cur_over.pcx"
+#define UI_MOUSECURSOR_TEXT_PIC		"/gfx/ui/cursors/m_cur_text.pcx"
 
-#define UI_MOUSECURSOR_PIC			"/gfx/ui/cursors/m_mouse_cursor.any"
+#define UI_MOUSECURSOR_PIC			"/gfx/ui/cursors/m_mouse_cursor.pcx"
 
 extern	cvar_t	*ui_cursor_scale;
 

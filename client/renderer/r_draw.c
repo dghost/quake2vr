@@ -33,9 +33,9 @@ void RefreshFont (void)
 {
 	con_font->modified = false;
 
-	draw_chars = R_FindImage (va("fonts/%s.any", con_font->string), it_pic);
+	draw_chars = R_FindImage (va("fonts/%s.pcx", con_font->string), it_pic);
 	if (!draw_chars) // fall back on default font
-		draw_chars = R_FindImage ("fonts/default.any", it_pic);
+		draw_chars = R_FindImage ("fonts/default.pcx", it_pic);
 	if (!draw_chars) // fall back on old Q2 conchars
 		draw_chars = R_FindImage ("pics/conchars.pcx", it_pic);
 	if (!draw_chars) // prevent crash caused by missing font
@@ -611,8 +611,8 @@ void R_DrawCameraEffect (void)
 	vec3_t			verts[4];
 	renderparms_t	cameraParms;
 
-	image[0] = R_DrawFindPic ("/gfx/2d/screenstatic.any");
-	image[1] = R_DrawFindPic ("/gfx/2d/scanlines.any");
+	image[0] = R_DrawFindPic ("/gfx/2d/screenstatic.tga");
+	image[1] = R_DrawFindPic ("/gfx/2d/scanlines.tga");
 
 	if (!image[0] || !image[1])
 		return;

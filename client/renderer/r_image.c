@@ -1176,7 +1176,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
             if (image)
                 return image;
         }
-    } else 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal") || !strcmp(name+len-4, ".any"))
+    } else 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal"))
     {
         char fext[3][4] = {"png","jpg","tga"};
         char temp[MAX_OSPATH];

@@ -135,7 +135,7 @@ void ValidateSaveshots (void)
 		if ( m_savevalid[i] )
 		{
 			if (i == 0)
-				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.any", m_mapname);
+				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
 			else
 			{	// free previously loaded shots
 				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.png", i);
@@ -168,7 +168,7 @@ void UI_InitSavegameData (void)
 	ValidateSaveshots ();	// register saveshots
 
 	// register null saveshot, this is only done once
-    m_saveshots[MAX_SAVEGAMES] = R_DrawFindPic("/gfx/ui/noscreen.any");
+    m_saveshots[MAX_SAVEGAMES] = R_DrawFindPic("/gfx/ui/noscreen.pcx");
 }
 
 

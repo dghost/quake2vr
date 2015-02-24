@@ -94,7 +94,7 @@ int32_t			crosshair_width, crosshair_height;
 void SCR_TimeRefresh_f (void);
 void SCR_Loading_f (void);
 
-#define LOADSCREEN_NAME "/gfx/ui/unknownmap.any"
+#define LOADSCREEN_NAME "/gfx/ui/unknownmap.pcx"
 
 #define	ICON_WIDTH	24
 #define	ICON_HEIGHT	24
@@ -1125,13 +1125,13 @@ void SCR_DrawLoading (void)
 			haveMapPic = true;
 		}
 		// else try levelshot
-		else if (widescreen && (img = R_DrawFindPic(va("/levelshots/%s_widescreen.any", mapfile)))) {
+		else if (widescreen && (img = R_DrawFindPic(va("/levelshots/%s_widescreen.pcx", mapfile)))) {
 			// Draw at 16:10 aspect, don't stretch to 16:9 or wider
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 			SCR_DrawImage (-64, 0, SCREEN_WIDTH+128, SCREEN_HEIGHT, ALIGN_CENTER, img, 1.0);
 			haveMapPic = true;
 		}
-		else if ((img = R_DrawFindPic(va("/levelshots/%s.any", mapfile)))) {
+		else if ((img = R_DrawFindPic(va("/levelshots/%s.pcx", mapfile)))) {
 			// Draw at 4:3 aspect, don't stretch to 16:9 or wider
 			SCR_DrawFill (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_STRETCH, 0, 0, 0, 255);
 			SCR_DrawImage (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ALIGN_CENTER, img, 1.0); // was ALIGN_STRETCH
@@ -1274,7 +1274,7 @@ void SCR_DrawCameraEffect (void)
 	if (!(cl.refdef.rdflags & RDF_CAMERAEFFECT))
 		return;
 
-//	R_DrawStretchPic (0, 0, viddef.width, viddef.height, "gfx/2d/cameraeffect.any", 1.0);
+//	R_DrawStretchPic (0, 0, viddef.width, viddef.height, "gfx/2d/cameraeffect.pcx", 1.0);
 	R_DrawCameraEffect ();
 }
 

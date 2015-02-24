@@ -512,11 +512,11 @@ void UI_Precache (void)
 //	R_DrawFindPic ("/pics/yn.pcx");
 
 	// GUI elements
-	R_DrawFindPic ("/gfx/ui/listbox_background.any");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_left.any");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_left_d.any");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_right.any");
-	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.any"); 
+	R_DrawFindPic ("/gfx/ui/listbox_background.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_left_d.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right.pcx");
+	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.pcx"); 
 }
 
 
@@ -586,7 +586,7 @@ void UI_Draw (void)
         alpha = 1.0;
     }
     
-    if ((background = R_DrawFindPic("/gfx/ui/menu_background.any")))
+    if ((background = R_DrawFindPic("/gfx/ui/menu_background.pcx")))
         R_DrawStretchImage (0, 0, viddef.width, viddef.height, background,alpha);
     else
         R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int) (alpha * 255));

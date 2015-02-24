@@ -114,13 +114,13 @@ void R_InitMedia (void)
 	glMedia.rawtexture = R_LoadPic ("***rawtexture***", data2D, 256, 256, it_pic, 32);
 #endif // ROQ_SUPPORT
 	
-	glMedia.envmappic = LoadPartImg ("gfx/effects/envmap.any", it_wall);
-	glMedia.spheremappic = LoadPartImg ("gfx/effects/spheremap.any", it_skin);
-	glMedia.shelltexture = LoadPartImg ("gfx/effects/shell_generic.any", it_skin);
-	glMedia.causticwaterpic = LoadPartImg ("gfx/water/caustic_water.any", it_wall);
-	glMedia.causticslimepic = LoadPartImg ("gfx/water/caustic_slime.any", it_wall);
-	glMedia.causticlavapic = LoadPartImg ("gfx/water/caustic_lava.any", it_wall);
-	glMedia.particlebeam = LoadPartImg ("gfx/particles/beam.any", it_part);
+	glMedia.envmappic = LoadPartImg ("gfx/effects/envmap.tga", it_wall);
+	glMedia.spheremappic = LoadPartImg ("gfx/effects/spheremap.tga", it_skin);
+	glMedia.shelltexture = LoadPartImg ("gfx/effects/shell_generic.tga", it_skin);
+	glMedia.causticwaterpic = LoadPartImg ("gfx/water/caustic_water.tga", it_wall);
+	glMedia.causticslimepic = LoadPartImg ("gfx/water/caustic_slime.tga", it_wall);
+	glMedia.causticlavapic = LoadPartImg ("gfx/water/caustic_lava.tga", it_wall);
+	glMedia.particlebeam = LoadPartImg ("gfx/particles/beam.tga", it_part);
 
 	// Psychospaz's enhanced particles
 	for (x=0; x<PARTICLE_TYPES; x++)

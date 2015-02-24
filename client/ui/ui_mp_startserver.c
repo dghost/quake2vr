@@ -455,7 +455,7 @@ void UI_RefreshMapList (maptype_t maptype)
     
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.any")))
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.pcx")))
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -618,7 +618,7 @@ void StartServer_MenuInit (void)
     
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.any")) )
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.pcx")) )
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -760,7 +760,7 @@ void DrawStartSeverLevelshot (void)
 	SCR_DrawFill (SCREEN_WIDTH/2+44, SCREEN_HEIGHT/2-70, 244, 184, ALIGN_CENTER, 60,60,60,255);
 
 	if ( ui_svr_mapshotvalid[i] == M_UNSET) { // init levelshot
-		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.any", startmap);
+		Com_sprintf(mapshotname, sizeof(mapshotname), "/levelshots/%s.pcx", startmap);
 		if ((ui_svr_mapshot[i] = R_DrawFindPic(mapshotname)))
 			ui_svr_mapshotvalid[i] = M_FOUND;
 		else
