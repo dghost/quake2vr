@@ -1171,7 +1171,7 @@ void CL_ItemRespawnParticles (vec3_t org)
 			org[0] + crand()*8,	org[1] + crand()*8,	org[2] + crand()*8,
 			crand()*40,			crand()*40,			crand()*120,
 			0,		0,		PARTICLE_GRAVITY_DEFAULT*0.2,
-			0,		150+rand()*25,		0,
+			0,		150+frand()*25,		0,
 			0,	0,	0,
 			1,		-1.0 / (1.0 + frand()*0.3),
 			GL_SRC_ALPHA, GL_ONE,
@@ -2780,7 +2780,7 @@ void CL_BFGExplosionParticles (vec3_t org)
 			org[0] + ((rand()%32)-16), org[1] + ((rand()%32)-16),	org[2] + ((rand()%32)-16),
 			(rand()%150)-75,	(rand()%150)-75,	(rand()%150)-75,
 			0,	0,	0,
-			50,	100+rand()*50,	0, //Knightmare- made more green
+			50,	100+frand()*50,	0, //Knightmare- made more green
 			0,	0,	0,
 			1,		-0.8 / (0.5 + frand()*0.3),
 			GL_SRC_ALPHA, GL_ONE,
@@ -3091,7 +3091,7 @@ void CL_HeatbeamParticles (vec3_t start, vec3_t forward)
 				move[0]+dir[0]*2,	move[1]+dir[1]*2,	move[2]+dir[2]*2, //Knightmare- decreased radius
 				0,	0,	0,
 				0,		0,		0,
-				200+rand()*50,	200+rand()*25,	rand()*50,
+				200+frand()*50,	200+frand()*25,	frand()*50,
 				0,	0,	0,
 				0.25,	-1000.0, // decreased alpha
 				GL_SRC_ALPHA, GL_ONE,
