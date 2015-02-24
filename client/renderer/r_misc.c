@@ -212,27 +212,19 @@ void R_GrabScreen (void)
 {	
 	fbo_t *currentFBO = glState.currentFBO;
 	fbo_t captureFBO;
-	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && Cvar_VariableInteger("vid_srgb"));
-	// Free saveshot buffer first
+
+    // Free saveshot buffer first
 	if (saveshotdata)
 		Z_Free(saveshotdata);
 	// Allocate room for a copy of the framebuffer
 	saveshotdata = Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
 	R_InitFBO(&captureFBO);
-	if (srgb)
-	{
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_SRGB8,&captureFBO);
-	} else {
-		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
-	}
+
+    R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
 	R_BindFBO(&captureFBO);
-	R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);
+	R_BlitWithGammaFlipped(lastFrame->texture, 1.0);
 	R_BindFBO(currentFBO);
-	if (srgb)
-	{
-		glDisable(GL_FRAMEBUFFER_SRGB);
-	}
+
 	GL_MBind(0,captureFBO.texture);
 	// Read the framebuffer into our storage
 	glGetTexImage(GL_TEXTURE_2D,0,GL_RGB,GL_UNSIGNED_BYTE,saveshotdata);
