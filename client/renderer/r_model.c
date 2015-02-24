@@ -191,7 +191,6 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	void *buf;
 	int32_t		i;
     hash32_t nameHash;
-    char s[MAX_QPATH];
     int32_t len = strlen(name);
     
 	if (!name[0])
@@ -207,12 +206,8 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
-    strcpy(s, name);
-    if (!strcmp(s+len-4, ".md2") || !strcmp(s+len-4, ".md3")) // look if we have a .md2 file
-    {
-        s[len-1]='s';
-    }
-    nameHash = Q_Hash32(s, len);
+
+    nameHash = Q_Hash32(name, len);
 	//
 	// search the currently loaded models
 	//
@@ -220,7 +215,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, s) )
+		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, name) )
 			return mod;
 	}
 	
@@ -238,23 +233,24 @@ model_t *Mod_ForName (char *name, qboolean crash)
 			VID_Error (ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
 		mod_numknown++;
 	}
-	strcpy (mod->name, s);
+	strcpy (mod->name, name);
     mod->hash = nameHash;
 	//
 	// load the file
 	//
-    if (!strcmp(s+len-4, ".mds")) // look if we have a .md3 file
+    if (!strcmp(name+len-4, ".md2")) // look if we have a .md3 file
     {
+        char s[MAX_QPATH];
+        strcpy(s, name);
         s[len-1] = '3';
         modfilelen = FS_LoadFile (s, &buf);
         
-        // if the original file was a .md2 file, try it
-        if (!buf && !strcmp(name+len-4, ".md2")) {
+        if (!buf) {
             s[len-1] = '2';
-            modfilelen = FS_LoadFile (s, &buf);
+            modfilelen = FS_LoadFile (name, &buf);
         }
     } else {
-        modfilelen = FS_LoadFile (s, &buf);
+        modfilelen = FS_LoadFile (name, &buf);
     }
 	if (!buf)
 	{
