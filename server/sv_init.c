@@ -242,16 +242,30 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	}
 	else
 	{
-		Com_sprintf (sv.configstrings[CS_MODELS+1],sizeof(sv.configstrings[CS_MODELS+1]),
-			"maps/%s.bsp", server);
-	
-		// resolve CS_PAKFILE, hack by Jay Dolan
-		FS_FOpenFile(sv.configstrings[CS_MODELS + 1], &f, FS_READ);
-		strcpy(sv.configstrings[CS_PAKFILE], (last_pk3_name ? last_pk3_name : ""));
-		FS_FCloseFile(f);
-	
-		sv.models[1] = CM_LoadMap (sv.configstrings[CS_MODELS+1], false, &checksum);
-	}
+        char formatstring[15] = "";
+        
+        if (Q_strncasecmp(server,"maps/", 4) != 0) {
+            strcat(formatstring, "maps/");
+        }
+        strcat(formatstring, "%s");
+        
+        if (Q_strncasecmp(&server[strlen(server) - 4], ".bsp", 4) != 0) {
+            strcat(formatstring, ".bsp");
+        }
+        Com_sprintf (sv.configstrings[CS_MODELS+1],sizeof(sv.configstrings[CS_MODELS+1]),
+                     formatstring, server);
+
+        // resolve CS_PAKFILE, hack by Jay Dolan
+        FS_FOpenFile(sv.configstrings[CS_MODELS + 1], &f, FS_READ);
+        if (f <= 0) {
+            Com_Error (ERR_DROP, "Couldn't load map %s", server);
+        }
+        
+        strcpy(sv.configstrings[CS_PAKFILE], (last_pk3_name ? last_pk3_name : ""));
+        FS_FCloseFile(f);
+        
+        sv.models[1] = CM_LoadMap (sv.configstrings[CS_MODELS+1], false, &checksum);
+    }
 	Com_sprintf (sv.configstrings[CS_MAPCHECKSUM],sizeof(sv.configstrings[CS_MAPCHECKSUM]),
 		"%i", checksum);
 

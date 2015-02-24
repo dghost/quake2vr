@@ -609,6 +609,7 @@ void SV_Map_f (void)
 {
 	char	*map;
 	char	expanded[MAX_QPATH];
+    char    formatstring[15] = "";
 
 	if (Cmd_Argc() != 2)
 	{
@@ -618,18 +619,27 @@ void SV_Map_f (void)
 
 	// if not a pcx, demo, or cinematic, check to make sure the level exists
 	map = Cmd_Argv(1);
-	if (!strstr (map, "."))
-	{
-		Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
+    
+    
+    if (Q_strncasecmp(map,"maps/", 4) != 0) {
+        strcat(formatstring, "maps/");
+    }
+    strcat(formatstring, "%s");
+    
+    if (Q_strncasecmp(&map[strlen(map) - 4], ".bsp", 4) != 0) {
+        strcat(formatstring, ".bsp");
+    }
+    
+    Com_sprintf (expanded, sizeof(expanded), formatstring, map);
+    
+    if (FS_LoadFile (expanded, NULL) == -1)
+    {
+        Com_Printf ("Can't find %s\n", expanded);
+        //if (!dedicated->value && cls.state != ca_connected) // Knightmare added
+        //	CL_Drop ();
+        return;
+    }
 
-		if (FS_LoadFile (expanded, NULL) == -1)
-		{
-			Com_Printf ("Can't find %s\n", expanded);
-			//if (!dedicated->value && cls.state != ca_connected) // Knightmare added
-			//	CL_Drop ();
-			return;
-		}
-	}
 
 	sv.state = ss_dead;		// don't save current level when changing
 	SV_WipeSavegame("current");
