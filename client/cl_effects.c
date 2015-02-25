@@ -2819,7 +2819,7 @@ void CL_TeleportParticles (vec3_t org)
 					org[0]+i+(rand()&3), org[1]+j+(rand()&3),	org[2]+k+(rand()&3),
 					dir[0]*vel,	dir[1]*vel,	dir[2]*vel,
 					0,		0,		0,
-					200 + 55*rand(),	200 + 55*rand(),	200 + 55*rand(),
+					200 + 55*frand(), 200 + 55*frand(), 200 + 55*frand(),
 					0,		0,		0,
 					1,		-1.0 / (0.3 + (rand()&7) * 0.02),
 					GL_SRC_ALPHA, GL_ONE,
