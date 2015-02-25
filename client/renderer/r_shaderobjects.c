@@ -278,6 +278,7 @@ qboolean R_InitShaders(void)
 		warpshader.scale_uniform = glGetUniformLocation(warpshader.shader->program,"scale");
 		warpshader.time_uniform = glGetUniformLocation(warpshader.shader->program,"time");
 		warpshader.displacement_uniform = glGetUniformLocation(warpshader.shader->program,"displacement");
+        warpshader.fogmodel_uniform = glGetUniformLocation(warpshader.shader->program,"fogmodel");
 		glUseProgram(0);
 		success = true;
 	} 
@@ -298,6 +299,7 @@ qboolean R_InitShaders(void)
 		simplexwarpshader.scale_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"scale");
 		simplexwarpshader.time_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"time");
 		simplexwarpshader.displacement_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"displacement");
+        simplexwarpshader.fogmodel_uniform = glGetUniformLocation(simplexwarpshader.shader->program,"fogmodel");
 		glUseProgram(0);
 		success = success && true;
 	}
@@ -315,6 +317,7 @@ qboolean R_InitShaders(void)
 		texloc = glGetUniformLocation(causticshader.shader->program,"texDistort");
 		glUniform1i(texloc,1);
 		causticshader.rgbscale_uniform = glGetUniformLocation(causticshader.shader->program,"rgbscale");
+        causticshader.fogmodel_uniform = glGetUniformLocation(causticshader.shader->program,"fogmodel");
 		glUseProgram(0);
 		success = success && true;
 	}

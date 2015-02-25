@@ -303,6 +303,8 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	*/
 	if (texShaderWarp)
 	{
+        int fog = (r_fogenable > 0) ? (r_fogmodel + 1) : 0;
+        
 		GLfloat param[4];
 		float rdt = r_newrefdef.time;
 		float scale[2] = {0.025,0.05};
@@ -331,9 +333,11 @@ void RB_RenderWarpSurface (msurface_t *fa)
 			glUniform1f(warp->time_uniform,rdt);
 			glUniform1f(warp->displacement_uniform,r_waterwave->value);
 			glUniform2fv(warp->scale_uniform,1,scale);
+            glUniform1i(warp->fogmodel_uniform, fog);
 		} else {
 			glUseProgram(causticshader.shader->program);
 			glUniform4fv(causticshader.rgbscale_uniform,1,param);
+            glUniform1i(causticshader.fogmodel_uniform, fog);
 		}
 	}
 	else

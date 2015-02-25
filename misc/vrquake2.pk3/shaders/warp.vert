@@ -14,6 +14,9 @@ void main(void) {
 	vec4 vertex = gl_Vertex;
 	vec2 position = vertex.xy * scale + time;
 	vertex.z += displacement * deform(position);
+
 	gl_Position = gl_ModelViewProjectionMatrix * vertex;
+	vec4 eyePos = gl_ModelViewMatrix * gl_Vertex;
+	gl_FogFragCoord = abs(eyePos.z/eyePos.w);
 	coords = vec4(gl_MultiTexCoord0.xy,gl_MultiTexCoord1.xy);
 }

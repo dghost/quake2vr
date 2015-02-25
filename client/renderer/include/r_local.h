@@ -698,7 +698,8 @@ void R_SetFog (void);
 void R_InitFogVars (void);
 void R_SetFogVars (qboolean enable, int32_t model, int32_t density,
 				   int32_t start, int32_t end, int32_t red, int32_t green, int32_t blue);
-
+extern int32_t r_fogmodel;
+extern qboolean r_fogenable;
 /*
 ** GL config stuff
 */
@@ -1003,11 +1004,13 @@ typedef struct {
 	GLint scale_uniform;
 	GLint time_uniform;
 	GLint displacement_uniform;
+    GLint fogmodel_uniform;
 } r_warpshader_t;
 
 typedef struct {
 	r_shaderobject_t *shader;
-	GLuint rgbscale_uniform;
+	GLint rgbscale_uniform;
+    GLint fogmodel_uniform;
 } r_causticshader_t;
 
 

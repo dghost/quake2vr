@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // global fog vars w/ defaults
 int32_t FogModels[3] = {GL_LINEAR, GL_EXP, GL_EXP2};
 
-static	qboolean r_fogenable = false;
-static	int32_t		r_fogmodel = GL_LINEAR;
+int32_t	r_fogmodel = 0;
+qboolean r_fogenable = false;
 static	float	r_fogdensity = 50.0;
 static	float	r_fognear = 64.0;
 static	float	r_fogfar = 1024.0;
@@ -46,9 +46,9 @@ void R_SetFog (void)
 	r_fogColor[3] = 1.0;
 	glEnable(GL_FOG);
 	GL_ClearColor (r_fogColor[0], r_fogColor[1], r_fogColor[2], r_fogColor[3]); // Clear the background color to the fog color
-	glFogi(GL_FOG_MODE, r_fogmodel);
+	glFogi(GL_FOG_MODE, FogModels[r_fogmodel]);
 	glFogfv(GL_FOG_COLOR, r_fogColor);
-	if (r_fogmodel == GL_LINEAR)
+	if (r_fogmodel == 0)
 	{
 		glFogf(GL_FOG_START, r_fognear); 
 		glFogf(GL_FOG_END, r_fogfar);
@@ -66,7 +66,7 @@ R_InitFogVars
 void R_InitFogVars (void)
 {
 	r_fogenable = false;
-	r_fogmodel = GL_LINEAR;
+	r_fogmodel = 0;
 	r_fogdensity = 50.0;
 	r_fognear = 64.0;
 	r_fogfar = 1024.0;
@@ -81,8 +81,6 @@ R_SetFogVars
 void R_SetFogVars (qboolean enable, int32_t model, int32_t density,
 				   int32_t start, int32_t end, int32_t red, int32_t green, int32_t blue)
 {
-	int32_t	temp;
-
 	//VID_Printf( PRINT_ALL, "Setting fog variables: model %i density %i near %i far %i red %i green %i blue %i\n",
 	//	model, density, start, end, red, green, blue );
 
@@ -94,14 +92,15 @@ void R_SetFogVars (qboolean enable, int32_t model, int32_t density,
 		glDisable(GL_FOG);
 		return;
 	}
-	temp = model;
-	if ((temp > 2) || (temp < 0)) temp = 0;
-	r_fogmodel = FogModels[temp];
+    
+    r_fogmodel = clamp(model,0,2);
+
 	r_fogdensity = (float)density;
-	if (temp == 0) {	// GL_LINEAR
+	if (r_fogmodel == 0) {	// GL_LINEAR
 		r_fognear = (float)start;
 		r_fogfar = (float)end;
 	}
+    
 	r_fogColor[0] = ((float)red)/255.0;
 	r_fogColor[1] = ((float)green)/255.0;
 	r_fogColor[2] = ((float)blue)/255.0;
