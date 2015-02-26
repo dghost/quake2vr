@@ -1136,6 +1136,8 @@ void SV_Init (void)
 	sv_entfile = Cvar_Get ("sv_entfile", "1", CVAR_ARCHIVE); // whether to use .ent file
 
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
+    
+    SV_InitClientCommands();
 }
 
 /*

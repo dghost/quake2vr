@@ -271,6 +271,7 @@ void SV_BroadcastCommand (char *fmt, ...);
 //
 // sv_user.c
 //
+void SV_InitClientCommands(void);
 void SV_Nextserver (void);
 void SV_ExecuteClientMessage (client_t *cl);
 

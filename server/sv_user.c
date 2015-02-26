@@ -577,6 +577,7 @@ typedef struct
 {
 	char	*name;
 	void	(*func) (void);
+    hash32_t hash;
 } ucmd_t;
 
 ucmd_t ucmds[] =
@@ -600,6 +601,12 @@ ucmd_t ucmds[] =
 	{NULL, NULL}
 };
 
+void SV_InitClientCommands(void) {
+    ucmd_t *u;
+    for (u=ucmds ; u->name ; u++)
+        u->hash = Q_Hash32(u->name, strlen(u->name));
+}
+
 /*
 ==================
 SV_ExecuteUserCommand
@@ -608,15 +615,20 @@ SV_ExecuteUserCommand
 void SV_ExecuteUserCommand (char *s)
 {
 	ucmd_t	*u;
-	
+    hash32_t hash;
+    char *cmd;
+    
 	Cmd_TokenizeString (s, false); //Knightmare- password security fix, was true
 									// prevents players from reading rcon_password
+    cmd = Cmd_Argv(0);
+    hash = Q_Hash32(cmd, strlen(cmd));
+    
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
 
 	for (u=ucmds ; u->name ; u++)
-		if (!strcmp (Cmd_Argv(0), u->name) )
+		if (!Q_HashEquals32(hash, u->hash) && !strcmp (cmd, u->name) )
 		{
 			u->func ();
 			break;
