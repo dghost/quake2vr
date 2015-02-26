@@ -54,6 +54,8 @@ typedef struct
 	struct cmodel_s		*models[MAX_MODELS];
 
 	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
+    hash32_t    confighashes[MAX_CONFIGSTRINGS];
+    
 	entity_state_t	baselines[MAX_EDICTS];
 
 	// the multicast buffer is used to send a message to a set of clients

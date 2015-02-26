@@ -203,7 +203,7 @@ void PF_Configstring (int32_t index, char *val)
 
 	// change the string in sv
 	strcpy (sv.configstrings[index], val);
-
+    sv.confighashes[index] = Q_Hash32(val, strlen(val));
 	
 	if (sv.state != ss_loading)
 	{	// send the update to everyone

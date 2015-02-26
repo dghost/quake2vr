@@ -326,7 +326,7 @@ void SV_ReadLevelFile (void)
 {
 	char	name[MAX_OSPATH];
 	fileHandle_t	f;
-
+    int i;
 	Com_DPrintf("SV_ReadLevelFile()\n");
 
 	Com_sprintf (name, sizeof(name), "save/current/%s.sv2", sv.name);
@@ -337,6 +337,8 @@ void SV_ReadLevelFile (void)
 		return;
 	}
 	FS_Read (sv.configstrings, sizeof(sv.configstrings), f);
+    for (i=0 ; i < MAX_CONFIGSTRINGS ; i++)
+        sv.confighashes[i] = Q_Hash32(sv.configstrings[i], strlen(sv.configstrings[i]));
 	CM_ReadPortalState (f);
 	FS_FCloseFile(f);
 
