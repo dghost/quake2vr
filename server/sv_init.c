@@ -241,11 +241,6 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 
     // this has already been done?
     
-	strcpy (sv.name, server);
-	strcpy (sv.configstrings[CS_NAME], server);
-
-    strcpy (sv.configstrings[CS_NAME], server);
-    sv.confighashes[CS_NAME] = Q_Hash32(server, strlen(server));
     
 	if (serverstate != ss_game)
 	{
