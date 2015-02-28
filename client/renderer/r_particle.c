@@ -369,13 +369,6 @@ void R_BeginParticles (qboolean decals)
 		VectorNegate   (particle_coord[0], particle_coord[2]);
 		VectorNegate   (particle_coord[1], particle_coord[3]);
 
-		// no fog on particles
-		fog_on = false;
-		if (glIsEnabled(GL_FOG)) // check if fog is enabled
-		{
-			fog_on = true;
-			glDisable(GL_FOG); // if so, disable it
-		}
 	}
 	// clear particle rendering state
 	memset(&currentParticleState, 0, sizeof(particleRenderState_t));
@@ -409,11 +402,6 @@ void R_FinishParticles (qboolean decals)
 	GL_Disable (GL_BLEND);
 	glColor4f (1,1,1,1);
 
-	if (!decals)
-	{	// re-enable fog if it was on
-		if (fog_on)
-			glEnable(GL_FOG);
-	}
 }
 
 //===================================================
