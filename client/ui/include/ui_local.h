@@ -289,6 +289,7 @@ void UI_InitSavegameData (void);
 void M_Credits_MenuDraw (void);
 
 // ui_options_screen.c
+void UI_Options_ReloadCrosshairs (void);
 void Options_Screen_MenuDraw (void);
 void MenuCrosshair_MouseClick (void);
 

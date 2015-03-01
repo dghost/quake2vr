@@ -98,8 +98,8 @@ Crosshair loading
 */
 
 #define MAX_CROSSHAIRS 100
-char **crosshair_names;
-struct image_s **crosshairs;
+char *crosshair_names[MAX_CROSSHAIRS + 1];
+struct image_s *crosshairs[MAX_CROSSHAIRS + 1];
 int32_t	numcrosshairs;
 
 /*static void OldCrosshairFunc( void *unused )
@@ -165,32 +165,28 @@ qboolean isNumeric (char ch)
 	else return false;
 }
 
-struct image_s **PreloadCrosshairs(void)
+void UI_Options_ReloadCrosshairs(void)
 {
-    struct image_s **list;
-    int i;
-    list = Z_TagMalloc(sizeof(struct image_s *) * MAX_CROSSHAIRS+1, TAG_MENU);
-    memset(list, 0, sizeof(struct image_s *) * MAX_CROSSHAIRS+1);
-    for (i = 1; i < numcrosshairs; i++)
-    {
-        list[i] = R_DrawFindPic(crosshair_names[i]);
+    if (crosshairs[0]) {
+        int i;
+    
+        for (i = 1; i < numcrosshairs; i++)
+        {
+            crosshairs[i] = R_DrawFindPic(crosshair_names[i]);
+        }
     }
-    return list;
 }
 
-
-char **SetCrosshairNames (void)
+void SetCrosshairNames (void)
 {
 	char *curCrosshair;
-	char **list = 0, *p;
+	char *p;
 	int32_t ncrosshairs = 0, ncrosshairnames;
 	char **crosshairfiles = NULL;
 	int32_t i;
 
-	list = Z_TagMalloc( sizeof( char * ) * MAX_CROSSHAIRS+1 , TAG_MENU);
-	memset( list, 0, sizeof( char * ) * MAX_CROSSHAIRS+1 );
-    
-	list[0] = Z_TagStrdup("none",TAG_MENU); //was default
+    if (!crosshair_names[0])
+        crosshair_names[0] = Z_TagStrdup("none",TAG_MENU); //was default
 	ncrosshairnames = 1;
 
     if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
@@ -227,9 +223,9 @@ char **SetCrosshairNames (void)
             
             curCrosshair = p;
             
-            if (!FS_ItemInList(curCrosshair, ncrosshairnames, list))
+            if (!FS_ItemInList(curCrosshair, ncrosshairnames, crosshair_names))
             {
-                FS_InsertInList(list, curCrosshair, ncrosshairnames, 1);	//i=1 so none stays first!
+                FS_InsertInList(crosshair_names, curCrosshair, ncrosshairnames, 1);	//i=1 so none stays first!
                 ncrosshairnames++;
             }
             
@@ -240,10 +236,9 @@ char **SetCrosshairNames (void)
     }
 
 	// sort the list
-	sortCrosshairs (list, ncrosshairnames);
+	sortCrosshairs (crosshair_names, ncrosshairnames);
 
 	numcrosshairs = ncrosshairnames;
-	return list;
 }
 
 //=======================================================================
@@ -293,16 +288,19 @@ static void ScreenResetDefaultsFunc ( void *unused )
 void Options_Screen_Teardown (void)
 {
     int i;
-    char *str = va("ch%i", (int32_t)Cvar_VariableValue("crosshair"));
-    FS_FreeFileList(crosshair_names,numcrosshairs);
+    char *str = va("ch%i.img", (int32_t)Cvar_VariableValue("crosshair"));
     
-    if (crosshairs) {
-        for (i = 0; i < numcrosshairs; i++) {
-            if (crosshairs[i] && !strstr(crosshairs[i]->name,str)) {
-                R_FreePic(crosshairs[i]->name);
-            }
+    crosshairs[0] = 0;
+    
+    for (i = 0; i < numcrosshairs; i++) {
+        if (crosshair_names[i]) {
+                Z_Free(crosshair_names[i]);
+                crosshair_names[i] = NULL;
         }
-        Z_Free(crosshairs);
+        if (crosshairs[i] && !strstr(crosshairs[i]->name,str)) {
+            R_FreePic(crosshairs[i]->name);
+            crosshairs[i] = NULL;
+        }
     }
 }
 
@@ -327,8 +325,11 @@ void Options_Screen_MenuInit ( void )
 	s_options_screen_header.generic.x		= MENU_FONT_SIZE/2 * strlen(s_options_screen_header.generic.name);
 	s_options_screen_header.generic.y		= 0;
     
-	crosshair_names = SetCrosshairNames ();
-    crosshairs = PreloadCrosshairs();
+	SetCrosshairNames ();
+    
+    memset(crosshairs, 0, sizeof(crosshairs));
+    crosshairs[0] = 1;
+    UI_Options_ReloadCrosshairs();
     
 	s_options_screen_crosshair_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_screen_crosshair_box.generic.x				= 0;

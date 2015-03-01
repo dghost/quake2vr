@@ -535,7 +535,7 @@ void UI_Reload (void)
     
     UI_InitSavegameData(); // precache savegame images    
     UI_RefreshMapImages();
-
+    UI_Options_ReloadCrosshairs();
 }
 
 /*
