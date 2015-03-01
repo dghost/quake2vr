@@ -702,6 +702,7 @@ void R_RenderView (refdef_t *fd)
 	projection.x.offset = 0;
 
 	R_SetProjection(projection);
+    R_SetFog();
 
 	R_DrawWorld ();
 	
@@ -765,8 +766,6 @@ void R_RenderView (refdef_t *fd)
 		
 		R_Flash();
 	}
-	R_SetFog();
-
 }
 
 /*
@@ -781,6 +780,7 @@ void R_DrawCameraEffect ();
 void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destination, vrect_t *viewRect)
 {
 	uint32_t oldWidth, oldHeight;
+
 	if (r_norefresh->value)
 		return;
 
@@ -834,6 +834,7 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 
 	R_SetupGL ();
 	R_SetProjection(parameters.projection);
+    R_SetFog();
 
 	R_DrawWorld ();
 	
@@ -908,9 +909,9 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		GL_MBind(0,0);
 
 		R_ApplyPostProcess(destination);
+
 	}
 
-	R_SetFog();
 	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
 		R_DrawCameraEffect ();
 	vid.width = oldWidth;
@@ -964,7 +965,7 @@ R_SetGL2D
 
 void R_SetGL2D (void)
 {
-	// set 2D virtual screen size
+    // set 2D virtual screen size
 	glViewport (0,0, vid.width, vid.height);
 	GL_SetIdentityOrtho(GL_PROJECTION, 0, vid.width, vid.height, 0, -99999, 99999);
 	GL_LoadIdentity(GL_MODELVIEW);
@@ -973,7 +974,9 @@ void R_SetGL2D (void)
 	GL_Disable (GL_CULL_FACE);
 	GL_Disable (GL_BLEND);
 	GL_Enable (GL_ALPHA_TEST);
-	glColor4f (1,1,1,1);
+    GL_Disable(GL_FOG);
+    glColor4f (1,1,1,1);
+    
 }
 
 /*
@@ -1925,7 +1928,6 @@ void R_EndFrame(void)
 	GL_SetIdentity(GL_MODELVIEW);
 	GL_Disable(GL_DEPTH_TEST);
 	GL_Disable(GL_ALPHA_TEST);
-
 	R_VR_EndFrame();
 	R_Stereo_EndFrame(frame);
 

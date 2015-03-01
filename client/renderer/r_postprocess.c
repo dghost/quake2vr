@@ -505,7 +505,11 @@ void R_PolyBlend ();
 void R_ApplyPostProcess(fbo_t *source)
 {
 	fbo_t *currentFBO = glState.currentFBO;
-
+    qboolean fog_on = glState.fog;
+    
+    if (fog_on)
+        GL_Disable(GL_FOG);
+    
 	GL_ClearColor(0,0,0,0);
 	R_SetupQuadState();
 	GL_Disable(GL_DEPTH_TEST);
@@ -582,6 +586,8 @@ void R_ApplyPostProcess(fbo_t *source)
 	R_BindFBO(currentFBO);
 	GL_MBind(0,0);
 	glUseProgram(0);
+    if (fog_on)
+        GL_Enable(GL_FOG);
 }
 
 
