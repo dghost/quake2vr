@@ -301,5 +301,6 @@ void UI_RefreshMapImages (void);
 // ui_mp_playersetup.c
 void PlayerConfig_MenuDraw (void);
 void PlayerConfig_MouseClick (void);
+void PlayerConfig_MenuReload (void);
 
 #endif

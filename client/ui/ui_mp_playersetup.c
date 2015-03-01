@@ -347,6 +347,35 @@ void PConfigAccept (void)
 		s_pmi[i].skindisplaynames = 0;
 		s_pmi[i].nskins = 0;
 	}
+    s_numplayermodels = 0;
+}
+
+void PlayerConfig_MenuReload (void) {
+    char scratch[MAX_QPATH];
+
+    if (s_numplayermodels > 1) {
+        // only register model and skin on starup or when changed
+        Com_sprintf( scratch, sizeof( scratch ), "players/%s/tris.md2", s_pmi[s_player_model_box.curvalue].directory );
+        playermodel = R_RegisterModel( scratch );
+        
+        Com_sprintf( scratch, sizeof( scratch ), "players/%s/%s.pcx", s_pmi[s_player_model_box.curvalue].directory, s_pmi[s_player_model_box.curvalue].skindisplaynames[s_player_skin_box.curvalue] );
+        playerskin = R_RegisterSkin( scratch );
+        
+        // show current weapon model (if any)
+        if (currentweaponmodel && strlen(currentweaponmodel)) {
+            Com_sprintf( scratch, sizeof( scratch ), "players/%s/%s", s_pmi[s_player_model_box.curvalue].directory, currentweaponmodel );
+            weaponmodel = R_RegisterModel( scratch );
+            if (!weaponmodel) {
+                Com_sprintf( scratch, sizeof( scratch ), "players/%s/weapon.md2", s_pmi[s_player_model_box.curvalue].directory );
+                weaponmodel = R_RegisterModel( scratch );
+            }
+        }
+        else
+        {
+            Com_sprintf( scratch, sizeof( scratch ), "players/%s/weapon.md2", s_pmi[s_player_model_box.curvalue].directory );
+            weaponmodel = R_RegisterModel( scratch );
+        }
+    }
 }
 
 qboolean PlayerConfig_MenuInit (void)
@@ -356,7 +385,6 @@ qboolean PlayerConfig_MenuInit (void)
 	extern cvar_t *skin;
 	char currentdirectory[1024];
 	char currentskin[1024];
-	char scratch[MAX_QPATH];
 	int32_t i = 0;
 	int32_t y = 0;
 
@@ -504,26 +532,7 @@ qboolean PlayerConfig_MenuInit (void)
 	s_player_back_action.generic.callback = UI_BackMenu;
 
 	// only register model and skin on starup or when changed
-	Com_sprintf( scratch, sizeof( scratch ), "players/%s/tris.md2", s_pmi[s_player_model_box.curvalue].directory );
-	playermodel = R_RegisterModel( scratch );
-
-	Com_sprintf( scratch, sizeof( scratch ), "players/%s/%s.pcx", s_pmi[s_player_model_box.curvalue].directory, s_pmi[s_player_model_box.curvalue].skindisplaynames[s_player_skin_box.curvalue] );
-	playerskin = R_RegisterSkin( scratch );
-
-	// show current weapon model (if any)
-	if (currentweaponmodel && strlen(currentweaponmodel)) {
-		Com_sprintf( scratch, sizeof( scratch ), "players/%s/%s", s_pmi[s_player_model_box.curvalue].directory, currentweaponmodel );
-		weaponmodel = R_RegisterModel( scratch );
-		if (!weaponmodel) {
-			Com_sprintf( scratch, sizeof( scratch ), "players/%s/weapon.md2", s_pmi[s_player_model_box.curvalue].directory );
-			weaponmodel = R_RegisterModel( scratch );
-		}
-	}
-	else
-	{
-		Com_sprintf( scratch, sizeof( scratch ), "players/%s/weapon.md2", s_pmi[s_player_model_box.curvalue].directory );
-		weaponmodel = R_RegisterModel( scratch );
-	}
+    PlayerConfig_MenuReload();
 
 	Menu_AddItem( &s_player_config_menu, &s_player_name_field );
 	Menu_AddItem( &s_player_config_menu, &s_player_model_title );
