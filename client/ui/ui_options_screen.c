@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client.h"
 #include "include/ui_local.h"
+#include "../renderer/include/r_local.h"
 
 /*
 =======================================================================
@@ -291,9 +292,18 @@ static void ScreenResetDefaultsFunc ( void *unused )
 
 void Options_Screen_Teardown (void)
 {
+    int i;
+    char *str = va("ch%i", (int32_t)Cvar_VariableValue("crosshair"));
     FS_FreeFileList(crosshair_names,numcrosshairs);
-    if (crosshairs)
+    
+    if (crosshairs) {
+        for (i = 0; i < numcrosshairs; i++) {
+            if (crosshairs[i] && !strstr(crosshairs[i]->name,str)) {
+                R_FreePic(crosshairs[i]->name);
+            }
+        }
         Z_Free(crosshairs);
+    }
 }
 
 
