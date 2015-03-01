@@ -401,9 +401,12 @@ void UI_BuildMapList (maptype_t maptype)
 {
 	int32_t		i;
 
-	if (ui_svr_mapnames)	Z_Free (ui_svr_mapnames);
-	ui_svr_nummaps = ui_svr_listfile_nummaps + ui_svr_arena_nummaps[maptype];
-	ui_svr_mapnames = Z_TagMalloc( sizeof( char * ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
+    ui_svr_nummaps = ui_svr_listfile_nummaps + ui_svr_arena_nummaps[maptype];
+
+	if (ui_svr_mapnames)
+        ui_svr_mapnames = Z_Realloc(ui_svr_mapnames, sizeof( char * ) * ( ui_svr_nummaps + 1 ));
+    else
+        ui_svr_mapnames = Z_TagMalloc( sizeof( char * ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
 	memset( ui_svr_mapnames, 0, sizeof( char * ) * ( ui_svr_nummaps + 1 ) );
 
 	for (i = 0; i < ui_svr_nummaps; i++)
@@ -420,7 +423,20 @@ void UI_BuildMapList (maptype_t maptype)
 		s_startmap_list.curvalue = 0;
 }	
 
-
+void UI_RefreshMapImages(void) {
+    // levelshot found table
+    if (ui_svr_mapshotvalid && ui_svr_mapshot) {
+        ui_svr_mapshotvalid = Z_Realloc(ui_svr_mapshotvalid, sizeof( byte ) * ( ui_svr_nummaps + 1 ));
+        ui_svr_mapshot = Z_Realloc(ui_svr_mapshot, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+        
+        memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
+        memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+        if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)))
+            ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
+        else
+            ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
+    }
+}
 /*
 ===============
 UI_RefreshMapList
@@ -442,23 +458,7 @@ void UI_RefreshMapList (maptype_t maptype)
 	for (i=0; s_startmap_list.itemnames[i]; i++);
 	s_startmap_list.numitemnames = i;
 
-	// levelshot found table
-	if (ui_svr_mapshotvalid)
-        Z_Free(ui_svr_mapshotvalid);
-	ui_svr_mapshotvalid = Z_TagMalloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
-	memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
-    if (ui_svr_mapshot)
-        Z_Free(ui_svr_mapshot);
-    ui_svr_mapshot = Z_TagMalloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ), TAG_MENU );
-    memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
-    
-	// register null levelshot
-	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)))
-			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
-		else
-			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
-	}
+    UI_RefreshMapImages();
 }
 
 
@@ -605,25 +605,19 @@ void StartServer_MenuInit (void)
 	UI_BuildMapList (ui_svr_maptype); // was MAP_DM
 
 	// levelshot found table
-	if (ui_svr_mapshotvalid)
-        Z_Free(ui_svr_mapshotvalid);
-	ui_svr_mapshotvalid = Z_TagMalloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ), TAG_MENU );
-	memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
+    ui_svr_mapshotvalid = Z_TagMalloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
+    memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
     
-    if (ui_svr_mapshot)
-        Z_Free(ui_svr_mapshot);
     ui_svr_mapshot = Z_TagMalloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ), TAG_MENU );
     memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
     
-	// register null levelshot
-	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)) )
-			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
-		else
-			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
-	}
+    if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)))
+        ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
+    else
+        ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
 
-	//
+    
+    //
 	// initialize the menu stuff
 	//
 	s_startserver_menu.x = SCREEN_WIDTH*0.5 - 140;

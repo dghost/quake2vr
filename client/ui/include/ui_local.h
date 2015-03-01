@@ -295,6 +295,7 @@ void MenuCrosshair_MouseClick (void);
 // ui_mp_startserver.c
 void UI_LoadArenas (void);
 void UI_LoadMapList (void);
+void UI_RefreshMapImages (void);
 
 // ui_mp_playersetup.c
 void PlayerConfig_MenuDraw (void);

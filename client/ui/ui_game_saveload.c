@@ -73,12 +73,15 @@ void Load_Savestrings (qboolean update)
 		Com_sprintf (name, sizeof(name), "%s/save/vrsave%02i/server.ssv", gamedir, i);
 
 		old_timestamp = m_savetimestamps[i];
-		stat(name, &st);
-		m_savetimestamps[i] = st.st_mtime;
+        if (stat(name, &st) == 0) {
+            m_savetimestamps[i] = st.st_mtime;
+        } else {
+            m_savetimestamps[i] = 0;
+        }
 
+        m_savechanged[i] = !(update && m_savetimestamps[i] == old_timestamp);
 		// doesn't need to be refreshed
-        if ( update && m_savetimestamps[i] == old_timestamp ) {
-            m_savechanged[i] = false;
+        if ( !m_savechanged[i] ) {
 			continue;
 		}
 
@@ -118,7 +121,6 @@ void Load_Savestrings (qboolean update)
 				m_savevalid[i] = true;
 			}
 		}
-		m_savechanged[i] = (m_savetimestamps[i] != old_timestamp);
 	}
 }
 

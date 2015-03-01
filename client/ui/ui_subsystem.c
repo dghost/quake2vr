@@ -33,6 +33,7 @@ void	(*m_drawfunc) (void);
 const char *(*m_keyfunc) (int32_t key);
 void    (*m_teardownfunc) (void);
 
+static qboolean UI_Loaded = false;
 /*
 =======================================================================
 
@@ -521,6 +522,21 @@ void UI_Precache (void)
 	R_DrawFindPic ("/gfx/ui/arrows/arrow_right_d.pcx"); 
 }
 
+/*
+ =================
+ UI_Reload
+ =================
+ */
+void UI_Reload (void)
+{
+    if (!UI_Loaded)
+        return;
+    UI_Precache ();		// precache images
+    
+    UI_InitSavegameData(); // precache savegame images    
+    UI_RefreshMapImages();
+
+}
 
 /*
 =================
@@ -535,10 +551,10 @@ void UI_Init (void)
 
 	ui_cursor_scale = Cvar_Get ("ui_cursor_scale", "0.4", 0);
 
-	UI_InitSavegameData ();	// load savegame data
-
-	UI_Precache ();		// precache images
-
+    UI_Loaded = true;
+    
+    UI_Reload();
+    
 	Cmd_AddCommand ("menu_main", M_Menu_Main_f);
 	Cmd_AddCommand ("menu_game", M_Menu_Game_f);
 		Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);

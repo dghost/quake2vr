@@ -429,7 +429,6 @@ void UpdateVideoRef (void)
 	{
 		cl.force_refdef = true;		// can't use a paused refdef
 		S_StopAllSounds();
-
 		// unclip decals
 		if (active_decals) {
 			CL_UnclipDecals();
@@ -438,7 +437,7 @@ void UpdateVideoRef (void)
 	}
 
 	vid_reloading = false;
-
+    
 	while (vid_ref->modified)
 	{	// refresh has changed
 		vid_ref->modified = false;
@@ -472,6 +471,7 @@ void UpdateVideoRef (void)
 		Com_Printf( "------------------------------------\n");
 
 		kmgl_active = true;
+        UI_Reload();
 		//==========================
 	}
 
@@ -484,7 +484,7 @@ void UpdateVideoRef (void)
 		CL_ReclipDecals();
 		reclip_decals = false;
 	}
-
+    
 	vid_reloading = false;
 }
 

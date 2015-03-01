@@ -976,6 +976,7 @@ void vectoangles2 (vec3_t value1, vec3_t angles);
 // menus
 //
 void UI_Init (void);
+void UI_Reload (void);
 void UI_Keydown (int32_t key);
 void UI_Draw (void);
 void UI_ForceMenuOff (void);
