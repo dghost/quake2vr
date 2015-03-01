@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../client.h"
 #include "include/ui_local.h"
-
+#include "../renderer/include/r_local.h"
 
 /*
 =============================================================================
@@ -788,8 +788,27 @@ const char *StartServer_MenuKey (int32_t key)
 	return Default_MenuKey( &s_startserver_menu, key );
 }
 
+void StartServer_Teardown (void)
+{
+
+    if (ui_svr_mapshot) {
+        if (ui_svr_mapshotvalid) {
+            int i;
+            for (i= 0; i <= ui_svr_nummaps; i++) {
+                if (ui_svr_mapshotvalid[i] == M_FOUND && ui_svr_mapshot[i]) {
+                    R_FreePic(ui_svr_mapshot[i]->name);
+                }
+            }
+            Z_Free(ui_svr_mapshotvalid);
+            ui_svr_mapshotvalid = NULL;
+        }
+        Z_Free(ui_svr_mapshot);
+        ui_svr_mapshot = NULL;
+    }
+}
+
 void M_Menu_StartServer_f (void)
 {
 	StartServer_MenuInit();
-	UI_PushMenu( StartServer_MenuDraw, StartServer_MenuKey, NULL );
+	UI_PushMenu( StartServer_MenuDraw, StartServer_MenuKey, StartServer_Teardown );
 }
