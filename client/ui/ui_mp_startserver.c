@@ -214,7 +214,7 @@ UI_LoadArenas
 */
 void UI_LoadArenas (void)
 {
-	char		**arenafiles;
+	char		**arenafiles=0;
 	char		**tmplist = 0;
 	int32_t			i, j, narenas = 0, narenanames = 0;
 	qboolean	type_supported[NUM_MAPTYPES];
@@ -290,11 +290,10 @@ void UI_LoadArenas (void)
 				}
 			}
 		}
+        FS_FreeFileList (arenafiles, narenas);
 	}
-	if (narenas)
-		FS_FreeFileList (arenafiles, narenas);
 
-	if (narenanames)
+	if (tmplist)
 		FS_FreeFileList (tmplist, narenanames);
 
 	for (i=0; i<NUM_MAPTYPES; i++)
@@ -455,7 +454,7 @@ void UI_RefreshMapList (maptype_t maptype)
     
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.pcx")))
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)))
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -602,7 +601,7 @@ void StartServer_MenuInit (void)
 
 	int32_t y = 0;
 	
-	//UI_LoadMapList (); // moved to UI_Init
+	UI_LoadMapList (); // moved to UI_Init
 	UI_BuildMapList (ui_svr_maptype); // was MAP_DM
 
 	// levelshot found table
@@ -618,7 +617,7 @@ void StartServer_MenuInit (void)
     
 	// register null levelshot
 	if (ui_svr_mapshotvalid[ui_svr_nummaps] == M_UNSET) {	
-		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic("/gfx/ui/noscreen.pcx")) )
+		if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)) )
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_FOUND;
 		else
 			ui_svr_mapshotvalid[ui_svr_nummaps] = M_MISSING;
@@ -790,11 +789,11 @@ const char *StartServer_MenuKey (int32_t key)
 
 void StartServer_Teardown (void)
 {
-
+    int i;
     if (ui_svr_mapshot) {
         if (ui_svr_mapshotvalid) {
             int i;
-            for (i= 0; i <= ui_svr_nummaps; i++) {
+            for (i= 0; i < ui_svr_nummaps; i++) {
                 if (ui_svr_mapshotvalid[i] == M_FOUND && ui_svr_mapshot[i]) {
                     R_FreePic(ui_svr_mapshot[i]->name);
                 }
@@ -804,6 +803,23 @@ void StartServer_Teardown (void)
         }
         Z_Free(ui_svr_mapshot);
         ui_svr_mapshot = NULL;
+    }
+    if (ui_svr_mapnames) {
+        Z_Free (ui_svr_mapnames);
+        ui_svr_mapnames = NULL;
+    }
+    
+    if (ui_svr_listfile_mapnames) {
+        FS_FreeFileList (ui_svr_listfile_mapnames, ui_svr_listfile_nummaps);
+        ui_svr_listfile_nummaps = 0;
+        ui_svr_listfile_mapnames = NULL;
+    }
+    
+    for (i=0; i<NUM_MAPTYPES; i++)
+    {
+        if (ui_svr_arena_mapnames[i])
+            FS_FreeFileList (ui_svr_arena_mapnames[i], ui_svr_arena_nummaps[i]);
+        ui_svr_arena_mapnames[i] = NULL;
     }
 }
 

@@ -535,7 +535,6 @@ void UI_Init (void)
 
 	ui_cursor_scale = Cvar_Get ("ui_cursor_scale", "0.4", 0);
 
-	UI_LoadMapList();	// load map list
 	UI_InitSavegameData ();	// load savegame data
 
 	UI_Precache ();		// precache images
