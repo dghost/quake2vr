@@ -1430,15 +1430,24 @@ Frees a single pic
 void R_FreePic (char *name)
 {
 	int32_t		i;
+    char s[MAX_OSPATH];
 	image_t	*image;
-    hash32_t hash = Q_Hash32(name, strlen(name));
-	for (i=0, image=gltextures; i<numgltextures; i++, image++)
+    hash32_t hash;
+    int32_t len = strlen(name);
+    strcpy(s, name);
+    s[len-3] = 'i';
+    s[len-2] = 'm';
+    s[len-1] = 'g';
+    hash = Q_Hash32(s, len);
+
+    
+   	for (i=0, image=gltextures; i<numgltextures; i++, image++)
 	{
 		if (!image->registration_sequence)
 			continue;		// free image_t slot
 		if (image->type != it_pic)
 			continue;		// only free pics
-		if (!Q_HashEquals32(hash, image->hash) && !strcmp(name, image->name))
+		if (!Q_HashEquals32(hash, image->hash) && !strcmp(s, image->name))
 		{
 			//Heffo - Free Cinematic
 			//if (image->is_cin)
