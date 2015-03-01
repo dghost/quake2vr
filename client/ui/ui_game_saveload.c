@@ -67,18 +67,18 @@ void Load_Savestrings (qboolean update)
 	char	*ch;
 	time_t	old_timestamp;
 	struct	stat	st;
-
+    char    *gamedir = FS_Gamedir();
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
-		Com_sprintf (name, sizeof(name), "%s/save/vrsave%i/server.ssv", FS_Gamedir(), i);
+		Com_sprintf (name, sizeof(name), "%s/save/vrsave%02i/server.ssv", gamedir, i);
 
 		old_timestamp = m_savetimestamps[i];
 		stat(name, &st);
 		m_savetimestamps[i] = st.st_mtime;
 
 		// doesn't need to be refreshed
-		if ( update && m_savetimestamps[i] == old_timestamp ) {
-			m_savechanged[i] = false;
+        if ( update && m_savetimestamps[i] == old_timestamp ) {
+            m_savechanged[i] = false;
 			continue;
 		}
 
@@ -92,7 +92,7 @@ void Load_Savestrings (qboolean update)
 		else
 		{
 			fclose (fp);
-			Com_sprintf (name, sizeof(name), "save/vrsave%i/server.ssv", i);
+			Com_sprintf (name, sizeof(name), "save/vrsave%02i/server.ssv", i);
 			FS_FOpenFile (name, &f, FS_READ);
 			if (!f)
 			{
@@ -138,9 +138,9 @@ void ValidateSaveshots (void)
 				Com_sprintf(shotname, sizeof(shotname), "/levelshots/%s.pcx", m_mapname);
 			else
 			{	// free previously loaded shots
-				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%i/shot.png", i);
+				Com_sprintf(shotname, sizeof(shotname), "save/vrsave%02i/shot.png", i);
 				R_FreePic (shotname);
-				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%i/shot.png", i);
+				Com_sprintf(shotname, sizeof(shotname), "/save/vrsave%02i/shot.png", i);
 			}
             m_saveshots[i] = R_DrawFindPic(shotname);
 		}
@@ -220,13 +220,13 @@ void LoadGameCallback( void *self )
 
 	// set saveshot name here
 	if ( m_saveshots[ a->generic.localdata[0] ] ) {
-		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%i/shot.png", a->generic.localdata[0]);
+		Com_sprintf(loadshotname, sizeof(loadshotname), "/save/vrsave%02i/shot.png", a->generic.localdata[0]);
 		load_saveshot = R_DrawFindPic(loadshotname) ;
     } else
 		load_saveshot = NULL;
 
 	if ( m_savevalid[ a->generic.localdata[0] ] )
-		Cbuf_AddText (va("load vrsave%i\n",  a->generic.localdata[0] ) );
+		Cbuf_AddText (va("load vrsave%02i\n",  a->generic.localdata[0] ) );
 	UI_ForceMenuOff ();
 }
 
@@ -267,8 +267,6 @@ void LoadGame_MenuInit ( void )
 	s_loadgame_back_action.generic.callback = UI_BackMenu;
 
 	Menu_AddItem( &s_loadgame_menu, &s_loadgame_back_action );
-
-//	ValidateSaveshots (true); // register saveshots
 }
 
 void LoadGame_MenuDraw( void )
@@ -309,7 +307,7 @@ void SaveGameCallback( void *self )
 {
 	menuaction_s *a = ( menuaction_s * ) self;
 
-	Cbuf_AddText (va("save vrsave%i\n", a->generic.localdata[0] ));
+	Cbuf_AddText (va("save vrsave%02i\n", a->generic.localdata[0] ));
 	UI_ForceMenuOff ();
 }
 
@@ -356,8 +354,6 @@ void SaveGame_MenuInit( void )
 	s_savegame_back_action.generic.callback = UI_BackMenu;
 
 	Menu_AddItem( &s_savegame_menu, &s_savegame_back_action );
-
-//	ValidateSaveshots (false);
 }
 
 const char *SaveGame_MenuKey( int32_t key )

@@ -255,7 +255,7 @@ void SV_CopySaveGame (char *src, char *dst)
 	CopyFile (name, name2);
 
 	// Knightmare- copy screenshot
-	if (strcmp(dst, "vrsave0")) // no screenshot for start of level autosaves
+	if (strcmp(dst, "vrsave00")) // no screenshot for start of level autosaves
 	{
 		Com_sprintf (name, sizeof(name), "%s/save/%s/shot.png", FS_Gamedir(), src);
 		Com_sprintf (name2, sizeof(name2), "%s/save/%s/shot.png", FS_Gamedir(), dst);
@@ -595,7 +595,7 @@ void SV_GameMap_f (void)
 		&& Q_strcasecmp (map+l-4, ".pcx"))
 	{
 		SV_WriteServerFile (true);
-		SV_CopySaveGame ("current", "vrsave0");
+		SV_CopySaveGame ("current", "vrsave00");
 	}
 }
 
