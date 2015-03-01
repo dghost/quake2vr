@@ -472,6 +472,7 @@ void UpdateVideoRef (void)
 
 		kmgl_active = true;
         UI_Reload();
+        SCR_TouchPics();
 		//==========================
 	}
 

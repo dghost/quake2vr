@@ -1836,7 +1836,7 @@ void SCR_TouchPics (void)
     sb_flash = R_DrawFindPic("field_3");
     sb_backtile = R_DrawFindPic("backtile");
     crosshair_img = NULL;
-	if (crosshair->value)
+	if (crosshair && crosshair->value)
 	{
 		if (crosshair->value > 100 || crosshair->value < 0) //Knightmare increased
 			crosshair->value = 1;
