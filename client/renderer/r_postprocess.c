@@ -523,24 +523,24 @@ void R_ApplyPostProcess(fbo_t *source)
 		R_BloomFBO(source);
 	}
 
-	if (r_polyblend->value && v_blend[3] > 0.0)
-	{
-		if (r_blur->value && r_flashblur->value)
-		{
-			float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
-			float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
-			R_BlurFBO(weight,color,source);
-		} else {
-			R_TeardownQuadState();
-			R_PolyBlend();
-			R_SetupQuadState();
-		}
-	} else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
-	{
-		float color[4] = {0.0,0.0,0.0,0.0};
-		R_BlurFBO(1,color,source);
-	}
-
+    if (blurSupported && r_blur->value && r_flashblur->value) {
+        if (r_flashblur->value && v_blend[3] > 0.0)
+        {
+            float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
+            float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
+            R_BlurFBO(weight,color,source);
+            
+        } else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
+        {
+            float color[4] = {0.0,0.0,0.0,0.0};
+            R_BlurFBO(1,color,source);
+        }
+    } else if (r_polyblend->value && v_blend[3] > 0.0) {
+        R_TeardownQuadState();
+        R_PolyBlend();
+        R_SetupQuadState();
+    }
+    
 	if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
 	{
 		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
@@ -565,6 +565,7 @@ void R_ApplyPostProcess(fbo_t *source)
 		glUseProgram(passthrough.shader->program);
 		glUniform2f(passthrough.scale_uniform,1.0,1.0);
 		GL_MBind(0,fxaaFBO.texture);
+        
 		GL_BindFBO(source);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
