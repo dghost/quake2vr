@@ -249,12 +249,14 @@ UI_ForceMenuOff
 */
 void UI_ForceMenuOff (void)
 {
+    while (m_menudepth)
+        UI_PopMenu();
+    
 	// Knightmare- added Psychospaz's mouse support
 	UI_RefreshCursorLink();
 	m_drawfunc = 0;
 	m_keyfunc = 0;
 	cls.key_dest = key_game;
-	m_menudepth = 0;
 	Key_ClearStates ();
 	if (!cls.consoleActive && Cvar_VariableValue ("maxclients") == 1 && Com_ServerState()) // Knightmare added
 		Cvar_Set ("paused", "0");
