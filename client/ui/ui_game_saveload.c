@@ -168,7 +168,7 @@ void UI_InitSavegameData (void)
 	ValidateSaveshots ();	// register saveshots
 
 	// register null saveshot, this is only done once
-    m_saveshots[MAX_SAVEGAMES] = R_DrawFindPic("/gfx/ui/noscreen.pcx");
+    m_saveshots[MAX_SAVEGAMES] = R_DrawFindPic(UI_NOSCREEN_NAME);
 }
 
 

@@ -587,7 +587,7 @@ void UI_Draw (void)
         alpha = 1.0;
     }
     
-    if ((background = R_DrawFindPic("/gfx/ui/menu_background.pcx")))
+    if ((background = R_DrawFindPic(UI_BACKGROUND_NAME)))
         R_DrawStretchImage (0, 0, viddef.width, viddef.height, background,alpha);
     else
         R_DrawFill (0,0,viddef.width, viddef.height, 0,0,0,(int) (alpha * 255));
