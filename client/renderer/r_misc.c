@@ -159,15 +159,20 @@ void R_ScaledScreenshot (char *name)
 	saveshotWidth = saveshotHeight = 256;
 	if (r_saveshotsize->value)
 	{
-		if (vid.width >= 1024)
-			saveshotWidth = 1024;
-		else if (vid.width >= 512)
-			saveshotWidth = 512;
+        float aspectRatio = glConfig.render_width / (float) glConfig.render_height;
 
-		if (vid.height >= 1024)
-			saveshotHeight = 1024;
-		else if (vid.height >= 512)
-			saveshotHeight = 512;
+        if (glConfig.render_height >= 1024)
+            saveshotHeight = 1024;
+        else if (glConfig.render_height >= 512)
+            saveshotHeight = 512;
+
+//		if (vid.width >= 1024)
+//			saveshotWidth = 1024;
+//		else if (vid.width >= 512)
+//			saveshotWidth = 512;
+        
+        saveshotWidth = saveshotHeight * aspectRatio;
+        
 	}
 	/*	if (r_saveshotsize->value && (vid.width >= 1024) && (vid.height >= 1024))
 	saveshotsize = 1024;
