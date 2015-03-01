@@ -68,6 +68,12 @@ void GL_Enable (GLenum cap)
 		if (glState.scissorTest)
 			return;
 		glState.scissorTest = true;
+        break;
+    case GL_FOG:
+        if (glState.fog)
+            return;
+        glState.fog = true;
+        break;
 	}
 	glEnable(cap);
 }
@@ -116,6 +122,12 @@ void GL_Disable (GLenum cap)
 		if (!glState.scissorTest)
 			return;
 		glState.scissorTest = false;
+        break;
+    case GL_FOG:
+        if (!glState.fog)
+            return;
+        glState.fog = false;
+        break;
 	}
 	glDisable(cap);
 }
@@ -698,7 +710,8 @@ void GL_SetDefaultState (void)
 	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
-
+    glDisable(GL_FOG);
+    
 	glCullFace(GL_FRONT);
 	glShadeModel(GL_FLAT);
 	glPolygonOffset(-1, -2);

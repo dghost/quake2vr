@@ -846,7 +846,8 @@ typedef struct
 	qboolean		stencilTest;
 	qboolean		depthTest;
 	qboolean		scissorTest;
-
+    qboolean        fog;
+    
 	qboolean		texRectangle;
 	qboolean		in2d;
 	qboolean		arraysLocked;

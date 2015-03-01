@@ -44,7 +44,7 @@ void R_SetFog (void)
 		return;			// leave fog enabled if set by game DLL
 
 	r_fogColor[3] = 1.0;
-	glEnable(GL_FOG);
+	GL_Enable(GL_FOG);
 	GL_ClearColor (r_fogColor[0], r_fogColor[1], r_fogColor[2], r_fogColor[3]); // Clear the background color to the fog color
 	glFogi(GL_FOG_MODE, FogModels[r_fogmodel]);
 	glFogfv(GL_FOG_COLOR, r_fogColor);

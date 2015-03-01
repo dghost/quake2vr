@@ -707,13 +707,10 @@ void R_RenderView (refdef_t *fd)
 	
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
 	{
-		qboolean fog_on = false;
+		qboolean fog_on = glState.fog;
 		//Knightmare- no fogging on menu/hud models
-		if (glIsEnabled(GL_FOG)) //check if fog is enabled
-		{
-			fog_on = true;
-			glDisable(GL_FOG); //if so, disable it
-		}
+		if (fog_on) //check if fog is enabled
+			GL_Disable(GL_FOG); //if so, disable it
 
 		//R_DrawAllDecals();
 		R_DrawAllEntities(false);
@@ -721,7 +718,7 @@ void R_RenderView (refdef_t *fd)
 
 		//re-enable fog if it was on
 		if (fog_on)
-			glEnable(GL_FOG);
+			GL_Enable(GL_FOG);
 	}
 	else
 	{
@@ -842,7 +839,7 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 	
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL) // options menu
 	{
-		qboolean fog_on = false;
+		qboolean fog_on = glState.fog;
 
 		// re-execute these, because we're not rendering the world
 		//R_PushDlights ();
@@ -850,18 +847,15 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		//R_MarkLeaves ();	
 		
 		//Knightmare- no fogging on menu/hud models
-		if (glIsEnabled(GL_FOG)) //check if fog is enabled
-		{
-			fog_on = true;
-			glDisable(GL_FOG); //if so, disable it
-		}
+		if (fog_on) //check if fog is enabled
+			GL_Disable(GL_FOG); //if so, disable it
 		//R_DrawAllDecals();
 		R_DrawAllEntities(false);
 		R_DrawAllParticles();
 
 		//re-enable fog if it was on
 		if (fog_on)
-			glEnable(GL_FOG);
+			GL_Enable(GL_FOG);
 	}
 	else
 	{
