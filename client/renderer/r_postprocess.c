@@ -76,6 +76,8 @@ buffer_t inv_quad;
 static buffer_t *currentBuffer = NULL;
 void R_SetupQuadState()
 {
+    if (currentBuffer == &quad)
+        return;
 	currentBuffer = &quad;
 	glDisableClientState (GL_COLOR_ARRAY);
 	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
@@ -88,6 +90,8 @@ void R_SetupQuadState()
 
 void R_SetupInvQuadState()
 {
+    if (currentBuffer == &inv_quad)
+        return;
 	currentBuffer = &inv_quad;
 	glDisableClientState (GL_COLOR_ARRAY);
 	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
@@ -114,13 +118,24 @@ void R_TeardownQuadState()
 void R_DrawQuad()
 {
 	qboolean needsSetup = !(currentBuffer == &quad);
+    qboolean needsTeardown = (currentBuffer == NULL);
 	if (needsSetup)
 		R_SetupQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-	if (needsSetup)
+	if (needsTeardown)
 		R_TeardownQuadState();
 }
 
+void R_DrawQuadFlipped()
+{
+    qboolean needsSetup = !(currentBuffer == &inv_quad);
+    qboolean needsTeardown = (currentBuffer == NULL);
+    if (needsSetup)
+        R_SetupInvQuadState();
+    glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+    if (needsTeardown)
+        R_TeardownQuadState();
+}
 
 /*
 =============
@@ -244,7 +259,6 @@ void R_SetupBlit()
 {
 	if (setupForBlit)
 		return;
-	R_SetupQuadState();
 	glUseProgram(passthrough.shader->program);
 	glUniform2f(passthrough.scale_uniform,1.0,1.0);	
 	setupForBlit = true;
@@ -255,7 +269,6 @@ void R_TeardownBlit()
 {
 	if (!setupForBlit)
 		return;
-	R_TeardownQuadState();
 	glUseProgram(0);
 	setupForBlit = false;
 }
@@ -273,6 +286,21 @@ void R_BlitTextureToScreen(GLuint texture)
 		R_TeardownBlit();
 
 }
+
+void R_BlitFlipped(GLuint texture)
+{
+    qboolean alreadySetup = setupForBlit;
+    GL_MBind(0,texture);
+    
+    if (!alreadySetup)
+        R_SetupBlit();
+    R_DrawQuadFlipped();
+    GL_MBind(0,0);
+    if (!alreadySetup)
+        R_TeardownBlit();
+
+}
+
 
 extern cvar_t *vr_enabled, *vr_ovr_dk2_color_hack;
 float VR_OVR_GetGammaMin();

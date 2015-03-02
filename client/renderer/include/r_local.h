@@ -1069,6 +1069,7 @@ void R_DrawQuad();
 void R_SetupBlit();
 void R_TeardownBlit();
 void R_BlitTextureToScreen(GLuint texture);
+void R_BlitFlipped(GLuint texture);
 void R_BlitWithGamma(GLuint texture, float gamma);
 void R_BlitWithGammaFlipped(GLuint texture, float gamma);
 void R_FXAAFBO(fbo_t *source);

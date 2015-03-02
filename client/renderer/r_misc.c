@@ -227,7 +227,7 @@ void R_GrabScreen (void)
 
     R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
 	R_BindFBO(&captureFBO);
-	R_BlitWithGammaFlipped(lastFrame->texture, 1.0);
+	R_BlitFlipped(lastFrame->texture);
 	R_BindFBO(currentFBO);
 
 	GL_MBind(0,captureFBO.texture);
