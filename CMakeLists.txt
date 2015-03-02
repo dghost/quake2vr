@@ -19,13 +19,9 @@ set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
 
-# if OVRDIR is undefined, set it to the in-source external directory
-# otherwise, it will respect the user preference and look in that directory
-if (NOT DEFINED ENV{OVRDIR})
-   set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
-endif (NOT DEFINED ENV{OVRDIR})
-
-option(OVR_DYNAMIC                "Dynamically load the Oculus library" OFF)
+option(OVR_DYNAMIC					"Dynamically load the Oculus library" OFF)
+option(OPENAL						"Build with OpenAL support" ON)
+option(STEAMVR						"Build with SteamVR support" OFF)
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
@@ -34,7 +30,12 @@ find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
 
 if (NOT OVR_DYNAMIC)
-find_package(OVR)
+  # if OVRDIR is undefined, set it to the in-source external directory
+  # otherwise, it will respect the user preference and look in that directory
+  if (NOT DEFINED ENV{OVRDIR})
+    set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
+  endif (NOT DEFINED ENV{OVRDIR})
+  find_package(OVR)
 endif (NOT OVR_DYNAMIC)
 
 if (MINGW)
@@ -231,7 +232,7 @@ set(CLIENT_HEADERS
 )
 
 if (OVR_FOUND)
-	include_directories (${OVR_CAPI_INCLUDE_DIR})
+  include_directories (${OVR_INCLUDE_DIR} ${OVR_CAPI_INCLUDE_DIR})
 else()
   add_definitions(-DOCULUS_DYNAMIC)
   set(CLIENT_VR_SOURCES
@@ -264,7 +265,7 @@ set(SERVER_SOURCES
   server/sv_world.c
 )
 set(SERVER_HEADERS
-	server/server.h
+  server/server.h
 )
 
 set(SDL_SOURCES
@@ -277,8 +278,8 @@ set(SDL_SOURCES
 )
 
 set(SDL_HEADERS
-	backends/sdl2/in_sdlcont.h
-	backends/sdl2/sdl2quake.h
+  backends/sdl2/in_sdlcont.h
+  backends/sdl2/sdl2quake.h
 )
 
 set(UNIX_SOURCES
@@ -290,30 +291,35 @@ set(UNIX_HEADERS
 )
 
 set(CLIENT_BASE
-	${COMMON_SOURCES}
-	${SERVER_SOURCES}	
-	${CLIENT_SOURCES}
-	${COMMON_HEADERS}
-	${SERVER_HEADERS}
-	${CLIENT_HEADERS}
+  ${COMMON_SOURCES}
+  ${SERVER_SOURCES}	
+  ${CLIENT_SOURCES}
+  ${COMMON_HEADERS}
+  ${SERVER_HEADERS}
+  ${CLIENT_HEADERS}
 )
 
-add_definitions(-DUSE_OPENAL)
+if (OPENAL)
+  add_definitions(-DUSE_OPENAL)
+endif (OPENAL)
+
+if (NOT STEAMVR)
+  add_definitions(-DNO_STEAM)
+endif (NOT STEAMVR)
 
 if (UNIX)
-add_definitions(-DNO_STEAM)
-set(BACKEND_SOURCES
-	${SDL_SOURCES}
-	${UNIX_SOURCES} 
-)
-set(BACKEND_HEADERS
- ${SDL_HEADERS} 
- ${UNIX_HEADERS}
-)
-set(BACKEND
- ${BACKEND_SOURCES}
- ${BACKEND_HEADERS}
-)
+  set(BACKEND_SOURCES
+    ${SDL_SOURCES}
+    ${UNIX_SOURCES} 
+  )
+  set(BACKEND_HEADERS
+    ${SDL_HEADERS} 
+    ${UNIX_HEADERS}
+  )
+  set(BACKEND
+   ${BACKEND_SOURCES}
+   ${BACKEND_HEADERS}
+  )
 endif (UNIX)
 
 source_group("Common" FILES ${COMMON_SOURCES})
@@ -334,7 +340,7 @@ add_executable(quake2vr ${CLIENT_BASE} ${BACKEND})
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
 
 if (OVR_FOUND)
-	target_link_libraries(quake2vr ${OVR_LIBRARY})
+  target_link_libraries(quake2vr ${OVR_LIBRARY})
 endif (OVR_FOUND)
 
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
