@@ -2,7 +2,7 @@
 
 varying vec2 texCoords[9];
 
-uniform sampler2D blurTex;
+uniform sampler2D tex;
 
 uniform float minThreshold  = 0.15;
 uniform vec3 lumConversion = vec3(0.299, 0.587, 0.114);  // ITU-R BT.601 luma coefficients
@@ -23,12 +23,10 @@ vec4 filter(sampler2D texture, vec2 tc)
 
 void main(void)
 {
-	vec4 FragmentColor = vec4(0.0);
-    for (int i=-4; i<=4; i++) {
-		int w = (i >= 0 ? i : -i);
-		if (weight[w] > 0) {
-			FragmentColor += filter( blurTex, texCoords[4 + i]) * weight[w];
-		}
+	vec4 FragmentColor = filter( tex, texCoords[4]) * weight[0];
+    for (int i=1; i<=4 && weight[i] > 0; i++) {
+		vec4 color = filter( tex, texCoords[4 - i]) + filter( tex, texCoords[4 + i]);
+		FragmentColor += color * weight[i];
 	}
 	gl_FragColor = FragmentColor;	
 }

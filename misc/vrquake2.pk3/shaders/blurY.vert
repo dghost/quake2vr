@@ -14,8 +14,9 @@ void main(void) {
 	vec2 tc = TexCoord * texScale;
 	texCoords[4] = tc;
 	for (int i = 1 ; i < 5 ; i++)
-	{
-		texCoords[4 + i] = tc + vec2(0.0, float(i)) * texelSize;
-		texCoords[4 - i] = tc - vec2(0.0, float(i)) * texelSize;		
+	{	
+		vec2 offset = vec2(0.0, float(i)) * texelSize;
+		texCoords[4 + i] = tc + offset;
+		texCoords[4 - i] = tc - offset;	
 	}
 }

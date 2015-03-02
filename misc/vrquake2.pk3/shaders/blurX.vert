@@ -15,7 +15,8 @@ void main(void) {
 	texCoords[4] = tc;
 	for (int i = 1 ; i < 5 ; i++)
 	{
-		texCoords[4 + i] = tc + vec2(float(i),0.0) * texelSize;
-		texCoords[4 - i] = tc - vec2(float(i),0.0) * texelSize;		
+		vec2 offset = vec2(float(i),0.0) * texelSize;
+		texCoords[4 + i] = tc + offset;
+		texCoords[4 - i] = tc - offset;		
 	}
 }

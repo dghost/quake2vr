@@ -153,7 +153,7 @@ typedef struct {
 typedef struct {
 	r_shaderobject_t *shader;
 	GLint scale_uniform;
-	GLint brightpass_uniform;
+	GLint lowpass_uniform;
 	GLint conversion_uniform;
 	GLint res_uniform;
 	GLint weight_uniform;
@@ -163,8 +163,7 @@ typedef struct {
 
 r_blurshader_t blurXshader;
 r_blurshader_t blurYshader;
-r_bloomshader_t bloomPass;
-r_bloomshader_t brightPass;
+r_bloomshader_t lowpassFilter;
 r_blitshader_t passthrough;
 r_blitshader_t colorBlend;
 r_blitshader_t gammaAdjust;
@@ -195,22 +194,12 @@ static r_shaderobject_t blurY_object = {
 	postProcess
 };
 
-static r_shaderobject_t brightPass_object = {
+static r_shaderobject_t lowpassFilter_object = {
 	0,
 	// vertex shader (identity)
 	"blurX.vert",
 	// fragment shader
 	"lowpass.frag",
-	postProcess
-};
-
-
-static r_shaderobject_t bloomPass_object = {
-	0,
-	// vertex shader (identity)
-	"blurY.vert",
-	// fragment shader
-	"bloom.frag",
 	postProcess
 };
 
@@ -457,19 +446,19 @@ void R_BloomFBO(fbo_t *source)
 
 		GL_MBind(0,source->texture);		
 
-		glUseProgram(brightPass.shader->program);
-		glUniform2f(brightPass.res_uniform,width,height);
-		glUniform1fv(brightPass.weight_uniform,5,weights);
-		glUniform1f(brightPass.brightpass_uniform,lowpass_threshold);
-		glUniform2f(brightPass.scale_uniform,1.0,1.0);
-		glUniform1f(brightPass.falloff_uniform,bloom_falloff);
+		glUseProgram(lowpassFilter.shader->program);
+		glUniform2f(lowpassFilter.res_uniform,width,height);
+		glUniform1fv(lowpassFilter.weight_uniform,5,weights);
+		glUniform1f(lowpassFilter.lowpass_uniform,lowpass_threshold);
+		glUniform2f(lowpassFilter.scale_uniform,1.0,1.0);
+		glUniform1f(lowpassFilter.falloff_uniform,bloom_falloff);
 
 		R_DrawQuad();
 
-		glUseProgram(bloomPass.shader->program);
-		glUniform2f(bloomPass.res_uniform,pingFBO.width,pingFBO.height);
-		glUniform1fv(bloomPass.weight_uniform,5,weights);
-		glUniform2f(bloomPass.scale_uniform,xCoord,yCoord);
+		glUseProgram(blurYshader.shader->program);
+		glUniform2f(blurYshader.res_uniform,pingFBO.width,pingFBO.height);
+		glUniform1fv(blurYshader.weight_uniform,5,weights);
+		glUniform2f(blurYshader.scale_uniform,xCoord,yCoord);
 
 
 		GL_MBind(0,pongFBO.texture);
@@ -745,42 +734,19 @@ qboolean R_InitPostsprocessShaders()
 				Com_Printf("...loading bloom shaders: ");
 				success = true;
 
-				if (R_CompileShaderFromFiles(&bloomPass_object))
+				if (R_CompileShaderFromFiles(&lowpassFilter_object))
 				{
 					GLint texloc;
-					bloomPass.shader = &bloomPass_object;
-					glUseProgram(bloomPass.shader->program);
-					texloc = glGetUniformLocation(bloomPass.shader->program,"blurTex");
+					lowpassFilter.shader = &lowpassFilter_object;
+					glUseProgram(lowpassFilter.shader->program);
+					texloc = glGetUniformLocation(lowpassFilter.shader->program,"tex");
 					glUniform1i(texloc,0);
-					texloc = glGetUniformLocation(bloomPass.shader->program,"sourceTex");
-					glUniform1i(texloc,1);
-					bloomPass.brightpass_uniform = glGetUniformLocation(bloomPass.shader->program,"minThreshold");
-					bloomPass.conversion_uniform = glGetUniformLocation(bloomPass.shader->program,"lumConversion");
-					bloomPass.res_uniform = glGetUniformLocation(bloomPass.shader->program,"resolution");
-					bloomPass.weight_uniform = glGetUniformLocation(bloomPass.shader->program,"weight");
-					bloomPass.scale_uniform = glGetUniformLocation(bloomPass.shader->program,"texScale");
-					bloomPass.falloff_uniform = glGetUniformLocation(bloomPass.shader->program,"falloff");
-					glUseProgram(0);
-					success = success && true;
-				}
-				else {
-					success = false;
-				}
-				if (R_CompileShaderFromFiles(&brightPass_object))
-				{
-					GLint texloc;
-					brightPass.shader = &brightPass_object;
-					glUseProgram(brightPass.shader->program);
-					texloc = glGetUniformLocation(brightPass.shader->program,"tex");
-					glUniform1i(texloc,0);
-					texloc = glGetUniformLocation(brightPass.shader->program,"sourceTex");
-					glUniform1i(texloc,1);
-					brightPass.brightpass_uniform = glGetUniformLocation(brightPass.shader->program,"minThreshold");
-					brightPass.conversion_uniform = glGetUniformLocation(brightPass.shader->program,"lumConversion");
-					brightPass.res_uniform = glGetUniformLocation(brightPass.shader->program,"resolution");
-					brightPass.weight_uniform = glGetUniformLocation(brightPass.shader->program,"weight");
-					brightPass.scale_uniform = glGetUniformLocation(brightPass.shader->program,"texScale");
-					brightPass.falloff_uniform = glGetUniformLocation(brightPass.shader->program,"falloff");
+					lowpassFilter.lowpass_uniform = glGetUniformLocation(lowpassFilter.shader->program,"minThreshold");
+					lowpassFilter.conversion_uniform = glGetUniformLocation(lowpassFilter.shader->program,"lumConversion");
+					lowpassFilter.res_uniform = glGetUniformLocation(lowpassFilter.shader->program,"resolution");
+					lowpassFilter.weight_uniform = glGetUniformLocation(lowpassFilter.shader->program,"weight");
+					lowpassFilter.scale_uniform = glGetUniformLocation(lowpassFilter.shader->program,"texScale");
+					lowpassFilter.falloff_uniform = glGetUniformLocation(lowpassFilter.shader->program,"falloff");
 					glUseProgram(0);
 					success = success && true;
 				}
@@ -806,8 +772,7 @@ void R_TeardownPostprocessShaders()
 {
 	R_DelShaderProgram(&blurX_object);
 	R_DelShaderProgram(&blurY_object);
-	R_DelShaderProgram(&brightPass_object);
-	R_DelShaderProgram(&bloomPass_object);
+	R_DelShaderProgram(&lowpassFilter_object);
 	R_DelShaderProgram(&passthrough_object);
 	R_DelShaderProgram(&colorBlend_object);
 	R_DelShaderProgram(&gammaAdjust_object);
