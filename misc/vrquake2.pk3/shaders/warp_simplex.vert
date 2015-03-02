@@ -106,14 +106,18 @@ float snoise(vec3 v)
   return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
                                 dot(p2,x2), dot(p3,x3) ) );
   }
-  
+
+float deform(vec2 pos, float time) {
+	vec2 position = pos * scale + time;
+	return snoise(vec3(position*0.25,time*0.1));
+}
+
 void main(void) {
 	color = gl_Color;
 	vec4 vertex = gl_Vertex;
-	vec2 position = vertex.xy * scale + time;
-	vertex.z += displacement * snoise(vec3(position*0.25,time*0.1));
+	vertex.z += displacement * deform(vertex.xy, time);
 	gl_Position = gl_ModelViewProjectionMatrix * vertex;
-        vec4 eyePos = gl_ModelViewMatrix * gl_Vertex;
-        gl_FogFragCoord = abs(eyePos.z/eyePos.w);
+	vec4 eyePos = gl_ModelViewMatrix * vertex;
+	gl_FogFragCoord = abs(eyePos.z/eyePos.w);
 	coords = vec4(gl_MultiTexCoord0.xy,gl_MultiTexCoord1.xy);
 }
