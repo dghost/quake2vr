@@ -19,7 +19,12 @@ set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
 
-set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
+# if OVRDIR is undefined, set it to the in-source external directory
+# otherwise, it will respect the user preference and look in that directory
+if (NOT DEFINED ENV{OVRDIR})
+   set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
+endif (NOT DEFINED ENV{OVRDIR})
+
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
