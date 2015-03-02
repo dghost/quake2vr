@@ -19,6 +19,7 @@ set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
 
+set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
@@ -221,7 +222,7 @@ set(CLIENT_HEADERS
 )
 
 if (OVR_FOUND)
-	include_directories (${OVR_INCLUDE_DIR})
+	include_directories (${OVR_CAPI_INCLUDE_DIR})
 else()
   add_definitions(-DOCULUS_DYNAMIC)
   set(CLIENT_VR_SOURCES
