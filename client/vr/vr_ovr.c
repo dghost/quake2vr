@@ -1,7 +1,7 @@
 #include "include/vr.h"
 #include "include/vr_ovr.h"
 #ifdef OCULUS_DYNAMIC
-#include "oculus_dynamic.h"
+#include "oculus_dynamic/oculus_dynamic.h"
 #else
 #include "OVR_CAPI.h"
 #endif

@@ -1,7 +1,11 @@
 #include "include/r_vr_ovr.h"
 #include "../vr/include/vr_ovr.h"
 #include "include/r_local.h"
+#ifdef OCULUS_DYNAMIC
+#include "../vr/oculus_dynamic/oculus_dynamic.h"
+#else
 #include "OVR_CAPI.h"
+#endif
 #include "../../backends/sdl2/sdl2quake.h"
 
 

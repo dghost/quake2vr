@@ -12,7 +12,7 @@
 #error "Unknown O/S"
 #endif
 
-#include "../OVR_CAPI.h"
+#include "OVR_CAPI.h"
 
 #define OVRFUNC(need, rtype, fn, params, cparams)       \
     typedef rtype (*pfn_ ## fn) params;                 \

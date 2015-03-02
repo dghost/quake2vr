@@ -7,7 +7,7 @@
 #endif
 
 OVRFUNC(1,  ovrBool,          ovr_Initialize,                 (), ())
-OVRFUNCV(0,                   ovr_InitializeRenderingShim,    (), ())
+OVRFUNC(1, ovrBool,          ovr_InitializeRenderingShim,    (), ())
 OVRFUNCV(1,                   ovr_Shutdown,                   (), ())
 OVRFUNC(1,  const char*,      ovr_GetVersionString,           (), ())
 OVRFUNC(1,  int,              ovrHmd_Detect,                  (), ())
