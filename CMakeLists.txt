@@ -25,14 +25,18 @@ if (NOT DEFINED ENV{OVRDIR})
    set (ENV{OVRDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/OculusSDK/LibOVR/)
 endif (NOT DEFINED ENV{OVRDIR})
 
+option(OVR_DYNAMIC                "Dynamically load the Oculus library" OFF)
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
+
+if (NOT OVR_DYNAMIC)
 find_package(OVR)
- 
+endif (NOT OVR_DYNAMIC)
+
 if (MINGW)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif (MINGW)
@@ -232,12 +236,12 @@ else()
   add_definitions(-DOCULUS_DYNAMIC)
   set(CLIENT_VR_SOURCES
 	${CLIENT_VR_SOURCES}
-	client/vr/oculus_dynamic.c
+	client/vr/oculus_dynamic/oculus_dynamic.c
 	)
   set(CLIENT_HEADERS
     ${CLIENT_HEADERS}
-	client/vr/oculus_dynamic.h
-	client/vr/ovr_dynamic_funcs.h
+	client/vr/oculus_dynamic/oculus_dynamic.h
+	client/vr/oculus_dynamic/ovr_dynamic_funcs.h
   )  
 endif (OVR_FOUND)
 
