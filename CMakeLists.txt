@@ -25,15 +25,14 @@ find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
-
+find_package(OVR)
+ 
 if (MINGW)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif (MINGW)
 
+
 include_directories (${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
-
-option(OVR_DYNAMIC                "Dynamically load the Oculus library" ON)
-
 
 
 set(COMMON_HEADERS
@@ -221,8 +220,9 @@ set(CLIENT_HEADERS
 	client/vr/include/vr.h
 )
 
-
-if (OVR_DYNAMIC)
+if (OVR_FOUND)
+	include_directories (${OVR_INCLUDE_DIR})
+else()
   add_definitions(-DOCULUS_DYNAMIC)
   set(CLIENT_VR_SOURCES
 	${CLIENT_VR_SOURCES}
@@ -233,7 +233,7 @@ if (OVR_DYNAMIC)
 	client/vr/oculus_dynamic.h
 	client/vr/ovr_dynamic_funcs.h
   )  
-endif (OVR_DYNAMIC)
+endif (OVR_FOUND)
 
 set(CLIENT_SOURCES
   ${CLIENT_BASE_SOURCES}
@@ -322,11 +322,12 @@ source_group("Backend\\Headers" FILES ${BACKEND_HEADERS})
 add_executable(quake2vr ${CLIENT_BASE} ${BACKEND})
 
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
-target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
-if (!OVR_DYNAMIC)
-target_link_libraries(quake2vr -L${quake2vr_SOURCE_DIR} ovr)
-endif (!OVR_DYNAMIC)
+if (OVR_FOUND)
+	target_link_libraries(quake2vr ${OVR_LIBRARY})
+endif (OVR_FOUND)
+
+target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 add_subdirectory(game)
 add_subdirectory(game_mp)

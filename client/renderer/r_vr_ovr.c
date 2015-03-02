@@ -1,7 +1,7 @@
 #include "include/r_vr_ovr.h"
 #include "../vr/include/vr_ovr.h"
 #include "include/r_local.h"
-#include "../OVR_CAPI.h"
+#include "OVR_CAPI.h"
 #include "../../backends/sdl2/sdl2quake.h"
 
 

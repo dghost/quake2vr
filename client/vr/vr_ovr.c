@@ -3,7 +3,7 @@
 #ifdef OCULUS_DYNAMIC
 #include "oculus_dynamic.h"
 #else
-#include "../OVR_CAPI.h"
+#include "OVR_CAPI.h"
 #endif
 #include <SDL.h>
 
