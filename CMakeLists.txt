@@ -21,13 +21,14 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/external/")
 
 option(OVR_DYNAMIC					"Dynamically load the Oculus library" OFF)
 option(OPENAL						"Build with OpenAL support" ON)
-option(STEAMVR						"Build with SteamVR support" OFF)
+option(STEAMVR						"Build with SteamVR support" ON)
 
 include (CheckLibraryExists)
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
+
 
 if (NOT OVR_DYNAMIC)
   # if OVRDIR is undefined, set it to the in-source external directory
@@ -38,13 +39,18 @@ if (NOT OVR_DYNAMIC)
   find_package(OVR)
 endif (NOT OVR_DYNAMIC)
 
+if (STEAMVR)
+	if (NOT DEFINED ENV{SteamworksDIR})
+	  set (ENV{SteamworksDIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/steam/)
+	endif (NOT DEFINED ENV{SteamworksDIR})
+	find_package(Steamworks)
+endif (STEAMVR)
+
 if (MINGW)
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif (MINGW)
 
-
 include_directories (${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR})
-
 
 set(COMMON_HEADERS
 	qcommon/crc.h
@@ -231,9 +237,7 @@ set(CLIENT_HEADERS
 	client/vr/include/vr.h
 )
 
-if (OVR_FOUND)
-  include_directories (${OVR_INCLUDE_DIR} ${OVR_CAPI_INCLUDE_DIR})
-else()
+if (NOT OVR_FOUND)
   add_definitions(-DOCULUS_DYNAMIC)
   set(CLIENT_VR_SOURCES
 	${CLIENT_VR_SOURCES}
@@ -244,7 +248,7 @@ else()
 	client/vr/oculus_dynamic/oculus_dynamic.h
 	client/vr/oculus_dynamic/ovr_dynamic_funcs.h
   )  
-endif (OVR_FOUND)
+endif (NOT OVR_FOUND)
 
 set(CLIENT_SOURCES
   ${CLIENT_BASE_SOURCES}
@@ -303,10 +307,6 @@ if (OPENAL)
   add_definitions(-DUSE_OPENAL)
 endif (OPENAL)
 
-if (NOT STEAMVR)
-  add_definitions(-DNO_STEAM)
-endif (NOT STEAMVR)
-
 if (UNIX)
   set(BACKEND_SOURCES
     ${SDL_SOURCES}
@@ -340,8 +340,22 @@ add_executable(quake2vr ${CLIENT_BASE} ${BACKEND})
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
 
 if (OVR_FOUND)
+  message ( STATUS "Building with Oculus Rift support..." )
+  include_directories (${OVR_INCLUDE_DIR} ${OVR_CAPI_INCLUDE_DIR})  
   target_link_libraries(quake2vr ${OVR_LIBRARY})
 endif (OVR_FOUND)
+
+if (STEAMWORKS_FOUND)
+  message ( STATUS "Building with SteamVR support..." )
+  if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  	# ugly hack to work around the fact that SteamVR's headers check for GNUC
+  	add_definitions(-DGNUC)
+  endif ()
+  include_directories (${STEAMWORKS_INCLUDE_DIR})
+  target_link_libraries (quake2vr ${STEAMWORKS_LIBRARY})
+else ()
+  add_definitions(-DNO_STEAM)
+endif (STEAMWORKS_FOUND)
 
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
