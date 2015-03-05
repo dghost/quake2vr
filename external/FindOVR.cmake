@@ -63,8 +63,8 @@ FIND_LIBRARY(OVR_LIBRARY_TEMP
 )
 
 IF(OVR_LIBRARY_TEMP)
-  # For OS X, OVR uses Cocoa as a backend so it must link to Cocoa.
-  # CMake doesn't display the -framework Cocoa string in the UI even
+  # For OS X, OVR uses IOKit as a backend so it must link to IOKit.
+  # CMake doesn't display the -framework IOKit string in the UI even
   # though it actually is there if I modify a pre-used variable.
   # I think it has something to do with the CACHE STRING.
   # So I use a temporary variable until the end so I can set the
