@@ -353,7 +353,7 @@ void R_Clear (void);
 void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e);
 void OVR_Present(qboolean loading)
 {
-	float fade = vr_ovr_distortion_fade->value > 0.0 ? 1.0f : 0.0f;
+    int fade = vr_ovr_distortion_fade->value != 0.0f;
 	float desaturate = 0.0;
     
 	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_ovr_trackingloss->value > 0) {
@@ -438,7 +438,7 @@ void OVR_Present(qboolean loading)
 			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
 		}
 		glUniform2f(currentShader->uniform.InverseResolution,1.0/glState.currentFBO->width,1.0/glState.currentFBO->height);
-		glUniform1f(currentShader->uniform.VignetteFade,fade);
+		glUniform1i(currentShader->uniform.VignetteFade,fade);
 
 		glUniform1f(currentShader->uniform.Desaturate, desaturate);
 

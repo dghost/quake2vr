@@ -17,7 +17,7 @@ varying vec2 oTexCoord2;
 
 uniform vec2 InverseResolution;
 uniform vec2 OverdriveScales;
-uniform float VignetteFade;
+uniform bool VignetteFade;
 uniform float Desaturate;
 vec3 lumConversion = vec3(0.299, 0.587, 0.114);  // ITU-R BT.601 luma coefficients
 
@@ -34,7 +34,7 @@ void main()
 		newColor = mix(newColor,vec3(lum),Desaturate);
 	}
 
-	if (VignetteFade > 0.0)
+	if (VignetteFade)
 	{
 		newColor = newColor * oColor.xxx;
 	}	
