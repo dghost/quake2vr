@@ -11,7 +11,7 @@ uniform float weight[5] = float[]( 0.2270270270, 0.1945945946, 0.1216216216,
 
 uniform float falloff = 1.5;
 
-vec4 filter(sampler2D texture, vec2 tc)
+vec4 lowpass(sampler2D texture, vec2 tc)
 {
 	vec4 sample = texture2D( texture, tc );
 	float lum = dot(sample.rgb, lumConversion);
@@ -23,9 +23,9 @@ vec4 filter(sampler2D texture, vec2 tc)
 
 void main(void)
 {
-	vec4 FragmentColor = filter( tex, texCoords[4]) * weight[0];
+	vec4 FragmentColor = lowpass( tex, texCoords[4]) * weight[0];
     for (int i=1; i<=4 && weight[i] > 0; i++) {
-		vec4 color = filter( tex, texCoords[4 - i]) + filter( tex, texCoords[4 + i]);
+		vec4 color = lowpass( tex, texCoords[4 - i]) + lowpass( tex, texCoords[4 + i]);
 		FragmentColor += color * weight[i];
 	}
 	gl_FragColor = FragmentColor;	
