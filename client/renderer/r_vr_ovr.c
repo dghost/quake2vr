@@ -413,8 +413,6 @@ void OVR_Present(qboolean loading)
 			currentShader = &ovr_distortion_shaders[useChroma];	
 		}
 
-		//WARNING!!! These matrices are transposed in SetUniform4x4f, before being used by the shader.
-
 		glDisableClientState (GL_COLOR_ARRAY);
 		glDisableClientState (GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState (GL_VERTEX_ARRAY);

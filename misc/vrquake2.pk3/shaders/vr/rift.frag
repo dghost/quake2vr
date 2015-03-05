@@ -18,6 +18,7 @@ uniform vec2 InverseResolution;
 uniform vec2 OverdriveScales;
 uniform bool VignetteFade;
 uniform float Desaturate;
+
 const vec3 lumConversion = vec3(0.299, 0.587, 0.114);  // ITU-R BT.601 luma coefficients
 
 void main()
