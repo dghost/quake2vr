@@ -55,16 +55,6 @@ FIND_LIBRARY(STEAMWORKS_LIBRARY_TEMP
 )
 
 IF(STEAMWORKS_LIBRARY_TEMP)
-  # For OS X, Steamworks uses Cocoa as a backend so it must link to Cocoa.
-  # CMake doesn't display the -framework Cocoa string in the UI even
-  # though it actually is there if I modify a pre-used variable.
-  # I think it has something to do with the CACHE STRING.
-  # So I use a temporary variable until the end so I can set the
-  # "real" variable in one-shot.
-  IF(APPLE)
-    SET(STEAMWORKS_LIBRARY_TEMP ${STEAMWORKS_LIBRARY_TEMP}) 
-  ENDIF(APPLE)
-
   # Set the final string here so the GUI reflects the final state.
   SET(STEAMWORKS_LIBRARY ${STEAMWORKS_LIBRARY_TEMP} CACHE STRING "Where the Steamworks Library can be found")
   # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
@@ -74,4 +64,3 @@ ENDIF(STEAMWORKS_LIBRARY_TEMP)
 INCLUDE(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Steamworks REQUIRED_VARS STEAMWORKS_LIBRARY STEAMWORKS_INCLUDE_DIR)
-
