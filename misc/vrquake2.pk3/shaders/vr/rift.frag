@@ -2,9 +2,9 @@
 #extension EXT_gpu_shader4: enable
 
 #ifdef EXT_gpu_shader4
-#define TEXTURE texture2DLod
+#define TEXTURE(tex, coord) texture2DLod(tex,coord,0.0)
 #else
-#define TEXTURE texture2D
+#define TEXTURE(tex,coord) texture2D(tex, coord) 
 #endif
 
 uniform sampler2D currentFrame;
@@ -18,12 +18,11 @@ uniform vec2 InverseResolution;
 uniform vec2 OverdriveScales;
 uniform bool VignetteFade;
 uniform float Desaturate;
-
 const vec3 lumConversion = vec3(0.299, 0.587, 0.114);  // ITU-R BT.601 luma coefficients
 
 void main()
 {
-	vec3 newColor = TEXTURE(currentFrame, oTexCoord, 0.0).rgb;
+	vec3 newColor = TEXTURE(currentFrame, oTexCoord).rgb;
 	
 	if (Desaturate > 0.0)
 	{
@@ -39,7 +38,7 @@ void main()
 	// pixel luminance overdrive
 	if(OverdriveScales.x > 0.0)
 	{
-		vec3 oldColor = TEXTURE(lastFrame, (gl_FragCoord.xy * InverseResolution), 0.0).rgb;	
+		vec3 oldColor = TEXTURE(lastFrame, (gl_FragCoord.xy * InverseResolution)).rgb;	
 		
 		vec3 adjustedScales;
 		adjustedScales.x = newColor.x > oldColor.x ? OverdriveScales.x : OverdriveScales.y;
