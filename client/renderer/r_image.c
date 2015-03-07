@@ -978,10 +978,7 @@ nonscrap:
 
 
 // store the names of last images that failed to load
-#define NUM_FAIL_IMAGES 256
-char lastFailedImage[NUM_FAIL_IMAGES][MAX_OSPATH];
-hash32_t lastFailedImageHash[NUM_FAIL_IMAGES];
-static uint32_t failedImgListIndex;
+stable_t failed_images;
 
 /*
 ===============
@@ -990,15 +987,8 @@ R_InitFailedImgList
 */
 void R_InitFailedImgList (void)
 {
-	int32_t		i;
-    
-    memset(lastFailedImageHash, 0, sizeof(lastFailedImageHash));
-
-	for (i=0; i<NUM_FAIL_IMAGES; i++) {
-		Com_sprintf(lastFailedImage[i], sizeof(lastFailedImage[i]), "\0");
-	}
-
-	failedImgListIndex = 0;
+    Q_STFree(&failed_images);
+    Q_STInit(&failed_images, 512, 16);
 }
 
 /*
@@ -1006,23 +996,9 @@ void R_InitFailedImgList (void)
 R_CheckImgFailed
 ===============
 */
-qboolean R_CheckImgFailed (char *name, hash32_t hash)
+qboolean R_CheckImgFailed (char *name)
 {
-	int32_t		i;
-
-	for (i=0; i<NUM_FAIL_IMAGES; i++)
-	{
-		if (!Q_HashEquals32(hash,lastFailedImageHash[i])) {	// compare hash first
-			if (lastFailedImage[i] && strlen(lastFailedImage[i])
-				&& !strcmp(name, lastFailedImage[i]))
-			{	// we already tried to load this image, didn't find it
-//				VID_Printf (PRINT_ALL, "R_CheckImgFailed: found %s on failed to load list\n", name);
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return (Q_STLookup(failed_images, name) != -1);
 }
 
 /*
@@ -1030,20 +1006,12 @@ qboolean R_CheckImgFailed (char *name, hash32_t hash)
 R_AddToFailedImgList
 ===============
 */
-void R_AddToFailedImgList (char *name, hash32_t hash)
+void R_AddToFailedImgList (char *name)
 {
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
 
-//	VID_Printf (PRINT_ALL, "R_AddToFailedImgList: adding %s to failed to load list\n", name);
-
-	Com_sprintf(lastFailedImage[failedImgListIndex], sizeof(lastFailedImage[failedImgListIndex]), "%s", name);
-	lastFailedImageHash[failedImgListIndex] = hash;
-	failedImgListIndex++;
-
-	// wrap around to start of list
-	if (failedImgListIndex >= NUM_FAIL_IMAGES)
-		failedImgListIndex = 0;
+    Q_STRegister(&failed_images, name);
 }
 
 /*
@@ -1142,6 +1110,14 @@ image_t	*R_FindImage (char *name, imagetype_t type)
     s[len-3] = 'i';
     s[len-2] = 'm';
     s[len-1] = 'g';
+    
+    
+    // don't try again to load an image that just failed
+    if (R_CheckImgFailed (s))
+    {
+        return NULL;
+    }
+    
     hash = Q_Hash32(s, len);
     
 	// look for it
@@ -1152,12 +1128,6 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 			image->registration_sequence = registration_sequence;
 			return image;
 		}
-	}
-
-	// don't try again to load an image that just failed
-	if (R_CheckImgFailed (s, hash))
-	{
-		return NULL;
 	}
 
 	// MrG's automatic JPG & TGA loading
@@ -1195,7 +1165,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
     image = R_LoadImage(name, type);
     
 	if (!image)
-		R_AddToFailedImgList(s, hash);
+		R_AddToFailedImgList(s);
 
 	return image;
 }
@@ -1261,6 +1231,7 @@ void R_FreeUnusedImages (void)
 		glDeleteTextures (1, &image->texnum);
 		memset (image, 0, sizeof(*image));
 	}
+    Q_STPack(&failed_images);
 }
 
 
@@ -1484,5 +1455,6 @@ void R_ShutdownImages (void)
 		glDeleteTextures (1, &image->texnum);
 		memset (image, 0, sizeof(*image));
 	}
+    Q_STFree(&failed_images);
 }
 
