@@ -95,13 +95,14 @@ qboolean SV_SetPlayer (void)
 	client_t	*cl;
 	int32_t			i;
 	int32_t			idnum;
+    hash32_t    hash;
 	char		*s;
 
 	if (Cmd_Argc() < 2)
 		return false;
 
 	s = Cmd_Argv(1);
-
+    
 	// numeric values are just slot numbers
 	if (s[0] >= '0' && s[0] <= '9')
 	{
@@ -122,12 +123,13 @@ qboolean SV_SetPlayer (void)
 		return true;
 	}
 
+    hash = Q_Hash32(s, strlen(s));
 	// check for a name match
 	for (i=0,cl=svs.clients ; i<maxclients->value; i++,cl++)
 	{
 		if (!cl->state)
 			continue;
-		if (!strcmp(cl->name, s))
+		if (!Q_HashEquals32(hash, cl->nameHash) && !strcmp(cl->name, s))
 		{
 			sv_client = cl;
 			sv_player = sv_client->edict;
