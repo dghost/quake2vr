@@ -150,6 +150,8 @@ int32_t insertFont (char **list, char *insert, int32_t len )
     return 1;
 }
 
+qboolean R_IsSupportedImageType(char *name);
+
 char **SetFontNames (void)
 {
 	char *curFont;
@@ -168,17 +170,14 @@ char **SetFontNames (void)
 		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
 		{
 			int32_t num;
-
+            char *e;
 			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
 				continue;
 
             p = strstr(fontfiles[i], "/"); p++;
-
-			if (	!strstr(p, ".tga")
-				&&	!strstr(p, ".jpg")
-				&&	!strstr(p, ".pcx")
-				&&	!strstr(p, ".png")
-				)
+            
+            e = p + strlen(p) - 4;
+			if (!R_IsSupportedImageType(e))
 				continue;
 
 			num = strlen(p)-4;

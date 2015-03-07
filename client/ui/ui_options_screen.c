@@ -177,6 +177,9 @@ void UI_Options_ReloadCrosshairs(void)
     }
 }
 
+qboolean R_IsSupportedImageType(char *name);
+
+
 void SetCrosshairNames (void)
 {
 	char *curCrosshair;
@@ -193,15 +196,13 @@ void SetCrosshairNames (void)
         for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
         {
             int32_t num, namelen;
-            
+            char *e;
+
             
             p = strstr(crosshairfiles[i], "/"); p++;
-            
-            if (	!strstr(p, ".tga")
-                &&	!strstr(p, ".jpg")
-                &&	!strstr(p, ".pcx")
-                &&	!strstr(p, ".png")
-                )
+            e = p + strlen(p) - 4;
+
+            if (!R_IsSupportedImageType(e))
                 continue;
             
             // filename must be chxxx

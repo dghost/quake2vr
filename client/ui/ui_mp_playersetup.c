@@ -147,22 +147,17 @@ static qboolean IconOfSkinExists (char *skin, char **files, int32_t nfiles, char
 	return false;
 }
 
+qboolean R_IsSupportedImageType(char *name);
 
 // adds menu support for TGA, PNG, and JPG skins
 static qboolean IsValidSkin (char **filelist, int32_t numFiles, int32_t index)
 {
 	int32_t		len = strlen(filelist[index]);
-
-	if (	!strcmp (filelist[index]+max(len-4,0), ".pcx")
-		||  !strcmp (filelist[index]+max(len-4,0), ".jpg")
-		||	!strcmp (filelist[index]+max(len-4,0), ".tga")
-		||	!strcmp (filelist[index]+max(len-4,0), ".png"))
+    char *ext = filelist[index] + max(len-4,0);
+    
+	if (R_IsSupportedImageType(ext))
 	{
-		if (	strcmp (filelist[index]+max(len-6,0), "_i.pcx")
-			&&  strcmp (filelist[index]+max(len-6,0), "_i.jpg")
-			&&  strcmp (filelist[index]+max(len-6,0), "_i.tga")
-			&&  strcmp (filelist[index]+max(len-6,0), "_i.png"))
-
+		if (	strncmp (filelist[index]+max(len-6,0), "_i",2) != 0)
 			if (	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.pcx")
 				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.jpg")
 				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.tga")
