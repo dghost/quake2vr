@@ -600,6 +600,18 @@ void SVC_RemoteCommand (void)
 	Com_EndRedirect ();
 }
 
+
+stable_t server_stable;
+
+int s_ping;
+int s_ack;
+int s_status;
+int s_info;
+int s_getchallenge;
+int s_connect;
+int s_rcon;
+
+
 /*
 =================
 SV_ConnectionlessPacket
@@ -614,7 +626,7 @@ void SV_ConnectionlessPacket (void)
 {
 	char	*s;
 	char	*c;
-
+    int s_token = 0;
 	// r1ch fix: make sure we never talk to ourselves
 //	if (NET_IsLocalAddress (net_from.ip[0] == 127) && !NET_IsLocalHost(net_from) && ShortSwap(net_from.port) == server_port)
 /*	if ( (net_from.ip[0] == 127) && (net_from.type != NA_LOOPBACK) && (ShortSwap(net_from.port) == server_port) )
@@ -633,21 +645,22 @@ void SV_ConnectionlessPacket (void)
 	c = Cmd_Argv(0);
 	Com_DPrintf ("Packet %s : %s\n", NET_AdrToString(net_from), c);
 
-	if (!strcmp(c, "ping"))
-		SVC_Ping ();
-	else if (!strcmp(c, "ack"))
-		SVC_Ack ();
-	else if (!strcmp(c,"status"))
-		SVC_Status ();
-	else if (!strcmp(c,"info"))
-		SVC_Info ();
-	else if (!strcmp(c,"getchallenge"))
-		SVC_GetChallenge ();
-	else if (!strcmp(c,"connect"))
-		SVC_DirectConnect ();
-	else if (!strcmp(c, "rcon"))
-		SVC_RemoteCommand ();
-	else
+    if ((s_token = Q_STLookup(server_stable, c)) != -1) {
+        if (s_token == s_ping)
+            SVC_Ping ();
+        else if (s_token == s_ack)
+            SVC_Ack ();
+        else if (s_token == s_status)
+            SVC_Status ();
+        else if (s_token == s_info)
+            SVC_Info ();
+        else if (s_token == s_getchallenge)
+            SVC_GetChallenge ();
+        else if (s_token == s_connect)
+            SVC_DirectConnect ();
+        else if (s_token == s_rcon)
+            SVC_RemoteCommand ();
+    } else
 		Com_Printf ("bad connectionless packet from %s:\n%s\n"
 		, NET_AdrToString (net_from), s);
 }
@@ -1094,6 +1107,15 @@ Only called at quake2.exe startup, not for each game
 */
 void SV_Init (void)
 {
+    Q_STInit(&server_stable, 1024, 8);
+    s_ping = Q_STRegister(&server_stable, "ping");
+    s_ack = Q_STRegister(&server_stable, "ack");
+    s_status = Q_STRegister(&server_stable, "status");
+    s_info = Q_STRegister(&server_stable, "info");
+    s_getchallenge = Q_STRegister(&server_stable, "getchallenge");
+    s_connect = Q_STRegister(&server_stable, "connect");
+    s_rcon = Q_STRegister(&server_stable, "rcon");
+    
 	SV_InitOperatorCommands	();
 
 	rcon_password = Cvar_Get ("rcon_password", "", 0);
@@ -1138,6 +1160,7 @@ void SV_Init (void)
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
     
     SV_InitClientCommands();
+    Q_STPack(&server_stable);
 }
 
 /*

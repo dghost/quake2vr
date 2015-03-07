@@ -216,6 +216,7 @@ extern	cvar_t *allow_download_textures_24bit;	// whether to allow downloading 24
 //
 // sv_main.c
 //
+extern stable_t server_stable;
 void SV_FinalMessage (char *message, qboolean reconnect);
 client_t *GetClientFromAdr (netadr_t address); //Knightmare added
 void SV_DropClient (client_t *drop);

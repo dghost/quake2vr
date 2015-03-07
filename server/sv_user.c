@@ -577,7 +577,7 @@ typedef struct
 {
 	char	*name;
 	void	(*func) (void);
-    hash32_t hash;
+    int token;
 } ucmd_t;
 
 ucmd_t ucmds[] =
@@ -604,7 +604,7 @@ ucmd_t ucmds[] =
 void SV_InitClientCommands(void) {
     ucmd_t *u;
     for (u=ucmds ; u->name ; u++)
-        u->hash = Q_Hash32(u->name, strlen(u->name));
+        u->token = Q_STRegister(&server_stable, u->name);
 }
 
 /*
@@ -614,26 +614,29 @@ SV_ExecuteUserCommand
 */
 void SV_ExecuteUserCommand (char *s)
 {
-	ucmd_t	*u;
-    hash32_t hash;
+	ucmd_t	*u=ucmds;
+    int token;
     char *cmd;
     
 	Cmd_TokenizeString (s, false); //Knightmare- password security fix, was true
 									// prevents players from reading rcon_password
     cmd = Cmd_Argv(0);
-    hash = Q_Hash32(cmd, strlen(cmd));
+
     
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
-
-	for (u=ucmds ; u->name ; u++)
-		if (!Q_HashEquals32(hash, u->hash) && !strcmp (cmd, u->name) )
-		{
-			u->func ();
-			break;
-		}
-
+    if ((token = Q_STLookup(server_stable, cmd)) != -1) {
+        while (u->name) {
+            if (token == u->token)
+            {
+                u->func ();
+                break;
+            }
+            u++;
+        }
+        return;
+    }
 	// r1ch: do we really want to be passing commands from unconnected players
 	// to the game dll at this point? doesn't sound like a good idea to me
 	// especially if the game dll does its own banning functions after connect
@@ -641,7 +644,7 @@ void SV_ExecuteUserCommand (char *s)
 	if (sv_client->state < cs_spawned)
 		return;
 
-	if (!u->name && sv.state == ss_game)
+	if (sv.state == ss_game)
 		ge->ClientCommand (sv_player);
 
 //	SV_EndRedirect ();
