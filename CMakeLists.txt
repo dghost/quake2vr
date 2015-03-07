@@ -81,6 +81,7 @@ set(COMMON_SOURCES
   qcommon/pmove.c
   qcommon/shared/m_flash.c
   qcommon/shared/q_shared.c
+  qcommon/stable.c
   qcommon/wildcard.c
   qcommon/murmur3/murmur3.c
   qcommon/zip/ioapi.c

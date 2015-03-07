@@ -918,7 +918,7 @@ void SCR_DebugGraph (float value, int32_t color);
 /*
  ==============================================================
  
- 128-BIT HASHING FUNCTIONS
+HASHING FUNCTIONS
  
  ==============================================================
  */
@@ -935,6 +935,26 @@ hash32_t Q_Hash32(const char *string, uint32_t len);
 hash32_t Q_HashSanitized32(const char *string);
 int32_t Q_HashEquals32(hash32_t hash1, hash32_t hash2);
 int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
+
+
+/*
+ ==============================================================
+ 
+ STRING TABLE FUNCTIONS
+ 
+ ==============================================================
+ */
+#ifndef Q2VR_ENGINE_MOD
+typedef struct stable_t { void *st; uint32_t size; } stable_t;
+#endif
+
+qboolean Q_STInit(stable_t *st, int32_t baseSize, int32_t avgLength);
+int Q_STRegister(stable_t *st, const char *string);
+int Q_STLookup(stable_t st, const char *string);
+const char *Q_STGetString(stable_t st, int token);
+void Q_STPack(stable_t *st);
+void Q_STFree(stable_t *st);
+
 /*
 ==============================================================
 

@@ -1551,11 +1551,6 @@ void *Z_Realloc(void* ptr, int32_t size) {
         next->prev = newZ;
         chain->bytes += sizeDiff;
         return (void *)(newZ+1);
-    } else {
-        prev->next = next;
-        next->prev = prev;
-        chain->bytes -= oldSize;
-        chain->count--;
     }
     return NULL;
 }
