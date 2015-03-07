@@ -1062,19 +1062,6 @@ void CL_Skins_f (void)
 	}
 }
 
-
-/*
-=================
-CL_AACSkey_f
-=================
-*/
-void CL_AACSkey_f (void)
-{
-	Com_Printf ("AACS processing keys: 09 F9 11 02 9D 74 E3 5B D8 41 56 C5 63 56 88 C0\n");
-	Com_Printf ("                      45 5F E1 04 22 CA 29 C4 93 3F 95 05 2B 79 2A B2\n");
-}
-
-
 /*
 =================
 CL_ConnectionlessPacket
@@ -1521,8 +1508,6 @@ void CL_InitLocal (void)
 	Cmd_AddCommand ("download", CL_Download_f);
 
 	Cmd_AddCommand ("writeconfig", CL_WriteConfig_f);
-
-	Cmd_AddCommand ("aacskey", CL_AACSkey_f);
 
 	//
 	// forward to server commands
