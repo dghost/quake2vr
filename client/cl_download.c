@@ -735,10 +735,7 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 
 
 // Knightmare- store the names of last downloads that failed
-#define NUM_FAIL_DLDS 64
-char lastfaileddownload[NUM_FAIL_DLDS][MAX_OSPATH];
-hash32_t lastfaileddownloadhash[NUM_FAIL_DLDS];
-static uint32_t failedDlListIndex;
+static stable_t failed_downloads = {0, 0};
 
 /*
 ===============
@@ -747,13 +744,8 @@ CL_InitFailedDownloadList
 */
 void CL_InitFailedDownloadList (void)
 {
-	int32_t		i;
-
-    memset(lastfaileddownloadhash,0,sizeof(lastfaileddownloadhash));
-	for (i=0; i<NUM_FAIL_DLDS; i++)
-		Com_sprintf(lastfaileddownload[i], sizeof(lastfaileddownload[i]), "\0");
-
-	failedDlListIndex = 0;
+    Q_STFree(&failed_downloads);
+    Q_STInit(&failed_downloads, 512, 16);
 }
 
 /*
@@ -763,17 +755,7 @@ CL_CheckDownloadFailed
 */
 qboolean CL_CheckDownloadFailed (char *name)
 {
-	int32_t		i;
-    hash32_t hash = Q_Hash32(name, strlen(name));
-	for (i=0; i<NUM_FAIL_DLDS; i++)
-		if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashEquals32(hash, lastfaileddownloadhash[i])
-			&& !strcmp(name, lastfaileddownload[i]))
-		{	// we already tried downlaoding this, server didn't have it
-			return true;
-		}
-
-	return false;
+    return (Q_STLookup(failed_downloads, name) != -1);
 }
 
 /*
@@ -783,29 +765,7 @@ CL_AddToFailedDownloadList
 */
 void CL_AddToFailedDownloadList (char *name)
 {
-	int32_t			i;
-	qboolean	found = false;
-    hash32_t      hash = Q_Hash32(name, strlen(name));
-    
-	// check if this name is already in the table
-	for (i=0; i<NUM_FAIL_DLDS; i++)
-        if (lastfaileddownload[i] && strlen(lastfaileddownload[i])
-            && !Q_HashEquals32(hash, lastfaileddownloadhash[i])
-            && !strcmp(name, lastfaileddownload[i]))
-		{
-			found = true;
-			break;
-		}
-
-	// if it isn't already in the table, then we need to add it
-	if (!found)
-	{
-		Com_sprintf(lastfaileddownload[failedDlListIndex], sizeof(lastfaileddownload[failedDlListIndex]), "%s", name);
-        lastfaileddownloadhash[failedDlListIndex++] = hash;
-		// wrap around to start of list
-		if (failedDlListIndex >= NUM_FAIL_DLDS)
-			failedDlListIndex = 0;
-	}	
+    Q_STRegister(&failed_downloads, name);
 }
 
 /*
