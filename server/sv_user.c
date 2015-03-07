@@ -573,6 +573,9 @@ void SV_Nextserver_f (void)
 	SV_Nextserver ();
 }
 
+static uint8_t command_buffer[512];
+stable_t command_stable = {command_buffer, 512};
+
 typedef struct
 {
 	char	*name;
@@ -603,8 +606,10 @@ ucmd_t ucmds[] =
 
 void SV_InitClientCommands(void) {
     ucmd_t *u;
+    Q_STInit(&command_stable, 8);
     for (u=ucmds ; u->name ; u++)
-        u->token = Q_STRegister(&server_stable, u->name);
+        u->token = Q_STRegister(&command_stable, u->name);
+    Q_STPack(&command_stable);
 }
 
 /*
@@ -626,7 +631,7 @@ void SV_ExecuteUserCommand (char *s)
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
-    if ((token = Q_STLookup(server_stable, cmd)) != -1) {
+    if ((token = Q_STLookup(command_stable, cmd)) != -1) {
         while (u->name) {
             if (token == u->token)
             {

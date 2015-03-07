@@ -60,7 +60,9 @@ int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
 
-static stable_t supported_image_types = {0, 0};
+static uint8_t type_buffer[256];
+static stable_t supported_image_types = {type_buffer, 256};
+
 int s_pcx;
 int s_tga;
 int s_jpg;
@@ -999,7 +1001,8 @@ R_InitFailedImgList
 void R_InitFailedImgList (void)
 {
     Q_STFree(&failed_images);
-    Q_STInit(&failed_images, 512, 16);
+    failed_images.size = 512;
+    Q_STInit(&failed_images, 16);
 }
 
 /*
@@ -1346,8 +1349,7 @@ void R_InitImages (void)
 	int32_t		i, j;
 	float	g = 1.0f / vid_gamma;
 
-    Q_STFree(&supported_image_types);
-    Q_STInit(&supported_image_types, 256, 5);
+    Q_STInit(&supported_image_types, 5);
     
     s_pcx = Q_STRegister(&supported_image_types, ".pcx");
     s_wal = Q_STRegister(&supported_image_types, ".wal");
@@ -1497,6 +1499,5 @@ void R_ShutdownImages (void)
 		memset (image, 0, sizeof(*image));
 	}
     Q_STFree(&failed_images);
-    Q_STFree(&supported_image_types);
 }
 

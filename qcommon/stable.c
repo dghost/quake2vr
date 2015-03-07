@@ -1,20 +1,21 @@
 #include "qcommon.h"
 #include "nflibs/nf_string_table.c"
 
-qboolean Q_STInit(stable_t *st, int32_t baseSize, int32_t avgLength) {
-    stable_t new = {0, 0};
-    new.st = Z_TagMalloc(baseSize, TAG_SYSTEM);
-    if (!new.st)
-        return false;
-    new.size = baseSize;
-    nfst_init((struct nfst_StringTable *)new.st, baseSize, avgLength);
-    *st = new;
+qboolean Q_STInit(stable_t *st, int32_t avgLength) {
+    if (!st->st) {
+        st->st = Z_TagMalloc(st->size, TAG_SYSTEM);
+        if (!st->st)
+            return false;
+        st->heap = true;
+    }
+    nfst_init((struct nfst_StringTable *)st->st, st->size, avgLength);
+
     return true;
 }
 
 int Q_STRegister(stable_t *st, const char *string) {
     int result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
-    if (result == NFST_STRING_TABLE_FULL) {
+    if (result == NFST_STRING_TABLE_FULL && st->heap) {
         void *new = NULL;
         int newsize = st->size * 2;
         if ((new = Z_Realloc(st->st, newsize)) != NULL) {
@@ -25,6 +26,10 @@ int Q_STRegister(stable_t *st, const char *string) {
         }
     
     }
+    if (result == NFST_STRING_TABLE_FULL) {
+        Com_Printf("Error registering string: %s\n",string);
+    }
+    
     return result;
 }
 
@@ -38,7 +43,7 @@ const char *Q_STGetString(stable_t st, int token) {
 
 void Q_STPack(stable_t *st) {
     int size = nfst_pack((struct nfst_StringTable *)st->st);
-    if (size > MIN_SIZE && size <= st->size/2) {
+    if (st->heap && size > MIN_SIZE && size <= st->size/2) {
         void *new = NULL;
         if ((new = Z_Realloc(st->st, size)) != NULL) {
             st->st = new;
@@ -48,7 +53,7 @@ void Q_STPack(stable_t *st) {
 }
 
 void Q_STFree(stable_t *st) {
-    if (st->st) {
+    if (st->heap && st->st) {
         Z_Free(st->st);
         st->st = NULL;
         st->size = 0;

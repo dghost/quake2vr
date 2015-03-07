@@ -945,10 +945,10 @@ int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
  ==============================================================
  */
 #ifndef Q2VR_ENGINE_MOD
-typedef struct stable_t { void *st; uint32_t size; } stable_t;
+typedef struct stable_t { void *st; uint32_t size; qboolean heap;} stable_t;
 #endif
 
-qboolean Q_STInit(stable_t *st, int32_t baseSize, int32_t avgLength);
+qboolean Q_STInit(stable_t *st, int32_t avgLength);
 int Q_STRegister(stable_t *st, const char *string);
 int Q_STLookup(stable_t st, const char *string);
 const char *Q_STGetString(stable_t st, int token);

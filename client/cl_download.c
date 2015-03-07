@@ -745,7 +745,8 @@ CL_InitFailedDownloadList
 void CL_InitFailedDownloadList (void)
 {
     Q_STFree(&failed_downloads);
-    Q_STInit(&failed_downloads, 512, 16);
+    failed_downloads.size = 512;
+    Q_STInit(&failed_downloads, 16);
 }
 
 /*

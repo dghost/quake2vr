@@ -600,8 +600,8 @@ void SVC_RemoteCommand (void)
 	Com_EndRedirect ();
 }
 
-
-stable_t server_stable;
+static uint8_t packet_buffer[512];
+stable_t packet_stable = {packet_buffer, 512};
 
 int s_ping;
 int s_ack;
@@ -645,7 +645,7 @@ void SV_ConnectionlessPacket (void)
 	c = Cmd_Argv(0);
 	Com_DPrintf ("Packet %s : %s\n", NET_AdrToString(net_from), c);
 
-    if ((s_token = Q_STLookup(server_stable, c)) != -1) {
+    if ((s_token = Q_STLookup(packet_stable, c)) != -1) {
         if (s_token == s_ping)
             SVC_Ping ();
         else if (s_token == s_ack)
@@ -1107,15 +1107,16 @@ Only called at quake2.exe startup, not for each game
 */
 void SV_Init (void)
 {
-    Q_STInit(&server_stable, 1024, 8);
-    s_ping = Q_STRegister(&server_stable, "ping");
-    s_ack = Q_STRegister(&server_stable, "ack");
-    s_status = Q_STRegister(&server_stable, "status");
-    s_info = Q_STRegister(&server_stable, "info");
-    s_getchallenge = Q_STRegister(&server_stable, "getchallenge");
-    s_connect = Q_STRegister(&server_stable, "connect");
-    s_rcon = Q_STRegister(&server_stable, "rcon");
-    
+    Q_STInit(&packet_stable, 8);
+    s_ping = Q_STRegister(&packet_stable, "ping");
+    s_ack = Q_STRegister(&packet_stable, "ack");
+    s_status = Q_STRegister(&packet_stable, "status");
+    s_info = Q_STRegister(&packet_stable, "info");
+    s_getchallenge = Q_STRegister(&packet_stable, "getchallenge");
+    s_connect = Q_STRegister(&packet_stable, "connect");
+    s_rcon = Q_STRegister(&packet_stable, "rcon");
+    Q_STPack(&packet_stable);
+
 	SV_InitOperatorCommands	();
 
 	rcon_password = Cvar_Get ("rcon_password", "", 0);
@@ -1160,7 +1161,6 @@ void SV_Init (void)
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
     
     SV_InitClientCommands();
-    Q_STPack(&server_stable);
 }
 
 /*

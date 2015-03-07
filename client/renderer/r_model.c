@@ -484,7 +484,8 @@ Mod_InitFailedTexList
 void Mod_InitFailedTexList (void)
 {
     Q_STFree(&failed_textures);
-    Q_STInit(&failed_textures, 512, 16);
+    failed_textures.size = 512;
+    Q_STInit(&failed_textures, 16);
 }
 
 /*
