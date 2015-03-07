@@ -59,6 +59,14 @@ int32_t		gl_compressed_tex_alpha_format = GL_RGBA;
 int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
+
+static stable_t supported_image_types = {0, 0};
+int s_pcx;
+int s_tga;
+int s_jpg;
+int s_png;
+int s_wal;
+
 void GL_SetTexturePalette( uint32_t palette[256] )
 {
 	int32_t i;
@@ -875,7 +883,8 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	//Nexus'added vars
 	int32_t len; 
 	char s[128]; 
-
+    char *ext;
+    int token;
 	// find a free image_t
 	for (i=0, image=gltextures ; i<numgltextures ; i++,image++)
 	{
@@ -890,6 +899,8 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	}
 	image = &gltextures[i];
     len = strlen(name);
+    ext = name + len - 4;
+    token = Q_STLookup(supported_image_types, ext);
 	if (len + 1 >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
@@ -913,7 +924,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	len = strlen(name); 
 	strcpy(s,name);
 	// check if we have a tga/jpg/png pic
-	if ((type == it_pic) && (!strcmp(s+len-4, ".png") || !strcmp(s+len-4, ".jpg") || !strcmp(s+len-4, ".tga")))
+	if ((type == it_pic) && (token != s_pcx) && (token != s_wal))
 	{ 
 		byte	*pic, *palette;
 		int32_t		pcxwidth, pcxheight;
@@ -1049,8 +1060,10 @@ image_t *R_LoadImage(char *name, imagetype_t type) {
     image_t	*image = NULL;
     int32_t	width, height;
     int32_t len = strlen(name);
-
-    if (!strcmp(name+len-4, ".pcx"))
+    char *ext = name + len - 4;
+    int token = Q_STLookup(supported_image_types, ext);
+    
+    if (token == s_pcx)
     {
         byte	*pic = NULL;
         byte    *palette = NULL;
@@ -1063,11 +1076,11 @@ image_t *R_LoadImage(char *name, imagetype_t type) {
         if (palette)
             Z_Free(palette);
     }
-    else if (!strcmp(name+len-4, ".wal"))
+    else if (token == s_wal)
     {
         image = R_LoadWal (name, type);
     }
-    else if (!strcmp(name+len-4, ".tga") || !strcmp(name+len-4, ".jpg")  || !strcmp(name+len-4, ".png"))
+    else if (token != -1)
     {
         // use new loading code
         image = R_LoadSTB(name, type);
@@ -1085,17 +1098,23 @@ Finds or loads the given image
 image_t	*R_FindImage (char *name, imagetype_t type)
 {
 	image_t	*image;
-	int32_t		i, len;
+    int32_t		i, len = strlen(name);
 	char	s[MAX_OSPATH];
 	char	*tmp;
     hash32_t hash;
+    char *ext = name + len - 4;
+    int token;
     
 	if (!name)
 		return NULL;
-	len = strlen(name);
+    
 	if (len<5 || len > MAX_OSPATH)
 		return NULL;
-    if (name[len-4] != '.')
+    
+    token = Q_STLookup(supported_image_types, ext);
+    
+    // not an image file
+    if (token == -1)
         return NULL;
     
 	// fix up bad image paths
@@ -1132,7 +1151,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 
 	// MrG's automatic JPG & TGA loading
 	// search for TGAs, PNGs, and JPGs to replace .pcx and .wal images
-    if (!strcmp(name+len-4, ".tga"))
+    if (token == s_tga)
     {
         char fext[2][4] = {"png","jpg"};
         char temp[MAX_OSPATH];
@@ -1146,7 +1165,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
             if (image)
                 return image;
         }
-    } else 	if (!strcmp(name+len-4, ".pcx") || !strcmp(name+len-4, ".wal"))
+    } else	if ((token == s_pcx) || (token == s_wal))
     {
         char fext[3][4] = {"png","jpg","tga"};
         char temp[MAX_OSPATH];
@@ -1306,6 +1325,16 @@ int32_t Draw_GetPalette (void)
 	return 0;
 }
 
+/*
+ ===============
+ R_IsSupportedImage
+ ===============
+ */
+qboolean R_IsSupportedImageType(char *name) {
+    if (supported_image_types.st)
+        return (Q_STLookup(supported_image_types, name) != -1);
+    return false;
+}
 
 /*
 ===============
@@ -1317,6 +1346,17 @@ void R_InitImages (void)
 	int32_t		i, j;
 	float	g = 1.0f / vid_gamma;
 
+    Q_STFree(&supported_image_types);
+    Q_STInit(&supported_image_types, 256, 5);
+    
+    s_pcx = Q_STRegister(&supported_image_types, ".pcx");
+    s_wal = Q_STRegister(&supported_image_types, ".wal");
+    s_tga = Q_STRegister(&supported_image_types, ".tga");
+    s_jpg = Q_STRegister(&supported_image_types, ".jpg");
+    s_png = Q_STRegister(&supported_image_types, ".png");
+    
+    Q_STPack(&supported_image_types);
+    
 	// Knightmare- reinitialize these after a vid_restart
 	// this is needed because the renderer is no longer a DLL
 	gl_solid_format = GL_RGB;
@@ -1441,7 +1481,8 @@ void R_ShutdownImages (void)
 {
 	int32_t		i;
 	image_t	*image;
-
+    
+    
 	for (i=0, image=gltextures; i<numgltextures; i++, image++)
 	{
 		if (!image->registration_sequence)
@@ -1456,5 +1497,6 @@ void R_ShutdownImages (void)
 		memset (image, 0, sizeof(*image));
 	}
     Q_STFree(&failed_images);
+    Q_STFree(&supported_image_types);
 }
 

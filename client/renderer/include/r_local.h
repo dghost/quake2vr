@@ -676,6 +676,7 @@ struct image_s *R_RegisterSkin (char *name);
 void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_t *height);
 //Knightmare added
 
+qboolean R_IsSupportedImageType(char *name);
 image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imagetype_t type, int32_t bits);
 image_t	*R_FindImage (char *name, imagetype_t type);
 void	GL_TextureMode( char *string );
