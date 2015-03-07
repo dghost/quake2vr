@@ -474,10 +474,7 @@ void Mod_LoadEdges (lump_t *l)
 //=======================================================
 
 // store the names of last textures that failed to load
-#define NUM_FAIL_TEXTURES 256
-char lastFailedTexture[NUM_FAIL_TEXTURES][MAX_OSPATH];
-hash32_t lastFailedTextureHash[NUM_FAIL_TEXTURES];
-static uint32_t failedTexListIndex;
+static stable_t failed_textures = {0, 0};
 
 /*
 ===============
@@ -486,14 +483,8 @@ Mod_InitFailedTexList
 */
 void Mod_InitFailedTexList (void)
 {
-	int32_t		i;
-
-    memset(lastFailedTextureHash, 0, sizeof(lastFailedTextureHash));
-	for (i=0; i<NUM_FAIL_TEXTURES; i++) {
-		Com_sprintf(lastFailedTexture[i], sizeof(lastFailedTexture[i]), "\0");
-	}
-
-	failedTexListIndex = 0;
+    Q_STFree(&failed_textures);
+    Q_STInit(&failed_textures, 512, 16);
 }
 
 /*
@@ -501,21 +492,9 @@ void Mod_InitFailedTexList (void)
 Mod_CheckTexFailed
 ===============
 */
-qboolean Mod_CheckTexFailed (char *name, hash32_t hash)
+qboolean Mod_CheckTexFailed (char *name)
 {
-	int32_t		i;
-    
-	for (i=0; i<NUM_FAIL_TEXTURES; i++)
-	{
-		if (!Q_HashEquals32(hash,lastFailedTextureHash[i])) {	// compare hash first
-			if (lastFailedTexture[i] && strlen(lastFailedTexture[i])
-				&& !strcmp(name, lastFailedTexture[i]))
-			{	// we already tried to load this image, didn't find it
-				return true;
-			}
-		}
-	}
-	return false;
+    return (Q_STLookup(failed_textures, name) != -1);
 }
 
 /*
@@ -523,15 +502,9 @@ qboolean Mod_CheckTexFailed (char *name, hash32_t hash)
 Mod_AddToFailedTexList
 ===============
 */
-void Mod_AddToFailedTexList (char *name, hash32_t hash)
+void Mod_AddToFailedTexList (char *name)
 {
-	Com_sprintf(lastFailedTexture[failedTexListIndex], sizeof(lastFailedTexture[failedTexListIndex]), "%s", name);
-	lastFailedTextureHash[failedTexListIndex] = hash;
-	failedTexListIndex++;
-
-	// wrap around to start of list
-	if (failedTexListIndex >= NUM_FAIL_TEXTURES)
-		failedTexListIndex = 0;
+    Q_STRegister(&failed_textures, name);
 }
 
 /*
@@ -543,21 +516,18 @@ to speed map load times
 */
 image_t	*Mod_FindTexture (char *name, imagetype_t type)
 {
-	image_t	*image;
-    hash32_t	hash;
+    image_t	*image;
     
-    hash = Q_Hash32(name, strlen(name));
+    // don't try again to load a texture that just failed
+    if (Mod_CheckTexFailed (name))
+        return glMedia.notexture;
     
-	// don't try again to load a texture that just failed
-	if (Mod_CheckTexFailed (name,hash))
-		return glMedia.notexture;
-
-	image = R_FindImage (name, type);
-
-	if (!image || (image == glMedia.notexture))
-		Mod_AddToFailedTexList (name,hash);
-
-	return image;
+    image = R_FindImage (name, type);
+    
+    if (!image || (image == glMedia.notexture))
+        Mod_AddToFailedTexList (name);
+    
+    return image;
 }
 
 //=======================================================
@@ -2559,7 +2529,7 @@ void R_EndRegistration (void)
 	}
 
 	R_FreeUnusedImages ();
-
+    Q_STPack(&failed_textures);
 	registration_active = false;	// map registration flag
 }
 
@@ -2598,4 +2568,5 @@ void Mod_FreeAll (void)
 		if (mod_known[i].extradatasize)
 			Mod_Free (&mod_known[i]);
 	}
+    Q_STFree(&failed_textures);
 }
