@@ -1062,6 +1062,19 @@ void CL_Skins_f (void)
 	}
 }
 
+
+static uint8_t packet_buffer[512];
+static stable_t clpacket_stable = {packet_buffer, 512};
+
+int s_client_connect;
+int s_info;
+int s_cmd;
+int s_print;
+int s_ping;
+int s_challenge;
+int s_echo;
+
+
 /*
 =================
 CL_ConnectionlessPacket
@@ -1073,7 +1086,7 @@ void CL_ConnectionlessPacket (void)
 {
 	char	*s;
 	char	*c;
-	
+    int token;
 	MSG_BeginReading (&net_message);
 	MSG_ReadLong (&net_message);	// skip the -1
 
@@ -1084,74 +1097,75 @@ void CL_ConnectionlessPacket (void)
 	c = Cmd_Argv(0);
 
 	Com_Printf ("%s: %s\n", NET_AdrToString (net_from), c);
-
+    
 	// server connection
-	if (!strcmp(c, "client_connect"))
-	{
-		if (cls.state == ca_connected)
-		{
-			Com_Printf ("Dup connect received.  Ignored.\n");
-			return;
-		}
-		Netchan_Setup (NS_CLIENT, &cls.netchan, net_from, cls.quakePort);
-		MSG_WriteChar (&cls.netchan.message, clc_stringcmd);
-		MSG_WriteString (&cls.netchan.message, "new");	
-		cls.state = ca_connected;
-		return;
-	}
-
-	// server responding to a status broadcast
-	if (!strcmp(c, "info"))
-	{
-		CL_ParseStatusMessage ();
-		return;
-	}
-
-	// remote command from gui front end
-	if (!strcmp(c, "cmd"))
-	{
-		if (!NET_IsLocalAddress(net_from))
-		{
-			Com_Printf ("Command packet from remote host.  Ignored.\n");
-			return;
-		}
-		Sys_AppActivate ();
-		s = MSG_ReadString (&net_message);
-		Cbuf_AddText (s);
-		Cbuf_AddText ("\n");
-		return;
-	}
-	// print command from somewhere
-	if (!strcmp(c, "print"))
-	{
-		s = MSG_ReadString (&net_message);
-		Com_Printf ("%s", s);
-		return;
-	}
-
-	// ping from somewhere
-	if (!strcmp(c, "ping"))
-	{
-		Netchan_OutOfBandPrint (NS_CLIENT, net_from, "ack");
-		return;
-	}
-
-	// challenge from the server we are connecting to
-	if (!strcmp(c, "challenge"))
-	{
-		cls.challenge = atoi(Cmd_Argv(1));
-		CL_SendConnectPacket ();
-		return;
-	}
-
-	// echo request from server
-	if (!strcmp(c, "echo"))
-	{
-		Netchan_OutOfBandPrint (NS_CLIENT, net_from, "%s", Cmd_Argv(1) );
-		return;
-	}
-
-	Com_Printf ("Unknown command.\n");
+    if ((token = Q_STLookup(clpacket_stable, c)) != -1) {
+        if (token == s_client_connect)
+        {
+            if (cls.state == ca_connected)
+            {
+                Com_Printf ("Dup connect received.  Ignored.\n");
+                return;
+            }
+            Netchan_Setup (NS_CLIENT, &cls.netchan, net_from, cls.quakePort);
+            MSG_WriteChar (&cls.netchan.message, clc_stringcmd);
+            MSG_WriteString (&cls.netchan.message, "new");
+            cls.state = ca_connected;
+            return;
+        }
+        
+        // server responding to a status broadcast
+        if (token == s_info)
+        {
+            CL_ParseStatusMessage ();
+            return;
+        }
+        
+        // remote command from gui front end
+        if (token == s_cmd)
+        {
+            if (!NET_IsLocalAddress(net_from))
+            {
+                Com_Printf ("Command packet from remote host.  Ignored.\n");
+                return;
+            }
+            Sys_AppActivate ();
+            s = MSG_ReadString (&net_message);
+            Cbuf_AddText (s);
+            Cbuf_AddText ("\n");
+            return;
+        }
+        // print command from somewhere
+        if (token == s_print)
+        {
+            s = MSG_ReadString (&net_message);
+            Com_Printf ("%s", s);
+            return;
+        }
+        
+        // ping from somewhere
+        if (token == s_ping)
+        {
+            Netchan_OutOfBandPrint (NS_CLIENT, net_from, "ack");
+            return;
+        }
+        
+        // challenge from the server we are connecting to
+        if (token == s_challenge)
+        {
+            cls.challenge = atoi(Cmd_Argv(1));
+            CL_SendConnectPacket ();
+            return;
+        }
+        
+        // echo request from server
+        if (token == s_echo)
+        {
+            Netchan_OutOfBandPrint (NS_CLIENT, net_from, "%s", Cmd_Argv(1) );
+            return;
+        }
+    }
+	Com_Printf ("Unknown command: %s\n", c);
 }
 
 
@@ -1344,6 +1358,16 @@ void CL_InitLocal (void)
 	cls.state = ca_disconnected;
 	cls.realtime = Sys_Milliseconds ();
 
+    Q_STInit(&clpacket_stable, 6);
+    s_client_connect = Q_STRegister(&clpacket_stable, "client_connect");
+    s_info = Q_STRegister(&clpacket_stable, "info");
+    s_cmd = Q_STRegister(&clpacket_stable, "cmd");
+    s_print = Q_STRegister(&clpacket_stable, "print");
+    s_ping = Q_STRegister(&clpacket_stable, "ping");
+    s_challenge = Q_STRegister(&clpacket_stable, "challenge");
+    s_echo = Q_STRegister(&clpacket_stable, "echo");
+    Q_STPack(&clpacket_stable);
+    
 	CL_InitInput ();
 
 	adr0 = Cvar_Get( "adr0", "", CVAR_ARCHIVE );
