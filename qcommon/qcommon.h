@@ -952,7 +952,7 @@ qboolean Q_STInit(stable_t *st, int32_t avgLength);
 int Q_STRegister(stable_t *st, const char *string);
 int Q_STLookup(stable_t st, const char *string);
 const char *Q_STGetString(stable_t st, int token);
-void Q_STPack(stable_t *st);
+int Q_STPack(stable_t *st);
 void Q_STFree(stable_t *st);
 
 /*

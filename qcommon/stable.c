@@ -41,7 +41,7 @@ const char *Q_STGetString(stable_t st, int token) {
     return nfst_to_string((struct nfst_StringTable *)st.st, token);
 }
 
-void Q_STPack(stable_t *st) {
+int Q_STPack(stable_t *st) {
     int size = nfst_pack((struct nfst_StringTable *)st->st);
     if (st->heap && size > MIN_SIZE && size <= st->size/2) {
         void *new = NULL;
@@ -50,6 +50,7 @@ void Q_STPack(stable_t *st) {
             st->size = size;
         }
     }
+    return size;
 }
 
 void Q_STFree(stable_t *st) {
