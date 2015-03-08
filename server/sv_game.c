@@ -402,7 +402,12 @@ void SV_InitGameProgs (void)
     import.HashSanitized32 = Q_HashSanitized32;
     import.HashEquals32 = Q_HashEquals32;
     import.HashCompare32 = Q_HashCompare32;
-
+    import.StringTableInit = Q_STInit;
+    import.StringTableRegister = Q_STRegister;
+    import.StringTableLookup = Q_STLookup;
+    import.StringTableGetString = Q_STGetString;
+    import.StringTablePack = Q_STPack;
+    import.StringTableFree = Q_STFree;
 #endif
 #endif
 	import.SetAreaPortalState = CM_SetAreaPortalState;
