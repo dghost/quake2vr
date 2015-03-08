@@ -200,8 +200,9 @@ uint32_t FS_TypeFlagForPakItem (char *itemName)
 	char	extension[8];
 
 	Com_FileExtension (itemName, extension, sizeof(extension));
+    Q_strlwr(extension);
 	for (i=0; type_extensions[i]; i++) {
-		if ( !Q_strcasecmp(extension, type_extensions[i]) )
+		if ( !strcmp(extension, type_extensions[i]) )
 			return (1<<i);
 	}
 	return 0;

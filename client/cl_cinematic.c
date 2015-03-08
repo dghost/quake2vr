@@ -1534,8 +1534,8 @@ cinHandle_t CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t w
 	}
 
 	Com_FileExtension(name, extension, sizeof(extension));
-
-	if (!Q_strcasecmp(extension, "cin")) // RoQ autoreplace hack
+    Q_strlwr(extension);
+	if (!strcmp(extension, "cin")) // RoQ autoreplace hack
 	{
 		char s[MAX_QPATH];
 		int32_t len;
@@ -1569,7 +1569,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t w
 
 	//Com_FileExtension(name, extension, sizeof(extension));
 
-	if (!Q_strcasecmp(extension, "pcx"))
+	if (!strcmp(extension, "pcx"))
 	{
 		// Static PCX image
 		if (!CIN_StaticCinematic(cin, name))
@@ -1578,12 +1578,12 @@ cinHandle_t CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t w
 		return handle;
 	}
 
-	if (!Q_strcasecmp(extension, "roq"))
+	if (!strcmp(extension, "roq"))
 	{
 		cin->isRoQ = true;
 		cin->rate = 30;
 	}
-	else if (!Q_strcasecmp(extension, "cin"))
+	else if (!strcmp(extension, "cin"))
 	{
 		cin->isRoQ = false;
 		cin->rate = 14;

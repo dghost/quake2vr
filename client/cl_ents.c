@@ -1298,27 +1298,27 @@ void CL_AddPacketEntities (frame_t *frame)
 		//**** MODEL / EFFECT SWAPPING ETC *** - per gametype...
 		if (ent.model)
 		{
-			if (!Q_strcasecmp((char *)ent.model, "models/objects/laser/tris.md2")
+			if (!strcmp((char *)ent.model, "models/objects/laser/tris.md2")
 				&& !(effects & EF_BLASTER))
 			{	// replace the bolt with a particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					255, 150, 50, 0, -90, -30, 10, 3);
 				drawEnt = false;
-			} else if ( (!Q_strcasecmp((char *)ent.model, "models/proj/laser2/tris.md2")
-				|| !Q_strcasecmp((char *)ent.model, "models/objects/laser2/tris.md2")
-				|| !Q_strcasecmp((char *)ent.model, "models/objects/glaser/tris.md2") )
+			} else if ( (!strcmp((char *)ent.model, "models/proj/laser2/tris.md2")
+				|| !strcmp((char *)ent.model, "models/objects/laser2/tris.md2")
+				|| !strcmp((char *)ent.model, "models/objects/glaser/tris.md2") )
 				&& !(effects & EF_BLASTER))
 			{	// give the bolt a green particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					50, 235, 50, -10, 0, -10, 10, 3);
 				drawEnt = false;
-			} else if (!Q_strcasecmp((char *)ent.model, "models/objects/blaser/tris.md2")
+			} else if (!strcmp((char *)ent.model, "models/objects/blaser/tris.md2")
 				&& !(effects & EF_BLASTER))
 			{	// give the bolt a blue particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
 					50, 50, 235, 0, -10, 0, -10, 3);
 				drawEnt = false;
-			} else if (!Q_strcasecmp((char *)ent.model, "models/objects/rlaser/tris.md2")
+			} else if (!strcmp((char *)ent.model, "models/objects/rlaser/tris.md2")
 				&& !(effects & EF_BLASTER))
 			{	// give the bolt a red particle glow
 				CL_HyperBlasterEffect (cent->lerp_origin, ent.origin, s1->angles,
@@ -1542,7 +1542,7 @@ void CL_AddPacketEntities (frame_t *frame)
 
 			// PMM - check for the defender sphere shell .. make it translucent
 			// replaces the previous version which used the high bit on modelindex2 to determine transparency
-			if (!Q_strcasecmp (cl.configstrings[CS_MODELS+(s1->modelindex2)], "models/items/shell/tris.md2"))
+			if (!strcmp(cl.configstrings[CS_MODELS+(s1->modelindex2)], "models/items/shell/tris.md2"))
 			{
 				ent.alpha = 0.32;
 				ent.flags = RF_TRANSLUCENT;

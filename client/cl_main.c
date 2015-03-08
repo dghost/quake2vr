@@ -1271,9 +1271,10 @@ void CL_FixUpGender(void)
 		strncpy(sk, skin->string, sizeof(sk) - 1);
 		if ((p = strchr(sk, '/')) != NULL)
 			*p = 0;
-		if (Q_strcasecmp(sk, "male") == 0 || Q_strcasecmp(sk, "cyborg") == 0)
+        Q_strlwr(sk);
+        if (strcmp(sk, "male") == 0 || strcmp(sk, "cyborg") == 0)
 			Cvar_Set ("gender", "male");
-		else if (Q_strcasecmp(sk, "female") == 0 || Q_strcasecmp(sk, "crackhor") == 0)
+		else if (strcmp(sk, "female") == 0 || strcmp(sk, "crackhor") == 0)
 			Cvar_Set ("gender", "female");
 		else
 			Cvar_Set ("gender", "none");
