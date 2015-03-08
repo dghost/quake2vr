@@ -4,6 +4,7 @@
 #ifdef OCULUS_DYNAMIC
 #include "../vr/oculus_dynamic/oculus_dynamic.h"
 #else
+#define OVR_ALIGNAS(x)
 #include "OVR_CAPI.h"
 #endif
 #include "../../backends/sdl2/sdl2quake.h"
