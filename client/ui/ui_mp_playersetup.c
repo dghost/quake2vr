@@ -128,40 +128,33 @@ static void SkinCallback (void *unused)
 	playerskin = R_RegisterSkin(scratch);
 }
 
-static qboolean IconOfSkinExists (char *skin, char **files, int32_t nfiles, char *suffix)
+static qboolean IconOfSkinExists (stable_t *filetable, char *skin, char* ext, char *suffix)
 {
-	int32_t i;
-	char scratch[1024];
-
-	strcpy(scratch, skin);
-	*strrchr(scratch, '.') = 0;
-	strcat(scratch, suffix);
+    strcpy(ext, suffix);
 	//strcat(scratch, "_i.pcx");
 
-	for (i = 0; i < nfiles; i++)
-	{
-		if ( strcmp(files[i], scratch) == 0 )
-			return true;
-	}
-
-	return false;
+	return (Q_STLookup(*filetable, skin) != -1);
 }
 
 qboolean R_IsSupportedImageType(char *name);
 
 // adds menu support for TGA, PNG, and JPG skins
-static qboolean IsValidSkin (char **filelist, int32_t numFiles, int32_t index)
+static qboolean IsValidSkin (stable_t *filetable, char *filename)
 {
-	int32_t		len = strlen(filelist[index]);
-    char *ext = filelist[index] + max(len-4,0);
+    char scratch[1024];
     
+    strncpy(scratch, filename,sizeof(scratch));
+    
+	int32_t		len = strlen(scratch);
+    char *ext = scratch + max(len-4,0);
+
 	if (R_IsSupportedImageType(ext))
 	{
-		if (	strncmp (filelist[index]+max(len-6,0), "_i",2) != 0)
-			if (	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.pcx")
-				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.jpg")
-				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.tga")
-				||	IconOfSkinExists (filelist[index], filelist, numFiles-1 , "_i.png"))
+		if (	strncmp (scratch+max(len-6,0), "_i",2) != 0)
+			if (	IconOfSkinExists (filetable, scratch, ext, "_i.pcx")
+				||	IconOfSkinExists (filetable, scratch, ext, "_i.jpg")
+				||	IconOfSkinExists (filetable, scratch, ext, "_i.tga")
+				||	IconOfSkinExists (filetable, scratch, ext, "_i.png"))
 				return true;
 	}
 	return false;
@@ -203,7 +196,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             int32_t			nskins = 0;
             int         ntris = 0;
             qboolean	already_added = false;
-            
+            stable_t    image_stable = {0, 1024};
             if (dirnames[i] == 0)
                 continue;
             
@@ -236,9 +229,18 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 continue;
             }
             
+            Q_STInit(&image_stable, 10);
+            for (k = 0; k < nimagefiles-1; k++) {
+                int len = strlen(imagenames[k]);
+                if (R_IsSupportedImageType(imagenames[k] + len - 4)) {
+                    Q_STRegister(&image_stable, imagenames[k]);
+                }
+            }
+            Q_STPack(&image_stable);
+            
             // count valid skins, which consist of a skin with a matching "_i" icon
             for (k = 0; k < nimagefiles-1; k++)
-                if ( IsValidSkin(imagenames, nimagefiles, k) )
+                if ( IsValidSkin(&image_stable, imagenames[k]) )
                     nskins++;
             
             if (!nskins)
@@ -252,7 +254,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 for (s = 0, k = 0; k < nimagefiles-1; k++)
                 {
                     char *a, *b, *c;
-                    if ( IsValidSkin(imagenames, nimagefiles, k) )
+                    if ( IsValidSkin(&image_stable, imagenames[k]) )
                     {
                         a = strrchr(imagenames[k], '/');
                         b = strrchr(imagenames[k], '\\');
@@ -283,7 +285,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             strcpy(s_pmi[s_numplayermodels].directory, c+1);
             
             FS_FreeFileList (imagenames, nimagefiles);
-            
+            Q_STFree(&image_stable);
             s_numplayermodels++;
         }
         
