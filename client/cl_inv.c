@@ -32,6 +32,7 @@ void CL_ParseInventory (void)
 
 	for (i=0 ; i<MAX_ITEMS ; i++)
 		cl.inventory[i] = MSG_ReadShort (&net_message);
+    
 }
 
 
@@ -61,12 +62,11 @@ CL_DrawInventory
 
 void CL_DrawInventory (void)
 {
-	int32_t		i, j;
+	int32_t		i;
 	int32_t		num, selected_num, item;
 	int32_t		index[MAX_ITEMS];
 	char	string[1024];
 	int32_t		x, y;
-	char	binding[1024];
 	char	*bind;
 	int32_t		selected;
 	int32_t		top;
@@ -120,20 +120,11 @@ void CL_DrawInventory (void)
 		item = index[i];
 		// search for a binding
 
-		// Knightmare- BIG UGLY HACK for connected to server using old protocol
-		// Changed config strings require different parsing
-		if ( LegacyProtocol() )
-			Com_sprintf (binding, sizeof(binding), "use %s", cl.configstrings[OLD_CS_ITEMS+item]);
-		else
-			Com_sprintf (binding, sizeof(binding), "use %s", cl.configstrings[CS_ITEMS+item]);
-
-		bind = "";
-		for (j=0; j<MAX_KEYEVENTS; j++)
-			if (keybindings[j] && !Q_strcasecmp (keybindings[j], binding))
-			{
-				bind = Key_KeynumToString(j);
-				break;
-			}
+        bind = "";
+        if (cl.inventorykey[item] >= 0)
+        {
+            bind = Key_KeynumToString(cl.inventorykey[item]);
+        }
 
 		// Knightmare- BIG UGLY HACK for connected to server using old protocol
 		// Changed config strings require different parsing

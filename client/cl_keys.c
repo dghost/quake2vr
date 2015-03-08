@@ -39,6 +39,8 @@ int32_t		key_waiting;
 
 #define MAX_KEYEVENTS 512
 char		*keybindings[MAX_KEYEVENTS];
+hash32_t    keybindinghashes[MAX_KEYEVENTS];
+
 qboolean	consolekeys[MAX_KEYEVENTS];	// if true, can't be rebound while in console
 qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
 keynum_t	keyshift[MAX_KEYEVENTS];		// key to map to if shift held down in console
@@ -661,7 +663,8 @@ void Key_SetBinding (int32_t keynum, char *binding)
 {
 	char	*new;
 	int32_t		l;
-			
+    int i;
+	
 	if (keynum == -1)
 		return;
 
@@ -670,14 +673,22 @@ void Key_SetBinding (int32_t keynum, char *binding)
 	{
 		Z_Free (keybindings[keynum]);
 		keybindings[keynum] = NULL;
-	}
+        for (i = 0; i < MAX_ITEMS; i++)
+        {
+            if (cl.inventorykey[i] == keynum)
+                cl.inventorykey[i] = -1;
+        }
+    }
 			
 // allocate memory for new binding
 	l = strlen (binding);	
 	new = Z_TagMalloc (l+1, TAG_CLIENT);
 	strcpy (new, binding);
 	new[l] = 0;
-	keybindings[keynum] = new;	
+	keybindings[keynum] = new;
+    keybindinghashes[keynum] = Q_HashSanitized32(new);
+    
+    
 }
 
 /*

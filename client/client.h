@@ -169,7 +169,8 @@ typedef struct
 	//
 	char		layout[1024];		// general 2D overlay
 	int32_t			inventory[MAX_ITEMS];
-
+    int32_t         inventorykey[MAX_ITEMS];
+    
 	//
 	// non-gameserver infornamtion
 	// FIXME: move this cinematic stuff into the cin_t structure
@@ -188,7 +189,6 @@ typedef struct
 	int32_t			playernum;
 
 	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
-
 	//
 	// locally derived information from server state
 	//

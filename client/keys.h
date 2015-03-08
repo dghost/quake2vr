@@ -288,6 +288,7 @@ typedef enum {
 #define MAX_KEYEVENTS 512
 
 extern char		*keybindings[MAX_KEYEVENTS];
+extern hash32_t    keybindinghashes[MAX_KEYEVENTS];
 extern	int32_t		key_repeats[MAX_KEYEVENTS];
 
 extern	int32_t	anykeydown;

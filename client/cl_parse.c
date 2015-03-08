@@ -457,6 +457,7 @@ void CL_ParseConfigString (void)
 	int32_t		i;
 	char	*s;
 	char	olds[MAX_QPATH];
+    char	scratch[1024];
 
 	i = MSG_ReadShort (&net_message);
 	if (i < 0 || i >= MAX_CONFIGSTRINGS)
@@ -507,7 +508,22 @@ void CL_ParseConfigString (void)
 		{
 			if (cl.refresh_prepped && strcmp(olds, s))
 				CL_ParseClientinfo (i-OLD_CS_PLAYERSKINS);
-		}
+        } else if (i >= OLD_CS_ITEMS && i < OLD_CS_ITEMS + MAX_ITEMS) {
+            int j;
+            int item = i - OLD_CS_ITEMS;
+            hash32_t hash;
+            Com_sprintf (scratch, sizeof(scratch), "use %s", cl.configstrings[i]);
+            hash = Q_HashSanitized32(scratch);
+            cl.inventorykey[item] = -1;
+            for (j=0; j<MAX_KEYEVENTS; j++)
+            {
+                if (keybindings[j] && !Q_HashEquals32(keybindinghashes[j], hash) && !Q_strcasecmp(keybindings[j], scratch))
+                {
+                    cl.inventorykey[item] = j;
+                    break;
+                }
+            }
+        }
 	}
 	else // new configstring offsets
 	{
@@ -543,7 +559,25 @@ void CL_ParseConfigString (void)
 		{
 			if (cl.refresh_prepped && strcmp(olds, s))
 				CL_ParseClientinfo (i-CS_PLAYERSKINS);
-		}
+        }
+        else if (i >= CS_ITEMS && i < CS_ITEMS + MAX_ITEMS)
+        {
+            int j;
+            int item = i - CS_ITEMS;
+            hash32_t hash;
+            Com_sprintf (scratch, sizeof(scratch), "use %s", cl.configstrings[i]);
+            hash = Q_HashSanitized32(scratch);
+            cl.inventorykey[item] = -1;
+            for (j=0; j<MAX_KEYEVENTS; j++)
+            {
+                if (keybindings[j] && !Q_HashEquals32(keybindinghashes[j], hash) && !Q_strcasecmp(keybindings[j], scratch))
+                {
+                    cl.inventorykey[item] = j;
+                    
+                    break;
+                }
+            }
+        }
 	}
 	//end Knightmare
 }
