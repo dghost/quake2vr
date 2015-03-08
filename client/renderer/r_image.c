@@ -34,12 +34,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "include/stb_image_resize.h"
 
 
-image_t		gltextures[MAX_GLTEXTURES];
+image_t         gltextures[MAX_GLTEXTURES];
 int32_t			numgltextures;
 int32_t			base_textureid;		// gltextures[i] = base_textureid+i
 
-static byte			 intensitytable[256];
-static uint8_t gammatable[256];
+static byte     intensitytable[256];
+static uint8_t  gammatable[256];
 
 // TODO: consider removing r_intensity
 cvar_t		*r_intensity;
@@ -60,8 +60,13 @@ int32_t		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int32_t		gl_filter_max = GL_LINEAR;
 
 
-static uint8_t type_buffer[256];
-static stable_t supported_image_types = {type_buffer, 256};
+// store the names of last images that failed to load
+stable_t failed_images;
+
+// use 128 bytes for the supported image types table
+// with PCX, TGA, JPG, PNG, and WAL it used 66 bytes
+static uint8_t type_buffer[128];
+static stable_t supported_image_types = {type_buffer, 128};
 
 int s_pcx;
 int s_tga;
@@ -990,8 +995,6 @@ nonscrap:
 }
 
 
-// store the names of last images that failed to load
-stable_t failed_images;
 
 /*
 ===============

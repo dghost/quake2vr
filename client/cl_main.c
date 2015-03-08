@@ -1063,8 +1063,8 @@ void CL_Skins_f (void)
 }
 
 
-static uint8_t packet_buffer[512];
-static stable_t clpacket_stable = {packet_buffer, 512};
+static uint8_t packet_buffer[256];
+static stable_t clpacket_stable = {packet_buffer, 256};
 
 int s_client_connect;
 int s_info;
@@ -1368,7 +1368,7 @@ void CL_InitLocal (void)
     s_echo = Q_STRegister(&clpacket_stable, "echo");
     Q_STPack(&clpacket_stable);
     
-	CL_InitInput ();
+    CL_InitInput ();
 
 	adr0 = Cvar_Get( "adr0", "", CVAR_ARCHIVE );
 	adr1 = Cvar_Get( "adr1", "", CVAR_ARCHIVE );

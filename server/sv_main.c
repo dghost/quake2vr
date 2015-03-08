@@ -600,8 +600,8 @@ void SVC_RemoteCommand (void)
 	Com_EndRedirect ();
 }
 
-static uint8_t packet_buffer[512];
-stable_t packet_stable = {packet_buffer, 512};
+static uint8_t packet_buffer[256];
+stable_t packet_stable = {packet_buffer, 256};
 
 int s_ping;
 int s_ack;

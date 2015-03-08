@@ -573,8 +573,8 @@ void SV_Nextserver_f (void)
 	SV_Nextserver ();
 }
 
-static uint8_t command_buffer[512];
-stable_t command_stable = {command_buffer, 512};
+static uint8_t command_buffer[256];
+static stable_t command_stable = {command_buffer, 256};
 
 typedef struct
 {
