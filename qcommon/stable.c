@@ -27,7 +27,7 @@ int Q_STRegister(stable_t *st, const char *string) {
     
     }
     if (result == NFST_STRING_TABLE_FULL) {
-        Com_Printf("Error registering string: %s\n",string);
+        Com_Printf(S_COLOR_RED"Error: could not register string: %s\n",string);
     }
     
     return result;
