@@ -142,11 +142,12 @@ qboolean R_IsSupportedImageType(char *name);
 static qboolean IsValidSkin (stable_t *filetable, char *filename)
 {
     char scratch[1024];
-    
+    int32_t	len;
+	char *ext;
+
     strncpy(scratch, filename,sizeof(scratch));
-    
-	int32_t		len = strlen(scratch);
-    char *ext = scratch + max(len-4,0);
+    len = strlen(scratch);
+    ext = scratch + max(len-4,0);
 
 	if (R_IsSupportedImageType(ext))
 	{
