@@ -182,7 +182,7 @@ int32_t MapSDLKey (SDL_Keysym key)
 
 void AppActivate(SDL_bool fActive, SDL_bool minimize)
 {
-	Minimized = (SDL_bool) !!minimize;
+	Minimized = /*(SDL_bool) !!*/minimize;
 
 	Key_ClearStates();
 
@@ -239,20 +239,20 @@ void SDL_ProcEvent (SDL_Event *event, uint32_t time)
 		case SDL_WINDOWEVENT_RESTORED:
 		case SDL_WINDOWEVENT_SHOWN:
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			AppActivate(true,false);
+			AppActivate(SDL_TRUE, SDL_FALSE);
 
 			if ( kmgl_active )
 				GLimp_AppActivate ( true );
 			break;
 
 		case SDL_WINDOWEVENT_MINIMIZED:
-			AppActivate(false,true);
+			AppActivate(SDL_FALSE,SDL_TRUE);
 			if ( kmgl_active )
 				GLimp_AppActivate ( false );
 			break;
 		case SDL_WINDOWEVENT_HIDDEN:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			AppActivate(false,false);
+			AppActivate(SDL_FALSE,SDL_FALSE);
 			if ( kmgl_active )
 				GLimp_AppActivate ( false );
 			break;
