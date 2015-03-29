@@ -44,6 +44,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdint.h>
 #include <time.h>
 
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
+#include <stdbool.h>
+#endif
+
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY
 #define id386	1
 #else
@@ -51,8 +55,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 typedef uint8_t	byte;
-typedef enum {false, true}	qboolean;
 
+#if defined(__cplusplus) || defined(__bool_true_false_are_defined)
+typedef bool qboolean;
+#else
+typedef enum{ false, true } qboolean;
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)

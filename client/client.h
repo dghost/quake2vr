@@ -54,7 +54,7 @@ trace_t SV_Trace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, edict_t *p
 //=============================================================================
 
 //  added for Psychospaz's chasecam
-vec3_t clientOrg; //lerped org of client for server->client side effects
+extern vec3_t clientOrg; //lerped org of client for server->client side effects
 
 
 typedef struct
@@ -447,14 +447,10 @@ typedef struct
 	float avg;
 } hudscale_t;
 
-hudscale_t hudScale;
-
 float scaledHud (float param);
 float HudScale (void);
 void InitHudScale (void);
-
 void CL_AddNetgraph (void); //here!!
-
 
 //ROGUE
 typedef struct cl_sustain
@@ -771,11 +767,9 @@ void CL_ParseDownload (void);
 extern	int32_t			gun_frame;
 extern	struct model_s	*gun_model;
 
-qboolean loadingMessage;
-
-char loadingMessages[96];
-
-float loadingPercent;
+extern qboolean loadingMessage;
+extern char loadingMessages[96];
+extern float loadingPercent;
 
 void V_Init (void);
 float CalcFov (float fov_x, float width, float height);

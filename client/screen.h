@@ -26,9 +26,6 @@ typedef struct
 	float avg;
 } screenscale_t;
 
-screenscale_t screenScale;
-
-
 typedef enum
 {
 ALIGN_STRETCH,

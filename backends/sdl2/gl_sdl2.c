@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <SDL_syswm.h>
 
-int32_t GLimp_InitGL (void);
+qboolean GLimp_InitGL (void);
 
 static SDL_GLContext glcontext;
 
@@ -407,12 +407,12 @@ void GLimp_Shutdown( void )
 ** of OpenGL.  Under Win32 this means dealing with the pixelformats and
 ** doing the wgl interface stuff.
 */
-int32_t GLimp_Init( )
+qboolean GLimp_Init( )
 {
 	return true;
 }
 
-int32_t GLimp_InitGL (void)
+qboolean GLimp_InitGL (void)
 {
 	SDL_DisplayMode currentMode;
 	int srgb = 0;

@@ -192,7 +192,7 @@ int32_t VR_GetHMDResolution(int32_t *width, int32_t *height)
 
 void VR_GetOrientationEMAQuat(vec3_t quat) 
 {
-	float bounce = (!!vr_hud_bounce->value) / vr_hud_bounce_falloff->value;
+	float bounce = ((vr_hud_bounce->value == VR_HUD_BOUNCE_NONE) ? 0 : 1) / vr_hud_bounce_falloff->value;
 	vec4_t t1, t2, zero = { 1, 0, 0, 0 };
 	
 	if (!hmd)

@@ -294,9 +294,9 @@ void IN_ControllerCommands (void)
 		for (j = 0; j < 4; j++)
 		{
 			if (newDir == Gamepad_Up + j)
-				Gamepad_HandleRepeat(K_GAMEPAD_LSTICK_UP + j);
+				Gamepad_HandleRepeat((keynum_t)(K_GAMEPAD_LSTICK_UP + j));
 			if (newDir != Gamepad_Up + j && oldDir == Gamepad_Up + j)
-				Gamepad_SendKeyup(K_GAMEPAD_LSTICK_UP + j);
+				Gamepad_SendKeyup((keynum_t)(K_GAMEPAD_LSTICK_UP + j));
 		}
 
 		Gamepad_ParseThumbStick(newAxisState[SDL_CONTROLLER_AXIS_RIGHTX],newAxisState[SDL_CONTROLLER_AXIS_RIGHTY],RIGHT_THUMB_DEADZONE,newStick);
@@ -309,9 +309,9 @@ void IN_ControllerCommands (void)
 		for (j = 0; j < 4; j++)
 		{
 			if (newDir == Gamepad_Up + j)
-				Gamepad_HandleRepeat(K_GAMEPAD_RSTICK_UP + j);
+				Gamepad_HandleRepeat((keynum_t)(K_GAMEPAD_RSTICK_UP + j));
 			if (newDir != Gamepad_Up + j && oldDir == Gamepad_Up + j)
-				Gamepad_SendKeyup(K_GAMEPAD_RSTICK_UP + j);
+				Gamepad_SendKeyup((keynum_t)(K_GAMEPAD_RSTICK_UP + j));
 		}
 
 		for (j = SDL_CONTROLLER_BUTTON_DPAD_UP ; j <= SDL_CONTROLLER_BUTTON_DPAD_RIGHT ; j++)
@@ -319,10 +319,10 @@ void IN_ControllerCommands (void)
 			uint32_t k = j - SDL_CONTROLLER_BUTTON_DPAD_UP;
 
 			if (newButtonState[j])
-				Gamepad_HandleRepeat(K_GAMEPAD_UP + k);
+				Gamepad_HandleRepeat((keynum_t)(K_GAMEPAD_UP + k));
 
 			if (!(newButtonState[j]) && (oldButtonState[j]))
-				Gamepad_SendKeyup(K_GAMEPAD_UP + k);
+				Gamepad_SendKeyup((keynum_t)(K_GAMEPAD_UP + k));
 		}
 	}  else {
 		uint32_t j;

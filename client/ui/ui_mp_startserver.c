@@ -227,11 +227,11 @@ void UI_LoadArenas (void)
 		if (ui_svr_arena_mapnames[i])
 			FS_FreeFileList (ui_svr_arena_mapnames[i], ui_svr_arena_nummaps[i]);
 		ui_svr_arena_nummaps[i] = 0;
-		ui_svr_arena_mapnames[i] = Z_TagMalloc( sizeof( char * ) * MAX_ARENAS, TAG_MENU );
+		ui_svr_arena_mapnames[i] = (char**)Z_TagMalloc( sizeof( char * ) * MAX_ARENAS, TAG_MENU );
 		memset( ui_svr_arena_mapnames[i], 0, sizeof( char * ) * MAX_ARENAS );
 	}
 
-	tmplist = Z_TagMalloc( sizeof( char * ) * MAX_ARENAS , TAG_MENU);
+	tmplist = (char**)Z_TagMalloc( sizeof( char * ) * MAX_ARENAS , TAG_MENU);
 	memset( tmplist, 0, sizeof( char * ) * MAX_ARENAS );
 
 	//
@@ -280,7 +280,7 @@ void UI_LoadArenas (void)
 
 					for (j=0; j<NUM_MAPTYPES; j++)
 						if (type_supported[j]) {
-							ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = Z_TagStrdup( scratch, TAG_MENU );
+							ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = (char*)Z_TagStrdup( scratch, TAG_MENU );
 							ui_svr_arena_nummaps[j]++;
 						}
 
@@ -342,7 +342,7 @@ void UI_LoadMapList (void)
 		length = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
 #endif
-		buffer = Z_TagMalloc( length, TAG_MENU );
+		buffer = (char*)Z_TagMalloc( length, TAG_MENU );
 		fread( buffer, length, 1, fp );
 	}
 
@@ -356,7 +356,7 @@ void UI_LoadMapList (void)
     
     if (ui_svr_listfile_nummaps > 0)
     {
-        ui_svr_listfile_mapnames = Z_TagMalloc( sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ), TAG_MENU );
+        ui_svr_listfile_mapnames = (char**)Z_TagMalloc( sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ), TAG_MENU );
         memset( ui_svr_listfile_mapnames, 0, sizeof( char * ) * ( ui_svr_listfile_nummaps + 1 ) );
         
         for (i = 0; i < ui_svr_listfile_nummaps; i++)
@@ -369,13 +369,13 @@ void UI_LoadMapList (void)
             longname = COM_Parse(&s);
             Com_sprintf( scratch, sizeof( scratch ), "%s\n%s", longname, shortname );
 
-            ui_svr_listfile_mapnames[i] = Z_TagStrdup( scratch, TAG_MENU );
+            ui_svr_listfile_mapnames[i] = (char*)Z_TagStrdup( scratch, TAG_MENU );
         }
     } else {
-        ui_svr_listfile_mapnames = Z_TagMalloc( sizeof( char * ) * ( 2 ), TAG_MENU );
+        ui_svr_listfile_mapnames = (char**)Z_TagMalloc( sizeof( char * ) * ( 2 ), TAG_MENU );
         memset( ui_svr_listfile_mapnames, 0, sizeof( char * ) * ( 2) );
         ui_svr_listfile_nummaps = 1;
-        ui_svr_listfile_mapnames[0] = Z_TagStrdup("\"Outer Base\"\nbase1", TAG_MENU);
+        ui_svr_listfile_mapnames[0] = (char*)Z_TagStrdup("\"Outer Base\"\nbase1", TAG_MENU);
     }
     
     if ( fp != 0 )
@@ -404,9 +404,9 @@ void UI_BuildMapList (maptype_t maptype)
     ui_svr_nummaps = ui_svr_listfile_nummaps + ui_svr_arena_nummaps[maptype];
 
 	if (ui_svr_mapnames)
-        ui_svr_mapnames = Z_Realloc(ui_svr_mapnames, sizeof( char * ) * ( ui_svr_nummaps + 1 ));
+        ui_svr_mapnames = (char**)Z_Realloc(ui_svr_mapnames, sizeof( char * ) * ( ui_svr_nummaps + 1 ));
     else
-        ui_svr_mapnames = Z_TagMalloc( sizeof( char * ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
+        ui_svr_mapnames = (char**)Z_TagMalloc( sizeof( char * ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
 	memset( ui_svr_mapnames, 0, sizeof( char * ) * ( ui_svr_nummaps + 1 ) );
 
 	for (i = 0; i < ui_svr_nummaps; i++)
@@ -426,8 +426,8 @@ void UI_BuildMapList (maptype_t maptype)
 void UI_RefreshMapImages(void) {
     // levelshot found table
     if (ui_svr_mapshotvalid && ui_svr_mapshot) {
-        ui_svr_mapshotvalid = Z_Realloc(ui_svr_mapshotvalid, sizeof( byte ) * ( ui_svr_nummaps + 1 ));
-        ui_svr_mapshot = Z_Realloc(ui_svr_mapshot, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
+        ui_svr_mapshotvalid = (byte*)Z_Realloc(ui_svr_mapshotvalid, sizeof( byte ) * ( ui_svr_nummaps + 1 ));
+        ui_svr_mapshot = (struct image_s**)Z_Realloc(ui_svr_mapshot, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
         
         memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
         memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
@@ -605,10 +605,10 @@ void StartServer_MenuInit (void)
 	UI_BuildMapList (ui_svr_maptype); // was MAP_DM
 
 	// levelshot found table
-    ui_svr_mapshotvalid = Z_TagMalloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
+    ui_svr_mapshotvalid = (byte*)Z_TagMalloc( sizeof( byte ) * ( ui_svr_nummaps + 1 ) , TAG_MENU);
     memset( ui_svr_mapshotvalid, 0, sizeof( byte ) * ( ui_svr_nummaps + 1 ) );
     
-    ui_svr_mapshot = Z_TagMalloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ), TAG_MENU );
+    ui_svr_mapshot = (struct image_s**)Z_TagMalloc( sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ), TAG_MENU );
     memset( ui_svr_mapshot, 0, sizeof( struct image_s *) * ( ui_svr_nummaps + 1 ) );
     
     if ((ui_svr_mapshot[ui_svr_nummaps] = R_DrawFindPic(UI_NOSCREEN_NAME)))

@@ -36,6 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "renderer/include/r_vr.h"
 #include "renderer/include/r_stereo.h"
 
+screenscale_t screenScale;
+hudscale_t hudScale;
+
+qboolean loadingMessage;
+float loadingPercent;
+char loadingMessages[96];
+
 float		scr_con_current;	// aproaches scr_conlines at scr_conspeed
 float		scr_conlines;		// 0.0 to 1.0 lines of console to display
 
@@ -1134,9 +1141,9 @@ void SCR_DrawLoadingBar (float x, float y, float w, float h, int32_t percent, fl
 }
 
 
-struct image_s *load_saveshot;
+extern struct image_s *load_saveshot;
 //void Menu_DrawString( int32_t x, int32_t y, const char *string, int32_t alpha );
-int32_t stringLen (char *string);
+int32_t stringLen (const char *string);
 
 /*
 ==============

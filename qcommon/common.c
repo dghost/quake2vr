@@ -82,7 +82,7 @@ void Com_BeginRedirect (int32_t target, char *buffer, int32_t buffersize, void (
 	rd_target = target;
 	rd_buffer = buffer;
 	rd_buffersize = buffersize;
-	rd_flush = flush;
+	rd_flush = (void(__cdecl *)(int32_t, char *))flush;
 
 	*rd_buffer = 0;
 }
@@ -309,7 +309,7 @@ void MSG_WriteChar (sizebuf_t *sb, int32_t c)
 		Com_Error (ERR_FATAL, "MSG_WriteChar: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = (byte*)SZ_GetSpace (sb, 1);
 	buf[0] = c;
 }
 
@@ -322,7 +322,7 @@ void MSG_WriteByte (sizebuf_t *sb, int32_t c)
 		Com_Error (ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = (byte*)SZ_GetSpace (sb, 1);
 	buf[0] = c;
 }
 
@@ -335,7 +335,7 @@ void MSG_WriteShort (sizebuf_t *sb, int32_t c)
 		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 2);
+	buf = (byte*)SZ_GetSpace (sb, 2);
 	buf[0] = c&0xff;
 	buf[1] = c>>8;
 }
@@ -344,7 +344,7 @@ void MSG_WriteLong (sizebuf_t *sb, int32_t c)
 {
 	byte	*buf;
 	
-	buf = SZ_GetSpace (sb, 4);
+	buf = (byte*)SZ_GetSpace (sb, 4);
 	buf[0] = c&0xff;
 	buf[1] = (c>>8)&0xff;
 	buf[2] = (c>>16)&0xff;
@@ -1330,18 +1330,18 @@ typedef struct
 } zonelist_t;
 
 zonelist_t zonenames[] = {
-    {TAG_UNTAGGED, "Untagged"},
-    {TAG_SYSTEM, "System"},
-    {TAG_SERVER, "Server"},
-    {TAG_CLIENT, "Client"},
-    {TAG_RENDERER, "Renderer"},
-    {TAG_AUDIO, "Audio"},
-    {TAG_MENU, "Menu"},
-    {TAG_GAME, "Game"},
-    {TAG_LEVEL, "Level"},
-    {TAG_GAME_LEGACY, "Game (old)"},
-    {TAG_LEVEL_LEGACY, "Level (old)"},
-    {0, NULL},
+	{ (int16_t)TAG_UNTAGGED, "Untagged" },
+	{ (int16_t)TAG_SYSTEM, "System" },
+	{ (int16_t)TAG_SERVER, "Server" },
+	{ (int16_t)TAG_CLIENT, "Client" },
+	{ (int16_t)TAG_RENDERER, "Renderer" },
+	{ (int16_t)TAG_AUDIO, "Audio" },
+	{ (int16_t)TAG_MENU, "Menu" },
+	{ (int16_t)TAG_GAME, "Game" },
+	{ (int16_t)TAG_LEVEL, "Level" },
+	{ (int16_t)TAG_GAME_LEGACY, "Game (old)" },
+	{ (int16_t)TAG_LEVEL_LEGACY, "Level (old)" },
+    {0, NULL}
 };
 
 typedef struct zhead_s
@@ -1381,7 +1381,7 @@ ztag_t *Z_GetTagChain (int16_t tag) {
     if (z && z->tag == tag)
         return z;
     
-    z = malloc(sizeof(ztag_t));
+    z = (ztag_t*)malloc(sizeof(ztag_t));
     memset(z, 0, sizeof(ztag_t));
     
     z->chain.prev = z->chain.next = &z->chain;
@@ -1498,7 +1498,7 @@ void *Z_TagMalloc (int32_t size, int16_t tag)
         chain = Z_GetTagChain(tag);
     
 	size = size + sizeof(zhead_t);
-	z = malloc(size);
+	z = (zhead_t*)malloc(size);
 	if (!z)
 		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
 
@@ -1543,7 +1543,7 @@ void *Z_Realloc(void* ptr, int32_t size) {
     newSize = size + sizeof(zhead_t);
     sizeDiff = newSize - oldSize;
     
-    newZ = realloc(z, newSize);
+    newZ = (zhead_t*)realloc(z, newSize);
     
     if (newZ) {
         newZ->size = newSize;
@@ -1562,7 +1562,7 @@ Z_Malloc
 */
 void *Z_Malloc (int32_t size)
 {
-	return Z_TagMalloc (size, TAG_UNTAGGED);
+	return Z_TagMalloc (size, (int16_t)TAG_UNTAGGED);
 }
 
 
@@ -1590,7 +1590,7 @@ void *Z_TagStrdup (char *string, int16_t tag)
  */
 void *Z_Strdup (char *string)
 {
-    return Z_TagStrdup(string, TAG_UNTAGGED);
+	return Z_TagStrdup(string, (int16_t)TAG_UNTAGGED);
 }
 
 

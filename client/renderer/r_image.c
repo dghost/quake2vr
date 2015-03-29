@@ -363,7 +363,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 		return;
 	}
 
-	out = Z_TagMalloc ( (pcx->ymax+1) * (pcx->xmax+1) , TAG_RENDERER);
+	out = (byte*)Z_TagMalloc ( (pcx->ymax+1) * (pcx->xmax+1) , TAG_RENDERER);
 
 	*pic = out;
 
@@ -371,7 +371,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 
 	if (palette)
 	{
-		*palette = Z_TagMalloc(768, TAG_RENDERER);
+		*palette = (byte*)Z_TagMalloc(768, TAG_RENDERER);
 		memcpy (*palette, (byte *)pcx + len - 768, 768);
 	}
 
@@ -764,7 +764,7 @@ qboolean GL_Upload32 (uint32_t *data, int32_t width, int32_t height, qboolean mi
 	//
 	if (scaled_width != width || scaled_height != height) 
 	{
-		scaled = Z_TagMalloc((scaled_width * scaled_height) * 4, TAG_RENDERER);
+		scaled = (uint32_t*)Z_TagMalloc((scaled_width * scaled_height) * 4, TAG_RENDERER);
 		if (!stbir_resize_uint8((uint8_t *) data, (int) width, (int) height, 0, (uint8_t *) scaled, (int) scaled_width, (int) scaled_height, 0, 4)) {
 			scaled_width = width;
 			scaled_height = height;

@@ -331,7 +331,7 @@ void Mod_LoadLighting (lump_t *l)
 		loadmodel->lightdata = NULL;
 		return;
 	}
-	loadmodel->lightdata = Hunk_Alloc ( l->filelen);	
+	loadmodel->lightdata = (byte*)Hunk_Alloc ( l->filelen);	
 	memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
 }
 
@@ -350,7 +350,7 @@ void Mod_LoadVisibility (lump_t *l)
 		loadmodel->vis = NULL;
 		return;
 	}
-	loadmodel->vis = Hunk_Alloc ( l->filelen);	
+	loadmodel->vis = (dvis_t*)Hunk_Alloc ( l->filelen);	
 	memcpy (loadmodel->vis, mod_base + l->fileofs, l->filelen);
 
 	loadmodel->vis->numclusters = LittleLong (loadmodel->vis->numclusters);
@@ -373,11 +373,11 @@ void Mod_LoadVertexes (lump_t *l)
 	mvertex_t	*out;
 	int32_t			i, count;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dvertex_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (mvertex_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->vertexes = out;
 	loadmodel->numvertexes = count;
@@ -420,11 +420,11 @@ void Mod_LoadSubmodels (lump_t *l)
 	mmodel_t	*out;
 	int32_t			i, j, count;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dmodel_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (mmodel_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->submodels = out;
 	loadmodel->numsubmodels = count;
@@ -455,11 +455,11 @@ void Mod_LoadEdges (lump_t *l)
 	medge_t *out;
 	int32_t 	i, count;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dedge_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( (count + 1) * sizeof(*out));	
+	out = (medge_t*)Hunk_Alloc ( (count + 1) * sizeof(*out));	
 
 	loadmodel->edges = out;
 	loadmodel->numedges = count;
@@ -653,11 +653,11 @@ void Mod_LoadTexinfo (lump_t *l)
 	char	name[MAX_QPATH];
 	int32_t		next;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (texinfo_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (mtexinfo_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->texinfo = out;
 	loadmodel->numtexinfo = count;
@@ -786,11 +786,11 @@ void Mod_LoadFaces (lump_t *l)
 	int32_t			planenum, side;
 	int32_t			ti;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dface_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (msurface_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
@@ -890,11 +890,11 @@ void Mod_LoadNodes (lump_t *l)
 	dnode_t		*in;
 	mnode_t 	*out;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dnode_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (mnode_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->nodes = out;
 	loadmodel->numnodes = count;
@@ -939,11 +939,11 @@ void Mod_LoadLeafs (lump_t *l)
 	int32_t			i, j, count, p;
 	glpoly_t	*poly;
 
-	in = (void *)(mod_base + l->fileofs);
+	in = (dleaf_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (mleaf_t*)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->leafs = out;
 	loadmodel->numleafs = count;
@@ -997,11 +997,11 @@ void Mod_LoadMarksurfaces (lump_t *l)
 	int16_t		*in;
 	msurface_t **out;
 	
-	in = (void *)(mod_base + l->fileofs);
+	in = (int16_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (msurface_t**)Hunk_Alloc ( count*sizeof(*out));	
 
 	loadmodel->marksurfaces = out;
 	loadmodel->nummarksurfaces = count;
@@ -1025,7 +1025,7 @@ void Mod_LoadSurfedges (lump_t *l)
 	int32_t		i, count;
 	int32_t		*in, *out;
 	
-	in = (void *)(mod_base + l->fileofs);
+	in = (int32_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
@@ -1033,7 +1033,7 @@ void Mod_LoadSurfedges (lump_t *l)
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: bad surfedges count in %s: %i",
 		loadmodel->name, count);
 
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (int32_t *)Hunk_Alloc(count*sizeof(*out));
 
 	loadmodel->surfedges = out;
 	loadmodel->numsurfedges = count;
@@ -1056,14 +1056,14 @@ void Mod_LoadPlanes (lump_t *l)
 	int32_t			count;
 	int32_t			bits;
 	
-	in = (void *)(mod_base + l->fileofs);
+	in = (dplane_t *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		VID_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
 	count = l->filelen / sizeof(*in);
 
 //original bug- Quake2Max
 //	out = Hunk_Alloc ( count*2*sizeof(*out));
-	out = Hunk_Alloc ( count*sizeof(*out));	
+	out = (cplane_t*)Hunk_Alloc ( count*sizeof(*out));	
 	
 	loadmodel->planes = out;
 	loadmodel->numplanes = count;
@@ -1259,7 +1259,7 @@ qboolean Mod_ParseWaveFunc (char **data, waveForm_t *out)
 	else if (!Q_strcasecmp(tok, "noise"))
 		*out = WAVEFORM_NOISE;
 	else {
-		*out = -1;
+		*out = (waveForm_t)-1;
 		return false;
 	}
 	return true;
@@ -1486,7 +1486,7 @@ void Mod_ParseModelScript (maliasskin_t *skin, char **data, char *dataStart, int
 					}
 			}
 			else if (!Q_strcasecmp(token, "identity"))
-				skinParms->glow.type = -1;
+				skinParms->glow.type = (waveForm_t)-1;
 			else {	// only wave or identity
 				VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Mod_ParseModelScript: unknown type '%s' for 'glow' in %s.%i in %s\n", token, meshname, skinnum, scriptname);
 				break;
@@ -1521,14 +1521,14 @@ void Mod_SetRenderParmsDefaults (renderparms_t *parms)
 	parms->blend = false;
 	parms->blendfunc_src = -1;
 	parms->blendfunc_dst = -1;
-	parms->glow.type = -1;
+	parms->glow.type = (waveForm_t)-1;
 	parms->translate_x = 0.0f;
 	parms->translate_y = 0.0f;
 	parms->rotate = 0.0f;
 	parms->scale_x = 1.0f;
 	parms->scale_y = 1.0f;
-	parms->stretch.type = -1;
-	parms->turb.type = -1;
+	parms->stretch.type = (waveForm_t)-1;
+	parms->turb.type = (waveForm_t)-1;
 	parms->scroll_x = 0.0f;
 	parms->scroll_y = 0.0f;
 }
@@ -1908,7 +1908,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 
 	pinmodel = (dmdl_t *)buffer;
 
-	poutmodel = Hunk_Alloc (sizeof(maliasmodel_t));
+	poutmodel = (maliasmodel_t*)Hunk_Alloc (sizeof(maliasmodel_t));
 
 	// byte swap the header fields and sanity check
 	version = LittleLong (pinmodel->version);
@@ -1930,7 +1930,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	// load mesh info
 	//
-	poutmesh = poutmodel->meshes = Hunk_Alloc(sizeof(maliasmesh_t));
+	poutmesh = poutmodel->meshes = (maliasmesh_t*)Hunk_Alloc(sizeof(maliasmesh_t));
 
 	Com_sprintf(poutmesh->name, sizeof(poutmesh->name), "md2mesh"); // mesh name in script must match this
 
@@ -1965,7 +1965,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	numIndices = poutmesh->num_tris * 3;
 	numVertices = 0;
 
-	poutindex = poutmesh->indexes = Hunk_Alloc( sizeof(index_t) * poutmesh->num_tris * 3 );
+	poutindex = poutmesh->indexes = (index_t*)Hunk_Alloc( sizeof(index_t) * poutmesh->num_tris * 3 );
 
 	memset(indRemap, -1, MAX_TRIANGLES * 3 * sizeof(int32_t));
 
@@ -2006,7 +2006,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	// load base S and T vertices
 	//
 	pincoord = (dstvert_t *)((byte *)pinmodel + LittleLong(pinmodel->ofs_st));
-	poutcoord = poutmesh->stcoords = Hunk_Alloc ( sizeof(maliascoord_t) * poutmesh->num_verts );
+	poutcoord = poutmesh->stcoords = (maliascoord_t*)Hunk_Alloc ( sizeof(maliascoord_t) * poutmesh->num_verts );
 
 	for (i=0; i < numIndices; i++) {
 		poutcoord[poutindex[i]].st[0] = (float)(((double)LittleShort(pincoord[tempStIndex[indRemap[i]]].s) + 0.5) * skinWidth);
@@ -2016,8 +2016,8 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	// load the frames
 	//
-	poutframe = poutmodel->frames = Hunk_Alloc ( sizeof(maliasframe_t) * poutmodel->num_frames );
-	poutvert = poutmesh->vertexes = Hunk_Alloc ( poutmodel->num_frames * poutmesh->num_verts * sizeof(maliasvertex_t) );
+	poutframe = poutmodel->frames = (maliasframe_t*)Hunk_Alloc ( sizeof(maliasframe_t) * poutmodel->num_frames );
+	poutvert = poutmesh->vertexes = (maliasvertex_t*)Hunk_Alloc ( poutmodel->num_frames * poutmesh->num_verts * sizeof(maliasvertex_t) );
 
 	mod->radius = 0;
 	ClearBounds(mod->mins, mod->maxs);
@@ -2065,7 +2065,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	// build triangle neighbors
 	//
-	poutmesh->trneighbors = Hunk_Alloc ( sizeof(int32_t) * poutmesh->num_tris * 3 );
+	poutmesh->trneighbors = (Sint32*)Hunk_Alloc ( sizeof(int32_t) * poutmesh->num_tris * 3 );
 	Mod_BuildTriangleNeighbors (poutmesh);
 
 	//
@@ -2073,7 +2073,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	//
 	if (poutmesh->num_skins <= 0) // hack for player models with no skin refs
 	{
-		poutskin = poutmesh->skins = Hunk_Alloc ( sizeof(maliasskin_t) * 1 );
+		poutskin = poutmesh->skins = (maliasskin_t*)Hunk_Alloc ( sizeof(maliasskin_t) * 1 );
 		poutmesh->num_skins = 1;
 		Com_sprintf(name, sizeof(name), "players/male/grunt.pcx");
 		memcpy(poutskin->name, name, MD3_MAX_PATH);
@@ -2082,7 +2082,7 @@ void Mod_LoadAliasMD2ModelNew (model_t *mod, void *buffer)
 	}
 	else
 	{
-		poutskin = poutmesh->skins = Hunk_Alloc ( sizeof(maliasskin_t) * poutmesh->num_skins );
+		poutskin = poutmesh->skins = (maliasskin_t*)Hunk_Alloc(sizeof(maliasskin_t)* poutmesh->num_skins);
 		for (i=0; i < poutmesh->num_skins; i++, poutskin++)
 		{
 			memcpy(name, ((char *)pinmodel + LittleLong(pinmodel->ofs_skins) + i*MAX_SKINNAME), MD3_MAX_PATH);
@@ -2143,7 +2143,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 			mod->name, version, MD3_ALIAS_VERSION);
 	}
 
-	poutmodel = Hunk_Alloc (sizeof(maliasmodel_t));
+	poutmodel = (maliasmodel_t*)Hunk_Alloc(sizeof(maliasmodel_t));
 
 	// byte swap the header fields and sanity check
 	poutmodel->num_frames = LittleLong ( pinmodel->num_frames );
@@ -2169,7 +2169,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 	// load the frames
 	//
 	pinframe = (dmd3frame_t *)((byte *)pinmodel + LittleLong (pinmodel->ofs_frames));
-	poutframe = poutmodel->frames = Hunk_Alloc ( sizeof(maliasframe_t) * poutmodel->num_frames);
+	poutframe = poutmodel->frames = (maliasframe_t*)Hunk_Alloc(sizeof(maliasframe_t)* poutmodel->num_frames);
 
 	mod->radius = 0;
 	ClearBounds ( mod->mins, mod->maxs );
@@ -2195,7 +2195,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 	// load the tags
 	//
 	pintag = (dmd3tag_t *)((byte *)pinmodel + LittleLong (pinmodel->ofs_tags));
-	pouttag = poutmodel->tags = Hunk_Alloc( sizeof(maliastag_t) * poutmodel->num_frames * poutmodel->num_tags);
+	pouttag = poutmodel->tags = (maliastag_t*)Hunk_Alloc(sizeof(maliastag_t)* poutmodel->num_frames * poutmodel->num_tags);
 
 	for ( i = 0; i < poutmodel->num_frames; i++ )
 	{
@@ -2221,7 +2221,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 	// load the meshes
 	//
 	pinmesh = (dmd3mesh_t *)((byte *)pinmodel + LittleLong (pinmodel->ofs_meshes));
-	poutmesh = poutmodel->meshes = Hunk_Alloc ( sizeof(maliasmesh_t)*poutmodel->num_meshes);
+	poutmesh = poutmodel->meshes = (maliasmesh_t*)Hunk_Alloc(sizeof(maliasmesh_t)*poutmodel->num_meshes);
 
 	for ( i = 0; i < poutmodel->num_meshes; i++, poutmesh++)
 	{
@@ -2256,7 +2256,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		// register all skins
 		//
 		pinskin = (dmd3skin_t *)((byte *)pinmesh + LittleLong (pinmesh->ofs_skins));
-		poutskin = poutmesh->skins = Hunk_Alloc( sizeof(maliasskin_t) * poutmesh->num_skins );
+		poutskin = poutmesh->skins = (maliasskin_t*)Hunk_Alloc(sizeof(maliasskin_t)* poutmesh->num_skins);
 
 		for ( j = 0; j < poutmesh->num_skins; j++, pinskin++, poutskin++ )
 		{
@@ -2274,7 +2274,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		// load the indexes
 		//
 		pinindex = (index_t *)((byte *)pinmesh + LittleLong (pinmesh->ofs_tris));
-		poutindex = poutmesh->indexes = Hunk_Alloc( sizeof(index_t) * poutmesh->num_tris * 3 );
+		poutindex = poutmesh->indexes = (index_t*)Hunk_Alloc( sizeof(index_t) * poutmesh->num_tris * 3 );
 
 		for ( j = 0; j < poutmesh->num_tris; j++, pinindex += 3, poutindex += 3 )
 		{
@@ -2287,7 +2287,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		// load the texture coordinates
 		//
 		pincoord = (dmd3coord_t *)((byte *)pinmesh + LittleLong (pinmesh->ofs_tcs));
-		poutcoord = poutmesh->stcoords = Hunk_Alloc( sizeof(maliascoord_t) * poutmesh->num_verts);
+		poutcoord = poutmesh->stcoords = (maliascoord_t*)Hunk_Alloc(sizeof(maliascoord_t)* poutmesh->num_verts);
 
 		for ( j = 0; j < poutmesh->num_verts; j++, pincoord++, poutcoord++ )
 		{
@@ -2299,7 +2299,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		// load the vertexes and normals
 		//
 		pinvert = (dmd3vertex_t *)((byte *)pinmesh + LittleLong (pinmesh->ofs_verts));
-		poutvert = poutmesh->vertexes = Hunk_Alloc(poutmodel->num_frames * poutmesh->num_verts * sizeof(maliasvertex_t));
+		poutvert = poutmesh->vertexes = (maliasvertex_t*)Hunk_Alloc(poutmodel->num_frames * poutmesh->num_verts * sizeof(maliasvertex_t));
 
 		for ( l = 0; l < poutmodel->num_frames; l++ )
 		{
@@ -2342,7 +2342,7 @@ void Mod_LoadAliasMD3Model (model_t *mod, void *buffer)
 		//
 		// build triangle neighbors
 		//
-		poutmesh->trneighbors = Hunk_Alloc (sizeof(int32_t) * poutmesh->num_tris * 3);
+		poutmesh->trneighbors = (Sint32*)Hunk_Alloc (sizeof(int32_t) * poutmesh->num_tris * 3);
 		Mod_BuildTriangleNeighbors (poutmesh);
 	}
 
@@ -2376,7 +2376,7 @@ void Mod_LoadSpriteModel (model_t *mod, void *buffer)
 	int32_t			i;
 
 	sprin = (dsprite_t *)buffer;
-	sprout = Hunk_Alloc (modfilelen);
+	sprout = (dsprite_t *)Hunk_Alloc(modfilelen);
 
 	sprout->ident = LittleLong (sprin->ident);
 	sprout->version = LittleLong (sprin->version);

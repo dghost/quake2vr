@@ -213,10 +213,10 @@ void Field_Draw (menufield_s *f)
 					f->generic.y + f->generic.parent->y, tempbuffer, alpha);
 }
 
-qboolean Field_Key (menufield_s *f, int32_t key)
-{
-	extern int32_t keydown[];
+extern qboolean keydown[];
 
+qboolean Field_Key(menufield_s *f, int32_t key)
+{
 	switch ( key )
 	{
 	case K_KP_SLASH:
@@ -542,14 +542,14 @@ slot.
 */
 void Menu_AdjustCursor (menuframework_s *m, int32_t dir)
 {
-	menucommon_s *citem = Menu_ItemAtCursor(m);
+	menucommon_s *citem = (menucommon_s*)Menu_ItemAtCursor(m);
 	
 	//
 	// see if it's in a valid spot
 	//
 	if (m->cursor >= 0 && m->cursor < m->nitems)
 	{
-		if ( (citem = Menu_ItemAtCursor(m)) != 0 )
+		if ( (citem = (menucommon_s*)Menu_ItemAtCursor(m)) != 0 )
 		{
 			if (citem->type != MTYPE_SEPARATOR)
 				return;
@@ -566,7 +566,7 @@ void Menu_AdjustCursor (menuframework_s *m, int32_t dir)
 	{
 		while (1)
 		{
-			citem = Menu_ItemAtCursor(m);
+			citem = (menucommon_s*)Menu_ItemAtCursor(m);
 			if ( citem )
 			{
 				if ( citem->type != MTYPE_SEPARATOR )
@@ -581,7 +581,7 @@ void Menu_AdjustCursor (menuframework_s *m, int32_t dir)
 	{
 		while (1)
 		{
-			citem = Menu_ItemAtCursor(m);
+			citem = (menucommon_s*)Menu_ItemAtCursor(m);
 			if (citem)
 				if (citem->type != MTYPE_SEPARATOR)
 					break;
@@ -651,7 +651,7 @@ void Menu_Draw (menuframework_s *menu)
 
 	if (cursor.mouseaction)
 	{
-		menucommon_s *lastitem = cursor.menuitem;
+		menucommon_s *lastitem = (menucommon_s*)cursor.menuitem;
 		UI_RefreshCursorLink();
 
 		for (i = menu->nitems; i >= 0 ; i--)
@@ -709,7 +709,7 @@ void Menu_Draw (menuframework_s *menu)
 				case MTYPE_SPINCONTROL:
 					{
 						int32_t len;
-						menulist_s *spin = menu->items[i];
+						menulist_s *spin = (menulist_s*)menu->items[i];
 
 
 						if (item->name)
@@ -726,7 +726,7 @@ void Menu_Draw (menuframework_s *menu)
 					break;
 				case MTYPE_FIELD:
 					{
-						menufield_s *text = menu->items[i];
+						menufield_s *text = (menufield_s*)menu->items[i];
 
 						len = text->visible_length + 2;
 
@@ -768,7 +768,7 @@ void Menu_Draw (menuframework_s *menu)
 	cursor.mouseaction = false;
 	// end mouseover code
 
-	item = Menu_ItemAtCursor(menu);
+	item = (menucommon_s*)Menu_ItemAtCursor(menu);
 
 	if (item && item->cursordraw)
 	{
@@ -1205,7 +1205,7 @@ void UI_Think_MouseCursor (void)
 				else
 				{
 					cursor.buttonused[MOUSEBUTTON1] = true;
-					Menu_MouseSelectItem( cursor.menuitem );
+					Menu_MouseSelectItem( (menucommon_s*)cursor.menuitem );
 					sound = menu_move_sound;
 				}
 			}

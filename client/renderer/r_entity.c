@@ -309,7 +309,7 @@ void RenderEntTree (sortedelement_t *element)
 	RenderEntTree(element->left);
 
 	if (element->data)
-		ParseRenderEntity(element->data);
+		ParseRenderEntity((entity_t*)element->data);
 
 	RenderEntTree(element->right);
 }

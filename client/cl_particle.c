@@ -563,7 +563,7 @@ CL_DecalAlphaThink
 */
 void CL_DecalAlphaThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int32_t *image, float *time)
 {
-	*alpha = pow(*alpha, 0.1);
+	*alpha = pow(*alpha, 0.1f);
 	p->thinknext = true;
 }
 

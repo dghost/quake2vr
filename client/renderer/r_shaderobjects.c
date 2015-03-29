@@ -76,7 +76,7 @@ char* R_LoadShader(char*path)
 	size = FS_LoadFile(path,(void **) &buffer);
 	if (buffer)
 	{
-		char *temp = (void *) Z_TagMalloc(size + 2, TAG_RENDERER);
+		char *temp = (char *) Z_TagMalloc(size + 2, TAG_RENDERER);
 		memcpy(temp,buffer,size);
 		temp[size]='\n';
 		temp[size+1]= 0;

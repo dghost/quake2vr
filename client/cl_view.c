@@ -40,8 +40,7 @@ cvar_t		*cl_testblend;
 
 cvar_t		*cl_stats;
 
-cvar_t		*hand;
-
+extern cvar_t		*hand;
 
 int32_t			r_numdlights;
 dlight_t	r_dlights[MAX_DLIGHTS];
@@ -59,6 +58,8 @@ lightstyle_t	r_lightstyles[MAX_LIGHTSTYLES];
 
 char		cl_weaponmodels[MAX_CLIENTWEAPONMODELS][MAX_QPATH];
 int32_t			num_cl_weaponmodels;
+
+vec3_t clientOrg;
 
 /*
 ====================

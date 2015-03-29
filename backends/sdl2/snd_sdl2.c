@@ -820,7 +820,7 @@ SDL_Cache(sfx_t *sfx, wavinfo_t *info, byte *data)
 	}
 
 	len = len * info->width * info->channels;
-	sc = sfx->cache = Z_TagMalloc(len + sizeof(sfxcache_t), TAG_AUDIO);
+	sc = sfx->cache = (sfxcache_t*)Z_TagMalloc(len + sizeof(sfxcache_t), TAG_AUDIO);
 
 	if (!sc)
 	{
@@ -1329,7 +1329,7 @@ SDL_BackendInit(void)
 	backend->submission_chunk = 1;
 	backend->speed = obtained.freq;
 	samplesize = (backend->samples * (backend->samplebits / 8));
-	backend->buffer = SDL_calloc(1, samplesize);
+	backend->buffer = (unsigned char*)SDL_calloc(1, samplesize);
 	s_numchannels = MAX_CHANNELS;
 
 	SDL_UpdateScaletable();

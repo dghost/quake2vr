@@ -211,7 +211,7 @@ vec3_t		particle_up;
 vec3_t		particle_right;
 vec3_t		particle_coord[4];
 vec3_t		ParticleVec[4];
-vec3_t		shadelight;
+//vec3_t		shadelight;
 
 //===================================================
 

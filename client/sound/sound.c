@@ -237,7 +237,7 @@ S_AliasName(char *aliasname, char *truename)
 	char *s;
 	int i;
 
-	s = Z_TagStrdup(truename, TAG_AUDIO);
+	s = (char*)Z_TagStrdup(truename, TAG_AUDIO);
 
 	/* find a free sfx */
 	for (i = 0; i < num_sfx; i++)

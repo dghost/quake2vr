@@ -16,10 +16,10 @@ qboolean Q_STInit(stable_t *st, int32_t avgLength) {
 int32_t Q_STRegister(stable_t *st, const char *string) {
     int result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
     if (result == NFST_STRING_TABLE_FULL && st->heap) {
-        void *new = NULL;
+        void *new_one = NULL;
         int newsize = st->size * 2;
-        if ((new = Z_Realloc(st->st, newsize)) != NULL) {
-            st->st = new;
+        if ((new_one = Z_Realloc(st->st, newsize)) != NULL) {
+            st->st = new_one;
             st->size = newsize;
             nfst_grow((struct nfst_StringTable *)st->st, newsize);
             result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
@@ -44,9 +44,9 @@ const char *Q_STGetString(stable_t st, int token) {
 int32_t Q_STPack(stable_t *st) {
     int32_t size = nfst_pack((struct nfst_StringTable *)st->st);
     if (st->heap && size > MIN_SIZE && size <= st->size/2) {
-        void *new = NULL;
-        if ((new = Z_Realloc(st->st, size)) != NULL) {
-            st->st = new;
+        void *new_one = NULL;
+		if ((new_one = Z_Realloc(st->st, size)) != NULL) {
+			st->st = new_one;
             st->size = size;
         }
     }
