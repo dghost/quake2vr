@@ -345,7 +345,11 @@ int32_t VR_OVR_Enable()
 		}
 #endif
 
-		libovrInitialized = ovr_Initialize();
+#if OVR_MAJOR_VERSION >= 5
+		libovrInitialized = ovr_Initialize(0);
+#else
+        libovrInitialized = ovr_Initialize();
+#endif
 		if (!libovrInitialized)
 		{
 			Com_Printf("VR_OVR: Fatal error: could not initialize LibOVR!\n");

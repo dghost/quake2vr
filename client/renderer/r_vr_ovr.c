@@ -224,9 +224,11 @@ void OVR_CalculateState(vr_param_t *state)
 			-eyeDesc[eye].HmdToEyeViewOffset.x,
 			eyeDesc[eye].HmdToEyeViewOffset.y,
 			eyeDesc[eye].HmdToEyeViewOffset.z);
-
-		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
-
+#if OVR_MAJOR_VERSION >= 5
+		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
+#else
+        ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
+#endif
 		mesh = (ovr_vert_t *) Z_TagMalloc(sizeof(ovr_vert_t) * meshData.VertexCount, TAG_RENDERER);
 		v = mesh;
 		ov = meshData.pVertexData; 
