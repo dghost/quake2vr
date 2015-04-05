@@ -71,14 +71,25 @@ As this is based on KMQuake II, it supports any modification or add-on that is c
 
 ####Acknowledgements
 
+Quake II VR uses the following third-party libraries:
+
+- [GLEW](http://glew.sourceforge.net)
+- [SDL2](https://www.libsdl.org/index.php)
+- [minizip](http://www.winimage.com/zLibDll/minizip.html)
+- [stb](https://github.com/nothings/stb)
+
+Quake II VR uses modified versions of the following third-party libraries:
+
+- Peter Scott's [C Port](https://github.com/PeterScott/murmur3) of [Murmur3](https://code.google.com/p/smhasher/wiki/MurmurHash3), with fixes for MSVC/C89 compatibility
+- nf_string_table from [nflibs](https://github.com/niklasfrykholm/nflibs), with fixes for MSVC/C89 compatibility
+
+
 Thanks go out to:
 
-- id Software, for releasing such an awesome game 16 years ago and then being generous enough to release the source code to the community.
-- Knightmare and [KMQuake II](http://www.markshan.com/knightmare/). The general cleanliness of the code base and significant graphical upgrades responsible for this turning out as well as it did.
+- [id Software](http://www.idsoftware.com), for releasing such an awesome game 16 years ago and then being generous enough to release the source code to the community.
+- [OculusVR](https://www.oculus.com), for bring VR back and making this project possible.
+- [Knightmare](http://www.markshan.com/knightmare/) for KMQuake II. The general cleanliness of the code base and significant graphical upgrades responsible for this turning out as well as it did.
 - [Dominic Szablewski](https://github.com/phoboslab) and [John Marshall](https://github.com/swax) for their work on RiftQuake. It served as the basis for this project, and in some places their code remains.
 - Jim Waurzyniak for taking the time and effort to host a collection of high-resolution assets for Quake II.
-- [Isla Schanuel](http://islaes.com/) for the idea of applying counter-rotation to the HUD to help reduce nausea.
-- Karl B. for reporting bugs in multiplayer.
-- [Nick Patrick](http://enpat.net) for a truly amazing job finding bugs in pre-release builds.
-- [ubtri](https://www.youtube.com/user/ubtri) for a ton of ideas on how to improve it and for the multiplayer configuration.
-- D at [eVRydayVR](https://www.youtube.com/channel/UCTlgIRnl3viQb1zCJqFJwqw) for doing the most amazing video walkthrough/review I've ever seen. Seriously, [go watch it](https://www.youtube.com/watch?v=ehoEJqZVFB0&list=UUTlgIRnl3viQb1zCJqFJwqw).
+- [Jared Stafford](https://jspenguin.org) for getting Linux support up and running
+- [Daniel Wolf](https://github.com/Nephatrine) for various bugfixes and code cleanup.
