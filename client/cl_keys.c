@@ -661,7 +661,7 @@ Key_SetBinding
 */
 void Key_SetBinding (int32_t keynum, char *binding)
 {
-	char	*new;
+	char	*new_one;
 	int32_t		l;
     int i;
 	
@@ -682,11 +682,11 @@ void Key_SetBinding (int32_t keynum, char *binding)
 			
 // allocate memory for new binding
 	l = strlen (binding);	
-	new = Z_TagMalloc (l+1, TAG_CLIENT);
-	strcpy (new, binding);
-	new[l] = 0;
-	keybindings[keynum] = new;
-    keybindinghashes[keynum] = Q_HashSanitized32(new);
+	new_one = (char*)Z_TagMalloc(l + 1, TAG_CLIENT);
+	strcpy(new_one, binding);
+	new_one[l] = 0;
+	keybindings[keynum] = new_one;
+	keybindinghashes[keynum] = Q_HashSanitized32(new_one);
     
     
 }
@@ -861,30 +861,30 @@ void Key_Init (void)
 	consolekeys['~'] = false;
 
 	for (i=0 ; i< MAX_KEYEVENTS ; i++)
-		keyshift[i] = i;
+		keyshift[i] = (keynum_t)i;
 	for (i='a' ; i<='z' ; i++)
-		keyshift[i] = i - 'a' + 'A';
-	keyshift['1'] = '!';
-	keyshift['2'] = '@';
-	keyshift['3'] = '#';
-	keyshift['4'] = '$';
-	keyshift['5'] = '%';
-	keyshift['6'] = '^';
-	keyshift['7'] = '&';
-	keyshift['8'] = '*';
-	keyshift['9'] = '(';
-	keyshift['0'] = ')';
-	keyshift['-'] = '_';
-	keyshift['='] = '+';
-	keyshift[','] = '<';
-	keyshift['.'] = '>';
-	keyshift['/'] = '?';
-	keyshift[';'] = ':';
-	keyshift['\''] = '"';
-	keyshift['['] = '{';
-	keyshift[']'] = '}';
-	keyshift['`'] = '~';
-	keyshift['\\'] = '|';
+		keyshift[i] = (keynum_t)(i - 'a' + 'A');
+	keyshift['1'] = (keynum_t)'!';
+	keyshift['2'] = (keynum_t)'@';
+	keyshift['3'] = (keynum_t)'#';
+	keyshift['4'] = (keynum_t)'$';
+	keyshift['5'] = (keynum_t)'%';
+	keyshift['6'] = (keynum_t)'^';
+	keyshift['7'] = (keynum_t)'&';
+	keyshift['8'] = (keynum_t)'*';
+	keyshift['9'] = (keynum_t)'(';
+	keyshift['0'] = (keynum_t)')';
+	keyshift['-'] = (keynum_t)'_';
+	keyshift['='] = (keynum_t)'+';
+	keyshift[','] = (keynum_t)'<';
+	keyshift['.'] = (keynum_t)'>';
+	keyshift['/'] = (keynum_t)'?';
+	keyshift[';'] = (keynum_t)':';
+	keyshift['\''] = (keynum_t)'"';
+	keyshift['['] = (keynum_t)'{';
+	keyshift[']'] = (keynum_t)'}';
+	keyshift['`'] = (keynum_t)'~';
+	keyshift['\\'] = (keynum_t)'|';
 
 	menubound[K_ESCAPE] = true;
 	for (i=0 ; i<12 ; i++)

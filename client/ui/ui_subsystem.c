@@ -314,7 +314,7 @@ const char *Default_MenuKey ( menuframework_s *m, int32_t key )
 
 	if ( m )
 	{
-		if ( ( item = Menu_ItemAtCursor( m ) ) != 0 )
+		if ( ( item = (menucommon_s*)Menu_ItemAtCursor( m ) ) != 0 )
 		{
 			if ( item->type == MTYPE_FIELD )
 			{

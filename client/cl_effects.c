@@ -3056,7 +3056,7 @@ void CL_HeatbeamParticles (vec3_t start, vec3_t forward)
 	//VectorMA (move, -0.5, up, move);
 
 	//ltime = (float) cl.time/1000.0;
-	start_pt = fmod(ltime*96.0,step);
+	start_pt = fmod(ltime * 96.0f,step);
 	VectorMA (move, start_pt, vec, move);
 
 	VectorScale (vec, step, vec);

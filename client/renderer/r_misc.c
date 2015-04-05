@@ -182,7 +182,7 @@ void R_ScaledScreenshot (char *name)
 	saveshotsize = 256;*/
 
 	// Allocate room for reduced screenshot
-	pngdata = Z_TagMalloc(saveshotWidth * saveshotHeight * 3, TAG_RENDERER);
+	pngdata = (byte*)Z_TagMalloc(saveshotWidth * saveshotHeight * 3, TAG_RENDERER);
 	if (!pngdata)	return;
 
 	// Resize grabbed screen
@@ -222,7 +222,7 @@ void R_GrabScreen (void)
 	if (saveshotdata)
 		Z_Free(saveshotdata);
 	// Allocate room for a copy of the framebuffer
-	saveshotdata = Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
+	saveshotdata = (byte*)Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
 	R_InitFBO(&captureFBO);
 
     R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
@@ -290,7 +290,7 @@ void R_ScreenShot_PNG (qboolean silent)
 	// Open the file for Binary Output
 
 	// Allocate room for a copy of the framebuffer
-	rgbdata = Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
+	rgbdata = (byte*)Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
 	if(!rgbdata)
 	{
 		return;

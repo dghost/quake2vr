@@ -116,15 +116,15 @@ void SubdividePolygon (int32_t numverts, float *verts)
 	}
 
 	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
+	poly = (glpoly_t*)Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts+2;
 	
 	// alloc vertex light fields
 	size = poly->numverts*3*sizeof(byte);
-	poly->vertexlight = Hunk_Alloc(size);
-	poly->vertexlightbase = Hunk_Alloc(size);
+	poly->vertexlight = (byte*)Hunk_Alloc(size);
+	poly->vertexlightbase = (byte*)Hunk_Alloc(size);
 	memset(poly->vertexlight, 0, size);
 	memset(poly->vertexlightbase, 0, size);
 	poly->vertexlightset = false;
@@ -303,7 +303,7 @@ void RB_RenderWarpSurface (msurface_t *fa)
 	*/
 	if (texShaderWarp)
 	{
-        int fog = (r_fogenable > 0) ? (r_fogmodel + 1) : 0;
+        int fog = (r_fogenable) ? (r_fogmodel + 1) : 0;
         
 		GLfloat param[4];
 		float rdt = r_newrefdef.time;

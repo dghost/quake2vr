@@ -330,7 +330,7 @@ static void CIN_ReadInfo (cinematic_t *cin)
 	if (cin->roqBuffer)
 		Z_Free(cin->roqBuffer);
 
-	cin->roqBuffer = Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4 * 2, TAG_CLIENT);
+	cin->roqBuffer = (byte*)Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4 * 2, TAG_CLIENT);
 
 	cin->roqBufferPtr[0] = cin->roqBuffer;
 	cin->roqBufferPtr[1] = cin->roqBuffer + cin->vidWidth * cin->vidHeight * 4;
@@ -343,7 +343,7 @@ static void CIN_ReadInfo (cinematic_t *cin)
 		if (cin->rawBuffer)
 			Z_Free(cin->rawBuffer);
 
-		cin->rawBuffer = Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
+		cin->rawBuffer = (byte*)Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
 	}
 }
 
@@ -556,7 +556,7 @@ static void CIN_Huff1TableInit (cinematic_t *cin)
 	int32_t		numNodes;
 
 	if (!cin->hNodes1)
-		cin->hNodes1 = Z_TagMalloc(256 * 256 * 4 * 2, TAG_CLIENT);
+		cin->hNodes1 = (int32_t*)Z_TagMalloc(256 * 256 * 4 * 2, TAG_CLIENT);
 
 	for (prev = 0; prev < 256; prev++)
 	{
@@ -610,7 +610,7 @@ static void CIN_Huff1Decompress (cinematic_t *cin, const byte *data, int32_t siz
 	int32_t			*nodes, *nodesBase;
 
 	if (!cin->hBuffer)
-		cin->hBuffer = Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4, TAG_CLIENT);
+		cin->hBuffer = (byte*)Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4, TAG_CLIENT);
 
 	// Get decompressed count
 	count = data[0] + (data[1]<<8) + (data[2]<<16) + (data[3]<<24);
@@ -1185,7 +1185,7 @@ static qboolean CIN_StaticCinematic (cinematic_t *cin, const char *name)
 	cin->vidWidth = pcx->xmax+1;
 	cin->vidHeight = pcx->ymax+1;
 
-	cin->pcxBuffer = out = Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4, TAG_CLIENT);
+	cin->pcxBuffer = out = (byte*)Z_TagMalloc(cin->vidWidth * cin->vidHeight * 4, TAG_CLIENT);
 
 	for (y = 0; y <= pcx->ymax; y++)
 	{
@@ -1227,7 +1227,7 @@ static qboolean CIN_StaticCinematic (cinematic_t *cin, const char *name)
 	cin->rawHeight = cin->vidHeight;
 	
 	if (cin->rawWidth != cin->vidWidth || cin->rawHeight != cin->vidHeight)
-		cin->rawBuffer = Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
+		cin->rawBuffer = (byte*)Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
 
 	// Resample
 	CIN_ResampleFrame(cin);
@@ -1619,7 +1619,7 @@ cinHandle_t CIN_PlayCinematic (const char *name, int32_t x, int32_t y, int32_t w
 		cin->rawHeight = cin->vidHeight;
 
 		if (cin->rawWidth != cin->vidWidth || cin->rawHeight != cin->vidHeight)
-			cin->rawBuffer = Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
+			cin->rawBuffer = (byte*)Z_TagMalloc(cin->rawWidth * cin->rawHeight * 4, TAG_CLIENT);
 
 		CIN_Huff1TableInit(cin);
 

@@ -189,7 +189,7 @@ void SetCrosshairNames (void)
 	int32_t i;
 
     if (!crosshair_names[0])
-        crosshair_names[0] = Z_TagStrdup("none",TAG_MENU); //was default
+        crosshair_names[0] = (char*)Z_TagStrdup("none",TAG_MENU); //was default
 	ncrosshairnames = 1;
 
     if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
@@ -329,7 +329,7 @@ void Options_Screen_MenuInit ( void )
 	SetCrosshairNames ();
     
     memset(crosshairs, 0, sizeof(crosshairs));
-    crosshairs[0] = 1;
+    crosshairs[0] = (struct image_s*)1;
     UI_Options_ReloadCrosshairs();
     
 	s_options_screen_crosshair_box.generic.type				= MTYPE_SPINCONTROL;

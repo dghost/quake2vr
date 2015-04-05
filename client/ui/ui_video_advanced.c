@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern cvar_t *vid_ref;
 // this cvar is needed for checking if it's been modified
-cvar_t	*r_intensity;
+extern cvar_t	*r_intensity;
 
 /*
 =======================================================================

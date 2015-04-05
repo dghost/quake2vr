@@ -532,7 +532,7 @@ dynamic:
 			smax = (fa->extents[0]>>4)+1;
 			tmax = (fa->extents[1]>>4)+1;
 
-			R_BuildLightMap(fa, (void *)temp, smax*4);
+			R_BuildLightMap(fa, (byte *)temp, smax*4);
 			R_SetCacheState(fa);
 
 			GL_Bind(glState.lightmap_textures + fa->lightmaptexturenum);
@@ -719,7 +719,7 @@ void R_UpdateSurfaceLightmap (msurface_t *surf)
 		rect_t		*rect = &gl_lms.lightrect[surf->lightmaptexturenum];
 
 		base += (surf->light_t * LM_BLOCK_WIDTH) + surf->light_s;
-		R_BuildLightMap (surf, (void *)base, LM_BLOCK_WIDTH*LIGHTMAP_BYTES);
+		R_BuildLightMap (surf, (byte *)base, LM_BLOCK_WIDTH*LIGHTMAP_BYTES);
 		R_SetCacheState (surf);
 		gl_lms.modified[surf->lightmaptexturenum] = true;
 
@@ -1991,7 +1991,7 @@ static void LM_InitBlock (void)
 #ifdef BATCH_LM_UPDATES
 	// alloc lightmap update buffer if needed
 	if (!gl_lms.lightmap_update[gl_lms.current_lightmap_texture]) {
-		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, TAG_RENDERER);
+		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = (unsigned int*)Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, TAG_RENDERER);
 	}
 #endif	// BATCH_LM_UPDATES
 }
@@ -2128,7 +2128,7 @@ void R_BuildPolygonFromSurface (msurface_t *fa)
 	//
 	// draw texture
 	//
-	poly = Hunk_Alloc (sizeof(glpoly_t) + (lnumverts-4) * VERTEXSIZE*sizeof(float));
+	poly = (glpoly_t*)Hunk_Alloc (sizeof(glpoly_t) + (lnumverts-4) * VERTEXSIZE*sizeof(float));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
 	fa->polys = poly;
@@ -2137,8 +2137,8 @@ void R_BuildPolygonFromSurface (msurface_t *fa)
 	// alloc vertex light fields
 	if (fa->texinfo->flags & (SURF_TRANS33|SURF_TRANS66)) {
 		int32_t size = lnumverts*3*sizeof(byte);
-		poly->vertexlight = Hunk_Alloc(size);
-		poly->vertexlightbase = Hunk_Alloc(size);
+		poly->vertexlight = (byte*)Hunk_Alloc(size);
+		poly->vertexlightbase = (byte*)Hunk_Alloc(size);
 		memset(poly->vertexlight, 0, size);
 		memset(poly->vertexlightbase, 0, size);
 		poly->vertexlightset = false;
@@ -2241,7 +2241,7 @@ void R_CreateSurfaceLightmap (msurface_t *surf)
 	base += (surf->light_t * LM_BLOCK_WIDTH + surf->light_s);	// * LIGHTMAP_BYTES
 
 	R_SetCacheState (surf);
-	R_BuildLightMap (surf, (void *)base, LM_BLOCK_WIDTH*LIGHTMAP_BYTES);
+	R_BuildLightMap (surf, (byte *)base, LM_BLOCK_WIDTH*LIGHTMAP_BYTES);
 }
 
 
@@ -2301,7 +2301,7 @@ void R_BeginBuildingLightmaps (model_t *m)
 #ifdef BATCH_LM_UPDATES
 	// alloc lightmap update buffer if needed
 	if (!gl_lms.lightmap_update[gl_lms.current_lightmap_texture]) {
-		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, TAG_RENDERER);
+		gl_lms.lightmap_update[gl_lms.current_lightmap_texture] = (unsigned int*)Z_TagMalloc (LM_BLOCK_WIDTH*LM_BLOCK_HEIGHT*LIGHTMAP_BYTES, TAG_RENDERER);
 	}
 #endif	// BATCH_LM_UPDATES
 

@@ -78,7 +78,8 @@ cvar_t  *gl_driver;
 cvar_t	*con_font; // Psychospaz's console font size option
 cvar_t	*con_font_size;
 cvar_t	*alt_text_color;
-cvar_t	*scr_netgraph_pos;
+
+extern cvar_t	*scr_netgraph_pos;
 
 cvar_t	*r_norefresh;
 cvar_t	*r_drawentities;
@@ -157,7 +158,7 @@ cvar_t	*r_anisotropic_avail;
 cvar_t	*r_lockpvs;
 cvar_t  *r_texturecompression;
 
-cvar_t  *r_bloom;	// BLOOMS
+//cvar_t  *r_bloom;	// BLOOMS
 
 cvar_t	*r_skydistance; //Knightmare- variable sky range
 cvar_t	*r_saturation;	//** DMP

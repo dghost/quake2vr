@@ -88,8 +88,8 @@ cvar_t	*cl_footstep_override;
 cvar_t	*r_decals;		// decal quantity
 cvar_t	*r_decal_life;  // decal duration in seconds
 
-cvar_t	*con_font_size;
-cvar_t	*alt_text_color;
+extern cvar_t	*con_font_size;
+extern cvar_t	*alt_text_color;
 
 // whether to try to play OGGs instead of CD tracks
 cvar_t	*cl_rogue_music; // whether to play Rogue tracks
@@ -1067,10 +1067,10 @@ static uint8_t packet_buffer[256];
 static stable_t clpacket_stable = {packet_buffer, 256};
 
 int s_client_connect;
-int s_info;
+extern int s_info;
 int s_cmd;
 int s_print;
-int s_ping;
+extern int s_ping;
 int s_challenge;
 int s_echo;
 

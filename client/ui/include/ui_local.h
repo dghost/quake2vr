@@ -223,13 +223,9 @@ static char *menu_in_sound		= "misc/menu1.wav";
 static char *menu_move_sound	= "misc/menu2.wav";
 static char *menu_out_sound		= "misc/menu3.wav";
 
-qboolean	m_entersound;		// play after drawing a frame, so caching
-								// won't disrupt the sound
-
-int32_t MainMenuMouseHover;
-
-
-cursor_t cursor;
+extern qboolean	m_entersound;		// play after drawing a frame, so caching won't disrupt the sound
+extern int32_t MainMenuMouseHover;
+extern cursor_t cursor;
 
 void M_Menu_Main_f (void);
 	void M_Menu_Game_f (void);

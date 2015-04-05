@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../client.h"
 #include "include/ui_local.h"
 
+qboolean	m_entersound;
+int32_t MainMenuMouseHover; 
+cursor_t cursor;
+
 static int32_t	m_main_cursor;
 
 // for checking if quad cursor model is available
