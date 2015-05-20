@@ -1399,43 +1399,6 @@ qboolean R_Init ( char *reason )
 	else
 		VID_Printf (PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 
-
-#ifdef _WIN32
-	// WGL_EXT_swap_control
-	glConfig.ext_swap_control = false;
-	
-	if ( WGLEW_EXT_swap_control )
-	{
-		glConfig.ext_swap_control = true;
-		VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control\n" );
-	}
-	else
-		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
-	
-	
-	// WGL_EXT_swap_control_tear
-	glConfig.ext_swap_control_tear = false;
-
-	if ( WGLEW_EXT_swap_control_tear )
-	{
-		// AMD likes to fuck up this extension
-		// either by periodocially running faster than vsync to buffer frames
-		// or simply by corrupting the image on the screen
-		// this is why we cannot have nice things
-		if ( !((glConfig.rendType & GLREND_ATI) && r_driver_workarounds->value) )
-		{
-			glConfig.ext_swap_control_tear = true;
-			VID_Printf (PRINT_ALL, "...using WGL_EXT_swap_control_tear\n" );
-		} else {
-			VID_Printf (PRINT_ALL, "...ignoring WGL_EXT_swap_control_tear on AMD GPUs\n" );
-			Cvar_SetInteger("r_adaptivevsync",0);
-		}
-	}
-	else
-		VID_Printf (PRINT_ALL, "...WGL_EXT_swap_control_tear not found\n" );
-#endif
-
-
 	// GL_ARB_vertex_buffer_object
 	glConfig.vertexBufferObject = true;
 
@@ -1608,6 +1571,58 @@ qboolean R_Init ( char *reason )
 		glConfig.arb_texture_compression_bptc = false;
 	}
 
+    
+    
+#ifdef _WIN32
+    // WGL_EXT_swap_control / WGL_EXT_swap_control_tear
+    glConfig.ext_swap_control = WGLEW_EXT_swap_control;
+    glConfig.ext_swap_control_tear = WGLEW_EXT_swap_control_tear;
+    
+#elif __linux__
+    // GLX_EXT_swap_control / GLX_EXT_swap_control_tear
+    glConfig.ext_swap_control = GLXEW_EXT_swap_control;
+    glConfig.ext_swap_control_tear = GLXEW_EXT_swap_control_tear;
+    
+#else
+    glConfig.ext_swap_control = false;
+    glConfig.ext_swap_control_tear = false;
+#endif
+    
+    if ( glConfig.ext_swap_control )
+    {
+        VID_Printf (PRINT_ALL, "...using EXT_swap_control\n" );
+    }
+    else
+    {
+        VID_Printf (PRINT_ALL, "...EXT_swap_control not found\n" );
+    }
+    
+    if ( glConfig.ext_swap_control_tear )
+    {
+#ifdef _WIN32
+        // AMD likes to fuck up this extension
+        // either by periodocially running faster than vsync to buffer frames
+        // or simply by corrupting the image on the screen
+        // this is why we cannot have nice things
+        if ( !((glConfig.rendType & GLREND_ATI) && r_driver_workarounds->value) )
+        {
+#endif
+            
+            VID_Printf (PRINT_ALL, "...using EXT_swap_control_tear\n" );
+#ifdef _WIN32
+        } else
+        {
+            glConfig.ext_swap_control_tear = false;
+            VID_Printf (PRINT_ALL, "...ignoring EXT_swap_control_tear on AMD GPUs\n" );
+            Cvar_SetInteger("r_adaptivevsync",0);
+        }
+#endif
+    }
+    else
+    {
+        VID_Printf (PRINT_ALL, "...EXT_swap_control_tear not found\n" );
+    }
+    
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS , &glConfig.max_texunits);
 	VID_Printf (PRINT_ALL, "...GL_MAX_TEXTURE_UNITS: %i\n", glConfig.max_texunits);
 	err = glGetError();
