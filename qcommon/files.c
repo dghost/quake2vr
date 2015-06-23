@@ -21,9 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.h"
 #include "zip/unzip.h"
 
-// enables faster binary pak searck, still experimental
-#define BINARY_PACK_SEARCH
-
 #ifndef _WIN32
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
@@ -84,16 +81,15 @@ typedef struct {
 
 typedef struct fsLink_s {
 	char			*from;
-	int32_t				length;
+	int32_t			length;
 	char			*to;
 	struct fsLink_s	*next;
 } fsLink_t;
 
 typedef struct {
-	char			name[MAX_QPATH];
-	hash32_t			hash;				// To speed up searching
-	int32_t				size;
-	int32_t				offset;				// This is ignored in PK3 files
+	int32_t         hash;				// To speed up searching
+	int32_t			size;
+	int32_t			offset;				// This is ignored in PK3 files
 	qboolean		ignore;				// Whether this file should be ignored
 } fsPackFile_t;
 
@@ -104,6 +100,7 @@ typedef struct {
 	int32_t			numFiles;
 	fsPackFile_t	*files;
 	uint32_t        contentFlags;
+    stable_t        fileNames;
 } fsPack_t;
 
 typedef struct fsSearchPath_s {
@@ -426,7 +423,6 @@ fsHandle_t *FS_GetFileByHandle (fileHandle_t f)
 	return &fs_handles[f-1];
 }
 
-#ifdef BINARY_PACK_SEARCH
 /*
 =================
 FS_FindPackItem
@@ -435,50 +431,50 @@ Performs a binary search by hashed filename
 to find pack items in a sorted pack
 =================
 */
-int32_t FS_FindPackItem (fsPack_t *pack, char *itemName, hash32_t itemHash)
+int32_t FS_FindPackItem (fsPack_t *pack, char *itemName)
 {
+    char buffer[MAX_OSPATH];
 	int32_t		smax, smin, smidpt;	//, counter = 0;
 	int32_t		i;	//, matchStart, matchEnd;
-
+    int32_t     itemIndex = -1;
+    int32_t     numLookups = 0;
+    int32_t     overlap = 0;
 	// catch null pointers
-	if ( !pack || !itemName )
-		return -1;
+	if ( !pack || !itemName)
+        return -1;
+    
+    Q_strcpy_lower(buffer, itemName);
 
+    itemIndex = Q_STLookup(pack->fileNames, buffer);
+    
+    if (itemIndex < 0)
+		return -1;
+    
 	smin = 0;	smax = pack->numFiles;
-	while ( (smax - smin) > 5 )	//&& counter < pack->numFiles )
+	while ( (smax - smin) > 1 )	//&& counter < pack->numFiles )
 	{
-        int32_t res = 0;
-		smidpt = (smax + smin) / 2;
-        res = Q_HashCompare32(pack->files[smidpt].hash, itemHash);
-		if (res > 0)	// before midpoint
+
+		smidpt = (int) ((smax + smin) / 2.0);
+
+		if (pack->files[smidpt].hash > itemIndex)	// before midpoint
 			smax = smidpt;
-		else if (res < 0)	// after midpoint
+		else if (pack->files[smidpt].hash < itemIndex)	// after midpoint
 			smin = smidpt;
-		else	// pack->files[smidpt].hash == itemHash
-			break;
-	//	counter++;
+        else {
+            smin = smidpt;
+            smax = smidpt;
+        }
+		numLookups++;
 	}
-	for (i=smin; i<smax; i++)
+	for (i=smin; i<=smax; i++)
 	{	// make sure this entry is not blacklisted & compare filenames
-		if ( !Q_HashEquals32(pack->files[i].hash, itemHash) && !pack->files[i].ignore
-			&& !Q_strcasecmp(pack->files[i].name, itemName) )
+		if ( (pack->files[i].hash == itemIndex) && !pack->files[i].ignore) {
 			return i;
+        }
+        overlap++;
 	}
-	// found a match, scan for identical hashes
-/*	if (pack->files[smidpt].hash == itemHash)
-	{
-		for (matchStart = smidpt-1; matchStart >= 0 && pack->files[matchStart].hash == itemHash; matchStart--);
-		for (matchEnd = smidpt+1; matchEnd < pack->numFiles && pack->files[matchEnd].hash == itemHash; matchEnd++);
-		for (i = matchStart; i < matchEnd; i++)
-		{	// make sure this entry is not blacklisted & compare filenames
-			if ( pack->files[i].hash == itemHash && !pack->files[i].ignore
-				&& !Q_strcasecmp(pack->files[i].name, itemName) )
-				return i;
-		}
-	}*/
 	return -1;
 }
-#endif	// BINARY_PACK_SEARCH
 
 /*
 =================
@@ -555,7 +551,6 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 	fsSearchPath_t	*search;
 	fsPack_t		*pack;
 	char			path[MAX_OSPATH];
-	hash32_t			hash;
 	int32_t				i;
 	uint32_t	typeFlag;
 
@@ -563,8 +558,8 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 	file_from_pak = 0;
 	file_from_pk3 = 0;
 	Com_sprintf(last_pk3_name, sizeof(last_pk3_name), "\0");
-	hash = Q_HashSanitized32(handle->name);
-	typeFlag = FS_TypeFlagForPakItem(handle->name);
+
+    typeFlag = FS_TypeFlagForPakItem(handle->name);
 
 	// Search through the path, one element at a time
 	for (search = fs_searchPaths; search; search = search->next)
@@ -579,65 +574,50 @@ int32_t FS_FOpenFileRead (fsHandle_t *handle)
 					continue;
 			}
 
-#ifdef BINARY_PACK_SEARCH
-			// find index of pack item
-			i = FS_FindPackItem (pack, handle->name, hash);
-			// found it!
-			if ( i != -1 && i >= 0 && i < pack->numFiles )
-			{
-#else
-			for (i = 0; i < pack->numFiles; i++)
-			{
-				if (pack->files[i].ignore)	// skip blacklisted files
-					continue;
-				if (Q_HashEquals32(hash,pack->files[i].hash))	// compare hash first
-					continue;
-				if (!Q_strcasecmp(pack->files[i].name, handle->name))
-#endif	// 	BINARY_PACK_SEARCH
-                {
-					// Found it!
-					Com_FilePath(pack->name, fs_fileInPath, sizeof(fs_fileInPath));
-					fs_fileInPack = true;
-
-					if (fs_debug->value)
-						Com_Printf("FS_FOpenFileRead: %s (found in %s)\n", handle->name, pack->name);
-
-					if (pack->pak)
-					{	// PAK
-						file_from_pak = 1; // Knightmare added
-						handle->file = fopen(pack->name, "rb");
-						if (handle->file)
-						{
-							fseek(handle->file, pack->files[i].offset, SEEK_SET);
-
-							return pack->files[i].size;
-						}
-					}
-					else if (pack->pk3)
-					{	// PK3
-						file_from_pk3 = 1; // Knightmare added
-						Com_sprintf(last_pk3_name, sizeof(last_pk3_name), strrchr(pack->name, '/')+1); // Knightmare added
-						handle->zip = (unzFile*)unzOpen(pack->name);
-						if (handle->zip)
-						{
-							if (unzLocateFile(handle->zip, handle->name, 2) == UNZ_OK)
-							{
-								if (unzOpenCurrentFile(handle->zip) == UNZ_OK)
-									return pack->files[i].size;
-							}
-
-							unzClose(handle->zip);
-						}
-					}
-
-					Com_Error(ERR_FATAL, "Couldn't reopen %s", pack->name);
-				}
-#ifndef BINARY_PACK_SEARCH
-				else
-					Com_Printf("FS_FOpenFileRead: different filenames with identical hash (%s, %s)!\n", pack->files[i].name, handle->name);
-#endif
-			}
-		}
+            // find index of pack item
+			i = FS_FindPackItem (pack, handle->name);
+            // found it!
+            if ( i != -1 && i >= 0 && i < pack->numFiles )
+            {
+                
+                // Found it!
+                Com_FilePath(pack->name, fs_fileInPath, sizeof(fs_fileInPath));
+                fs_fileInPack = true;
+                
+                if (fs_debug->value)
+                    Com_Printf("FS_FOpenFileRead: %s (found in %s)\n", handle->name, pack->name);
+                
+                if (pack->pak)
+                {	// PAK
+                    file_from_pak = 1; // Knightmare added
+                    handle->file = fopen(pack->name, "rb");
+                    if (handle->file)
+                    {
+                        fseek(handle->file, pack->files[i].offset, SEEK_SET);
+                        
+                        return pack->files[i].size;
+                    }
+                }
+                else if (pack->pk3)
+                {	// PK3
+                    file_from_pk3 = 1; // Knightmare added
+                    Com_sprintf(last_pk3_name, sizeof(last_pk3_name), strrchr(pack->name, '/')+1); // Knightmare added
+                    handle->zip = (unzFile*)unzOpen(pack->name);
+                    if (handle->zip)
+                    {
+                        if (unzLocateFile(handle->zip, handle->name, 2) == UNZ_OK)
+                        {
+                            if (unzOpenCurrentFile(handle->zip) == UNZ_OK)
+                                return pack->files[i].size;
+                        }
+                        
+                        unzClose(handle->zip);
+                    }
+                }
+                
+                Com_Error(ERR_FATAL, "Couldn't reopen %s", pack->name);
+            }
+        }
 		else
 		{	// Search in a directory tree
 			Com_sprintf(path, sizeof(path), "%s/%s", search->path, handle->name);
@@ -935,9 +915,10 @@ char **FS_ListPak (char *find, int32_t *num)
 		// now find and build list
 		for (i=0 ; i<pak->numFiles ; i++)
 		{
-			if (!pak->files[i].ignore && strstr(pak->files[i].name, find))
+            const char *name = Q_STGetString(pak->fileNames, pak->files[i].hash);
+			if (!pak->files[i].ignore && strstr(name, find))
 			{
-				list[nfound] = (char*)Z_TagStrdup(pak->files[i].name, TAG_SYSTEM);
+				list[nfound] = (char*)Z_TagStrdup(name, TAG_SYSTEM);
 				nfound++;
 			}
 		}
@@ -1136,19 +1117,14 @@ void FS_FreeFile (void *buffer)
 	Z_Free(buffer);
 }
 
-typedef struct ignore_t {
-    char* name;
-    hash32_t hash;
-} ignore_t;
-    
 // Some incompetently packaged mods have these files in their paks!
-ignore_t pakfile_ignore_names[] =
+char* pakfile_ignore_names[] =
 {
-    {"save/"},
-    {"scrnshot/"},
-    {"autoexec.cfg"},
-    {"vrconfig.cfg"},
-    {0}
+    "save/",
+    "scrnshot/",
+    "autoexec.cfg",
+    "vrconfig.cfg",
+    0
 };
 
 
@@ -1161,7 +1137,7 @@ Checks against a blacklist to see if a file
 should not be loaded from a pak.
 =================
 */
-qboolean FS_FileInPakBlacklist (char *filename, hash32_t hash, qboolean isPk3)
+qboolean FS_FileInPakBlacklist (char *filename, qboolean isPk3)
 {
 	int32_t			i;
 	char		*compare;
@@ -1171,9 +1147,8 @@ qboolean FS_FileInPakBlacklist (char *filename, hash32_t hash, qboolean isPk3)
 	if (compare[0] == '/')	// remove leading slash
 		compare++;
 
-	for (i=0; pakfile_ignore_names[i].name; i++) {
-		if ( !Q_HashEquals32(hash, pakfile_ignore_names[i].hash) &&
-            !Q_strncasecmp(compare, pakfile_ignore_names[i].name, strlen(pakfile_ignore_names[i].name)) )
+	for (i=0; pakfile_ignore_names[i]; i++) {
+		if ( !Q_strncasecmp(compare, pakfile_ignore_names[i], strlen(pakfile_ignore_names[i])) )
 			ignore = true;
 		// Ogg files can't load from .paks
 		if ( !isPk3 && !strcmp(COM_FileExtension(compare), "ogg") )
@@ -1186,26 +1161,6 @@ qboolean FS_FileInPakBlacklist (char *filename, hash32_t hash, qboolean isPk3)
 //		Com_Printf ("FS_LoadPAK: file %s not blacklisted.\n", filename);
 	return ignore;
 }
-
-
-#ifdef BINARY_PACK_SEARCH
-/*
-=================
-FS_PakFileCompare
- 
-Used for sorting pak entries by hash
-=================
-*/
-hash32_t *nameHashes = NULL;
-int32_t FS_PakFileCompare (const void *f1, const void *f2)
-{
-	if (!nameHashes)
-		return 1;
-
-	return Q_HashCompare32(nameHashes[*((int32_t *)(f1))], nameHashes[*((int32_t *)(f2))]);
-}
-#endif	// BINARY_PACK_SEARCH
-
 
 /*
 =================
@@ -1220,16 +1175,13 @@ the list so they override previous pack files.
 fsPack_t *FS_LoadPAK (const char *packPath)
 {
 	int32_t				numFiles, i;
+    stable_t        filenameTable = {0, 0, 0};
 	fsPackFile_t	*files;
 	fsPack_t		*pack;
 	FILE			*handle;
 	dpackheader_t		header;
 	dpackfile_t		info[MAX_FILES_IN_PACK];
 	uint32_t		contentFlags = 0;
-#ifdef BINARY_PACK_SEARCH
-	int32_t				*sortIndices;
-	hash32_t			*sortHashes;
-#endif	// BINARY_PACK_SEARCH
 
 	handle = fopen(packPath, "rb");
 	if (!handle)
@@ -1252,60 +1204,40 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 		fclose(handle);
 		Com_Error(ERR_FATAL, "FS_LoadPAK: %s has %i files", packPath, numFiles);
 	}
+    filenameTable.size = numFiles * MAX_QPATH;
+    Q_STInit(&filenameTable, MAX_QPATH);
 
-	files = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
+    files = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
 
 	fseek(handle, header.dirofs, SEEK_SET);
 	fread(info, 1, header.dirlen, handle);
 
-#ifdef BINARY_PACK_SEARCH
-	// create sort table
-	sortIndices = (int32_t*)Z_TagMalloc(numFiles * sizeof(int32_t), TAG_SYSTEM);
-	sortHashes = (hash32_t*)Z_TagMalloc(numFiles * sizeof(hash32_t), TAG_SYSTEM);
-	nameHashes = sortHashes;
 	for (i = 0; i < numFiles; i++)
 	{
-		sortIndices[i] = i;
-		sortHashes[i] = Q_HashSanitized32(info[i].name);
-	}
-	qsort((void *)sortIndices, numFiles, sizeof(int32_t), FS_PakFileCompare);
-
-	// Parse the directory
-	for (i = 0; i < numFiles; i++)
-	{
-		strcpy(files[i].name, info[sortIndices[i]].name);
-		files[i].hash = sortHashes[sortIndices[i]];
-		files[i].offset = LittleLong(info[sortIndices[i]].filepos);
-		files[i].size = LittleLong(info[sortIndices[i]].filelen);
-		files[i].ignore = FS_FileInPakBlacklist(files[i].name, files[i].hash, false);	// check against pak loading blacklist
-		if (!files[i].ignore)	// add type flag for this file
-			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
+        char buffer[MAX_OSPATH];
+        dpackfile_t cur = info[i];
+        Q_strcpy_lower(buffer, cur.name);
+        files[i].hash = Q_STRegister(&filenameTable, buffer);
+        files[i].offset = LittleLong(cur.filepos);
+        files[i].size = LittleLong(cur.filelen);
+        files[i].ignore = FS_FileInPakBlacklist(buffer, false);	// check against pak loading blacklist
+        if (!files[i].ignore)	// add type flag for this file
+            contentFlags |= FS_TypeFlagForPakItem(buffer);
 	}
 
-	// free sort table
-	Z_Free (sortIndices);
-	Z_Free (sortHashes);
-	nameHashes = NULL;
-#else	// Parse the directory
-	for (i = 0; i < numFiles; i++)
-	{
-		strcpy(files[i].name, info[i].name);
-		files[i].hash = Q_HashSanitized32(info[i].name);	// Added to speed up seaching
-		files[i].offset = LittleLong(info[i].filepos);
-		files[i].size = LittleLong(info[i].filelen);
-		files[i].ignore = FS_FileInPakBlacklist(info[i].name, info[i].hash, false);	// check against pak loading blacklist
-		if (!files[i].ignore)	// add type flag for this file
-			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
-	}
-#endif	// BINARY_PACK_SEARCH
+    //Com_Printf("Registering file %s\n", packPath);
+    //Com_Printf("String table contains %i bytes\n", filenameTable.size);
+    Q_STPack(&filenameTable);
+    //Com_Printf("Packed string table contains %i bytes\n", filenameTable.size);
 
-	pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
+    pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
 	strcpy(pack->name, packPath);
 	pack->pak = handle;
 	pack->pk3 = NULL;
 	pack->numFiles = numFiles;
 	pack->files = files;
 	pack->contentFlags = contentFlags;
+    pack->fileNames = filenameTable;
 
 	return pack;
 }
@@ -1352,11 +1284,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	int32_t				status;
 	uint32_t		contentFlags = 0;
 	char			fileName[MAX_QPATH];
-#ifdef BINARY_PACK_SEARCH
-	fsPackFile_t	*tmpFiles;
-	int32_t				*sortIndices;
-	hash32_t			*sortHashes;
-#endif	// BINARY_PACK_SEARCH
+    stable_t        filenameTable = {0, 0, 0};
 
 	handle = (unzFile*)unzOpen(packPath);
 	if (!handle)
@@ -1374,67 +1302,30 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		Com_Error(ERR_FATAL, "FS_LoadPK3: %s has %i files", packPath, numFiles);
 	}
 	files = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
-
-#ifdef BINARY_PACK_SEARCH
-	// create sort table
-	tmpFiles = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
-	sortIndices = (int32_t*)Z_TagMalloc(numFiles * sizeof(int32_t), TAG_SYSTEM);
-	sortHashes = (hash32_t*)Z_TagMalloc(numFiles * sizeof(hash32_t), TAG_SYSTEM);
-	nameHashes = sortHashes;	
-
-	// Parse the directory
+    filenameTable.size = numFiles * MAX_QPATH;
+    Q_STInit(&filenameTable, MAX_QPATH);
+    
+    
 	status = unzGoToFirstFile(handle);
 	while (status == UNZ_OK)
 	{
-		fileName[0] = 0;
-		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
-		sortIndices[i] = i;
-		strcpy(tmpFiles[i].name, fileName);
-		tmpFiles[i].hash = sortHashes[i] = Q_HashSanitized32(fileName);	// Added to speed up seaching
-		tmpFiles[i].offset = -1;		// Not used in ZIP files
-		tmpFiles[i].size = info.uncompressed_size;
-		tmpFiles[i].ignore = FS_FileInPakBlacklist(fileName, tmpFiles[i].hash, true);	// check against pak loading blacklist
-		if (!tmpFiles[i].ignore)	// add type flag for this file
-			contentFlags |= FS_TypeFlagForPakItem(tmpFiles[i].name);
-		i++;
-		status = unzGoToNextFile(handle);
-	}
+        char buffer[MAX_OSPATH];
 
-	// sort by hash and copy to final file table
-	qsort((void *)sortIndices, numFiles, sizeof(int32_t), FS_PakFileCompare);
-	for (i=0; i < numFiles; i++)
-	{
-		strcpy(files[i].name, tmpFiles[sortIndices[i]].name);
-		files[i].hash = tmpFiles[sortIndices[i]].hash;
-		files[i].offset = tmpFiles[sortIndices[i]].offset;
-		files[i].size = tmpFiles[sortIndices[i]].size;
-		files[i].ignore = tmpFiles[sortIndices[i]].ignore;
-	}
-
-	// free sort table
-	Z_Free (tmpFiles);
-	Z_Free (sortIndices);
-	Z_Free (sortHashes);
-	nameHashes = NULL;
-#else	// Parse the directory
-	status = unzGoToFirstFile(handle);
-	while (status == UNZ_OK)
-	{
 		fileName[0] = 0;
 		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
 
-		strcpy(files[i].name, fileName);
-		files[i].hash = Q_HashSanitized32(fileName);	// Added to speed up seaching
+		Q_strcpy_lower(buffer, fileName);
+
+        files[i].hash = Q_STRegister(&filenameTable, buffer);
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
-		files[i].ignore = FS_FileInPakBlacklist(fileName, files[i].hash, true);	// check against pak loading blacklist
+		files[i].ignore = FS_FileInPakBlacklist(buffer, true);	// check against pak loading blacklist
 		if (!files[i].ignore)	// add type flag for this file
-			contentFlags |= FS_TypeFlagForPakItem(files[i].name);
+			contentFlags |= FS_TypeFlagForPakItem(buffer);
 		i++;
 
 		status = unzGoToNextFile(handle);
 	}
-#endif	// BINARY_PACK_SEARCH
 
 	pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
 	strcpy(pack->name, packPath);
@@ -1443,7 +1334,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 	pack->contentFlags = contentFlags;
-
+    pack->fileNames = filenameTable;
 	return pack;
 }
 
@@ -1724,16 +1615,10 @@ char *Sys_GetCurrentDirectory (void);
 char *Sys_GetBaseDir (void);
 void FS_InitFilesystem (void)
 {
-    int i = 0;
 	// Register our commands and cvars
 	Cmd_AddCommand("path", FS_Path_f);
 	Cmd_AddCommand("link", FS_Link_f);
 	Cmd_AddCommand("dir", FS_Dir_f);
-
-    while (pakfile_ignore_names[i].name != 0) {
-        pakfile_ignore_names[i].hash = Q_HashSanitized32(pakfile_ignore_names[i].name);
-        i++;
-    }
     
 	Com_Printf("\n----- Filesystem Initialization -----\n");
 
@@ -1792,17 +1677,18 @@ void FS_Shutdown (void)
 	{
 		if (fs_searchPaths->pack)
 		{
-			pack = fs_searchPaths->pack;
-
-			if (pack->pak)
-				fclose(pack->pak);
-			if (pack->pk3)
-				unzClose(pack->pk3);
-
-			Z_Free(pack->files);
-			Z_Free(pack);
-		}
-		next = fs_searchPaths->next;
+            pack = fs_searchPaths->pack;
+            
+            if (pack->pak)
+                fclose(pack->pak);
+            if (pack->pk3)
+                unzClose(pack->pk3);
+            
+            Q_STFree(&pack->fileNames);
+            Z_Free(pack->files);
+            Z_Free(pack);
+        }
+        next = fs_searchPaths->next;
 		Z_Free(fs_searchPaths);
 		fs_searchPaths = next;
 	}
@@ -2074,7 +1960,9 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 		{
 			for (i = 0, j = 0; i < search->pack->numFiles; i++)
 			{
-				if (ComparePackFiles(findname, search->pack->files[i].name,
+                const char *name = Q_STGetString(search->pack->fileNames, search->pack->files[i].hash);
+
+				if (ComparePackFiles(findname, name,
 							musthave, canthave, NULL, 0))
 				{
 					j++;
@@ -2091,7 +1979,9 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 
 			for (i = 0, j = nfiles - j; i < search->pack->numFiles; i++)
 			{
-				if (ComparePackFiles(findname, search->pack->files[i].name,
+                const char *name = Q_STGetString(search->pack->fileNames, search->pack->files[i].hash);
+
+				if (ComparePackFiles(findname, name,
 							musthave, canthave, path, sizeof(path)))
 				{
 					list[j++] = (char*)Z_TagStrdup(path, TAG_SYSTEM);
