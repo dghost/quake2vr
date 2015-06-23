@@ -1671,6 +1671,20 @@ size_t Q_strlcpy(char *dest, char* src, size_t size)
 	return size;
 }
 
+size_t Q_strcpy_lower(char *dest, char* src) {
+    char	*s = src;
+    
+    while (*s) {
+        *dest = tolower(*s);
+        dest++;
+        s++;
+    }
+    
+    *dest = 0;
+
+    return s - src;
+}
+
 char *Q_strlwr (char *string)
 {
 #ifdef _WIN32
