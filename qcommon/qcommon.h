@@ -899,8 +899,8 @@ enum {
 void Z_Free (void *ptr);
 void *Z_Malloc (int32_t size);			// returns 0 filled memory
 void *Z_TagMalloc (int32_t size, int16_t tag);
-void *Z_Strdup (char *string);
-void *Z_TagStrdup (char *string, int16_t tag);
+void *Z_Strdup (const char *string);
+void *Z_TagStrdup (const char *string, int16_t tag);
 void *Z_Realloc(void* ptr, int32_t size);
 void Z_FreeTags (int16_t tag);
 
