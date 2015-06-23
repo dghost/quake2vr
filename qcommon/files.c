@@ -81,12 +81,13 @@ typedef struct {
 
 typedef struct fsLink_s {
 	char			*from;
-	int32_t			length;
 	char			*to;
 	struct fsLink_s	*next;
+    int32_t			length;
 } fsLink_t;
 
 typedef struct {
+    const char      *name;
 	int32_t         hash;				// To speed up searching
 	int32_t			size;
 	int32_t			offset;				// This is ignored in PK3 files
@@ -95,12 +96,12 @@ typedef struct {
 
 typedef struct {
 	char			name[MAX_OSPATH];
+    stable_t        fileNames;
 	FILE			*pak;
 	unzFile			*pk3;
 	int32_t			numFiles;
-	fsPackFile_t	*files;
 	uint32_t        contentFlags;
-    stable_t        fileNames;
+    fsPackFile_t	*files;
 } fsPack_t;
 
 typedef struct fsSearchPath_s {
@@ -894,7 +895,7 @@ char **FS_ListPak (char *find, int32_t *num)
 			continue;
 
 		pak = search->pack;
-
+        
 		// now find and build list
 		for (i=0 ; i<pak->numFiles ; i++) {
 			if (!pak->files[i].ignore)
@@ -915,7 +916,7 @@ char **FS_ListPak (char *find, int32_t *num)
 		// now find and build list
 		for (i=0 ; i<pak->numFiles ; i++)
 		{
-            const char *name = Q_STGetString(pak->fileNames, pak->files[i].hash);
+            const char *name = pak->files[i].name;
 			if (!pak->files[i].ignore && strstr(name, find))
 			{
 				list[nfound] = (char*)Z_TagStrdup(name, TAG_SYSTEM);
@@ -1218,6 +1219,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
         dpackfile_t cur = info[i];
         Q_strcpy_lower(buffer, cur.name);
         files[i].hash = Q_STRegister(&filenameTable, buffer);
+        files[i].name = Q_STGetString(filenameTable, files[i].hash);
         files[i].offset = LittleLong(cur.filepos);
         files[i].size = LittleLong(cur.filelen);
         files[i].ignore = FS_FileInPakBlacklist(buffer, false);	// check against pak loading blacklist
@@ -1317,6 +1319,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		Q_strcpy_lower(buffer, fileName);
 
         files[i].hash = Q_STRegister(&filenameTable, buffer);
+        files[i].name = Q_STGetString(filenameTable, files[i].hash);
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
 		files[i].ignore = FS_FileInPakBlacklist(buffer, true);	// check against pak loading blacklist
@@ -1958,11 +1961,11 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 	{
 		if (search->pack != NULL)
 		{
-			for (i = 0, j = 0; i < search->pack->numFiles; i++)
+            fsPackFile_t *files = search->pack->files;
+            int numFiles = search->pack->numFiles;
+			for (i = 0, j = 0; i < numFiles; i++)
 			{
-                const char *name = Q_STGetString(search->pack->fileNames, search->pack->files[i].hash);
-
-				if (ComparePackFiles(findname, name,
+				if (ComparePackFiles(findname, files[i].name,
 							musthave, canthave, NULL, 0))
 				{
 					j++;
@@ -1977,18 +1980,16 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 			nfiles += j;
 			list = (char**)Z_Realloc(list, nfiles * sizeof(char *));
 
-			for (i = 0, j = nfiles - j; i < search->pack->numFiles; i++)
+			for (i = 0, j = nfiles - j; i < numFiles; i++)
 			{
-                const char *name = Q_STGetString(search->pack->fileNames, search->pack->files[i].hash);
-
-				if (ComparePackFiles(findname, name,
+				if (ComparePackFiles(findname, files[i].name,
 							musthave, canthave, path, sizeof(path)))
 				{
 					list[j++] = (char*)Z_TagStrdup(path, TAG_SYSTEM);
 				}
 			}
 		}
-		else if (search->path != NULL)
+		else if (search->path[0] != 0)
 		{
 
 			Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
