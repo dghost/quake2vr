@@ -421,10 +421,10 @@ typedef enum {
 //=============================================
 
 // portable case insensitive compare
-int32_t Q_strcasecmp (char *s1, char *s2);
-int32_t Q_strncasecmp (char *s1, char *s2, int32_t n);
-size_t Q_strlcpy(char *dest, char* src, size_t size);
-size_t Q_strcpy_lower(char *dest, char* src);
+int32_t Q_strcasecmp (const char *s1, const char *s2);
+int32_t Q_strncasecmp (const char *s1, const char *s2, int32_t n);
+size_t Q_strlcpy(char *dest, const char* src, size_t size);
+size_t Q_strlcpy_lower(char *dest, const char* src, size_t size);
 char *Q_strlwr (char *string);
 
 //=============================================
@@ -448,9 +448,9 @@ char	*va(char *format, ...);
 #define	MAX_INFO_VALUE		64
 #define	MAX_INFO_STRING		512
 
-char *Info_ValueForKey (char *s, char *key);
-void Info_RemoveKey (char *s, char *key);
-void Info_SetValueForKey (char *s, char *key, char *value);
+char *Info_ValueForKey (char *s, const char *key);
+void Info_RemoveKey (char *s, const char *key);
+void Info_SetValueForKey (char *s, const char *key, char *value);
 qboolean Info_Validate (char *s);
 
 /*
@@ -516,7 +516,7 @@ CVARS (console variables)
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s
 {
-	char		*name;
+//	char		*name;
 	char		*string;
 	char		*latched_string;	// for CVAR_LATCH vars
 	int32_t			flags;
@@ -528,7 +528,7 @@ typedef struct cvar_s
 	char		*default_string;
 	int32_t			integer;
 #endif
-    hash32_t      hash;
+    int32_t      index;
 } cvar_t;
 
 #endif		// CVAR

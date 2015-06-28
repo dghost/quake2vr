@@ -400,17 +400,18 @@ void SV_WriteServerFile (qboolean autosave)
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (var = cvar_vars[i] ; var ; var=var->next)
         {
+            const char *name = Cvar_GetName(var);
             if (!(var->flags & CVAR_LATCH))
                 continue;
-            if (strlen(var->name) >= sizeof(varName)-1
+            if (strlen(name) >= sizeof(varName)-1
                 || strlen(var->string) >= sizeof(string)-1)
             {
-                Com_Printf ("Cvar too long: %s = %s\n", var->name, var->string);
+                Com_Printf ("Cvar too long: %s = %s\n", name, var->string);
                 continue;
             }
             memset (varName, 0, sizeof(varName));
             memset (string, 0, sizeof(string));
-            strcpy (varName, var->name);
+            strcpy (varName, name);
             strcpy (string, var->string);
             fwrite (varName, 1, sizeof(varName), f);
             fwrite (string, 1, sizeof(string), f);

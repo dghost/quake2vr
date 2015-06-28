@@ -439,7 +439,7 @@ qboolean Cmd_Exists (char *cmd_name);
 
 typedef struct completion_t {
     uint32_t number;
-    char *match;
+    const char *match;
 } completion_t;
 
 completion_t Cmd_CompleteCommand (char *partial);
@@ -491,6 +491,7 @@ interface from being ambiguous.
 #define CVAR_HASHMAP_WIDTH 0x80
 #define CVAR_HASHMAP_MASK 0x7F
 extern	cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
+extern  stable_t cvarNames;
 
 cvar_t *Cvar_Get (char *var_name, char *value, int32_t flags);
 // creates the variable if it doesn't exist, or returns the existing one
@@ -530,7 +531,7 @@ char	*Cvar_DefaultString (char *var_name);
 cvar_t *Cvar_SetToDefault (char *var_name);
 // end Knightmare
 
-char 	*Cvar_CompleteVariable (char *partial);
+const char 	*Cvar_CompleteVariable (char *partial);
 // attempts to match a partial variable name for command line completion
 // returns NULL if nothing fits
 
@@ -549,6 +550,7 @@ void 	Cvar_WriteVariables (char *path);
 // appends lines containing "set variable value" for all variables
 // with the archive flag set to true.
 
+
 void	Cvar_Init (void);
 
 char	*Cvar_Userinfo (void);
@@ -561,6 +563,10 @@ extern	qboolean	userinfo_modified;
 // this is set each time a CVAR_USERINFO variable is changed
 // so that the client knows to send it to the server
 
+// checks cvar range
+void    Cvar_AssertRange (cvar_t *var, float min, float max, qboolean isInteger);
+
+const char *Cvar_GetName(cvar_t *var);
 /*
 ==============================================================
 

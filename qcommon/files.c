@@ -444,7 +444,7 @@ int32_t FS_FindPackItem (fsPack_t *pack, char *itemName)
 	if ( !pack || !itemName)
         return -1;
     
-    Q_strcpy_lower(buffer, itemName);
+    Q_strlcpy_lower(buffer, itemName, MAX_OSPATH);
 
     itemIndex = Q_STLookup(pack->fileNames, buffer);
     
@@ -1217,7 +1217,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 	{
         char buffer[MAX_OSPATH];
         dpackfile_t cur = info[i];
-        Q_strcpy_lower(buffer, cur.name);
+        Q_strlcpy_lower(buffer, cur.name, MAX_OSPATH);
         files[i].hash = Q_STRegister(&filenameTable, buffer);
         files[i].name = Q_STGetString(filenameTable, files[i].hash);
         files[i].offset = LittleLong(cur.filepos);
@@ -1316,7 +1316,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		fileName[0] = 0;
 		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH, NULL, 0, NULL, 0);
 
-		Q_strcpy_lower(buffer, fileName);
+		Q_strlcpy_lower(buffer, fileName, MAX_OSPATH);
 
         files[i].hash = Q_STRegister(&filenameTable, buffer);
         files[i].name = Q_STGetString(filenameTable, files[i].hash);

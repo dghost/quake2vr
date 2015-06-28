@@ -170,7 +170,7 @@ keyname_t keynames[] =
 ==============================================================================
 */
 
-qboolean Cmd_IsComplete (char *cmd);
+qboolean Cmd_IsComplete (const char *cmd);
 
 void CompleteCommand (void)
 {

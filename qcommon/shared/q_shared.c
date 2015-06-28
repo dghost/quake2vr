@@ -1627,7 +1627,7 @@ void Com_PageInMemory (byte *buffer, int32_t size)
 */
 
 
-int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
+int32_t Q_strncasecmp (const char *s1, const char *s2, int32_t n)
 {
 #if 1
     return strncasecmp(s1, s2, n);
@@ -1659,30 +1659,21 @@ int32_t Q_strncasecmp (char *s1, char *s2, int32_t n)
 
 }
 
-int32_t Q_strcasecmp (char *s1, char *s2)
+int32_t Q_strcasecmp (const char *s1, const char *s2)
 {
     // do this to ensure termination
     return Q_strncasecmp (s1, s2, 99999);
 }
 
-size_t Q_strlcpy(char *dest, char* src, size_t size)
+size_t Q_strlcpy(char *dest, const char* src, size_t size)
 {
-	strncpy(dest,src,size);
-	return size;
+	return strlcpy(dest,src,size);
 }
 
-size_t Q_strcpy_lower(char *dest, char* src) {
-    char	*s = src;
-    
-    while (*s) {
-        *dest = tolower(*s);
-        dest++;
-        s++;
-    }
-    
-    *dest = 0;
-
-    return s - src;
+size_t Q_strlcpy_lower(char *dest, const char* src, size_t size) {
+    size_t s = strlcpy(dest, src, size);
+    Q_strlwr(dest);
+    return s;
 }
 
 char *Q_strlwr (char *string)
@@ -1732,7 +1723,7 @@ Searches the string for the given
 key and returns the associated value, or an empty string.
 ===============
 */
-char *Info_ValueForKey (char *s, char *key)
+char *Info_ValueForKey (char *s, const char *key)
 {
 	char	pkey[512];
 	static	char value[2][512];	// use two buffers so compares
@@ -1774,7 +1765,7 @@ char *Info_ValueForKey (char *s, char *key)
 	}
 }
 
-void Info_RemoveKey (char *s, char *key)
+void Info_RemoveKey (char *s, const char *key)
 {
 	char	*start;
 	char	pkey[512];
@@ -1841,7 +1832,7 @@ qboolean Info_Validate (char *s)
 	return true;
 }
 
-void Info_SetValueForKey (char *s, char *key, char *value)
+void Info_SetValueForKey (char *s, const char *key, char *value)
 {
 	char	newi[MAX_INFO_STRING], *v;
 	int32_t		c;

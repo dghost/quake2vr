@@ -826,7 +826,7 @@ completion_t Cmd_CompleteCommand (char *partial)
 	int32_t				len,i,j,o,p;
 	cmdalias_t		*a;
 	cvar_t			*cvar;
-	char			*pmatch[1024];
+	const char			*pmatch[1024];
 	qboolean		diff = false;
     completion_t    result = {0, NULL};
 	len = strlen(partial);
@@ -853,11 +853,13 @@ completion_t Cmd_CompleteCommand (char *partial)
     }
     
     for (j = 0; j < CVAR_HASHMAP_WIDTH; j++) {
-        for (cvar=cvar_vars[j] ; cvar ; cvar=cvar->next)
-            if (!Q_strncasecmp (partial,cvar->name, len)) {
-                pmatch[i]=cvar->name;
+        for (cvar=cvar_vars[j] ; cvar ; cvar=cvar->next) {
+            const char *name = Cvar_GetName(cvar);
+            if (!Q_strncasecmp (partial,name, len)) {
+                pmatch[i]=name;
                 i++;
             }
+        }
     }
     
 	if (i) {
@@ -892,12 +894,13 @@ completion_t Cmd_CompleteCommand (char *partial)
     return result;
 }
 
-qboolean Cmd_IsComplete (char *command)
+qboolean Cmd_IsComplete (const char *command)
 {
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
-	cvar_t			*cvar;
+    int32_t         index;
     hash32_t        hash;
+    char buffer[MAX_TOKEN_CHARS];
     hash = Q_HashSanitized32(command);
 
 // check for exact match
@@ -907,9 +910,12 @@ qboolean Cmd_IsComplete (char *command)
 	for (a=cmd_alias[hash.h&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
 		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (command, a->name))
 			return true;
-	for (cvar=cvar_vars[hash.h&CVAR_HASHMAP_MASK] ; cvar ; cvar=cvar->next)
-		if (!Q_HashEquals32(hash, cvar->hash) && !Q_strcasecmp (command,cvar->name))
-			return true;
+    
+    Q_strlcpy_lower(buffer, command, sizeof(buffer));
+
+    index = Q_STLookup(cvarNames, buffer);
+    if (index >= 0)
+        return true;
 
 	return false;
 }
@@ -1002,6 +1008,7 @@ void Cmd_Init (void)
 //
 // register our commands
 //
+    Q_STInit(&cvarNames, 10);
     memset(cmd_functions,0,sizeof(cmd_functions));
 	Cmd_AddCommand ("cmdlist",Cmd_List_f);
 	Cmd_AddCommand ("exec",Cmd_Exec_f);

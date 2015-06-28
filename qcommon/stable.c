@@ -14,6 +14,7 @@ qboolean Q_STInit(stable_t *st, int32_t avgLength) {
 }
 
 int32_t Q_STRegister(stable_t *st, const char *string) {
+    assert(st->st != NULL);    
     int result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
     if (result == NFST_STRING_TABLE_FULL && st->heap) {
         void *new_one = NULL;
@@ -34,14 +35,17 @@ int32_t Q_STRegister(stable_t *st, const char *string) {
 }
 
 int32_t Q_STLookup(stable_t st, const char *string) {
+    assert(st.st != NULL);
     return nfst_to_symbol_const((struct nfst_StringTable *)st.st, string);
 };
 
 const char *Q_STGetString(stable_t st, int token) {
+    assert(st.st != NULL);
     return nfst_to_string((struct nfst_StringTable *)st.st, token);
 }
 
 int32_t Q_STPack(stable_t *st) {
+    assert(st->st != NULL);
     int32_t size = nfst_pack((struct nfst_StringTable *)st->st);
     if (st->heap && size > MIN_SIZE && size <= st->size/2) {
         void *new_one = NULL;

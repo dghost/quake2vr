@@ -21,7 +21,7 @@
 #ifndef WILDCARDS_H
 #define WILDCARDS_H
 
-extern int32_t wildcardfit (char *wildcard, char *test);
+extern int32_t wildcardfit (char *wildcard, const char *test);
 /* this function implements the UN*X wildcards and returns  */
 /* 0  if *wildcard does not match *test                     */
 /* 1  if *wildcard matches *test                            */

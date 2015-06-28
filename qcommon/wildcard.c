@@ -53,16 +53,16 @@
 
 #include "wildcard.h"
 
-int32_t set (char **wildcard, char **test);
+int32_t set (char **wildcard, const char **test);
 /* Scans a set of characters and returns 0 if the set mismatches at this */
 /* position in the teststring and 1 if it is matching                    */
 /* wildcard is set to the closing ] and test is unmodified if mismatched */
 /* and otherwise the char pointer is pointing to the next character      */
 
-int32_t asterisk (char **wildcard, char **test);
+int32_t asterisk (char **wildcard, const char **test);
 /* scans an asterisk */
 
-int32_t wildcardfit (char *wildcard, char *test)
+int32_t wildcardfit (char *wildcard, const char *test)
 {
    int32_t fit = 1;
 
@@ -97,7 +97,7 @@ int32_t wildcardfit (char *wildcard, char *test)
    return (int32_t) ((1 == fit) && ('\0' == *test) && ('\0' == *wildcard));
 }
 
-int32_t set (char **wildcard, char **test)
+int32_t set (char **wildcard, const char **test)
 {
    int32_t fit = 0;
    int32_t negation = 0;
@@ -141,7 +141,7 @@ int32_t set (char **wildcard, char **test)
    return (fit);
 }
 
-int32_t asterisk (char **wildcard, char **test)
+int32_t asterisk (char **wildcard, const char **test)
 {
    /* Warning: uses multiple returns */
    int32_t fit = 1;

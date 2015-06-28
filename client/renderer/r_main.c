@@ -1046,36 +1046,6 @@ void R_RenderFrame (refdef_t *fd)
 }
 
 
-void AssertCvarRange (cvar_t *var, float min, float max, qboolean isInteger)
-{
-	if (!var)
-		return;
-#ifdef NEW_CVAR_MEMBERS
-	if (isInteger && (var->value != (float) var->integer))
-	{
-		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
-		Cvar_Set (var->name, va("%d", var->integer));
-	}
-#else
-	if (isInteger && (var->value != (float)((int) var->value)))
-	{
-		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
-		Cvar_Set (var->name, va("%d", (int) var->value));
-	}
-#endif
-	if (var->value < min)
-	{
-		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f < %f)\n", var->name, var->value, min);
-		Cvar_Set (var->name, va("%f", min));
-	}
-	else if (var->value > max)
-	{
-		VID_Printf (PRINT_ALL, S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f > %f)\n", var->name, var->value, max);
-		Cvar_Set (var->name, va("%f", max));
-	}
-}
-
-
 void R_Register (void)
 {
 	// added Psychospaz's console font size option
@@ -1097,7 +1067,7 @@ void R_Register (void)
 	r_speeds = Cvar_Get ("r_speeds", "0", 0);
 	r_ignorehwgamma = Cvar_Get ("r_ignorehwgamma", "0", CVAR_ARCHIVE);	// hardware gamma
 	vid_refresh = Cvar_Get ("vid_refresh", "0", CVAR_ARCHIVE); // refresh rate control
-	AssertCvarRange (vid_refresh, 0, 150, true);
+	Cvar_AssertRange(vid_refresh, 0, 150, true);
 
 	vid_width = Cvar_Get( "vid_width", "1280", CVAR_ARCHIVE );
 	vid_height = Cvar_Get( "vid_height", "800", CVAR_ARCHIVE );
