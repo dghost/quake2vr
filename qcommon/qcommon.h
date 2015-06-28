@@ -955,10 +955,11 @@ typedef struct stable_t { void *st; uint32_t size; qboolean heap;} stable_t;
 #endif
 
 qboolean Q_STInit(stable_t *st, int32_t avgLength);
-int32_t Q_STRegister(stable_t *st, const char *string);
+int32_t Q_STAutoRegister(stable_t *st, const char *string);
 int32_t Q_STLookup(stable_t st, const char *string);
 const char *Q_STGetString(stable_t st, int token);
-int32_t Q_STPack(stable_t *st);
+int32_t Q_STUsedBytes(const stable_t st);
+int32_t Q_STAutoPack(stable_t *st);
 void Q_STFree(stable_t *st);
 
 /*

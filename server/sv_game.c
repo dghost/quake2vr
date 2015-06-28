@@ -403,10 +403,10 @@ void SV_InitGameProgs (void)
     import.HashEquals32 = Q_HashEquals32;
     import.HashCompare32 = Q_HashCompare32;
     import.StringTableInit = Q_STInit;
-    import.StringTableRegister = Q_STRegister;
+    import.StringTableRegister = Q_STAutoRegister;
     import.StringTableLookup = Q_STLookup;
     import.StringTableGetString = Q_STGetString;
-    import.StringTablePack = Q_STPack;
+    import.StringTablePack = Q_STAutoPack;
     import.StringTableFree = Q_STFree;
 #endif
 #endif

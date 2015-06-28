@@ -1028,7 +1028,7 @@ void R_AddToFailedImgList (char *name)
 	if (!strncmp(name, "save/", 5)) // don't add saveshots
 		return;
 
-    Q_STRegister(&failed_images, name);
+    Q_STAutoRegister(&failed_images, name);
 }
 
 /*
@@ -1256,7 +1256,7 @@ void R_FreeUnusedImages (void)
 		glDeleteTextures (1, &image->texnum);
 		memset (image, 0, sizeof(*image));
 	}
-    Q_STPack(&failed_images);
+    Q_STAutoPack(&failed_images);
 }
 
 
@@ -1354,13 +1354,13 @@ void R_InitImages (void)
 
     Q_STInit(&supported_image_types, 5);
     
-    s_pcx = Q_STRegister(&supported_image_types, ".pcx");
-    s_wal = Q_STRegister(&supported_image_types, ".wal");
-    s_tga = Q_STRegister(&supported_image_types, ".tga");
-    s_jpg = Q_STRegister(&supported_image_types, ".jpg");
-    s_png = Q_STRegister(&supported_image_types, ".png");
+    s_pcx = Q_STAutoRegister(&supported_image_types, ".pcx");
+    s_wal = Q_STAutoRegister(&supported_image_types, ".wal");
+    s_tga = Q_STAutoRegister(&supported_image_types, ".tga");
+    s_jpg = Q_STAutoRegister(&supported_image_types, ".jpg");
+    s_png = Q_STAutoRegister(&supported_image_types, ".png");
     
-    Q_STPack(&supported_image_types);
+    Q_STAutoPack(&supported_image_types);
     
 	// Knightmare- reinitialize these after a vid_restart
 	// this is needed because the renderer is no longer a DLL

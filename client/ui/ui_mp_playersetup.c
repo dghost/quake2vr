@@ -234,10 +234,10 @@ static qboolean PlayerConfig_ScanDirectories (void)
             for (k = 0; k < nimagefiles-1; k++) {
                 int len = strlen(imagenames[k]);
                 if (R_IsSupportedImageType(imagenames[k] + len - 4)) {
-                    Q_STRegister(&image_stable, imagenames[k]);
+                    Q_STAutoRegister(&image_stable, imagenames[k]);
                 }
             }
-            Q_STPack(&image_stable);
+            Q_STAutoPack(&image_stable);
             
             // count valid skins, which consist of a skin with a matching "_i" icon
             for (k = 0; k < nimagefiles-1; k++)

@@ -1218,7 +1218,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
         char buffer[MAX_OSPATH];
         dpackfile_t cur = info[i];
         Q_strlcpy_lower(buffer, cur.name, MAX_OSPATH);
-        files[i].hash = Q_STRegister(&filenameTable, buffer);
+        files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
         files[i].name = Q_STGetString(filenameTable, files[i].hash);
         files[i].offset = LittleLong(cur.filepos);
         files[i].size = LittleLong(cur.filelen);
@@ -1229,7 +1229,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 
     //Com_Printf("Registering file %s\n", packPath);
     //Com_Printf("String table contains %i bytes\n", filenameTable.size);
-    Q_STPack(&filenameTable);
+    Q_STAutoPack(&filenameTable);
     //Com_Printf("Packed string table contains %i bytes\n", filenameTable.size);
 
     pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
@@ -1318,7 +1318,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 
 		Q_strlcpy_lower(buffer, fileName, MAX_OSPATH);
 
-        files[i].hash = Q_STRegister(&filenameTable, buffer);
+        files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
         files[i].name = Q_STGetString(filenameTable, files[i].hash);
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;

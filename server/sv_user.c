@@ -608,8 +608,8 @@ void SV_InitClientCommands(void) {
     ucmd_t *u;
     Q_STInit(&command_stable, 8);
     for (u=ucmds ; u->name ; u++)
-        u->token = Q_STRegister(&command_stable, u->name);
-    Q_STPack(&command_stable);
+        u->token = Q_STAutoRegister(&command_stable, u->name);
+    Q_STAutoPack(&command_stable);
 }
 
 /*

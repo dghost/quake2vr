@@ -225,7 +225,7 @@ S_FindName(char *name, qboolean create)
 	sfx = &known_sfx[i];
 	sfx->truename = -1;
 	strcpy(sfx->name, name);
-    sfx->index = Q_STRegister(&soundNames, name);
+    sfx->index = Q_STAutoRegister(&soundNames, name);
     sfx->registration_sequence = s_registration_sequence;
 	return sfx;
 }
@@ -263,9 +263,9 @@ S_AliasName(char *aliasname, char *truename)
 	sfx = &known_sfx[i];
 	sfx->cache = NULL;
 	strcpy(sfx->name, aliasname);
-    sfx->index = Q_STRegister(&soundNames, aliasname);
+    sfx->index = Q_STAutoRegister(&soundNames, aliasname);
 	sfx->registration_sequence = s_registration_sequence;
-	sfx->truename = Q_STRegister(&soundNames, truename);
+	sfx->truename = Q_STAutoRegister(&soundNames, truename);
 
 	return sfx;
 }
@@ -411,7 +411,7 @@ S_EndRegistration(void)
 
 		S_LoadSound(sfx);
 	}
-    Q_STPack(&soundNames);
+    Q_STAutoPack(&soundNames);
 	s_registering = false;
 }
 

@@ -1360,14 +1360,14 @@ void CL_InitLocal (void)
 	cls.realtime = Sys_Milliseconds ();
 
     Q_STInit(&clpacket_stable, 6);
-    s_client_connect = Q_STRegister(&clpacket_stable, "client_connect");
-    s_info = Q_STRegister(&clpacket_stable, "info");
-    s_cmd = Q_STRegister(&clpacket_stable, "cmd");
-    s_print = Q_STRegister(&clpacket_stable, "print");
-    s_ping = Q_STRegister(&clpacket_stable, "ping");
-    s_challenge = Q_STRegister(&clpacket_stable, "challenge");
-    s_echo = Q_STRegister(&clpacket_stable, "echo");
-    Q_STPack(&clpacket_stable);
+    s_client_connect = Q_STAutoRegister(&clpacket_stable, "client_connect");
+    s_info = Q_STAutoRegister(&clpacket_stable, "info");
+    s_cmd = Q_STAutoRegister(&clpacket_stable, "cmd");
+    s_print = Q_STAutoRegister(&clpacket_stable, "print");
+    s_ping = Q_STAutoRegister(&clpacket_stable, "ping");
+    s_challenge = Q_STAutoRegister(&clpacket_stable, "challenge");
+    s_echo = Q_STAutoRegister(&clpacket_stable, "echo");
+    Q_STAutoPack(&clpacket_stable);
     
     CL_InitInput ();
 

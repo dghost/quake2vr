@@ -1108,14 +1108,14 @@ Only called at quake2.exe startup, not for each game
 void SV_Init (void)
 {
     Q_STInit(&packet_stable, 8);
-    s_ping = Q_STRegister(&packet_stable, "ping");
-    s_ack = Q_STRegister(&packet_stable, "ack");
-    s_status = Q_STRegister(&packet_stable, "status");
-    s_info = Q_STRegister(&packet_stable, "info");
-    s_getchallenge = Q_STRegister(&packet_stable, "getchallenge");
-    s_connect = Q_STRegister(&packet_stable, "connect");
-    s_rcon = Q_STRegister(&packet_stable, "rcon");
-    Q_STPack(&packet_stable);
+    s_ping = Q_STAutoRegister(&packet_stable, "ping");
+    s_ack = Q_STAutoRegister(&packet_stable, "ack");
+    s_status = Q_STAutoRegister(&packet_stable, "status");
+    s_info = Q_STAutoRegister(&packet_stable, "info");
+    s_getchallenge = Q_STAutoRegister(&packet_stable, "getchallenge");
+    s_connect = Q_STAutoRegister(&packet_stable, "connect");
+    s_rcon = Q_STAutoRegister(&packet_stable, "rcon");
+    Q_STAutoPack(&packet_stable);
 
 	SV_InitOperatorCommands	();
 

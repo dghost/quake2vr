@@ -766,7 +766,7 @@ CL_AddToFailedDownloadList
 */
 void CL_AddToFailedDownloadList (char *name)
 {
-    Q_STRegister(&failed_downloads, name);
+    Q_STAutoRegister(&failed_downloads, name);
 }
 
 /*

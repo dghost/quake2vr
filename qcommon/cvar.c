@@ -220,7 +220,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 #ifdef NEW_CVAR_MEMBERS
 		if (var_value)
 		{
-            var->default_index = Q_STRegister(&defaultValues, var_value);
+            var->default_index = Q_STAutoRegister(&defaultValues, var_value);
 		}
 #endif
 		return var;
@@ -238,17 +238,18 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 		}
 	}
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
-
+    
 	var = (cvar_t*)Z_TagMalloc (sizeof(*var), TAG_SYSTEM);
 	var->string = (char*)Z_TagStrdup (var_value, TAG_SYSTEM);
 	// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
-    var->default_index = Q_STRegister(&defaultValues, var_value);
+    var->default_index = Q_STAutoRegister(&defaultValues, var_value);
 	var->integer = atoi(var->string);
 #endif
 	var->modified = true;
 	var->value = atof (var->string);
-    var->index = Q_STRegister(&cvarNames, buffer);
+    var->index = Q_STAutoRegister(&cvarNames, buffer);
+    var->name = Q_STGetString(cvarNames, var->index);
     index = var->index & CVAR_HASHMAP_MASK;
 	// link the variable in
 	var->next = cvar_vars[index];
@@ -570,7 +571,7 @@ qboolean Cvar_Command (void)
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", name, v->string, v->latched_string);
 		else
-			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string);
+			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string);
 #endif
 		return true;
 	}

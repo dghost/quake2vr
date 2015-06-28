@@ -885,30 +885,30 @@ SCR_Init
 void SCR_Init (void)
 {
     Q_STInit(&scr_stable, 6);
-    s_xl = Q_STRegister(&scr_stable, "xl");
-    s_xr = Q_STRegister(&scr_stable, "xr");
-    s_xv = Q_STRegister(&scr_stable, "xv");
-    s_yt = Q_STRegister(&scr_stable, "yt");
-    s_yb = Q_STRegister(&scr_stable, "yb");
-    s_yv = Q_STRegister(&scr_stable, "yv");
-    s_pic = Q_STRegister(&scr_stable, "pic");
-    s_client = Q_STRegister(&scr_stable, "client");
-    s_ctf = Q_STRegister(&scr_stable, "ctf");
-    s_3tctf = Q_STRegister(&scr_stable, "3tctf");
-    s_picn = Q_STRegister(&scr_stable, "picn");
-    s_num = Q_STRegister(&scr_stable, "num");
-    s_hnum = Q_STRegister(&scr_stable, "hnum");
-    s_anum = Q_STRegister(&scr_stable, "anum");
-    s_rnum = Q_STRegister(&scr_stable, "rnum");
-    s_stat_string = Q_STRegister(&scr_stable, "stat_string");
-    s_cstring = Q_STRegister(&scr_stable, "cstring");
-    s_string = Q_STRegister(&scr_stable, "string");
-    s_cstring2 = Q_STRegister(&scr_stable, "cstring2");
-    s_string2 = Q_STRegister(&scr_stable, "string2");
-    s_if = Q_STRegister(&scr_stable, "if");
-    s_endif = Q_STRegister(&scr_stable, "endif");
+    s_xl = Q_STAutoRegister(&scr_stable, "xl");
+    s_xr = Q_STAutoRegister(&scr_stable, "xr");
+    s_xv = Q_STAutoRegister(&scr_stable, "xv");
+    s_yt = Q_STAutoRegister(&scr_stable, "yt");
+    s_yb = Q_STAutoRegister(&scr_stable, "yb");
+    s_yv = Q_STAutoRegister(&scr_stable, "yv");
+    s_pic = Q_STAutoRegister(&scr_stable, "pic");
+    s_client = Q_STAutoRegister(&scr_stable, "client");
+    s_ctf = Q_STAutoRegister(&scr_stable, "ctf");
+    s_3tctf = Q_STAutoRegister(&scr_stable, "3tctf");
+    s_picn = Q_STAutoRegister(&scr_stable, "picn");
+    s_num = Q_STAutoRegister(&scr_stable, "num");
+    s_hnum = Q_STAutoRegister(&scr_stable, "hnum");
+    s_anum = Q_STAutoRegister(&scr_stable, "anum");
+    s_rnum = Q_STAutoRegister(&scr_stable, "rnum");
+    s_stat_string = Q_STAutoRegister(&scr_stable, "stat_string");
+    s_cstring = Q_STAutoRegister(&scr_stable, "cstring");
+    s_string = Q_STAutoRegister(&scr_stable, "string");
+    s_cstring2 = Q_STAutoRegister(&scr_stable, "cstring2");
+    s_string2 = Q_STAutoRegister(&scr_stable, "string2");
+    s_if = Q_STAutoRegister(&scr_stable, "if");
+    s_endif = Q_STAutoRegister(&scr_stable, "endif");
 
-    Q_STPack(&scr_stable);
+    Q_STAutoPack(&scr_stable);
     
 
 

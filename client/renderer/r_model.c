@@ -505,7 +505,7 @@ Mod_AddToFailedTexList
 */
 void Mod_AddToFailedTexList (char *name)
 {
-    Q_STRegister(&failed_textures, name);
+    Q_STAutoRegister(&failed_textures, name);
 }
 
 /*
@@ -2530,7 +2530,7 @@ void R_EndRegistration (void)
 	}
 
 	R_FreeUnusedImages ();
-    Q_STPack(&failed_textures);
+    Q_STAutoPack(&failed_textures);
 	registration_active = false;	// map registration flag
 }
 
