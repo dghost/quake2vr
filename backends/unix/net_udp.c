@@ -157,7 +157,7 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
+qboolean	NET_StringToSockaddr (const char *s, struct sockaddr *sadr)
 {
 	struct hostent	*h;
 	char	*colon;
@@ -202,7 +202,7 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToAdr (char *s, netadr_t *a)
+qboolean	NET_StringToAdr (const char *s, netadr_t *a)
 {
 	struct sockaddr_in sadr;
 	

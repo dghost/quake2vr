@@ -265,7 +265,7 @@ static void ApplyChanges( void *unused )
 // Knightmare added
 int32_t texfilter_box_setval (void)
 {
-	char *texmode = Cvar_VariableString("r_texturemode");
+	const char *texmode = Cvar_VariableString("r_texturemode");
 	if (!Q_strcasecmp(texmode, "GL_LINEAR_MIPMAP_NEAREST"))
 		return 0;
 	else

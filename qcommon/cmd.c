@@ -91,7 +91,7 @@ Cbuf_AddText
 Adds command text at the end of the buffer
 ============
 */
-void Cbuf_AddText (char *text)
+void Cbuf_AddText (const char *text)
 {
 	int32_t		l;
 	
@@ -115,7 +115,7 @@ Adds a \n to the text
 FIXME: actually change the command buffer to do less copying
 ============
 */
-void Cbuf_InsertText (char *text)
+void Cbuf_InsertText (const char *text)
 {
 	char	*temp = temp_text_buf;
 	int32_t		templen;
@@ -551,7 +551,8 @@ char *Cmd_MacroExpandString (char *text)
 	char	*scan;
 	static	char	expanded[MAX_STRING_CHARS];
 	char	temporary[MAX_STRING_CHARS];
-	char	*token, *start;
+    const char	*token;
+    char *start;
 
 	inquote = false;
 	scan = text;

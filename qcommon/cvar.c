@@ -28,12 +28,14 @@ cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
 
+stable_t defaultValues = {0, 10240};
+
 /*
 ============
 Cvar_InfoValidate
 ============
 */
-static qboolean Cvar_InfoValidate (char *s)
+static qboolean Cvar_InfoValidate (const char *s)
 {
 	if (strstr (s, "\\"))
 		return false;
@@ -49,7 +51,7 @@ static qboolean Cvar_InfoValidate (char *s)
 Cvar_FindVar
 ============
 */
-static cvar_t *Cvar_FindVar (char *var_name)
+static cvar_t *Cvar_FindVar (const char *var_name)
 {
 	cvar_t	*var;
     char buffer[MAX_TOKEN_CHARS];
@@ -71,7 +73,7 @@ static cvar_t *Cvar_FindVar (char *var_name)
 Cvar_VariableValue
 ============
 */
-float Cvar_VariableValue (char *var_name)
+float Cvar_VariableValue (const char *var_name)
 {
 	cvar_t	*var;
 	
@@ -87,7 +89,7 @@ float Cvar_VariableValue (char *var_name)
 Cvar_VariableInteger
 =================
 */
-int32_t Cvar_VariableInteger (char *var_name)
+int32_t Cvar_VariableInteger (const char *var_name)
 {
 	cvar_t	*var;
 
@@ -103,7 +105,7 @@ int32_t Cvar_VariableInteger (char *var_name)
 Cvar_VariableString
 ============
 */
-char *Cvar_VariableString (char *var_name)
+const char *Cvar_VariableString (const char *var_name)
 {
 	cvar_t *var;
 	
@@ -119,14 +121,14 @@ Cvar_DefaultValue
 Knightmare added
 ============
 */
-float Cvar_DefaultValue (char *var_name)
+float Cvar_DefaultValue (const char *var_name)
 {
 	cvar_t	*var;
 	var = Cvar_FindVar (var_name);
 	if (!var)
 		return 0;
 #ifdef NEW_CVAR_MEMBERS
-	return atof (var->default_string);
+	return atof (Q_STGetString(defaultValues,var->default_index));
 #else
 	return var->value;
 #endif
@@ -139,7 +141,7 @@ Cvar_DefaultString
 Knightmare added
 ============
 */
-char *Cvar_DefaultString (char *var_name)
+const char *Cvar_DefaultString (const char *var_name)
 {
 	cvar_t *var;
 
@@ -147,7 +149,7 @@ char *Cvar_DefaultString (char *var_name)
 	if (!var)
 		return "";
 #ifdef NEW_CVAR_MEMBERS
-	return var->default_string;
+	return Q_STGetString(defaultValues,var->default_index);
 #else
 	return var->string;
 #endif
@@ -158,7 +160,7 @@ char *Cvar_DefaultString (char *var_name)
 Cvar_CompleteVariable
 ============
 */
-const char *Cvar_CompleteVariable (char *partial)
+const char *Cvar_CompleteVariable (const char *partial)
 {
 	cvar_t		*cvar;
 	int32_t			len;
@@ -195,7 +197,7 @@ If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
+cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 {
 	cvar_t	*var;
     int index;
@@ -218,8 +220,7 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 #ifdef NEW_CVAR_MEMBERS
 		if (var_value)
 		{
-			Z_Free(var->default_string);
-			var->default_string = (char*)Z_TagStrdup (var_value, TAG_SYSTEM);
+            var->default_index = Q_STRegister(&defaultValues, var_value);
 		}
 #endif
 		return var;
@@ -242,7 +243,7 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
 	var->string = (char*)Z_TagStrdup (var_value, TAG_SYSTEM);
 	// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
-	var->default_string = (char*)Z_TagStrdup (var_value, TAG_SYSTEM);
+    var->default_index = Q_STRegister(&defaultValues, var_value);
 	var->integer = atoi(var->string);
 #endif
 	var->modified = true;
@@ -263,7 +264,7 @@ cvar_t *Cvar_Get (char *var_name, char *var_value, int32_t flags)
  Cvar_Set_Internal
  ============
  */
-cvar_t *Cvar_Set_Internal (cvar_t *var, char *value, qboolean force)
+cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
 {
     assert(var);
     
@@ -361,7 +362,7 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, char *value, qboolean force)
 Cvar_Set2
 ============
 */
-cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
+cvar_t *Cvar_Set2 (const char *var_name, const char *value, qboolean force)
 {
 	cvar_t		*var;
 
@@ -379,7 +380,7 @@ cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
 Cvar_ForceSet
 ============
 */
-cvar_t *Cvar_ForceSet (char *var_name, char *value)
+cvar_t *Cvar_ForceSet (const char *var_name, const char *value)
 {
 	return Cvar_Set2 (var_name, value, true);
 }
@@ -389,7 +390,7 @@ cvar_t *Cvar_ForceSet (char *var_name, char *value)
 Cvar_Set
 ============
 */
-cvar_t *Cvar_Set (char *var_name, char *value)
+cvar_t *Cvar_Set (const char *var_name, const char *value)
 {
 	return Cvar_Set2 (var_name, value, false);
 }
@@ -401,7 +402,7 @@ Cvar_SetToDefault
 Knightmare added
 ============
 */
-cvar_t *Cvar_SetToDefault (char *var_name)
+cvar_t *Cvar_SetToDefault (const char *var_name)
 {
 	return Cvar_Set2 (var_name, Cvar_DefaultString(var_name), false);
 }
@@ -412,7 +413,7 @@ cvar_t *Cvar_SetToDefault (char *var_name)
 Cvar_FullSet
 ============
 */
-cvar_t *Cvar_FullSet (char *var_name, char *value, int32_t flags)
+cvar_t *Cvar_FullSet (const char *var_name, const char *value, int32_t flags)
 {
 	cvar_t	*var;
 	
@@ -442,7 +443,7 @@ cvar_t *Cvar_FullSet (char *var_name, char *value, int32_t flags)
 Cvar_SetValue
 ============
 */
-void Cvar_SetValue (char *var_name, float value)
+void Cvar_SetValue (const char *var_name, float value)
 {
 	char	val[32];
 
@@ -459,7 +460,7 @@ void Cvar_SetValue (char *var_name, float value)
 Cvar_SetInteger
 =================
 */
-void Cvar_SetInteger (char *var_name, int32_t integer)
+void Cvar_SetInteger (const char *var_name, int32_t integer)
 {
 	char	val[32];
 
@@ -523,12 +524,15 @@ void Cvar_FixCheatVars (qboolean allowCheats)
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (var = cvar_vars[i]; var; var = var->next)
         {
+            const char *default_string;
             if (!(var->flags & CVAR_CHEAT))
                 continue;
+            default_string = Q_STGetString(defaultValues,var->default_index);
             
-            if (!Q_strcasecmp(var->string, var->default_string))
+            if (!Q_strcasecmp(var->string, default_string))
                 continue;
-            Cvar_Set_Internal(var, var->default_string, true);
+            
+            Cvar_Set_Internal(var, default_string, true);
         }
     }
 #endif
@@ -557,11 +561,11 @@ qboolean Cvar_Command (void)
 	{	// Knightmare- show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", name, v->string, v->default_string, v->latched_string);
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index), v->latched_string);
 		else if (v->flags & CVAR_NOSET)
-			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string, v->default_string);
+			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index));
 		else
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", name, v->string, v->default_string);
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index));
 #else
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", name, v->string, v->latched_string);
@@ -665,7 +669,7 @@ void Cvar_Reset_f (void)
 	}
 
 
-	Cvar_Set_Internal(var, var->default_string, false);
+	Cvar_Set_Internal(var, Q_STGetString(defaultValues,var->default_index), false);
 #else
 	Com_Printf("Error: unsupported command\n");
 #endif
@@ -680,7 +684,7 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void Cvar_WriteVariables (char *path)
+void Cvar_WriteVariables (const char *path)
 {
 	cvar_t	*var;
 	char	buffer[1024];
@@ -768,9 +772,9 @@ void Cvar_List_f (void)
                 // show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
-                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", name, var->string, var->default_string, var->latched_string);
+                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", name, var->string, Q_STGetString(defaultValues,var->default_index), var->latched_string);
                 else
-                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", name, var->string, var->default_string);
+                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", name, var->string, Q_STGetString(defaultValues,var->default_index));
 #else
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
                     Com_Printf (" %s \"%s\" - latched: \"%s\"\n", name, var->string, var->latched_string);
@@ -868,6 +872,8 @@ Reads in all archived cvars
 void Cvar_Init (void)
 {
     memset(cvar_vars, 0, sizeof(cvar_vars));
+    Q_STInit(&defaultValues, MAX_TOKEN_CHARS / 4);
+    
 	Cmd_AddCommand ("set", Cvar_Set_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_AddCommand ("reset", Cvar_Reset_f);

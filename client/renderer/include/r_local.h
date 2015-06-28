@@ -955,9 +955,9 @@ void	FS_FreeFile (void *buf);
 // files should be stored to, ie: "f:\quake\id1"
 char	*FS_Gamedir (void);
 
-cvar_t	*Cvar_Get (char *name, char *value, int32_t flags);
-cvar_t	*Cvar_Set (char *name, char *value );
-void	 Cvar_SetValue (char *name, float value);
+cvar_t	*Cvar_Get (const char *name, const char *value, int32_t flags);
+cvar_t	*Cvar_Set (const char *name, const char *value );
+void	 Cvar_SetValue (const char *name, float value);
 
 qboolean	VID_GetModeInfo (int32_t *width, int32_t *height, int32_t mode);
 void		VID_NewWindow (int32_t width, int32_t height);

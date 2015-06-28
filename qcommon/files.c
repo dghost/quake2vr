@@ -1810,7 +1810,7 @@ FS_ExecAutoexec
 */
 void FS_ExecAutoexec (void)
 {
-	char *dir;
+	const char *dir;
 	char name [MAX_QPATH];
 
 	dir = Cvar_VariableString("gamedir");

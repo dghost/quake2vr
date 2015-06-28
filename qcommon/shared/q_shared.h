@@ -535,7 +535,7 @@ typedef struct cvar_s
     int32_t         index;
     
 #ifdef NEW_CVAR_MEMBERS
-	char            *default_string;
+    int32_t         default_index;
 	int32_t         integer;
 #endif
 } cvar_t;

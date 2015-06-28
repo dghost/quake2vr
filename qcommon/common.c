@@ -366,7 +366,7 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 	SZ_Write (sb, &dat.l, 4);
 }
 
-void MSG_WriteString (sizebuf_t *sb, char *s)
+void MSG_WriteString (sizebuf_t *sb, const char *s)
 {
 	if (!s)
 		SZ_Write (sb, "", 1);
@@ -1144,12 +1144,12 @@ void *SZ_GetSpace (sizebuf_t *buf, int32_t length)
 	return data;
 }
 
-void SZ_Write (sizebuf_t *buf, void *data, int32_t length)
+void SZ_Write (sizebuf_t *buf, const void *data, int32_t length)
 {
 	memcpy (SZ_GetSpace(buf,length),data,length);		
 }
 
-void SZ_Print (sizebuf_t *buf, char *data)
+void SZ_Print (sizebuf_t *buf, const char *data)
 {
 	int32_t		len;
 	

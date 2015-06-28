@@ -57,7 +57,7 @@ This will be sent on the initial connection and upon each server load.
 */
 void SV_New_f (void)
 {
-	char		*gamedir;
+	const char		*gamedir;
 	int32_t			playernum;
 	edict_t		*ent;
 
@@ -531,7 +531,7 @@ void SV_ShowServerinfo_f (void)
 
 void SV_Nextserver (void)
 {
-	char	*v;
+	const char	*v;
 
 	// ZOID, ss_pic can be nextserver'd in coop mode
 	if (sv.state == ss_game || (sv.state == ss_pic && !Cvar_VariableValue("coop")))

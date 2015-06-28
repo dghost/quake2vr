@@ -894,7 +894,7 @@ void CL_PingServers_f (void)
 	int32_t			i;
 	netadr_t	adr;
 	char		name[32];
-	char		*adrstring;
+	const char		*adrstring;
 	cvar_t		*noudp;
 	cvar_t		*noipx;
 
