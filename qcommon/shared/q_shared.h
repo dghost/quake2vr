@@ -516,19 +516,28 @@ CVARS (console variables)
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s
 {
-//	char		*name;
-	char		*string;
-	char		*latched_string;	// for CVAR_LATCH vars
-	int32_t			flags;
-	qboolean	modified;	// set each time the cvar is changed
-	float		value;
-	struct cvar_s *next;
-	// Knightmare- added cvar defaults
+    // begin legacy API fields
+    // WARNING: changing these will break compatibility with existing mods
+
+	char            *name;      // unused, left in place for binary compatibility
+	char            *string;
+	char            *latched_string;	// for CVAR_LATCH vars
+	int32_t         flags;
+	qboolean        modified;	// set each time the cvar is changed
+	float           value;
+	struct cvar_s   *next;
+
+    // end legacy API fields
+    
+    //----------------------//
+    
+    // non-standard cvar fields below
+    int32_t         index;
+    
 #ifdef NEW_CVAR_MEMBERS
-	char		*default_string;
-	int32_t			integer;
+	char            *default_string;
+	int32_t         integer;
 #endif
-    int32_t      index;
 } cvar_t;
 
 #endif		// CVAR
