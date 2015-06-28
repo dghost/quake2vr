@@ -70,6 +70,8 @@ sndstarted_t sound_started = SS_NOT;
 sound_t sound;
 static qboolean s_registering;
 
+stable_t soundNames = {0, 10240};
+
 /* ----------------------------------------------------------------- */
 
 /*
@@ -83,7 +85,7 @@ S_LoadSound(sfx_t *s)
 	wavinfo_t info;
 	sfxcache_t *sc;
 	int size;
-	char *name;
+	const char *name;
 
 	if (s->name[0] == '*')
 	{
@@ -99,14 +101,14 @@ S_LoadSound(sfx_t *s)
 	}
 
 	/* load it */
-	if (s->truename)
+	if (s->truename >= 0)
 	{
-		name = s->truename;
+		name = Q_STGetString(soundNames, s->truename);
 	}
 
 	else
 	{
-		name = s->name;
+		name = Q_STGetString(soundNames, s->index);
 	}
 
 	if (name[0] == '#')
@@ -167,7 +169,7 @@ S_FindName(char *name, qboolean create)
 {
 	int i;
 	sfx_t *sfx;
-    hash32_t hash;
+    int32_t index;
 	if (!name)
 	{
 		Com_Error(ERR_FATAL, "S_FindName: NULL\n");
@@ -183,16 +185,19 @@ S_FindName(char *name, qboolean create)
 		Com_Error(ERR_FATAL, "Sound name too long: %s", name);
 	}
 
-    hash = Q_Hash32(name, strlen(name));
-	/* see if already loaded */
-	for (i = 0; i < num_sfx; i++)
-	{
-		if (known_sfx[i].name[0] && !Q_HashEquals32(known_sfx[i].hash, hash) && !strcmp(known_sfx[i].name, name))
-		{
-			return &known_sfx[i];
-		}
-	}
-
+    index = Q_STLookup(soundNames, name);
+    
+    if (index >= 0) {
+        /* see if already loaded */
+        for (i = 0; i < num_sfx; i++)
+        {
+            if (known_sfx[i].name[0] && index == known_sfx[i].index)
+            {
+                return &known_sfx[i];
+            }
+        }
+    }
+    
 	if (!create)
 	{
 		return NULL;
@@ -218,11 +223,10 @@ S_FindName(char *name, qboolean create)
 	}
 
 	sfx = &known_sfx[i];
-	sfx->truename = NULL;
+	sfx->truename = -1;
 	strcpy(sfx->name, name);
-    sfx->hash = Q_Hash32(name, strlen(name));
-	sfx->registration_sequence = s_registration_sequence;
-
+    sfx->index = Q_STRegister(&soundNames, name);
+    sfx->registration_sequence = s_registration_sequence;
 	return sfx;
 }
 
@@ -234,10 +238,8 @@ sfx_t *
 S_AliasName(char *aliasname, char *truename)
 {
 	sfx_t *sfx;
-	char *s;
 	int i;
 
-	s = (char*)Z_TagStrdup(truename, TAG_AUDIO);
 
 	/* find a free sfx */
 	for (i = 0; i < num_sfx; i++)
@@ -261,9 +263,9 @@ S_AliasName(char *aliasname, char *truename)
 	sfx = &known_sfx[i];
 	sfx->cache = NULL;
 	strcpy(sfx->name, aliasname);
-    sfx->hash = Q_Hash32(aliasname, strlen(aliasname));
+    sfx->index = Q_STRegister(&soundNames, aliasname);
 	sfx->registration_sequence = s_registration_sequence;
-	sfx->truename = s;
+	sfx->truename = Q_STRegister(&soundNames, truename);
 
 	return sfx;
 }
@@ -394,12 +396,7 @@ S_EndRegistration(void)
 				Z_Free(sfx->cache); /* from a server that didn't finish loading */
 			}
 
-			if (sfx->truename)
-			{
-				Z_Free(sfx->truename);
-			}
-
-			sfx->cache = NULL;
+            sfx->cache = NULL;
 			sfx->name[0] = 0;
 		}
 	}
@@ -414,7 +411,7 @@ S_EndRegistration(void)
 
 		S_LoadSound(sfx);
 	}
-
+    Q_STPack(&soundNames);
 	s_registering = false;
 }
 
@@ -1003,6 +1000,8 @@ S_Init(void)
 
 	cv = Cvar_Get("s_initsound", "1", 0);
 
+    Q_STInit(&soundNames, MAX_QPATH);
+    
 	if (!cv->value)
 	{
 		Com_Printf("Not initializing.\n");
@@ -1095,11 +1094,6 @@ S_Shutdown(void)
 		{
 			Z_Free(sfx->cache);
 		}
-
-		if (sfx->truename)
-		{
-			Z_Free(sfx->truename);
-		}
 	}
 
 	memset(known_sfx, 0, sizeof(known_sfx));
@@ -1119,6 +1113,8 @@ S_Shutdown(void)
 		}
 	}
 
+    Q_STFree(&soundNames);
+    
 	sound_started = SS_NOT;
 	s_numchannels = 0;
 

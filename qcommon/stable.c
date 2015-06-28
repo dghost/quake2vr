@@ -7,9 +7,10 @@ qboolean Q_STInit(stable_t *st, int32_t avgLength) {
         if (!st->st)
             return false;
         st->heap = true;
+    } else {
+        st->heap = false;
     }
     nfst_init((struct nfst_StringTable *)st->st, st->size, avgLength);
-
     return true;
 }
 
@@ -61,6 +62,6 @@ void Q_STFree(stable_t *st) {
     if (st->heap && st->st) {
         Z_Free(st->st);
         st->st = NULL;
-        st->size = 0;
+//        st->size = 0;
     }
 }
