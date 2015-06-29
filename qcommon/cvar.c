@@ -28,7 +28,6 @@ cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
 
-stable_t defaultValues = {0, 20480};
 stable_t cvarValues = {0, 20480};
 
 /*
@@ -37,53 +36,62 @@ stable_t cvarValues = {0, 20480};
  ============
  */
 
-static void Cvar_RebuildNames () {
+static void Cvar_RebuildNames (qboolean silent) {
     int i = 0;
     cvar_t *cvar;
-    Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
+    if (!silent)
+        Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
             cvar->name = Q_STGetString(&cvarNames,cvar->index);
-            Com_Printf(S_COLOR_YELLOW"%s\n", cvar->name);
+            if (!silent)
+                Com_Printf(S_COLOR_YELLOW"%s\n", cvar->name);
         }
     }
 }
 
-static void Cvar_RebuildValues () {
+static void Cvar_RebuildValues (qboolean silent) {
     int i = 0;
     cvar_t *cvar;
-    Com_Printf(S_COLOR_RED"Rebuilding Cvar Value Table\n");
+    if (!silent)
+        Com_Printf(S_COLOR_RED"Rebuilding Cvar Value Table\n");
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
             cvar->string = Q_STGetString(&cvarValues,cvar->string_index);
-            Com_Printf(S_COLOR_YELLOW"%s\n", cvar->string);
             if ((cvar->flags & CVAR_LATCH)  && (cvar->latched_index >= 0)) {
                 cvar->latched_string = Q_STGetString(&cvarValues,cvar->latched_index);
-                Com_Printf(S_COLOR_CYAN"%s\n", cvar->latched_string);
             }
+            if (!silent)
+                Com_Printf(S_COLOR_YELLOW"%s: "S_COLOR_CYAN"%s "S_COLOR_GREEN"%s\n",cvar->name, cvar->string, cvar->latched_string ? cvar->latched_string : "");
+
         }
     }
 }
 
+static inline void _Grow_Names() {
+    Q_STGrow(&cvarNames, cvarNames.size * 2);
+    Cvar_RebuildNames(true);
+}
 static inline void _Cvar_SetName(cvar_t *var, const char *value) {
     var->index = Q_STRegister(&cvarNames, value);
     if (var->index < 0)
     {
-        Q_STGrow(&cvarNames, cvarNames.size * 2);
-        Cvar_RebuildNames();
-        
+        _Grow_Names();
         var->index = Q_STRegister(&cvarNames, value);
     }
     var->name = Q_STGetString(&cvarNames, var->index);
+}
+
+static inline void _Grow_Values() {
+    Q_STGrow(&cvarValues, cvarValues.size * 2);
+    Cvar_RebuildValues(true);
 }
 
 static inline void _Cvar_SetValue(cvar_t *var, const char *value) {
     var->string_index = Q_STRegister(&cvarValues, value);
     if (var->string_index < 0)
     {
-        Q_STGrow(&cvarValues, cvarValues.size * 2);
-        Cvar_RebuildValues();
-        
+        _Grow_Values();
         var->string_index = Q_STRegister(&cvarValues, value);
     }
     var->string = Q_STGetString(&cvarValues, var->string_index);
@@ -98,13 +106,19 @@ static inline void _Cvar_SetLatchedValue(cvar_t *var, const char *value) {
     var->latched_index = Q_STRegister(&cvarValues, value);
     if (var->latched_index < 0)
     {
-        Q_STGrow(&cvarValues, cvarValues.size * 2);
-        Cvar_RebuildValues();
-        
+        _Grow_Values();
         var->latched_index = Q_STRegister(&cvarValues, value);
     }
     var->latched_string = Q_STGetString(&cvarValues, var->latched_index);
+}
 
+static inline void _Cvar_SetDefaultValue(cvar_t *var, const char *value) {
+    var->default_index = Q_STRegister(&cvarValues, value);
+    if (var->default_index < 0)
+    {
+        _Grow_Values();
+        var->default_index = Q_STRegister(&cvarValues, value);
+    }
 }
 
 
@@ -206,7 +220,7 @@ float Cvar_DefaultValue (const char *var_name)
 	if (!var)
 		return 0;
 #ifdef NEW_CVAR_MEMBERS
-	return atof (Q_STGetString(&defaultValues,var->default_index));
+	return atof (Q_STGetString(&cvarValues,var->default_index));
 #else
 	return var->value;
 #endif
@@ -227,7 +241,7 @@ const char *Cvar_DefaultString (const char *var_name)
 	if (!var)
 		return "";
 #ifdef NEW_CVAR_MEMBERS
-	return Q_STGetString(&defaultValues,var->default_index);
+	return Q_STGetString(&cvarValues,var->default_index);
 #else
 	return var->string;
 #endif
@@ -297,7 +311,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 #ifdef NEW_CVAR_MEMBERS
 		if (var_value)
 		{
-            var->default_index = Q_STAutoRegister(&defaultValues, var_value);
+            _Cvar_SetDefaultValue(var, var_value);
 		}
 #endif
 		return var;
@@ -321,7 +335,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
     
 	// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
-    var->default_index = Q_STAutoRegister(&defaultValues, var_value);
+    _Cvar_SetDefaultValue(var, var_value);
 #endif
 	var->modified = true;
 
@@ -598,7 +612,7 @@ void Cvar_FixCheatVars (qboolean allowCheats)
             const char *default_string;
             if (!(var->flags & CVAR_CHEAT))
                 continue;
-            default_string = Q_STGetString(&defaultValues,var->default_index);
+            default_string = Q_STGetString(&cvarValues,var->default_index);
             
             if (!Q_strcasecmp(var->string, default_string))
                 continue;
@@ -630,11 +644,11 @@ qboolean Cvar_Command (void)
 	{	// Knightmare- show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index), v->latched_string);
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", v->name, v->string, Q_STGetString(&cvarValues,v->default_index), v->latched_string);
 		else if (v->flags & CVAR_NOSET)
-			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string, Q_STGetString(&cvarValues,v->default_index));
 		else
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", v->name, v->string, Q_STGetString(&cvarValues,v->default_index));
 #else
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", v->name, v->string, v->latched_string);
@@ -738,7 +752,7 @@ void Cvar_Reset_f (void)
 	}
 
 
-	Cvar_Set_Internal(var, Q_STGetString(&defaultValues,var->default_index), false);
+	Cvar_Set_Internal(var, Q_STGetString(&cvarValues,var->default_index), false);
 #else
 	Com_Printf("Error: unsupported command\n");
 #endif
@@ -839,9 +853,9 @@ void Cvar_List_f (void)
                 // show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
-                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, Q_STGetString(&defaultValues,var->default_index), var->latched_string);
+                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, Q_STGetString(&cvarValues,var->default_index), var->latched_string);
                 else
-                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, Q_STGetString(&defaultValues,var->default_index));
+                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, Q_STGetString(&cvarValues,var->default_index));
 #else
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
                     Com_Printf (" %s \"%s\" - latched: \"%s\"\n", var->name, var->string, var->latched_string);
@@ -853,11 +867,13 @@ void Cvar_List_f (void)
         }
     }
 	Com_Printf (" %i cvars, %i matching\n", i, j);
+    Com_Printf (" %i bytes in use by name table\n", cvarNames.size);
+    Com_Printf (" %i bytes in use by value table\n", cvarValues.size);
 }
 
 void Cvar_Rebuild_f (void) {
-    Cvar_RebuildNames();
-    Cvar_RebuildValues();
+    Cvar_RebuildNames(false);
+    Cvar_RebuildValues(false);
 }
 
 
@@ -925,10 +941,6 @@ void Cvar_AssertRange (cvar_t *var, float min, float max, qboolean isInteger)
     }
 }
 
-const char *Cvar_GetName(cvar_t *var) {
-    return var ? var->name : NULL;
-}
-
 /*
 ============
 Cvar_Init
@@ -939,7 +951,6 @@ Reads in all archived cvars
 void Cvar_Init (void)
 {
     memset(cvar_vars, 0, sizeof(cvar_vars));
-    Q_STInit(&defaultValues, MAX_TOKEN_CHARS / 4);
     Q_STInit(&cvarValues, MAX_TOKEN_CHARS / 4);
 
 	Cmd_AddCommand ("set", Cvar_Set_f);

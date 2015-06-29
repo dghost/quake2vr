@@ -400,7 +400,7 @@ void SV_WriteServerFile (qboolean autosave)
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (var = cvar_vars[i] ; var ; var=var->next)
         {
-            const char *name = Cvar_GetName(var);
+            const char *name = var->name;
             if (!(var->flags & CVAR_LATCH))
                 continue;
             if (strlen(name) >= sizeof(varName)-1

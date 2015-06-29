@@ -566,7 +566,6 @@ extern	qboolean	userinfo_modified;
 // checks cvar range
 void    Cvar_AssertRange (cvar_t *var, float min, float max, qboolean isInteger);
 
-const char *Cvar_GetName(cvar_t *var);
 /*
 ==============================================================
 

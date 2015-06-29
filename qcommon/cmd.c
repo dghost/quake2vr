@@ -855,9 +855,8 @@ completion_t Cmd_CompleteCommand (char *partial)
     
     for (j = 0; j < CVAR_HASHMAP_WIDTH; j++) {
         for (cvar=cvar_vars[j] ; cvar ; cvar=cvar->next) {
-            const char *name = Cvar_GetName(cvar);
-            if (!Q_strncasecmp (partial,name, len)) {
-                pmatch[i]=name;
+            if (!Q_strncasecmp (partial,cvar->name, len)) {
+                pmatch[i]=cvar->name;
                 i++;
             }
         }
