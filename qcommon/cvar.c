@@ -23,13 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "wildcard.h"
 
 
-stable_t cvarNames = {0, 102400};
+stable_t cvarNames = {0, 20480};
 cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
 
-stable_t defaultValues = {0, 10240};
-
+stable_t defaultValues = {0, 20480};
+stable_t cvarValues = {0, 20480};
 
 /*
  ============
@@ -40,14 +40,29 @@ stable_t defaultValues = {0, 10240};
 static void Cvar_RebuildNames () {
     int i = 0;
     cvar_t *cvar;
-//    Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
+    Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
             cvar->name = Q_STGetString(&cvarNames,cvar->index);
-//            Com_Printf(S_COLOR_YELLOW"Found Cvar Name %s\n", cvar->name);
+            Com_Printf(S_COLOR_YELLOW"%s\n", cvar->name);
         }
     }
 }
+
+static void Cvar_RebuildValues () {
+    int i = 0;
+    cvar_t *cvar;
+    Com_Printf(S_COLOR_RED"Rebuilding Cvar Value Table\n");
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+            if ((cvar->flags & CVAR_LATCH)  && (cvar->latched_index >= 0)) {
+                cvar->latched_string = Q_STGetString(&cvarValues,cvar->latched_index);
+                Com_Printf(S_COLOR_YELLOW"%s\n", cvar->latched_string);
+            }
+        }
+    }
+}
+
 
 /*
 ============
@@ -271,9 +286,11 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
     {
         Q_STGrow(&cvarNames, cvarNames.size * 2);
         Cvar_RebuildNames();
+        
         var->index = Q_STRegister(&cvarNames, buffer);
     }
     var->name = Q_STGetString(&cvarNames, var->index);
+    var->latched_index = -1;
     index = var->index & CVAR_HASHMAP_MASK;
 	// link the variable in
 	var->next = cvar_vars[index];
@@ -322,7 +339,6 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
             {
                 if (strcmp(value, var->latched_string) == 0)
                     return var;
-                Z_Free (var->latched_string);
             }
             else
             {
@@ -333,7 +349,15 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
             if (Com_ServerState())
             {
                 Com_Printf ("%s will be changed for next game.\n", var->name);
-                var->latched_string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
+                var->latched_index = Q_STRegister(&cvarValues, value);
+                if (var->latched_index < 0)
+                {
+                    Q_STGrow(&cvarValues, cvarValues.size * 2);
+                    Cvar_RebuildValues();
+                    
+                    var->latched_index = Q_STRegister(&cvarValues, value);
+                }
+                var->latched_string = Q_STGetString(&cvarValues, var->latched_index);
             }
             else
             {
@@ -353,8 +377,8 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     {
         if (var->latched_string)
         {
-            Z_Free (var->latched_string);
             var->latched_string = NULL;
+            var->latched_index = -1;
         }
     }
     
@@ -507,8 +531,9 @@ void Cvar_GetLatchedVars (void)
             if (!var->latched_string)
                 continue;
             Z_Free (var->string);
-            var->string = var->latched_string;
+            var->string = Z_TagStrdup(var->latched_string, TAG_SYSTEM);
             var->latched_string = NULL;
+            var->latched_index = -1;
             var->value = atof(var->string);
             if (!strcmp(var->name, "game"))
             {
@@ -807,6 +832,7 @@ void Cvar_List_f (void)
 
 void Cvar_Rebuild_f (void) {
     Cvar_RebuildNames();
+    Cvar_RebuildValues();
 }
 
 
@@ -889,10 +915,11 @@ void Cvar_Init (void)
 {
     memset(cvar_vars, 0, sizeof(cvar_vars));
     Q_STInit(&defaultValues, MAX_TOKEN_CHARS / 4);
-    
+    Q_STInit(&cvarValues, MAX_TOKEN_CHARS / 4);
+
 	Cmd_AddCommand ("set", Cvar_Set_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_AddCommand ("reset", Cvar_Reset_f);
 	Cmd_AddCommand ("cvarlist", Cvar_List_f);
-//    Cmd_AddCommand ("cvarrebuild", Cvar_Rebuild_f);
+    Cmd_AddCommand ("cvarrebuild", Cvar_Rebuild_f);
 }

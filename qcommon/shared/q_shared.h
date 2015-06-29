@@ -518,10 +518,19 @@ typedef struct cvar_s
 {
     // begin legacy API fields
     // WARNING: changing these will break compatibility with existing mods
-
-	char            *name;      // unused, left in place for binary compatibility
-	char            *string;
-	char            *latched_string;	// for CVAR_LATCH vars
+    //
+    // In an ideal world, I would get rid of these and cache a token to the entry
+    // in a string table instead.
+    // However that would break compatibility with existing game dll's, so I'm
+    // taking the middle road: actual strings are stored in a string table,
+    // but keep a const pointer to the entry instead.
+    // Unfortunately, this means that reallocating the string table may require
+    // rebuilding all these pointers.
+    //
+    
+	const char            *name;      // pointer to entry in string table
+	const char            *string;
+	const char            *latched_string;	// for CVAR_LATCH vars
 	int32_t         flags;
 	qboolean        modified;	// set each time the cvar is changed
 	float           value;
@@ -533,7 +542,7 @@ typedef struct cvar_s
     
     // non-standard cvar fields below
     int32_t         index;
-    
+    int32_t         latched_index;
 #ifdef NEW_CVAR_MEMBERS
     int32_t         default_index;
 	int32_t         integer;
