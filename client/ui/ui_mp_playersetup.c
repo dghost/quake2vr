@@ -133,7 +133,7 @@ static qboolean IconOfSkinExists (stable_t *filetable, char *skin, char* ext, ch
     strcpy(ext, suffix);
 	//strcat(scratch, "_i.pcx");
 
-	return (Q_STLookup(*filetable, skin) != -1);
+	return (Q_STLookup(filetable, skin) != -1);
 }
 
 qboolean R_IsSupportedImageType(char *name);

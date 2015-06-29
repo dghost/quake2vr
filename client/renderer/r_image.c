@@ -907,7 +907,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
 	image = &gltextures[i];
     len = strlen(name);
     ext = name + len - 4;
-    token = Q_STLookup(supported_image_types, ext);
+    token = Q_STLookup(&supported_image_types, ext);
 	if (len + 1 >= sizeof(image->name))
 		VID_Error (ERR_DROP, "Draw_LoadPic: \"%s\" is too long", name);
 	strcpy (image->name, name);
@@ -1015,7 +1015,7 @@ R_CheckImgFailed
 */
 qboolean R_CheckImgFailed (char *name)
 {
-	return (Q_STLookup(failed_images, name) != -1);
+	return (Q_STLookup(&failed_images, name) != -1);
 }
 
 /*
@@ -1067,7 +1067,7 @@ image_t *R_LoadImage(char *name, imagetype_t type) {
     int32_t	width, height;
     int32_t len = strlen(name);
     char *ext = name + len - 4;
-    int token = Q_STLookup(supported_image_types, ext);
+    int token = Q_STLookup(&supported_image_types, ext);
     
     if (token == s_pcx)
     {
@@ -1117,7 +1117,7 @@ image_t	*R_FindImage (char *name, imagetype_t type)
 	if (len<5 || len > MAX_OSPATH)
 		return NULL;
     
-    token = Q_STLookup(supported_image_types, ext);
+    token = Q_STLookup(&supported_image_types, ext);
     
     // not an image file
     if (token == -1)
@@ -1338,7 +1338,7 @@ int32_t Draw_GetPalette (void)
  */
 qboolean R_IsSupportedImageType(char *name) {
     if (supported_image_types.st)
-        return (Q_STLookup(supported_image_types, name) != -1);
+        return (Q_STLookup(&supported_image_types, name) != -1);
     return false;
 }
 

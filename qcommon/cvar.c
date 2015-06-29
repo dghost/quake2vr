@@ -57,7 +57,7 @@ static cvar_t *Cvar_FindVar (const char *var_name)
     char buffer[MAX_TOKEN_CHARS];
     
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
-    int32_t index = Q_STLookup(cvarNames,buffer);
+    int32_t index = Q_STLookup(&cvarNames,buffer);
     
     if (index >= 0) {
         for (var=cvar_vars[index&CVAR_HASHMAP_MASK] ; var ; var=var->next)
@@ -128,7 +128,7 @@ float Cvar_DefaultValue (const char *var_name)
 	if (!var)
 		return 0;
 #ifdef NEW_CVAR_MEMBERS
-	return atof (Q_STGetString(defaultValues,var->default_index));
+	return atof (Q_STGetString(&defaultValues,var->default_index));
 #else
 	return var->value;
 #endif
@@ -149,7 +149,7 @@ const char *Cvar_DefaultString (const char *var_name)
 	if (!var)
 		return "";
 #ifdef NEW_CVAR_MEMBERS
-	return Q_STGetString(defaultValues,var->default_index);
+	return Q_STGetString(&defaultValues,var->default_index);
 #else
 	return var->string;
 #endif
@@ -173,14 +173,14 @@ const char *Cvar_CompleteVariable (const char *partial)
 	if (!len)
 		return NULL;
     Q_strlcpy_lower(buffer, partial, sizeof(buffer));
-    index = Q_STLookup(cvarNames,buffer);
+    index = Q_STLookup(&cvarNames,buffer);
     if (index >= 0) {
-        return Q_STGetString(cvarNames, index);
+        return Q_STGetString(&cvarNames, index);
     }
     // check partial match
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
-            const char *name = Q_STGetString(cvarNames,cvar->index);
+            const char *name = Q_STGetString(&cvarNames,cvar->index);
             if (!strncmp(buffer, name, len))
                 return name;
         }
@@ -249,7 +249,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 	var->modified = true;
 	var->value = atof (var->string);
     var->index = Q_STAutoRegister(&cvarNames, buffer);
-    var->name = Q_STGetString(cvarNames, var->index);
+    var->name = Q_STGetString(&cvarNames, var->index);
     index = var->index & CVAR_HASHMAP_MASK;
 	// link the variable in
 	var->next = cvar_vars[index];
@@ -282,14 +282,14 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     {
         if (var->flags & CVAR_NOSET)
         {
-            const char* var_name = Q_STGetString(cvarNames, var->index);
+            const char* var_name = Q_STGetString(&cvarNames, var->index);
             Com_Printf ("%s is write protected.\n", var_name);
             return var;
         }
         
         if ((var->flags & CVAR_CHEAT) && !cvar_allowCheats)
         {
-            const char* var_name = Q_STGetString(cvarNames, var->index);
+            const char* var_name = Q_STGetString(&cvarNames, var->index);
             Com_Printf ("%s is cheat protected.\n", var_name);
             return var;
         }
@@ -310,13 +310,13 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
             
             if (Com_ServerState())
             {
-                const char* var_name = Q_STGetString(cvarNames, var->index);
+                const char* var_name = Q_STGetString(&cvarNames, var->index);
                 Com_Printf ("%s will be changed for next game.\n", var_name);
                 var->latched_string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
             }
             else
             {
-                const char* var_name = Q_STGetString(cvarNames, var->index);
+                const char* var_name = Q_STGetString(&cvarNames, var->index);
                 var->string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
                 var->value = atof (var->string);
                 
@@ -490,7 +490,7 @@ void Cvar_GetLatchedVars (void)
             var->string = var->latched_string;
             var->latched_string = NULL;
             var->value = atof(var->string);
-            if (!strcmp( Q_STGetString(cvarNames, var->index), "game"))
+            if (!strcmp( Q_STGetString(&cvarNames, var->index), "game"))
             {
                 FS_SetGamedir (var->string);
                 FS_ExecAutoexec ();
@@ -528,7 +528,7 @@ void Cvar_FixCheatVars (qboolean allowCheats)
             const char *default_string;
             if (!(var->flags & CVAR_CHEAT))
                 continue;
-            default_string = Q_STGetString(defaultValues,var->default_index);
+            default_string = Q_STGetString(&defaultValues,var->default_index);
             
             if (!Q_strcasecmp(var->string, default_string))
                 continue;
@@ -556,17 +556,17 @@ qboolean Cvar_Command (void)
 	if (!v)
 		return false;
     
-    name = Q_STGetString(cvarNames, v->index);
+    name = Q_STGetString(&cvarNames, v->index);
 // perform a variable print or set
 	if (Cmd_Argc() == 1)
 	{	// Knightmare- show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index), v->latched_string);
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index), v->latched_string);
 		else if (v->flags & CVAR_NOSET)
-			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index));
 		else
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", name, v->string, Q_STGetString(defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index));
 #else
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
 			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", name, v->string, v->latched_string);
@@ -670,7 +670,7 @@ void Cvar_Reset_f (void)
 	}
 
 
-	Cvar_Set_Internal(var, Q_STGetString(defaultValues,var->default_index), false);
+	Cvar_Set_Internal(var, Q_STGetString(&defaultValues,var->default_index), false);
 #else
 	Com_Printf("Error: unsupported command\n");
 #endif
@@ -698,7 +698,7 @@ void Cvar_WriteVariables (const char *path)
         {
             if (var->flags & CVAR_ARCHIVE)
             {
-                char const *name = Q_STGetString(cvarNames, var->index);
+                char const *name = Q_STGetString(&cvarNames, var->index);
                 Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", name, var->string);
                 fprintf (f, "%s", buffer);
             }
@@ -738,7 +738,7 @@ void Cvar_List_f (void)
     for (k = 0; k < CVAR_HASHMAP_WIDTH; k++) {
         for (var = cvar_vars[k]; var; var = var->next, i++)
         {
-            char const *name = Q_STGetString(cvarNames, var->index);
+            char const *name = Q_STGetString(&cvarNames, var->index);
             if (wildcardfit (wc, name))
                 //if (strstr (var->name, Cmd_Argv(1)))
             {
@@ -773,9 +773,9 @@ void Cvar_List_f (void)
                 // show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
-                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", name, var->string, Q_STGetString(defaultValues,var->default_index), var->latched_string);
+                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", name, var->string, Q_STGetString(&defaultValues,var->default_index), var->latched_string);
                 else
-                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", name, var->string, Q_STGetString(defaultValues,var->default_index));
+                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", name, var->string, Q_STGetString(&defaultValues,var->default_index));
 #else
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
                     Com_Printf (" %s \"%s\" - latched: \"%s\"\n", name, var->string, var->latched_string);
@@ -804,7 +804,7 @@ char	*Cvar_BitInfo (int32_t bit)
         for (var = cvar_vars[i] ; var ; var = var->next)
         {
             if (var->flags & bit) {
-                char const *name = Q_STGetString(cvarNames, var->index);
+                char const *name = Q_STGetString(&cvarNames, var->index);
                 Info_SetValueForKey (info, name, var->string);
             }
         }
@@ -833,34 +833,34 @@ void Cvar_AssertRange (cvar_t *var, float min, float max, qboolean isInteger)
 #ifdef NEW_CVAR_MEMBERS
     if (isInteger && (var->value != (float) var->integer))
     {
-        char const *name = Q_STGetString(cvarNames, var->index);
+        char const *name = Q_STGetString(&cvarNames, var->index);
         Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", name, var->value);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 #else
     if (isInteger && (var->value != (float)((int) var->value)))
     {
-        char const *name = Q_STGetString(cvarNames, var->index);
+        char const *name = Q_STGetString(&cvarNames, var->index);
         Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", name, var->value);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 #endif
     if (var->value < min)
     {
-        char const *name = Q_STGetString(cvarNames, var->index);
+        char const *name = Q_STGetString(&cvarNames, var->index);
         Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f < %f)\n", name, var->value, min);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
     else if (var->value > max)
     {
-        char const *name = Q_STGetString(cvarNames, var->index);
+        char const *name = Q_STGetString(&cvarNames, var->index);
         Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f > %f)\n", name, var->value, max);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 }
 
 const char *Cvar_GetName(cvar_t *var) {
-    return var ? Q_STGetString(cvarNames, var->index) : NULL;
+    return var ? Q_STGetString(&cvarNames, var->index) : NULL;
 }
 
 /*

@@ -756,7 +756,7 @@ CL_CheckDownloadFailed
 */
 qboolean CL_CheckDownloadFailed (char *name)
 {
-    return (Q_STLookup(failed_downloads, name) != -1);
+    return (Q_STLookup(&failed_downloads, name) != -1);
 }
 
 /*

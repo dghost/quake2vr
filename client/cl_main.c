@@ -1099,7 +1099,7 @@ void CL_ConnectionlessPacket (void)
 	Com_Printf ("%s: %s\n", NET_AdrToString (net_from), c);
     
 	// server connection
-    if ((token = Q_STLookup(clpacket_stable, c)) != -1) {
+    if ((token = Q_STLookup(&clpacket_stable, c)) != -1) {
         if (token == s_client_connect)
         {
             if (cls.state == ca_connected)

@@ -495,7 +495,7 @@ Mod_CheckTexFailed
 */
 qboolean Mod_CheckTexFailed (char *name)
 {
-    return (Q_STLookup(failed_textures, name) != -1);
+    return (Q_STLookup(&failed_textures, name) != -1);
 }
 
 /*

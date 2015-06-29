@@ -914,7 +914,7 @@ qboolean Cmd_IsComplete (const char *command)
     
     Q_strlcpy_lower(buffer, command, sizeof(buffer));
 
-    index = Q_STLookup(cvarNames, buffer);
+    index = Q_STLookup(&cvarNames, buffer);
     if (index >= 0)
         return true;
 

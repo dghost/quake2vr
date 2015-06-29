@@ -1959,7 +1959,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
 	{
         int res = -1;
         token = COM_Parse (&s);
-        if ((res = Q_STLookup(scr_stable, token)) != -1) {
+        if ((res = Q_STLookup(&scr_stable, token)) != -1) {
             if (res == s_xl)
             {
                 token = COM_Parse (&s);
@@ -2264,7 +2264,7 @@ void SCR_ExecuteLayoutString (char *s, qboolean isStatusBar)
                 value = cl.frame.playerstate.stats[atoi(token)];
                 if (!value)
                 {	// skip to endif
-                    while (s && (Q_STLookup(scr_stable, token) != s_endif ))
+                    while (s && (Q_STLookup(&scr_stable, token) != s_endif ))
                     {
                         token = COM_Parse (&s);
                     }

@@ -645,7 +645,7 @@ void SV_ConnectionlessPacket (void)
 	c = Cmd_Argv(0);
 	Com_DPrintf ("Packet %s : %s\n", NET_AdrToString(net_from), c);
 
-    if ((s_token = Q_STLookup(packet_stable, c)) != -1) {
+    if ((s_token = Q_STLookup(&packet_stable, c)) != -1) {
         if (s_token == s_ping)
             SVC_Ping ();
         else if (s_token == s_ack)

@@ -446,7 +446,7 @@ int32_t FS_FindPackItem (fsPack_t *pack, char *itemName)
     
     Q_strlcpy_lower(buffer, itemName, MAX_OSPATH);
 
-    itemIndex = Q_STLookup(pack->fileNames, buffer);
+    itemIndex = Q_STLookup(&pack->fileNames, buffer);
     
     if (itemIndex < 0)
 		return -1;
@@ -1219,7 +1219,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
         dpackfile_t cur = info[i];
         Q_strlcpy_lower(buffer, cur.name, MAX_OSPATH);
         files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
-        files[i].name = Q_STGetString(filenameTable, files[i].hash);
+        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
         files[i].offset = LittleLong(cur.filepos);
         files[i].size = LittleLong(cur.filelen);
         files[i].ignore = FS_FileInPakBlacklist(buffer, false);	// check against pak loading blacklist
@@ -1319,7 +1319,7 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		Q_strlcpy_lower(buffer, fileName, MAX_OSPATH);
 
         files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
-        files[i].name = Q_STGetString(filenameTable, files[i].hash);
+        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
 		files[i].ignore = FS_FileInPakBlacklist(buffer, true);	// check against pak loading blacklist

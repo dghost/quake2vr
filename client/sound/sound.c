@@ -103,12 +103,12 @@ S_LoadSound(sfx_t *s)
 	/* load it */
 	if (s->truename >= 0)
 	{
-		name = Q_STGetString(soundNames, s->truename);
+		name = Q_STGetString(&soundNames, s->truename);
 	}
 
 	else
 	{
-		name = Q_STGetString(soundNames, s->index);
+		name = Q_STGetString(&soundNames, s->index);
 	}
 
 	if (name[0] == '#')
@@ -185,7 +185,7 @@ S_FindName(char *name, qboolean create)
 		Com_Error(ERR_FATAL, "Sound name too long: %s", name);
 	}
 
-    index = Q_STLookup(soundNames, name);
+    index = Q_STLookup(&soundNames, name);
     
     if (index >= 0) {
         /* see if already loaded */

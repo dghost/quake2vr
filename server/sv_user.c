@@ -631,7 +631,7 @@ void SV_ExecuteUserCommand (char *s)
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
-    if ((token = Q_STLookup(command_stable, cmd)) != -1) {
+    if ((token = Q_STLookup(&command_stable, cmd)) != -1) {
         while (u->name) {
             if (token == u->token)
             {
