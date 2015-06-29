@@ -55,12 +55,56 @@ static void Cvar_RebuildValues () {
     Com_Printf(S_COLOR_RED"Rebuilding Cvar Value Table\n");
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+            cvar->string = Q_STGetString(&cvarValues,cvar->string_index);
+            Com_Printf(S_COLOR_YELLOW"%s\n", cvar->string);
             if ((cvar->flags & CVAR_LATCH)  && (cvar->latched_index >= 0)) {
                 cvar->latched_string = Q_STGetString(&cvarValues,cvar->latched_index);
-                Com_Printf(S_COLOR_YELLOW"%s\n", cvar->latched_string);
+                Com_Printf(S_COLOR_CYAN"%s\n", cvar->latched_string);
             }
         }
     }
+}
+
+static inline void _Cvar_SetName(cvar_t *var, const char *value) {
+    var->index = Q_STRegister(&cvarNames, value);
+    if (var->index < 0)
+    {
+        Q_STGrow(&cvarNames, cvarNames.size * 2);
+        Cvar_RebuildNames();
+        
+        var->index = Q_STRegister(&cvarNames, value);
+    }
+    var->name = Q_STGetString(&cvarNames, var->index);
+}
+
+static inline void _Cvar_SetValue(cvar_t *var, const char *value) {
+    var->string_index = Q_STRegister(&cvarValues, value);
+    if (var->string_index < 0)
+    {
+        Q_STGrow(&cvarValues, cvarValues.size * 2);
+        Cvar_RebuildValues();
+        
+        var->string_index = Q_STRegister(&cvarValues, value);
+    }
+    var->string = Q_STGetString(&cvarValues, var->string_index);
+    
+    var->value = atof (var->string);
+#ifdef NEW_CVAR_MEMBERS
+    var->integer = atoi(var->string);
+#endif
+}
+
+static inline void _Cvar_SetLatchedValue(cvar_t *var, const char *value) {
+    var->latched_index = Q_STRegister(&cvarValues, value);
+    if (var->latched_index < 0)
+    {
+        Q_STGrow(&cvarValues, cvarValues.size * 2);
+        Cvar_RebuildValues();
+        
+        var->latched_index = Q_STRegister(&cvarValues, value);
+    }
+    var->latched_string = Q_STGetString(&cvarValues, var->latched_index);
+
 }
 
 
@@ -273,24 +317,19 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
     
 	var = (cvar_t*)Z_TagMalloc (sizeof(*var), TAG_SYSTEM);
-	var->string = (char*)Z_TagStrdup (var_value, TAG_SYSTEM);
+    _Cvar_SetValue(var, var_value);
+    
 	// Knightmare- added cvar defaults
 #ifdef NEW_CVAR_MEMBERS
     var->default_index = Q_STAutoRegister(&defaultValues, var_value);
-	var->integer = atoi(var->string);
 #endif
 	var->modified = true;
-	var->value = atof (var->string);
-    var->index = Q_STRegister(&cvarNames, buffer);
-    if (var->index < 0)
-    {
-        Q_STGrow(&cvarNames, cvarNames.size * 2);
-        Cvar_RebuildNames();
-        
-        var->index = Q_STRegister(&cvarNames, buffer);
-    }
-    var->name = Q_STGetString(&cvarNames, var->index);
+
+    _Cvar_SetName(var, buffer);
+    
     var->latched_index = -1;
+    var->latched_string = NULL;
+    
     index = var->index & CVAR_HASHMAP_MASK;
 	// link the variable in
 	var->next = cvar_vars[index];
@@ -348,21 +387,12 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
             
             if (Com_ServerState())
             {
+                _Cvar_SetLatchedValue(var, value);
                 Com_Printf ("%s will be changed for next game.\n", var->name);
-                var->latched_index = Q_STRegister(&cvarValues, value);
-                if (var->latched_index < 0)
-                {
-                    Q_STGrow(&cvarValues, cvarValues.size * 2);
-                    Cvar_RebuildValues();
-                    
-                    var->latched_index = Q_STRegister(&cvarValues, value);
-                }
-                var->latched_string = Q_STGetString(&cvarValues, var->latched_index);
             }
             else
             {
-                var->string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
-                var->value = atof (var->string);
+                _Cvar_SetValue(var, value);
                 
                 if (!strcmp(var->name, "game"))
                 {
@@ -390,13 +420,7 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     if (var->flags & CVAR_USERINFO)
         userinfo_modified = true;	// transmit at next oportunity
     
-    Z_Free (var->string);	// free the old value string
-    
-    var->string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
-    var->value = atof (var->string);
-#ifdef NEW_CVAR_MEMBERS
-    var->integer = atoi(var->string);
-#endif
+    _Cvar_SetValue(var, value);
     
     return var;
 }
@@ -473,10 +497,8 @@ cvar_t *Cvar_FullSet (const char *var_name, const char *value, int32_t flags)
 	if (var->flags & CVAR_USERINFO)
 		userinfo_modified = true;	// transmit at next oportunity
 	
-	Z_Free (var->string);	// free the old value string
-	
-	var->string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
-	var->value = atof (var->string);
+    _Cvar_SetValue(var, value);
+    
 	var->flags = flags;
 
 	return var;
@@ -530,11 +552,14 @@ void Cvar_GetLatchedVars (void)
         {
             if (!var->latched_string)
                 continue;
-            Z_Free (var->string);
-            var->string = Z_TagStrdup(var->latched_string, TAG_SYSTEM);
+            var->string = var->latched_string;
+            var->string_index = var->latched_index;
             var->latched_string = NULL;
             var->latched_index = -1;
             var->value = atof(var->string);
+#ifdef NEW_CVAR_MEMBERS
+            var->integer = atoi(var->string);
+#endif
             if (!strcmp(var->name, "game"))
             {
                 FS_SetGamedir (var->string);

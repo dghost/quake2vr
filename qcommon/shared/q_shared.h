@@ -542,6 +542,7 @@ typedef struct cvar_s
     
     // non-standard cvar fields below
     int32_t         index;
+    int32_t         string_index;
     int32_t         latched_index;
 #ifdef NEW_CVAR_MEMBERS
     int32_t         default_index;
