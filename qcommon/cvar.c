@@ -30,6 +30,25 @@ qboolean	cvar_allowCheats = true;
 
 stable_t defaultValues = {0, 10240};
 
+
+/*
+ ============
+ Cvar_RebuildNames
+ ============
+ */
+
+static void Cvar_RebuildNames () {
+    int i = 0;
+    cvar_t *cvar;
+//    Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
+    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
+        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+            cvar->name = Q_STGetString(&cvarNames,cvar->index);
+//            Com_Printf(S_COLOR_YELLOW"Found Cvar Name %s\n", cvar->name);
+        }
+    }
+}
+
 /*
 ============
 Cvar_InfoValidate
@@ -180,9 +199,8 @@ const char *Cvar_CompleteVariable (const char *partial)
     // check partial match
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
-            const char *name = Q_STGetString(&cvarNames,cvar->index);
-            if (!strncmp(buffer, name, len))
-                return name;
+            if (!strncmp(buffer, cvar->name, len))
+                return cvar->name;
         }
     }
     return NULL;
@@ -248,7 +266,13 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 #endif
 	var->modified = true;
 	var->value = atof (var->string);
-    var->index = Q_STAutoRegister(&cvarNames, buffer);
+    var->index = Q_STRegister(&cvarNames, buffer);
+    if (var->index < 0)
+    {
+        Q_STGrow(&cvarNames, cvarNames.size * 2);
+        Cvar_RebuildNames();
+        var->index = Q_STRegister(&cvarNames, buffer);
+    }
     var->name = Q_STGetString(&cvarNames, var->index);
     index = var->index & CVAR_HASHMAP_MASK;
 	// link the variable in
@@ -282,15 +306,13 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     {
         if (var->flags & CVAR_NOSET)
         {
-            const char* var_name = Q_STGetString(&cvarNames, var->index);
-            Com_Printf ("%s is write protected.\n", var_name);
+            Com_Printf ("%s is write protected.\n", var->name);
             return var;
         }
         
         if ((var->flags & CVAR_CHEAT) && !cvar_allowCheats)
         {
-            const char* var_name = Q_STGetString(&cvarNames, var->index);
-            Com_Printf ("%s is cheat protected.\n", var_name);
+            Com_Printf ("%s is cheat protected.\n", var->name);
             return var;
         }
         
@@ -310,17 +332,15 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
             
             if (Com_ServerState())
             {
-                const char* var_name = Q_STGetString(&cvarNames, var->index);
-                Com_Printf ("%s will be changed for next game.\n", var_name);
+                Com_Printf ("%s will be changed for next game.\n", var->name);
                 var->latched_string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
             }
             else
             {
-                const char* var_name = Q_STGetString(&cvarNames, var->index);
                 var->string = (char*)Z_TagStrdup(value, TAG_SYSTEM);
                 var->value = atof (var->string);
                 
-                if (!strcmp(var_name, "game"))
+                if (!strcmp(var->name, "game"))
                 {
                     FS_SetGamedir (var->string);
                     FS_ExecAutoexec ();
@@ -490,7 +510,7 @@ void Cvar_GetLatchedVars (void)
             var->string = var->latched_string;
             var->latched_string = NULL;
             var->value = atof(var->string);
-            if (!strcmp( Q_STGetString(&cvarNames, var->index), "game"))
+            if (!strcmp(var->name, "game"))
             {
                 FS_SetGamedir (var->string);
                 FS_ExecAutoexec ();
@@ -550,28 +570,26 @@ Handles variable inspection and changing from the console
 qboolean Cvar_Command (void)
 {
 	cvar_t			*v;
-    const char *name;
 // check variables
 	v = Cvar_FindVar (Cmd_Argv(0));
 	if (!v)
 		return false;
     
-    name = Q_STGetString(&cvarNames, v->index);
 // perform a variable print or set
 	if (Cmd_Argc() == 1)
 	{	// Knightmare- show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index), v->latched_string);
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\" : latched to \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index), v->latched_string);
 		else if (v->flags & CVAR_NOSET)
-			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index));
 		else
-			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", name, v->string, Q_STGetString(&defaultValues,v->default_index));
+			Com_Printf ("\"%s\" is \"%s\" : default is \"%s\"\n", v->name, v->string, Q_STGetString(&defaultValues,v->default_index));
 #else
 		if ((v->flags & CVAR_LATCH) && v->latched_string)
-			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", name, v->string, v->latched_string);
+			Com_Printf ("\"%s\" is \"%s\" : latched to \"%s\"\n", v->name, v->string, v->latched_string);
 		else
-			Com_Printf ("\"%s\" is \"%s\"\n", name, v->string);
+			Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string);
 #endif
 		return true;
 	}
@@ -698,8 +716,7 @@ void Cvar_WriteVariables (const char *path)
         {
             if (var->flags & CVAR_ARCHIVE)
             {
-                char const *name = Q_STGetString(&cvarNames, var->index);
-                Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", name, var->string);
+                Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
                 fprintf (f, "%s", buffer);
             }
         }
@@ -738,8 +755,7 @@ void Cvar_List_f (void)
     for (k = 0; k < CVAR_HASHMAP_WIDTH; k++) {
         for (var = cvar_vars[k]; var; var = var->next, i++)
         {
-            char const *name = Q_STGetString(&cvarNames, var->index);
-            if (wildcardfit (wc, name))
+            if (wildcardfit (wc, var->name))
                 //if (strstr (var->name, Cmd_Argv(1)))
             {
                 j++;
@@ -773,12 +789,12 @@ void Cvar_List_f (void)
                 // show latched value if applicable
 #ifdef NEW_CVAR_MEMBERS
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
-                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", name, var->string, Q_STGetString(&defaultValues,var->default_index), var->latched_string);
+                    Com_Printf (" %s \"%s\" - default: \"%s\" - latched: \"%s\"\n", var->name, var->string, Q_STGetString(&defaultValues,var->default_index), var->latched_string);
                 else
-                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", name, var->string, Q_STGetString(&defaultValues,var->default_index));
+                    Com_Printf (" %s \"%s\" - default: \"%s\"\n", var->name, var->string, Q_STGetString(&defaultValues,var->default_index));
 #else
                 if ((var->flags & CVAR_LATCH) && var->latched_string)
-                    Com_Printf (" %s \"%s\" - latched: \"%s\"\n", name, var->string, var->latched_string);
+                    Com_Printf (" %s \"%s\" - latched: \"%s\"\n", var->name, var->string, var->latched_string);
                 else
                     Com_Printf (" %s \"%s\"\n", var->name, var->string);
                 
@@ -787,6 +803,10 @@ void Cvar_List_f (void)
         }
     }
 	Com_Printf (" %i cvars, %i matching\n", i, j);
+}
+
+void Cvar_Rebuild_f (void) {
+    Cvar_RebuildNames();
 }
 
 
@@ -804,8 +824,7 @@ char	*Cvar_BitInfo (int32_t bit)
         for (var = cvar_vars[i] ; var ; var = var->next)
         {
             if (var->flags & bit) {
-                char const *name = Q_STGetString(&cvarNames, var->index);
-                Info_SetValueForKey (info, name, var->string);
+                Info_SetValueForKey (info, var->name, var->string);
             }
         }
     }
@@ -833,34 +852,30 @@ void Cvar_AssertRange (cvar_t *var, float min, float max, qboolean isInteger)
 #ifdef NEW_CVAR_MEMBERS
     if (isInteger && (var->value != (float) var->integer))
     {
-        char const *name = Q_STGetString(&cvarNames, var->index);
-        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", name, var->value);
+        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 #else
     if (isInteger && (var->value != (float)((int) var->value)))
     {
-        char const *name = Q_STGetString(&cvarNames, var->index);
-        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", name, var->value);
+        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' must be an integer (%f)\n", var->name, var->value);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 #endif
     if (var->value < min)
     {
-        char const *name = Q_STGetString(&cvarNames, var->index);
-        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f < %f)\n", name, var->value, min);
+        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f < %f)\n", var->name, var->value, min);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
     else if (var->value > max)
     {
-        char const *name = Q_STGetString(&cvarNames, var->index);
-        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f > %f)\n", name, var->value, max);
+        Com_Printf (S_COLOR_YELLOW"Warning: cvar '%s' is out of range (%f > %f)\n", var->name, var->value, max);
         Cvar_Set_Internal(var, va("%d", var->integer),false);
     }
 }
 
 const char *Cvar_GetName(cvar_t *var) {
-    return var ? Q_STGetString(&cvarNames, var->index) : NULL;
+    return var ? var->name : NULL;
 }
 
 /*
@@ -879,5 +894,5 @@ void Cvar_Init (void)
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_AddCommand ("reset", Cvar_Reset_f);
 	Cmd_AddCommand ("cvarlist", Cvar_List_f);
-
+//    Cmd_AddCommand ("cvarrebuild", Cvar_Rebuild_f);
 }
