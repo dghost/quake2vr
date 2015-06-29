@@ -25,6 +25,8 @@ void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
 
+stable_t cmdNames = {0, 8096};
+
 stable_t aliasNames = {0, 8096};
 stable_t aliasTable = {0, 8096};
 
@@ -357,7 +359,6 @@ qboolean Cbuf_AddLateCommands (void)
 ==============================================================================
 */
 
-
 /*
 ===============
 Cmd_Exec_f
@@ -498,9 +499,9 @@ void Cmd_Alias_f (void)
 typedef struct cmd_function_s
 {
 	struct cmd_function_s	*next;
-	char					*name;
-    hash32_t                  hash;
-	xcommand_t				function;
+//	char					*name;
+    int32_t                 name_index;
+    xcommand_t				function;
 } cmd_function_t;
 
 
@@ -706,32 +707,37 @@ Cmd_AddCommand
 void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
-    hash32_t nameHash;
+    int32_t nameIndex;
     int index;
-    
+    char buffer[MAX_TOKEN_CHARS];
+    Q_strlcpy_lower(buffer, cmd_name, sizeof(buffer));
+
 // fail if the command is a variable name
-	if (Cvar_VariableString(cmd_name)[0])
+	if (Cvar_VariableString(buffer)[0])
 	{
-		Com_Printf ("Cmd_AddCommand: %s already defined as a var\n", cmd_name);
+		Com_Printf ("Cmd_AddCommand: %s already defined as a var\n", buffer);
 		return;
 	}
 	
-    nameHash = Q_HashSanitized32(cmd_name);
-    index = nameHash.h&CMD_HASHMAP_MASK;
+    nameIndex = Q_STLookup(&cmdNames, buffer);
 // fail if the command already exists
-	for (cmd=cmd_functions[index] ; cmd ; cmd=cmd->next)
-	{
-		if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
-		{
-			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
-			return;
-		}
-	}
+    if (nameIndex >= 0) {
+        for (cmd=cmd_functions[nameIndex&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
+        {
+            if (cmd->name_index == nameIndex)
+            {
+                Com_Printf ("Cmd_AddCommand: %s already defined\n", buffer);
+                return;
+            }
+        }
+    }
+
+    nameIndex = Q_STAutoRegister(&cmdNames, buffer);
 
 	cmd = (cmd_function_t*)Z_TagMalloc (sizeof(cmd_function_t), TAG_SYSTEM);
-	cmd->name = cmd_name;
-    cmd->hash = nameHash;
 	cmd->function = function;
+    cmd->name_index = nameIndex;
+    index = nameIndex&CMD_HASHMAP_MASK;
 	cmd->next = cmd_functions[index];
 	cmd_functions[index] = cmd;
 }
@@ -743,26 +749,36 @@ Cmd_RemoveCommand
 */
 void	Cmd_RemoveCommand (char *cmd_name)
 {
-	cmd_function_t	*cmd, **back;
-    hash32_t nameHash = Q_HashSanitized32(cmd_name);
+    char buffer[MAX_TOKEN_CHARS];
+    int32_t nameIndex;
 
-	back = &cmd_functions[nameHash.h&CMD_HASHMAP_MASK];
-	while (1)
-	{
-		cmd = *back;
-		if (!cmd)
-		{
-			Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
-			return;
-		}
-		if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
-		{
-			*back = cmd->next;
-			Z_Free (cmd);
-			return;
-		}
-		back = &cmd->next;
-	}
+    Q_strlcpy_lower(buffer, cmd_name, sizeof(buffer));
+    nameIndex = Q_STLookup(&cmdNames, buffer);
+
+    if (nameIndex >= 0) {
+        cmd_function_t	*cmd, **back;
+
+        back = &cmd_functions[nameIndex&CMD_HASHMAP_MASK];
+
+        while (1)
+        {
+            cmd = *back;
+            if (!cmd)
+            {
+                Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
+                return;
+            }
+            if (cmd->name_index == nameIndex)
+            {
+                *back = cmd->next;
+                Z_Free (cmd);
+                return;
+            }
+            back = &cmd->next;
+        }
+    }
+    Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
+    return;
 }
 
 /*
@@ -773,14 +789,18 @@ Cmd_Exists
 qboolean	Cmd_Exists (char *cmd_name)
 {
 	cmd_function_t	*cmd;
-    hash32_t nameHash = Q_HashSanitized32(cmd_name);
+    int32_t nameIndex;
+    char buffer[MAX_TOKEN_CHARS];
+    Q_strlcpy_lower(buffer, cmd_name, sizeof(buffer));
+    nameIndex = Q_STLookup(&cmdNames, buffer);
 
-	for (cmd=cmd_functions[nameHash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
-	{
-        if (!Q_HashEquals32(nameHash, cmd->hash) && !strcmp (cmd_name, cmd->name))
-			return true;
-	}
-
+    if (nameIndex >= 0) {
+        for (cmd=cmd_functions[nameIndex&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
+        {
+            if (nameIndex == cmd->name_index)
+                return true;
+        }
+    }
 	return false;
 }
 
@@ -847,12 +867,15 @@ completion_t Cmd_CompleteCommand (char *partial)
 
     memset(pmatch, 0, sizeof(pmatch));
     i=0;
+    
     for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
-        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next)
-            if (!Q_strncasecmp (partial,cmd->name, len)) {
-                pmatch[i]=cmd->name;
+        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next) {
+            const char *name = Q_STGetString(&cmdNames, cmd->name_index);
+            if (!Q_strncasecmp (partial, name, len)) {
+                pmatch[i]=name;
                 i++;
             }
+        }
     }
     
     for (j= 0; j < CMDALIAS_HASHMAP_WIDTH; j++ ){
@@ -910,19 +933,19 @@ qboolean Cmd_IsComplete (const char *command)
 {
 	cmd_function_t	*cmd;
     int32_t         index;
-    hash32_t        hash;
     char buffer[MAX_TOKEN_CHARS];
-    hash = Q_HashSanitized32(command);
-
-// check for exact match
-	for (cmd=cmd_functions[hash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
-		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (command,cmd->name))
-			return true;
-    
     Q_strlcpy_lower(buffer, command, sizeof(buffer));
-
-    index = Q_STLookup(&aliasNames, buffer);
     
+    index = Q_STLookup(&cmdNames, buffer);
+
+    if (index >= 0) {
+        // check for exact match
+        for (cmd=cmd_functions[index&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
+            if (cmd->name_index == index)
+                return true;
+    }
+    index = Q_STLookup(&aliasNames, buffer);
+
     if (index >= 0)
         return true;
     
@@ -946,7 +969,6 @@ void	Cmd_ExecuteString (char *text)
 {	
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
-    hash32_t hash;
     int32_t index;
     char buffer[MAX_TOKEN_CHARS];
     
@@ -956,22 +978,26 @@ void	Cmd_ExecuteString (char *text)
 	if (!Cmd_Argc())
 		return;		// no tokens
 
-    hash = Q_HashSanitized32(cmd_argv[0]);
+    Q_strlcpy_lower(buffer, cmd_argv[0], sizeof(buffer));
+    
+    index = Q_STLookup(&cmdNames, buffer);
     
 	// check functions
-	for (cmd=cmd_functions[hash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
-	{
-		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (cmd_argv[0],cmd->name))
-		{
-			if (!cmd->function)
-			{	// forward to server command
-				Cmd_ExecuteString (va("cmd %s", text));
-			}
-			else
-				cmd->function ();
-			return;
-		}
-	}
+    if (index >= 0) {
+        for (cmd=cmd_functions[index&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
+        {
+            if (index == cmd->name_index)
+            {
+                if (!cmd->function)
+                {	// forward to server command
+                    Cmd_ExecuteString (va("cmd %s", text));
+                }
+                else
+                    cmd->function ();
+                return;
+            }
+        }
+    }
 
     Q_strlcpy_lower(buffer, cmd_argv[0], sizeof(buffer));
 
@@ -1012,8 +1038,10 @@ void Cmd_List_f (void)
 
 	i = 0;
     for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
-        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next, i++)
-            Com_Printf ("%s\n", cmd->name);
+        for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next, i++) {
+            const char *name = Q_STGetString(&cmdNames, cmd->name_index);
+            Com_Printf ("%s\n", name);
+        }
     }
 	Com_Printf ("%i commands\n", i);
 }
@@ -1029,10 +1057,12 @@ void Cmd_Init (void)
 // register our commands
 //
     Q_STInit(&cvarNames, 10);
+    Q_STInit(&cmdNames, 10);
     Q_STInit(&aliasNames, 10);
     Q_STInit(&aliasTable, 10);
     
     memset(cmd_functions,0,sizeof(cmd_functions));
+    memset(cmd_alias,0,sizeof(cmd_alias));
 	Cmd_AddCommand ("cmdlist",Cmd_List_f);
 	Cmd_AddCommand ("exec",Cmd_Exec_f);
 	Cmd_AddCommand ("echo",Cmd_Echo_f);
