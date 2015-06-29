@@ -25,12 +25,14 @@ void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
 
+stable_t aliasNames = {0, 8096};
+stable_t aliasTable = {0, 8096};
+
 typedef struct cmdalias_s
 {
 	struct cmdalias_s	*next;
-	char	name[MAX_ALIAS_NAME];
-    hash32_t  hash;
-	char	*value;
+    int32_t  nameIndex;
+    int32_t  cmdIndex;
 } cmdalias_t;
 
 #define CMDALIAS_HASHMAP_WIDTH 0x8
@@ -418,20 +420,24 @@ Creates a new command that executes a command string (possibly ; seperated)
 */
 void Cmd_Alias_f (void)
 {
-	cmdalias_t	*a;
+	cmdalias_t	*a = NULL;
 	char		cmd[1024];
 	int32_t			i, c;
 	char		*s;
-    hash32_t      nameHash;
+    int32_t      nameIndex;
     int32_t     index;
+    char        buffer[MAX_ALIAS_NAME];
     
 	if (Cmd_Argc() == 1)
 	{
         int j;
 		Com_Printf ("Current alias commands:\n");
         for (j = 0; j < CMDALIAS_HASHMAP_WIDTH; j++) {
-            for (a = cmd_alias[j] ; a ; a=a->next)
-                Com_Printf ("  %s : %s", a->name, a->value);
+            for (a = cmd_alias[j] ; a ; a=a->next) {
+                const char *name = Q_STGetString(&aliasNames, a->nameIndex);
+                const char *cmd = Q_STGetString(&aliasTable, a->cmdIndex);
+                Com_Printf ("  %s : %s", name, cmd);
+            }
         }
 		return;
 	}
@@ -443,27 +449,25 @@ void Cmd_Alias_f (void)
 		return;
 	}
     
-    nameHash = Q_HashSanitized32(s);
-    index = nameHash.h & CMDALIAS_HASHMAP_MASK;
-	// if the alias already exists, reuse it
-	for (a = cmd_alias[index] ; a ; a=a->next)
-	{
-		if (!Q_HashEquals32(nameHash, a->hash) && !strcmp(s, a->name))
-		{
-			Z_Free (a->value);
-			break;
-		}
-	}
+    nameIndex = Q_STLookup(&aliasNames, s);
 
+    if (nameIndex >= 0) {
+        // if the alias already exists, reuse it
+        for (a = cmd_alias[nameIndex & CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
+        {
+            if (a->nameIndex == nameIndex);
+            {
+                break;
+            }
+        }
+    }
+    
 	if (!a)
 	{
 		a = (cmdalias_t*)Z_TagMalloc (sizeof(cmdalias_t), TAG_SYSTEM);
-		a->next = cmd_alias[index];
-		cmd_alias[index] = a;
 	}
-	strcpy (a->name, s);	
-    a->hash = nameHash;
-// copy the rest of the command line
+    
+    // copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
 	c = Cmd_Argc();
 	for (i=2 ; i< c ; i++)
@@ -473,8 +477,14 @@ void Cmd_Alias_f (void)
 			strcat (cmd, " ");
 	}
 	strcat (cmd, "\n");
-	
-	a->value = (char*)Z_TagStrdup (cmd, TAG_SYSTEM);
+    
+    Q_strlcpy_lower(buffer, s, sizeof(buffer));
+
+    a->nameIndex = Q_STAutoRegister(&aliasNames, buffer);
+    a->cmdIndex = Q_STAutoRegister(&aliasTable, cmd);
+    index = a->nameIndex & CMDALIAS_HASHMAP_MASK;
+    a->next = cmd_alias[index];
+    cmd_alias[index] = a;
 }
 
 /*
@@ -846,11 +856,13 @@ completion_t Cmd_CompleteCommand (char *partial)
     }
     
     for (j= 0; j < CMDALIAS_HASHMAP_WIDTH; j++ ){
-        for (a=cmd_alias[j] ; a ; a=a->next)
-            if (!Q_strncasecmp (partial, a->name, len)) {
-                pmatch[i]=a->name;
+        for (a=cmd_alias[j] ; a ; a=a->next) {
+            const char *name = Q_STGetString(&aliasNames, a->nameIndex);
+            if (!Q_strncasecmp (partial, name, len)) {
+                pmatch[i]= name;
                 i++;
             }
+        }
     }
     
     for (j = 0; j < CVAR_HASHMAP_WIDTH; j++) {
@@ -897,7 +909,6 @@ completion_t Cmd_CompleteCommand (char *partial)
 qboolean Cmd_IsComplete (const char *command)
 {
 	cmd_function_t	*cmd;
-	cmdalias_t		*a;
     int32_t         index;
     hash32_t        hash;
     char buffer[MAX_TOKEN_CHARS];
@@ -907,11 +918,14 @@ qboolean Cmd_IsComplete (const char *command)
 	for (cmd=cmd_functions[hash.h&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
 		if (!Q_HashEquals32(hash, cmd->hash) && !Q_strcasecmp (command,cmd->name))
 			return true;
-	for (a=cmd_alias[hash.h&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
-		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (command, a->name))
-			return true;
     
     Q_strlcpy_lower(buffer, command, sizeof(buffer));
+
+    index = Q_STLookup(&aliasNames, buffer);
+    
+    if (index >= 0)
+        return true;
+    
 
     index = Q_STLookup(&cvarNames, buffer);
     if (index >= 0)
@@ -933,6 +947,8 @@ void	Cmd_ExecuteString (char *text)
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;
     hash32_t hash;
+    int32_t index;
+    char buffer[MAX_TOKEN_CHARS];
     
 	Cmd_TokenizeString (text, true);
 			
@@ -957,21 +973,25 @@ void	Cmd_ExecuteString (char *text)
 		}
 	}
 
+    Q_strlcpy_lower(buffer, cmd_argv[0], sizeof(buffer));
+
+    index = Q_STLookup(&aliasNames, buffer);
 	// check alias
-	for (a=cmd_alias[hash.h&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
-	{
-		if (!Q_HashEquals32(hash, a->hash) && !Q_strcasecmp (cmd_argv[0], a->name))
-		{
-			if (++alias_count == ALIAS_LOOP_COUNT)
-			{
-				Com_Printf ("ALIAS_LOOP_COUNT\n");
-				return;
-			}
-			Cbuf_InsertText (a->value);
-			return;
-		}
-	}
-	
+    if (index >= 0) {
+        for (a=cmd_alias[index&CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
+        {
+            if (index == a->nameIndex)
+            {
+                if (++alias_count == ALIAS_LOOP_COUNT)
+                {
+                    Com_Printf ("ALIAS_LOOP_COUNT\n");
+                    return;
+                }
+                Cbuf_InsertText(Q_STGetString(&aliasTable,a->cmdIndex));
+                return;
+            }
+        }
+    }
 	// check cvars
 	if (Cvar_Command ())
 		return;
@@ -1009,6 +1029,9 @@ void Cmd_Init (void)
 // register our commands
 //
     Q_STInit(&cvarNames, 10);
+    Q_STInit(&aliasNames, 10);
+    Q_STInit(&aliasTable, 10);
+    
     memset(cmd_functions,0,sizeof(cmd_functions));
 	Cmd_AddCommand ("cmdlist",Cmd_List_f);
 	Cmd_AddCommand ("exec",Cmd_Exec_f);
