@@ -260,7 +260,7 @@ void Huff1TableInit (void)
 	int32_t		numhnodes;
 
 	cin.hnodes1 = Z_TagMalloc (256*256*2*4, TAG_CLIENT);
-	memset (cin.hnodes1, 0, 256*256*2*4);
+//	memset (cin.hnodes1, 0, 256*256*2*4);
 
 	for (prev=0 ; prev<256 ; prev++)
 	{

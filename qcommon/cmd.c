@@ -127,7 +127,7 @@ void Cbuf_InsertText (const char *text)
 	templen = cmd_text.cursize;
 	if (templen)
 	{
-        memset(temp,0,(templen + 1) * sizeof(char));
+//        memset(temp,0,(templen + 1) * sizeof(char));
 		memcpy(temp, cmd_text.data, templen);
 		SZ_Clear (&cmd_text);
 	}
