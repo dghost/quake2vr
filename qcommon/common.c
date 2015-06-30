@@ -1381,8 +1381,8 @@ ztag_t *Z_GetTagChain (int16_t tag) {
     if (z && z->tag == tag)
         return z;
     
-    z = (ztag_t*)malloc(sizeof(ztag_t));
-    memset(z, 0, sizeof(ztag_t));
+    z = (ztag_t*)calloc(1, sizeof(ztag_t));
+//    memset(z, 0, sizeof(ztag_t));
     
     z->chain.prev = z->chain.next = &z->chain;
     z->tag = tag;
@@ -1490,7 +1490,7 @@ void *Z_TagMalloc (int32_t size, int16_t tag)
     ztag_t *chain = z_tagchain[tag&ZONE_HASHMAP_MASK];
 
     // fast local search for the chain
-    while (chain != NULL && chain->tag != tag) {
+    while (chain && chain->tag != tag) {
         chain = chain->next;
     }
     
@@ -1498,11 +1498,11 @@ void *Z_TagMalloc (int32_t size, int16_t tag)
         chain = Z_GetTagChain(tag);
     
 	size = size + sizeof(zhead_t);
-	z = (zhead_t*)malloc(size);
+	z = (zhead_t*)calloc(1, size);
 	if (!z)
 		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
 
-	memset (z, 0, size);
+//	memset (z, 0, size);
 	chain->count++;
 	chain->bytes += size;
 	z->magic = Z_MAGIC;
