@@ -83,6 +83,7 @@ static inline void _Grow_Names() {
     Q_STGrow(&cvarNames, cvarNames.size * 2);
     Cvar_RebuildNames(true);
 }
+
 static inline void _Cvar_SetName(cvar_t *var, const char *value) {
     var->index = Q_STRegister(&cvarNames, value);
     if (var->index < 0)

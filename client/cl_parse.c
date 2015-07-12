@@ -511,17 +511,20 @@ void CL_ParseConfigString (void)
         } else if (i >= OLD_CS_ITEMS && i < OLD_CS_ITEMS + MAX_ITEMS) {
             int j;
             int item = i - OLD_CS_ITEMS;
-            hash32_t hash;
+            int32_t token;
             Com_sprintf (scratch, sizeof(scratch), "use %s", cl.configstrings[i]);
-            hash = Q_HashSanitized32(scratch);
+            token = Q_STLookup(&key_table, scratch);
             cl.inventorykey[item] = -1;
-            for (j=0; j<MAX_KEYEVENTS; j++)
-            {
-                if (keybindings[j] && !Q_HashEquals32(keybindinghashes[j], hash) && !Q_strcasecmp(keybindings[j], scratch))
+            if (token >= 0) {
+                for (j=0; j<MAX_KEYEVENTS; j++)
                 {
-                    cl.inventorykey[item] = j;
-                    break;
+                    if (keytokens[j] == token)
+                    {
+                        cl.inventorykey[item] = j;
+                        break;
+                    }
                 }
+                
             }
         }
 	}
@@ -564,18 +567,20 @@ void CL_ParseConfigString (void)
         {
             int j;
             int item = i - CS_ITEMS;
-            hash32_t hash;
+            int32_t token;
             Com_sprintf (scratch, sizeof(scratch), "use %s", cl.configstrings[i]);
-            hash = Q_HashSanitized32(scratch);
+            token = Q_STLookup(&key_table, scratch);
             cl.inventorykey[item] = -1;
-            for (j=0; j<MAX_KEYEVENTS; j++)
-            {
-                if (keybindings[j] && !Q_HashEquals32(keybindinghashes[j], hash) && !Q_strcasecmp(keybindings[j], scratch))
+            if (token >= 0) {
+                for (j=0; j<MAX_KEYEVENTS; j++)
                 {
-                    cl.inventorykey[item] = j;
-                    
-                    break;
+                    if (keytokens[j] == token)
+                    {
+                        cl.inventorykey[item] = j;
+                        break;
+                    }
                 }
+                
             }
         }
 	}

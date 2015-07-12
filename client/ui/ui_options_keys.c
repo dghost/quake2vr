@@ -70,7 +70,7 @@ static void M_UnbindCommand (char *command)
 {
 	int32_t		j;
 	int32_t		l;
-	char	*b;
+	const char	*b;
 
 	l = strlen(command);
 
@@ -92,7 +92,7 @@ static void M_FindKeysForCommand (char *command, int32_t *twokeys)
 	int32_t		count;
 	int32_t		j;
 	int32_t	 	l;
-	char	*b;
+	const char	*b;
 
 	twokeys[0] = twokeys[1] = -1;
 	l = strlen(command);

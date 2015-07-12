@@ -38,8 +38,9 @@ int32_t		history_line=0;
 int32_t		key_waiting;
 
 #define MAX_KEYEVENTS 512
-char		*keybindings[MAX_KEYEVENTS];
-hash32_t    keybindinghashes[MAX_KEYEVENTS];
+const char	*keybindings[MAX_KEYEVENTS];
+int32_t     keytokens[MAX_KEYEVENTS];
+stable_t key_table = {0, 8192};
 
 qboolean	consolekeys[MAX_KEYEVENTS];	// if true, can't be rebound while in console
 qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
@@ -654,41 +655,61 @@ char *Key_KeynumToString (int32_t keynum)
 }
 
 
+static void Key_RebuildBindings (qboolean silent) {
+    int i = 0;
+    if (!silent)
+        Com_Printf(S_COLOR_RED"Rebuilding Key Binding Table\n");
+    for (i = 0; i < MAX_KEYEVENTS ; i++) {
+        if (keytokens[i] >= 0) {
+            keybindings[i] = Q_STGetString(&key_table,keytokens[i]);
+            if (!silent)
+                Com_Printf(S_COLOR_YELLOW"%s\n", keybindings[i]);
+        }
+    }
+}
+
+static inline void _Grow_KeyBindings() {
+    Q_STGrow(&key_table, key_table.size * 2);
+    Key_RebuildBindings(true);
+}
+
+static inline void _Key_SetBinding(int32_t keynum, const char *binding) {
+    keytokens[keynum] = Q_STRegister(&key_table, binding);
+    if (keytokens[keynum] < 0)
+    {
+        _Grow_KeyBindings();
+        keytokens[keynum] = Q_STRegister(&key_table, binding);
+    }
+    keybindings[keynum] = Q_STGetString(&key_table, keytokens[keynum]);
+}
+
+
 /*
 ===================
 Key_SetBinding
 ===================
 */
-void Key_SetBinding (int32_t keynum, char *binding)
+void Key_SetBinding (int32_t keynum, const char *binding)
 {
-	char	*new_one;
-	int32_t		l;
     int i;
 	
 	if (keynum == -1)
 		return;
 
-// free old bindings
+// dump old bindings
 	if (keybindings[keynum])
 	{
-		Z_Free (keybindings[keynum]);
-		keybindings[keynum] = NULL;
+        keybindings[keynum] = NULL;
+        keytokens[keynum] = -1;
+        
         for (i = 0; i < MAX_ITEMS; i++)
         {
             if (cl.inventorykey[i] == keynum)
                 cl.inventorykey[i] = -1;
         }
     }
-			
-// allocate memory for new binding
-	l = strlen (binding);	
-	new_one = (char*)Z_TagMalloc(l + 1, TAG_CLIENT);
-	strcpy(new_one, binding);
-	new_one[l] = 0;
-	keybindings[keynum] = new_one;
-	keybindinghashes[keynum] = Q_HashSanitized32(new_one);
-    
-    
+	
+    _Key_SetBinding(keynum, binding);
 }
 
 /*
@@ -719,7 +740,9 @@ void Key_Unbind_f (void)
 void Key_Unbindall_f (void)
 {
 	int32_t		i;
-	
+    // dump the contents of the string table
+    Q_STFree(&key_table);
+    Q_STInit(&key_table, 8);
 	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i])
 			Key_SetBinding (i, "");
@@ -813,6 +836,12 @@ void Key_Init (void)
 {
 	int32_t		i;
 
+    Q_STInit(&key_table, 8);
+    for (i=0 ; i< MAX_KEYEVENTS; i++) {
+        keybindings[i] = NULL;
+        keytokens[i] = -1;
+    }
+    
 	for (i=0 ; i<32 ; i++)
 	{
 		key_lines[i][0] = ']';
@@ -912,7 +941,7 @@ extern int32_t scr_draw_loading;
 
 void Key_Event (int32_t key, qboolean down, uint32_t time)
 {
-	char	*kb;
+	const char	*kb;
 	char	cmd[1024];
 
 	// hack for modal presses
