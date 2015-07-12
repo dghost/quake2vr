@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void Cmd_ForwardToServer (void);
 
+#define ALIAS_BLOCK_MAX 64
 #define	MAX_ALIAS_NAME	32
 
 stable_t cmdNames = {0, 8096};
@@ -36,6 +37,16 @@ typedef struct cmdalias_s
     int32_t  nameIndex;
     int32_t  cmdIndex;
 } cmdalias_t;
+
+
+typedef struct aliasblock_s {
+    cmdalias_t aliases[ALIAS_BLOCK_MAX];
+    struct aliasblock_s *next;
+    int32_t maxIndex;
+    uint16_t numAllocated;
+} aliasblock_t;
+
+static aliasblock_t *alias_head = NULL, *alias_tail = NULL;
 
 #define CMDALIAS_HASHMAP_WIDTH 0x8
 #define CMDALIAS_HASHMAP_MASK 0x7
@@ -431,18 +442,22 @@ void Cmd_Alias_f (void)
     
 	if (Cmd_Argc() == 1)
 	{
-        int j;
+        aliasblock_t *block = alias_head;
 		Com_Printf ("Current alias commands:\n");
-        for (j = 0; j < CMDALIAS_HASHMAP_WIDTH; j++) {
-            for (a = cmd_alias[j] ; a ; a=a->next) {
-                const char *name = Q_STGetString(&aliasNames, a->nameIndex);
-                const char *cmd = Q_STGetString(&aliasTable, a->cmdIndex);
+        while (block != NULL) {
+            int j;
+            int m = block->numAllocated;
+            for (j = 0; j < m; j++) {
+                cmdalias_t *alias = &block->aliases[j];
+                const char *name = Q_STGetString(&aliasNames, alias->nameIndex);
+                const char *cmd = Q_STGetString(&aliasTable, alias->cmdIndex);
                 Com_Printf ("  %s : %s", name, cmd);
             }
+            block = block->next;
         }
 		return;
 	}
-
+    
 	s = Cmd_Argv(1);
 	if (strlen(s) >= MAX_ALIAS_NAME)
 	{
@@ -465,7 +480,16 @@ void Cmd_Alias_f (void)
     
 	if (!a)
 	{
-		a = (cmdalias_t*)Z_TagMalloc (sizeof(cmdalias_t), TAG_SYSTEM);
+        if (!alias_head) {
+            alias_tail = Z_TagMalloc(sizeof(*alias_tail), TAG_SYSTEM);
+            alias_head = alias_tail;
+        } else if ((int32_t)alias_tail->numAllocated == ALIAS_BLOCK_MAX) {
+            alias_tail->next = Z_TagMalloc(sizeof(*alias_tail), TAG_SYSTEM);
+            alias_tail = alias_tail->next;
+        }
+        assert(alias_tail != NULL);
+        
+        a = &alias_tail->aliases[alias_tail->numAllocated++];
 	}
     
     // copy the rest of the command line
@@ -483,9 +507,12 @@ void Cmd_Alias_f (void)
 
     a->nameIndex = Q_STAutoRegister(&aliasNames, buffer);
     a->cmdIndex = Q_STAutoRegister(&aliasTable, cmd);
+    alias_tail->maxIndex = a->nameIndex;
     index = a->nameIndex & CMDALIAS_HASHMAP_MASK;
-    a->next = cmd_alias[index];
-    cmd_alias[index] = a;
+    if (!a->next) {
+        a->next = cmd_alias[index];
+        cmd_alias[index] = a;
+    }
 }
 
 /*
@@ -499,11 +526,11 @@ void Cmd_Alias_f (void)
 typedef struct cmd_function_s
 {
 	struct cmd_function_s	*next;
-//	char					*name;
     int32_t                 name_index;
     xcommand_t				function;
 } cmd_function_t;
 
+#define CMD_BLOCK_MAX 64
 
 static	int32_t			cmd_argc;
 static	char		cmd_argv[MAX_STRING_TOKENS][MAX_TOKEN_CHARS];
@@ -512,6 +539,16 @@ static	char		cmd_args[MAX_STRING_CHARS];
 
 #define CMD_HASHMAP_WIDTH 0x80
 #define CMD_HASHMAP_MASK 0x7F
+
+typedef struct cmdblock_s {
+    cmd_function_t cmds[CMD_BLOCK_MAX];
+    struct cmdblock_s *next;
+    int32_t maxIndex;
+    uint16_t numAllocated;
+} cmdblock_t;
+
+
+static cmdblock_t *cmd_head = NULL, *cmd_tail = NULL;
 
 static	cmd_function_t	*cmd_functions[CMD_HASHMAP_WIDTH];		// possible commands to execute
 
@@ -722,21 +759,47 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
     nameIndex = Q_STLookup(&cmdNames, buffer);
 // fail if the command already exists
     if (nameIndex >= 0) {
-        for (cmd=cmd_functions[nameIndex&CMD_HASHMAP_MASK] ; cmd ; cmd=cmd->next)
-        {
-            if (cmd->name_index == nameIndex)
-            {
+        int i;
+        cmdblock_t *c = cmd_head;
+        index = nameIndex&CMD_HASHMAP_MASK;
+        for (cmd = cmd_functions[index]; cmd; cmd = cmd->next) {
+            if (cmd->name_index == nameIndex) {
                 Com_Printf ("Cmd_AddCommand: %s already defined\n", buffer);
                 return;
             }
         }
+        // reuse the existing command definition
+        while (c) {
+            if (nameIndex <= c->maxIndex)
+            {
+                
+                for (i = 0; i < c->numAllocated; i++) {
+                    if (c->cmds[i].name_index == nameIndex) {
+                        c->cmds[i].function = function;
+                        c->cmds[i].next = cmd_functions[index];
+                        cmd_functions[index] = &c->cmds[i];
+                        return;
+                    }
+                }
+            }
+        }
     }
-
+    
     nameIndex = Q_STAutoRegister(&cmdNames, buffer);
 
-	cmd = (cmd_function_t*)Z_TagMalloc (sizeof(cmd_function_t), TAG_SYSTEM);
+    if (!cmd_head) {
+        cmd_head = Z_TagMalloc(sizeof(*cmd_head), TAG_SYSTEM);
+        cmd_tail = cmd_head;
+    } else if (cmd_tail->numAllocated == CMD_BLOCK_MAX) {
+        cmd_tail->next = Z_TagMalloc(sizeof(*cmd_tail), TAG_SYSTEM);
+        cmd_tail = cmd_tail->next;
+    
+    }
+    
+    cmd = &cmd_tail->cmds[cmd_tail->numAllocated++];
 	cmd->function = function;
     cmd->name_index = nameIndex;
+    cmd_tail->maxIndex = nameIndex;
     index = nameIndex&CMD_HASHMAP_MASK;
 	cmd->next = cmd_functions[index];
 	cmd_functions[index] = cmd;
@@ -771,7 +834,8 @@ void	Cmd_RemoveCommand (char *cmd_name)
             if (cmd->name_index == nameIndex)
             {
                 *back = cmd->next;
-                Z_Free (cmd);
+                cmd->next = NULL;
+                cmd->function = NULL;
                 return;
             }
             back = &cmd->next;
@@ -855,11 +919,11 @@ completion_t Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
 	int32_t				len,i,j,o,p;
-	cmdalias_t		*a;
 	cvar_t			*cvar;
 	const char			*pmatch[1024];
 	qboolean		diff = false;
     completion_t    result = {0, NULL};
+    aliasblock_t      *a = alias_head;
 	len = strlen(partial);
 
     if (!len)
@@ -878,14 +942,16 @@ completion_t Cmd_CompleteCommand (char *partial)
         }
     }
     
-    for (j= 0; j < CMDALIAS_HASHMAP_WIDTH; j++ ){
-        for (a=cmd_alias[j] ; a ; a=a->next) {
-            const char *name = Q_STGetString(&aliasNames, a->nameIndex);
+    while (a) {
+        int32_t numAliases = a->numAllocated;
+        for (j= 0; j < numAliases; j++ ){
+            const char *name = Q_STGetString(&aliasNames, a->aliases[j].nameIndex);
             if (!Q_strncasecmp (partial, name, len)) {
                 pmatch[i]= name;
                 i++;
             }
         }
+        a = a->next;
     }
     
     for (j = 0; j < CVAR_HASHMAP_WIDTH; j++) {
@@ -1035,7 +1101,6 @@ void Cmd_List_f (void)
 {
 	cmd_function_t	*cmd;
 	int32_t			i,j;
-
 	i = 0;
     for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
         for (cmd=cmd_functions[j] ; cmd ; cmd=cmd->next, i++) {

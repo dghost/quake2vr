@@ -22,8 +22,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.h"
 #include "wildcard.h"
 
+#define CVAR_BLOCK_MAX 768
 
 stable_t cvarNames = {0, 20480};
+
+typedef struct cvarblock_s {
+    cvar_t  cvars[CVAR_BLOCK_MAX];
+    struct cvarblock_s *next;
+    int32_t maxIndex;
+    uint16_t numAllocated;
+} cvarblock_t;
+
+static cvarblock_t *cvar_head = NULL, *cvar_tail = NULL;
+
 cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
@@ -319,7 +330,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 
 	if (!var_value)
 		return NULL;
-
+    
 	if (flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
 		if (!Cvar_InfoValidate (var_value))
@@ -330,7 +341,15 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 	}
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
     
-	var = (cvar_t*)Z_TagMalloc (sizeof(*var), TAG_SYSTEM);
+    if (!cvar_head) {
+        cvar_head = Z_TagMalloc(sizeof(*cvar_head), TAG_SYSTEM);
+        cvar_tail = cvar_head;
+    } else if (cvar_tail->numAllocated == CVAR_BLOCK_MAX) {
+        cvar_tail->next = Z_TagMalloc(sizeof(*cvar_tail), TAG_SYSTEM);
+        cvar_tail = cvar_tail->next;
+    }
+	var = &cvar_tail->cvars[cvar_tail->numAllocated++];
+    
     _Cvar_SetValue(var, var_value);
     
 	// Knightmare- added cvar defaults
@@ -340,7 +359,8 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 	var->modified = true;
 
     _Cvar_SetName(var, buffer);
-    
+    cvar_tail->maxIndex = var->index;
+
     var->latched_index = -1;
     var->latched_string = NULL;
     
@@ -348,9 +368,8 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
 	// link the variable in
 	var->next = cvar_vars[index];
     cvar_vars[index] = var;
-
 	var->flags = flags;
-
+    
 	return var;
 }
 
@@ -799,7 +818,8 @@ void Cvar_List_f (void)
 	cvar_t	*var;
 	int32_t		i, j, k, c;
 	char	*wc;
-
+    cvarblock_t *cv = cvar_head;
+    
 	// RIOT's Quake3-sytle cvarlist
 	c = Cmd_Argc();
 
@@ -869,6 +889,12 @@ void Cvar_List_f (void)
 	Com_Printf (" %i cvars, %i matching\n", i, j);
     Com_Printf (" %i bytes in use by name table\n", cvarNames.size);
     Com_Printf (" %i bytes in use by value table\n", cvarValues.size);
+    i = 0;
+    while (cv) {
+        i++;
+        cv = cv->next;
+    }
+    Com_Printf (" %i cvar blocks allocated\n", i);
 }
 
 void Cvar_Rebuild_f (void) {
