@@ -204,8 +204,8 @@ typedef struct
     int32_t (*HashCompare32)(hash32_t hash1, hash32_t hash2);
     qboolean (*StringTableInit)(stable_t *st, int32_t avgLength);
     int32_t (*StringTableRegister)(stable_t *st, const char *string);
-    int32_t (*StringTableLookup)(stable_t st, const char *string);
-    const char *(*StringTableGetString)(stable_t st, int token);
+    int32_t (*StringTableLookup)(const stable_t *st, const char *string);
+    const char *(*StringTableGetString)(const stable_t *st, int token);
     int32_t (*StringTablePack)(stable_t *st);
     void (*StringTableFree)(stable_t *st);
 #endif
