@@ -1,23 +1,20 @@
 #include "qcommon.h"
 #include "nflibs/nf_string_table.c"
 
-qboolean Q_STInit(stable_t *st, int32_t avgLength) {
+qboolean  Q_STInit(stable_t *st,  uint32_t size, int32_t avgLength, int16_t memoryTag) {
     assert(st != NULL);
-    if (!st->st) {
-        st->st = Z_TagMalloc(st->size, TAG_SYSTEM);
-        if (!st->st)
-            return false;
-        st->heap = true;
-    } else {
-        st->heap = false;
-    }
+    st->tag = memoryTag;
+    st->size = size;
+    st->st = Z_TagMalloc(st->size, st->tag);
+    if (!st->st)
+        return false;
     nfst_init((struct nfst_StringTable *)st->st, st->size, avgLength);
     return true;
 }
 
 
 qboolean Q_STGrow(stable_t *st, size_t newSize) {
-    assert(st->st != NULL && st->heap != 0);
+    assert(st->st != NULL);
     
     // check to see if it's a valid size
     if (newSize > st->size && newSize > MIN_SIZE) {
@@ -36,7 +33,7 @@ qboolean Q_STGrow(stable_t *st, size_t newSize) {
 }
 
 qboolean Q_STShrink(stable_t *st, size_t newSize) {
-    assert(st->st != NULL && st->heap != 0);
+    assert(st->st != NULL);
     
     // make sure that this is a valid resize
     if (newSize > MIN_SIZE && newSize < st->size) {
@@ -65,9 +62,10 @@ qboolean Q_STShrink(stable_t *st, size_t newSize) {
 
 void Q_STFree(stable_t *st) {
     assert(st != NULL);
-    if (st->heap && st->st) {
+    if (st->st) {
         Z_Free(st->st);
         st->st = NULL;
+        st->tag = TAG_UNTAGGED;
         //        st->size = 0;
     }
 }
@@ -97,7 +95,7 @@ int32_t Q_STUsedBytes(const stable_t *st) {
 int32_t Q_STAutoRegister(stable_t *st, const char *string) {
     assert(st != NULL && st->st != NULL && string != NULL);
     int result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
-    if (result == NFST_STRING_TABLE_FULL && st->heap) {
+    if (result == NFST_STRING_TABLE_FULL) {
         if (Q_STGrow(st,st->size * 2)) {
             result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
         }
@@ -111,7 +109,7 @@ int32_t Q_STAutoRegister(stable_t *st, const char *string) {
 int32_t Q_STAutoPack(stable_t *st) {
     assert(st->st != NULL);
     int32_t size = nfst_pack((struct nfst_StringTable *)st->st);
-    if (st->heap && size <= st->size) {
+    if (size <= st->size) {
         void *new_one = NULL;
 		if ((new_one = Z_Realloc(st->st, size)) != NULL) {
 			st->st = new_one;

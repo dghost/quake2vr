@@ -1062,9 +1062,8 @@ void CL_Skins_f (void)
 	}
 }
 
-
-static uint8_t packet_buffer[256];
-static stable_t clpacket_stable = {packet_buffer, 256};
+#define INITIAL_PACKET_TABLE_SIZE 256
+static stable_t clpacket_stable = {0, INITIAL_PACKET_TABLE_SIZE};
 
 int s_client_connect;
 extern int s_info;
@@ -1359,7 +1358,7 @@ void CL_InitLocal (void)
 	cls.state = ca_disconnected;
 	cls.realtime = Sys_Milliseconds ();
 
-    Q_STInit(&clpacket_stable, 6);
+    Q_STInit(&clpacket_stable, clpacket_stable.size, 6, TAG_CLIENT);
     s_client_connect = Q_STAutoRegister(&clpacket_stable, "client_connect");
     s_info = Q_STAutoRegister(&clpacket_stable, "info");
     s_cmd = Q_STAutoRegister(&clpacket_stable, "cmd");

@@ -600,8 +600,7 @@ void SVC_RemoteCommand (void)
 	Com_EndRedirect ();
 }
 
-static uint8_t packet_buffer[256];
-stable_t packet_stable = {packet_buffer, 256};
+static stable_t packet_stable = {0, 256};
 
 int s_ping;
 int s_ack;
@@ -1107,7 +1106,7 @@ Only called at quake2.exe startup, not for each game
 */
 void SV_Init (void)
 {
-    Q_STInit(&packet_stable, 8);
+    Q_STInit(&packet_stable, packet_stable.size, 8, TAG_SERVER);
     s_ping = Q_STAutoRegister(&packet_stable, "ping");
     s_ack = Q_STAutoRegister(&packet_stable, "ack");
     s_status = Q_STAutoRegister(&packet_stable, "status");

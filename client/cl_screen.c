@@ -849,8 +849,8 @@ void SCR_Sky_f (void)
 
 //============================================================================
 
-static char buffer[384];
-static stable_t scr_stable = {buffer, 384};
+#define INITIAL_STRING_TABLE_SIZE 384
+static stable_t scr_stable = {0, INITIAL_STRING_TABLE_SIZE};
 
 int s_xl;
 int s_xr;
@@ -884,7 +884,7 @@ SCR_Init
 */
 void SCR_Init (void)
 {
-    Q_STInit(&scr_stable, 6);
+    Q_STInit(&scr_stable, INITIAL_STRING_TABLE_SIZE, 6, TAG_CLIENT);
     s_xl = Q_STAutoRegister(&scr_stable, "xl");
     s_xr = Q_STAutoRegister(&scr_stable, "xr");
     s_xv = Q_STAutoRegister(&scr_stable, "xv");

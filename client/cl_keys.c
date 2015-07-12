@@ -40,7 +40,9 @@ int32_t		key_waiting;
 #define MAX_KEYEVENTS 512
 const char	*keybindings[MAX_KEYEVENTS];
 int32_t     keytokens[MAX_KEYEVENTS];
-stable_t key_table = {0, 8192};
+
+#define INITIAL_KEY_TABLE_SIZE 8192
+stable_t key_table = {0, INITIAL_KEY_TABLE_SIZE};
 
 qboolean	consolekeys[MAX_KEYEVENTS];	// if true, can't be rebound while in console
 qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
@@ -742,7 +744,7 @@ void Key_Unbindall_f (void)
 	int32_t		i;
     // dump the contents of the string table
     Q_STFree(&key_table);
-    Q_STInit(&key_table, 8);
+    Q_STInit(&key_table, key_table.size, 8, TAG_CLIENT);
 	for (i=0 ; i<MAX_KEYEVENTS ; i++)
 		if (keybindings[i])
 			Key_SetBinding (i, "");
@@ -836,7 +838,7 @@ void Key_Init (void)
 {
 	int32_t		i;
 
-    Q_STInit(&key_table, 8);
+    Q_STInit(&key_table, INITIAL_KEY_TABLE_SIZE, 8, TAG_CLIENT);
     for (i=0 ; i< MAX_KEYEVENTS; i++) {
         keybindings[i] = NULL;
         keytokens[i] = -1;

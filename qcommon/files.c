@@ -1205,8 +1205,7 @@ fsPack_t *FS_LoadPAK (const char *packPath)
 		fclose(handle);
 		Com_Error(ERR_FATAL, "FS_LoadPAK: %s has %i files", packPath, numFiles);
 	}
-    filenameTable.size = numFiles * MAX_QPATH;
-    Q_STInit(&filenameTable, MAX_QPATH);
+    Q_STInit(&filenameTable, numFiles * MAX_QPATH, MAX_QPATH, TAG_SYSTEM);
 
     files = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
 
@@ -1304,8 +1303,8 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		Com_Error(ERR_FATAL, "FS_LoadPK3: %s has %i files", packPath, numFiles);
 	}
 	files = (fsPackFile_t*)Z_TagMalloc(numFiles * sizeof(fsPackFile_t), TAG_SYSTEM);
-    filenameTable.size = numFiles * MAX_QPATH;
-    Q_STInit(&filenameTable, MAX_QPATH);
+
+    Q_STInit(&filenameTable, numFiles * MAX_QPATH, MAX_QPATH, TAG_SYSTEM);
     
     
 	status = unzGoToFirstFile(handle);

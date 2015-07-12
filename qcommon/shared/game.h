@@ -202,7 +202,7 @@ typedef struct
     hash32_t (*HashSanitized32)(const char *string);
     int32_t (*HashEquals32)(hash32_t hash1, hash32_t hash2);
     int32_t (*HashCompare32)(hash32_t hash1, hash32_t hash2);
-    qboolean (*StringTableInit)(stable_t *st, int32_t avgLength);
+    qboolean (*StringTableInit)(stable_t *st, uint32_t size, int32_t avgLength, int16_t memoryTag);
     int32_t (*StringTableRegister)(stable_t *st, const char *string);
     int32_t (*StringTableLookup)(const stable_t *st, const char *string);
     const char *(*StringTableGetString)(const stable_t *st, int token);

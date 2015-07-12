@@ -573,8 +573,7 @@ void SV_Nextserver_f (void)
 	SV_Nextserver ();
 }
 
-static uint8_t command_buffer[256];
-static stable_t command_stable = {command_buffer, 256};
+static stable_t command_stable = {0, 256};
 
 typedef struct
 {
@@ -606,7 +605,7 @@ ucmd_t ucmds[] =
 
 void SV_InitClientCommands(void) {
     ucmd_t *u;
-    Q_STInit(&command_stable, 8);
+    Q_STInit(&command_stable, command_stable.size, 8, TAG_SERVER);
     for (u=ucmds ; u->name ; u++)
         u->token = Q_STAutoRegister(&command_stable, u->name);
     Q_STAutoPack(&command_stable);

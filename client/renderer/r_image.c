@@ -61,12 +61,10 @@ int32_t		gl_filter_max = GL_LINEAR;
 
 
 // store the names of last images that failed to load
-stable_t failed_images;
+static stable_t failed_images = {0, 512};
 
-// use 128 bytes for the supported image types table
 // with PCX, TGA, JPG, PNG, and WAL it used 66 bytes
-static uint8_t type_buffer[128];
-static stable_t supported_image_types = {type_buffer, 128};
+static stable_t supported_image_types = {0, 128};
 
 int s_pcx;
 int s_tga;
@@ -1004,8 +1002,7 @@ R_InitFailedImgList
 void R_InitFailedImgList (void)
 {
     Q_STFree(&failed_images);
-    failed_images.size = 512;
-    Q_STInit(&failed_images, 16);
+    Q_STInit(&failed_images, failed_images.size, 16, TAG_RENDERER);
 }
 
 /*
@@ -1352,7 +1349,7 @@ void R_InitImages (void)
 	int32_t		i, j;
 	float	g = 1.0f / vid_gamma;
 
-    Q_STInit(&supported_image_types, 5);
+    Q_STInit(&supported_image_types, supported_image_types.size, 5, TAG_RENDERER);
     
     s_pcx = Q_STAutoRegister(&supported_image_types, ".pcx");
     s_wal = Q_STAutoRegister(&supported_image_types, ".wal");

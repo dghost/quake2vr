@@ -953,7 +953,7 @@ int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
 typedef struct stable_t { void *st; uint32_t size; qboolean heap;} stable_t;
 #endif
 
-qboolean Q_STInit(stable_t *st, int32_t avgLength);
+qboolean Q_STInit(stable_t *st,uint32_t size, int32_t avgLength, int16_t memoryTag);
 void Q_STFree(stable_t *st);
 qboolean Q_STGrow(stable_t *st, size_t newSize);
 qboolean Q_STShrink(stable_t *st, size_t newSize);

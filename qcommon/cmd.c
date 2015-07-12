@@ -26,10 +26,12 @@ void Cmd_ForwardToServer (void);
 #define ALIAS_BLOCK_MAX 64
 #define	MAX_ALIAS_NAME	32
 
-stable_t cmdNames = {0, 8096};
+#define INITIAL_CVARTABLE_SIZE 20480
+#define INITIAL_COMMAND_TABLE_SIZE 8096
 
-stable_t aliasNames = {0, 8096};
-stable_t aliasTable = {0, 8096};
+stable_t cmdNames = {0, INITIAL_COMMAND_TABLE_SIZE};
+stable_t aliasNames = {0, INITIAL_COMMAND_TABLE_SIZE};
+stable_t aliasTable = {0, INITIAL_COMMAND_TABLE_SIZE};
 
 typedef struct cmdalias_s
 {
@@ -1122,10 +1124,10 @@ void Cmd_Init (void)
 //
 // register our commands
 //
-    Q_STInit(&cvarNames, 10);
-    Q_STInit(&cmdNames, 10);
-    Q_STInit(&aliasNames, 10);
-    Q_STInit(&aliasTable, 10);
+    Q_STInit(&cvarNames, INITIAL_CVARTABLE_SIZE, 10, TAG_SYSTEM);
+    Q_STInit(&cmdNames, INITIAL_COMMAND_TABLE_SIZE, 10, TAG_SYSTEM);
+    Q_STInit(&aliasNames, INITIAL_COMMAND_TABLE_SIZE, 10, TAG_SYSTEM);
+    Q_STInit(&aliasTable, INITIAL_COMMAND_TABLE_SIZE, 10, TAG_SYSTEM);
     
     memset(cmd_functions,0,sizeof(cmd_functions));
     memset(cmd_alias,0,sizeof(cmd_alias));

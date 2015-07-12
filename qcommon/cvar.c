@@ -24,7 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define CVAR_BLOCK_MAX 768
 
-stable_t cvarNames = {0, 20480};
+#define INITIAL_CVARTABLE_SIZE 20480
+stable_t cvarNames = {0, INITIAL_CVARTABLE_SIZE};
+stable_t cvarValues = {0, INITIAL_CVARTABLE_SIZE};
+
 
 typedef struct cvarblock_s {
     cvar_t  cvars[CVAR_BLOCK_MAX];
@@ -39,7 +42,6 @@ cvar_t	*cvar_vars[CVAR_HASHMAP_WIDTH];
 
 qboolean	cvar_allowCheats = true;
 
-stable_t cvarValues = {0, 20480};
 
 /*
  ============
@@ -978,7 +980,7 @@ Reads in all archived cvars
 void Cvar_Init (void)
 {
     memset(cvar_vars, 0, sizeof(cvar_vars));
-    Q_STInit(&cvarValues, MAX_TOKEN_CHARS / 4);
+    Q_STInit(&cvarValues, INITIAL_CVARTABLE_SIZE,  MAX_TOKEN_CHARS / 4, TAG_SYSTEM);
 
 	Cmd_AddCommand ("set", Cvar_Set_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);

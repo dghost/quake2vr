@@ -129,7 +129,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 typedef struct hash128_t { uint32_t v[4]; } hash128_t;
 typedef struct hash32_t { uint32_t h; } hash32_t;
 
-typedef struct stable_t { void *st; uint32_t size; qboolean heap; } stable_t;
+typedef struct stable_t { void *st; uint32_t size; int16_t tag;} stable_t;
 
 
 #define ROQ_SUPPORT // whether to use new cinematic system

@@ -70,7 +70,8 @@ sndstarted_t sound_started = SS_NOT;
 sound_t sound;
 static qboolean s_registering;
 
-stable_t soundNames = {0, 10240};
+#define INITIAL_SOUND_TABLE_SIZE 10240
+static stable_t soundNames = {0, INITIAL_SOUND_TABLE_SIZE};
 
 /* ----------------------------------------------------------------- */
 
@@ -1000,7 +1001,7 @@ S_Init(void)
 
 	cv = Cvar_Get("s_initsound", "1", 0);
 
-    Q_STInit(&soundNames, MAX_QPATH);
+    Q_STInit(&soundNames, soundNames.size, MAX_QPATH, TAG_AUDIO);
     
 	if (!cv->value)
 	{

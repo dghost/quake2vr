@@ -735,7 +735,8 @@ void CL_DownloadFileName(char *dest, int32_t destlen, char *fn)
 
 
 // Knightmare- store the names of last downloads that failed
-static stable_t failed_downloads = {0, 0};
+#define INITIAL_FAILED_TABLE_SIZE 512
+static stable_t failed_downloads = {0, INITIAL_FAILED_TABLE_SIZE};
 
 /*
 ===============
@@ -745,8 +746,7 @@ CL_InitFailedDownloadList
 void CL_InitFailedDownloadList (void)
 {
     Q_STFree(&failed_downloads);
-    failed_downloads.size = 512;
-    Q_STInit(&failed_downloads, 16);
+    Q_STInit(&failed_downloads, failed_downloads.size, 16, TAG_CLIENT);
 }
 
 /*

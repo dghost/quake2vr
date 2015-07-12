@@ -474,7 +474,7 @@ void Mod_LoadEdges (lump_t *l)
 //=======================================================
 
 // store the names of last textures that failed to load
-static stable_t failed_textures = {0, 0};
+static stable_t failed_textures = {0, 512};
 
 /*
 ===============
@@ -484,8 +484,7 @@ Mod_InitFailedTexList
 void Mod_InitFailedTexList (void)
 {
     Q_STFree(&failed_textures);
-    failed_textures.size = 512;
-    Q_STInit(&failed_textures, 16);
+    Q_STInit(&failed_textures, failed_textures.size, 16, TAG_RENDERER);
 }
 
 /*

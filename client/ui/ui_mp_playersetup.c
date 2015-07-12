@@ -197,7 +197,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             int32_t			nskins = 0;
             int         ntris = 0;
             qboolean	already_added = false;
-            stable_t    image_stable = {0, 1024};
+            stable_t    image_stable = {0, 0};
             if (dirnames[i] == 0)
                 continue;
             
@@ -230,7 +230,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 continue;
             }
             
-            Q_STInit(&image_stable, 10);
+            Q_STInit(&image_stable, 1024, 10, TAG_MENU);
             for (k = 0; k < nimagefiles-1; k++) {
                 int len = strlen(imagenames[k]);
                 if (R_IsSupportedImageType(imagenames[k] + len - 4)) {
