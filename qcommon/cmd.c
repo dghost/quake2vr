@@ -782,6 +782,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
                     }
                 }
             }
+            c = c->next;
         }
     }
     
