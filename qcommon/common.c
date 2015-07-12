@@ -1532,7 +1532,7 @@ void *Z_Realloc(void* ptr, int32_t size) {
     next = z->next;
     oldSize = z->size;
     // fast local search for the chain
-    while (chain != NULL && chain->tag != z->tag) {
+    while (chain && chain->tag != z->tag) {
         chain = chain->next;
     }
 
@@ -1847,7 +1847,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 	//
 	// init commands and vars
 	//
-    Cmd_AddCommand ("z_stats", Z_Stats_f);
+    Cmd_AddCommand ("meminfo", Z_Stats_f);
     Cmd_AddCommand ("error", Com_Error_f);
 
 	host_speeds = Cvar_Get ("host_speeds", "0", 0);
