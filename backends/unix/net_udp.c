@@ -58,7 +58,7 @@ loopback_t	loopbacks[2];
 int			ip_sockets[2];
 int			ipx_sockets[2];
 
-int NET_Socket (char *net_interface, int port);
+int NET_Socket (const char *net_interface, int port);
 char *NET_ErrorString (void);
 
 //=============================================================================
@@ -467,7 +467,7 @@ void NET_Init (void)
 NET_Socket
 ====================
 */
-int NET_Socket (char *net_interface, int port)
+int NET_Socket (const char *net_interface, int port)
 {
 	int newsocket;
 	struct sockaddr_in address;

@@ -126,7 +126,7 @@ typedef struct
 GL_TextureMode
 ===============
 */
-void GL_TextureMode( char *string )
+void GL_TextureMode( const char *string )
 {
 	int32_t		i;
 	image_t	*glt;

@@ -49,9 +49,9 @@ void OGG_Shutdown(void);
 void OGG_Reinit(void);
 qboolean OGG_Check(char *name);
 void OGG_LoadFileList(void);
-void OGG_LoadPlaylist(char *name);
+void OGG_LoadPlaylist(const char *name);
 qboolean OGG_Open(ogg_seek_t type, int offset);
-qboolean OGG_OpenName(char *filename);
+qboolean OGG_OpenName(const char *filename);
 int OGG_Read(void);
 void OGG_Sequence(void);
 void OGG_Stop(void);
@@ -61,7 +61,7 @@ void S_RawSamplesVol(int samples, int rate, int width,
 
 /* Console commands. */
 void OGG_ListCmd(void);
-void OGG_ParseCmd(char *arg);
+void OGG_ParseCmd(const char *arg);
 void OGG_PauseCmd(void);
 void OGG_PlayCmd(void);
 void OGG_ResumeCmd(void);

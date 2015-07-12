@@ -679,7 +679,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_
 qboolean R_IsSupportedImageType(char *name);
 image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imagetype_t type, int32_t bits);
 image_t	*R_FindImage (char *name, imagetype_t type);
-void	GL_TextureMode( char *string );
+void	GL_TextureMode( const char *string );
 void	R_ImageList_f (void);
 //void	GL_SetTexturePalette( unsigned palette[256] );
 void R_InitFailedImgList (void);

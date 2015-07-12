@@ -450,7 +450,7 @@ char	*va(char *format, ...);
 
 char *Info_ValueForKey (char *s, const char *key);
 void Info_RemoveKey (char *s, const char *key);
-void Info_SetValueForKey (char *s, const char *key, char *value);
+void Info_SetValueForKey (char *s, const char *key, const char *value);
 qboolean Info_Validate (char *s);
 
 /*

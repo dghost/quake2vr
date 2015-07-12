@@ -1832,7 +1832,7 @@ qboolean Info_Validate (char *s)
 	return true;
 }
 
-void Info_SetValueForKey (char *s, const char *key, char *value)
+void Info_SetValueForKey (char *s, const char *key, const char *value)
 {
 	char	newi[MAX_INFO_STRING], *v;
 	int32_t		c;

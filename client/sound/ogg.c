@@ -272,7 +272,7 @@ OGG_LoadFileList(void)
  * Load playlist.
  */
 void
-OGG_LoadPlaylist(char *playlist)
+OGG_LoadPlaylist(const char *playlist)
 {
 	byte *buffer; /* Buffer to read the file. */
 	char *ptr;    /* Pointer for parsing the file. */
@@ -416,7 +416,7 @@ OGG_Open(ogg_seek_t type, int offset)
  * Play Ogg Vorbis file (with name only).
  */
 qboolean
-OGG_OpenName(char *filename)
+OGG_OpenName(const char *filename)
 {
 	char *name; /* File name. */
 	int i;		/* Loop counter. */
@@ -615,7 +615,7 @@ OGG_ListCmd(void)
  * Parse play controls.
  */
 void
-OGG_ParseCmd(char *arg)
+OGG_ParseCmd(const char *arg)
 {
 	int n;
 	cvar_t *ogg_enable;
