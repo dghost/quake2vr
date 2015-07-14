@@ -20,10 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcommon.h"
 #include "zip/unzip.h"
+#include <sys/stat.h>
 
 #ifndef _WIN32
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
+#else
+#define stat _stat
+#define S_ISDIR(mode)  (((mode) & _S_IFMT) == _S_IFDIR)
 #endif
 
 #pragma warning (disable : 4715)
@@ -1380,8 +1384,7 @@ void FS_AddGameDirectory (const char *dir)
 	// VoiD -S- *.pak support
 //	char *path = NULL;
 	char findname[1024];
-	char **dirnames;
-	int32_t ndirs;
+	const char **dirnames;
 	char *tmp;
 	// VoiD -E- *.pak support
 
@@ -1420,6 +1423,7 @@ void FS_AddGameDirectory (const char *dir)
 
     for (i=0; i<2; i++)
     {	// NeVo - Set filetype
+        sset_t dirs;
         switch (i) {
             case 0:
 			default:
@@ -1439,9 +1443,11 @@ void FS_AddGameDirectory (const char *dir)
                 *tmp = '/';
             tmp++;
         }
-        if ( ( dirnames = FS_ListFiles( findname, &ndirs, 0, 0 ) ) != 0 )
+        if ( (FS_ListFiles( findname, &dirs, 0, 0 ) ) )
         {
-            for ( j=0; j < ndirs-1; j++ )
+            dirnames = Z_TagMalloc(dirs.currentSize * sizeof(const char *), TAG_SYSTEM);
+            Q_SSetGetStrings(&dirs, dirnames, dirs.currentSize);
+            for ( j=0; j < dirs.currentSize; j++ )
             {	// don't reload numbered pak files
 				int32_t		k;
 				char	buf[16];
@@ -1469,9 +1475,9 @@ void FS_AddGameDirectory (const char *dir)
 					else
 						FS_AddPAKFile (dirnames[j]);
                 }
-                Z_Free( dirnames[j] );
             }
             Z_Free( dirnames );
+            Q_SSetFree(&dirs);
         }
         // VoiD -E- *.pack support
     } 
@@ -1826,51 +1832,44 @@ void FS_ExecAutoexec (void)
 FS_ListFiles
 ================
 */
-char **FS_ListFiles (char *findname, int32_t *numfiles, uint32_t musthave, uint32_t canthave)
+qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
 	char *s;
-	int32_t nfiles = 0;
-	char **list = 0;
+    sset_t list;
+    uint32_t numFiles = 0;
+    s = Sys_FindFirst( findname, musthave, canthave );
+    while ( s )
+    {
+        if ( s[strlen(s)-1] != '.' )
+            numFiles++;
 
-	s = Sys_FindFirst( findname, musthave, canthave );
-	while ( s )
-	{
-		if ( s[strlen(s)-1] != '.' )
-			nfiles++;
-		s = Sys_FindNext( musthave, canthave );
-	}
-	Sys_FindClose ();
-
-	if ( !nfiles ) {
-		*numfiles = 0;
-		return NULL;
-	}
-
-	nfiles++; // add space for a guard
-	*numfiles = nfiles;
-
-	list = (char**)Z_TagMalloc( sizeof( char * ) * nfiles, TAG_SYSTEM );
-	if (list)
-	{
-		memset( list, 0, sizeof( char * ) * nfiles );
-
-		s = Sys_FindFirst( findname, musthave, canthave );
-		nfiles = 0;
-		while ( s )
-		{
-			if ( s[strlen(s)-1] != '.' )
-			{
-				list[nfiles] = (char*)Z_TagStrdup( s , TAG_SYSTEM);
+        s = Sys_FindNext( musthave, canthave );
+    }
+    Sys_FindClose ();
+    
+    if (!numFiles)
+        return false;
+    
+    if (Q_SSetInit(&list, numFiles, MAX_OSPATH, TAG_SYSTEM))
+    {
+        s = Sys_FindFirst( findname, musthave, canthave );
+        while ( s )
+        {
+            if ( s[strlen(s)-1] != '.' ) {
 #ifdef _WIN32
-				Q_strlwr( list[nfiles] );
+                Q_strlwr(s);
 #endif
-				nfiles++;
-			}
-			s = Sys_FindNext( musthave, canthave );
-		}
-		Sys_FindClose ();
-	}
-	return list;
+                Q_SSetInsert(&list, s);
+                
+            }
+            s = Sys_FindNext( musthave, canthave );
+        }
+        Sys_FindClose ();
+        *ss = list;
+        
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -1989,23 +1988,21 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 		}
 		else if (search->path[0] != 0)
 		{
-
+            sset_t dirs;
 			Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
-			tmplist = FS_ListFiles(path, &tmpnfiles, musthave, canthave);
-
-			if (tmplist != NULL)
-			{
-				tmpnfiles--;
-				nfiles += tmpnfiles;
+            if (FS_ListFiles(path, &dirs, musthave, canthave))
+            {
+                int len = strlen(search->path);
+				nfiles += dirs.currentSize;
 				list = (char**)Z_Realloc(list, nfiles * sizeof(char *));
 
-				for (i = 0, j = nfiles - tmpnfiles; i < tmpnfiles; i++, j++)
+				for (i = 0, j = nfiles - dirs.currentSize; i < dirs.currentSize; i++, j++)
 				{
-					list[j] = (char*)Z_TagStrdup(tmplist[i] + strlen(search->path) + 1, TAG_SYSTEM);
+					list[j] = (char*)Z_TagStrdup(Q_SSetGetString(&dirs, i) + len + 1, TAG_SYSTEM);
 				}
 
-				FS_FreeFileList(tmplist, tmpnfiles + 1);
-			}
+                Q_SSetFree(&dirs);
+            }
 		}
 	}
 
@@ -2123,6 +2120,14 @@ void FS_InsertInList (char **list, char *insert, int32_t len, int32_t start)
 	list[len] = (char*)Z_TagStrdup(insert, TAG_SYSTEM);
 }
 
+static qboolean FS_IsDirectory(const char *path) {
+    struct stat result;
+    if (!stat(path, &result)) {
+        return S_ISDIR(result.st_mode);
+    }
+    return false;
+}
+
 /*
 ================
 FS_Dir_f
@@ -2133,18 +2138,16 @@ void FS_Dir_f (void)
 	char	*path = NULL;
 	char	findname[1024];
 	char	wildcard[1024] = "*.*";
-	char	**dirnames;
-	int32_t		ndirs;
 
 	if ( Cmd_Argc() != 1 )
 	{
 		strcpy( wildcard, Cmd_Argv( 1 ) );
 	}
-
+    
 	while ( ( path = FS_NextPath( path ) ) != NULL )
 	{
 		char *tmp = findname;
-
+        sset_t dirs;
 		Com_sprintf( findname, sizeof(findname), "%s/%s", path, wildcard );
 
 		while ( *tmp != 0 )
@@ -2156,20 +2159,40 @@ void FS_Dir_f (void)
 		Com_Printf( "Directory of %s\n", findname );
 		Com_Printf( "----\n" );
 
-		if ( ( dirnames = FS_ListFiles( findname, &ndirs, 0, 0 ) ) != 0 )
+		if ( FS_ListFiles( findname, &dirs, 0, 0 ))
 		{
+            const char	**dirnames = NULL;
 			int32_t i;
-
-			for ( i = 0; i < ndirs-1; i++ )
-			{
-				if ( strrchr( dirnames[i], '/' ) )
-					Com_Printf( "%s\n", strrchr( dirnames[i], '/' ) + 1 );
-				else
-					Com_Printf( "%s\n", dirnames[i] );
-
-				Z_Free( dirnames[i] );
-			}
+            dirnames = Z_TagMalloc(dirs.currentSize * sizeof(const char *), TAG_SYSTEM);
+            Q_SSetGetStrings(&dirs, dirnames, dirs.currentSize);
+            for ( i = 0; i < dirs.currentSize; i++ )
+            {
+                if (FS_IsDirectory(dirnames[i])) {
+                    const char *name = strrchr(dirnames[i], '/');
+                    if (name) {
+                        name += 1;
+                    } else {
+                        name = dirnames[i];
+                    }
+                    Com_Printf( S_COLOR_CYAN "%s/\n", name );
+                    dirnames[i] = NULL;
+                }
+            }
+            for ( i = 0; i < dirs.currentSize; i++ )
+            {
+                if (dirnames[i]) {
+                    const char *name = strrchr(dirnames[i], '/');
+                    if (name) {
+                        name += 1;
+                    } else {
+                        name = dirnames[i];
+                    }
+                    if (name[0] != '.')
+                        Com_Printf( S_COLOR_WHITE "%s\n", name );
+                }
+            }
 			Z_Free( dirnames );
+            Q_SSetFree(&dirs);
 		}
 		Com_Printf( "\n" );
 	};

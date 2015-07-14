@@ -808,7 +808,7 @@ char		*FS_GameDir (void);
 void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
-char		**FS_ListFiles (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
+qboolean    FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
 char		**FS_ListFilesWithPaks (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
 void		FS_FreeFileList (char **list, int32_t n);
 qboolean	FS_ItemInList (char *check, int32_t num, char **list);
@@ -950,7 +950,11 @@ int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
  ==============================================================
  */
 #ifndef Q2VR_ENGINE_MOD
-typedef struct stable_t { void *st; uint32_t size; qboolean heap;} stable_t;
+typedef struct stable_t {
+    void *st;
+    uint32_t size;
+    int16_t tag;
+} stable_t;
 #endif
 
 qboolean Q_STInit(stable_t *st,uint32_t size, int32_t avgLength, int16_t memoryTag);
@@ -964,6 +968,32 @@ int32_t Q_STUsedBytes(const stable_t *st);
 int32_t Q_STAutoRegister(stable_t *st, const char *string);
 int32_t Q_STAutoPack(stable_t *st);
 
+
+/*
+ ==============================================================
+ 
+ STRING SET FUNCTIONS
+ 
+ ==============================================================
+ */
+#ifndef Q2VR_ENGINE_MOD
+typedef struct sset_t {
+    stable_t table;
+    const char **strings;
+    int32_t *tokens;
+    uint32_t currentSize;
+    uint32_t maxSize;
+    uint16_t tag;
+} sset_t;
+#endif
+
+qboolean Q_SSetInit(sset_t *ss,uint32_t maxSize, int32_t avgLength, int16_t memoryTag);
+void Q_SSetFree(sset_t *ss);
+qboolean S_SSetContains(const sset_t *ss, const char *string);
+qboolean Q_SSetInsert(sset_t *ss, const char *string);
+qboolean Q_SSetDuplicate(sset_t *source, sset_t *dest);
+const char *Q_SSetGetString(sset_t *ss, int32_t index);
+int32_t Q_SSetGetStrings(sset_t *source, const char **strings, int32_t maxStrings);
 
 /*
 ==============================================================
