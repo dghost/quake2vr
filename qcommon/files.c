@@ -1487,12 +1487,11 @@ Allows enumerating all of the directories in the search path
 char *FS_NextPath (char *prevPath)
 {
 	fsSearchPath_t	*search;
-	char			*prev;
+	char			*prev = NULL;
 
 	if (!prevPath)
 		return fs_gamedir;
 
-	prev = fs_gamedir;
 	for (search = fs_searchPaths; search; search = search->next)
 	{
 		if (search->pack)
