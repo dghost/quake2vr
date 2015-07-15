@@ -10,6 +10,9 @@ qboolean Q_SSetInit(sset_t *ss,uint32_t maxSize, int32_t avgLength, int16_t memo
         ss->tokens = (int32_t *) Z_TagMalloc(maxSize * sizeof(int32_t), ss->tag);
         if (ss->tokens)
             return true;
+        else {
+            Q_STFree(&ss->table);
+        }
     }
     return false;
 }
