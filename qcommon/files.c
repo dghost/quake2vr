@@ -1838,8 +1838,10 @@ FS_ListFiles
 qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
     assert(ss != NULL);
+
 	char *s;
     uint32_t numFiles = 0;
+
 
     s = Sys_FindFirst( findname, musthave, canthave );
     while ( s )
@@ -1932,125 +1934,61 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
 		uint32_t musthave, uint32_t canthave)
 {
 	fsSearchPath_t *search; /* Search path. */
-	int i, j; /* Loop counters. */
+	int i; /* Loop counters. */
 	int nfiles; /* Number of files found. */
-	int tmpnfiles; /* Temp number of files. */
-	char **tmplist; /* Temporary list of files. */
-	char **list; /* List of files found. */
+	char **list = NULL; /* List of files found. */
 	char path[MAX_OSPATH]; /* Temporary path. */
+    sset_t fileSet;
 
 	nfiles = 0;
-	list = (char**)Z_TagMalloc(sizeof(char *), TAG_SYSTEM);
-
-	for (search = fs_searchPaths; search != NULL; search = search->next)
-	{
-		if (search->pack != NULL)
-		{
+    if (!Q_SSetInit(&fileSet, 50, MAX_OSPATH, TAG_SYSTEM)) {
+        return NULL;
+    }
+    
+    for (search = fs_searchPaths; search != NULL; search = search->next)
+    {
+        if (search->pack != NULL)
+        {
             fsPackFile_t *files = search->pack->files;
             int numFiles = search->pack->numFiles;
-			for (i = 0, j = 0; i < numFiles; i++)
-			{
-				if (ComparePackFiles(findname, files[i].name,
-							musthave, canthave, NULL, 0))
-				{
-					j++;
-				}
-			}
-
-			if (j == 0)
-			{
-				continue;
-			}
-
-			nfiles += j;
-			list = (char**)Z_Realloc(list, nfiles * sizeof(char *));
-
-			for (i = 0, j = nfiles - j; i < numFiles; i++)
-			{
-				if (ComparePackFiles(findname, files[i].name,
-							musthave, canthave, path, sizeof(path)))
-				{
-					list[j++] = (char*)Z_TagStrdup(path, TAG_SYSTEM);
-				}
+            for (i = 0; i < numFiles; i++)
+            {
+                if (ComparePackFiles(findname, files[i].name,
+                                     musthave, canthave, path, sizeof(path)))
+                {
+                    Q_SSetInsert(&fileSet, path);
+                }
             }
         }
         else if (search->path[0] != 0)
         {
-            sset_t dirs;
-            if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
-                
+            int len = strlen(search->path);
+            sset_t dirSet;
+            if (Q_SSetInit(&dirSet, 50, MAX_OSPATH, TAG_SYSTEM)) {
                 Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
-                if (FS_ListFiles(path, &dirs, musthave, canthave))
-                {
-                    int len = strlen(search->path);
-                    nfiles += dirs.currentSize;
-                    list = (char**)Z_Realloc(list, nfiles * sizeof(char *));
-                    
-                    for (i = 0, j = nfiles - dirs.currentSize; i < dirs.currentSize; i++, j++)
-                    {
-                        list[j] = (char*)Z_TagStrdup(Q_SSetGetString(&dirs, i) + len + 1, TAG_SYSTEM);
-                    }
+                FS_ListFiles(path, &dirSet, musthave, canthave);
+                for (i = 0; i < dirSet.currentSize; i++) {
+                    Q_SSetInsert(&fileSet, Q_SSetGetString(&dirSet, i) + len + 1);
                 }
-                Q_SSetFree(&dirs);
+                Q_SSetFree(&dirSet);
             }
+            
         }
+        
     }
 
-	/* Delete duplicates. */
-	tmpnfiles = 0;
-
-	for (i = 0; i < nfiles; i++)
-	{
-		if (list[i] == NULL)
-		{
-			continue;
-		}
-
-		for (j = i + 1; j < nfiles; j++)
-		{
-			if ((list[j] != NULL) &&
-				(strcmp(list[i], list[j]) == 0))
-			{
-				Z_Free(list[j]);
-				list[j] = NULL;
-				tmpnfiles++;
-			}
-		}
-	}
-
-	if (tmpnfiles > 0)
-	{
-		nfiles -= tmpnfiles;
-		tmplist = (char**)Z_TagMalloc(nfiles * sizeof(char *), TAG_SYSTEM);
-
-		for (i = 0, j = 0; i < nfiles + tmpnfiles; i++)
-		{
-			if (list[i] != NULL)
-			{
-				tmplist[j++] = list[i];
-			}
-		}
-
-		Z_Free(list);
-		list = tmplist;
-	}
-
-	/* Add a guard. */
-	if (nfiles > 0)
-	{
-        int n = nfiles + 1;
-		list = (char**)Z_Realloc(list, n * sizeof(char *));
-        list[nfiles] = NULL;
-	}
-
-	else
-	{
-		Z_Free(list);
-		list = NULL;
-	}
-
-	*numfiles = nfiles;
-
+    
+    if (fileSet.currentSize > 0) {
+        
+        list = (char**)Z_TagMalloc((fileSet.currentSize + 1) * sizeof(char *), TAG_SYSTEM);
+        if (list) {
+            for (i = 0; i < fileSet.currentSize; i++) {
+                list[i] = Z_TagStrdup(Q_SSetGetString(&fileSet, i), TAG_SYSTEM);
+            }
+            *numfiles = i;
+        }
+    }
+    Q_SSetFree(&fileSet);
 	return list;
 }
 /*
