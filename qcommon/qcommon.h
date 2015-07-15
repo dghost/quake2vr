@@ -809,6 +809,7 @@ void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
 qboolean    FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
+qboolean    FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave);
 char		**FS_ListFilesWithPaks (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
 void		FS_FreeFileList (char **list, int32_t n);
 qboolean	FS_ItemInList (char *check, int32_t num, char **list);

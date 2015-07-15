@@ -1863,6 +1863,40 @@ qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t c
 }
 
 /*
+ ================
+ FS_ListFilesRelative
+ ================
+ */
+qboolean FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave)
+{
+    assert(ss != NULL);
+    char findname[MAX_OSPATH]; /* Temporary path. */
+
+    char *s;
+    uint32_t numFiles = 0;
+    int32_t len = strlen(path);
+    Com_sprintf(findname, sizeof(findname), "%s/%s", path, pattern);
+    
+    s = Sys_FindFirst( findname, musthave, canthave );
+    while ( s )
+    {
+        if ( s[strlen(s)-1] != '.' ) {
+            numFiles++;
+            
+#ifdef _WIN32
+            Q_strlwr(s);
+#endif
+            Q_SSetInsert(ss, s + len + 1);
+            
+        }
+        s = Sys_FindNext( musthave, canthave );
+    }
+    Sys_FindClose ();
+    
+    return (numFiles > 0);
+}
+
+/*
  * Compare file attributes (musthave and canthave) in packed files. If
  * "output" is not NULL, "size" is greater than zero and the file matches the
  * attributes then a copy of the matching string will be placed there (with
@@ -1941,7 +1975,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
     sset_t fileSet;
 
 	nfiles = 0;
-    if (!Q_SSetInit(&fileSet, 50, MAX_OSPATH, TAG_SYSTEM)) {
+    if (!Q_SSetInit(&fileSet, 128, MAX_OSPATH, TAG_SYSTEM)) {
         return NULL;
     }
     
@@ -1962,17 +1996,7 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
         }
         else if (search->path[0] != 0)
         {
-            int len = strlen(search->path);
-            sset_t dirSet;
-            if (Q_SSetInit(&dirSet, 50, MAX_OSPATH, TAG_SYSTEM)) {
-                Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
-                FS_ListFiles(path, &dirSet, musthave, canthave);
-                for (i = 0; i < dirSet.currentSize; i++) {
-                    Q_SSetInsert(&fileSet, Q_SSetGetString(&dirSet, i) + len + 1);
-                }
-                Q_SSetFree(&dirSet);
-            }
-            
+            FS_ListFilesRelative(search->path, findname, &fileSet, musthave, canthave);
         }
         
     }
