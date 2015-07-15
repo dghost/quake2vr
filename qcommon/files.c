@@ -1447,38 +1447,36 @@ void FS_AddGameDirectory (const char *dir)
         if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
             if ((FS_ListFiles( findname, &dirs, 0, 0 ) ) )
             {
-                dirnames = Z_TagMalloc(dirs.currentSize * sizeof(const char *), TAG_SYSTEM);
-                Q_SSetGetStrings(&dirs, dirnames, dirs.currentSize);
                 for ( j=0; j < dirs.currentSize; j++ )
                 {	// don't reload numbered pak files
+                    const char *dirname = Q_SSetGetString(&dirs, j);
                     int32_t		k;
                     char	buf[16];
                     char	buf2[16];
                     qboolean numberedpak = false;
                     
-                    if (strstr(dirnames[j], "/vrquake2.pk3"))
+                    if (strstr(dirname, "/vrquake2.pk3"))
                         continue;
                     
                     for (k=0; k<100; k++)
                     {
                         Com_sprintf( buf, sizeof(buf), "/pak%i.pak", k);
                         Com_sprintf( buf2, sizeof(buf2), "/pak%i.pk3", k);
-                        if ( strstr(dirnames[j], buf) || strstr(dirnames[j], buf2)) {
+                        if ( strstr(dirname, buf) || strstr(dirname, buf2)) {
                             numberedpak = true;
                             break;
                         }
                     }
                     if (numberedpak)
                         continue;
-                    if ( strrchr( dirnames[j], '/' ) )
+                    if ( strrchr( dirname, '/' ) )
                     {
                         if (i==1)
-                            FS_AddPK3File (dirnames[j]);
+                            FS_AddPK3File (dirname);
                         else
-                            FS_AddPAKFile (dirnames[j]);
+                            FS_AddPAKFile (dirname);
                     }
                 }
-                Z_Free( dirnames );
             }
             Q_SSetFree(&dirs);
         }
