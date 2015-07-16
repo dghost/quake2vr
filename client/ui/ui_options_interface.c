@@ -157,44 +157,46 @@ char **SetFontNames (void)
 	char *curFont;
 	char **list = 0, *p;//, *s;
 	int32_t nfonts = 0, nfontnames;
-	char **fontfiles = NULL;
 	int32_t i;//, j;
 
+    sset_t fonts;
+    
 	list = (char**)Z_TagMalloc( sizeof( char * ) * MAX_FONTS , TAG_MENU);
 	memset( list, 0, sizeof( char * ) * MAX_FONTS );
 
 	list[0] = (char*)Z_TagStrdup("default", TAG_MENU);
     nfontnames = 1;
 
-    if ((fontfiles = FS_ListFilesWithPaks("fonts/*.*", &nfonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))){
-		for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
-		{
-			int32_t num;
-            char *e;
-			if (!fontfiles || !fontfiles[i])	// Knightmare added array base check
-				continue;
+    Q_SSetInit(&fonts, 15, MAX_OSPATH, TAG_MENU);
+    nfonts = FS_ListFilesWithPaks("fonts/*.*", &fonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
+    
+    for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
+    {
+        int32_t num;
+        char *e;
+        
+        p = strstr(Q_SSetGetString(&fonts, i), "/"); p++;
+        
+        e = p + strlen(p) - 4;
+        if (!R_IsSupportedImageType(e))
+            continue;
+        
+        num = strlen(p)-4;
+        p[num] = 0;//NULL;
+        
+        curFont = p;
+        
+        if (insertFont(list, curFont,nfontnames))
+        {
+            nfontnames++;
+        }
+        
+        //set back so whole string get deleted.
+        p[num] = '.';
+    }
 
-            p = strstr(fontfiles[i], "/"); p++;
-            
-            e = p + strlen(p) - 4;
-			if (!R_IsSupportedImageType(e))
-				continue;
+    Q_SSetFree(&fonts);
 
-			num = strlen(p)-4;
-			p[num] = 0;//NULL;
-
-			curFont = p;
-
-			if (insertFont(list, curFont,nfontnames))
-			{
-				nfontnames++;
-			}
-			
-			//set back so whole string get deleted.
-			p[num] = '.';
-		}
-        FS_FreeFileList( fontfiles, nfonts );
-	}
     numfonts = nfontnames;
 
 	return list;		

@@ -808,9 +808,11 @@ char		*FS_GameDir (void);
 void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
-qboolean    FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
-qboolean    FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave);
-char		**FS_ListFilesWithPaks (char *findname, int32_t *numfiles, unsigned musthave, unsigned canthave);
+int32_t     FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
+int32_t     FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave);
+int32_t     FS_ListFilesWithPaks(char *findname, sset_t *output, uint32_t musthave, uint32_t canthave);
+int32_t     FS_CountFiles (char *findname, uint32_t musthave, uint32_t canthave);
+int32_t     FS_CountFilesWithPaks(char *findname, uint32_t musthave, uint32_t canthave);
 void		FS_FreeFileList (char **list, int32_t n);
 qboolean	FS_ItemInList (char *check, int32_t num, char **list);
 void		FS_InsertInList (char **list, char *insert, int32_t len, int32_t start);
@@ -819,7 +821,7 @@ void		FS_Dir_f (void);
 void		FS_ExecAutoexec (void);
 int32_t			FS_GetFileList (const char *path, const char *extension, char *buffer, int32_t size, fsSearchType_t searchType);
 
-int32_t			FS_LoadFile (char *path, void **buffer);
+int32_t			FS_LoadFile (const char *path, void **buffer);
 void		FS_AddPK3File (const char *packPath); // add pk3 file function
 char		**FS_ListPak (char *find, int32_t *num); // pak list function
 void		FS_SetGamedir (const char *dir);

@@ -177,7 +177,7 @@ void UI_Options_ReloadCrosshairs(void)
     }
 }
 
-qboolean R_IsSupportedImageType(char *name);
+qboolean R_IsSupportedImageType(const char *name);
 
 
 void SetCrosshairNames (void)
@@ -185,57 +185,57 @@ void SetCrosshairNames (void)
 	char *curCrosshair;
 	char *p;
 	int32_t ncrosshairs = 0, ncrosshairnames;
-	char **crosshairfiles = NULL;
 	int32_t i;
-
+    sset_t crosshairs;
+    
     if (!crosshair_names[0])
         crosshair_names[0] = (char*)Z_TagStrdup("none",TAG_MENU); //was default
 	ncrosshairnames = 1;
 
-    if ((crosshairfiles = FS_ListFilesWithPaks( "pics/ch*.*", &ncrosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ))) {
-        for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
+    Q_SSetInit(&crosshairs, 25, MAX_OSPATH, TAG_MENU);
+    ncrosshairs = FS_ListFilesWithPaks( "pics/ch*.*", &crosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
+    for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
+    {
+        int32_t num, namelen;
+        char *e;
+        
+        
+        p = strstr(Q_SSetGetString(&crosshairs, i), "/"); p++;
+        e = p + strlen(p) - 4;
+        
+        if (!R_IsSupportedImageType(e))
+            continue;
+        
+        // filename must be chxxx
+        if (strncmp(p, "ch", 2))
+            continue;
+        namelen = strlen(p);
+        if (namelen < 7 || namelen > 9)
+            continue;
+        if (!isNumeric(p[2]))
+            continue;
+        if (namelen >= 8 && !isNumeric(p[3]))
+            continue;
+        // ch100 is only valid 5-char name
+        if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
+            continue;
+        
+        num = strlen(p)-4;
+        p[num] = 0; //NULL;
+        
+        curCrosshair = p;
+        
+        if (!FS_ItemInList(curCrosshair, ncrosshairnames, crosshair_names))
         {
-            int32_t num, namelen;
-            char *e;
-
-            
-            p = strstr(crosshairfiles[i], "/"); p++;
-            e = p + strlen(p) - 4;
-
-            if (!R_IsSupportedImageType(e))
-                continue;
-            
-            // filename must be chxxx
-            if (strncmp(p, "ch", 2))
-                continue;
-            namelen = strlen(p);
-            if (namelen < 7 || namelen > 9)
-                continue;
-            if (!isNumeric(p[2]))
-                continue;
-            if (namelen >= 8 && !isNumeric(p[3]))
-                continue;
-            // ch100 is only valid 5-char name
-            if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
-                continue;
-            
-            num = strlen(p)-4;
-            p[num] = 0; //NULL;
-            
-            curCrosshair = p;
-            
-            if (!FS_ItemInList(curCrosshair, ncrosshairnames, crosshair_names))
-            {
-                FS_InsertInList(crosshair_names, curCrosshair, ncrosshairnames, 1);	//i=1 so none stays first!
-                ncrosshairnames++;
-            }
-            
-            //set back so whole string get deleted.
-            p[num] = '.';
+            FS_InsertInList(crosshair_names, curCrosshair, ncrosshairnames, 1);	//i=1 so none stays first!
+            ncrosshairnames++;
         }
-        FS_FreeFileList( crosshairfiles, ncrosshairs );
+        
+        //set back so whole string get deleted.
+        p[num] = '.';
     }
 
+    Q_SSetFree(&crosshairs);
 	// sort the list
 	sortCrosshairs (crosshair_names, ncrosshairnames);
 

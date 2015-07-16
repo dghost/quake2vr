@@ -40,10 +40,9 @@ static qboolean ogg_first_init = true; /* First initialization flag. */
 static qboolean ogg_started = false;   /* Initialization flag. */
 static int ogg_bigendian = 0;
 static byte *ogg_buffer;				/* File buffer. */
-static char **ogg_filelist;			/* List of Ogg Vorbis files. */
+static sset_t ogg_filelist;
 static short ovBuf[8192];               /* Buffer for sound. */
 static int ogg_curfile;				/* Index of currently played file. */
-static int ogg_numfiles;				/* Number of Ogg Vorbis files. */
 static int ovSection;					/* Position in Ogg Vorbis file. */
 static ogg_status_t ogg_status;		/* Status indicator. */
 static cvar_t *ogg_autoplay;			/* Play this song when started. */
@@ -101,20 +100,20 @@ OGG_Init(void)
 	Cmd_AddCommand("ogg_stop", OGG_Stop);
 
 	/* Build list of files. */
-	ogg_numfiles = 0;
+    Q_SSetInit(&ogg_filelist, 25, MAX_OSPATH, TAG_AUDIO);
 
 	if (ogg_playlist->string[0] != '\0')
 	{
 		OGG_LoadPlaylist(ogg_playlist->string);
 	}
 
-	if (ogg_numfiles == 0)
+	if (ogg_filelist.currentSize == 0)
 	{
 		OGG_LoadFileList();
 	}
 
 	/* Check if we have Ogg Vorbis files. */
-	if (ogg_numfiles <= 0)
+	if (ogg_filelist.currentSize <= 0)
 	{
 		Com_Printf("No Ogg Vorbis files found.\n");
 		ogg_started = true; /* For OGG_Shutdown(). */
@@ -134,7 +133,7 @@ OGG_Init(void)
 
 	ogg_started = true;
 
-	Com_Printf("%d Ogg Vorbis files found.\n", ogg_numfiles);
+	Com_Printf("%d Ogg Vorbis files found.\n", ogg_filelist.currentSize);
 
 	/* Autoplay support. */
 	if (ogg_autoplay->string[0] != '\0')
@@ -159,8 +158,8 @@ OGG_Shutdown(void)
 	OGG_Stop();
 
 	/* Free the list of files. */
-	FS_FreeFileList(ogg_filelist, ogg_numfiles);
-
+    Q_SSetFree(&ogg_filelist);
+    
 	/* Remove console commands. */
 	Cmd_RemoveCommand("ogg_list");
 	Cmd_RemoveCommand("ogg_pause");
@@ -187,7 +186,7 @@ OGG_Reinit(void)
  * Check if the file is a valid Ogg Vorbis file.
  */
 qboolean
-OGG_Check(char *name)
+OGG_Check(const char *name)
 {
 	qboolean res;        /* Return value. */
 	byte *buffer;        /* File buffer. */
@@ -220,52 +219,32 @@ OGG_Check(char *name)
 void
 OGG_LoadFileList(void)
 {
-	char **list; /* List of .ogg files. */
 	int i;		 /* Loop counter. */
-	int j;		 /* Real position in list. */
-    int numValidFiles = 0;
+    int numFiles = 0;
+    sset_t files;
+    
+    Q_SSetInit(&files, 25, MAX_OSPATH, TAG_AUDIO);
     
 	/* Get file list. */
-	list = FS_ListFilesWithPaks(va("%s/*.ogg", OGG_DIR),
-		   	&ogg_numfiles, 0, SFF_SUBDIR | SFF_HIDDEN |
+	numFiles = FS_ListFilesWithPaks(va("%s/*.ogg", OGG_DIR),
+		   	&files, 0, SFF_SUBDIR | SFF_HIDDEN |
 			SFF_SYSTEM);
 
 	/* Check if there are posible Ogg files. */
-	if (list == NULL)
+	if (numFiles == 0)
 	{
+        Q_SSetFree(&files);
 		return;
 	}
 
-    for (i = 0; i < ogg_numfiles; i++)
+    for (i = 0; i < files.currentSize; i++)
     {
-        if (!OGG_Check(list[i]))
+        const char *p = Q_SSetGetString(&files, i);
+        if (OGG_Check(p))
         {
-            Z_Free(list[i]);
-            list[i] = NULL;
-            continue;
+            Q_SSetInsert(&ogg_filelist, p);
         }
-        numValidFiles++;
     }
-
-	/* Allocate list of files. */
-	ogg_filelist = (char**)Z_TagMalloc(sizeof(char *) * numValidFiles, TAG_AUDIO);
-
-	/* Add valid Ogg Vorbis file to the list. */
-	for (i = 0, j = 0; i < ogg_numfiles; i++)
-	{
-		if (list[i])
-		{
-            ogg_filelist[j++] = list[i];
-		}
-
-	}
-
-	/* Free the file list. */
-	Z_Free(list);
-
-	/* Adjust the list size (remove 
-	   space for invalid music files). */
-	ogg_numfiles = j;
 }
 
 /*
@@ -276,9 +255,7 @@ OGG_LoadPlaylist(const char *playlist)
 {
 	byte *buffer; /* Buffer to read the file. */
 	char *ptr;    /* Pointer for parsing the file. */
-	int i;		  /* Loop counter. */
 	int size;     /* Length of buffer and strings. */
-
 	/* Open playlist. */
 	if ((size = FS_LoadFile(va("%s/%s.lst", OGG_DIR, 
 				  ogg_playlist->string), (void **)&buffer)) < 0)
@@ -293,32 +270,19 @@ OGG_LoadPlaylist(const char *playlist)
 		 ptr != NULL;
 		 ptr = strtok(NULL, "\n"))
 	{
+        char *p = NULL;
 		if ((byte *)ptr != buffer)
 		{
 			ptr[-1] = '\n';
 		}
-
+        
+        p = va("%s/%s", OGG_DIR, ptr);
 		if (OGG_Check(va("%s/%s", OGG_DIR, ptr)))
 		{
-			ogg_numfiles++;
-		}
+            Q_SSetInsert(&ogg_filelist, p);
+        }
 	}
-
-	/* Allocate file list. */
-	ogg_filelist = (char**)Z_TagMalloc(sizeof(char *) * ogg_numfiles, TAG_AUDIO);
-
-	i = 0;
-
-	for (ptr = strtok((char *)buffer, "\n");
-		 ptr != NULL;
-		 ptr = strtok(NULL, "\n"))
-	{
-		if (OGG_Check(va("%s/%s", OGG_DIR, ptr)))
-		{
-			ogg_filelist[i++] = (char*)Z_TagStrdup(va("%s/%s", OGG_DIR, ptr), TAG_AUDIO);
-		}
-	}
-
+    
 	/* Free file buffer. */
 	FS_FreeFile(buffer);
 }
@@ -333,12 +297,13 @@ OGG_Open(ogg_seek_t type, int offset)
 	int pos = -1; /* Absolute position. */
 	int res = 0;      /* Error indicator. */
     int error = VORBIS__no_error;
+    const char *p = NULL;
 	switch (type)
 	{
 		case ABS:
 
 			/* Absolute index. */
-			if ((offset < 0) || (offset >= ogg_numfiles))
+			if ((offset < 0) || (offset >= ogg_filelist.currentSize))
 			{
 				Com_Printf("OGG_Open: %d out of range.\n", offset + 1);
 				return false;
@@ -359,12 +324,12 @@ OGG_Open(ogg_seek_t type, int offset)
 
 			while (ogg_curfile + offset < 0)
 			{
-				offset += ogg_numfiles;
+				offset += ogg_filelist.currentSize;
 			}
 
-			while (ogg_curfile + offset >= ogg_numfiles)
+			while (ogg_curfile + offset >= ogg_filelist.currentSize)
 			{
-				offset -= ogg_numfiles;
+				offset -= ogg_filelist.currentSize;
 			}
 
 			pos = ogg_curfile + offset;
@@ -385,19 +350,20 @@ OGG_Open(ogg_seek_t type, int offset)
 		}
 	}
 
+    p = Q_SSetGetString(&ogg_filelist, pos);
 	/* Find file. */
-	if ((size = FS_LoadFile(ogg_filelist[pos], (void **)&ogg_buffer)) == -1)
+	if ((size = FS_LoadFile(p, (void **)&ogg_buffer)) == -1)
 	{
 		Com_Printf("OGG_Open: could not open %d (%s): %s.\n",
-				pos, ogg_filelist[pos], strerror(errno));
+				pos, p, strerror(errno));
 		return false;
 	}
 
 	/* Open ogg vorbis file. */
     if (!(ovFile = stb_vorbis_open_memory(ogg_buffer, size, &error, NULL)))
 	{
-		Com_Printf("OGG_Open: '%s' is not a valid Ogg Vorbis file (error %i).\n",
-				ogg_filelist[pos], res); FS_FreeFile(ogg_buffer);
+		Com_Printf("OGG_Open: '%s' is not a valid Ogg Vorbis file (error %i).\n", p, res);
+        FS_FreeFile(ogg_buffer);
 		ogg_buffer = NULL;
 		return false;
 	}
@@ -430,15 +396,15 @@ OGG_OpenName(const char *filename)
 
 	name = va("%s/%s.ogg", OGG_DIR, filename);
 
-	for (i = 0; i < ogg_numfiles; i++)
+	for (i = 0; i < ogg_filelist.currentSize; i++)
 	{
-		if (strcmp(name, ogg_filelist[i]) == 0)
+		if (strcmp(name, Q_SSetGetString(&ogg_filelist, i)) == 0)
 		{
 			break;
 		}
 	}
 
-	if (i < ogg_numfiles)
+	if (i < ogg_filelist.currentSize)
 	{
 		return OGG_Open(ABS, i);
 	}
@@ -490,7 +456,7 @@ OGG_Sequence(void)
 
 	else if (strcmp(ogg_sequence->string, "random") == 0)
 	{
-		OGG_Open(ABS, rand() % ogg_numfiles);
+		OGG_Open(ABS, rand() % ogg_filelist.currentSize);
 	}
 
 	else if (strcmp(ogg_sequence->string, "loop") == 0)
@@ -603,12 +569,12 @@ OGG_ListCmd(void)
 {
 	int i;
 
-	for (i = 0; i < ogg_numfiles; i++)
+	for (i = 0; i < ogg_filelist.currentSize; i++)
 	{
-		Com_Printf("%d %s\n", i + 1, ogg_filelist[i]);
+		Com_Printf("%d %s\n", i + 1, Q_SSetGetString(&ogg_filelist, i));
 	}
 
-	Com_Printf("%d Ogg Vorbis files.\n", ogg_numfiles);
+	Com_Printf("%d Ogg Vorbis files.\n", ogg_filelist.currentSize);
 }
 
 /*
@@ -629,7 +595,7 @@ OGG_ParseCmd(const char *arg)
 			OGG_Open(ABS, n);
 			break;
 		case '?':
-			OGG_Open(ABS, rand() % ogg_numfiles);
+			OGG_Open(ABS, rand() % ogg_filelist.currentSize);
 			break;
 		case '>':
 
@@ -723,7 +689,7 @@ OGG_StatusCmd(void)
             float trackLength = stb_vorbis_stream_length_in_seconds(ovFile);
             
             Com_Printf("Playing file %d (%s) at %0.2f seconds.\n",
-                       ogg_curfile + 1, ogg_filelist[ogg_curfile], (curSample /(float) numSamples) * trackLength);
+                       ogg_curfile + 1, Q_SSetGetString(&ogg_filelist, ogg_curfile), (curSample /(float) numSamples) * trackLength);
         }
 			break;
 		case PAUSE:
@@ -733,7 +699,7 @@ OGG_StatusCmd(void)
             float trackLength = stb_vorbis_stream_length_in_seconds(ovFile);
             
             Com_Printf("Paused file %d (%s) at %0.2f seconds.\n",
-                       ogg_curfile + 1, ogg_filelist[ogg_curfile], (curSample /(float) numSamples) * trackLength);
+                       ogg_curfile + 1, Q_SSetGetString(&ogg_filelist, ogg_curfile), (curSample /(float) numSamples) * trackLength);
         }
             break;
         case STOP:
@@ -746,7 +712,7 @@ OGG_StatusCmd(void)
 			else
 			{
 				Com_Printf("Stopped file %d (%s).\n",
-						ogg_curfile + 1, ogg_filelist[ogg_curfile]);
+						ogg_curfile + 1, Q_SSetGetString(&ogg_filelist, ogg_curfile));
 			}
 
 			break;

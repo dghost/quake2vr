@@ -676,7 +676,7 @@ struct image_s *R_RegisterSkin (char *name);
 void LoadPCX (char *filename, byte **pic, byte **palette, int32_t *width, int32_t *height);
 //Knightmare added
 
-qboolean R_IsSupportedImageType(char *name);
+qboolean R_IsSupportedImageType(const char *name);
 image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imagetype_t type, int32_t bits);
 image_t	*R_FindImage (char *name, imagetype_t type);
 void	GL_TextureMode( const char *string );
@@ -948,7 +948,7 @@ void	VID_Printf (int32_t print_level, char *str, ...);
 // a -1 return means the file does not exist
 // NULL can be passed for buf to just determine existance
 char	**FS_ListPak (char *find, int32_t *num);
-int32_t		FS_LoadFile (char *name, void **buf);
+int32_t		FS_LoadFile (const char *name, void **buf);
 void	FS_FreeFile (void *buf);
 
 // gamedir will be the current directory that generated

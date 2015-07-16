@@ -1077,7 +1077,7 @@ Returns file size or -1 if the file is not found.
 A NULL buffer will just return the file size without loading.
 =================
 */
-int32_t FS_LoadFile (char *path, void **buffer)
+int32_t FS_LoadFile (const char *path, void **buffer)
 {
 	fileHandle_t	f;
 	byte			*buf;
@@ -1833,7 +1833,7 @@ void FS_ExecAutoexec (void)
 FS_ListFiles
 ================
 */
-qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave)
+int32_t FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
     assert(ss != NULL);
 
@@ -1857,7 +1857,7 @@ qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t c
     }
     Sys_FindClose ();
     
-    return (numFiles > 0);
+    return numFiles;
 }
 
 /*
@@ -1865,7 +1865,7 @@ qboolean FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t c
  FS_ListFilesRelative
  ================
  */
-qboolean FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave)
+int32_t FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
     assert(ss != NULL);
     char findname[MAX_OSPATH]; /* Temporary path. */
@@ -1891,7 +1891,31 @@ qboolean FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss
     }
     Sys_FindClose ();
     
-    return (numFiles > 0);
+    return numFiles;
+}
+
+/*
+ ================
+ FS_CountFiles
+ ================
+ */
+int32_t FS_CountFiles (char *findname, uint32_t musthave, uint32_t canthave)
+{
+    char *s;
+    uint32_t numFiles = 0;
+    
+    
+    s = Sys_FindFirst( findname, musthave, canthave );
+    while ( s )
+    {
+        if ( s[strlen(s)-1] != '.' ) {
+            numFiles++;
+        }
+        s = Sys_FindNext( musthave, canthave );
+    }
+    Sys_FindClose ();
+    
+    return numFiles;
 }
 
 /*
@@ -1961,21 +1985,16 @@ ComparePackFiles(const char *findname, const char *name, uint32_t musthave,
  * Searchs are relative to the game directory and use all the search paths
  * including .pak and .pk3 files.
  */
-char **
-FS_ListFilesWithPaks(char *findname, int *numfiles,
+int32_t
+FS_ListFilesWithPaks(char *findname, sset_t *output,
 		uint32_t musthave, uint32_t canthave)
 {
 	fsSearchPath_t *search; /* Search path. */
 	int i; /* Loop counters. */
 	int nfiles; /* Number of files found. */
-	char **list = NULL; /* List of files found. */
 	char path[MAX_OSPATH]; /* Temporary path. */
-    sset_t fileSet;
 
 	nfiles = 0;
-    if (!Q_SSetInit(&fileSet, 128, MAX_OSPATH, TAG_SYSTEM)) {
-        return NULL;
-    }
     
     for (search = fs_searchPaths; search != NULL; search = search->next)
     {
@@ -1988,30 +2007,51 @@ FS_ListFilesWithPaks(char *findname, int *numfiles,
                 if (ComparePackFiles(findname, files[i].name,
                                      musthave, canthave, path, sizeof(path)))
                 {
-                    Q_SSetInsert(&fileSet, path);
+                    nfiles++;
+                    Q_SSetInsert(output, path);
                 }
             }
         }
         else if (search->path[0] != 0)
         {
-            FS_ListFilesRelative(search->path, findname, &fileSet, musthave, canthave);
+            nfiles += FS_ListFilesRelative(search->path, findname, output, musthave, canthave);
         }
         
     }
+    return nfiles;
+}
 
+int32_t
+FS_CountFilesWithPaks(char *findname, uint32_t musthave, uint32_t canthave)
+{
+    fsSearchPath_t *search; /* Search path. */
+    int i; /* Loop counters. */
+    int nfiles = 0; /* Number of files found. */
+    char path[MAX_OSPATH]; /* Temporary path. */
     
-    if (fileSet.currentSize > 0) {
-        
-        list = (char**)Z_TagMalloc((fileSet.currentSize + 1) * sizeof(char *), TAG_SYSTEM);
-        if (list) {
-            for (i = 0; i < fileSet.currentSize; i++) {
-                list[i] = Z_TagStrdup(Q_SSetGetString(&fileSet, i), TAG_SYSTEM);
+    for (search = fs_searchPaths; search != NULL; search = search->next)
+    {
+        if (search->pack != NULL)
+        {
+            fsPackFile_t *files = search->pack->files;
+            int numFiles = search->pack->numFiles;
+            for (i = 0; i < numFiles; i++)
+            {
+                if (ComparePackFiles(findname, files[i].name,
+                                     musthave, canthave, path, sizeof(path)))
+                {
+                    nfiles++;
+                }
             }
-            *numfiles = i;
         }
+        else if (search->path[0] != 0)
+        {
+            Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
+            nfiles += FS_CountFiles(path, musthave, canthave);
+        }
+        
     }
-    Q_SSetFree(&fileSet);
-	return list;
+    return nfiles;
 }
 /*
 =================

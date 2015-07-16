@@ -139,7 +139,7 @@ static qboolean IconOfSkinExists (stable_t *filetable, char *skin, char* ext, ch
 qboolean R_IsSupportedImageType(char *name);
 
 // adds menu support for TGA, PNG, and JPG skins
-static qboolean IsValidSkin (stable_t *filetable, char *filename)
+static qboolean IsValidSkin (stable_t *filetable, const char *filename)
 {
     char scratch[1024];
     int32_t	len;
@@ -166,18 +166,20 @@ static qboolean PlayerConfig_ScanDirectories (void)
 {
 	char scratch[1024];
 	int32_t ndirs = 0, npms = 0;
-	char **dirnames;
 	int32_t i;
-
+    sset_t dirs;
 	s_numplayermodels = 0;
 
     // get a list of directories
     //
     
-
-    if ( (dirnames = FS_ListFilesWithPaks("players/*", &ndirs, SFF_SUBDIR, 0)) != 0 )
+    Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_MENU);
+    ndirs = FS_ListFilesWithPaks("players/*", &dirs, SFF_SUBDIR, 0);
+    if ( ndirs > 0 )
     {
-        
+        const char **dirnames = Z_TagMalloc(ndirs * sizeof(const char *), TAG_MENU);
+        Q_SSetGetStrings(&dirs, dirnames, ndirs);
+
         //
         // go through the subdirectories
         //
@@ -192,12 +194,13 @@ static qboolean PlayerConfig_ScanDirectories (void)
             int32_t			k, s;
             char		*a, *b, *c;
             char		**skinnames;
-            char		**imagenames;
+            const char		**imagenames;
             int32_t			nimagefiles;
             int32_t			nskins = 0;
-            int         ntris = 0;
             qboolean	already_added = false;
             stable_t    image_stable = {0, 0};
+            sset_t skins;
+            
             if (dirnames[i] == 0)
                 continue;
             
@@ -216,19 +219,25 @@ static qboolean PlayerConfig_ScanDirectories (void)
             // verify the existence of tris.md2
             strcpy(scratch, dirnames[i]);
             strcat(scratch, "/tris.md2");
-            if ( !FS_ListFilesWithPaks(scratch, &ntris, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
+            if ( !FS_CountFilesWithPaks(scratch, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
             {
                 continue;
             }
+            
+            Q_SSetInit(&skins, 50, MAX_OSPATH, TAG_MENU);
             
             // verify the existence of at least one skin
             strcpy(scratch, va("%s%s", dirnames[i], "/*.*")); // was "/*.pcx"
-            imagenames = FS_ListFilesWithPaks(scratch, &nimagefiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
+            nimagefiles = FS_ListFilesWithPaks(scratch, &skins, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
             
-            if (!imagenames)
+            if (!nimagefiles)
             {
+                Q_SSetFree(&skins);
                 continue;
             }
+            
+            imagenames = Z_TagMalloc(nimagefiles * sizeof(const char *), TAG_MENU);
+            Q_SSetGetStrings(&skins, imagenames, nimagefiles);
             
             Q_STInit(&image_stable, 1024, 10, TAG_MENU);
             for (k = 0; k < nimagefiles-1; k++) {
@@ -240,22 +249,22 @@ static qboolean PlayerConfig_ScanDirectories (void)
             Q_STAutoPack(&image_stable);
             
             // count valid skins, which consist of a skin with a matching "_i" icon
-            for (k = 0; k < nimagefiles-1; k++)
-                if ( IsValidSkin(&image_stable, imagenames[k]) )
+            for (k = 0; k < nimagefiles-1; k++) {
+                if ( IsValidSkin(&image_stable, imagenames[k]) ) {
                     nskins++;
+                } else {
+                    imagenames[k] = NULL;
+                }
+            }
             
-            if (!nskins)
-                continue;
-            
-            skinnames = (char**)Z_TagMalloc(sizeof(char *) * (nskins+1), TAG_MENU);
-            memset(skinnames, 0, sizeof(char *) * (nskins+1));
-            
-            // copy the valid skins
-            if (nimagefiles)
+            if (nskins > 0) {
+                skinnames = (char**)Z_TagMalloc(sizeof(char *) * (nskins+1), TAG_MENU);
+                
+                // copy the valid skins
                 for (s = 0, k = 0; k < nimagefiles-1; k++)
                 {
                     char *a, *b, *c;
-                    if ( IsValidSkin(&image_stable, imagenames[k]) )
+                    if ( imagenames[k] )
                     {
                         a = strrchr(imagenames[k], '/');
                         b = strrchr(imagenames[k], '\\');
@@ -271,29 +280,33 @@ static qboolean PlayerConfig_ScanDirectories (void)
                         s++;
                     }
                 }
+                
+                // at this point we have a valid player model
+                s_pmi[s_numplayermodels].nskins = nskins;
+                s_pmi[s_numplayermodels].skindisplaynames = skinnames;
+                
+                // make int16_t name for the model
+                a = strrchr(dirnames[i], '/');
+                b = strrchr(dirnames[i], '\\');
+                
+                c = (a > b) ? a : b;
+                
+                strncpy(s_pmi[s_numplayermodels].displayname, c+1, MAX_DISPLAYNAME-1);
+                strcpy(s_pmi[s_numplayermodels].directory, c+1);
+                s_numplayermodels++;
+                
+            }
+            Z_Free(imagenames);
+            Q_SSetFree(&skins);
             
-            // at this point we have a valid player model
-            s_pmi[s_numplayermodels].nskins = nskins;
-            s_pmi[s_numplayermodels].skindisplaynames = skinnames;
-            
-            // make int16_t name for the model
-            a = strrchr(dirnames[i], '/');
-            b = strrchr(dirnames[i], '\\');
-            
-            c = (a > b) ? a : b;
-            
-            strncpy(s_pmi[s_numplayermodels].displayname, c+1, MAX_DISPLAYNAME-1);
-            strcpy(s_pmi[s_numplayermodels].directory, c+1);
-            
-            FS_FreeFileList (imagenames, nimagefiles);
             Q_STFree(&image_stable);
-            s_numplayermodels++;
         }
-        
-        FS_FreeFileList (dirnames, ndirs);
+        Q_SSetFree(&dirs);
+        Z_Free(dirnames);
         return true;
     }
-	return false;	//** DMP warning fix
+    Q_SSetFree(&dirs);
+    return false;	//** DMP warning fix
 }
 
 

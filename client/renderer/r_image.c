@@ -1333,7 +1333,7 @@ int32_t Draw_GetPalette (void)
  R_IsSupportedImage
  ===============
  */
-qboolean R_IsSupportedImageType(char *name) {
+qboolean R_IsSupportedImageType(const char *name) {
     if (supported_image_types.st)
         return (Q_STLookup(&supported_image_types, name) != -1);
     return false;
