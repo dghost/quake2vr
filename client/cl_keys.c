@@ -49,6 +49,8 @@ qboolean	menubound[MAX_KEYEVENTS];	// if true, can't be rebound while in menu
 keynum_t	keyshift[MAX_KEYEVENTS];		// key to map to if shift held down in console
 int32_t			key_repeats[MAX_KEYEVENTS];	// if > 1, it is autorepeating
 qboolean	keydown[MAX_KEYEVENTS];
+int32_t     modifier_key = MODIFIER_KEY;
+cvar_t      *key_modifier = NULL;
 
 typedef struct
 {
@@ -68,6 +70,7 @@ keyname_t keynames[] =
 	{"LEFTARROW", K_LEFTARROW},
 	{"RIGHTARROW", K_RIGHTARROW},
 
+    {"META", K_META},
 	{"ALT", K_ALT},
 	{"CTRL", K_CTRL},
 	{"SHIFT", K_SHIFT},
@@ -165,6 +168,8 @@ keyname_t keynames[] =
 	{NULL,0}
 };
 
+
+
 /*
 ==============================================================================
 
@@ -259,7 +264,7 @@ void Key_Console (int32_t key)
 		break;
 	}
 
-	if ( ( toupper( key ) == 'V' && keydown[K_CTRL] ) ||
+	if ( ( toupper( key ) == 'V' && keydown[modifier_key] ) ||
 		 ( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keydown[K_SHIFT] ) )
 	{
 		char *cbd;
@@ -287,7 +292,7 @@ void Key_Console (int32_t key)
 		return;
 	}
 
-	if ( key == 'l' && keydown[K_CTRL] )
+	if ( key == 'l' && keydown[modifier_key] )
 	{
 		Cbuf_AddText ("clear\n");
 		con.backedit = 0;
@@ -329,7 +334,7 @@ void Key_Console (int32_t key)
 		return;
 	}
 	
-	if (key == K_BACKSPACE)// || ( key == K_LEFTARROW ) || ( key == K_KP_LEFTARROW ) || ( ( key == 'h' ) && ( keydown[K_CTRL] ) ) )
+	if (key == K_BACKSPACE)// || ( key == K_LEFTARROW ) || ( key == K_KP_LEFTARROW ) || ( ( key == 'h' ) && ( keydown[modifier_key] ) ) )
 	{
 		if (key_linepos > 1)
 		{
@@ -385,7 +390,7 @@ void Key_Console (int32_t key)
 	} // end Q2max
 
 	if ( ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
-		 ( ( key == 'p' ) && keydown[K_CTRL] ) )
+		 ( ( key == 'p' ) && keydown[modifier_key] ) )
 	{
 		do
 		{
@@ -400,7 +405,7 @@ void Key_Console (int32_t key)
 	}
 
 	if ( ( key == K_DOWNARROW ) || ( key == K_KP_DOWNARROW ) ||
-		 ( ( key == 'n' ) && keydown[K_CTRL] ) )
+		 ( ( key == 'n' ) && keydown[modifier_key] ) )
 	{
 		if (history_line == edit_line) return;
 		do
@@ -609,7 +614,7 @@ the given string.  Single ascii characters return themselves, while
 the K_* names are matched up.
 ===================
 */
-int32_t Key_StringToKeynum (char *str)
+int32_t Key_StringToKeynum (const char *str)
 {
 	keyname_t	*kn;
 	
@@ -856,6 +861,7 @@ void Key_Init (void)
 //
 	for (i=32 ; i<128 ; i++)
 		consolekeys[i] = true;
+    
 	consolekeys[K_ENTER] = true;
 	consolekeys[K_KP_ENTER] = true;
 	consolekeys[K_TAB] = true;
@@ -929,6 +935,13 @@ void Key_Init (void)
 	Cmd_AddCommand ("unbind",Key_Unbind_f);
 	Cmd_AddCommand ("unbindall",Key_Unbindall_f);
 	Cmd_AddCommand ("bindlist",Key_Bindlist_f);
+    
+#if defined(__APPLE__)
+    key_modifier = Cvar_Get("key_modifier", "META", CVAR_ARCHIVE);
+#else
+    key_modifier = Cvar_Get("key_modifier", "CTRL", CVAR_ARCHIVE);
+#endif
+
 }
 
 /*
@@ -946,6 +959,17 @@ void Key_Event (int32_t key, qboolean down, uint32_t time)
 	const char	*kb;
 	char	cmd[1024];
 
+    if (key_modifier->modified) {
+        int32_t newKey = Key_StringToKeynum(key_modifier->string);
+        if (newKey >= 0) {
+            modifier_key = newKey;
+        } else {
+            Cvar_SetToDefault("key_modifer");
+            modifier_key = Key_StringToKeynum(key_modifier->string);
+        }
+        key_modifier->modified = false;
+    }
+    
 	// hack for modal presses
 	if (key_waiting == -1)
 	{

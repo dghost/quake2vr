@@ -144,9 +144,9 @@ int32_t MapSDLKey (SDL_Keysym key)
             case SDL_SCANCODE_LCTRL:
             case SDL_SCANCODE_RCTRL:	result = K_CTRL;		 break;
             case SDL_SCANCODE_LALT:
+            case SDL_SCANCODE_RALT: result = K_ALT;			break;
             case SDL_SCANCODE_LGUI:
-            case SDL_SCANCODE_RALT:
-            case SDL_SCANCODE_RGUI: result = K_ALT;			break;
+            case SDL_SCANCODE_RGUI: result = K_META;			break;
             case SDL_SCANCODE_SPACE: result = K_SPACE; break;
                 
                 //		case XK_KP_Begin: result = K_KP_5;	break;

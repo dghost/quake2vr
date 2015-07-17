@@ -214,6 +214,7 @@ void Field_Draw (menufield_s *f)
 }
 
 extern qboolean keydown[];
+extern int32_t modifier_key;
 
 qboolean Field_Key(menufield_s *f, int32_t key)
 {
@@ -278,7 +279,7 @@ qboolean Field_Key(menufield_s *f, int32_t key)
 	//
 	// support pasting from the clipboard
 	//
-	if ( ( toupper(key) == 'V' && keydown[K_CTRL] ) ||
+	if ( ( toupper(key) == 'V' && keydown[modifier_key] ) ||
 		 ( ( (key == K_INS) || (key == K_KP_INS) ) && keydown[K_SHIFT] ) )
 	{
 		char *cbd;

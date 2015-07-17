@@ -34,7 +34,8 @@ typedef enum {
 	K_DOWNARROW,
 	K_LEFTARROW,
 	K_RIGHTARROW,
-
+    
+    K_META,
 	K_ALT,
 	K_CTRL,
 	K_SHIFT,
@@ -162,8 +163,14 @@ typedef enum {
 	K_GAMEPAD_DOWN,
 	K_GAMEPAD_LEFT,
 	K_GAMEPAD_RIGHT,
-
 } keynum_t;
+
+
+#if defined(__APPLE__)
+#define MODIFIER_KEY K_META
+#else
+#define MODIFIER_KEY K_CTRL
+#endif
 
 /*
 //
