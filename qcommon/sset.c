@@ -39,7 +39,7 @@ qboolean Q_SSetGrow(sset_t *ss, uint32_t newSize) {
     return false;
 }
 
-qboolean S_SSetContains(const sset_t *ss, const char *string) {
+qboolean Q_SSetContains(const sset_t *ss, const char *string) {
     assert(ss != NULL && string != NULL);
     return (Q_STLookup(&ss->table, string) >= 0);
 }

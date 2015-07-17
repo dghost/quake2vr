@@ -992,7 +992,7 @@ typedef struct sset_t {
 
 qboolean Q_SSetInit(sset_t *ss,uint32_t maxSize, int32_t avgLength, int16_t memoryTag);
 void Q_SSetFree(sset_t *ss);
-qboolean S_SSetContains(const sset_t *ss, const char *string);
+qboolean Q_SSetContains(const sset_t *ss, const char *string);
 qboolean Q_SSetInsert(sset_t *ss, const char *string);
 qboolean Q_SSetDuplicate(sset_t *source, sset_t *dest);
 const char *Q_SSetGetString(sset_t *ss, int32_t index);
