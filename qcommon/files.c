@@ -1384,7 +1384,6 @@ void FS_AddGameDirectory (const char *dir)
 	// VoiD -S- *.pak support
 //	char *path = NULL;
 	char findname[1024];
-	const char **dirnames;
 	char *tmp;
 	// VoiD -E- *.pak support
 

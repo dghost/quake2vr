@@ -136,7 +136,7 @@ static qboolean IconOfSkinExists (stable_t *filetable, char *skin, char* ext, ch
 	return (Q_STLookup(filetable, skin) != -1);
 }
 
-qboolean R_IsSupportedImageType(char *name);
+qboolean R_IsSupportedImageType(const char *name);
 
 // adds menu support for TGA, PNG, and JPG skins
 static qboolean IsValidSkin (stable_t *filetable, const char *filename)

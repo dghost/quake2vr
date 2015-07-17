@@ -189,7 +189,7 @@ typedef struct
 	// This can be used to load script files, etc
 #ifdef KMQUAKE2_ENGINE_MOD
 	char	**(*ListPak) (char *find, int32_t *num);
-	int32_t		(*LoadFile) (char *name, void **buf);
+	int32_t		(*LoadFile) (const char *name, void **buf);
 	void	(*FreeFile) (void *buf);
 	void	(*FreeFileList) (char **list, int32_t n);
 #ifdef Q2VR_ENGINE_MOD
