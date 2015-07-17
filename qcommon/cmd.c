@@ -397,15 +397,14 @@ void Cmd_Exec_f (void)
 	Com_Printf ("execing %s\n",Cmd_Argv(1));
 	
 	// the file doesn't have a trailing 0, so we need to copy it off
-	f2 = (char*)Z_TagMalloc(len+2, TAG_SYSTEM); // Echon fix- was len+1
-	memcpy (f2, f, len);
+	f2 = (char*)Z_Realloc(f, len+2); // Echon fix- was len+1
+
 	f2[len] = '\n';  // Echon fix added
 	f2[len+1] = '\0'; // Echon fix- was len, = 0
 
 	Cbuf_InsertText (f2);
 
-	Z_Free (f2);
-	FS_FreeFile (f);
+	FS_FreeFile (f2);
 }
 
 
