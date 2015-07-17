@@ -89,7 +89,8 @@ Font loading
 */
 extern cvar_t *con_font;
 #define MAX_FONTS 32
-static char **font_names = NULL;
+static sset_t font_set;
+static const char **font_names = NULL;
 int32_t	numfonts = 0;
 
 static void FontSizeFunc( void *unused )
@@ -122,55 +123,20 @@ void SetFontCursor (void)
 }
 
 
-int32_t insertFont (char **list, char *insert, int32_t len )
-{
-	int32_t i, j;
-	if (!list || !(Q_strcasecmp(list[0],insert))) return 0;
-    
-	//i=1 so default stays first!
-	for (i=1; i<len; i++)
-	{
-        int32_t res = 0;
-		if (!list[i])
-			break;
-        res = Q_strcasecmp(list[i], insert);
-        
-        if (res > 0)
-		{
-			for (j=len; j>i ;j--)
-				list[j] = list[j-1];
-
-			list[i] = (char*)Z_TagStrdup(insert, TAG_MENU);
-			return 1;
-        } else if (res == 0) {
-            return 0;
-        }
-	}
-	list[len] = (char*)Z_TagStrdup(insert, TAG_MENU);
-    return 1;
-}
-
 qboolean R_IsSupportedImageType(char *name);
 
-char **SetFontNames (void)
+void FillFontNames (sset_t *result)
 {
-	char *curFont;
-	char **list = 0, *p;//, *s;
-	int32_t nfonts = 0, nfontnames;
+	char *p;//, *s;
+    int32_t nfonts = 0;
 	int32_t i;//, j;
-
     sset_t fonts;
     
-	list = (char**)Z_TagMalloc( sizeof( char * ) * MAX_FONTS , TAG_MENU);
-	memset( list, 0, sizeof( char * ) * MAX_FONTS );
-
-	list[0] = (char*)Z_TagStrdup("default", TAG_MENU);
-    nfontnames = 1;
 
     Q_SSetInit(&fonts, 15, MAX_OSPATH, TAG_MENU);
     nfonts = FS_ListFilesWithPaks("fonts/*.*", &fonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
     
-    for (i=0;i<nfonts && nfontnames<MAX_FONTS;i++)
+    for (i=0;i<nfonts && result->currentSize<MAX_FONTS;i++)
     {
         int32_t num;
         char *e;
@@ -184,22 +150,13 @@ char **SetFontNames (void)
         num = strlen(p)-4;
         p[num] = 0;//NULL;
         
-        curFont = p;
-        
-        if (insertFont(list, curFont,nfontnames))
-        {
-            nfontnames++;
-        }
+        Q_SSetInsert(result, p);
         
         //set back so whole string get deleted.
         p[num] = '.';
     }
 
     Q_SSetFree(&fonts);
-
-    numfonts = nfontnames;
-
-	return list;		
 }
 
 //=======================================================================
@@ -285,14 +242,20 @@ void Options_Interface_MenuInit ( void )
 	s_options_interface_menumouse_slider.maxvalue			= 8;
 	s_options_interface_menumouse_slider.generic.statusbar	= "changes sensitivity of mouse in menus";
 	*/
-    if (!font_names)
-        font_names = SetFontNames ();
-	s_options_interface_font_box.generic.type				= MTYPE_SPINCONTROL;
+    
+    Q_SSetInit(&font_set, MAX_FONTS, MAX_OSPATH, TAG_MENU);
+    Q_SSetInsert(&font_set, "default");
+    FillFontNames(&font_set);
+    font_names = Z_TagMalloc(sizeof(const char *) * font_set.currentSize, TAG_MENU);
+    Q_SSetGetStrings(&font_set, font_names, font_set.currentSize);
+
+    
+    s_options_interface_font_box.generic.type				= MTYPE_SPINCONTROL;
 	s_options_interface_font_box.generic.x					= 0;
 	s_options_interface_font_box.generic.y					= y;
 	s_options_interface_font_box.generic.name				= "font";
 	s_options_interface_font_box.generic.callback			= FontFunc;
-	s_options_interface_font_box.itemnames					= (const char **)font_names;
+	s_options_interface_font_box.itemnames					= font_names;
 	s_options_interface_font_box.generic.statusbar			= "changes console and menu text font";
 
 	s_options_interface_fontsize_slider.generic.type		= MTYPE_SLIDER;
@@ -390,16 +353,9 @@ const char *Options_Interface_MenuKey( int32_t key )
 }
 
 void Options_Interface_Teardown (void) {
-    if (font_names) {
-        int i;
-        for (i=0;i < numfonts; i++)
-        {
-            Z_Free(font_names[i]);
-            font_names[i] = NULL;
-        }
-        Z_Free(font_names);
-        font_names = NULL;
-    }
+    Z_Free(font_names);
+    Q_SSetFree(&font_set);
+    
 }
 
 void M_Menu_Options_Interface_f (void)
