@@ -133,27 +133,30 @@ void FillFontNames (sset_t *result)
     sset_t fonts;
     
 
-    Q_SSetInit(&fonts, 15, MAX_OSPATH, TAG_MENU);
+    Q_SSetInit(&fonts, MAX_FONTS, MAX_OSPATH, TAG_MENU);
     nfonts = FS_ListFilesWithPaks("fonts/*.*", &fonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
     
     for (i=0;i<nfonts && result->currentSize<MAX_FONTS;i++)
     {
-        int32_t num;
+        int32_t len;
         char *e;
         
-        p = strstr(Q_SSetGetString(&fonts, i), "/"); p++;
+        p = strstr(Q_SSetGetString(&fonts, i), "/");
+        p++;
         
-        e = p + strlen(p) - 4;
+        len = strlen(p);
+        e = p + len - 4;
+        
         if (!R_IsSupportedImageType(e))
             continue;
         
-        num = strlen(p)-4;
-        p[num] = 0;//NULL;
+        *e = 0;//NULL;
         
         Q_SSetInsert(result, p);
         
-        //set back so whole string get deleted.
-        p[num] = '.';
+        // restore file extension
+        // really, this is probably not necessary but whatever
+        *e = '.';
     }
 
     Q_SSetFree(&fonts);
