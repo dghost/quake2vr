@@ -177,9 +177,6 @@ static qboolean PlayerConfig_ScanDirectories (void)
     ndirs = FS_ListFilesWithPaks("players/*", &dirs, SFF_SUBDIR, 0);
     if ( ndirs > 0 )
     {
-        const char **dirnames = Z_TagMalloc(ndirs * sizeof(const char *), TAG_MENU);
-        Q_SSetGetStrings(&dirs, dirnames, ndirs);
-
         //
         // go through the subdirectories
         //
@@ -200,13 +197,13 @@ static qboolean PlayerConfig_ScanDirectories (void)
             qboolean	already_added = false;
             stable_t    image_stable = {0, 0};
             sset_t skins;
-            
-            if (dirnames[i] == 0)
+            const char *dirname = Q_SSetGetString(&dirs, i);
+            if (dirname == 0)
                 continue;
             
-            // check if dirnames[i] is already added to the s_pmi[i].directory list
-            a = strrchr(dirnames[i], '/');
-            b = strrchr(dirnames[i], '\\');
+            // check if dirname is already added to the s_pmi[i].directory list
+            a = strrchr(dirname, '/');
+            b = strrchr(dirname, '\\');
             c = (a > b) ? a : b;
             for (k=0; k < s_numplayermodels; k++)
                 if (!strcmp(s_pmi[k].directory, c+1))
@@ -217,7 +214,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             }
             
             // verify the existence of tris.md2
-            strcpy(scratch, dirnames[i]);
+            strcpy(scratch, dirname);
             strcat(scratch, "/tris.md2");
             if ( !FS_CountFilesWithPaks(scratch, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM) )
             {
@@ -227,7 +224,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             Q_SSetInit(&skins, 50, MAX_OSPATH, TAG_MENU);
             
             // verify the existence of at least one skin
-            strcpy(scratch, va("%s%s", dirnames[i], "/*.*")); // was "/*.pcx"
+            strcpy(scratch, va("%s%s", dirname, "/*.*")); // was "/*.pcx"
             nimagefiles = FS_ListFilesWithPaks(scratch, &skins, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM);
             
             if (!nimagefiles)
@@ -286,8 +283,8 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 s_pmi[s_numplayermodels].skindisplaynames = skinnames;
                 
                 // make int16_t name for the model
-                a = strrchr(dirnames[i], '/');
-                b = strrchr(dirnames[i], '\\');
+                a = strrchr(dirname, '/');
+                b = strrchr(dirname, '\\');
                 
                 c = (a > b) ? a : b;
                 
@@ -302,7 +299,6 @@ static qboolean PlayerConfig_ScanDirectories (void)
             Q_STFree(&image_stable);
         }
         Q_SSetFree(&dirs);
-        Z_Free(dirnames);
         return true;
     }
     Q_SSetFree(&dirs);
