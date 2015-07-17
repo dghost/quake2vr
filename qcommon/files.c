@@ -876,13 +876,53 @@ int32_t FS_FTell (fileHandle_t f)
 }
 
 /*
+ =================
+ FS_ListPak
+ 
+ Generates a listing of the contents of a pak file
+ =================
+ */
+int32_t FS_ListPak (char *find, sset_t *output)
+{
+    fsSearchPath_t	*search;
+    //char			netpath[MAX_OSPATH];
+    fsPack_t		*pak;
+    
+    int32_t nfound = 0;
+    int32_t i;
+    
+    
+    for (search = fs_searchPaths; search; search = search->next)
+    {
+        if (!search->pack)
+            continue;
+        
+        pak = search->pack;
+        
+        // now find and build list
+        for (i=0 ; i<pak->numFiles ; i++)
+        {
+            const char *name = pak->files[i].name;
+            if (!pak->files[i].ignore && strstr(name, find))
+            {
+                Q_SSetInsert(output, name);
+                nfound++;
+            }
+        }
+    }
+    
+    return nfound;
+}
+
+/*
 =================
-FS_ListPak
+FS_ListPakOld
 
 Generates a listing of the contents of a pak file
+Only provided to maintain backwards compatibility with KMQ2
 =================
 */
-char **FS_ListPak (char *find, int32_t *num)
+char **FS_ListPakOld (char *find, int32_t *num)
 {
 	fsSearchPath_t	*search;
 	//char			netpath[MAX_OSPATH];

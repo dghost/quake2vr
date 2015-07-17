@@ -947,7 +947,7 @@ void	VID_Printf (int32_t print_level, char *str, ...);
 // or a discrete file from anywhere in the quake search path
 // a -1 return means the file does not exist
 // NULL can be passed for buf to just determine existance
-char	**FS_ListPak (char *find, int32_t *num);
+int32_t     FS_ListPak (char *find, sset_t *output);
 int32_t		FS_LoadFile (const char *name, void **buf);
 void	FS_FreeFile (void *buf);
 

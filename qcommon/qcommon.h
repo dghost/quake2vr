@@ -809,6 +809,8 @@ void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
 int32_t     FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
+int32_t     FS_ListPak (char *find, sset_t *output);
+char		**FS_ListPakOld (char *find, int32_t *num); // pak list function
 int32_t     FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave);
 int32_t     FS_ListFilesWithPaks(char *findname, sset_t *output, uint32_t musthave, uint32_t canthave);
 int32_t     FS_CountFiles (char *findname, uint32_t musthave, uint32_t canthave);
@@ -823,7 +825,6 @@ int32_t			FS_GetFileList (const char *path, const char *extension, char *buffer,
 
 int32_t			FS_LoadFile (const char *path, void **buffer);
 void		FS_AddPK3File (const char *packPath); // add pk3 file function
-char		**FS_ListPak (char *find, int32_t *num); // pak list function
 void		FS_SetGamedir (const char *dir);
 char		*FS_Gamedir (void);
 void		FS_FreeFile (void *buffer);

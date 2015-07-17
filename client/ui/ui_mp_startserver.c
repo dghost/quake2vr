@@ -93,7 +93,7 @@ UI_ParseArenaFromFile
 Partially from Q3 source
 ===============
 */
-qboolean UI_ParseArenaFromFile (char *filename, char *shortname, char *longname, char *gametypes)
+qboolean UI_ParseArenaFromFile (const char *filename, char *shortname, char *longname, char *gametypes)
 {
 	int32_t				len;
 	fileHandle_t	f;
@@ -214,11 +214,9 @@ UI_LoadArenas
 */
 void UI_LoadArenas (void)
 {
-	char		**arenafiles=0;
-	char		**tmplist = 0;
-	int32_t			i, j, narenas = 0, narenanames = 0;
+	int32_t			i, j;
 	qboolean	type_supported[NUM_MAPTYPES];
-
+    sset_t arenafiles, templist;
 	//
 	// free existing lists and malloc new ones
 	//
@@ -231,77 +229,65 @@ void UI_LoadArenas (void)
 		memset( ui_svr_arena_mapnames[i], 0, sizeof( char * ) * MAX_ARENAS );
 	}
 
-	tmplist = (char**)Z_TagMalloc( sizeof( char * ) * MAX_ARENAS , TAG_MENU);
-	memset( tmplist, 0, sizeof( char * ) * MAX_ARENAS );
-
-	//
-	// check in paks for .arena files
-	//
-	if ((arenafiles = FS_ListPak("scripts/", &narenas)))
-	{
-		for (i=0; i<narenas && narenanames<MAX_ARENAS; i++)
-		{
-            char *p;
-			if (!arenafiles || !arenafiles[i])
-				continue;
-
-			p = arenafiles[i];
-
-			if (!strstr(p, ".arena"))
-				continue;
-
-			if (!FS_ItemInList(p, narenanames, tmplist)) // check if already in list
-			{
-				char	shortname[MAX_TOKEN_CHARS];
-				char	longname[MAX_TOKEN_CHARS];
-				char	gametypes[MAX_TOKEN_CHARS];
-				char	scratch[200];
-				if (UI_ParseArenaFromFile (p, shortname, longname, gametypes))
-				{
-                    char *s = gametypes;
-					Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
-					
-					for (j=0; j<NUM_MAPTYPES; j++)
-						type_supported[j] = false;
-                    
-					while (s != NULL)
-					{
-                        char *tok = COM_Parse (&s);
-						for (j=0; j<NUM_MAPTYPES; j++)
-						{
-							char *s2 = gametype_names[j].tokens;
-							while (s2 != NULL) {
-                                char *tok2 = COM_Parse (&s2);
-								if ( !Q_strcasecmp(tok, tok2) )
-									type_supported[j] = true;
-							}
-						}
-					}
-
-					for (j=0; j<NUM_MAPTYPES; j++)
-						if (type_supported[j]) {
-							ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = (char*)Z_TagStrdup( scratch, TAG_MENU );
-							ui_svr_arena_nummaps[j]++;
-						}
-
-					//Com_Printf ("UI_LoadArenas: successfully loaded arena file %s: mapname: %s levelname: %s gametypes: %s\n", p, shortname, longname, gametypes);
-					narenanames++;
-					FS_InsertInList(tmplist, p, narenanames, 0); // add to list
-				}
-			}
-		}
-        FS_FreeFileList (arenafiles, narenas);
-	}
-
-	if (tmplist)
-		FS_FreeFileList (tmplist, narenanames);
-
-	for (i=0; i<NUM_MAPTYPES; i++)
-		UI_SortArenas (ui_svr_arena_mapnames[i], ui_svr_arena_nummaps[i]);
-
-//	Com_Printf ("UI_LoadArenas: loaded %i arena file(s)\n", narenanames);
-//	for (i=0; i<NUM_MAPTYPES; i++)
-//		Com_Printf ("%s: %i arena file(s)\n", gametype_names[i].tokens, ui_svr_arena_nummaps[i]);
+    Q_SSetInit(&arenafiles, MAX_ARENAS, MAX_OSPATH, TAG_MENU);
+    Q_SSetInit(&templist, MAX_ARENAS, MAX_OSPATH, TAG_MENU);
+    
+    // check in paks for .arena files
+    //
+    FS_ListPak("scripts/", &arenafiles);
+    for (i=0; i<arenafiles.currentSize && templist.currentSize<MAX_ARENAS; i++)
+    {
+        const char *p = Q_SSetGetString(&arenafiles, i);
+        
+        if (!strstr(p, ".arena"))
+            continue;
+        if (!Q_SSetContains(&templist, p)) // check if already in list
+        {
+            char	shortname[MAX_TOKEN_CHARS];
+            char	longname[MAX_TOKEN_CHARS];
+            char	gametypes[MAX_TOKEN_CHARS];
+            char	scratch[200];
+            if (UI_ParseArenaFromFile (p, shortname, longname, gametypes))
+            {
+                char *s = gametypes;
+                Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
+                
+                for (j=0; j<NUM_MAPTYPES; j++)
+                    type_supported[j] = false;
+                
+                while (s != NULL)
+                {
+                    char *tok = COM_Parse (&s);
+                    for (j=0; j<NUM_MAPTYPES; j++)
+                    {
+                        char *s2 = gametype_names[j].tokens;
+                        while (s2 != NULL) {
+                            char *tok2 = COM_Parse (&s2);
+                            if ( !Q_strcasecmp(tok, tok2) )
+                                type_supported[j] = true;
+                        }
+                    }
+                }
+                
+                for (j=0; j<NUM_MAPTYPES; j++)
+                    if (type_supported[j]) {
+                        ui_svr_arena_mapnames[j][ui_svr_arena_nummaps[j]] = (char*)Z_TagStrdup( scratch, TAG_MENU );
+                        ui_svr_arena_nummaps[j]++;
+                    }
+                
+                //Com_Printf ("UI_LoadArenas: successfully loaded arena file %s: mapname: %s levelname: %s gametypes: %s\n", p, shortname, longname, gametypes);
+                Q_SSetInsert(&templist, p);
+            }
+        }
+    }
+    Q_SSetFree(&arenafiles);
+    Q_SSetFree(&templist);
+    for (i=0; i<NUM_MAPTYPES; i++)
+        UI_SortArenas (ui_svr_arena_mapnames[i], ui_svr_arena_nummaps[i]);
+    
+    //	Com_Printf ("UI_LoadArenas: loaded %i arena file(s)\n", narenanames);
+    //	for (i=0; i<NUM_MAPTYPES; i++)
+    //		Com_Printf ("%s: %i arena file(s)\n", gametype_names[i].tokens, ui_svr_arena_nummaps[i]);
 }
 
 
