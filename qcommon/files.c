@@ -328,17 +328,12 @@ void FS_DPrintf (const char *format, ...)
 
 /*
 =================
-FS_GameDir
+FS_Gamedir
 
 Called to find where to write a file (demos, savegames, etc...)
 =================
 */
-char *FS_GameDir (void)
-{
-	return fs_gamedir;
-}
-
-char *FS_Gamedir (void)
+const char *FS_Gamedir (void)
 {
 	return fs_gamedir;
 }

@@ -67,7 +67,7 @@ void Load_Savestrings (qboolean update)
 	char	*ch;
 	time_t	old_timestamp;
 	struct	stat	st;
-    char    *gamedir = FS_Gamedir();
+    const char *gamedir = FS_Gamedir();
 	for (i=0 ; i<MAX_SAVEGAMES ; i++)
 	{
 		Com_sprintf (name, sizeof(name), "%s/save/vrsave%02i/server.ssv", gamedir, i);

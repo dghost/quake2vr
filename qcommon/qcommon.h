@@ -803,8 +803,6 @@ qboolean	FS_FileExists (char *path);
 void		FS_CopyFile (const char *srcPath, const char *dstPath);
 void		FS_RenameFile (const char *oldPath, const char *newPath);
 void		FS_DeleteFile (const char *path);
-
-char		*FS_GameDir (void);
 void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 char		*FS_NextPath (char *prevPath);
@@ -826,7 +824,7 @@ int32_t			FS_GetFileList (const char *path, const char *extension, char *buffer,
 int32_t			FS_LoadFile (const char *path, void **buffer);
 void		FS_AddPK3File (const char *packPath); // add pk3 file function
 void		FS_SetGamedir (const char *dir);
-char		*FS_Gamedir (void);
+const char	*FS_Gamedir (void);
 void		FS_FreeFile (void *buffer);
 
 

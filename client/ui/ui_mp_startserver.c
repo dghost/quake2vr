@@ -313,6 +313,8 @@ void UI_LoadMapList (void)
 	// load the list of map names
 	//
 	Com_sprintf( mapsname, sizeof( mapsname ), "%s/maps.lst", FS_Gamedir() );
+    
+    
 	if ( ( fp = fopen( mapsname, "rb" ) ) == 0 )
 	{
 		if ( ( length = FS_LoadFile( "maps.lst", ( void ** ) &buffer ) ) == -1 )

@@ -953,7 +953,7 @@ void	FS_FreeFile (void *buf);
 
 // gamedir will be the current directory that generated
 // files should be stored to, ie: "f:\quake\id1"
-char	*FS_Gamedir (void);
+const char	*FS_Gamedir (void);
 
 cvar_t	*Cvar_Get (const char *name, const char *value, int32_t flags);
 cvar_t	*Cvar_Set (const char *name, const char *value );
