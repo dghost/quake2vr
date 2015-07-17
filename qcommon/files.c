@@ -948,7 +948,6 @@ char **FS_ListPakOld (char *find, int32_t *num)
 	}
 
 	list =  (char **) Z_TagMalloc( sizeof( char * ) * nfiles , TAG_SYSTEM);
-	memset( list, 0, sizeof( char * ) * nfiles );
 
 	for (search = fs_searchPaths; search; search = search->next)
 	{
