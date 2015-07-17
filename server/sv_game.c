@@ -193,7 +193,7 @@ PF_Configstring
 
 ===============
 */
-void PF_Configstring (int32_t index, char *val)
+void PF_Configstring (int32_t index, const char *val)
 {
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
 		Com_Error (ERR_DROP, "configstring: bad index %i\n", index);

@@ -314,7 +314,7 @@ SV_InitGame
 A brand new game has been started
 ==============
 */
-void PF_Configstring (int32_t index, char *val);
+void PF_Configstring (int32_t index, const char *val);
 
 void SV_InitGame (void)
 {
