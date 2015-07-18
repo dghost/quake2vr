@@ -148,22 +148,29 @@ int32_t transCompare (const void *arg1, const void *arg2 )
 	const sortedpart_t *a1, *a2;
 	a1 = (sortedpart_t *) arg1;
 	a2 = (sortedpart_t *) arg2;
-	if ((r_transrendersort->value == 1) && a1->p && a2->p)
-	{
-		int32_t image1, image2;
-		// FIXME: use hash of imagenum, blendfuncs, & critical flags
-	//	image1 = (a1->p->flags & PART_SPARK) ? 0 : a1->p->image;
-	//	image2 = (a2->p->flags & PART_SPARK) ? 0 : a2->p->image;
-		image1 = a1->p->image;
-		image2 = a2->p->image;
-		return (image2 - image1)*10000 + (a2->len - a1->len);
-	}
-	else
-		return (a2->len - a1->len);
+    return (a2->len - a1->len);
+}
+
+int32_t transRenderCompare (const void *arg1, const void *arg2 )
+{
+    const sortedpart_t *a1, *a2;
+    int32_t image1, image2;
+    
+    a1 = (sortedpart_t *) arg1;
+    a2 = (sortedpart_t *) arg2;
+    
+    // FIXME: use hash of imagenum, blendfuncs, & critical flags
+    //	image1 = (a1->p->flags & PART_SPARK) ? 0 : a1->p->image;
+    //	image2 = (a2->p->flags & PART_SPARK) ? 0 : a2->p->image;
+    image1 = a1->p->image;
+    image2 = a2->p->image;
+    return (image2 - image1)*10000 + (a2->len - a1->len);
 }
 
 sortedpart_t NewSortedPart (particle_t *p)
 {
+    assert(p != NULL);
+    
 	vec3_t result;
 	sortedpart_t s_part;
 
@@ -182,7 +189,12 @@ void R_SortParticlesOnList (void)
 	for (i=0; i<r_newrefdef.num_particles; i++)
 		sorted_parts[i] = NewSortedPart(&r_newrefdef.particles[i]);
 
-	qsort((void *)sorted_parts, r_newrefdef.num_particles, sizeof(sortedpart_t), transCompare);
+    if (r_transrendersort->value == 1) {
+        qsort((void *)sorted_parts, r_newrefdef.num_particles, sizeof(sortedpart_t), transRenderCompare);
+    } else {
+        qsort((void *)sorted_parts, r_newrefdef.num_particles, sizeof(sortedpart_t), transCompare);
+        
+    }
 }
 
 
