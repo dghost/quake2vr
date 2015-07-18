@@ -91,7 +91,6 @@ extern cvar_t *con_font;
 #define MAX_FONTS 32
 static sset_t font_set;
 static const char **font_names = NULL;
-int32_t	numfonts = 0;
 
 static void FontSizeFunc( void *unused )
 {
@@ -108,18 +107,17 @@ void SetFontCursor (void)
 	int32_t i;
 	s_options_interface_font_box.curvalue = 0;
 
-	if (!con_font)
-		con_font = Cvar_Get ("con_font", "default", CVAR_ARCHIVE);
-
-	if (numfonts>1)
-		for (i=0; font_names[i]; i++)
-		{
-			if (!Q_strcasecmp(con_font->string, font_names[i]))
-			{
-				s_options_interface_font_box.curvalue = i;
-				return;
-			}
-		}
+    if (!con_font)
+        con_font = Cvar_Get ("con_font", "default", CVAR_ARCHIVE);
+    
+    for (i=0; font_names[i]; i++)
+    {
+        if (!Q_strcasecmp(con_font->string, font_names[i]))
+        {
+            s_options_interface_font_box.curvalue = i;
+            return;
+        }
+    }
 }
 
 
@@ -249,8 +247,9 @@ void Options_Interface_MenuInit ( void )
     Q_SSetInit(&font_set, MAX_FONTS, MAX_OSPATH, TAG_MENU);
     Q_SSetInsert(&font_set, "default");
     FillFontNames(&font_set);
-    font_names = Z_TagMalloc(sizeof(const char *) * font_set.currentSize, TAG_MENU);
-    Q_SSetGetStrings(&font_set, font_names, font_set.currentSize);
+    
+    font_names = Z_TagMalloc(sizeof(const char *) * font_set.currentSize + 1, TAG_MENU);
+    Q_SSetGetStrings(&font_set, font_names, font_set.currentSize + 1);
 
     
     s_options_interface_font_box.generic.type				= MTYPE_SPINCONTROL;
