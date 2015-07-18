@@ -232,21 +232,14 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 Q_SSetFree(&skins);
                 continue;
             }
-            
-            imagenames = Q_SSetMakeStrings(&skins, &nimagefiles);
 
-            Q_STInit(&image_stable, 1024, 10, TAG_MENU);
-            for (k = 0; k < nimagefiles; k++) {
-                int len = strlen(imagenames[k]);
-                if (R_IsSupportedImageType(imagenames[k] + len - 4)) {
-                    Q_STAutoRegister(&image_stable, imagenames[k]);
-                }
-            }
-            Q_STAutoPack(&image_stable);
+            Q_SSetSort(&skins, false);
+
+            imagenames = Q_SSetMakeStrings(&skins, &nimagefiles);
             
             // count valid skins, which consist of a skin with a matching "_i" icon
             for (k = 0; k < nimagefiles; k++) {
-                if ( IsValidSkin(&image_stable, imagenames[k]) ) {
+                if ( IsValidSkin(&skins.table, imagenames[k]) ) {
                     nskins++;
                 } else {
                     imagenames[k] = NULL;
@@ -294,8 +287,6 @@ static qboolean PlayerConfig_ScanDirectories (void)
             }
             Z_Free(imagenames);
             Q_SSetFree(&skins);
-            
-            Q_STFree(&image_stable);
         }
         Q_SSetFree(&dirs);
         return true;
