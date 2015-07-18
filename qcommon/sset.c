@@ -119,3 +119,60 @@ const char **Q_SSetMakeStrings(sset_t *ss, int32_t *numStrings) {
     return strings;
 }
 
+
+int tokcmp( void *context, const void *a, const void *b )
+{
+    int32_t token1 = *(const int32_t *)a;
+    int32_t token2 = *(const int32_t *)b;
+    stable_t *stable = (stable_t *)context;
+    return strcmp(Q_STGetString(stable, token1), Q_STGetString(stable, token2));
+}
+
+int tokcasecmp( void *context, const void *a, const void *b )
+
+{
+    int32_t token1 = *(const int32_t *)a;
+    int32_t token2 = *(const int32_t *)b;
+    stable_t *stable = (stable_t *)context;
+    return strcasecmp(Q_STGetString(stable, token1), Q_STGetString(stable, token2));
+}
+
+
+void Q_SSetSort(sset_t *ss, qboolean caseSensitive) {
+    int (*func)(void *, const void *, const void *) = caseSensitive ? tokcmp : tokcasecmp;
+#ifdef WIN32
+    qsort_s(&ss->tokens[0], ss->currentSize, sizeof(int32_t), func, (void *)&ss->table);
+#else
+    qsort_r(&ss->tokens[0], ss->currentSize, sizeof(int32_t), (void *)&ss->table, func);
+#endif
+}
+
+
+int revtokcmp( void *context, const void *a, const void *b )
+{
+    int32_t token1 = *(const int32_t *)a;
+    int32_t token2 = *(const int32_t *)b;
+    stable_t *stable = (stable_t *)context;
+    return -strcmp(Q_STGetString(stable, token1), Q_STGetString(stable, token2));
+}
+
+int revtokcasecmp( void *context, const void *a, const void *b )
+
+{
+    int32_t token1 = *(const int32_t *)a;
+    int32_t token2 = *(const int32_t *)b;
+    stable_t *stable = (stable_t *)context;
+    return -strcasecmp(Q_STGetString(stable, token1), Q_STGetString(stable, token2));
+}
+
+
+void Q_SSetReverseSort(sset_t *ss, qboolean caseSensitive) {
+    int (*func)(void *, const void *, const void *) = caseSensitive ? revtokcmp : revtokcasecmp;
+#ifdef WIN32
+    qsort_s(&ss->tokens[0], ss->currentSize, sizeof(int32_t), func, (void *)&ss->table);
+#else
+    qsort_r(&ss->tokens[0], ss->currentSize, sizeof(int32_t), (void *)&ss->table, func);
+#endif
+}
+
+
