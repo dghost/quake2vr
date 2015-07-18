@@ -245,6 +245,7 @@ OGG_LoadFileList(void)
             Q_SSetInsert(&ogg_filelist, p);
         }
     }
+    Q_SSetSort(&ogg_filelist, false);
 }
 
 /*

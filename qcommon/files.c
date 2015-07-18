@@ -1480,6 +1480,7 @@ void FS_AddGameDirectory (const char *dir)
         if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
             if ((FS_ListFiles( findname, &dirs, 0, 0 ) ) )
             {
+                
                 for ( j=0; j < dirs.currentSize; j++ )
                 {	// don't reload numbered pak files
                     const char *dirname = Q_SSetGetString(&dirs, j);
@@ -2182,10 +2183,10 @@ void FS_Dir_f (void)
         Com_Printf( "Directory of %s\n", findname );
         Com_Printf( "----\n" );
         if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
-            
             if ( FS_ListFiles( findname, &dirs, 0, 0 ))
             {
                 int32_t i, numDirs;
+                Q_SSetSort(&dirs, false);
                 const char	**dirnames = Q_SSetMakeStrings(&dirs, &numDirs);
 
                 for ( i = 0; i < numDirs; i++ )
@@ -2197,7 +2198,7 @@ void FS_Dir_f (void)
                         } else {
                             name = dirnames[i];
                         }
-                        Com_Printf( S_COLOR_CYAN "%s/\n", name );
+                        Com_Printf( S_COLOR_GREEN "%s/\n", name );
                         dirnames[i] = NULL;
                     }
                 }
@@ -2211,7 +2212,7 @@ void FS_Dir_f (void)
                             name = dirnames[i];
                         }
                         if (name[0] != '.')
-                            Com_Printf( S_COLOR_WHITE "%s\n", name );
+                            Com_Printf( S_COLOR_CYAN "%s\n", name );
                     }
                 }
                 Z_Free( dirnames );

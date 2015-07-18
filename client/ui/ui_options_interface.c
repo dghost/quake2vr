@@ -133,7 +133,8 @@ void FillFontNames (sset_t *result)
 
     Q_SSetInit(&fonts, MAX_FONTS, MAX_OSPATH, TAG_MENU);
     nfonts = FS_ListFilesWithPaks("fonts/*.*", &fonts, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
-    
+    Q_SSetSort(&fonts, false);
+
     for (i=0;i<nfonts && result->currentSize<MAX_FONTS;i++)
     {
         int32_t len;
@@ -156,7 +157,6 @@ void FillFontNames (sset_t *result)
         // really, this is probably not necessary but whatever
         *e = '.';
     }
-
     Q_SSetFree(&fonts);
 }
 
