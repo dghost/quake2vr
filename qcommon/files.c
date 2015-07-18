@@ -2185,11 +2185,10 @@ void FS_Dir_f (void)
             
             if ( FS_ListFiles( findname, &dirs, 0, 0 ))
             {
-                const char	**dirnames = NULL;
-                int32_t i;
-                dirnames = Z_TagMalloc(dirs.currentSize * sizeof(const char *), TAG_SYSTEM);
-                Q_SSetGetStrings(&dirs, dirnames, dirs.currentSize);
-                for ( i = 0; i < dirs.currentSize; i++ )
+                int32_t i, numDirs;
+                const char	**dirnames = Q_SSetMakeStrings(&dirs, &numDirs);
+
+                for ( i = 0; i < numDirs; i++ )
                 {
                     if (FS_IsDirectory(dirnames[i])) {
                         const char *name = strrchr(dirnames[i], '/');
@@ -2202,7 +2201,7 @@ void FS_Dir_f (void)
                         dirnames[i] = NULL;
                     }
                 }
-                for ( i = 0; i < dirs.currentSize; i++ )
+                for ( i = 0; i < numDirs; i++ )
                 {
                     if (dirnames[i]) {
                         const char *name = strrchr(dirnames[i], '/');
