@@ -285,7 +285,7 @@ void Key_Console (int32_t key)
 				strcat( key_lines[edit_line], cbd );
 				key_linepos += i;
 			}
-			Z_Free( cbd );
+			Sys_FreeClipboardData( cbd );
 		}
 		con.backedit = 0;
 

@@ -294,8 +294,8 @@ qboolean Field_Key(menufield_s *f, int32_t key)
 			if ( f->visible_offset < 0 )
 				f->visible_offset = 0;
 
-			Z_Free( cbd );
-		}
+			Sys_FreeClipboardData( cbd );
+        }
 		return true;
 	}
 

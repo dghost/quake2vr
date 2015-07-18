@@ -301,17 +301,14 @@ Sys_GetClipboardData
 */
 char *Sys_GetClipboardData( void )
 {
-	char *data = NULL;
-	char *sdl_cliptext;
-
-	sdl_cliptext = SDL_GetClipboardText();
-	if (!sdl_cliptext)
-		return NULL;
-	data = (char*)Z_TagStrdup(sdl_cliptext, TAG_SYSTEM);
-	SDL_free(sdl_cliptext);
-	return data;
+	return SDL_GetClipboardText();
 }
 
+void Sys_FreeClipboardData ( char *cliptext )
+{
+    if (cliptext)
+        SDL_free(cliptext);
+}
 
 /*
 ===============================================================================
