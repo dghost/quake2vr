@@ -233,11 +233,10 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 continue;
             }
             
-            imagenames = Z_TagMalloc(nimagefiles * sizeof(const char *), TAG_MENU);
-            Q_SSetGetStrings(&skins, imagenames, nimagefiles);
-            
+            imagenames = Q_SSetMakeStrings(&skins, &nimagefiles);
+
             Q_STInit(&image_stable, 1024, 10, TAG_MENU);
-            for (k = 0; k < nimagefiles-1; k++) {
+            for (k = 0; k < nimagefiles; k++) {
                 int len = strlen(imagenames[k]);
                 if (R_IsSupportedImageType(imagenames[k] + len - 4)) {
                     Q_STAutoRegister(&image_stable, imagenames[k]);
@@ -246,7 +245,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
             Q_STAutoPack(&image_stable);
             
             // count valid skins, which consist of a skin with a matching "_i" icon
-            for (k = 0; k < nimagefiles-1; k++) {
+            for (k = 0; k < nimagefiles; k++) {
                 if ( IsValidSkin(&image_stable, imagenames[k]) ) {
                     nskins++;
                 } else {
@@ -258,7 +257,7 @@ static qboolean PlayerConfig_ScanDirectories (void)
                 skinnames = (char**)Z_TagMalloc(sizeof(char *) * (nskins+1), TAG_MENU);
                 
                 // copy the valid skins
-                for (s = 0, k = 0; k < nimagefiles-1; k++)
+                for (s = 0, k = 0; k < nimagefiles; k++)
                 {
                     char *a, *b, *c;
                     if ( imagenames[k] )
