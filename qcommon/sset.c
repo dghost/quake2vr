@@ -94,10 +94,28 @@ const char *Q_SSetGetString(sset_t *ss, int32_t index) {
 }
 
 int32_t Q_SSetGetStrings(sset_t *ss, const char **strings, int32_t maxStrings) {
-    int i;
     assert(ss != NULL && strings != NULL);
+    int i;
+
     for (i = 0; i < maxStrings && i < ss->currentSize; i++) {
         strings[i] = Q_STGetString(&ss->table, ss->tokens[i]);
     }
     return i;
 }
+
+const char **Q_SSetMakeStrings(sset_t *ss, int32_t *numStrings) {
+    assert(ss != NULL);
+    int i;
+    const char **strings = Z_TagMalloc(sizeof(const char *) * ss->currentSize, ss->tag);
+    
+    if (!strings)
+        return NULL;
+    
+    for (i = 0; i < ss->currentSize; i++) {
+        strings[i] = Q_STGetString(&ss->table, ss->tokens[i]);
+    }
+    if (numStrings)
+        *numStrings = ss->currentSize;
+    return strings;
+}
+

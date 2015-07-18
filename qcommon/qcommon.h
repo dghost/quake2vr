@@ -996,6 +996,7 @@ qboolean Q_SSetInsert(sset_t *ss, const char *string);
 qboolean Q_SSetDuplicate(sset_t *source, sset_t *dest);
 const char *Q_SSetGetString(sset_t *ss, int32_t index);
 int32_t Q_SSetGetStrings(sset_t *source, const char **strings, int32_t maxStrings);
+const char **Q_SSetMakeStrings(sset_t *ss, int32_t *numStrings);
 
 /*
 ==============================================================
