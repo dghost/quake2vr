@@ -183,28 +183,35 @@ void R_ScaledScreenshot (char *name)
 
 	// Allocate room for reduced screenshot
 	pngdata = (byte*)Z_TagMalloc(saveshotWidth * saveshotHeight * 3, TAG_RENDERER);
-	if (!pngdata)	return;
-
+    if (!pngdata) {
+        Z_Free(saveshotdata);
+        saveshotdata = NULL;
+        return;
+    }
+    
 	// Resize grabbed screen
-	if (!stbir_resize_uint8((uint8_t *) saveshotdata, (int) glConfig.render_width, (int) glConfig.render_height, 0, (uint8_t *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3)) {
-		VID_Printf (PRINT_ALL, "Menu_ScreenShot: Couldn't create %s\n", name); 
+    result = stbir_resize_uint8((uint8_t *) saveshotdata, (int) glConfig.render_width, (int) glConfig.render_height, 0, (uint8_t *) pngdata, (int) saveshotWidth, (int) saveshotHeight, 0, 3);
+    
+    Z_Free(saveshotdata);
+    saveshotdata = NULL;
+
+    if (!result) {
+		VID_Printf (PRINT_ALL, "Menu_ScreenShot: Couldn't create %s\n", name);
 		return;
 	}
-
+    
 	Com_sprintf (shotname, sizeof(shotname), "%s", name);
 
-	result = stbi_write_png(shotname,saveshotWidth, saveshotHeight, 3, pngdata,0);
-
+	result = stbi_write_png(shotname, saveshotWidth, saveshotHeight, 3, pngdata, 0);
+    
+    // Free Reduced screenshot
+    Z_Free(pngdata);
+    
 	if(!result)
 	{
 		VID_Printf (PRINT_ALL, "Menu_ScreenShot: Couldn't create %s\n", name); 
 		return;
 	}
-
-	// Free Reduced screenshot
-	Z_Free(pngdata);
-    Z_Free(saveshotdata);
-    saveshotdata = NULL;
 }
 
 

@@ -424,8 +424,11 @@ char *Sys_GetBaseDir (void) {
             int i;
             basepath = (char*)Z_TagStrdup(dir, TAG_SYSTEM);
             SDL_free(dir);
+            
             Com_Printf("Got base path %s\n", basepath);
+            
             i = strlen(basepath) - 1;
+            
             if (i > 0) {
                 while(i >= 0 && (basepath[i] == '\\' || basepath[i] == '/')) {
                     basepath[i] = '\0';
@@ -433,22 +436,27 @@ char *Sys_GetBaseDir (void) {
                 }
             }
             i = strlen(basepath);
-            if (i == 0) {
-                Z_Free(basepath);
-                basepath = (char*)Z_TagStrdup(".", TAG_SYSTEM);
-            } else {
+            
+            if (i >= 0) {
                 i--;
                 for (;i>=0;i--) {
                     if (basepath[i] == '\\') {
                         basepath[i] = '/';
                     }
                 }
+            } else {
+                Z_Free(basepath);
+                basepath = NULL;
             }
-
-        } else {
+            
+        }
+        
+        if (!basepath) {
             basepath = (char*)Z_TagStrdup(".", TAG_SYSTEM);
         }
-            Com_Printf("Using base path %s\n", basepath);
+        
+        
+        Com_Printf("Using base path %s\n", basepath);
     }
     return basepath;
 }

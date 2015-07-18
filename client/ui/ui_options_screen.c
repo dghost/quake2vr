@@ -192,8 +192,9 @@ void SetCrosshairNames (void)
         crosshair_names[0] = (char*)Z_TagStrdup("none",TAG_MENU); //was default
 	ncrosshairnames = 1;
 
-    Q_SSetInit(&crosshairs, 25, MAX_OSPATH, TAG_MENU);
+    Q_SSetInit(&crosshairs, 100, MAX_OSPATH, TAG_MENU);
     ncrosshairs = FS_ListFilesWithPaks( "pics/ch*.*", &crosshairs, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
+
     for (i=0; i < ncrosshairs && ncrosshairnames < MAX_CROSSHAIRS; i++)
     {
         int32_t num, namelen;
@@ -201,7 +202,8 @@ void SetCrosshairNames (void)
         
         
         p = strstr(Q_SSetGetString(&crosshairs, i), "/"); p++;
-        e = p + strlen(p) - 4;
+        namelen = strlen(p);
+        e = p + namelen - 4;
         
         if (!R_IsSupportedImageType(e))
             continue;
@@ -209,7 +211,6 @@ void SetCrosshairNames (void)
         // filename must be chxxx
         if (strncmp(p, "ch", 2))
             continue;
-        namelen = strlen(p);
         if (namelen < 7 || namelen > 9)
             continue;
         if (!isNumeric(p[2]))
@@ -220,7 +221,7 @@ void SetCrosshairNames (void)
         if (namelen == 9 && (p[2] != '1' || p[3] != '0' || p[4] != '0'))
             continue;
         
-        num = strlen(p)-4;
+        num = namelen-4;
         p[num] = 0; //NULL;
         
         curCrosshair = p;
@@ -231,7 +232,7 @@ void SetCrosshairNames (void)
             ncrosshairnames++;
         }
         
-        //set back so whole string get deleted.
+        
         p[num] = '.';
     }
 
