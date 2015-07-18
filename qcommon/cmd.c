@@ -912,17 +912,17 @@ Cmd_CompleteCommand
 char            retval[256];
 
 int strsort(const void *str1, const void *str2) {
-    char *a = *(char **)str1;
-    char *b = *(char **)str2;
-	return Q_strcasecmp(a,b);
+    const char *a = *(const char **)str1;
+    const char *b = *(const char **)str2;
+	return strcasecmp(a,b);
 }
 
 completion_t Cmd_CompleteCommand (char *partial)
 {
 	cmd_function_t	*cmd;
-	int32_t				len,i,j,o,p;
+	int32_t			len,i,j,o,p;
 	cvar_t			*cvar;
-	const char			*pmatch[1024];
+	const char		*pmatch[1024];
 	qboolean		diff = false;
     completion_t    result = {0, NULL};
     aliasblock_t      *a = alias_head;
@@ -931,7 +931,6 @@ completion_t Cmd_CompleteCommand (char *partial)
     if (!len)
         return result;
 
-    memset(pmatch, 0, sizeof(pmatch));
     i=0;
     
     for (j = 0; j < CMD_HASHMAP_WIDTH; j++) {
