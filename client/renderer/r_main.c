@@ -1890,9 +1890,9 @@ void R_BeginFrame()
 	if (glConfig.have_stencil)
 	{
 		if (r_shadows->value == 3) // BeefQuake R6 shadows
-			glClearStencil(0);
+			GL_ClearStencil(0);
 		else
-			glClearStencil(1);
+			GL_ClearStencil(1);
 	}
 }
 

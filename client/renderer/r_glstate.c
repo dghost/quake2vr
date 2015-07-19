@@ -133,6 +133,14 @@ void GL_Disable (GLenum cap)
 }
 
 
+void GL_ClearStencil (GLint value) {
+    if (value != glState.stencilClear) {
+        glState.stencilClear = value;
+        glClearStencil(value);
+    }
+}
+
+
 /*
 =================
 GL_Stencil
@@ -150,7 +158,7 @@ void GL_Stencil (qboolean enable, qboolean shell)
 		if (shell || r_shadows->value == 3) {
 //			glPushAttrib(GL_STENCIL_BUFFER_BIT);
 			if ( r_shadows->value == 3)
-				glClearStencil(1);
+				GL_ClearStencil(1);
 			glClear(GL_STENCIL_BUFFER_BIT);
 		}
 
@@ -693,7 +701,7 @@ void GL_SetDefaultState (void)
 	Vector4Set(glState.clearColor,-1,-1,-1,-1);
 	GL_SetDefaultClearColor();
 	glClearDepth(1.0);
-	glClearStencil(128);
+	GL_ClearStencil(128);
 
 	glColor4f (1,1,1,1);
 

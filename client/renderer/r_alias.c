@@ -726,15 +726,12 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
         glStencilFunc(GL_ALWAYS, 0, 255);
         //		glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
         //	glStencilMask (255);
-    }
-    
-    
-    if (!shadowvolume)
-    {
+
         glStencilOpSeparate  (GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
         glStencilOpSeparate  (GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
         GL_Disable(GL_CULL_FACE);
     }
+    
     // build shadow volumes and render each to stencil buffer
     for (i=0; i<paliashdr->num_meshes; i++)
     {

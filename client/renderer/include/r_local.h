@@ -852,6 +852,8 @@ typedef struct
 	qboolean		envAdd;
 	qboolean		stencilEnabled;
 
+    GLint           stencilClear;
+    
 	qboolean		cullFace;
 	qboolean		polygonOffsetFill; // Knightmare added
 	qboolean		alphaTest;
@@ -897,6 +899,7 @@ extern glstate_t   glState;
 //
 extern fbo_t screenFBO;
 extern fbo_t *lastFrame;
+void    GL_ClearStencil (GLint value);
 void	GL_Stencil (qboolean enable, qboolean shell);
 qboolean GL_HasStencil (void);
 
