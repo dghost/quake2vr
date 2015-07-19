@@ -46,6 +46,8 @@ void R_DrawSpriteModel (entity_t *e)
 	float			*up, *right;
 	int32_t				i;
 
+    vec4_t color;
+    
 	// don't even bother culling, because it's just a single
 	// polygon without a surface cache
 
@@ -68,6 +70,8 @@ void R_DrawSpriteModel (entity_t *e)
 
 	R_SetVertexRGBScale (true);
 
+    Vector4Set(color, 1.0, 1.0, 1.0, alpha);
+    
 	// Psychospaz's additive transparency
 	if ((currententity->flags & RF_TRANS_ADDITIVE) && (alpha != 1.0f))
 	{ 
@@ -118,9 +122,9 @@ void R_DrawSpriteModel (entity_t *e)
 	indexArray[rb_index++] = rb_vertex+2;
 	indexArray[rb_index++] = rb_vertex+3;
 	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], point[i][0], point[i][1], point[i][2]);
-		VA_SetElem4(colorArray[rb_vertex], 1.0f, 1.0f, 1.0f, alpha);
+		VA_SetElem2v(texCoordArray[0][rb_vertex], texCoord[i]);
+		VA_SetElem3v(vertexArray[rb_vertex], point[i]);
+		VA_SetElem4v(colorArray[rb_vertex], color);
 		rb_vertex++;
 	}
 	RB_DrawArrays ();

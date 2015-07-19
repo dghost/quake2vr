@@ -225,16 +225,16 @@ void R_PolyBlend (void)
 	indexArray[rb_index++] = rb_vertex+2;
 	indexArray[rb_index++] = rb_vertex+3;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, 100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
+	VA_SetElem4v(colorArray[rb_vertex], v_blend);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, 100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
+	VA_SetElem4v(colorArray[rb_vertex], v_blend);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, -100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
+	VA_SetElem4v(colorArray[rb_vertex], v_blend);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, -100);
-	VA_SetElem4(colorArray[rb_vertex], v_blend[0], v_blend[1], v_blend[2], alpha);
+	VA_SetElem4v(colorArray[rb_vertex], v_blend);
 	rb_vertex++;
 	RB_RenderMeshGeneric (false);
 

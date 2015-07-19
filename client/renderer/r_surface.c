@@ -405,7 +405,7 @@ void R_DrawGLPoly (msurface_t *surf, qboolean render)
 				VA_SetElem4(colorArray[rb_vertex], glState.inverse_intensity, glState.inverse_intensity, glState.inverse_intensity, alpha);
 
 			VA_SetElem2(texCoordArray[0][rb_vertex], v[3]+scroll, v[4]);
-			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
+			VA_SetElem3v(vertexArray[rb_vertex], v);
 			rb_vertex++;
 		}
 	}
@@ -445,7 +445,7 @@ void R_DrawGLPolyChain (glpoly_t *p, float soffset, float toffset)
 {
 	float	*v;
 	int32_t		j, nv;
-
+    static const vec4_t colorwhite = {1, 1, 1, 1};
 	rb_vertex = rb_index = 0;
 	for ( ; p != 0; p = p->chain)
 	{
@@ -461,8 +461,8 @@ void R_DrawGLPolyChain (glpoly_t *p, float soffset, float toffset)
 		for (j=0; j < nv; j++, v+= VERTEXSIZE)
 		{
 			VA_SetElem2(texCoordArray[0][rb_vertex], v[5] - soffset, v[6] - toffset);
-			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-			VA_SetElem4(colorArray[rb_vertex], 1, 1, 1, 1);
+			VA_SetElem3v(vertexArray[rb_vertex], v);
+			VA_SetElem4v(colorArray[rb_vertex], colorwhite);
 			rb_vertex++;
 		}
 	}
@@ -1095,7 +1095,7 @@ static void RB_RenderLightmappedSurface (msurface_t *surf)
 	if (glowLayer) 
 	{
 		for (i=0; i<rb_vertex; i++) // copy texture coords
-			VA_SetElem2(texCoordArray[2][i], texCoordArray[0][i][0], texCoordArray[0][i][1]);
+			VA_SetElem2v(texCoordArray[2][i], texCoordArray[0][i]);
 		GL_EnableTexture (2);
 		GL_MBind (2, glow->texnum);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
@@ -1162,6 +1162,8 @@ void R_DrawLightmappedSurface (msurface_t *surf, qboolean render)
 	int32_t			nv, i;
 	float		*v, scroll, alpha;
 
+    vec4_t color;
+    
 	c_brush_surfs++;
 
 	if (surf->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
@@ -1170,6 +1172,8 @@ void R_DrawLightmappedSurface (msurface_t *surf, qboolean render)
 		alpha = (currententity && (currententity->flags & RF_TRANSLUCENT)) ? currententity->alpha : 1.0;
 	alpha *= SurfAlphaCalc (surf->texinfo->flags);
 
+    Vector4Set(color, 1.0, 1.0, 1.0, alpha);
+    
 	if (surf->texinfo->flags & SURF_FLOWING) {
 		scroll = -64 * ((r_newrefdef.time / 40.0) - (int32_t)(r_newrefdef.time / 40.0));
 		if (scroll == 0.0) scroll = -64.0;
@@ -1195,8 +1199,8 @@ void R_DrawLightmappedSurface (msurface_t *surf, qboolean render)
 			VA_SetElem2(inTexCoordArray[rb_vertex], v[3], v[4]);
 			VA_SetElem2(texCoordArray[0][rb_vertex], (v[3]+scroll), v[4]);
 			VA_SetElem2(texCoordArray[1][rb_vertex], v[5], v[6]);
-			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-			VA_SetElem4(colorArray[rb_vertex], 1, 1, 1, alpha);
+			VA_SetElem3v(vertexArray[rb_vertex], v);
+			VA_SetElem4v(colorArray[rb_vertex], color);
 			rb_vertex++;
 		}
 	}

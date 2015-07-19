@@ -284,6 +284,7 @@ void MakeSkyVec (float s, float t, int32_t axis)
 	vec3_t		v, b;
 	int32_t			j, k;
 
+    static const vec4_t colorwhite = { 1.0f, 1.0f, 1.0f, 1.0f };
 	//Knightmare- 12/26/2001- variable back clipping plane distance
 	b[0] = s * r_skydistance->value;
 	b[1] = t * r_skydistance->value;
@@ -300,8 +301,8 @@ void MakeSkyVec (float s, float t, int32_t axis)
 	}
 
 	// avoid bilerp seam
-	s = (s+1)*0.5;
-	t = (t+1)*0.5;
+	s = (s+1)*0.5f;
+	t = (t+1)*0.5f;
 
 	if (s < sky_min)
 		s = sky_min;
@@ -312,11 +313,11 @@ void MakeSkyVec (float s, float t, int32_t axis)
 	else if (t > sky_max)
 		t = sky_max;
 
-	t = 1.0 - t;
+	t = 1.0f - t;
 
 	VA_SetElem2(texCoordArray[0][rb_vertex], s, t);
-	VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-	VA_SetElem4(colorArray[rb_vertex], 1.0f, 1.0f, 1.0f, 1.0f);
+	VA_SetElem3v(vertexArray[rb_vertex], v);
+	VA_SetElem4v(colorArray[rb_vertex],colorwhite);
 	rb_vertex++;
 }
 

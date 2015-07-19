@@ -50,7 +50,10 @@ void R_AddDlight (dlight_t *light)
 	vec3_t	v;
 	float	rad;
 
-	rad = light->intensity * 0.35;
+    static const vec4_t colorblack = {0, 0, 0, 1.0};
+    const vec4_t color = {light->color[0]*0.2f, light->color[1]*0.2f, light->color[2]*0.2f, 1.0f};
+    
+	rad = light->intensity * 0.35f;
 
 	VectorSubtract (light->origin, r_origin, v);
 
@@ -66,8 +69,8 @@ void R_AddDlight (dlight_t *light)
 		indexArray[rb_index++] = rb_vertex+1+((i<DLIGHTRADUIS)?i:0);
 	}
 
-	VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-	VA_SetElem4(colorArray[rb_vertex], light->color[0]*0.2f, light->color[1]*0.2f, light->color[2]*0.2f, 1.0f);
+	VA_SetElem3v(vertexArray[rb_vertex], v);
+	VA_SetElem4v(colorArray[rb_vertex], color);
 	rb_vertex++;
 
 	for (i=DLIGHTRADUIS; i>0; i--)
@@ -76,8 +79,8 @@ void R_AddDlight (dlight_t *light)
 		for (j=0; j<3; j++)
 			v[j] = light->origin[j] + vright[j]*cos(a)*rad + vup[j]*sin(a)*rad;
 
-		VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-		VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, 1.0);
+		VA_SetElem3v(vertexArray[rb_vertex], v);
+		VA_SetElem4v(colorArray[rb_vertex],colorblack);
 		rb_vertex++;
 	}
 }

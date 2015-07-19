@@ -425,7 +425,7 @@ void R_DrawWarpSurface (msurface_t *fa, float alpha, qboolean render)
 			else
 				VA_SetElem4(colorArray[rb_vertex], glState.inverse_intensity, glState.inverse_intensity, glState.inverse_intensity, alpha);
 
-			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
+			VA_SetElem3v(vertexArray[rb_vertex], v);
 
 			rb_vertex++;
 		}

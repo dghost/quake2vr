@@ -537,6 +537,8 @@ void R_RenderParticle (particle_t *p)
 	vec3_t		angl_coord[4];
 	particleRenderState_t	thisPart;
 
+    static const vec4_t colorblack = { 0, 0, 0, 0};
+    
 	Vector2Set(tex_coord[0], 0, 1);
 	Vector2Set(tex_coord[1], 0, 0);
 	Vector2Set(tex_coord[2], 1, 0);
@@ -623,7 +625,7 @@ void R_RenderParticle (particle_t *p)
 
 		for (i=0; i<2; i++) {
 			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[i]);
-			VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, 0);
+			VA_SetElem4v(colorArray[rb_vertex],colorblack);
 			indexArray[rb_index++] = rb_vertex;
 			rb_vertex++;
 		}
@@ -651,7 +653,7 @@ void R_RenderParticle (particle_t *p)
 			v[2]=p->origin[2] - p->angle[2]*size + (particle_right[2]*cos(angle) + particle_up[2]*sin(angle));
 
 			VA_SetElem3v(vertexArray[rb_vertex], v);
-			VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, 0);
+			VA_SetElem4v(colorArray[rb_vertex], colorblack);
 			rb_vertex++;
 		}
 #endif
