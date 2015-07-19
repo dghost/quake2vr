@@ -651,7 +651,8 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 	int32_t			i, lnum, skinnum;
 	//GLenum		incr, decr;
 	dlight_t	*dl;
-
+    qboolean shadowvolume = r_shadowvolumes->value;
+    
 	dl = r_newrefdef.dlights;
 
 	// compute average light vector from dlights
@@ -708,14 +709,14 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 
 
 	// set up stenciling
-	if (!r_shadowvolumes->value)
+	if (!shadowvolume)
 	{
 		/*if (glConfig.extStencilWrap)
 		{	incr = GL_INCR_WRAP_EXT;	decr = GL_DECR_WRAP_EXT;	}
 		else
 		{	incr = GL_INCR;				decr = GL_DECR;	}*/
 
-		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
+//		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
 		glClear(GL_STENCIL_BUFFER_BIT);
 
 		glColorMask(0,0,0,0);
@@ -723,51 +724,47 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 		GL_DepthFunc(GL_LESS);
 
 		GL_Enable(GL_STENCIL_TEST);
-		glStencilFunc(GL_ALWAYS, 0, 255);
-	//	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
-	//	glStencilMask (255);
-	}
-
-	// build shadow volumes and render each to stencil buffer
-	for (i=0; i<paliashdr->num_meshes; i++)
-	{
-		skinnum = (currententity->skinnum<paliashdr->meshes[i].num_skins)?currententity->skinnum:0;
-		if (paliashdr->meshes[i].skins[skinnum].renderparms.noshadow)
-			continue;
-
-		R_BuildShadowVolume (paliashdr, i, light, projected_distance, r_shadowvolumes->value);
-		GL_LockArrays (shadow_va);
-
-		if (!r_shadowvolumes->value)
-		{
-			GL_Disable(GL_CULL_FACE);
-
-			glStencilOpSeparate  (GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP); 
-			glStencilOpSeparate  (GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-
-			R_DrawShadowVolume ();
-
-			GL_Enable(GL_CULL_FACE);
-		}
-		else
-			R_DrawShadowVolume ();
-
-		GL_UnlockArrays ();
-	}
-
-	// end stenciling and draw stenciled volume
-	if (!r_shadowvolumes->value)
-	{
-		GL_CullFace(GL_FRONT);
-		GL_Disable(GL_STENCIL_TEST);
-		
-		GL_DepthFunc(GL_LEQUAL);
-		GL_DepthMask(1);
-		glColorMask(1,1,1,1);
+        glStencilFunc(GL_ALWAYS, 0, 255);
+        //		glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
+        //	glStencilMask (255);
+    }
+    
+    
+    if (!shadowvolume)
+    {
+        glStencilOpSeparate  (GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+        glStencilOpSeparate  (GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+        GL_Disable(GL_CULL_FACE);
+    }
+    // build shadow volumes and render each to stencil buffer
+    for (i=0; i<paliashdr->num_meshes; i++)
+    {
+        skinnum = (currententity->skinnum<paliashdr->meshes[i].num_skins)?currententity->skinnum:0;
+        if (paliashdr->meshes[i].skins[skinnum].renderparms.noshadow)
+            continue;
+        
+        R_BuildShadowVolume (paliashdr, i, light, projected_distance, shadowvolume);
+        
+        GL_LockArrays (shadow_va);
+        R_DrawShadowVolume ();
+        GL_UnlockArrays ();
+    }
+    
+    
+    // end stenciling and draw stenciled volume
+    if (!shadowvolume)
+    {
+        GL_CullFace(GL_FRONT);
+        GL_Disable(GL_STENCIL_TEST);
+        GL_Enable(GL_CULL_FACE);
+        
+        GL_DepthFunc(GL_LEQUAL);
+        GL_DepthMask(1);
+        glColorMask(1,1,1,1);
 		
 		// draw shadows for this model now
 		R_ShadowBlend (aliasShadowAlpha * currententity->alpha); // was r_shadowalpha->value
-		glPopAttrib(); // restore stencil buffer
+//		glPopAttrib(); // restore stencil buffer
 	}
 }
 
