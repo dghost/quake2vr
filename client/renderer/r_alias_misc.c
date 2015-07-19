@@ -133,6 +133,7 @@ from stenciled volume
 */
 void R_ShadowBlend (float shadowalpha)
 {
+    vec4_t color = {0, 0, 0, shadowalpha};
 	if (r_shadows->value != 3)
 		return;
 
@@ -157,16 +158,16 @@ void R_ShadowBlend (float shadowalpha)
 	indexArray[rb_index++] = rb_vertex+2;
 	indexArray[rb_index++] = rb_vertex+3;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, 100);
-	VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, shadowalpha);
+	VA_SetElem4v(colorArray[rb_vertex], color);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, 100);
-	VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, shadowalpha);
+	VA_SetElem4v(colorArray[rb_vertex], color);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, -100, -100);
-	VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, shadowalpha);
+	VA_SetElem4v(colorArray[rb_vertex], color);
 	rb_vertex++;
 	VA_SetElem3(vertexArray[rb_vertex], 10, 100, -100);
-	VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, shadowalpha);
+	VA_SetElem4v(colorArray[rb_vertex], color);
 	rb_vertex++;
 	RB_RenderMeshGeneric (false);
 

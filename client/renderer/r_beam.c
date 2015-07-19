@@ -75,9 +75,9 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	indexArray[rb_index++] = rb_vertex+2;
 	indexArray[rb_index++] = rb_vertex+3;
 	for (i=0; i<4; i++) {
-		VA_SetElem2(texCoordArray[0][rb_vertex], texCoord[i][0], texCoord[i][1]);
-		VA_SetElem3(vertexArray[rb_vertex], vert[i][0], vert[i][1], vert[i][2]);
-		VA_SetElem4(colorArray[rb_vertex], beamColor[0], beamColor[1], beamColor[2], beamColor[3]);
+		VA_SetElem2v(texCoordArray[0][rb_vertex], texCoord[i]);
+		VA_SetElem3v(vertexArray[rb_vertex], vert[i]);
+		VA_SetElem4v(colorArray[rb_vertex], beamColor);
 		rb_vertex++;
 	}
 	RB_DrawArrays ();

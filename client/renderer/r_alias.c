@@ -272,6 +272,11 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 	renderparms_t	skinParms;
 	qboolean		shellModel = e->flags & RF_MASK_SHELL;
 
+    if (shellModel)
+        shellscale = (e->flags & RF_WEAPONMODEL) ? WEAPON_SHELL_SCALE: POWERSUIT_SCALE;
+    else
+        shellscale = 0.0;
+    
 	frontlerp = 1.0 - backlerp;
 
 	if (shellModel && FlowingShell())
@@ -309,6 +314,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 
 	rb_vertex = rb_index = 0;
 //	numCalls = 0;
+
 
 	// new outer loop for whole model
 	for (k=0, meshnum=0; k < paliashdr->num_meshes; k++, meshnum++)
@@ -375,11 +381,6 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 					curNormal[1] + (oldNormal[1] - curNormal[1])*backlerp,
 					curNormal[2] + (oldNormal[2] - curNormal[2])*backlerp );
 
-			if (shellModel) 
-				shellscale = (e->flags & RF_WEAPONMODEL) ? WEAPON_SHELL_SCALE: POWERSUIT_SCALE;
-			else
-				shellscale = 0.0;
-
 			VectorSet ( tempVertexArray[meshnum][i], 
 					move[0] + ov->xyz[0]*oldScale[0] + v->xyz[0]*curScale[0] + tempNormalsArray[i][0]*shellscale,
 					mirrormult * (move[1] + ov->xyz[1]*oldScale[1] + v->xyz[1]*curScale[1] + tempNormalsArray[i][1]*shellscale),
@@ -408,8 +409,8 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 			}
 
 			// add to arrays
-			VA_SetElem2(texCoordArray[0][rb_vertex], tempSkinCoord[0], tempSkinCoord[1]);
-			VA_SetElem3(vertexArray[rb_vertex], tempVertexArray[meshnum][i][0], tempVertexArray[meshnum][i][1], tempVertexArray[meshnum][i][2]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tempSkinCoord);
+			VA_SetElem3v(vertexArray[rb_vertex], tempVertexArray[meshnum][i]);
 			VA_SetElem4(colorArray[rb_vertex], lightcolor[0], lightcolor[1], lightcolor[2], thisalpha);
 			rb_vertex++;
 		}
@@ -450,15 +451,13 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 	int32_t				i, j;
 	qboolean		triangleFacingLight[MD3_MAX_TRIANGLES];
 	vec3_t			v0, v1, v2, v3;
-	float			thisAlpha;
 	maliasmesh_t	mesh;
 	maliasvertex_t	*verts;
+    const vec4_t color = { 0, 0, 0, aliasShadowAlpha};
 
 	mesh = hdr->meshes[meshnum];
 
 	verts = mesh.vertexes;
-
-	thisAlpha = aliasShadowAlpha; // was r_shadowalpha->value
 
 	for (i=0; i<mesh.num_tris; i++)
 	{
@@ -494,17 +493,17 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 			indexArray[shadow_index++] = shadow_va+2;
 			indexArray[shadow_index++] = shadow_va+3;
 
-			VA_SetElem3(vertexArray[shadow_va], v0[0], v0[1], v0[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+			VA_SetElem3v(vertexArray[shadow_va], v0);
+			VA_SetElem4v(colorArray[shadow_va],color);
 			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v1[0], v1[1], v1[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+            VA_SetElem3v(vertexArray[shadow_va], v1);
+			VA_SetElem4v(colorArray[shadow_va],color);
 			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v2[0], v2[1], v2[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+            VA_SetElem3v(vertexArray[shadow_va], v2);
+			VA_SetElem4v(colorArray[shadow_va],color);
 			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v3[0], v3[1], v3[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+            VA_SetElem3v(vertexArray[shadow_va], v3);
+			VA_SetElem4v(colorArray[shadow_va],color);
 			shadow_va++;
 		}
 
@@ -524,18 +523,18 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 			indexArray[shadow_index++] = shadow_va+2;
 			indexArray[shadow_index++] = shadow_va+3;
 
-			VA_SetElem3(vertexArray[shadow_va], v0[0], v0[1], v0[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v1[0], v1[1], v1[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v2[0], v2[1], v2[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v3[0], v3[1], v3[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v0);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v1);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v2);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v3);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
 		}
 
 		if (mesh.trneighbors[i*3+2] < 0 || !triangleFacingLight[mesh.trneighbors[i*3+2]])
@@ -554,18 +553,18 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 			indexArray[shadow_index++] = shadow_va+2;
 			indexArray[shadow_index++] = shadow_va+3;
 
-			VA_SetElem3(vertexArray[shadow_va], v0[0], v0[1], v0[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v1[0], v1[1], v1[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v2[0], v2[1], v2[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v3[0], v3[1], v3[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v0);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v1);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v2);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v3);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            shadow_va++;
 		}
 	}
 
@@ -583,18 +582,18 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 			VectorCopy(tempVertexArray[meshnum][mesh.indexes[3*i+1]], v1);
 			VectorCopy(tempVertexArray[meshnum][mesh.indexes[3*i+2]], v2);
 
-			VA_SetElem3(vertexArray[shadow_va], v0[0], v0[1], v0[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+            VA_SetElem3v(vertexArray[shadow_va], v0);
+            VA_SetElem4v(colorArray[shadow_va],color);
 			indexArray[shadow_index++] = shadow_va;
 			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v1[0], v1[1], v1[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+            VA_SetElem3v(vertexArray[shadow_va], v1);
+            VA_SetElem4v(colorArray[shadow_va],color);
 			indexArray[shadow_index++] = shadow_va;
 			shadow_va++;
-			VA_SetElem3(vertexArray[shadow_va], v2[0], v2[1], v2[2]);
-			VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
-			indexArray[shadow_index++] = shadow_va;
-			shadow_va++;
+            VA_SetElem3v(vertexArray[shadow_va], v2);
+            VA_SetElem4v(colorArray[shadow_va],color);
+            indexArray[shadow_index++] = shadow_va;
+            shadow_va++;
 	//		continue;
 	//	}
 
@@ -609,16 +608,16 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 			v1[j]=v1[j]+((v1[j]-light[j]) * projectdistance);
 			v2[j]=v2[j]+((v2[j]-light[j]) * projectdistance);
 		}
-		VA_SetElem3(vertexArray[shadow_va], v2[0], v2[1], v2[2]);
-		VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+        VA_SetElem3v(vertexArray[shadow_va], v2);
+        VA_SetElem4v(colorArray[shadow_va],color);
 		indexArray[shadow_index++] = shadow_va;
 		shadow_va++;
-		VA_SetElem3(vertexArray[shadow_va], v1[0], v1[1], v1[2]);
-		VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+        VA_SetElem3v(vertexArray[shadow_va], v1);
+        VA_SetElem4v(colorArray[shadow_va],color);
 		indexArray[shadow_index++] = shadow_va;
 		shadow_va++;
-		VA_SetElem3(vertexArray[shadow_va], v0[0], v0[1], v0[2]);
-		VA_SetElem4(colorArray[shadow_va], 0, 0, 0, thisAlpha);
+        VA_SetElem3v(vertexArray[shadow_va], v0);
+        VA_SetElem4v(colorArray[shadow_va],color);
 		indexArray[shadow_index++] = shadow_va;
 		shadow_va++;
 	}
@@ -781,6 +780,8 @@ void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 	vec3_t	point, shadevector;
 	int32_t		i, j, skinnum;
 
+    vec4_t color;
+    
 	R_ShadowLight (currententity->origin, shadevector);
 
 	lheight = currententity->origin[2] - lightspot[2];
@@ -790,6 +791,8 @@ void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 	else
 		thisAlpha = aliasShadowAlpha; // was r_shadowalpha->value
 
+    Vector4Set(color, 0, 0, 0, thisAlpha);
+    
 	// don't draw shadows above view origin, thnx to MrG
 	if (r_newrefdef.vieworg[2] < (currententity->origin[2] + height))
 		return;
@@ -819,8 +822,9 @@ void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 			point[0] -= shadevector[0]*(point[2]+lheight);
 			point[1] -= shadevector[1]*(point[2]+lheight);
 			point[2] = height;
+            // compiler optimization?
 			VA_SetElem3(vertexArray[rb_vertex], point[0], point[1], point[2]);
-			VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, thisAlpha);
+			VA_SetElem4v(colorArray[rb_vertex], color);
 			rb_vertex++;
 		}
 	}
