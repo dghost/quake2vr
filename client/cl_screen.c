@@ -1531,14 +1531,11 @@ int32_t entitycmpfnc( const entity_t *a, const entity_t *b )
 	/*
 	** all other models are sorted by model then skin
 	*/
-	if ( a->model == b->model )
-	{
-		return ( ( int32_t ) a->skin - ( int32_t ) b->skin );
-	}
-	else
-	{
-		return ( ( int32_t ) a->model - ( int32_t ) b->model );
-	}
+    
+    int32_t modeldiff = ( int32_t ) a->model - ( int32_t ) b->model;
+    int32_t skindiff = ( int32_t ) a->skin - ( int32_t ) b->skin;
+
+    return modeldiff != 0 ? modeldiff : skindiff ;
 }
 
 void SCR_TimeRefresh_f (void)
