@@ -745,23 +745,22 @@ void R_RenderView (refdef_t *fd)
 		R_DrawAllParticles ();
 
 		VR_DrawCrosshair();
-
-		R_DrawEntitiesOnList(ents_viewweaps);
-
-		if (r_particle_overdraw->value)
-		{
-			R_ParticleStencil (1);
-		}
-
-		R_DrawAlphaSurfaces ();
-
-		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
-		{
-			R_ParticleStencil (2);
-			R_DrawAllParticles ();
-			R_ParticleStencil (3);
-		}
-
+        
+        R_DrawEntitiesOnList(ents_viewweaps);
+        
+        if (r_particle_overdraw->value)
+        {
+            R_ParticleStencil (1);
+            
+            R_DrawAlphaSurfaces ();
+            
+            R_ParticleStencil (2);
+            R_DrawAllParticles ();
+            R_ParticleStencil (3);
+        } else {
+            R_DrawAlphaSurfaces ();
+        }
+        
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);
 		
@@ -885,19 +884,18 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 
 		R_DrawEntitiesOnList(ents_viewweaps);
 
-		if (r_particle_overdraw->value)
-		{
-			R_ParticleStencil (1);
-		}
-
-		R_DrawAlphaSurfaces ();
-
-		if (r_particle_overdraw->value) // redraw over alpha surfaces, those behind are occluded
-		{
-			R_ParticleStencil (2);
-			R_DrawAllParticles ();
-			R_ParticleStencil (3);
-		}
+        if (r_particle_overdraw->value)
+        {
+            R_ParticleStencil (1);
+            
+            R_DrawAlphaSurfaces ();
+            
+            R_ParticleStencil (2);
+            R_DrawAllParticles ();
+            R_ParticleStencil (3);
+        } else {
+            R_DrawAlphaSurfaces ();
+        }
 
 		// always draw vwep last...
 		R_DrawEntitiesOnList(ents_viewweaps_trans);

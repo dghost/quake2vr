@@ -1120,3 +1120,31 @@ void R_DrawAllDecals (void)
 
 	R_FinishParticles (true);
 }
+
+/*
+ =================
+ R_ParticleStencil
+ uses stencil buffer to redraw
+ particles only over trans surfaces
+ =================
+ */
+void R_ParticleStencil (int32_t passnum)
+{
+    switch (passnum) {
+        case 1:
+            GL_ClearStencil(1);
+            glClear(GL_STENCIL_BUFFER_BIT);
+            GL_Enable(GL_STENCIL_TEST);
+            GL_StencilFunc( GL_ALWAYS, 1, ~0);
+            glStencilOpSeparate(GL_FRONT_AND_BACK,  GL_KEEP, GL_KEEP, GL_INCR);
+            break;
+        case 2:
+            GL_StencilFunc( GL_NOTEQUAL, 1, ~0);
+            glStencilOpSeparate(GL_FRONT_AND_BACK,  GL_KEEP, GL_KEEP, GL_KEEP);
+            break;
+        default:
+            GL_Disable(GL_STENCIL_TEST);
+            break;
+            
+    }
+}

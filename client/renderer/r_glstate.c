@@ -171,39 +171,6 @@ qboolean GL_HasStencil (void)
 	return (glConfig.have_stencil && r_stencil->value);
 }
 
-/*
-=================
-R_ParticleStencil
-uses stencil buffer to redraw
-particles only over trans surfaces
-=================
-*/
-extern	cvar_t	*r_particle_overdraw;
-void R_ParticleStencil (int32_t passnum)
-{
-	if (passnum == 1) // write area of trans surfaces to stencil buffer
-	{
-//		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
-		glClearStencil(1);
-		glClear(GL_STENCIL_BUFFER_BIT);
-
-		GL_Enable(GL_STENCIL_TEST);
-		glStencilFunc( GL_ALWAYS, 1, 0xFF);
-        glStencilOp( GL_KEEP, GL_KEEP, GL_INCR);
-	}
-	else if (passnum == 2) // enable drawing only to affected area
-	{
-		//GL_Enable(GL_STENCIL_TEST);
-		glStencilFunc( GL_NOTEQUAL, 1, 0xFF);
-        glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP);
-	}
-	else if (passnum == 3) // turn off and restore
-	{
-		GL_Disable(GL_STENCIL_TEST);
-//		glPopAttrib(); // restore stencil buffer
-	}
-}
-
 
 /*
 =================

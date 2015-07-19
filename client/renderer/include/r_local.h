@@ -385,6 +385,7 @@ void R_DrawParticles (sortedelement_t *list);
 void R_DrawAllParticles (void);
 void R_DrawDecals (void);
 void R_DrawAllDecals (void);
+void R_ParticleStencil (int32_t passnum);
 
 //
 // r_light.c
@@ -897,7 +898,6 @@ extern glstate_t   glState;
 extern fbo_t screenFBO;
 extern fbo_t *lastFrame;
 void	GL_Stencil (qboolean enable, qboolean shell);
-void	R_ParticleStencil (int32_t passnum);
 qboolean GL_HasStencil (void);
 
 void	GL_Enable (GLenum cap);
@@ -1071,6 +1071,7 @@ int32_t R_FrameSync (void);
 void R_PerspectiveOffset(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, GLfloat offset);
 void R_PerspectiveScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar);
 void R_MakePerspectiveFromScale(eyeScaleOffset_t eye, GLfloat zNear, GLfloat zFar, vec4_t out[4]);
+
 //
 // r_blur.c
 //
