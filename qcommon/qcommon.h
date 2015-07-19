@@ -701,9 +701,9 @@ int32_t			CM_HeadnodeForBox (vec3_t mins, vec3_t maxs);
 int32_t			CM_PointContents (vec3_t p, int32_t headnode);
 int32_t			CM_TransformedPointContents (vec3_t p, int32_t headnode, vec3_t origin, vec3_t angles);
 
-trace_t		CM_BoxTrace (vec3_t start, vec3_t end,
-						  vec3_t mins, vec3_t maxs,
-						  int32_t headnode, int32_t brushmask);
+trace_t		CM_BoxTrace (const vec3_t start, const vec3_t end,
+						  const vec3_t mins, const vec3_t maxs,
+						  const int32_t headnode, const int32_t brushmask);
 trace_t		CM_TransformedBoxTrace (vec3_t start, vec3_t end,
 						  vec3_t mins, vec3_t maxs,
 						  int32_t headnode, int32_t brushmask,

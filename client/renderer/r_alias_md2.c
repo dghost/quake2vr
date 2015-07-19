@@ -456,8 +456,9 @@ projection shadows from BeefQuake R6
 */
 void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 {
-	vec3_t		light, temp, vecAdd;//, static_offset;
-	int32_t			i, lnum;
+    vec3_t		light, temp;
+    vec3_t      vecAdd = {680,0,1024};
+    int32_t		i, lnum;
 	float		projected_distance = 1;
 	float		cost, sint, is, it, dist, highest, lowest;//, maxdist = 384;
 	qboolean	zfail = true;
@@ -468,10 +469,6 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 
 	dl = r_newrefdef.dlights;
 
-	//VectorSet(static_offset, 576,0,1024); // set static vector, was 144,0,256
-	VectorSet(vecAdd, 680,0,1024); // set base vector, was 576,0,1024
-
-	//VectorClear(vecAdd);
 	for (i=0, lnum=0; i<r_newrefdef.num_dlights; i++, dl++)
 	{
 		if (VectorCompare(dl->origin, currententity->origin))

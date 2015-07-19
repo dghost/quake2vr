@@ -2334,16 +2334,11 @@ void CL_RailTrail (vec3_t start, vec3_t end, qboolean isRed)
 {
 
 	vec3_t		vec;
-	int32_t		coreColor[3];
-	int32_t		spiralColor[3];
-	if (isRed) 
-	{
+    int32_t		coreColor[3] = {255,20,20};
+    int32_t		spiralColor[3] = {191,191,191};
 
-		VectorSet(spiralColor,255,20,20);
-		VectorSet(coreColor,191,191,191);
-	}
-	else
-	{
+    if (!isRed)
+    {
 		ColorLookup(cl_railspiral_color->value,&spiralColor[0],&spiralColor[1],&spiralColor[2]);
 		spiralColor[0] *= 0.75;
 		spiralColor[1] *=0.75;

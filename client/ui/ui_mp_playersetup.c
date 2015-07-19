@@ -737,7 +737,7 @@ void PlayerConfig_MenuDraw (void)
 	{
 		int32_t			yaw;
 //		int32_t			maxframe = 29;
-		vec3_t		modelOrg;
+        static const vec3_t		modelOrg = { 150, -25, 0};
 		// Psychopspaz's support for showing weapon model
 		entity_t	entity[2], *ent;
 
@@ -747,7 +747,6 @@ void PlayerConfig_MenuDraw (void)
 		yaw = anglemod(cls.realtime/10);
 
 		//VectorSet (modelOrg, 150, (hand->value==1)?25:-25, 0); // was 80, 0, 0
-		VectorSet (modelOrg, 150, -25, 0);
 
 		// Setup player model
 		ent = &entity[0];

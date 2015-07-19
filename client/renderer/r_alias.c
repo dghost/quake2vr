@@ -644,7 +644,8 @@ based on code from BeefQuake R6
 */
 void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 {
-	vec3_t		light, temp, vecAdd;
+    vec3_t		light, temp;
+    vec3_t      vecAdd =  {680,0,1024};
 	float		dist, highest, lowest, projected_distance;
 	float		angle, cosp, sinp, cosy, siny, cosr, sinr, ix, iy, iz;
 	int32_t			i, lnum, skinnum;
@@ -652,8 +653,6 @@ void R_DrawAliasVolumeShadow (maliasmodel_t *paliashdr, vec3_t bbox[8])
 	dlight_t	*dl;
 
 	dl = r_newrefdef.dlights;
-
-	VectorSet(vecAdd, 680,0,1024); // set base vector, was 576,0,1024
 
 	// compute average light vector from dlights
 	for (i=0, lnum=0; i<r_newrefdef.num_dlights; i++, dl++)

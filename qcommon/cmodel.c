@@ -1291,7 +1291,7 @@ CM_RecursiveHullCheck
 
 ==================
 */
-void CM_RecursiveHullCheck (int32_t num, float p1f, float p2f, vec3_t p1, vec3_t p2)
+void CM_RecursiveHullCheck (const int32_t num, const float p1f, const float p2f, const vec3_t p1, const vec3_t p2)
 {
 	cnode_t		*node;
 	cplane_t	*plane;
@@ -1414,9 +1414,9 @@ return;
 CM_BoxTrace
 ==================
 */
-trace_t		CM_BoxTrace (vec3_t start, vec3_t end,
-						  vec3_t mins, vec3_t maxs,
-						  int32_t headnode, int32_t brushmask)
+trace_t		CM_BoxTrace (const vec3_t start, const vec3_t end,
+						  const vec3_t mins, const vec3_t maxs,
+						  const int32_t headnode, const int32_t brushmask)
 {
 	int32_t		i;
 

@@ -2256,8 +2256,7 @@ void CL_CalcViewValues (void)
 	}
 	else
 	{	// just use interpolated values
-		vec3_t temp;
-		VectorSet(temp,0,0,0);
+        vec3_t temp = {0, 0, 0};
 		cl.bodyangles[PITCH] = 0;
 		VectorCopy(cl.bodyangles,cl.aimangles);
 		VectorSet(cl.aimdelta,0,0,0);
@@ -2294,12 +2293,19 @@ void CL_CalcViewValues (void)
 	
 	//if (vr_enabled->value)
 	{
-		vec3_t forward, right,distance;
+		vec3_t forward, right, distance;
 		vec3_t gun_origin;
 		vec3_t gun_angles;
 		trace_t trace;
 		int32_t i;
 
+        static const vec3_t handoffsets[3] = {
+            {8,8,-8},
+            {8,-8,-8},
+            {8,0,-8}
+        };
+        
+        
 		for (i = 0; i < 3; i++)
 		{
 			gun_origin[i] = cl.refdef.vieworg[i] + ops->gunoffset[i]
@@ -2309,16 +2315,8 @@ void CL_CalcViewValues (void)
 		VectorCopy(cl.refdef.aimangles, gun_angles);
 		AngleVectors(gun_angles,forward,right,NULL);
 	
-		// right handed
-		if ((int32_t) hand->value == 0)
-			VectorSet(distance,8,8,-8);
-		// left handed
-		else if ((int32_t) hand->value == 1)
-			VectorSet(distance,8,-8,-8);
-		// center
-		else if ((int32_t) hand->value == 2)
-			VectorSet(distance,8,0,-8);
-			
+        VectorCopy(handoffsets[(int32_t)hand->value], distance);
+        
 		CL_ProjectSource(gun_origin,distance,forward,right,cl.refdef.aimstart);
 		
 		VectorMA(cl.refdef.aimstart,8192,forward,distance);

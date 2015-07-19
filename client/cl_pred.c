@@ -278,10 +278,8 @@ CL_Trace
 */
 trace_t CL_Trace (vec3_t start, vec3_t end, float size,  int32_t contentmask)
 {
-	vec3_t maxs, mins;
-
-	VectorSet(maxs, size, size, size);
-	VectorSet(mins, -size, -size, -size);
+    const vec3_t maxs = {size, size, size};
+    const vec3_t mins = {-size, -size, -size};
 
 	return CM_BoxTrace (start, end, mins, maxs, 0, contentmask);
 }
@@ -296,11 +294,9 @@ clips against brush models.
 */
 trace_t CL_BrushTrace (vec3_t start, vec3_t end, float size,  int32_t contentmask)
 {
-	vec3_t maxs, mins;
+    vec3_t maxs = {size, size, size};
+    vec3_t mins = {-size, -size, -size};
 	trace_t	t;
-
-	VectorSet(maxs, size, size, size);
-	VectorSet(mins, -size, -size, -size);
 
 	t = CM_BoxTrace (start, end, mins, maxs, 0, contentmask);
 	if (t.fraction < 1.0)

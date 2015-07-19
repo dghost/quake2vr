@@ -1335,7 +1335,7 @@ void CL_AddBeams (void)
 	player_state_t	*ps, *ops;
 	qboolean	firstperson, chasecam;
 	int32_t			handmult;
-	vec3_t		thirdp_grapple_offset;
+    static const vec3_t		thirdp_grapple_offset = { 6, 16, 16};
 	vec3_t		grapple_offset_dir;
 
 	// chasecam grapple offset stuff
@@ -1350,8 +1350,8 @@ void CL_AddBeams (void)
 	}
 	else 
 		handmult = 1;
-	VectorSet(thirdp_grapple_offset, 6, 16, 16);
-	// end third person grapple
+
+    // end third person grapple
 
 // update beams
 	for (i=0, b=cl_beams; i< MAX_BEAMS; i++, b++)
@@ -1531,7 +1531,7 @@ void CL_AddPlayerBeams (void)
 	player_state_t	*ps, *ops;
 	qboolean	firstperson, chasecam;
 	int32_t			newhandmult;
-	vec3_t		thirdp_pbeam_offset;
+    static const vec3_t		thirdp_pbeam_offset = {6.5, 0, 12};
 	vec3_t		pbeam_offset_dir;
 
 //PMM
@@ -1555,7 +1555,6 @@ void CL_AddPlayerBeams (void)
 	if (newhandmult == 0)
 		newhandmult = 1;
 
-	VectorSet(thirdp_pbeam_offset, 6.5, 0, 12);
 	// end chasecam beam offset stuff
 
 // update beams
