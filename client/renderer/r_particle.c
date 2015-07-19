@@ -342,10 +342,7 @@ void R_CheckParticleRenderState (particleRenderState_t *check, int32_t numVerts,
 		}
 		GL_DepthRange (gldepthmin, depthmax);
 
-		if (currentParticleState.overbright)
-			SetParticleOverbright(true);
-		else
-			SetParticleOverbright(false);
+        SetParticleOverbright(currentParticleState.overbright);
 
 		if (currentParticleState.polygon_offset_fill) {
 			GL_Enable(GL_POLYGON_OFFSET_FILL);

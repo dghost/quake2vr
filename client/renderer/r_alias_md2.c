@@ -107,7 +107,7 @@ void R_LightAliasMD2Model (vec3_t baselight, dtrivertx_t *verts, dtrivertx_t *ov
 R_DrawAliasMD2FrameLerp
 =================
 */
-void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
+void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, entity_t *e)
 {
 	daliasframe_t	*frame, *oldframe;
 	dtrivertx_t		*v, *ov, *verts;
@@ -120,6 +120,7 @@ void R_DrawAliasMD2FrameLerp (dmdl_t *paliashdr, float backlerp)
 	vec3_t			frontv, backv, lightcolor;
 	vec2_t			tempSkin;
 	qboolean		shellModel = e->flags & RF_MASK_SHELL;
+    float backlerp = e->backlerp;
 
 	if (currententity->flags & RF_VIEWERMODEL)
 		return;
@@ -933,10 +934,10 @@ void R_DrawAliasMD2Model (entity_t *e)
 	if ( !r_lerpmodels->value )
 		e->backlerp = 0;
 	if (mirrormodel)
-		R_FlipModel(true);
+		R_FlipModel(true, false);
 	R_SetBlendModeOn (skin); // Q2max add
 
-	R_DrawAliasMD2FrameLerp (paliashdr, e->backlerp);
+	R_DrawAliasMD2FrameLerp (paliashdr, e);
 
 	GL_TexEnv (GL_REPLACE);
 	GL_ShadeModel (GL_FLAT);
