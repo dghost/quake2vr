@@ -276,8 +276,11 @@ extern int32_t Q_ftol( float f );
 #define DotProduct(x,y)			(x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
 #define VectorSubtract(a,b,c)	(c[0]=a[0]-b[0],c[1]=a[1]-b[1],c[2]=a[2]-b[2])
 #define VectorAdd(a,b,c)		(c[0]=a[0]+b[0],c[1]=a[1]+b[1],c[2]=a[2]+b[2])
-#define VectorCopy(a,b)			(b[0]=a[0],b[1]=a[1],b[2]=a[2])
-#define VectorClear(a)			(a[0]=a[1]=a[2]=0)
+//#define VectorCopy(a,b)			(b[0]=a[0],b[1]=a[1],b[2]=a[2])
+#define VectorCopy(a,b)         (memcpy(b, a, sizeof(*a) * 3))
+#define VectorCopyOld(a,b)      (b[0]=a[0],b[1]=a[1],b[2]=a[2])
+//#define VectorClear(a)			(a[0]=a[1]=a[2]=0)
+#define VectorClear(a)			(memset(a, 0, sizeof(*a) * 3))
 #define VectorNegate(a,b)		(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2])
 #define VectorSet(v, x, y, z)	(v[0]=(x), v[1]=(y), v[2]=(z))
 

@@ -279,12 +279,12 @@ Send the intended movement message to the server
 */
 void CL_BaseMove (usercmd_t *cmd)
 {	
-	CL_AdjustAngles ();
+    CL_AdjustAngles ();
 	
 	memset (cmd, 0, sizeof(*cmd));
-	
-	VectorCopy (cl.aimangles, cmd->angles);
-	if (in_strafe.state & 1)
+
+	VectorCopyOld (cl.aimangles, cmd->angles);
+    if (in_strafe.state & 1)
 	{
 		cmd->sidemove += cl_sidespeed->value * CL_KeyState (&in_right);
 		cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_left);
