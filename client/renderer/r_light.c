@@ -67,7 +67,7 @@ void R_AddDlight (dlight_t *light)
 	}
 
 	VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
-	VA_SetElem4(colorArray[rb_vertex], light->color[0]*0.2, light->color[1]*0.2, light->color[2]*0.2, 1.0);
+	VA_SetElem4(colorArray[rb_vertex], light->color[0]*0.2f, light->color[1]*0.2f, light->color[2]*0.2f, 1.0f);
 	rb_vertex++;
 
 	for (i=DLIGHTRADUIS; i>0; i--)

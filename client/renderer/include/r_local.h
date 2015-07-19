@@ -583,9 +583,13 @@ void	R_DrawAliasModelBBox (vec3_t bbox[8], entity_t *e);
 #define VA_SetElem3(v,a,b,c)	((v)[0]=(a),(v)[1]=(b),(v)[2]=(c))
 #define VA_SetElem4(v,a,b,c,d)	((v)[0]=(a),(v)[1]=(b),(v)[2]=(c),(v)[3]=(d))
 
-#define VA_SetElem2v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1])
-#define VA_SetElem3v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1],(v)[2]=(a)[2])
-#define VA_SetElem4v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1],(v)[2]=(a)[2],(v)[3]=(a)[3])
+//#define VA_SetElem2v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1])
+//#define VA_SetElem3v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1],(v)[2]=(a)[2])
+//#define VA_SetElem4v(v,a)	((v)[0]=(a)[0],(v)[1]=(a)[1],(v)[2]=(a)[2],(v)[3]=(a)[3])
+
+#define VA_SetElem2v(v,a)	({assert(sizeof(*v) == sizeof(*a)); memcpy(v, a, sizeof(*a) * 2);})
+#define VA_SetElem3v(v,a)	({assert(sizeof(*v) == sizeof(*a)); memcpy(v, a, sizeof(*a) * 3);})
+#define VA_SetElem4v(v,a)	({assert(sizeof(*v) == sizeof(*a)); memcpy(v, a, sizeof(*a) * 4);})
 
 
 extern unsigned	indexArray[MAX_INDICES];
