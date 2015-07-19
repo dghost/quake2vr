@@ -146,9 +146,9 @@ void R_ShadowBlend (float shadowalpha)
 	GL_Disable (GL_DEPTH_TEST);
 	GL_DisableTexture(0);
 
+    GL_StencilFunc(GL_NOTEQUAL, 0, 255);
+    glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 	GL_Enable(GL_STENCIL_TEST);
-	glStencilFunc(GL_NOTEQUAL, 0, 255);
-	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 
 	rb_vertex = rb_index = 0;
 	indexArray[rb_index++] = rb_vertex+0;
@@ -276,9 +276,13 @@ void R_SetShellBlend (qboolean toggle)
 			GL_Bind(glMedia.shelltexture->texnum);
 		else
 			GL_DisableTexture(0);
-
-		GL_Stencil(true, true);
-
+        
+        GL_ClearStencil(0);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        GL_StencilFunc(GL_EQUAL, 1, 2);
+        glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+        GL_Enable(GL_STENCIL_TEST);
+        
 		shellFlowH =  0.25 * sin(r_newrefdef.time * 0.5 * M_PI);
 		shellFlowV = -(r_newrefdef.time / 2.0); 
 	}
@@ -295,7 +299,7 @@ void R_SetShellBlend (qboolean toggle)
 		else
 			GL_EnableTexture(0);
 
-		GL_Stencil(false, true);
+        GL_Disable(GL_STENCIL_TEST);
 	}
 }
 

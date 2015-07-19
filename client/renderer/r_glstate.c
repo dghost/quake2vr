@@ -141,37 +141,13 @@ void GL_ClearStencil (GLint value) {
 }
 
 
-/*
-=================
-GL_Stencil
-setting stencil buffer
-stenciling for shadows & color shells
-=================
-*/
-void GL_Stencil (qboolean enable, qboolean shell)
-{
-	if (!glConfig.have_stencil || !r_stencil->value) 
-		return;
-
-	if (enable)
-	{
-		if (shell || r_shadows->value == 3) {
-//			glPushAttrib(GL_STENCIL_BUFFER_BIT);
-			if ( r_shadows->value == 3)
-				GL_ClearStencil(1);
-			glClear(GL_STENCIL_BUFFER_BIT);
-		}
-
-		GL_Enable(GL_STENCIL_TEST);
-		glStencilFunc(GL_EQUAL, 1, 2);
-		glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
-	}
-	else
-	{
-		GL_Disable(GL_STENCIL_TEST);
-//		if (shell || r_shadows->value == 3)
-//			glPopAttrib();
-	}
+void GL_StencilFunc (GLenum func, GLint ref, GLuint mask) {
+    if (func != glState.stencilFunc || ref != glState.stencilFuncRef || mask != glState.stencilFuncMask) {
+        glState.stencilFunc = func;
+        glState.stencilFuncRef = ref;
+        glState.stencilFuncMask = mask;
+        glStencilFunc(func, ref, mask);
+    }
 }
 
 qboolean GL_HasStencil (void)
@@ -666,7 +642,12 @@ void GL_SetDefaultState (void)
 	glState.depthMask = GL_TRUE;
 	glState.matrixMode = GL_MODELVIEW;
 
+    glState.stencilClear = 0; // OpenGL says 0 is default
+    glState.stencilFunc = GL_ALWAYS;
+    glState.stencilFuncRef = 0;
+    glState.stencilFuncMask = ~0; // default should be filled with all 1's
 
+    
 	RotationMatrix(-90, 1, 0, 0, rot);
 	RotationMatrix( 90, 0, 0, 1, temp);
 	MatrixMultiply(temp, rot, glState.axisRotation);
@@ -687,21 +668,23 @@ void GL_SetDefaultState (void)
 	glDisable(GL_SCISSOR_TEST);
     glDisable(GL_FOG);
     
-	glCullFace(GL_FRONT);
-	glShadeModel(GL_FLAT);
-	glPolygonOffset(-1, -2);
-	glAlphaFunc(GL_GREATER, 0.666);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_TRUE);
+	glCullFace(glState.cullMode);
+	glShadeModel(glState.shadeModelMode);
+	glPolygonOffset(glState.offsetFactor, glState.offsetUnits);
+	glAlphaFunc(glState.alphaFunc, glState.alphaRef);
+	glBlendFunc(glState.blendSrc, glState.blendDst);
+	glDepthFunc(glState.depthFunc);
+	glDepthMask(glState.depthMask);
 
-	glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(glState.matrixMode);
 
 	// force it to change the clear color
 	Vector4Set(glState.clearColor,-1,-1,-1,-1);
 	GL_SetDefaultClearColor();
 	glClearDepth(1.0);
-	GL_ClearStencil(128);
+    
+    glClearStencil(glState.stencilClear);
+    glStencilFunc(glState.stencilFunc, glState.stencilFuncRef, glState.stencilFuncMask);
 
 	glColor4f (1,1,1,1);
 

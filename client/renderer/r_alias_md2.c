@@ -521,11 +521,12 @@ void R_DrawAliasMD2VolumeShadow (dmdl_t *paliashdr, vec3_t bbox[8])
 		glColorMask(0,0,0,0);
 		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
 		glClear(GL_STENCIL_BUFFER_BIT);
+        GL_StencilFunc( GL_ALWAYS, 0, ~0);
+
 		GL_Enable(GL_STENCIL_TEST);
 		
 		GL_DepthMask(0);
 		GL_DepthFunc( GL_LESS );
-		glStencilFunc( GL_ALWAYS, 0, 0xFF);
 	}
 
 	R_BuildMD2ShadowVolume(paliashdr, light, projected_distance, r_shadowvolumes->value||!zfail);
@@ -661,9 +662,17 @@ void R_DrawAliasMD2PlanarShadow (dmdl_t *paliashdr, qboolean mirrored)
 	if (r_newrefdef.vieworg[2] < (currententity->origin[2] + height))
 		return;
 
-	GL_Stencil(true, false);
-	GL_BlendFunc (GL_SRC_ALPHA_SATURATE, GL_ONE_MINUS_SRC_ALPHA);
-
+    if ( r_shadows->value == 3)
+        GL_ClearStencil(1);
+    else
+        GL_ClearStencil(0);
+    
+    glClear(GL_STENCIL_BUFFER_BIT);
+    GL_BlendFunc (GL_SRC_ALPHA_SATURATE, GL_ONE_MINUS_SRC_ALPHA);
+    GL_Enable(GL_STENCIL_TEST);
+    GL_StencilFunc(GL_EQUAL, 1, 2);
+    glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+    
 	rb_vertex = rb_index = 0;
 	while (1)
 	{
@@ -719,7 +728,7 @@ void R_DrawAliasMD2PlanarShadow (dmdl_t *paliashdr, qboolean mirrored)
 	RB_DrawArrays ();
 	rb_vertex = rb_index = 0;
 
-	GL_Stencil(false, false);
+    GL_Disable(GL_STENCIL_TEST);
 }
 
 
