@@ -631,12 +631,9 @@ void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs)
 }
 
 
-int32_t VectorCompare (vec3_t v1, vec3_t v2)
+int32_t VectorCompare (const vec3_t v1, const vec3_t v2)
 {
-	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
-			return 0;
-			
-	return 1;
+    return !(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]);
 }
 
 
@@ -645,10 +642,10 @@ vec_t VectorNormalize (vec3_t v)
 	float	length, ilength;
 
 	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);		// FIXME
-
+    
 	if (length)
 	{
+        length = sqrt (length);		// FIXME
         int32_t i;
 		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
@@ -658,15 +655,15 @@ vec_t VectorNormalize (vec3_t v)
 	return length;
 }
 
-vec_t VectorNormalize2 (vec3_t v, vec3_t out)
+vec_t VectorNormalize2 (const vec3_t v, vec3_t out)
 {
 	float	length, ilength;
 
 	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);		// FIXME
 
 	if (length)
 	{
+        length = sqrt (length);		// FIXME
         int32_t i;
 		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
@@ -676,7 +673,7 @@ vec_t VectorNormalize2 (vec3_t v, vec3_t out)
 	return length;
 }
 
-void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
+void VectorMA (const vec3_t veca, const float scale, const vec3_t vecb, vec3_t vecc)
 {
     int32_t i;
     for (i=0 ; i< 3 ; i++)
@@ -717,7 +714,7 @@ void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross)
 
 double sqrt(double x);
 
-vec_t VectorLength(vec3_t v)
+vec_t VectorLength(const vec3_t v)
 {
 	int32_t		i;
 	float	length;
@@ -737,7 +734,7 @@ void VectorInverse (vec3_t v)
         v[i] = -v[i];
 }
 
-void VectorScale (vec3_t in, vec_t scale, vec3_t out)
+void VectorScale (const vec3_t in, const vec_t scale, vec3_t out)
 {
 	out[0] = in[0]*scale;
 	out[1] = in[1]*scale;

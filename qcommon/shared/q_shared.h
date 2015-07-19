@@ -281,7 +281,7 @@ extern int32_t Q_ftol( float f );
 #define VectorNegate(a,b)		(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2])
 #define VectorSet(v, x, y, z)	(v[0]=(x), v[1]=(y), v[2]=(z))
 
-void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
+void VectorMA (const vec3_t veca, const float scale, const vec3_t vecb, vec3_t vecc);
 
 // just in case you do't want to use the macros
 vec_t _DotProduct (vec3_t v1, vec3_t v2);
@@ -291,13 +291,13 @@ void _VectorCopy (vec3_t in, vec3_t out);
 
 void ClearBounds (vec3_t mins, vec3_t maxs);
 void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs);
-int32_t VectorCompare (vec3_t v1, vec3_t v2);
-vec_t VectorLength (vec3_t v);
+int32_t VectorCompare (const vec3_t v1, const vec3_t v2);
+vec_t VectorLength (const vec3_t v);
 void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross);
 vec_t VectorNormalize (vec3_t v);		// returns vector length
-vec_t VectorNormalize2 (vec3_t v, vec3_t out);
+vec_t VectorNormalize2 (const vec3_t v, vec3_t out);
 void VectorInverse (vec3_t v);
-void VectorScale (vec3_t in, vec_t scale, vec3_t out);
+void VectorScale (const vec3_t in, const vec_t scale, vec3_t out);
 int32_t Q_log2(int32_t val);
 
 // From Q2E
