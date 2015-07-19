@@ -148,7 +148,7 @@ void GL_Stencil (qboolean enable, qboolean shell)
 	if (enable)
 	{
 		if (shell || r_shadows->value == 3) {
-			glPushAttrib(GL_STENCIL_BUFFER_BIT);
+//			glPushAttrib(GL_STENCIL_BUFFER_BIT);
 			if ( r_shadows->value == 3)
 				glClearStencil(1);
 			glClear(GL_STENCIL_BUFFER_BIT);
@@ -156,13 +156,13 @@ void GL_Stencil (qboolean enable, qboolean shell)
 
 		GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 2);
-		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP,GL_KEEP,GL_INCR);
+		glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
 	}
 	else
 	{
 		GL_Disable(GL_STENCIL_TEST);
-		if (shell || r_shadows->value == 3)
-			glPopAttrib();
+//		if (shell || r_shadows->value == 3)
+//			glPopAttrib();
 	}
 }
 
@@ -183,24 +183,24 @@ void R_ParticleStencil (int32_t passnum)
 {
 	if (passnum == 1) // write area of trans surfaces to stencil buffer
 	{
-		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
+//		glPushAttrib(GL_STENCIL_BUFFER_BIT); // save stencil buffer
 		glClearStencil(1);
 		glClear(GL_STENCIL_BUFFER_BIT);
 
 		GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc( GL_ALWAYS, 1, 0xFF);
-		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_INCR);
+        glStencilOp( GL_KEEP, GL_KEEP, GL_INCR);
 	}
 	else if (passnum == 2) // enable drawing only to affected area
 	{
 		//GL_Enable(GL_STENCIL_TEST);
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF);
-		glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+        glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP);
 	}
 	else if (passnum == 3) // turn off and restore
 	{
 		GL_Disable(GL_STENCIL_TEST);
-		glPopAttrib(); // restore stencil buffer
+//		glPopAttrib(); // restore stencil buffer
 	}
 }
 

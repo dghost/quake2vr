@@ -147,7 +147,7 @@ void R_ShadowBlend (float shadowalpha)
 
 	GL_Enable(GL_STENCIL_TEST);
 	glStencilFunc(GL_NOTEQUAL, 0, 255);
-	glStencilOpSeparate(GL_FRONT_AND_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 
 	rb_vertex = rb_index = 0;
 	indexArray[rb_index++] = rb_vertex+0;
