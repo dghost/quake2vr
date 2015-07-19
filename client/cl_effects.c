@@ -142,6 +142,15 @@ void CL_LightningBeam (vec3_t start, vec3_t end, int32_t srcEnt, int32_t dstEnt,
 }
 
 
+static const vec3_t angles[6] = {
+    { 1, 0, 0},
+    { -1, 0, 0},
+    {0, 1, 0},
+    {0, -1, 0},
+    {0, 0, 1},
+    {0, 0, -1}
+};
+
 /*
 ===============
 CL_Explosion_Decal
@@ -153,29 +162,30 @@ void CL_Explosion_Decal (vec3_t org, float size, int32_t decalnum)
 	{
 		int32_t			i, j, offset=8;	//size/2
 		cparticle_t	*p;
-		vec3_t		angle[6], ang;
+		vec3_t		ang;
 		trace_t		trace1, trace2;
 		vec3_t		end1, end2, normal, sorg, dorg;
 		vec3_t		planenormals[6];
 
-		VectorSet(angle[0], -1, 0, 0);
-		VectorSet(angle[1], 1, 0, 0);
-		VectorSet(angle[2], 0, 1, 0);
-		VectorSet(angle[3], 0, -1, 0);
-		VectorSet(angle[4], 0, 0, 1);
-		VectorSet(angle[5], 0, 0, -1);
+
 
 		for (i=0; i<6; i++)
 		{
-			VectorMA(org, -offset, angle[i], sorg); // move origin 8 units back
-			VectorMA(sorg, size/2+offset, angle[i], end1);
-			trace1 = CL_Trace (sorg, end1, 0, CONTENTS_SOLID);
-			if (trace1.fraction < 1) // hit a surface
-			{	// make sure we haven't hit this plane before
-				VectorCopy(trace1.plane.normal, planenormals[i]);
-				for (j=0; j<i; j++)
-					if (VectorCompare(planenormals[j],planenormals[i])) continue;
-				// try tracing directly to hit plane
+			VectorMA(org, -offset, angles[i], sorg); // move origin 8 units back
+			VectorMA(sorg, size/2+offset, angles[i], end1);
+            trace1 = CL_Trace (sorg, end1, 0, CONTENTS_SOLID);
+            if (trace1.fraction < 1) // hit a surface
+            {	// make sure we haven't hit this plane before
+                qboolean done = 0;
+                VectorCopy(trace1.plane.normal, planenormals[i]);
+                for (j=0; j<i && !done; j++)
+                    done |= (VectorCompare(planenormals[j],planenormals[i]));
+                
+                if (done) {
+                    continue;
+                }
+                
+                // try tracing directly to hit plane
 				VectorNegate(trace1.plane.normal, normal);
 				VectorMA(sorg, size/2, normal, end2);
 				trace2 = CL_Trace (sorg, end2, 0, CONTENTS_SOLID);
