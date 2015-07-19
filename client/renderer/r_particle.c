@@ -616,13 +616,13 @@ void R_RenderParticle (particle_t *p)
 		VectorAdd (p->origin, angl_coord[0], ParticleVec[0]);
 		VectorAdd (p->origin, angl_coord[1], ParticleVec[1]);
 
-		VA_SetElem3(vertexArray[rb_vertex], p->origin[0], p->origin[1], p->origin[2]);
-		VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+		VA_SetElem3v(vertexArray[rb_vertex], p->origin);
+		VA_SetElem4v(colorArray[rb_vertex], partColor);
 		indexArray[rb_index++] = rb_vertex;
 		rb_vertex++;
 
 		for (i=0; i<2; i++) {
-			VA_SetElem3(vertexArray[rb_vertex], ParticleVec[i][0], ParticleVec[i][1], ParticleVec[i][2]);
+			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[i]);
 			VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, 0);
 			indexArray[rb_index++] = rb_vertex;
 			rb_vertex++;
@@ -650,7 +650,7 @@ void R_RenderParticle (particle_t *p)
 			v[1]=p->origin[1] - p->angle[1]*size + (particle_right[1]*cos(angle) + particle_up[1]*sin(angle));
 			v[2]=p->origin[2] - p->angle[2]*size + (particle_right[2]*cos(angle) + particle_up[2]*sin(angle));
 
-			VA_SetElem3(vertexArray[rb_vertex], v[0], v[1], v[2]);
+			VA_SetElem3v(vertexArray[rb_vertex], v);
 			VA_SetElem4(colorArray[rb_vertex], 0, 0, 0, 0);
 			rb_vertex++;
 		}
@@ -677,9 +677,9 @@ void R_RenderParticle (particle_t *p)
 		indexArray[rb_index++] = rb_vertex+3;
 		for (i=0; i<4; i++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[i][0], tex_coord[i][1]);
-			VA_SetElem3(vertexArray[rb_vertex], angl_coord[i][0], angl_coord[i][1], angl_coord[i][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[i]);
+			VA_SetElem3v(vertexArray[rb_vertex], angl_coord[i]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
@@ -740,9 +740,9 @@ void R_RenderParticle (particle_t *p)
 			indexArray[rb_index++] = rb_vertex+3;
 			for (j=0; j<4; j++)
 			{
-				VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[j][0], tex_coord[j][1]);
-				VA_SetElem3(vertexArray[rb_vertex], angl_coord[j][0], angl_coord[j][1], angl_coord[j][2]);
-				VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+                VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[j]);
+                VA_SetElem3v(vertexArray[rb_vertex], angl_coord[j]);
+                VA_SetElem4v(colorArray[rb_vertex], partColor);
 				rb_vertex++;
 			}
 
@@ -789,9 +789,9 @@ void R_RenderParticle (particle_t *p)
 			indexArray[rb_index++] = rb_vertex+3;
 			for (j=0; j<4; j++)
 			{
-				VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[j][0], tex_coord[j][1]);
-				VA_SetElem3(vertexArray[rb_vertex], angl_coord[j][0], angl_coord[j][1], angl_coord[j][2]);
-				VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+				VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[j]);
+				VA_SetElem3v(vertexArray[rb_vertex], angl_coord[j]);
+				VA_SetElem4v(colorArray[rb_vertex], partColor);
 				rb_vertex++;
 			}
 		}
@@ -825,9 +825,9 @@ void R_RenderParticle (particle_t *p)
 		indexArray[rb_index++] = rb_vertex+3;
 		for (i=0; i<4; i++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[i][0], tex_coord[i][1]);
-			VA_SetElem3(vertexArray[rb_vertex], ParticleVec[i][0], ParticleVec[i][1], ParticleVec[i][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[i]);
+			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[i]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
@@ -859,9 +859,9 @@ void R_RenderParticle (particle_t *p)
 		indexArray[rb_index++] = rb_vertex+3;
 		for (j=0; j<4; j++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[j][0], tex_coord[j][1]);
-			VA_SetElem3(vertexArray[rb_vertex], ParticleVec[j][0],ParticleVec[j][1], ParticleVec[j][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[j]);
+			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[j]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
@@ -907,9 +907,9 @@ void R_RenderParticle (particle_t *p)
 		indexArray[rb_index++] = rb_vertex+3;
 		for (j=0; j<4; j++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[j][0], tex_coord[j][1]);
-			VA_SetElem3(vertexArray[rb_vertex], ParticleVec[j][0],ParticleVec[j][1], ParticleVec[j][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[j]);
+			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[j]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
@@ -1050,9 +1050,9 @@ void R_RenderDecal (particle_t *p)
 		}
 		for (i = 0; i < p->decal->numpolys; i++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], p->decal->coords[i][0], p->decal->coords[i][1]);
-			VA_SetElem3(vertexArray[rb_vertex], p->decal->polys[i][0], p->decal->polys[i][1], p->decal->polys[i][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], p->decal->coords[i]);
+			VA_SetElem3v(vertexArray[rb_vertex], p->decal->polys[i]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
@@ -1086,9 +1086,9 @@ void R_RenderDecal (particle_t *p)
 		indexArray[rb_index++] = rb_vertex+3;
 		for (i=0; i<4; i++)
 		{
-			VA_SetElem2(texCoordArray[0][rb_vertex], tex_coord[i][0], tex_coord[i][1]);
-			VA_SetElem3(vertexArray[rb_vertex], ParticleVec[i][0], ParticleVec[i][1], ParticleVec[i][2]);
-			VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+			VA_SetElem2v(texCoordArray[0][rb_vertex], tex_coord[i]);
+			VA_SetElem3v(vertexArray[rb_vertex], ParticleVec[i]);
+			VA_SetElem4v(colorArray[rb_vertex], partColor);
 			rb_vertex++;
 		}
 	}
