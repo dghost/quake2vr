@@ -68,18 +68,22 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	Vector2Set(texCoord[3], 1, 1);
 
 	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
+	indexArray[rb_index] = rb_vertex+0;
+	indexArray[rb_index+1] = rb_vertex+1;
+	indexArray[rb_index+2] = rb_vertex+2;
+	indexArray[rb_index+3] = rb_vertex+0;
+	indexArray[rb_index+4] = rb_vertex+2;
+	indexArray[rb_index+5] = rb_vertex+3;
+    rb_index += 6;
+    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+    memcpy(vertexArray[rb_vertex], vert, sizeof(vec3_t) * 4);
+    
 	for (i=0; i<4; i++) {
-		VA_SetElem2v(texCoordArray[0][rb_vertex], texCoord[i]);
-		VA_SetElem3v(vertexArray[rb_vertex], vert[i]);
-		VA_SetElem4v(colorArray[rb_vertex], beamColor);
-		rb_vertex++;
+		VA_SetElem4v(colorArray[rb_vertex + i], beamColor);
 	}
+
+    rb_vertex += 4;
+    
 	RB_DrawArrays ();
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

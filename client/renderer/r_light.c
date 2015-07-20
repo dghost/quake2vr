@@ -64,9 +64,10 @@ void R_AddDlight (dlight_t *light)
 		RB_RenderMeshGeneric (true);
 
 	for (i = 1; i <= DLIGHTRADUIS; i++) {
-		indexArray[rb_index++] = rb_vertex;
-		indexArray[rb_index++] = rb_vertex+i;
-		indexArray[rb_index++] = rb_vertex+1+((i<DLIGHTRADUIS)?i:0);
+		indexArray[rb_index] = rb_vertex;
+		indexArray[rb_index+1] = rb_vertex+i;
+		indexArray[rb_index+2] = rb_vertex+1+((i<DLIGHTRADUIS)?i:0);
+        rb_index+=3;
 	}
 
 	VA_SetElem3v(vertexArray[rb_vertex], v);
