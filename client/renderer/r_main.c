@@ -203,6 +203,19 @@ R_PolyBlend
 void R_PolyBlend (void)
 {
 	float alpha = v_blend[3];
+    int i;
+    
+    static const vec3_t verts[4] = {
+        {10, 100, 100},
+        {10, -100, 100},
+        {10, -100, -100},
+        {10, 100, -100}
+    };
+    
+    static const uint32_t indices[6] = {
+        0, 1, 2, 0, 2, 3
+    };
+    
 	if (!r_polyblend->value)
 		return;
 	if (!alpha)
@@ -218,24 +231,17 @@ void R_PolyBlend (void)
 	GL_LoadMatrix(GL_MODELVIEW, glState.axisRotation);
 
 	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
-	VA_SetElem3(vertexArray[rb_vertex], 10, 100, 100);
-	VA_SetElem4v(colorArray[rb_vertex], v_blend);
-	rb_vertex++;
-	VA_SetElem3(vertexArray[rb_vertex], 10, -100, 100);
-	VA_SetElem4v(colorArray[rb_vertex], v_blend);
-	rb_vertex++;
-	VA_SetElem3(vertexArray[rb_vertex], 10, -100, -100);
-	VA_SetElem4v(colorArray[rb_vertex], v_blend);
-	rb_vertex++;
-	VA_SetElem3(vertexArray[rb_vertex], 10, 100, -100);
-	VA_SetElem4v(colorArray[rb_vertex], v_blend);
-	rb_vertex++;
+    
+    memcpy(indexArray, indices, sizeof(indices));
+    memcpy(vertexArray[rb_vertex], verts, sizeof(vec3_t) * 4);
+
+    for (i = 0; i < 4; i++) {
+        VA_SetElem4v(colorArray[rb_vertex + i], v_blend);
+    }
+
+    rb_index += 6;
+	rb_vertex += 4;
+
 	RB_RenderMeshGeneric (false);
 
 	GL_Disable (GL_BLEND);

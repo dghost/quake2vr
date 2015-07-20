@@ -615,15 +615,14 @@ void R_RenderParticle (particle_t *p)
 		VectorSubtract (ang_right, ang_up, angl_coord[0]);
 		VectorAdd (ang_up, ang_right, angl_coord[1]);
 		VectorNegate (angl_coord[1], angl_coord[1]);
-		VectorAdd (p->origin, angl_coord[0], ParticleVec[0]);
-		VectorAdd (p->origin, angl_coord[1], ParticleVec[1]);
 
 		VA_SetElem3v(vertexArray[rb_vertex], p->origin);
 		VA_SetElem4v(colorArray[rb_vertex], partColor);
 		indexArray[rb_index++] = rb_vertex;
 		rb_vertex++;
 
-        memcpy(vertexArray[rb_vertex], ParticleVec, sizeof(vec3_t) * 2);
+        VectorAdd (p->origin, angl_coord[0], vertexArray[rb_vertex]);
+        VectorAdd (p->origin, angl_coord[1], vertexArray[rb_vertex+1]);
 
         for (i=0; i<2; i++) {
 			VA_SetElem4v(colorArray[rb_vertex + i],colorblack);
@@ -645,18 +644,17 @@ void R_RenderParticle (particle_t *p)
 			indexArray[rb_index++] = rb_vertex+j;
 		}
 
-		VA_SetElem3(vertexArray[rb_vertex], p->origin[0], p->origin[1], p->origin[2]);
-		VA_SetElem4(colorArray[rb_vertex], partColor[0], partColor[1], partColor[2], partColor[3]);
+		VA_SetElem3v(vertexArray[rb_vertex], p->origin);
+		VA_SetElem4v(colorArray[rb_vertex], partColor);
 		rb_vertex++;
 
 		for (i=0; i<8; i++)
 		{
 			angle = i * 45; // was 22.5;
-			v[0]=p->origin[0] - p->angle[0]*size + (particle_right[0]*cos(angle) + particle_up[0]*sin(angle));
-			v[1]=p->origin[1] - p->angle[1]*size + (particle_right[1]*cos(angle) + particle_up[1]*sin(angle));
-			v[2]=p->origin[2] - p->angle[2]*size + (particle_right[2]*cos(angle) + particle_up[2]*sin(angle));
+			vertexArray[rb_vertex][0]=p->origin[0] - p->angle[0]*size + (particle_right[0]*cos(angle) + particle_up[0]*sin(angle));
+			vertexArray[rb_vertex][1]=p->origin[1] - p->angle[1]*size + (particle_right[1]*cos(angle) + particle_up[1]*sin(angle));
+			vertexArray[rb_vertex][2]=p->origin[2] - p->angle[2]*size + (particle_right[2]*cos(angle) + particle_up[2]*sin(angle));
 
-			VA_SetElem3v(vertexArray[rb_vertex], v);
 			VA_SetElem4v(colorArray[rb_vertex], colorblack);
 			rb_vertex++;
 		}

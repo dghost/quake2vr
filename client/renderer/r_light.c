@@ -78,9 +78,8 @@ void R_AddDlight (dlight_t *light)
 	{
 		a = i/DLIGHTRADUIS * M_PI*2;
 		for (j=0; j<3; j++)
-			v[j] = light->origin[j] + vright[j]*cos(a)*rad + vup[j]*sin(a)*rad;
+			vertexArray[rb_vertex][j] = light->origin[j] + vright[j]*cos(a)*rad + vup[j]*sin(a)*rad;
 
-		VA_SetElem3v(vertexArray[rb_vertex], v);
 		VA_SetElem4v(colorArray[rb_vertex],colorblack);
 		rb_vertex++;
 	}

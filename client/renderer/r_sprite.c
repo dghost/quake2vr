@@ -46,8 +46,12 @@ void R_DrawSpriteModel (entity_t *e)
 	float			*up, *right;
 	int32_t				i;
 
-    vec4_t color;
+    static const uint32_t indices[6] = {
+        0, 1, 2, 0, 2, 3
+    };
     
+    vec4_t color;
+  
 	// don't even bother culling, because it's just a single
 	// polygon without a surface cache
 
@@ -115,19 +119,18 @@ void R_DrawSpriteModel (entity_t *e)
 	VectorMA (point[3], frame->width - frame->origin_x, right, point[3]);
 
 	rb_vertex = rb_index = 0;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+1;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+0;
-	indexArray[rb_index++] = rb_vertex+2;
-	indexArray[rb_index++] = rb_vertex+3;
+    memcpy(&indexArray[rb_index], indices, sizeof(indices));
+    rb_index += 6;
+    
+    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+    memcpy(vertexArray[rb_vertex], point, sizeof(vec3_t) * 4);
+    
 	for (i=0; i<4; i++) {
-		VA_SetElem2v(texCoordArray[0][rb_vertex], texCoord[i]);
-		VA_SetElem3v(vertexArray[rb_vertex], point[i]);
-		VA_SetElem4v(colorArray[rb_vertex], color);
-		rb_vertex++;
+		VA_SetElem4v(colorArray[rb_vertex + i], color);
 	}
-	RB_DrawArrays ();
+    rb_vertex+=4;
+    
+    RB_DrawArrays ();
 
 	GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GL_TexEnv (GL_REPLACE);

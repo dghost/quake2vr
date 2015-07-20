@@ -37,6 +37,10 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	vec4_t		beamColor;
 	int32_t		i;
 
+    static const uint32_t indices[6] = {
+        0, 1, 2, 0, 2, 3
+    };
+    
 	c_alias_polys += 2;
 
 	GL_TexEnv (GL_MODULATE);
@@ -68,13 +72,9 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	Vector2Set(texCoord[3], 1, 1);
 
 	rb_vertex = rb_index = 0;
-	indexArray[rb_index] = rb_vertex+0;
-	indexArray[rb_index+1] = rb_vertex+1;
-	indexArray[rb_index+2] = rb_vertex+2;
-	indexArray[rb_index+3] = rb_vertex+0;
-	indexArray[rb_index+4] = rb_vertex+2;
-	indexArray[rb_index+5] = rb_vertex+3;
+    memcpy(&indexArray[rb_index], indices, sizeof(indices));
     rb_index += 6;
+
     memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
     memcpy(vertexArray[rb_vertex], vert, sizeof(vec3_t) * 4);
     
