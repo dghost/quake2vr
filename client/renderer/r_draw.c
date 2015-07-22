@@ -130,10 +130,10 @@ void R_DrawChar (float x, float y, int32_t num, float scale,
 	float		frow, fcol, size, cscale, italicAdd;
 	qboolean	addChar = true;
     
-    const vec_t r = red*DIV255;
-    const vec_t g = green*DIV255;
-    const vec_t b = blue*DIV255;
-    const vec_t a = alpha*DIV255;
+    const vec_t r = min(red, 255)*DIV255;
+    const vec_t g = min(green, 255)*DIV255;
+    const vec_t b = min(blue, 255)*DIV255;
+    const vec_t a = max(min(alpha, 255), 1)*DIV255;
     
     
     const vec4_t color[4] = {
@@ -142,13 +142,9 @@ void R_DrawChar (float x, float y, int32_t num, float scale,
         {r,g,b,a},
         {r,g,b,a}
     };
+    
 	num &= 255;
-
-	if (alpha > 255)
-		alpha = 255;
-	else if (alpha < 1)
-		alpha = 1;
-
+    
 	if ((num & 127) == 32)	// space
 		addChar = false;
 	if (y <= -(scale * DEFAULT_FONT_SIZE))	// totally off screen
@@ -264,9 +260,6 @@ void R_DrawGetPicSize (int32_t *w, int32_t *h, char *pic)
  */
 void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl, float alpha)
 {
-    int32_t			i;
-    vec2_t		texCoord[4], verts[4];
-    
     const vec4_t color[4] = {
         {1.0, 1.0, 1.0, alpha},
         {1.0, 1.0, 1.0, alpha},
@@ -288,25 +281,24 @@ void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl
     
     GL_Bind (gl->texnum);
     
-
-    
     rb_vertex = rb_index = 0;
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
-
-    Vector2Set(texCoordArray[0][rb_vertex], gl->sl, gl->tl);
-    Vector2Set(texCoordArray[0][rb_vertex+1], gl->sh, gl->tl);
-    Vector2Set(texCoordArray[0][rb_vertex+2], gl->sh, gl->th);
-    Vector2Set(texCoordArray[0][rb_vertex+3], gl->sl, gl->th);
     
-    VA_SetElem3(vertexArray[rb_vertex], x, y, 0);
-    VA_SetElem3(vertexArray[rb_vertex+1], x+w, y, 0);
-    VA_SetElem3(vertexArray[rb_vertex+2], x+w, y+h, 0);
-    VA_SetElem3(vertexArray[rb_vertex+3], x, y+h, 0);
+    rb_index = 6;
+
+    Vector2Set(texCoordArray[0][0], gl->sl, gl->tl);
+    Vector2Set(texCoordArray[0][1], gl->sh, gl->tl);
+    Vector2Set(texCoordArray[0][2], gl->sh, gl->th);
+    Vector2Set(texCoordArray[0][3], gl->sl, gl->th);
+    
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+w, y, 0);
+    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
+    VA_SetElem3(vertexArray[3], x, y+h, 0);
     
     memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
     
-    rb_vertex += 4;
+    rb_vertex = 4;
     
     RB_RenderMeshGeneric (false);
     
@@ -379,7 +371,9 @@ void R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, image_t 
     
     xoff = gl->width*scale_x-gl->width;
     yoff = gl->height*scale_y-gl->height;
-      rb_vertex = rb_index = 0;
+    
+    rb_vertex = rb_index = 0;
+    
     memcpy(indexArray, indices, sizeof(indices));
     rb_index = 6;
     
@@ -394,7 +388,6 @@ void R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, image_t 
     VA_SetElem3(vertexArray[2], x+gl->width+xoff, y+gl->height+yoff, 0);
     VA_SetElem3(vertexArray[3], x, y+gl->height+yoff, 0);
     
-
     memcpy(colorArray, color, sizeof(vec4_t) * 4);
     
     rb_vertex = 4;
@@ -451,7 +444,10 @@ void R_DrawImage (int32_t x, int32_t y, image_t *gl)
     GL_Bind (gl->texnum);
     
     rb_vertex = rb_index = 0;
-
+    
+    memcpy(indexArray, indices, sizeof(indices));
+    rb_index = 6;
+    
     VA_SetElem2(texCoordArray[0][0], gl->sl, gl->tl);
     VA_SetElem2(texCoordArray[0][1], gl->sh, gl->tl);
     VA_SetElem2(texCoordArray[0][2], gl->sh, gl->th);
@@ -461,9 +457,6 @@ void R_DrawImage (int32_t x, int32_t y, image_t *gl)
     VA_SetElem3(vertexArray[1], x+gl->width, y, 0);
     VA_SetElem3(vertexArray[2], x+gl->width, y+gl->height, 0);
     VA_SetElem3(vertexArray[3], x, y+gl->height, 0);
-    
-    memcpy(indexArray, indices, sizeof(indices));
-    rb_index = 6;
 
     memcpy(colorArray, color, sizeof(vec4_t) * 4);
 
@@ -512,14 +505,9 @@ void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image
     };
     
     GL_Bind (image->texnum);
-    /*
-     Vector2Set(texCoord[0], x/64.0, y/64.0);
-     Vector2Set(texCoord[1], (x+w)/64.0, y/64.0);
-     Vector2Set(texCoord[2], (x+w)/64.0, (y+h)/64.0);
-     Vector2Set(texCoord[3], x/64.0, (y+h)/64.0);
-     */
-    
+
     rb_vertex = rb_index = 0;
+
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
     rb_index = 6;
     
