@@ -38,7 +38,7 @@ R_DrawSpriteModel
 */
 void R_DrawSpriteModel (entity_t *e)
 {
-	float			alpha = 1.0f;
+    float			alpha = (e->flags & RF_TRANSLUCENT) ? e->alpha : 1.0f;
 	vec2_t			texCoord[4];
 	vec3_t			point[4];
 	dsprite_t		*psprite;
@@ -50,7 +50,12 @@ void R_DrawSpriteModel (entity_t *e)
         0, 1, 2, 0, 2, 3
     };
     
-    vec4_t color;
+    const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha}
+    };
   
 	// don't even bother culling, because it's just a single
 	// polygon without a surface cache
@@ -69,12 +74,8 @@ void R_DrawSpriteModel (entity_t *e)
 	up = vup;
 	right = vright;
 
-	if (e->flags & RF_TRANSLUCENT)
-		alpha = e->alpha;
 
 	R_SetVertexRGBScale (true);
-
-    Vector4Set(color, 1.0, 1.0, 1.0, alpha);
     
 	// Psychospaz's additive transparency
 	if ((currententity->flags & RF_TRANS_ADDITIVE) && (alpha != 1.0f))
@@ -124,10 +125,7 @@ void R_DrawSpriteModel (entity_t *e)
     
     memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
     memcpy(vertexArray[rb_vertex], point, sizeof(vec3_t) * 4);
-    
-	for (i=0; i<4; i++) {
-		VA_SetElem4v(colorArray[rb_vertex + i], color);
-	}
+    memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
     rb_vertex+=4;
     
     RB_DrawArrays ();

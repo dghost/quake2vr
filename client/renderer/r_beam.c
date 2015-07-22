@@ -33,8 +33,22 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 {
 	float		len;
 	vec3_t		vert[4], ang_up, ang_right, vdelta;
-	vec2_t		texCoord[4];
-	vec4_t		beamColor;
+    static const vec2_t		texCoord[4] = {
+        { 0, 1},
+        { 0, 0},
+        { 1, 0},
+        { 1, 1}
+    };
+    const vec_t r = red*DIV255;
+    const vec_t g = green*DIV255;
+    const vec_t b = blue*DIV255;
+    const vec_t a = alpha*DIV255;
+    const vec4_t beamColor[4] = {
+        {r, g, b, a},
+        {r, g, b, a},
+        {r, g, b, a},
+        {r, g, b, a}
+    };
 	int32_t		i;
 
     static const uint32_t indices[6] = {
@@ -49,7 +63,6 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	GL_Enable (GL_BLEND);
 	GL_ShadeModel (GL_SMOOTH);
 	GL_Bind(glMedia.particlebeam->texnum);
-	Vector4Set(beamColor, red/255, green/255, blue/255, alpha/255);
 
 	VectorSubtract(start, end, ang_up);
 	len = VectorNormalize(ang_up);
@@ -66,22 +79,14 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
 	VectorSubtract(end, ang_right, vert[2]);
 	VectorSubtract(start, ang_right, vert[3]);
 
-	Vector2Set(texCoord[0], 0, 1);
-	Vector2Set(texCoord[1], 0, 0);
-	Vector2Set(texCoord[2], 1, 0);
-	Vector2Set(texCoord[3], 1, 1);
-
 	rb_vertex = rb_index = 0;
-    memcpy(&indexArray[rb_index], indices, sizeof(indices));
+    memcpy(&indexArray[0], indices, sizeof(indices));
+
+    memcpy(texCoordArray[0], texCoord, sizeof(vec2_t) * 4);
+    memcpy(vertexArray, vert, sizeof(vec3_t) * 4);
+    memcpy(colorArray, beamColor, sizeof(vec4_t) * 4);
+
     rb_index += 6;
-
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
-    memcpy(vertexArray[rb_vertex], vert, sizeof(vec3_t) * 4);
-    
-	for (i=0; i<4; i++) {
-		VA_SetElem4v(colorArray[rb_vertex + i], beamColor);
-	}
-
     rb_vertex += 4;
     
 	RB_DrawArrays ();

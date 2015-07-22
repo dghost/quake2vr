@@ -360,9 +360,10 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 		// set indices for each triangle
 		for (i=0; i<mesh.num_tris; i++)
 		{
-			indexArray[rb_index++] = rb_vertex + mesh.indexes[3*i+0];
-			indexArray[rb_index++] = rb_vertex + mesh.indexes[3*i+1];
-			indexArray[rb_index++] = rb_vertex + mesh.indexes[3*i+2];
+			indexArray[rb_index] = rb_vertex + mesh.indexes[3*i+0];
+			indexArray[rb_index+1] = rb_vertex + mesh.indexes[3*i+1];
+			indexArray[rb_index+2] = rb_vertex + mesh.indexes[3*i+2];
+            rb_index += 3;
 		}
 
 		for (i=0; i<mesh.num_verts; i++, v++, ov++)
@@ -744,23 +745,18 @@ R_DrawAliasPlanarShadow
 void R_DrawAliasPlanarShadow (maliasmodel_t *paliashdr)
 {
 	maliasmesh_t	mesh;
-	float	height, lheight, thisAlpha;
+	float	height, lheight;
 	vec3_t	point, shadevector;
 	int32_t		i, j, skinnum;
 
-    vec4_t color;
+    const float thisAlpha = (currententity->flags & RF_TRANSLUCENT) ? aliasShadowAlpha * currententity->alpha : aliasShadowAlpha;
+    const vec4_t color = {0, 0, 0, thisAlpha};
     
 	R_ShadowLight (currententity->origin, shadevector);
 
 	lheight = currententity->origin[2] - lightspot[2];
 	height = -lheight + 0.1f;
-	if (currententity->flags & RF_TRANSLUCENT)
-		thisAlpha = aliasShadowAlpha * currententity->alpha; // was r_shadowalpha->value
-	else
-		thisAlpha = aliasShadowAlpha; // was r_shadowalpha->value
 
-    Vector4Set(color, 0, 0, 0, thisAlpha);
-    
 	// don't draw shadows above view origin, thnx to MrG
 	if (r_newrefdef.vieworg[2] < (currententity->origin[2] + height))
 		return;

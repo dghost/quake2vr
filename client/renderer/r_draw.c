@@ -126,15 +126,22 @@ smoothly scrolled off.
 void R_DrawChar (float x, float y, int32_t num, float scale, 
 	 int32_t red, int32_t green, int32_t blue, int32_t alpha, qboolean italic, qboolean last)
 {
-	int32_t			row, col, i;
+	int32_t			row, col;
 	float		frow, fcol, size, cscale, italicAdd;
-	vec2_t		texCoord[4], verts[4];
 	qboolean	addChar = true;
     
-
+    const vec_t r = red*DIV255;
+    const vec_t g = green*DIV255;
+    const vec_t b = blue*DIV255;
+    const vec_t a = alpha*DIV255;
     
     
-    const vec4_t color = {red*DIV255, green*DIV255, blue*DIV255, alpha*DIV255};
+    const vec4_t color[4] = {
+        {r,g,b,a},
+        {r,g,b,a},
+        {r,g,b,a},
+        {r,g,b,a}
+    };
 	num &= 255;
 
 	if (alpha > 255)
@@ -159,33 +166,31 @@ void R_DrawChar (float x, float y, int32_t num, float scale,
 
 	if (addChar)
 	{
-		Vector2Set(texCoord[0], fcol, frow);
-		Vector2Set(texCoord[1], fcol + size, frow);
-		Vector2Set(texCoord[2], fcol + size, frow + size);
-		Vector2Set(texCoord[3], fcol, frow + size);
-
-		Vector2Set(verts[0], x+italicAdd, y);
-		Vector2Set(verts[1], x+cscale+italicAdd, y);
-		Vector2Set(verts[2], x+cscale-italicAdd, y+cscale);
-		Vector2Set(verts[3], x-italicAdd, y+cscale);
-
 		if (char_count == 0)
 			rb_vertex = rb_index = 0;
 		if (rb_vertex + 4 >= MAX_VERTICES || rb_index + 6 >= MAX_INDICES)
 			R_FlushChars ();
-		indexArray[rb_index++] = rb_vertex+0;
-		indexArray[rb_index++] = rb_vertex+1;
-		indexArray[rb_index++] = rb_vertex+2;
-		indexArray[rb_index++] = rb_vertex+0;
-		indexArray[rb_index++] = rb_vertex+2;
-		indexArray[rb_index++] = rb_vertex+3;
+		indexArray[rb_index] = rb_vertex+0;
+		indexArray[rb_index+1] = rb_vertex+1;
+		indexArray[rb_index+2] = rb_vertex+2;
+		indexArray[rb_index+3] = rb_vertex+0;
+		indexArray[rb_index+4] = rb_vertex+2;
+		indexArray[rb_index+5] = rb_vertex+3;
         
-        memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+        rb_index += 6;
         
-        for (i=0; i<4; i++) {
-			VA_SetElem3(vertexArray[rb_vertex + i], verts[i][0], verts[i][1], 0);
-			VA_SetElem4v(colorArray[rb_vertex + i], color);
-		}
+        VA_SetElem2(texCoordArray[0][rb_vertex], fcol, frow);
+        VA_SetElem2(texCoordArray[0][rb_vertex+1], fcol + size, frow);
+        VA_SetElem2(texCoordArray[0][rb_vertex+2], fcol + size, frow + size);
+        VA_SetElem2(texCoordArray[0][rb_vertex+3], fcol, frow + size);
+        
+        VA_SetElem3(vertexArray[rb_vertex], x+italicAdd, y, 0);
+        VA_SetElem3(vertexArray[rb_vertex+1], x+cscale+italicAdd, y, 0);
+        VA_SetElem3(vertexArray[rb_vertex+2], x+cscale-italicAdd, y+cscale, 0);
+        VA_SetElem3(vertexArray[rb_vertex+3], x-italicAdd, y+cscale, 0);
+        
+        memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
+        
         rb_vertex += 4;
 		char_count++;
 	}
@@ -262,7 +267,12 @@ void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl
     int32_t			i;
     vec2_t		texCoord[4], verts[4];
     
-    const vec4_t color = {1.0, 1.0, 1.0, alpha};
+    const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha}
+    };
     
     if (scrap_dirty)
         Scrap_Upload ();
@@ -278,27 +288,26 @@ void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl
     
     GL_Bind (gl->texnum);
     
-    Vector2Set(texCoord[0], gl->sl, gl->tl);
-    Vector2Set(texCoord[1], gl->sh, gl->tl);
-    Vector2Set(texCoord[2], gl->sh, gl->th);
-    Vector2Set(texCoord[3], gl->sl, gl->th);
-    
-    Vector2Set(verts[0], x, y);
-    Vector2Set(verts[1], x+w, y);
-    Vector2Set(verts[2], x+w, y+h);
-    Vector2Set(verts[3], x, y+h);
+
     
     rb_vertex = rb_index = 0;
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
     rb_index += 6;
 
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
-
-    for (i=0; i<4; i++) {
-        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-        VA_SetElem4v(colorArray[rb_vertex], color);
-        rb_vertex++;
-    }
+    Vector2Set(texCoordArray[0][rb_vertex], gl->sl, gl->tl);
+    Vector2Set(texCoordArray[0][rb_vertex+1], gl->sh, gl->tl);
+    Vector2Set(texCoordArray[0][rb_vertex+2], gl->sh, gl->th);
+    Vector2Set(texCoordArray[0][rb_vertex+3], gl->sl, gl->th);
+    
+    VA_SetElem3(vertexArray[rb_vertex], x, y, 0);
+    VA_SetElem3(vertexArray[rb_vertex+1], x+w, y, 0);
+    VA_SetElem3(vertexArray[rb_vertex+2], x+w, y+h, 0);
+    VA_SetElem3(vertexArray[rb_vertex+3], x, y+h, 0);
+    
+    memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
+    
+    rb_vertex += 4;
+    
     RB_RenderMeshGeneric (false);
     
     // Psychospaz's transparent console support
@@ -341,11 +350,13 @@ void R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, image_t 
 {
     float	xoff, yoff;
     float	scale_x, scale_y;
-    int32_t		i;
-    vec2_t	texCoord[4], verts[4];
-    
-    const vec4_t color = {1.0, 1.0, 1.0, alpha};
-
+  
+    const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha},
+        {1.0, 1.0, 1.0, alpha}
+    };
     
     if (scrap_dirty)
         Scrap_Upload ();
@@ -365,31 +376,30 @@ void R_DrawScaledImage (int32_t x, int32_t y, float scale, float alpha, image_t 
     scale_x *= gl->replace_scale_w; // scale down if replacing a pcx image
     scale_y *= gl->replace_scale_h; // scale down if replacing a pcx image
     
-    Vector2Set(texCoord[0], gl->sl, gl->tl);
-    Vector2Set(texCoord[1], gl->sh, gl->tl);
-    Vector2Set(texCoord[2], gl->sh, gl->th);
-    Vector2Set(texCoord[3], gl->sl, gl->th);
     
     xoff = gl->width*scale_x-gl->width;
     yoff = gl->height*scale_y-gl->height;
+      rb_vertex = rb_index = 0;
+    memcpy(indexArray, indices, sizeof(indices));
+    rb_index = 6;
     
-    Vector2Set(verts[0], x, y);
-    Vector2Set(verts[1], x+gl->width+xoff, y);
-    Vector2Set(verts[2], x+gl->width+xoff, y+gl->height+yoff);
-    Vector2Set(verts[3], x, y+gl->height+yoff);
+    VA_SetElem2(texCoordArray[0][0], gl->sl, gl->tl);
+    VA_SetElem2(texCoordArray[0][1], gl->sh, gl->tl);
+    VA_SetElem2(texCoordArray[0][2], gl->sh, gl->th);
+    VA_SetElem2(texCoordArray[0][3], gl->sl, gl->th);
+
+
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+gl->width+xoff, y, 0);
+    VA_SetElem3(vertexArray[2], x+gl->width+xoff, y+gl->height+yoff, 0);
+    VA_SetElem3(vertexArray[3], x, y+gl->height+yoff, 0);
     
-    rb_vertex = rb_index = 0;
-    memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
 
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
-
-
-    for (i=0; i<4; i++) {
-        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-        VA_SetElem4v(colorArray[rb_vertex], color);
-        rb_vertex++;
-    }
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
+    
+    rb_vertex = 4;
+    
+    
     RB_RenderMeshGeneric (false);
     
     if (gl->has_alpha || alpha < 1.0)
@@ -428,35 +438,36 @@ void R_DrawScaledPic (int32_t x, int32_t y, float scale, float alpha, char *pic)
  */
 void R_DrawImage (int32_t x, int32_t y, image_t *gl)
 {
-    int32_t		i;
-    vec2_t	texCoord[4], verts[4];
-    static const vec4_t color = {1.0, 1.0, 1.0, 1.0};
+    static const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0}
+    };
+    
     if (scrap_dirty)
         Scrap_Upload ();
     
     GL_Bind (gl->texnum);
     
-    Vector2Set(texCoord[0], gl->sl, gl->tl);
-    Vector2Set(texCoord[1], gl->sh, gl->tl);
-    Vector2Set(texCoord[2], gl->sh, gl->th);
-    Vector2Set(texCoord[3], gl->sl, gl->th);
-    
-    Vector2Set(verts[0], x, y);
-    Vector2Set(verts[1], x+gl->width, y);
-    Vector2Set(verts[2], x+gl->width, y+gl->height);
-    Vector2Set(verts[3], x, y+gl->height);
-    
     rb_vertex = rb_index = 0;
-    memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
 
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+    VA_SetElem2(texCoordArray[0][0], gl->sl, gl->tl);
+    VA_SetElem2(texCoordArray[0][1], gl->sh, gl->tl);
+    VA_SetElem2(texCoordArray[0][2], gl->sh, gl->th);
+    VA_SetElem2(texCoordArray[0][3], gl->sl, gl->th);
+    
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+gl->width, y, 0);
+    VA_SetElem3(vertexArray[2], x+gl->width, y+gl->height, 0);
+    VA_SetElem3(vertexArray[3], x, y+gl->height, 0);
+    
+    memcpy(indexArray, indices, sizeof(indices));
+    rb_index = 6;
 
-    for (i=0; i<4; i++) {
-        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-        VA_SetElem4v(colorArray[rb_vertex], color);
-        rb_vertex++;
-    }
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
+
+    rb_vertex = 4;
     RB_RenderMeshGeneric (false);
 }
 
@@ -493,8 +504,12 @@ void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image
     int32_t		i;
     vec2_t	texCoord[4], verts[4];
     
-    static const vec4_t color = {1.0, 1.0, 1.0, 1.0};
-
+    static const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0}
+    };
     
     GL_Bind (image->texnum);
     /*
@@ -503,27 +518,25 @@ void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image
      Vector2Set(texCoord[2], (x+w)/64.0, (y+h)/64.0);
      Vector2Set(texCoord[3], x/64.0, (y+h)/64.0);
      */
-    Vector2Set(texCoord[0], (float)x/(float)image->width, (float)y/(float)image->height);
-    Vector2Set(texCoord[1], (float)(x+w)/(float)image->width, (float)y/(float)image->height);
-    Vector2Set(texCoord[2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
-    Vector2Set(texCoord[3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
-    
-    Vector2Set(verts[0], x, y);
-    Vector2Set(verts[1], x+w, y);
-    Vector2Set(verts[2], x+w, y+h);
-    Vector2Set(verts[3], x, y+h);
     
     rb_vertex = rb_index = 0;
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
+    rb_index = 6;
+    
+    VA_SetElem2(texCoordArray[0][0], (float)x/(float)image->width, (float)y/(float)image->height);
+    VA_SetElem2(texCoordArray[0][1], (float)(x+w)/(float)image->width, (float)y/(float)image->height);
+    VA_SetElem2(texCoordArray[0][2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
+    VA_SetElem2(texCoordArray[0][3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
+    
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+w, y, 0);
+    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
+    VA_SetElem3(vertexArray[3], x, y+h, 0);
 
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
 
-    for (i=0; i<4; i++) {
-        VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-        VA_SetElem4v(colorArray[rb_vertex], color);
-        rb_vertex++;
-    }
+    rb_vertex = 4;
+
     RB_RenderMeshGeneric (false);
 }
 
@@ -560,15 +573,18 @@ Fills a box of pixels with a
 */
 void R_DrawFill (int32_t x, int32_t y, int32_t w, int32_t h, int32_t red, int32_t green, int32_t blue, int32_t alpha)
 {
-	int32_t		i;
-	vec2_t	verts[4];
-    vec4_t  color;
-	red = min(red, 255);
-	green = min(green, 255);
-	blue = min(blue, 255);
-	alpha = max(min(alpha, 255), 1);
+	const vec_t r = min(red, 255)*DIV255;
+	const vec_t g = min(green, 255)*DIV255;
+	const vec_t b = min(blue, 255)*DIV255;
+	const vec_t a = max(min(alpha, 255), 1)*DIV255;
 
-    Vector4Set(color, red*DIV255, green*DIV255, blue*DIV255, alpha*DIV255);
+    const vec4_t color[4] = {
+        {r, g, b, a},
+        {r, g, b, a},
+        {r, g, b, a},
+        {r, g, b, a}
+    };
+
     
 //	GL_DisableTexture (0);
 	GL_Disable (GL_ALPHA_TEST);
@@ -578,20 +594,20 @@ void R_DrawFill (int32_t x, int32_t y, int32_t w, int32_t h, int32_t red, int32_
 
 	GL_Bind (glMedia.whitetexture->texnum);
 
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+w, y);
-	Vector2Set(verts[2], x+w, y+h);
-	Vector2Set(verts[3], x, y+h);
-
 	rb_vertex = rb_index = 0;
+    
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
+    rb_index = 6;
+    
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+w, y, 0);
+    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
+    VA_SetElem3(vertexArray[3], x, y+h, 0);
 
-	for (i=0; i<4; i++) {
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4v(colorArray[rb_vertex], color);
-		rb_vertex++;
-	}
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
+
+    rb_vertex = 4;
+    
 	RB_RenderMeshGeneric (false);
 
 	GL_DepthMask (true);
@@ -695,9 +711,14 @@ Cinematic streaming
 void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *raw, int32_t rawWidth, int32_t rawHeight) //qboolean noDraw)
 {
 	int32_t		i;
-	vec2_t	texCoord[4], verts[4];
 
-    static const vec4_t color = {1.0, 1.0, 1.0, 1.0};
+    static const vec4_t color[4] = {
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0}
+    };
+    
 	// Make sure everything is flushed if needed
 	//if (!noDraw)
 	//	RB_RenderMesh();
@@ -719,27 +740,25 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *r
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// Draw it
-	Vector2Set(texCoord[0], 0, 0);
-	Vector2Set(texCoord[1], 1, 0);
-	Vector2Set(texCoord[2], 1, 1);
-	Vector2Set(texCoord[3], 0, 1);
-
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+w, y);
-	Vector2Set(verts[2], x+w, y+h);
-	Vector2Set(verts[3], x, y+h);
-
 	rb_vertex = rb_index = 0;
-    memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
     
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
-	for (i=0; i<4; i++) {
-		VA_SetElem3(vertexArray[rb_vertex + i], verts[i][0], verts[i][1], 0);
-		VA_SetElem4v(colorArray[rb_vertex + i], color);
-	}
-    rb_vertex += 4;
+    memcpy(indexArray, indices, sizeof(indices));
+    rb_index = 6;
+    
+    // Draw it
+    VA_SetElem2(texCoordArray[0][0], 0, 0);
+    VA_SetElem2(texCoordArray[0][1], 1, 0);
+    VA_SetElem2(texCoordArray[0][2], 1, 1);
+    VA_SetElem2(texCoordArray[0][3], 0, 1);
+    
+    VA_SetElem3(vertexArray[0], x, y, 0);
+    VA_SetElem3(vertexArray[1], x+w, y, 0);
+    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
+    VA_SetElem3(vertexArray[3], x, y+h, 0);
+
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
+    
+    rb_vertex = 4;
 	RB_RenderMeshGeneric (false);
 }
 

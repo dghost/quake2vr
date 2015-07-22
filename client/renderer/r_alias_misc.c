@@ -170,8 +170,8 @@ void R_ShadowBlend (float shadowalpha)
 	rb_vertex = rb_index = 0;
     
     memcpy(indexArray, indices, sizeof(indices));
-    memcpy(vertexArray[rb_vertex], verts, sizeof(vec3_t) * 4);
-    memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
 
     rb_index += 6;
 	rb_vertex += 4;
