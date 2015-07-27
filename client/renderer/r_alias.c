@@ -443,6 +443,12 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 uint32_t	shadow_va, shadow_index;
 vec3_t          shadowTempVertexArray[MD3_MAX_VERTS];
 
+index_t AddToVertexArray(vec_t *vert, vec_t *color) {
+    VA_SetElem3v(vertexArray[shadow_va], vert);
+    VA_SetElem4v(colorArray[shadow_va], color);
+    return shadow_va++;
+}
+
 /*
 =============
 R_BuildShadowVolume
@@ -454,15 +460,14 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 	int32_t				i, j;
     qboolean		triangleFacingLight[MD3_MAX_TRIANGLES] = {0};
     qboolean		vertNeedsProjection[MD3_MAX_VERTS] = {0};
+    int32_t		vertIndices[MD3_MAX_VERTS] = {0};
+    int32_t		shadowIndices[MD3_MAX_VERTS] = {0};
+    
     
 	const maliasmesh_t	mesh = hdr->meshes[meshnum];
 	const maliasvertex_t	*verts = mesh.vertexes;;
     const vec4_t color = { 0, 0, 0, aliasShadowAlpha};
 
-
-	
-    
-    
 	for (i=0; i<mesh.num_tris; i++)
 	{
         const index_t ind1 = mesh.indexes[3*i+0];
@@ -470,7 +475,7 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
         const index_t ind3 = mesh.indexes[3*i+2];
 
         const  vec_t *v[3] = {tempVertexArray[meshnum][ind1], tempVertexArray[meshnum][ind2], tempVertexArray[meshnum][ind3]};
-
+        
         qboolean facing =
 			(light[0] - v[0][0]) * ((v[0][1] - v[1][1]) * (v[2][2] - v[1][2]) - (v[0][2] - v[1][2]) * (v[2][1] - v[1][1]))
 			+ (light[1] - v[0][1]) * ((v[0][2] - v[1][2]) * (v[2][0] - v[1][0]) - (v[0][0] - v[1][0]) * (v[2][2] - v[1][2]))
@@ -481,6 +486,10 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
             vertNeedsProjection[ind1] = true;
             vertNeedsProjection[ind2] = true;
             vertNeedsProjection[ind3] = true;
+            
+            shadowIndices[ind1] = vertIndices[ind1] = -1;
+            shadowIndices[ind2] = vertIndices[ind2] = -1;
+            shadowIndices[ind3] = vertIndices[ind3] = -1;
         }
 	}
     
@@ -505,51 +514,66 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 		{
             const index_t ind1 = mesh.indexes[3*i+1];
             const index_t ind2 = mesh.indexes[3*i+0];
-
-            VA_SetElem3v(vertexArray[shadow_va+0], tempVertexArray[meshnum][ind1]);
-            VA_SetElem3v(vertexArray[shadow_va+1], tempVertexArray[meshnum][ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+2], shadowTempVertexArray[ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+3], shadowTempVertexArray[ind1]);
-
-            indexArray[shadow_index] = shadow_va+0;
-            indexArray[shadow_index+1] = shadow_va+1;
-            indexArray[shadow_index+2] = shadow_va+2;
-            indexArray[shadow_index+3] = shadow_va+0;
-            indexArray[shadow_index+4] = shadow_va+2;
-            indexArray[shadow_index+5] = shadow_va+3;
             
-            for (j=0; j<4; j++) {
-                VA_SetElem4v(colorArray[shadow_va + j], color);
+            // begin boilerplate
+            if (vertIndices[ind1] <  0) {
+                vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
+            }
+            
+            if (vertIndices[ind2] <  0) {
+                vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
+            }
+            
+            if (shadowIndices[ind2] <  0) {
+                shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
+            }
+            
+            if (shadowIndices[ind1] <  0) {
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
+
             }
 
-            shadow_va+=4;
-            shadow_index += 6;
+            indexArray[shadow_index] = vertIndices[ind1];
+            indexArray[shadow_index+1] = vertIndices[ind2];
+            indexArray[shadow_index+2] = shadowIndices[ind2];
+            indexArray[shadow_index+3] = vertIndices[ind1];
+            indexArray[shadow_index+4] = shadowIndices[ind2];
+            indexArray[shadow_index+5] = shadowIndices[ind1];
             
+            shadow_index += 6;
 		}
 
 		if (mesh.trneighbors[i*3+1] < 0 || !triangleFacingLight[mesh.trneighbors[i*3+1]])
 		{
             const index_t ind1 = mesh.indexes[3*i+2];
             const index_t ind2 = mesh.indexes[3*i+1];
-
-            VA_SetElem3v(vertexArray[shadow_va+0], tempVertexArray[meshnum][ind1]);
-            VA_SetElem3v(vertexArray[shadow_va+1], tempVertexArray[meshnum][ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+2], shadowTempVertexArray[ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+3], shadowTempVertexArray[ind1]);
-
-            indexArray[shadow_index] = shadow_va+0;
-            indexArray[shadow_index+1] = shadow_va+1;
-            indexArray[shadow_index+2] = shadow_va+2;
-            indexArray[shadow_index+3] = shadow_va+0;
-            indexArray[shadow_index+4] = shadow_va+2;
-            indexArray[shadow_index+5] = shadow_va+3;
             
-            for (j=0; j<4; j++) {
-                VA_SetElem4v(colorArray[shadow_va + j], color);
+            // begin boilerplate
+            if (vertIndices[ind1] <  0) {
+                vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
             }
             
+            if (vertIndices[ind2] <  0) {
+                vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
+            }
+            
+            if (shadowIndices[ind2] <  0) {
+                shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
+            }
+            
+            if (shadowIndices[ind1] <  0) {
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
+                
+            }
+            
+            indexArray[shadow_index] = vertIndices[ind1];
+            indexArray[shadow_index+1] = vertIndices[ind2];
+            indexArray[shadow_index+2] = shadowIndices[ind2];
+            indexArray[shadow_index+3] = vertIndices[ind1];
+            indexArray[shadow_index+4] = shadowIndices[ind2];
+            indexArray[shadow_index+5] = shadowIndices[ind1];
+            
             shadow_index += 6;
-            shadow_va+=4;
 		}
 
 		if (mesh.trneighbors[i*3+2] < 0 || !triangleFacingLight[mesh.trneighbors[i*3+2]])
@@ -557,24 +581,32 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
             const index_t ind1 = mesh.indexes[3*i+0];
             const index_t ind2 = mesh.indexes[3*i+2];
             
-            VA_SetElem3v(vertexArray[shadow_va+0], tempVertexArray[meshnum][ind1]);
-            VA_SetElem3v(vertexArray[shadow_va+1], tempVertexArray[meshnum][ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+2], shadowTempVertexArray[ind2]);
-            VA_SetElem3v(vertexArray[shadow_va+3], shadowTempVertexArray[ind1]);
-
-            indexArray[shadow_index] = shadow_va+0;
-			indexArray[shadow_index+1] = shadow_va+1;
-			indexArray[shadow_index+2] = shadow_va+2;
-			indexArray[shadow_index+3] = shadow_va+0;
-			indexArray[shadow_index+4] = shadow_va+2;
-			indexArray[shadow_index+5] = shadow_va+3;
-            shadow_index += 6;
-            
-            for (j=0; j<4; j++) {
-                VA_SetElem4v(colorArray[shadow_va + j], color);
+            // begin boilerplate
+            if (vertIndices[ind1] <  0) {
+                vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
             }
             
-            shadow_va+=4;
+            if (vertIndices[ind2] <  0) {
+                vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
+            }
+            
+            if (shadowIndices[ind2] <  0) {
+                shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
+            }
+            
+            if (shadowIndices[ind1] <  0) {
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
+                
+            }
+            
+            indexArray[shadow_index] = vertIndices[ind1];
+            indexArray[shadow_index+1] = vertIndices[ind2];
+            indexArray[shadow_index+2] = shadowIndices[ind2];
+            indexArray[shadow_index+3] = vertIndices[ind1];
+            indexArray[shadow_index+4] = shadowIndices[ind2];
+            indexArray[shadow_index+5] = shadowIndices[ind1];
+            
+            shadow_index += 6;
 		}
 	}
 
@@ -590,28 +622,41 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
 		if (!triangleFacingLight[i]) // changed to draw only front facing polys- thanx to Kirk Barnes
             continue;
         
-        VA_SetElem3v(vertexArray[shadow_va+0], tempVertexArray[meshnum][ind1]);
-        VA_SetElem3v(vertexArray[shadow_va+1], tempVertexArray[meshnum][ind2]);
-        VA_SetElem3v(vertexArray[shadow_va+2], tempVertexArray[meshnum][ind3]);
-        VA_SetElem3v(vertexArray[shadow_va+3], shadowTempVertexArray[ind3]);
-        VA_SetElem3v(vertexArray[shadow_va+4], shadowTempVertexArray[ind2]);
-        VA_SetElem3v(vertexArray[shadow_va+5], shadowTempVertexArray[ind1]);
-        
-        indexArray[shadow_index] = shadow_va;
-        indexArray[shadow_index+1] = shadow_va+1;
-        indexArray[shadow_index+2] = shadow_va+2;
-        
-        indexArray[shadow_index+3] = shadow_va+3;
-        indexArray[shadow_index+4] = shadow_va+4;
-        indexArray[shadow_index+5] = shadow_va+5;
-
-        for (j=0; j<6; j++) {
-            VA_SetElem4v(colorArray[shadow_va + j], color);
+        if (vertIndices[ind1] <  0) {
+            vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
         }
         
-        shadow_va+=6;
-        shadow_index+=6;
-    }
+        if (vertIndices[ind2] <  0) {
+            vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
+        }
+        
+        if (vertIndices[ind3] <  0) {
+            vertIndices[ind3] = AddToVertexArray(tempVertexArray[meshnum][ind3],color);
+        }
+        
+        if (shadowIndices[ind3] <  0) {
+            shadowIndices[ind3] = AddToVertexArray(shadowTempVertexArray[ind3],color);
+        }
+        
+        if (shadowIndices[ind2] <  0) {
+            shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
+        }
+
+        if (shadowIndices[ind1] <  0) {
+            shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
+        }
+
+        
+        
+        indexArray[shadow_index] = vertIndices[ind1];
+        indexArray[shadow_index+1] = vertIndices[ind2];
+        indexArray[shadow_index+2] = vertIndices[ind3];
+        indexArray[shadow_index+3] = shadowIndices[ind3];
+        indexArray[shadow_index+4] = shadowIndices[ind2];
+        indexArray[shadow_index+5] = shadowIndices[ind1];
+        
+        shadow_index += 6;
+        }
 }
 
 
