@@ -518,19 +518,12 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
             // begin boilerplate
             if (vertIndices[ind1] <  0) {
                 vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
             }
             
             if (vertIndices[ind2] <  0) {
                 vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
-            }
-            
-            if (shadowIndices[ind2] <  0) {
                 shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
-            }
-            
-            if (shadowIndices[ind1] <  0) {
-                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
-
             }
 
             indexArray[shadow_index] = vertIndices[ind1];
@@ -551,19 +544,12 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
             // begin boilerplate
             if (vertIndices[ind1] <  0) {
                 vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
             }
             
             if (vertIndices[ind2] <  0) {
                 vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
-            }
-            
-            if (shadowIndices[ind2] <  0) {
                 shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
-            }
-            
-            if (shadowIndices[ind1] <  0) {
-                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
-                
             }
             
             indexArray[shadow_index] = vertIndices[ind1];
@@ -584,19 +570,12 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
             // begin boilerplate
             if (vertIndices[ind1] <  0) {
                 vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
+                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
             }
             
             if (vertIndices[ind2] <  0) {
                 vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
-            }
-            
-            if (shadowIndices[ind2] <  0) {
                 shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
-            }
-            
-            if (shadowIndices[ind1] <  0) {
-                shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
-                
             }
             
             indexArray[shadow_index] = vertIndices[ind1];
@@ -624,29 +603,18 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
         
         if (vertIndices[ind1] <  0) {
             vertIndices[ind1] = AddToVertexArray(tempVertexArray[meshnum][ind1],color);
+            shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
         }
         
         if (vertIndices[ind2] <  0) {
             vertIndices[ind2] = AddToVertexArray(tempVertexArray[meshnum][ind2],color);
+            shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
         }
         
         if (vertIndices[ind3] <  0) {
             vertIndices[ind3] = AddToVertexArray(tempVertexArray[meshnum][ind3],color);
-        }
-        
-        if (shadowIndices[ind3] <  0) {
             shadowIndices[ind3] = AddToVertexArray(shadowTempVertexArray[ind3],color);
         }
-        
-        if (shadowIndices[ind2] <  0) {
-            shadowIndices[ind2] = AddToVertexArray(shadowTempVertexArray[ind2],color);
-        }
-
-        if (shadowIndices[ind1] <  0) {
-            shadowIndices[ind1] = AddToVertexArray(shadowTempVertexArray[ind1],color);
-        }
-
-        
         
         indexArray[shadow_index] = vertIndices[ind1];
         indexArray[shadow_index+1] = vertIndices[ind2];
