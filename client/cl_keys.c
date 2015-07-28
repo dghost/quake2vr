@@ -675,12 +675,12 @@ static void Key_RebuildBindings (qboolean silent) {
     }
 }
 
-static inline void _Grow_KeyBindings() {
+static FORCE_INLINE void _Grow_KeyBindings() {
     Q_STGrow(&key_table, key_table.size * 2);
     Key_RebuildBindings(true);
 }
 
-static inline void _Key_SetBinding(int32_t keynum, const char *binding) {
+static FORCE_INLINE void _Key_SetBinding(int32_t keynum, const char *binding) {
     keytokens[keynum] = Q_STRegister(&key_table, binding);
     if (keytokens[keynum] < 0)
     {

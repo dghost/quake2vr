@@ -10,13 +10,6 @@
 #error Unknown Architecture!
 #endif
 
-
-#ifdef __GNUC__
-#define FORCE_INLINE __attribute__((always_inline)) inline
-#else
-#define FORCE_INLINE inline
-#endif
-
 static const uint32_t seed = 42;
 
 hash128_t Q_Hash128(const char *string, uint32_t len) {

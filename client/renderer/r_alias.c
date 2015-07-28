@@ -441,9 +441,9 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 
 
 uint32_t	shadow_va, shadow_index;
-vec3_t          shadowTempVertexArray[MD3_MAX_VERTS];
+static vec3_t          shadowTempVertexArray[MD3_MAX_VERTS];
 
-index_t AddToVertexArray(vec_t *vert, vec_t *color) {
+static FORCE_INLINE index_t AddToVertexArray(vec_t *vert, vec_t *color) {
     VA_SetElem3v(vertexArray[shadow_va], vert);
     VA_SetElem4v(colorArray[shadow_va], color);
     return shadow_va++;

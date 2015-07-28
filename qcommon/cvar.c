@@ -81,12 +81,12 @@ static void Cvar_RebuildValues (qboolean silent) {
     }
 }
 
-static inline void _Grow_Names() {
+static FORCE_INLINE void _Grow_Names() {
     Q_STGrow(&cvarNames, cvarNames.size * 2);
     Cvar_RebuildNames(true);
 }
 
-static inline void _Cvar_SetName(cvar_t *var, const char *value) {
+static FORCE_INLINE void _Cvar_SetName(cvar_t *var, const char *value) {
     var->index = Q_STRegister(&cvarNames, value);
     if (var->index < 0)
     {
@@ -96,12 +96,12 @@ static inline void _Cvar_SetName(cvar_t *var, const char *value) {
     var->name = Q_STGetString(&cvarNames, var->index);
 }
 
-static inline void _Grow_Values() {
+static FORCE_INLINE void _Grow_Values() {
     Q_STGrow(&cvarValues, cvarValues.size * 2);
     Cvar_RebuildValues(true);
 }
 
-static inline void _Cvar_SetValue(cvar_t *var, const char *value) {
+static FORCE_INLINE void _Cvar_SetValue(cvar_t *var, const char *value) {
     var->string_index = Q_STRegister(&cvarValues, value);
     if (var->string_index < 0)
     {
@@ -116,7 +116,7 @@ static inline void _Cvar_SetValue(cvar_t *var, const char *value) {
 #endif
 }
 
-static inline void _Cvar_SetLatchedValue(cvar_t *var, const char *value) {
+static FORCE_INLINE void _Cvar_SetLatchedValue(cvar_t *var, const char *value) {
     var->latched_index = Q_STRegister(&cvarValues, value);
     if (var->latched_index < 0)
     {
@@ -126,7 +126,7 @@ static inline void _Cvar_SetLatchedValue(cvar_t *var, const char *value) {
     var->latched_string = Q_STGetString(&cvarValues, var->latched_index);
 }
 
-static inline void _Cvar_SetDefaultValue(cvar_t *var, const char *value) {
+static FORCE_INLINE void _Cvar_SetDefaultValue(cvar_t *var, const char *value) {
     var->default_index = Q_STRegister(&cvarValues, value);
     if (var->default_index < 0)
     {

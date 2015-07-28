@@ -76,6 +76,14 @@ typedef enum{ false, true } qboolean;
 #define clamp(x,a,b)	(x < a ? a : (x > b ? b : x))
 #endif
 
+#if defined(__GNUC__)
+#define FORCE_INLINE __attribute__((always_inline)) inline
+#elif defined(_MSC_VER)
+#define FORCE_INLINE __inline
+#else
+#define FORCE_INLINE inline
+#endif
+
 // from Quake3 source
 #ifdef WIN32
 //#define Q_vsnprintf _vsnprintf
