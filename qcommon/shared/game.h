@@ -21,7 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // game.h -- game dll information visible to server
 
-#define	GAME_API_VERSION	3
+#define GAME_API_VERSION_MASK   0xFFFF0000
+#define	GAME_API_VERSION        0x00010001
+#define	LEGACY_API_VERSION        0x00000003
 
 // edict->svflags
 

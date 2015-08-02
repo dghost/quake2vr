@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if defined(_M_IX86) || defined(__i386__)
 #define	CPUSTRING	"x86"
 #elif defined(_M_X64) || defined(__x86_64__)
-#define CPUSTRING   "x86_64"
+#define CPUSTRING   "x64"
 #else
 #define CPUSTRING "Unknown"
 #endif

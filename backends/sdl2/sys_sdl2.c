@@ -652,24 +652,34 @@ void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
 //	int32_t i = 0;
-	//Knightmare- changed DLL name for better cohabitation
-#ifdef KMQUAKE2_ENGINE_MOD
-	static const char *dllnames[] = {"vrgamex86", "mpgamex86",0};
-#else
-	static const char *dllnames[] = {"game", "gamex86",0};
+
+    // prefer loading Q2VR, then KMQ2, then try to fallback to legacy
+    static const char *dllnames[] = {
+#ifdef Q2VR_ENGINE_MOD
+        "vrgame" CPUSTRING,
+        "mpgame" CPUSTRING,
 #endif
+#ifdef KMQ2_ENGINE_MOD
+        "kmq2game" CPUSTRING,
+#endif
+        "game",
+        "game" CPUSTRING,
+        0};
+
 
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
 	game_library = Sys_FindLibrary(dllnames);
-    
+    Com_Printf("Could not find suitable library\n");
+
 	if (!game_library)
 		return NULL;
 
 	GetGameAPI = (void *(*)(void*)) SDL_LoadFunction (game_library, "GetGameAPI");
 	if (!GetGameAPI)
 	{
+        Com_Printf("Could not load function GetGameAPI from library\n");
 		Sys_UnloadGame ();		
 		return NULL;
 	}
