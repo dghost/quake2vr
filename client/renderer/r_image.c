@@ -913,7 +913,7 @@ image_t *R_LoadPic (char *name, byte *pic, int32_t width, int32_t height, imaget
     image->name[len-2] = 'm';
     image->name[len-1] = 'g';
 
-	image->hash = Q_Hash32(image->name, strlen(image->name));	// Knightmare added
+	image->hash = Hash32(image->name, strlen(image->name));	// Knightmare added
 	image->registration_sequence = registration_sequence;
 
 	image->width = width;
@@ -1140,12 +1140,12 @@ image_t	*R_FindImage (char *name, imagetype_t type)
         return NULL;
     }
     
-    hash = Q_Hash32(s, len);
+    hash = Hash32(s, len);
     
 	// look for it
 	for (i=0, image=gltextures; i<numgltextures; i++,image++)
 	{
-		if (!Q_HashEquals32(hash, image->hash) && !strcmp(s, image->name))
+		if (!HashEquals32(hash, image->hash) && !strcmp(s, image->name))
 		{
 			image->registration_sequence = registration_sequence;
 			return image;
@@ -1451,7 +1451,7 @@ void R_FreePic (char *name)
     s[len-3] = 'i';
     s[len-2] = 'm';
     s[len-1] = 'g';
-    hash = Q_Hash32(s, len);
+    hash = Hash32(s, len);
 
     
    	for (i=0, image=gltextures; i<numgltextures; i++, image++)
@@ -1460,7 +1460,7 @@ void R_FreePic (char *name)
 			continue;		// free image_t slot
 		if (image->type != it_pic)
 			continue;		// only free pics
-		if (!Q_HashEquals32(hash, image->hash) && !strcmp(s, image->name))
+		if (!HashEquals32(hash, image->hash) && !strcmp(s, image->name))
 		{
 			//Heffo - Free Cinematic
 			//if (image->is_cin)

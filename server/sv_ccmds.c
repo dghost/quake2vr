@@ -123,13 +123,13 @@ qboolean SV_SetPlayer (void)
 		return true;
 	}
 
-    hash = Q_Hash32(s, strlen(s));
+    hash = Hash32(s, strlen(s));
 	// check for a name match
 	for (i=0,cl=svs.clients ; i<maxclients->value; i++,cl++)
 	{
 		if (!cl->state)
 			continue;
-		if (!Q_HashEquals32(hash, cl->nameHash) && !strcmp(cl->name, s))
+		if (!HashEquals32(hash, cl->nameHash) && !strcmp(cl->name, s))
 		{
 			sv_client = cl;
 			sv_player = sv_client->edict;
@@ -340,7 +340,7 @@ void SV_ReadLevelFile (void)
 	}
 	FS_Read (sv.configstrings, sizeof(sv.configstrings), f);
     for (i=0 ; i < MAX_CONFIGSTRINGS ; i++)
-        sv.confighashes[i] = Q_Hash32(sv.configstrings[i], strlen(sv.configstrings[i]));
+        sv.confighashes[i] = Hash32(sv.configstrings[i], strlen(sv.configstrings[i]));
 	CM_ReadPortalState (f);
 	FS_FCloseFile(f);
 

@@ -36,9 +36,9 @@ int32_t SV_FindIndex (char *name, int32_t start, int32_t max, qboolean create)
 	if (!name || !name[0])
 		return 0;
 
-    hash = Q_Hash32(name, strlen(name));
+    hash = Hash32(name, strlen(name));
 	for (i = 1; i < max && sv.configstrings[start+i][0]; i++)
-		if (!Q_HashEquals32(hash, sv.confighashes[start+i]) && !strcmp(sv.configstrings[start+i], name))
+		if (!HashEquals32(hash, sv.confighashes[start+i]) && !strcmp(sv.configstrings[start+i], name))
 			return i;
 
 	if (!create)
@@ -61,7 +61,7 @@ int32_t SV_FindIndex (char *name, int32_t start, int32_t max, qboolean create)
 	// end Knightmare
 
 	strncpy (sv.configstrings[start+i], name, sizeof(sv.configstrings[i]));
-    sv.confighashes[start + i] = Q_Hash32(name, strlen(name));
+    sv.confighashes[start + i] = Hash32(name, strlen(name));
     
 	if (sv.state != ss_loading)
 	{	// send the update to everyone
@@ -209,7 +209,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 
 	// save name for levels that don't set message
 	strcpy (sv.configstrings[CS_NAME], server);
-    sv.confighashes[CS_NAME] = Q_Hash32(server, strlen(server));
+    sv.confighashes[CS_NAME] = Hash32(server, strlen(server));
     
 	if (Cvar_VariableValue ("deathmatch"))
 	{
@@ -221,7 +221,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 		strcpy(sv.configstrings[CS_AIRACCEL], "0");
 		pm_airaccelerate = 0;
 	}
-    sv.confighashes[CS_AIRACCEL] = Q_Hash32(sv.configstrings[CS_AIRACCEL], strlen(sv.configstrings[CS_AIRACCEL]));
+    sv.confighashes[CS_AIRACCEL] = Hash32(sv.configstrings[CS_AIRACCEL], strlen(sv.configstrings[CS_AIRACCEL]));
 
 
 	SZ_Init (&sv.multicast, sv.multicast_buf, sizeof(sv.multicast_buf));
@@ -250,18 +250,18 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	{
 		Com_sprintf (sv.configstrings[CS_MODELS+1],sizeof(sv.configstrings[CS_MODELS+1]),
 			"maps/%s.bsp", server);
-        sv.confighashes[CS_MODELS+1] = Q_Hash32(sv.configstrings[CS_MODELS+1], strlen(sv.configstrings[CS_MODELS+1]));
+        sv.confighashes[CS_MODELS+1] = Hash32(sv.configstrings[CS_MODELS+1], strlen(sv.configstrings[CS_MODELS+1]));
 
 		// resolve CS_PAKFILE, hack by Jay Dolan
 		FS_FOpenFile(sv.configstrings[CS_MODELS + 1], &f, FS_READ);
 		strcpy(sv.configstrings[CS_PAKFILE], (last_pk3_name ? last_pk3_name : ""));
 		FS_FCloseFile(f);
-        sv.confighashes[CS_PAKFILE] = Q_Hash32(sv.configstrings[CS_PAKFILE], strlen(sv.configstrings[CS_PAKFILE]));
+        sv.confighashes[CS_PAKFILE] = Hash32(sv.configstrings[CS_PAKFILE], strlen(sv.configstrings[CS_PAKFILE]));
 		sv.models[1] = CM_LoadMap (sv.configstrings[CS_MODELS+1], false, &checksum);
 	}
 	Com_sprintf (sv.configstrings[CS_MAPCHECKSUM],sizeof(sv.configstrings[CS_MAPCHECKSUM]),
 		"%i", checksum);
-    sv.confighashes[CS_MAPCHECKSUM] = Q_Hash32(sv.configstrings[CS_MAPCHECKSUM], strlen(sv.configstrings[CS_MAPCHECKSUM]));
+    sv.confighashes[CS_MAPCHECKSUM] = Hash32(sv.configstrings[CS_MAPCHECKSUM], strlen(sv.configstrings[CS_MAPCHECKSUM]));
 	//
 	// clear physics interaction links
 	//
@@ -271,7 +271,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	{
 		Com_sprintf (sv.configstrings[CS_MODELS+1+i], sizeof(sv.configstrings[CS_MODELS+1+i]),
 			"*%i", i);
-        sv.confighashes[CS_MODELS+1+i] = Q_Hash32(sv.configstrings[CS_MODELS+1+i], strlen(sv.configstrings[CS_MODELS+1+i]));
+        sv.confighashes[CS_MODELS+1+i] = Hash32(sv.configstrings[CS_MODELS+1+i], strlen(sv.configstrings[CS_MODELS+1+i]));
 		sv.models[i+1] = CM_InlineModel (sv.configstrings[CS_MODELS+1+i]);
 	}
 

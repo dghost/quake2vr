@@ -207,7 +207,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 		return &mod_inline[i];
 	}
 
-    nameHash = Q_Hash32(name, len);
+    nameHash = Hash32(name, len);
 	//
 	// search the currently loaded models
 	//
@@ -215,7 +215,7 @@ model_t *Mod_ForName (char *name, qboolean crash)
 	{
 		if (!mod->name[0])
 			continue;
-		if (!Q_HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, name) )
+		if (!HashEquals32(mod->hash, nameHash) && !strcmp (mod->name, name) )
 			return mod;
 	}
 	
@@ -571,11 +571,11 @@ Mod_CheckWalSizeList
 qboolean Mod_CheckWalSizeList (const char *name, int32_t *width, int32_t *height)
 {
 	int32_t		i;
-	hash32_t	hash = Q_Hash32(name, strlen(name));
+	hash32_t	hash = Hash32(name, strlen(name));
 
 	for (i=0; i<NUM_WALSIZES; i++)
 	{
-		if (!Q_HashEquals32(hash,walSizeList[i].hash)) {	// compare hash first
+		if (!HashEquals32(hash,walSizeList[i].hash)) {	// compare hash first
 			if (walSizeList[i].name && strlen(walSizeList[i].name)
 				&& !strcmp(name, walSizeList[i].name))
 			{	// return size of texture
@@ -599,7 +599,7 @@ Mod_AddToWalSizeList
 void Mod_AddToWalSizeList (const char *name, int32_t width, int32_t height)
 {
 	Com_sprintf(walSizeList[walSizeListIndex].name, sizeof(walSizeList[walSizeListIndex].name), "%s", name);
-    walSizeList[walSizeListIndex].hash = Q_Hash32(name, strlen(name));
+    walSizeList[walSizeListIndex].hash = Hash32(name, strlen(name));
     walSizeList[walSizeListIndex].width = width;
 	walSizeList[walSizeListIndex].height = height;
 	walSizeListIndex++;

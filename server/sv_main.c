@@ -1070,7 +1070,7 @@ void SV_UserinfoChanged (client_t *cl)
 	// mask off high bit
 	for (i=0 ; i<sizeof(cl->name) ; i++)
 		cl->name[i] &= 127;
-    cl->nameHash = Q_Hash32(cl->name, strlen(cl->name));
+    cl->nameHash = Hash32(cl->name, strlen(cl->name));
 	// rate command
 	val = Info_ValueForKey (cl->userinfo, "rate");
 	if (strlen(val))
