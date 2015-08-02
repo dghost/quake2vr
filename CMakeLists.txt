@@ -75,7 +75,6 @@ set(COMMON_SOURCES
   qcommon/cvar.c
   qcommon/files.c
   qcommon/glob.c
-  qcommon/hash.c
   qcommon/md4.c
   qcommon/net_chan.c
   qcommon/pmove.c

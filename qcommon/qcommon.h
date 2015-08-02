@@ -922,27 +922,6 @@ extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 void SCR_DebugGraph (float value, int32_t color);
 
 
-/*
- ==============================================================
- 
-HASHING FUNCTIONS
- 
- ==============================================================
- */
-#ifndef Q2VR_ENGINE_MOD
-typedef struct hash128_t { uint32_t v[4]; } hash128_t;
-typedef struct hash32_t {uint32_t h; } hash32_t;
-#endif
-
-hash128_t Q_Hash128(const char *string, uint32_t len);
-hash128_t Q_HashSanitized128(const char *string);
-int32_t Q_HashEquals128(hash128_t hash1, hash128_t hash2);
-int32_t Q_HashCompare128(hash128_t hash1, hash128_t hash2);
-hash32_t Q_Hash32(const char *string, uint32_t len);
-hash32_t Q_HashSanitized32(const char *string);
-int32_t Q_HashEquals32(hash32_t hash1, hash32_t hash2);
-int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
-
 
 /*
  ==============================================================
@@ -951,7 +930,7 @@ int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);
  
  ==============================================================
  */
-#ifndef Q2VR_ENGINE_MOD
+#ifndef HASH_TYPES
 typedef struct stable_t {
     void *st;
     uint32_t size;
@@ -978,7 +957,7 @@ int32_t Q_STAutoPack(stable_t *st);
  
  ==============================================================
  */
-#ifndef Q2VR_ENGINE_MOD
+#ifndef HASH_TYPES
 typedef struct sset_t {
     stable_t table;
     const char **strings;

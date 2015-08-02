@@ -98,7 +98,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 
 // Knightmare- whether to include new engine enhancements
-#define	KMQUAKE2_ENGINE_MOD
+//#define	KMQUAKE2_ENGINE_MOD
 
 
 
@@ -134,8 +134,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 #endif
 
-typedef struct hash128_t { uint32_t v[4]; } hash128_t;
-typedef struct hash32_t { uint32_t h; } hash32_t;
+#define HASH_TYPES
 
 typedef struct stable_t {
     void *st;
@@ -171,8 +170,8 @@ typedef struct sset_t {
 #define	MAX_STRING_TOKENS	80		// max tokens resulting from Cmd_TokenizeString
 #define	MAX_TOKEN_CHARS		128		// max length of an individual token
 
-#define	MAX_QPATH			64		// max length of a quake game pathname
-#define	MAX_OSPATH			256		// max length of a filesystem pathname
+#define	MAX_QPATH			128		// max length of a quake game pathname
+#define	MAX_OSPATH			4096		// max length of a filesystem pathname
 
 //
 // per-level limits
@@ -1601,3 +1600,25 @@ typedef struct
 extern int32_t vidref_val;
 // PGM
 // ==================
+
+
+/*
+ ==============================================================
+ 
+ HASHING FUNCTIONS
+ 
+ ==============================================================
+ */
+
+
+typedef struct hash128_t { uint32_t v[4]; } hash128_t;
+typedef struct hash32_t { uint32_t h; } hash32_t;
+
+hash128_t Q_Hash128(const char *string, uint32_t len);
+hash128_t Q_HashSanitized128(const char *string);
+int32_t Q_HashEquals128(hash128_t hash1, hash128_t hash2);
+int32_t Q_HashCompare128(hash128_t hash1, hash128_t hash2);
+hash32_t Q_Hash32(const char *string, uint32_t len);
+hash32_t Q_HashSanitized32(const char *string);
+int32_t Q_HashEquals32(hash32_t hash1, hash32_t hash2);
+int32_t Q_HashCompare32(hash32_t hash1, hash32_t hash2);

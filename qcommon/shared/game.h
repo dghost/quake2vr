@@ -196,14 +196,6 @@ typedef struct
 	void	(*FreeFileList) (char **list, int32_t n);
 #ifdef Q2VR_ENGINE_MOD
     void *(*TagRealloc)(void* ptr, int32_t size);
-    hash128_t (*Hash128)(const char *string, uint32_t len);
-    hash128_t (*HashSanitized128)(const char *string);
-    int32_t (*HashEquals128)(hash128_t hash1, hash128_t hash2);
-    int32_t (*HashCompare128)(hash128_t hash1, hash128_t hash2);
-    hash32_t (*Hash32)(const char *string, uint32_t len);
-    hash32_t (*HashSanitized32)(const char *string);
-    int32_t (*HashEquals32)(hash32_t hash1, hash32_t hash2);
-    int32_t (*HashCompare32)(hash32_t hash1, hash32_t hash2);
     qboolean (*StringTableInit)(stable_t *st, uint32_t size, int32_t avgLength, int16_t memoryTag);
     int32_t (*StringTableRegister)(stable_t *st, const char *string);
     int32_t (*StringTableLookup)(const stable_t *st, const char *string);

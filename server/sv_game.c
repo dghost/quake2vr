@@ -327,7 +327,7 @@ void SCR_DebugGraph (float value, int32_t color);
 
 void SV_InitGameProgs (void)
 {
-	game_import_t	import;
+    game_import_t	import = {0};
 
 	// unload anything we have now
 	if (ge)
@@ -394,14 +394,6 @@ void SV_InitGameProgs (void)
 	import.FreeFileList = FS_FreeFileList;
 #ifdef Q2VR_ENGINE_MOD
     import.TagRealloc = Z_Realloc;
-    import.Hash128 = Q_Hash128;
-    import.HashSanitized128 = Q_HashSanitized128;
-    import.HashEquals128 = Q_HashEquals128;
-    import.HashCompare128 = Q_HashCompare128;
-    import.Hash32 = Q_Hash32;
-    import.HashSanitized32 = Q_HashSanitized32;
-    import.HashEquals32 = Q_HashEquals32;
-    import.HashCompare32 = Q_HashCompare32;
     import.StringTableInit = Q_STInit;
     import.StringTableRegister = Q_STAutoRegister;
     import.StringTableLookup = Q_STLookup;
