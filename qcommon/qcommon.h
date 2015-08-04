@@ -873,6 +873,7 @@ extern	cvar_t	*log_stats;
 extern	cvar_t *sv_engine;
 extern	cvar_t *sv_engine_version;
 extern	cvar_t *sv_entfile;			// whether to use .ent file
+extern  cvar_t *sv_legacy_libraries;
 
 // Knightmare added
 extern	cvar_t *fs_gamedirvar;

@@ -409,21 +409,25 @@ void SV_InitGameProgs (void)
 
 	if (!ge)
 		Com_Error (ERR_DROP, "failed to load game DLL");
+    
     if (ge->apiversion & GAME_API_VERSION_MASK) {
         Com_Printf("Attempting to load q2vr game library...\n");
         if (ge->apiversion != GAME_API_VERSION)
-            Com_Error (ERR_DROP, "q2vr game is version %i, not %i", ge->apiversion,
+            Com_Error (ERR_DROP, "game is version %i, not %i", ge->apiversion,
                        GAME_API_VERSION);
         else
             Com_Printf("loading q2vr game library...\n");
-    } else {
+    } else if (sv_legacy_libraries->value) {
         Com_Printf("Attempting to load legacy game library...\n");
         if (ge->apiversion != LEGACY_API_VERSION)
-            Com_Error (ERR_DROP, "legacy game is version %i, not %i", ge->apiversion,
+            Com_Error (ERR_DROP, "game is version %i, not %i", ge->apiversion,
                        LEGACY_API_VERSION);
         else
             Com_Printf("loading legacy game library...\n");
         
+    } else {
+        Com_Error (ERR_DROP, "game is version %i, not %i", ge->apiversion,
+                   GAME_API_VERSION);
     }
 	ge->Init ();
 }

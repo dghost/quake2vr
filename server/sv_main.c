@@ -60,6 +60,8 @@ cvar_t	*sv_reconnect_limit;	// minimum seconds between connect messages
 
 cvar_t	*sv_entfile;			// whether to use .ent file
 
+cvar_t  *sv_legacy_libraries;   // whether to allow loading legacy game libraries
+
 void Master_Shutdown (void);
 
 
@@ -1157,6 +1159,8 @@ void SV_Init (void)
 
 	sv_entfile = Cvar_Get ("sv_entfile", "1", CVAR_ARCHIVE); // whether to use .ent file
 
+    sv_legacy_libraries = Cvar_Get("sv_legacy_libraries", "0", CVAR_ARCHIVE); // disable loading legacy game libraries by default
+    
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
     
     SV_InitClientCommands();
