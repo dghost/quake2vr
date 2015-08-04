@@ -267,6 +267,14 @@ void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl
         {1.0, 1.0, 1.0, alpha}
     };
     
+    const vec3_t verts[4] = {
+        {x, y, 0},
+        {x+w, y, 0},
+        {x+w, y+h, 0},
+        {x, y+h, 0}
+    };
+    
+    
     if (scrap_dirty)
         Scrap_Upload ();
     
@@ -291,11 +299,7 @@ void R_DrawStretchImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *gl
     Vector2Set(texCoordArray[0][2], gl->sh, gl->th);
     Vector2Set(texCoordArray[0][3], gl->sl, gl->th);
     
-    VA_SetElem3(vertexArray[0], x, y, 0);
-    VA_SetElem3(vertexArray[1], x+w, y, 0);
-    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
-    VA_SetElem3(vertexArray[3], x, y+h, 0);
-    
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
     memcpy(colorArray[rb_vertex], color, sizeof(vec4_t) * 4);
     
     rb_vertex = 4;
@@ -501,6 +505,13 @@ void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image
         {1.0, 1.0, 1.0, 1.0}
     };
     
+    const vec3_t verts[4] = {
+        {x, y, 0},
+        {x+w, y, 0},
+        {x+w, y+h, 0},
+        {x, y+h, 0}
+    };
+    
     GL_Bind (image->texnum);
 
     rb_vertex = rb_index = 0;
@@ -513,11 +524,7 @@ void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image
     VA_SetElem2(texCoordArray[0][2], (float)(x+w)/(float)image->width, (float)(y+h)/(float)image->height);
     VA_SetElem2(texCoordArray[0][3], (float)x/(float)image->width, (float)(y+h)/(float)image->height);
     
-    VA_SetElem3(vertexArray[0], x, y, 0);
-    VA_SetElem3(vertexArray[1], x+w, y, 0);
-    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
-    VA_SetElem3(vertexArray[3], x, y+h, 0);
-
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
     memcpy(colorArray, color, sizeof(vec4_t) * 4);
 
     rb_vertex = 4;
@@ -571,6 +578,13 @@ void R_DrawFill (int32_t x, int32_t y, int32_t w, int32_t h, int32_t red, int32_
     };
 
     
+    const vec3_t verts[4] = {
+        {x, y, 0},
+        {x+w, y, 0},
+        {x+w, y+h, 0},
+        {x, y+h, 0}
+    };
+    
 //	GL_DisableTexture (0);
 	GL_Disable (GL_ALPHA_TEST);
 	GL_TexEnv (GL_MODULATE);
@@ -584,11 +598,7 @@ void R_DrawFill (int32_t x, int32_t y, int32_t w, int32_t h, int32_t red, int32_
     memcpy(&indexArray[rb_index], indices, sizeof(indices));
     rb_index = 6;
     
-    VA_SetElem3(vertexArray[0], x, y, 0);
-    VA_SetElem3(vertexArray[1], x+w, y, 0);
-    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
-    VA_SetElem3(vertexArray[3], x, y+h, 0);
-
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
     memcpy(colorArray, color, sizeof(vec4_t) * 4);
 
     rb_vertex = 4;
@@ -695,12 +705,25 @@ Cinematic streaming
 
 void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *raw, int32_t rawWidth, int32_t rawHeight) //qboolean noDraw)
 {
-
+    static const vec2_t		texCoord[4] = {
+        { 0, 0},
+        { 1, 0},
+        { 1, 1},
+        { 0, 1}
+    };
+    
     static const vec4_t color[4] = {
         {1.0, 1.0, 1.0, 1.0},
         {1.0, 1.0, 1.0, 1.0},
         {1.0, 1.0, 1.0, 1.0},
         {1.0, 1.0, 1.0, 1.0}
+    };
+    
+    const vec3_t verts[4] = {
+        {x, y, 0},
+        {x+w, y, 0},
+        {x+w, y+h, 0},
+        {x, y+h, 0}
     };
     
 	// Make sure everything is flushed if needed
@@ -730,16 +753,8 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *r
     rb_index = 6;
     
     // Draw it
-    VA_SetElem2(texCoordArray[0][0], 0, 0);
-    VA_SetElem2(texCoordArray[0][1], 1, 0);
-    VA_SetElem2(texCoordArray[0][2], 1, 1);
-    VA_SetElem2(texCoordArray[0][3], 0, 1);
-    
-    VA_SetElem3(vertexArray[0], x, y, 0);
-    VA_SetElem3(vertexArray[1], x+w, y, 0);
-    VA_SetElem3(vertexArray[2], x+w, y+h, 0);
-    VA_SetElem3(vertexArray[3], x, y+h, 0);
-
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
+    memcpy(texCoordArray, texCoord, sizeof(vec2_t) * 4);
     memcpy(colorArray, color, sizeof(vec4_t) * 4);
     
     rb_vertex = 4;
@@ -757,11 +772,24 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols,
 	int32_t				i, j, trows;
 	int32_t				frac, fracstep, row;
 	float			hscale, t;
-	vec2_t			texCoord[4], verts[4];
 	byte			*source;
 
-    static const vec4_t color = {1.0, 1.0, 1.0, 1.0};
+    static const vec4_t color = {
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0},
+        {1.0, 1.0, 1.0, 1.0}
+    };
 
+    
+    const vec3_t verts[4] = {
+        {x, y, 0},
+        {x+w, y, 0},
+        {x+w, y+h, 0},
+        {x, y+h, 0}
+    };
+    
+    
 	// Nicolas' fix for stray pixels at bottom and top
 	memset(image32, 0, sizeof(image32));
 
@@ -837,28 +865,20 @@ void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, int32_t cols,
 		GL_Disable (GL_ALPHA_TEST);
 
 	// Draw it
-	Vector2Set(texCoord[0], 0, 0);
-	Vector2Set(texCoord[1], 1, 0);
-	Vector2Set(texCoord[2], 1, t);
-	Vector2Set(texCoord[3], 0, t);
+	Vector2Set(texCoordArray[0][0], 0, 0);
+	Vector2Set(texCoordArray[0][1], 1, 0);
+	Vector2Set(texCoordArray[0][2], 1, t);
+	Vector2Set(texCoordArray[0][3], 0, t);
 
-	Vector2Set(verts[0], x, y);
-	Vector2Set(verts[1], x+w, y);
-	Vector2Set(verts[2], x+w, y+h);
-	Vector2Set(verts[3], x, y+h);
-
-	rb_vertex = rb_index = 0;
-    memcpy(&indexArray[rb_index], indices, sizeof(indices));
-    rb_index += 6;
+    memcpy(indexArray, indices, sizeof(indices));
+    rb_index = 6;
     
-    memcpy(texCoordArray[0][rb_vertex], texCoord, sizeof(vec2_t) * 4);
+    memcpy(vertexArray, verts, sizeof(vec3_t) * 4);
+    memcpy(colorArray, color, sizeof(vec4_t) * 4);
+    
+    rb_vertex = 4;
 
-	for (i=0; i<4; i++) {
-		VA_SetElem3(vertexArray[rb_vertex], verts[i][0], verts[i][1], 0);
-		VA_SetElem4v(colorArray[rb_vertex], color);
-		rb_vertex++;
-	}
-	RB_RenderMeshGeneric (false);
+    RB_RenderMeshGeneric (false);
 
 	if ( (glConfig.renderer == GL_RENDERER_MCD) || (glConfig.renderer & GL_RENDERER_RENDITION) ) 
 		GL_Enable (GL_ALPHA_TEST);
