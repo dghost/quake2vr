@@ -98,7 +98,7 @@ __inline int32_t Q_vsnprintf (char *Dest, size_t Count, const char *Format, va_l
 #endif
 
 // Knightmare- whether to include new engine enhancements
-//#define	KMQUAKE2_ENGINE_MOD
+#define	KMQUAKE2_ENGINE_MOD
 
 
 
