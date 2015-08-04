@@ -49,8 +49,6 @@ void R_RenderBeam (vec3_t start, vec3_t end, float size, float red, float green,
         {r, g, b, a},
         {r, g, b, a}
     };
-	int32_t		i;
-
     static const uint32_t indices[6] = {
         0, 1, 2, 0, 2, 3
     };

@@ -195,7 +195,6 @@ static qboolean PlayerConfig_ScanDirectories (void)
             int32_t			nimagefiles;
             int32_t			nskins = 0;
             qboolean	already_added = false;
-            stable_t    image_stable = {0, 0};
             sset_t skins;
             const char *dirname = Q_SSetGetString(&dirs, i);
             if (dirname == 0)

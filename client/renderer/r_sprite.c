@@ -44,7 +44,6 @@ void R_DrawSpriteModel (entity_t *e)
 	dsprite_t		*psprite;
 	dsprframe_t		*frame;
 	float			*up, *right;
-	int32_t				i;
 
     static const uint32_t indices[6] = {
         0, 1, 2, 0, 2, 3

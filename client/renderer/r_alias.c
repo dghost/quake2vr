@@ -443,7 +443,7 @@ void R_DrawAliasMeshes (maliasmodel_t *paliashdr, entity_t *e, qboolean lerpOnly
 uint32_t	shadow_va, shadow_index;
 static vec3_t          shadowTempVertexArray[MD3_MAX_VERTS];
 
-static FORCE_INLINE index_t AddToVertexArray(vec_t *vert, vec_t *color) {
+static FORCE_INLINE index_t AddToVertexArray(const vec_t *vert, const vec_t *color) {
     VA_SetElem3v(vertexArray[shadow_va], vert);
     VA_SetElem4v(colorArray[shadow_va], color);
     return shadow_va++;
@@ -457,7 +457,7 @@ based on code from BeefQuake R6
 */
 void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, float projectdistance, qboolean nocap)
 {
-	int32_t				i, j;
+	int32_t				i;
     qboolean		triangleFacingLight[MD3_MAX_TRIANGLES] = {0};
     qboolean		vertNeedsProjection[MD3_MAX_VERTS] = {0};
     int32_t		vertIndices[MD3_MAX_VERTS] = {0};
@@ -465,7 +465,7 @@ void R_BuildShadowVolume (maliasmodel_t *hdr, int32_t meshnum, vec3_t light, flo
     
     
 	const maliasmesh_t	mesh = hdr->meshes[meshnum];
-	const maliasvertex_t	*verts = mesh.vertexes;;
+
     const vec4_t color = { 0, 0, 0, aliasShadowAlpha};
 
 	for (i=0; i<mesh.num_tris; i++)

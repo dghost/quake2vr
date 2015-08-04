@@ -493,10 +493,7 @@ void R_DrawPic (int32_t x, int32_t y, char *pic)
  =============
  */
 void R_DrawTileImage (int32_t x, int32_t y, int32_t w, int32_t h, image_t *image)
-{
-    int32_t		i;
-    vec2_t	texCoord[4], verts[4];
-    
+{    
     static const vec4_t color[4] = {
         {1.0, 1.0, 1.0, 1.0},
         {1.0, 1.0, 1.0, 1.0},
@@ -698,7 +695,6 @@ Cinematic streaming
 
 void R_DrawStretchRaw (int32_t x, int32_t y, int32_t w, int32_t h, const byte *raw, int32_t rawWidth, int32_t rawHeight) //qboolean noDraw)
 {
-	int32_t		i;
 
     static const vec4_t color[4] = {
         {1.0, 1.0, 1.0, 1.0},
