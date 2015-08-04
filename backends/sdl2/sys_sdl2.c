@@ -659,7 +659,7 @@ void *Sys_GetGameAPI (void *parms)
         "vrgame" CPUSTRING,
         "mpgame" CPUSTRING,
 #endif
-#ifdef KMQ2_ENGINE_MOD
+#ifdef KMQUAKE2_ENGINE_MOD
         "kmq2game" CPUSTRING,
 #endif
         "game",
