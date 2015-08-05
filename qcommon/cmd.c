@@ -914,7 +914,11 @@ char            retval[256];
 int strsort(const void *str1, const void *str2) {
     const char *a = *(const char **)str1;
     const char *b = *(const char **)str2;
+#ifdef _WIN32
+	return stricmp(a, b);
+#else
 	return strcasecmp(a,b);
+#endif
 }
 
 completion_t Cmd_CompleteCommand (char *partial)

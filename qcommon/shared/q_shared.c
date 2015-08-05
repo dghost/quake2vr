@@ -1665,11 +1665,19 @@ int32_t Q_strcasecmp (const char *s1, const char *s2)
 
 size_t Q_strlcpy(char *dest, const char* src, size_t size)
 {
+#ifdef _WIN32
+	return strcpy_s(dest, size, src);
+#else
 	return strlcpy(dest,src,size);
+#endif
 }
 
 size_t Q_strlcpy_lower(char *dest, const char* src, size_t size) {
-    size_t s = strlcpy(dest, src, size);
+#ifdef _WIN32
+    size_t s = strcpy_s(dest, size, src);
+#else
+	size_t s = strlcpy(dest, src, size);
+#endif
     Q_strlwr(dest);
     return s;
 }

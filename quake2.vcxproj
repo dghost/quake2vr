@@ -311,7 +311,6 @@
     <ClCompile Include="qcommon\crc.c" />
     <ClCompile Include="qcommon\cvar.c" />
     <ClCompile Include="qcommon\files.c" />
-    <ClCompile Include="qcommon\hash.c" />
     <ClCompile Include="qcommon\md4.c" />
     <ClCompile Include="qcommon\murmur3\murmur3.c" />
     <ClCompile Include="qcommon\net_chan.c" />
