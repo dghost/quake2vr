@@ -169,10 +169,10 @@ int32_t transRenderCompare (const void *arg1, const void *arg2 )
 
 sortedpart_t NewSortedPart (particle_t *p)
 {
-    assert(p != NULL);
-    
 	vec3_t result;
 	sortedpart_t s_part;
+
+    assert(p != NULL);
 
 	s_part.p = p;
 	VectorSubtract(p->origin, r_origin, result);

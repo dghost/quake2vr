@@ -161,9 +161,10 @@ static cvar_t *Cvar_FindVar (const char *var_name)
 {
 	cvar_t	*var;
     char buffer[MAX_TOKEN_CHARS];
-    
+    int32_t index;
+
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
-    int32_t index = Q_STLookup(&cvarNames,buffer);
+	index = Q_STLookup(&cvarNames,buffer);
     
     if (index >= 0) {
         for (var=cvar_vars[index&CVAR_HASHMAP_MASK] ; var ; var=var->next)

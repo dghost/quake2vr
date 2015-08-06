@@ -402,6 +402,9 @@
     <ClCompile Include="qcommon\stable.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="qcommon\sset.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">

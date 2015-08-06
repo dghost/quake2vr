@@ -317,6 +317,7 @@
     <ClCompile Include="qcommon\pmove.c" />
     <ClCompile Include="qcommon\shared\m_flash.c" />
     <ClCompile Include="qcommon\shared\q_shared.c" />
+    <ClCompile Include="qcommon\sset.c" />
     <ClCompile Include="qcommon\stable.c" />
     <ClCompile Include="qcommon\wildcard.c" />
     <ClCompile Include="qcommon\zip\ioapi.c" />

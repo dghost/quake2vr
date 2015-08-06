@@ -93,8 +93,9 @@ int32_t Q_STUsedBytes(const stable_t *st) {
 }
 
 int32_t Q_STAutoRegister(stable_t *st, const char *string) {
-    assert(st != NULL && st->st != NULL && string != NULL);
-    int result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
+	int result;
+	assert(st != NULL && st->st != NULL && string != NULL);
+	result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
     if (result == NFST_STRING_TABLE_FULL) {
         if (Q_STGrow(st,st->size * 2)) {
             result = nfst_to_symbol((struct nfst_StringTable *)st->st, string);
@@ -107,8 +108,9 @@ int32_t Q_STAutoRegister(stable_t *st, const char *string) {
 }
 
 int32_t Q_STAutoPack(stable_t *st) {
+	int32_t size;
     assert(st->st != NULL);
-    int32_t size = nfst_pack((struct nfst_StringTable *)st->st);
+    size = nfst_pack((struct nfst_StringTable *)st->st);
     if (size <= st->size) {
         void *new_one = NULL;
 		if ((new_one = Z_Realloc(st->st, size)) != NULL) {

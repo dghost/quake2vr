@@ -28,7 +28,7 @@ vec3_t vec3_origin = {0,0,0};
 
 #ifdef _WIN32
 #include <ctype.h>
-#pragma optimize( "", off )
+//#pragma optimize( "", off )
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #endif
@@ -646,8 +646,8 @@ vec_t VectorNormalize (vec3_t v)
     
 	if (length)
 	{
-        length = sqrt (length);		// FIXME
         int32_t i;
+        length = sqrt (length);		// FIXME
 		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
             v[i] *= ilength;
@@ -664,8 +664,9 @@ vec_t VectorNormalize2 (const vec3_t v, vec3_t out)
 
 	if (length)
 	{
-        length = sqrt (length);		// FIXME
         int32_t i;
+
+        length = sqrt (length);		// FIXME
 		ilength = 1/length;
         for (i=0 ; i< 3 ; i++)
             out[i] = v[i]*ilength;

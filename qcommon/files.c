@@ -1869,10 +1869,10 @@ FS_ListFiles
 */
 int32_t FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
-    assert(ss != NULL);
-
 	char *s;
     uint32_t numFiles = 0;
+
+    assert(ss != NULL);
 
 
     s = Sys_FindFirst( findname, musthave, canthave );
@@ -1901,13 +1901,14 @@ int32_t FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t ca
  */
 int32_t FS_ListFilesRelative (const char *path, const char *pattern, sset_t *ss, uint32_t musthave, uint32_t canthave)
 {
-    assert(ss != NULL);
     char findname[MAX_OSPATH]; /* Temporary path. */
-
     char *s;
     uint32_t numFiles = 0;
     int32_t len = strlen(path);
-    Com_sprintf(findname, sizeof(findname), "%s/%s", path, pattern);
+
+    assert(ss != NULL);
+
+	Com_sprintf(findname, sizeof(findname), "%s/%s", path, pattern);
     
     s = Sys_FindFirst( findname, musthave, canthave );
     while ( s )
@@ -2186,9 +2187,10 @@ void FS_Dir_f (void)
             if ( FS_ListFiles( findname, &dirs, 0, 0 ))
             {
                 int32_t i, numDirs;
+				const char	**dirnames;
                 Q_SSetSort(&dirs, false);
-                const char	**dirnames = Q_SSetMakeStrings(&dirs, &numDirs);
-
+                dirnames = Q_SSetMakeStrings(&dirs, &numDirs);
+				
                 for ( i = 0; i < numDirs; i++ )
                 {
                     if (FS_IsDirectory(dirnames[i])) {
@@ -2215,7 +2217,7 @@ void FS_Dir_f (void)
                             Com_Printf( S_COLOR_CYAN "%s\n", name );
                     }
                 }
-                Z_Free( dirnames );
+                Z_Free( (void *) dirnames );
             }
             Q_SSetFree(&dirs);
         }

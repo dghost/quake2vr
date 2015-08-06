@@ -1,5 +1,10 @@
 #include "qcommon.h"
 
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 qboolean Q_SSetInit(sset_t *ss,uint32_t maxSize, int32_t avgLength, int16_t memoryTag) {
     assert(ss != NULL);
     ss->tag = memoryTag;
@@ -94,8 +99,9 @@ const char *Q_SSetGetString(sset_t *ss, int32_t index) {
 }
 
 int32_t Q_SSetGetStrings(sset_t *ss, const char **strings, int32_t maxStrings) {
-    assert(ss != NULL && strings != NULL);
     int i;
+
+	assert(ss != NULL && strings != NULL);
 
     for (i = 0; i < maxStrings && i < ss->currentSize; i++) {
         strings[i] = Q_STGetString(&ss->table, ss->tokens[i]);
@@ -104,9 +110,11 @@ int32_t Q_SSetGetStrings(sset_t *ss, const char **strings, int32_t maxStrings) {
 }
 
 const char **Q_SSetMakeStrings(sset_t *ss, int32_t *numStrings) {
-    assert(ss != NULL);
-    int i;
-    const char **strings = Z_TagMalloc(sizeof(const char *) * ss->currentSize, ss->tag);
+	int i;
+	const char **strings;
+	assert(ss != NULL);
+
+    strings = (const char **) Z_TagMalloc(sizeof(const char *) * ss->currentSize, ss->tag);
     
     if (!strings)
         return NULL;
