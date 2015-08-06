@@ -1256,7 +1256,6 @@ fsPack_t *FS_LoadPAK (const char *packPath)
         dpackfile_t cur = info[i];
         Q_strlcpy_lower(buffer, cur.name, MAX_OSPATH);
         files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
-        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
         files[i].offset = LittleLong(cur.filepos);
         files[i].size = LittleLong(cur.filelen);
         files[i].ignore = FS_FileInPakBlacklist(buffer, false);	// check against pak loading blacklist
@@ -1268,6 +1267,11 @@ fsPack_t *FS_LoadPAK (const char *packPath)
     //Com_Printf("String table contains %i bytes\n", filenameTable.size);
     Q_STAutoPack(&filenameTable);
     //Com_Printf("Packed string table contains %i bytes\n", filenameTable.size);
+
+	for (i = 0; i < numFiles; i++)
+	{
+        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
+	}
 
     pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
 	strcpy(pack->name, packPath);
