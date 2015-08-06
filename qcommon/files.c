@@ -1360,7 +1360,6 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		Q_strlcpy_lower(buffer, fileName, MAX_OSPATH);
 
         files[i].hash = Q_STAutoRegister(&filenameTable, buffer);
-        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
 		files[i].offset = -1;		// Not used in ZIP files
 		files[i].size = info.uncompressed_size;
 		files[i].ignore = FS_FileInPakBlacklist(buffer, true);	// check against pak loading blacklist
@@ -1369,6 +1368,15 @@ fsPack_t *FS_LoadPK3 (const char *packPath)
 		i++;
 
 		status = unzGoToNextFile(handle);
+	}
+
+	numFiles = i;
+
+	Q_STAutoPack(&filenameTable);
+
+	for (i = 0; i < numFiles; i++)
+	{
+        files[i].name = Q_STGetString(&filenameTable, files[i].hash);
 	}
 
 	pack = (fsPack_t*)Z_TagMalloc(sizeof(fsPack_t), TAG_SYSTEM);
