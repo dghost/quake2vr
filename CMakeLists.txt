@@ -340,13 +340,12 @@ add_executable(quake2vr ${CLIENT_BASE} ${BACKEND})
 
 target_link_libraries(quake2vr ${SDL2_LIBRARY} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${GLEW_LIBRARIES} ${ZLIB_LIBRARIES})
 
-
 # check 64 bit
 # this will break on non-x86 processors
 if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
 	set( ARCH "x86" )
 else()
-	set(  ARCH "x64" )
+	set( ARCH "x64" )
 endif()
 
 message ( STATUS "Building for ${ARCH}" )
@@ -370,6 +369,8 @@ else ()
 endif (STEAMWORKS_FOUND)
 
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
+
+set_target_properties(quake2vr PROPERTIES XCODE_ATTRIBUTE_OTHER_CFLAGS[variant=Debug] "-D_DEBUG" )
 
 add_subdirectory(game)
 add_subdirectory(game_mp)
