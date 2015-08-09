@@ -1676,9 +1676,12 @@ void FS_InitFilesystem (void)
     
 	Com_Printf("\n----- Filesystem Initialization -----\n");
 
+    
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	fs_basedir = Cvar_Get ("basedir", Sys_GetBaseDir(), CVAR_NOSET);
+
+    FS_GetGameDirs(NULL);
 
 	// start up with baseq2 by default
 	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
@@ -1695,6 +1698,7 @@ void FS_InitFilesystem (void)
 		FS_SetGamedir (fs_gamedirvar->string);
 
 	FS_Path_f(); // output path data
+    
 }
 
 /*
@@ -2235,4 +2239,50 @@ void FS_Dir_f (void)
         }
         Com_Printf( "\n" );
     };
+}
+
+void FS_GetGameDirs(sset_t *output) {
+    sset_t dirs;
+    char basepath[MAX_OSPATH];
+    
+    // explicitly add lazarus directory if it exists
+    Com_sprintf(basepath, MAX_OSPATH, "%s/lazarus", fs_basedir->string);
+    if (output && FS_IsDirectory(basepath)) {
+        Q_SSetInsert(output, "lazarus");
+    }
+
+    // explicitly add 3tctf directory if it exists
+    Com_sprintf(basepath, MAX_OSPATH, "%s/3tctf", fs_basedir->string);
+    if (output && FS_IsDirectory(basepath)) {
+        Q_SSetInsert(output, "3tctf");
+    }
+
+    Com_sprintf(basepath, MAX_OSPATH, "%s/*.*", fs_basedir->string);
+
+    if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
+        if ( FS_ListFiles( basepath, &dirs, 0, 0 ))
+        {
+            int32_t i;
+            
+            for ( i = 0; i < dirs.currentSize; i++ )
+            {
+                const char *dirname = Q_SSetGetString(&dirs, i);
+                
+                if (FS_IsDirectory(dirname)) {
+                    const char *name = strrchr(dirname, '/');
+                    if (name) {
+                        name += 1;
+                    } else {
+                        name = dirname;
+                    }
+                    if (Sys_LoadGameLibrariesInPath(dirname,false)) {
+                        Com_DPrintf( "Found game directory: %s\n", name );
+                        if (output)
+                            Q_SSetInsert(output, name);
+                    }
+                }
+            }
+        }
+        Q_SSetFree(&dirs);
+    }
 }
