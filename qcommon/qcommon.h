@@ -805,7 +805,7 @@ void		FS_RenameFile (const char *oldPath, const char *newPath);
 void		FS_DeleteFile (const char *path);
 void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
-char		*FS_NextPath (char *prevPath);
+const char	*FS_NextPath (const char *prevPath);
 int32_t     FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
 int32_t     FS_ListPak (char *find, sset_t *output);
 char		**FS_ListPakOld (char *find, int32_t *num); // pak list function

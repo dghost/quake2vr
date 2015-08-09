@@ -1537,10 +1537,10 @@ FS_NextPath
 Allows enumerating all of the directories in the search path
 =================
 */
-char *FS_NextPath (char *prevPath)
+const char *FS_NextPath (const char *prevPath)
 {
 	fsSearchPath_t	*search;
-	char			*prev = NULL;
+    const char *prev = NULL;
 
 	if (!prevPath)
 		return fs_gamedir;
@@ -2172,7 +2172,7 @@ FS_Dir_f
 */
 void FS_Dir_f (void)
 {
-	char	*path = NULL;
+	const char *path = NULL;
 	char	findname[1024];
 	char	wildcard[1024] = "*.*";
 
