@@ -466,13 +466,15 @@ void Cmd_Alias_f (void)
 		return;
 	}
     
-    nameIndex = Q_STLookup(&aliasNames, s);
-
+    Q_strlcpy_lower(buffer, s, sizeof(buffer));
+    
+    nameIndex = Q_STLookup(&aliasNames, buffer);
+    
     if (nameIndex >= 0) {
         // if the alias already exists, reuse it
-        for (a = cmd_alias[nameIndex & CMDALIAS_HASHMAP_MASK] ; a ; a=a->next)
+        for (a = cmd_alias[nameIndex & CMDALIAS_HASHMAP_MASK] ; a  ; a=a->next)
         {
-            if (a->nameIndex == nameIndex);
+            if (a->nameIndex == nameIndex)
             {
                 break;
             }
@@ -491,6 +493,12 @@ void Cmd_Alias_f (void)
         assert(alias_tail != NULL);
         
         a = &alias_tail->aliases[alias_tail->numAllocated++];
+        a->nameIndex = Q_STAutoRegister(&aliasNames, buffer);
+        index = a->nameIndex & CMDALIAS_HASHMAP_MASK;
+        a->next = cmd_alias[index];
+        cmd_alias[index] = a;
+        alias_tail->maxIndex = a->nameIndex;
+
 	}
     
     // copy the rest of the command line
@@ -503,17 +511,7 @@ void Cmd_Alias_f (void)
 			strcat (cmd, " ");
 	}
 	strcat (cmd, "\n");
-    
-    Q_strlcpy_lower(buffer, s, sizeof(buffer));
-
-    a->nameIndex = Q_STAutoRegister(&aliasNames, buffer);
     a->cmdIndex = Q_STAutoRegister(&aliasTable, cmd);
-    alias_tail->maxIndex = a->nameIndex;
-    index = a->nameIndex & CMDALIAS_HASHMAP_MASK;
-    if (!a->next) {
-        a->next = cmd_alias[index];
-        cmd_alias[index] = a;
-    }
 }
 
 /*
