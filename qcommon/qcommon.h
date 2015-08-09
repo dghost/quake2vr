@@ -994,7 +994,7 @@ void	Sys_AppActivate (void);
 
 void	Sys_UnloadGame (void);
 void	*Sys_FindLibrary(const char *dllnames[]);
-void	*Sys_GetGameAPI (void *parms);
+void	*Sys_GetGameAPI ();
 // loads the game dll and calls the api init function
 
 char	*Sys_ConsoleInput (void);
@@ -1005,6 +1005,16 @@ void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );
 void    Sys_FreeClipboardData( char *cliptext );
 void	Sys_CopyProtect (void);
+
+/*
+ ==============================================================
+ 
+ Q2VR SPECIFIC SYSTEM SERVICES
+ 
+ ==============================================================
+ */
+void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary);
+
 
 /*
 ==============================================================

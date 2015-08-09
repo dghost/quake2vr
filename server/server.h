@@ -302,7 +302,7 @@ extern	game_export_t	*ge;
 void SV_InitGameProgs (void);
 void SV_ShutdownGameProgs (void);
 void SV_InitEdict (edict_t *e);
-
+game_import_t SV_GetGameImport(void);
 
 
 //============================================================

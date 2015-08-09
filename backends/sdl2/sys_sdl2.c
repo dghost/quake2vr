@@ -35,6 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include "../../client/vr/include/vr.h"
 
+#include "../../qcommon/shared/game.h"
+
 #ifdef _WIN32
 #include "../win32/resource.h"
 #include "../win32/conproc.h"
@@ -574,117 +576,193 @@ Loads the game dll
 #define LIBEXT ".so"
 #endif
 
+
+void* Sys_LoadLibrariesInPath(const char *path, const char *dllnames[]) {
+    int i;
+    void	*library = NULL;
+    const char *gamename = NULL;
+    char	name[MAX_OSPATH];
+    
+    if (!path)
+        return NULL;
+    
+    for (i = 0; dllnames[i] != 0 && (library == NULL); i++)
+    {
+        gamename = dllnames[i];
+        Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename, LIBEXT);
+        library = SDL_LoadObject (name);
+        if (!library)
+            Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
+    }
+    
+    if (library)
+    {
+        Com_DPrintf ("SDL_LoadObject (%s)\n",name);
+    }
+    return library;
+}
+
 void* Sys_FindLibrary(const char *dllnames[])
 {
-	char	name[MAX_OSPATH];
-	char	*path;
-	char	cwd[MAX_OSPATH];
-	int32_t i = 0;
-	const char *gamename = NULL;
-	void	*library = NULL;
-
+    char	name[MAX_OSPATH];
+    char	cwd[MAX_OSPATH];
+    const char *path = NULL;
+    void	*library = NULL;
+    
 #ifndef _DEBUG
-	const char *debugdir = "release";
+    const char *debugdir = "release";
 #else
-	const char *debugdir = "debug";
+    const char *debugdir = "debug";
 #endif
-
-	// check the current debug directory first for development purposes
+    
+    // check the current debug directory first for development purposes
 #ifdef WIN32
-	_getcwd (cwd, sizeof(cwd));
+    _getcwd (cwd, sizeof(cwd));
 #else
-	getcwd (cwd, sizeof(cwd));
+    getcwd (cwd, sizeof(cwd));
 #endif
-
-	for (i = 0; (dllnames[i] != 0) && (library == NULL); i++)
-	{
-		gamename = dllnames[i];
-		Com_sprintf (name, sizeof(name), "%s/%s/%s%s", cwd, debugdir, gamename,LIBEXT);
-		library = SDL_LoadObject ( name );
-		if (!library)
-			Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
-	}
-	if (library)
-	{
-		Com_DPrintf ("SDL_LoadObject (%s)\n", name);
-	}
-	else
-	{
-#ifdef DEBUG
-		// check the current directory for other development purposes
-		Com_sprintf (name, sizeof(name), "%s/%s%s", cwd, gamename,LIBEXT);
-		library = SDL_LoadObject ( name );
-		if (library)
-		{
-			Com_DPrintf ("SDL_LoadObject (%s)\n", name);
-		}
-		else
+    
+    Com_sprintf (name, sizeof(name), "%s/%s", cwd, debugdir);
+    library = Sys_LoadLibrariesInPath(name, dllnames);
+    
+#ifdef _DEBUG
+    if (!library)
+        library = Sys_LoadLibrariesInPath(cwd, dllnames);
 #endif
-		{
-			// now run through the search paths
-			path = NULL;
-			while (1)
-			{
-				path = FS_NextPath (path);
-				if (!path)
-					return NULL;		// couldn't find one anywhere
-				for (i = 0; dllnames[i] != 0 && (library == NULL); i++)
-				{
-					gamename = dllnames[i];
-					Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename,LIBEXT);
-					library = SDL_LoadObject (name);
-					if (!library) 
-						Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
-				}
-				if (library)
-				{
-					Com_DPrintf ("SDL_LoadObject (%s)\n",name);
-					break;
-				}
-			}
-		}
-	}
-	return library;
+    while (!library && (path = FS_NextPath(path)) != NULL)
+    {
+        library = Sys_LoadLibrariesInPath(path, dllnames);
+    }
+    return library;
 }
 
 
-void *Sys_GetGameAPI (void *parms)
-{
-	void	*(*GetGameAPI) (void *);
-//	int32_t i = 0;
+void *Sys_LoadGameAPI(const char *name, void *parms, qboolean setGameLibrary) {
+    game_export_t	*ge = NULL;
+    void *library = NULL;
+    
+    Com_DPrintf ("SDL_LoadObject (%s)\n",name);
+    library = SDL_LoadObject (name);
+    
+    if (library) {
+        void	*(*GetGameAPI) (void *);
+        GetGameAPI = (void *(*)(void*)) SDL_LoadFunction (library, "GetGameAPI");
+        if (GetGameAPI) {
+            ge = GetGameAPI (parms);
+            if (ge->apiversion & GAME_API_VERSION_MASK) {
+                Com_DPrintf("Attempting to load q2vr game library...\n");
+                if (ge->apiversion != GAME_API_VERSION) {
+                    Com_DPrintf ("game is version %i, not %i\n", ge->apiversion, GAME_API_VERSION);
+                    ge = NULL;
+                }
+                else
+                    Com_DPrintf("loading q2vr game library...\n");
+            } else if (sv_legacy_libraries->value) {
+                Com_DPrintf("Attempting to load legacy game library...\n");
+                if (ge->apiversion != LEGACY_API_VERSION) {
+                    Com_DPrintf ("game is version %i, not %i\n", ge->apiversion,
+                                 LEGACY_API_VERSION);
+                    ge = NULL;
+                }
+                else
+                    Com_DPrintf("loading legacy game library...\n");
+                
+            } else {
+                Com_DPrintf ("game is version %i, not %i\n", ge->apiversion,
+                            GAME_API_VERSION);
+                ge = NULL;
+            }
+        }
+        
+        if (ge && setGameLibrary) {
+            game_library = library;
+        } else {
+            Com_DPrintf ("SDL_UnloadObject (%s)\n",name);
+            SDL_UnloadObject(library);
+        }
+    } else {
+        Com_DPrintf("failed to load %s: %s\n", name, SDL_GetError());
+    }
+    return ge;
+}
 
-    // prefer loading Q2VR, then KMQ2, then try to fallback to legacy
-    static const char *dllnames[] = {
+game_import_t SV_GetGameImport (void);
+
+// prefer loading Q2VR, then KMQ2, then try to fallback to legacy
+static const char *dllnames[] = {
 #ifdef Q2VR_ENGINE_MOD
-        "vrgame" CPUSTRING,
-        "mpgame" CPUSTRING,
+    "vrgame" CPUSTRING,
+    "mpgame" CPUSTRING,
 #endif
 #ifdef KMQUAKE2_ENGINE_MOD
-        "kmq2game" CPUSTRING,
+    "kmq2game" CPUSTRING,
 #endif
-        "game",
-        "game" CPUSTRING,
-        0};
+    "game" CPUSTRING,
+    "game",
+    0};
 
 
+void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary) {
+    int i;
+    const char *gamename = NULL;
+    char	name[MAX_OSPATH];
+    game_import_t import = SV_GetGameImport();
+    
+    if (!path)
+        return NULL;
+    
+    for (i = 0; dllnames[i] != 0; i++)
+    {
+        gamename = dllnames[i];
+        Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename, LIBEXT);
+        void *ge = Sys_LoadGameAPI(name, &import, setGameLibrary);
+        if (ge) {
+            return ge;
+        }
+    }
+    return NULL;
+}
+
+void *Sys_GetGameAPI ()
+{
+    char	name[MAX_OSPATH];
+    char	cwd[MAX_OSPATH];
+    const char *path = NULL;
+    void	*ge = NULL;
+    
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-	game_library = Sys_FindLibrary(dllnames);
-    Com_Printf("Could not find suitable library\n");
+    
+#ifndef _DEBUG
+    const char *debugdir = "release";
+#else
+    const char *debugdir = "debug";
+#endif
+    
+    // check the current debug directory first for development purposes
+#ifdef WIN32
+    _getcwd (cwd, sizeof(cwd));
+#else
+    getcwd (cwd, sizeof(cwd));
+#endif
+    
+    Com_sprintf (name, sizeof(name), "%s/%s", cwd, debugdir);
+    ge = Sys_LoadGameLibrariesInPath(name, true);
+    
+#ifdef _DEBUG
+    if (!ge) {
+        ge = Sys_LoadGameLibrariesInPath(cwd, true);
+    }
+#endif
+    while (!ge && (path = FS_NextPath(path)) != NULL)
+    {
+        ge = Sys_LoadGameLibrariesInPath(path, true);
+    }
+    if (!ge)
+        Com_Printf("Could not find suitable library\n");
 
-	if (!game_library)
-		return NULL;
-
-	GetGameAPI = (void *(*)(void*)) SDL_LoadFunction (game_library, "GetGameAPI");
-	if (!GetGameAPI)
-	{
-        Com_Printf("Could not load function GetGameAPI from library\n");
-		Sys_UnloadGame ();		
-		return NULL;
-	}
-
-	return GetGameAPI (parms);
+    return ge;
 }
 
 //=======================================================================
