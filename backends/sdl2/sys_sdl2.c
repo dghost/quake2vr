@@ -708,14 +708,57 @@ void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary) {
     char	name[MAX_OSPATH];
     game_import_t import = SV_GetGameImport();
     
+    qboolean missionPack = (!strcasecmp(fs_gamedirvar->string, "rogue")
+                            || !strcasecmp(fs_gamedirvar->string, "xatrix"));
+    
     if (!path)
         return NULL;
     
     for (i = 0; dllnames[i] != 0; i++)
     {
         gamename = dllnames[i];
+        if (missionPack && !strncmp(gamename, "vrgame", 6))
+            continue;
+        else if (!missionPack && !strncmp(gamename, "mpgame", 6))
+            continue;
+        else if (!sv_legacy_libraries->value && !strncmp(gamename, "game", 4))
+            continue;
+
         Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename, LIBEXT);
         void *ge = Sys_LoadGameAPI(name, &import, setGameLibrary);
+        if (ge) {
+            return ge;
+        }
+    }
+    return NULL;
+}
+
+void* Sys_LoadGameLibraryInBasePaths(const char *dllname, qboolean setGameLibrary) {
+    char	name[MAX_OSPATH];
+    game_import_t import = SV_GetGameImport();
+    const char *path = NULL;
+    void	*ge = NULL;
+    qboolean missionPack;
+    
+    if (!dllname)
+        return NULL;
+    
+    if (setGameLibrary) {
+        if (!sv_legacy_libraries->value && !strncmp(dllname, "game", 4))
+            return NULL;
+        
+        missionPack = (!strcasecmp(fs_gamedirvar->string, "rogue") || !strcasecmp(fs_gamedirvar->string, "xatrix"));
+        
+        if (missionPack && !strncmp(dllname, "vrgame", 6))
+            return NULL;
+        else if (!missionPack && !strncmp(dllname, "mpgame", 6))
+            return NULL;
+    }
+    
+    while (!ge && (path = FS_NextBasePath(path)) != NULL)
+    {
+        Com_sprintf (name, sizeof(name), "%s/%s%s", path, dllname, LIBEXT);
+        ge = Sys_LoadGameAPI(name, &import, setGameLibrary);
         if (ge) {
             return ge;
         }
@@ -729,6 +772,9 @@ void *Sys_GetGameAPI ()
     char	cwd[MAX_OSPATH];
     const char *path = NULL;
     void	*ge = NULL;
+    int i;
+    
+   
     
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
@@ -755,10 +801,18 @@ void *Sys_GetGameAPI ()
         ge = Sys_LoadGameLibrariesInPath(cwd, true);
     }
 #endif
-    while (!ge && (path = FS_NextPath(path)) != NULL)
+    while (!ge && (path = FS_NextGamePath(path)) != NULL)
     {
+        Com_DPrintf("Checking path: %s\n", path);
         ge = Sys_LoadGameLibrariesInPath(path, true);
     }
+    
+    for (i = 0; !ge && dllnames[i]; i++)
+    {
+        Com_DPrintf("Checking library: %s\n", dllnames[i]);
+        ge = Sys_LoadGameLibraryInBasePaths(dllnames[i], true);
+    }
+    
     if (!ge)
         Com_Printf("Could not find suitable library\n");
 
