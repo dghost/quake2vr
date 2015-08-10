@@ -1559,6 +1559,65 @@ const char *FS_NextPath (const char *prevPath)
 
 
 /*
+ =================
+ FS_NextGamePath
+ 
+ Allows enumerating all of the game directories in the search path
+ =================
+ */
+const char *FS_NextGamePath (const char *prevPath)
+{
+    fsSearchPath_t	*search;
+    const char *prev = NULL;
+    
+    //	if (!prevPath)
+    //		return fs_gamedir;
+    
+    for (search = fs_searchPaths; search != fs_baseSearchPaths; search = search->next)
+    {
+        if (search->pack)
+            continue;
+        
+        if (prevPath == prev)
+            return search->path;
+        
+        prev = search->path;
+    }
+    return NULL;
+}
+
+
+
+/*
+ =================
+ FS_NextBasePath
+ 
+ Allows enumerating all of the base directories in the search path
+ =================
+ */
+const char *FS_NextBasePath (const char *prevPath)
+{
+    fsSearchPath_t	*search;
+    const char *prev = NULL;
+    
+    //	if (!prevPath)
+    //		return fs_gamedir;
+    
+    for (search = fs_baseSearchPaths; search; search = search->next)
+    {
+        if (search->pack)
+            continue;
+        
+        if (prevPath == prev)
+            return search->path;
+        
+        prev = search->path;
+    }
+    return NULL;
+}
+
+
+/*
 =================
 FS_Path_f
 =================

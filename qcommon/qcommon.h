@@ -806,6 +806,9 @@ void		FS_DeleteFile (const char *path);
 void		FS_CreatePath (char *path);
 void		FS_DeletePath (char *path);
 const char	*FS_NextPath (const char *prevPath);
+const char  *FS_NextGamePath (const char *prevPath);
+const char  *FS_NextBasePath (const char *prevPath);
+
 int32_t     FS_ListFiles (char *findname, sset_t *ss, uint32_t musthave, uint32_t canthave);
 int32_t     FS_ListPak (char *find, sset_t *output);
 char		**FS_ListPakOld (char *find, int32_t *num); // pak list function
