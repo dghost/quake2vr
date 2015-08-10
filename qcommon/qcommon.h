@@ -1019,7 +1019,7 @@ void	Sys_CopyProtect (void);
  ==============================================================
  */
 void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary);
-
+void* Sys_LoadGameLibraryInBasePaths(const char *dllname, qboolean setGameLibrary);
 
 /*
 ==============================================================

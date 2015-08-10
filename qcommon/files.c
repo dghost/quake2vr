@@ -2301,16 +2301,31 @@ void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary)
 {
     sset_t dirs;
     char basepath[MAX_OSPATH];
+
+    assert(output != NULL);
+    
+    if (Sys_LoadGameLibraryInBasePaths("mpgame" CPUSTRING, false)) {
+        if (FS_IsDirectory("xatrix")) {
+            Com_DPrintf( "Found game directory: %s\n", "xatrix" );
+            Q_SSetInsert(output, "xatrix");
+        }
+        if (FS_IsDirectory("rogue")) {
+            Com_DPrintf( "Found game directory: %s\n", "rogue" );
+            Q_SSetInsert(output, "rogue");
+        }
+    }
     
     // explicitly add lazarus directory if it exists
     Com_sprintf(basepath, MAX_OSPATH, "%s/lazarus", fs_basedir->string);
-    if (output && FS_IsDirectory(basepath)) {
+    if (FS_IsDirectory(basepath)) {
+        Com_DPrintf( "Found game directory: %s\n", "lazarus" );
         Q_SSetInsert(output, "lazarus");
     }
 
     // explicitly add 3tctf directory if it exists
     Com_sprintf(basepath, MAX_OSPATH, "%s/3tctf", fs_basedir->string);
-    if (output && FS_IsDirectory(basepath)) {
+    if (FS_IsDirectory(basepath)) {
+        Com_DPrintf( "Found game directory: %s\n", "3tctf" );
         Q_SSetInsert(output, "3tctf");
     }
 
@@ -2333,9 +2348,8 @@ void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary)
                         name = dirname;
                     }
                     if (!requireGameLibrary || Sys_LoadGameLibrariesInPath(dirname,false)) {
-                        Com_DPrintf( "Found game directory: %s\n", name );
-                        if (output)
-                            Q_SSetInsert(output, name);
+                        if (Q_SSetInsert(output, name))
+                            Com_DPrintf( "Found game directory: %s\n", name );
                     }
                 }
             }
