@@ -44,6 +44,7 @@ static menuaction_s		s_hard_game_action;
 static menuaction_s		s_nitemare_game_action;
 static menuaction_s		s_load_game_action;
 static menuaction_s		s_save_game_action;
+static menuaction_s		s_mods_action;
 static menuaction_s		s_credits_action;
 static menuseparator_s	s_blankline;
 static menuaction_s		s_game_back_action;
@@ -96,6 +97,11 @@ static void LoadGameFunc( void *unused )
 static void SaveGameFunc( void *unused )
 {
 	M_Menu_SaveGame_f();
+}
+
+static void ModsFunc( void *unused )
+{
+    M_Menu_Game_Mod_f();
 }
 
 static void CreditsFunc( void *unused )
@@ -162,13 +168,20 @@ void Game_MenuInit( void )
 	s_save_game_action.generic.y		= y += MENU_LINE_SIZE;
 	s_save_game_action.generic.name	= " save game";
 	s_save_game_action.generic.callback = SaveGameFunc;
-
+    
 	s_credits_action.generic.type	= MTYPE_ACTION;
 	s_credits_action.generic.flags  = QMF_LEFT_JUSTIFY;
 	s_credits_action.generic.x		= 0;
-	s_credits_action.generic.y		= y += MENU_LINE_SIZE;
+	s_credits_action.generic.y		= y += 2*MENU_LINE_SIZE;
 	s_credits_action.generic.name	= " credits";
 	s_credits_action.generic.callback = CreditsFunc;
+    
+    s_mods_action.generic.type	= MTYPE_ACTION;
+    s_mods_action.generic.flags  = QMF_LEFT_JUSTIFY;
+    s_mods_action.generic.x		= 0;
+    s_mods_action.generic.y		= y += 2*MENU_LINE_SIZE;
+    s_mods_action.generic.name	= " change mod";
+    s_mods_action.generic.callback = ModsFunc;
 
 	s_game_back_action.generic.type	= MTYPE_ACTION;
 	s_game_back_action.generic.flags  = QMF_LEFT_JUSTIFY;
@@ -187,8 +200,11 @@ void Game_MenuInit( void )
 	Menu_AddItem( &s_game_menu, ( void * ) &s_load_game_action );
 	Menu_AddItem( &s_game_menu, ( void * ) &s_save_game_action );
 
-	Menu_AddItem( &s_game_menu, ( void * ) &s_blankline );
+    Menu_AddItem( &s_game_menu, ( void * ) &s_blankline );
 	Menu_AddItem( &s_game_menu, ( void * ) &s_credits_action );
+
+    Menu_AddItem( &s_game_menu, ( void * ) &s_blankline );
+    Menu_AddItem( &s_game_menu, ( void * ) &s_mods_action );
 
 	Menu_AddItem( &s_game_menu, ( void * ) &s_game_back_action );
 

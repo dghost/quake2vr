@@ -233,6 +233,7 @@ void M_Menu_Main_f (void);
 		void M_Menu_SaveGame_f (void);
 		void M_Menu_PlayerConfig_f (void);
 			void M_Menu_DownloadOptions_f (void);
+        void M_Menu_Game_Mod_f (void);
 		void M_Menu_Credits_f( void );
 	void M_Menu_Multiplayer_f( void );
 		void M_Menu_JoinServer_f (void);

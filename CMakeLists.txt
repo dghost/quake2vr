@@ -90,9 +90,10 @@ set(COMMON_SOURCES
 
 set(CLIENT_UI_SOURCES
   client/ui/ui_backend.c
-  client/ui/ui_game_credits.c
-  client/ui/ui_game_saveload.c
   client/ui/ui_game.c
+  client/ui/ui_game_credits.c
+  client/ui/ui_game_mod.c
+  client/ui/ui_game_saveload.c
   client/ui/ui_main.c
   client/ui/ui_mp_addressbook.c
   client/ui/ui_mp_dmoptions.c

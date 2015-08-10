@@ -119,7 +119,7 @@ fsLink_t		*fs_links;
 fsSearchPath_t	*fs_searchPaths;
 fsSearchPath_t	*fs_baseSearchPaths;
 
-char			fs_gamedir[MAX_OSPATH];
+static const char			*fs_gamedir;
 static char		fs_currentGame[MAX_QPATH];
 
 static char				fs_fileInPath[MAX_OSPATH];
@@ -1433,13 +1433,12 @@ void FS_AddGameDirectory (const char *dir)
 	char *tmp;
 	// VoiD -E- *.pak support
 
-	strcpy(fs_gamedir, dir);
-
 	//
 	// Add the directory to the search path
 	//
 	search = (fsSearchPath_t*)Z_TagMalloc(sizeof(fsSearchPath_t), TAG_SYSTEM);
 	strcpy(search->path, dir);
+    fs_gamedir = search->path;
 	search->path[sizeof(search->path)-1] = 0;
 	search->next = fs_searchPaths;
 	fs_searchPaths = search;
@@ -1542,8 +1541,8 @@ const char *FS_NextPath (const char *prevPath)
 	fsSearchPath_t	*search;
     const char *prev = NULL;
 
-	if (!prevPath)
-		return fs_gamedir;
+//	if (!prevPath)
+//		return fs_gamedir;
 
 	for (search = fs_searchPaths; search; search = search->next)
 	{
@@ -1645,7 +1644,7 @@ void FS_Startup (void)
 		}
 
 		if (!Q_strcasecmp(fs_gamedirvar->string, BASEDIRNAME))	// Don't add baseq2 again
-			strcpy(fs_gamedir, fs_basedir->string);
+            fs_gamedir = fs_basedir->string;
 		else
 		{
 			// Add the directories
@@ -1681,8 +1680,6 @@ void FS_InitFilesystem (void)
 	// allows the game to run from outside the data tree
 	fs_basedir = Cvar_Get ("basedir", Sys_GetBaseDir(), CVAR_NOSET);
 
-    FS_GetGameDirs(NULL);
-
 	// start up with baseq2 by default
 	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
 
@@ -1698,7 +1695,6 @@ void FS_InitFilesystem (void)
 		FS_SetGamedir (fs_gamedirvar->string);
 
 	FS_Path_f(); // output path data
-    
 }
 
 /*
@@ -1776,6 +1772,7 @@ void FS_SetGamedir (const char *dir)
 	//
 	while (fs_searchPaths != fs_baseSearchPaths)
 	{
+        Com_Printf("Freeing game path: %s\n",fs_searchPaths->path);
 		if (fs_searchPaths->pack)
 		{
 			if (fs_searchPaths->pack->pak)
@@ -1796,7 +1793,7 @@ void FS_SetGamedir (const char *dir)
 	if (dedicated && !dedicated->value)
 		Cbuf_AddText ("vid_restart\nsnd_restart\n");
 
-	Com_sprintf (fs_gamedir, sizeof(fs_gamedir), "%s/%s", fs_basedir->string, dir);
+//	Com_sprintf (fs_gamedir, sizeof(fs_gamedir), "%s/%s", fs_basedir->string, dir);
 
 	if (!strcmp(dir,BASEDIRNAME) || (*dir == 0))
 	{
@@ -2241,7 +2238,8 @@ void FS_Dir_f (void)
     };
 }
 
-void FS_GetGameDirs(sset_t *output) {
+void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary)
+{
     sset_t dirs;
     char basepath[MAX_OSPATH];
     
@@ -2275,7 +2273,7 @@ void FS_GetGameDirs(sset_t *output) {
                     } else {
                         name = dirname;
                     }
-                    if (Sys_LoadGameLibrariesInPath(dirname,false)) {
+                    if (!requireGameLibrary || Sys_LoadGameLibrariesInPath(dirname,false)) {
                         Com_DPrintf( "Found game directory: %s\n", name );
                         if (output)
                             Q_SSetInsert(output, name);

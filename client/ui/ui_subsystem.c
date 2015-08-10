@@ -560,7 +560,8 @@ void UI_Init (void)
 	Cmd_AddCommand ("menu_game", M_Menu_Game_f);
 		Cmd_AddCommand ("menu_loadgame", M_Menu_LoadGame_f);
 		Cmd_AddCommand ("menu_savegame", M_Menu_SaveGame_f);
-		Cmd_AddCommand ("menu_credits", M_Menu_Credits_f );
+        Cmd_AddCommand ("menu_mods", M_Menu_Game_Mod_f);
+        Cmd_AddCommand ("menu_credits", M_Menu_Credits_f);
 	Cmd_AddCommand ("menu_multiplayer", M_Menu_Multiplayer_f );
 		Cmd_AddCommand ("menu_joinserver", M_Menu_JoinServer_f);
 			Cmd_AddCommand ("menu_addressbook", M_Menu_AddressBook_f);

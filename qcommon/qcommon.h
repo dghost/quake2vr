@@ -827,7 +827,7 @@ void		FS_SetGamedir (const char *dir);
 const char	*FS_Gamedir (void);
 void		FS_FreeFile (void *buffer);
 
-void        FS_GetGameDirs (sset_t *output);
+void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary);
 
 
 /*
