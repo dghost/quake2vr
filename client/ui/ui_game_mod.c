@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "include/ui_local.h"
 
 
+static cvar_t *ui_moddirs_require_library;
 
 struct modname_s {
     const char *dirname;
@@ -70,12 +71,12 @@ sset_t mod_title_storage;
 
 static int currentGame = 0;
 
-static void loadModNames(qboolean requireLibrary) {
+static void loadModNames() {
     int i;
     const char *currentGameName = Cvar_VariableString("game");
     sset_t dirs;
     Q_SSetInit(&dirs, 10, 10, TAG_MENU);
-    FS_GetGameDirs(&dirs, requireLibrary);
+    FS_GetGameDirs(&dirs, ui_moddirs_require_library->integer);
     Q_SSetInit(&mod_name_storage, dirs.currentSize, 8, TAG_MENU);
     Q_SSetInit(&mod_title_storage, dirs.currentSize, 16, TAG_MENU);
 
@@ -135,12 +136,13 @@ static menulist_s		s_game_mod_legacy;
 static menuseparator_s	s_blankline;
 static menuaction_s		s_game_mod_accept;
 
-static void refreshModNames(qboolean requireLibrary) {
+
+static void refreshModNames() {
     char currentGameOption[1024];
     int i;
     Com_sprintf(currentGameOption, sizeof(currentGameOption), "%s", shortnames[s_game_mod_choice.curvalue]);
     unloadModNames();
-    loadModNames(requireLibrary);
+    loadModNames();
     for (i = 0; i < num_names; i++) {
         Com_Printf("Comparing %s and %s\n", currentGameOption, shortnames[i]);
         if (!strcasecmp(currentGameOption, shortnames[i])) {
@@ -172,22 +174,25 @@ void Game_Mod_Close ( void ) {
 
 void Game_Mod_Filter ( void *unused ) {
     char buff[10];
+    Com_sprintf(buff, 10, "%i", s_game_mod_filter.curvalue);
+    Cvar_ForceSet("ui_moddirs_require_library", buff);
     Com_sprintf(buff, 10, "%i", s_game_mod_legacy.curvalue);
-    Cvar_SetInteger("cl_mod_require_library", s_game_mod_filter.curvalue);
     Cvar_ForceSet("sv_legacy_libraries", buff);;
-    refreshModNames(s_game_mod_filter.curvalue);
+    refreshModNames();
 }
 
 void Game_Mod_MenuInit( void )
 {
 	int32_t y = 0;
-    qboolean showAll = Cvar_VariableInteger("cl_mod_require_library");
+
     static const char *yes_no_names[] =
     {
         "no", "yes", 0
     };
+
+    ui_moddirs_require_library = Cvar_Get("ui_moddirs_require_library", "1", CVAR_ARCHIVE|CVAR_NOSET|CVAR_SILENT);
     
-    loadModNames(showAll);
+    loadModNames();
     
 	s_game_mod_menu.x = SCREEN_WIDTH*0.5 - 24;
 	//s_game_menu.y = 0;
@@ -209,7 +214,7 @@ void Game_Mod_MenuInit( void )
     s_game_mod_filter.generic.name	= "require game library";
     s_game_mod_filter.generic.callback = Game_Mod_Filter;
     s_game_mod_filter.itemnames = yes_no_names;
-    s_game_mod_filter.curvalue = showAll;
+    s_game_mod_filter.curvalue = ui_moddirs_require_library->integer ? 1 : 0;
     
     s_game_mod_legacy.generic.type = MTYPE_SPINCONTROL;
     s_game_mod_legacy.generic.x	= 0;

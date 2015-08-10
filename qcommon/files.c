@@ -2304,6 +2304,7 @@ void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary)
 
     assert(output != NULL);
     
+    // explicitly test if it can fall back to mpgame library in base directory
     if (Sys_LoadGameLibraryInBasePaths("mpgame" CPUSTRING, false)) {
         if (FS_IsDirectory("xatrix")) {
             Com_DPrintf( "Found game directory: %s\n", "xatrix" );
@@ -2329,6 +2330,9 @@ void FS_GetGameDirs(sset_t *output, qboolean requireGameLibrary)
         Q_SSetInsert(output, "3tctf");
     }
 
+    
+    // add all other directories, based on if a game library can be loaded from them
+    // (or not, if requireGameLibrary is false)
     Com_sprintf(basepath, MAX_OSPATH, "%s/*.*", fs_basedir->string);
 
     if (Q_SSetInit(&dirs, 50, MAX_OSPATH, TAG_SYSTEM)) {
