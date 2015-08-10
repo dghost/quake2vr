@@ -171,8 +171,10 @@ void Game_Mod_Close ( void ) {
 }
 
 void Game_Mod_Filter ( void *unused ) {
+    char buff[10];
+    Com_sprintf(buff, 10, "%i", s_game_mod_legacy.curvalue);
     Cvar_SetInteger("cl_mod_require_library", s_game_mod_filter.curvalue);
-    Cvar_SetInteger("sv_legacy_libraries", s_game_mod_legacy.curvalue);
+    Cvar_ForceSet("sv_legacy_libraries", buff);;
     refreshModNames(s_game_mod_filter.curvalue);
 }
 
