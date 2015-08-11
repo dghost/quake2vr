@@ -101,7 +101,7 @@ static void loadModNames() {
 
     currentGame = -1;
     for (i = 0; i < num_names; i++) {
-        Com_Printf("Comparing %s and %s\n", currentGameName, shortnames[i]);
+//        Com_Printf("Comparing %s and %s\n", currentGameName, shortnames[i]);
         if (!strcasecmp(currentGameName, shortnames[i])) {
             currentGame = i;
             break;
@@ -144,7 +144,7 @@ static void refreshModNames() {
     unloadModNames();
     loadModNames();
     for (i = 0; i < num_names; i++) {
-        Com_Printf("Comparing %s and %s\n", currentGameOption, shortnames[i]);
+//        Com_Printf("Comparing %s and %s\n", currentGameOption, shortnames[i]);
         if (!strcasecmp(currentGameOption, shortnames[i])) {
             s_game_mod_choice.curvalue = i;
             break;

@@ -1832,7 +1832,6 @@ void FS_SetGamedir (const char *dir)
 	//
 	while (fs_searchPaths != fs_baseSearchPaths)
 	{
-        Com_Printf("Freeing game path: %s\n",fs_searchPaths->path);
 		if (fs_searchPaths->pack)
 		{
 			if (fs_searchPaths->pack->pak)
