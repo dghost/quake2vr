@@ -52,10 +52,14 @@ qboolean	cvar_allowCheats = true;
 static void Cvar_RebuildNames (qboolean silent) {
     int i = 0;
     cvar_t *cvar;
+    cvarblock_t *cv = cvar_head;
+
     if (!silent)
         Com_Printf(S_COLOR_RED"Rebuilding Cvar Name Table\n");
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
+        {
+            cvar = &cv->cvars[i];
             cvar->name = Q_STGetString(&cvarNames,cvar->index);
             if (!silent)
                 Com_Printf(S_COLOR_YELLOW"%s\n", cvar->name);
@@ -66,10 +70,14 @@ static void Cvar_RebuildNames (qboolean silent) {
 static void Cvar_RebuildValues (qboolean silent) {
     int i = 0;
     cvar_t *cvar;
+    cvarblock_t *cv = cvar_head;
+
     if (!silent)
         Com_Printf(S_COLOR_RED"Rebuilding Cvar Value Table\n");
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
+        {
+            cvar = &cv->cvars[i];
             cvar->string = Q_STGetString(&cvarValues,cvar->string_index);
             if ((cvar->flags & CVAR_LATCH)  && (cvar->latched_index >= 0)) {
                 cvar->latched_string = Q_STGetString(&cvarValues,cvar->latched_index);
@@ -274,6 +282,7 @@ const char *Cvar_CompleteVariable (const char *partial)
     int32_t index;
     int i;
     char buffer[MAX_TOKEN_CHARS];
+    cvarblock_t *cv = cvar_head;
 
 	len = strlen(partial);
 
@@ -285,8 +294,10 @@ const char *Cvar_CompleteVariable (const char *partial)
         return Q_STGetString(&cvarNames, index);
     }
     // check partial match
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (cvar=cvar_vars[i] ; cvar ; cvar=cvar->next) {
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
+        {
+            cvar = &cv->cvars[i];
             if (!strncmp(buffer, cvar->name, len))
                 return cvar->name;
         }
@@ -584,9 +595,12 @@ void Cvar_GetLatchedVars (void)
 {
 	cvar_t	*var;
     int i;
-    for (i = 0; i< CVAR_HASHMAP_WIDTH; i++) {
-        for (var = cvar_vars[i] ; var ; var = var->next)
+    cvarblock_t *cv = cvar_head;
+
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
         {
+            var = &cv->cvars[i];
             if (!var->latched_string)
                 continue;
             var->string = var->latched_string;
@@ -621,7 +635,8 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 #ifdef NEW_CVAR_MEMBERS
 	cvar_t	*var;
     int i;
-    
+    cvarblock_t *cv = cvar_head;
+
 	if (cvar_allowCheats == allowCheats)
 		return;
 	cvar_allowCheats = allowCheats;
@@ -629,9 +644,10 @@ void Cvar_FixCheatVars (qboolean allowCheats)
 	if (cvar_allowCheats)
 		return;
 
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (var = cvar_vars[i]; var; var = var->next)
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
         {
+            var = &cv->cvars[i];
             const char *default_string;
             if (!(var->flags & CVAR_CHEAT))
                 continue;
@@ -795,15 +811,17 @@ void Cvar_WriteVariables (FILE *f, int32_t require, int32_t exclude)
 	cvar_t	*var;
 	char	buffer[1024];
     int i = 0;
+    cvarblock_t *head = NULL;
     
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (var = cvar_vars[i] ; var ; var = var->next)
+    for (head = cvar_head; head; head = head->next) {
+        for (i = 0 ; i < head->numAllocated; i++)
         {
+            var = &head->cvars[i];
             // only save it if it contains *all* flags in require
             // exclude it if it has any flags in exclude
             if (((var->flags & require) == require) && !(var->flags & exclude))
             {
-                Com_Printf("Writing out %s\n", var->name);
+//                Com_Printf("Writing out %s\n", var->name);
                 Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
                 fprintf (f, "%s", buffer);
             }
@@ -823,7 +841,7 @@ void Cvar_List_f (void)
 	int32_t		i, j, k, c;
 	char	*wc;
     cvarblock_t *cv = cvar_head;
-    
+
 	// RIOT's Quake3-sytle cvarlist
 	c = Cmd_Argc();
 
@@ -840,9 +858,10 @@ void Cvar_List_f (void)
 
 	i = 0;
 	j = 0;
-    for (k = 0; k < CVAR_HASHMAP_WIDTH; k++) {
-        for (var = cvar_vars[k]; var; var = var->next, i++)
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (k = 0 ; k < cv->numAllocated; k++)
         {
+            var = &cv->cvars[k];
             if (wildcardfit (wc, var->name))
                 //if (strstr (var->name, Cmd_Argv(1)))
             {
@@ -899,6 +918,7 @@ void Cvar_List_f (void)
     Com_Printf (" %i bytes in use by name table\n", cvarNames.size);
     Com_Printf (" %i bytes in use by value table\n", cvarValues.size);
     i = 0;
+    cv = cvar_head;
     while (cv) {
         i++;
         cv = cv->next;
@@ -920,11 +940,13 @@ char	*Cvar_BitInfo (int32_t bit)
 	static char	info[MAX_INFO_STRING];
 	cvar_t	*var;
     int i;
-    
+    cvarblock_t *cv = cvar_head;
+
 	info[0] = 0;
-    for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
-        for (var = cvar_vars[i] ; var ; var = var->next)
+    for (cv = cvar_head; cv; cv = cv->next) {
+        for (i = 0 ; i < cv->numAllocated; i++)
         {
+            var = &cv->cvars[i];
             if (var->flags & bit) {
                 Info_SetValueForKey (info, var->name, var->string);
             }

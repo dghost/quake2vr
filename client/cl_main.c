@@ -1619,7 +1619,7 @@ void CL_WriteEngineConfiguration (char *cfgName)
     //Com_sprintf (path, sizeof(path),"%s/config.cfg",FS_Gamedir());
     //	Com_sprintf (path, sizeof(path),"%s/vrconfig.cfg",FS_Gamedir());
     Com_sprintf (path, sizeof(path),"%s/%s.cfg", va("%s/"BASEDIRNAME, fs_basedir->string), cfgName);
-    Com_Printf("CL_WriteEngineConfiguration: %s\n", path);
+//    Com_Printf("CL_WriteEngineConfiguration: %s\n", path);
     f = fopen (path, "w");
     if (!f)
     {	// Knightmare changed- use separate config for better cohabitation
