@@ -790,10 +790,10 @@ AL_Init(void)
 		return false;
 	}
 
-	al_maxgain = Cvar_Get("al_maxgain", "1.0", CVAR_ARCHIVE);
-	al_hrtf = Cvar_Get("al_hrtf", "1", CVAR_ARCHIVE);
-    al_streambuffers = Cvar_Get("al_streambuffers","64", CVAR_ARCHIVE);
-    al_streamprealloc = Cvar_Get("al_streamprealloc", "1", CVAR_ARCHIVE);
+	al_maxgain = Cvar_Get("al_maxgain", "1.0", CVAR_CLIENT);
+	al_hrtf = Cvar_Get("al_hrtf", "1", CVAR_CLIENT);
+    al_streambuffers = Cvar_Get("al_streambuffers","64", CVAR_CLIENT);
+    al_streamprealloc = Cvar_Get("al_streamprealloc", "1", CVAR_CLIENT);
     
 	/* check for linear distance extension */
 	if (!qalIsExtensionPresent("AL_EXT_LINEAR_DISTANCE"))

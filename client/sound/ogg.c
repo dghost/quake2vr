@@ -70,7 +70,7 @@ OGG_Init(void)
 	Com_Printf("Starting Ogg Vorbis.\n");
 
 	/* Skip initialization if disabled. */
-	cv = Cvar_Get("ogg_enable", "1", CVAR_ARCHIVE);
+	cv = Cvar_Get("ogg_enable", "1", CVAR_CLIENT);
 
 	if (cv->value < 1)
 	{
@@ -84,11 +84,11 @@ OGG_Init(void)
 	}
 
 	/* Cvars. */
-	ogg_autoplay = Cvar_Get("ogg_autoplay", "", CVAR_ARCHIVE);
-	ogg_check = Cvar_Get("ogg_check", "0", CVAR_ARCHIVE);
-	ogg_playlist = Cvar_Get("ogg_playlist", "playlist", CVAR_ARCHIVE);
-	ogg_sequence = Cvar_Get("ogg_sequence", "loop", CVAR_ARCHIVE);
-	ogg_volume = Cvar_Get("ogg_volume", "0.7", CVAR_ARCHIVE);
+	ogg_autoplay = Cvar_Get("ogg_autoplay", "", CVAR_CLIENT);
+	ogg_check = Cvar_Get("ogg_check", "0", CVAR_CLIENT);
+	ogg_playlist = Cvar_Get("ogg_playlist", "playlist", CVAR_CLIENT);
+	ogg_sequence = Cvar_Get("ogg_sequence", "loop", CVAR_CLIENT);
+	ogg_volume = Cvar_Get("ogg_volume", "0.7", CVAR_CLIENT);
 
 	/* Console commands. */
 	Cmd_AddCommand("ogg_list", OGG_ListCmd);
@@ -587,7 +587,7 @@ OGG_ParseCmd(const char *arg)
 	int n;
 	cvar_t *ogg_enable;
 
-	ogg_enable = Cvar_Get("ogg_enable", "1", CVAR_ARCHIVE);
+	ogg_enable = Cvar_Get("ogg_enable", "1", CVAR_CLIENT);
 
 	switch (arg[0])
 	{

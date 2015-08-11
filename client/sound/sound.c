@@ -1010,10 +1010,10 @@ S_Init(void)
 		return;
 	}
 
-	s_volume = Cvar_Get("s_volume", "0.7", CVAR_ARCHIVE);
-	s_khz = Cvar_Get("s_khz", "44", CVAR_ARCHIVE);
-	s_loadas8bit = Cvar_Get("s_loadas8bit", "0", CVAR_ARCHIVE);
-	s_mixahead = Cvar_Get("s_mixahead", "0.14", CVAR_ARCHIVE);
+	s_volume = Cvar_Get("s_volume", "0.7", CVAR_CLIENT);
+	s_khz = Cvar_Get("s_khz", "44", CVAR_CLIENT);
+	s_loadas8bit = Cvar_Get("s_loadas8bit", "0", CVAR_CLIENT);
+	s_mixahead = Cvar_Get("s_mixahead", "0.14", CVAR_CLIENT);
 	s_show = Cvar_Get("s_show", "0", 0);
 	s_testsound = Cvar_Get("s_testsound", "0", 0);
 	s_ambient = Cvar_Get("s_ambient", "1", 0);
@@ -1026,7 +1026,7 @@ S_Init(void)
 	Cmd_AddCommand("ogg_shutdown", OGG_Shutdown);
 
 #if USE_OPENAL
-	cv = Cvar_Get("s_openal", "1", CVAR_ARCHIVE);
+	cv = Cvar_Get("s_openal", "1", CVAR_CLIENT);
 
 	if (cv->value && AL_Init())
 	{

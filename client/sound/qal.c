@@ -425,7 +425,7 @@ QAL_Init()
 	char name[256];
 
     int i = 0;
-	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_ARCHIVE))->value;
+	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_CLIENT))->value;
 
 	if (sndfreq == 48)
 	{
@@ -446,8 +446,8 @@ QAL_Init()
 
 
 	/* DEFAULT_OPENAL_DRIVER is defined at compile time via the compiler */
-	al_driver = Cvar_Get("al_driver", DEFAULT_OPENAL_DRIVER, CVAR_ARCHIVE);
-	al_device = Cvar_Get("al_device", "", CVAR_ARCHIVE);
+	al_driver = Cvar_Get("al_driver", DEFAULT_OPENAL_DRIVER, CVAR_CLIENT);
+	al_device = Cvar_Get("al_device", "", CVAR_CLIENT);
 
 		
 	strncpy(name, al_driver->string, sizeof(name));

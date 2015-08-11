@@ -1186,9 +1186,9 @@ SDL_BackendInit(void)
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
 	int tmp, val;
-	int sndbits = (Cvar_Get("sndbits", "16", CVAR_ARCHIVE))->value;
-	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_ARCHIVE))->value;
-	int sndchans = (Cvar_Get("sndchannels", "2", CVAR_ARCHIVE))->value;
+	int sndbits = (Cvar_Get("sndbits", "16", CVAR_CLIENT))->value;
+	int sndfreq = (Cvar_Get("s_khz", "44", CVAR_CLIENT))->value;
+	int sndchans = (Cvar_Get("sndchannels", "2", CVAR_CLIENT))->value;
 
 	/* This should never happen,
 	   but this is Quake 2 ... */
@@ -1199,16 +1199,16 @@ SDL_BackendInit(void)
 
 
 
-	s_sdldriver = (Cvar_Get("s_sdldriver", "auto", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "auto", CVAR_CLIENT));
 /*
 #ifdef _WIN32
-	s_sdldriver = (Cvar_Get("s_sdldriver", "xaudio2", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "xaudio2", CVAR_CLIENT));
 #elif __linux__
-	s_sdldriver = (Cvar_Get("s_sdldriver", "alsa", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "alsa", CVAR_CLIENT));
 #elif __APPLE__
-	s_sdldriver = (Cvar_Get("s_sdldriver", "CoreAudio", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "CoreAudio", CVAR_CLIENT));
 #else
-	s_sdldriver = (Cvar_Get("s_sdldriver", "dsp", CVAR_ARCHIVE));
+	s_sdldriver = (Cvar_Get("s_sdldriver", "dsp", CVAR_CLIENT));
 #endif
 	*/
 	if (SDL_strncmp(s_sdldriver->string,"default",8) && SDL_strncmp(s_sdldriver->string,"auto",5))
