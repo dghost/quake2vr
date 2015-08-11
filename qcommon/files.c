@@ -1163,6 +1163,7 @@ char* pakfile_ignore_names[] =
     "scrnshot/",
     "autoexec.cfg",
     "vrconfig.cfg",
+    "vrengine.cfg",
     0
 };
 

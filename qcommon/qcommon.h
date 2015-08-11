@@ -546,9 +546,9 @@ qboolean Cvar_Command (void);
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
 
-void 	Cvar_WriteVariables (const char *path);
+void Cvar_WriteVariables (FILE *f, int32_t require, int32_t exclude);
 // appends lines containing "set variable value" for all variables
-// with the archive flag set to true.
+// that have the flags specified in require and not specified in exclude
 
 
 void	Cvar_Init (void);

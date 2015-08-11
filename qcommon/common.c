@@ -1828,6 +1828,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 	FS_InitFilesystem ();
 
 	Cbuf_AddText ("exec default.cfg\n");
+    Cbuf_AddText ("exec vrengine.cfg\n");
 	Cbuf_AddText ("exec vrconfig.cfg\n");
 
 	// Knightmare- look for vrconfig.cfg, if not there, try config.cfg

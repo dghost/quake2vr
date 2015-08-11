@@ -793,25 +793,25 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void Cvar_WriteVariables (const char *path)
+void Cvar_WriteVariables (FILE *f, int32_t require, int32_t exclude)
 {
 	cvar_t	*var;
 	char	buffer[1024];
-	FILE	*f;
     int i = 0;
     
-	f = fopen (path, "a");
     for (i = 0; i < CVAR_HASHMAP_WIDTH; i++) {
         for (var = cvar_vars[i] ; var ; var = var->next)
         {
-            if (var->flags & CVAR_ARCHIVE)
+            // only save it if it contains *all* flags in require
+            // exclude it if it has any flags in exclude
+            if (((var->flags & require) == require) && !(var->flags & exclude))
             {
+                Com_Printf("Writing out %s\n", var->name);
                 Com_sprintf (buffer, sizeof(buffer), "set %s \"%s\"\n", var->name, var->string);
                 fprintf (f, "%s", buffer);
             }
         }
     }
-	fclose (f);
 }
 
 
@@ -874,6 +874,11 @@ void Cvar_List_f (void)
                 
                 if (var->flags & CVAR_CHEAT)
                     Com_Printf("C");
+                else
+                    Com_Printf(" ");
+                
+                if (var->flags & CVAR_ENGINE)
+                    Com_Printf("E");
                 else
                     Com_Printf(" ");
                 
