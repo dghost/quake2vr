@@ -507,7 +507,7 @@ void R_VR_Enable()
 			hmd->getState(&vrState);
 
 			//strncpy(string, va("%.2f", vrState.ipd * 1000), sizeof(string));
-			vr_ipd = Cvar_Get("vr_ipd", string, CVAR_ARCHIVE);
+			vr_ipd = Cvar_Get("vr_ipd", string, CVAR_CLIENT);
 
 			if (vr_ipd->value < 0)
 				Cvar_SetToDefault("vr_ipd");

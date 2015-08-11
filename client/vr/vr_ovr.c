@@ -494,19 +494,19 @@ int32_t VR_OVR_Init()
 	}
 	*/
 
-	vr_ovr_trackingloss = Cvar_Get("vr_ovr_trackingloss", "1", CVAR_ARCHIVE);
-	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_ARCHIVE);
-	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_ARCHIVE);
-	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_ARCHIVE);
-	vr_ovr_lumoverdrive = Cvar_Get("vr_ovr_lumoverdrive","1",CVAR_ARCHIVE);
-	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_ARCHIVE);
-	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_ARCHIVE);
-	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_ARCHIVE);
-	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_ARCHIVE);
-	vr_ovr_device = Cvar_Get("vr_ovr_device","",CVAR_ARCHIVE);
-	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_ARCHIVE);
-	vr_ovr_distortion_fade = Cvar_Get("vr_ovr_distortion_fade","0",CVAR_ARCHIVE);
-	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_ARCHIVE);
+	vr_ovr_trackingloss = Cvar_Get("vr_ovr_trackingloss", "1", CVAR_CLIENT);
+	vr_ovr_timewarp = Cvar_Get("vr_ovr_timewarp","1",CVAR_CLIENT);
+	vr_ovr_supersample = Cvar_Get("vr_ovr_supersample","1.0",CVAR_CLIENT);
+	vr_ovr_maxfov = Cvar_Get("vr_ovr_maxfov","0",CVAR_CLIENT);
+	vr_ovr_lumoverdrive = Cvar_Get("vr_ovr_lumoverdrive","1",CVAR_CLIENT);
+	vr_ovr_lowpersistence = Cvar_Get("vr_ovr_lowpersistence","1",CVAR_CLIENT);
+	vr_ovr_latencytest = Cvar_Get("vr_ovr_latencytest","0",CVAR_CLIENT);
+	vr_ovr_enable = Cvar_Get("vr_ovr_enable","1",CVAR_CLIENT);
+	vr_ovr_dk2_color_hack = Cvar_Get("vr_ovr_dk2_color_hack","1",CVAR_CLIENT);
+	vr_ovr_device = Cvar_Get("vr_ovr_device","",CVAR_CLIENT);
+	vr_ovr_debug = Cvar_Get("vr_ovr_debug","0",CVAR_CLIENT);
+	vr_ovr_distortion_fade = Cvar_Get("vr_ovr_distortion_fade","0",CVAR_CLIENT);
+	vr_ovr_autoprediction = Cvar_Get("vr_ovr_autoprediction","1",CVAR_CLIENT);
 
 	return 1;
 }

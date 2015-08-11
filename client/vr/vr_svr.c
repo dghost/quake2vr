@@ -74,8 +74,8 @@ int32_t VR_SVR_Init()
 	}
 
 	vr_svr_positiontracking = Cvar_Get("vr_svr_positiontracking","0",0);
-	vr_svr_enable = Cvar_Get("vr_svr_enable","1",CVAR_ARCHIVE);
-	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_ARCHIVE);
+	vr_svr_enable = Cvar_Get("vr_svr_enable","1",CVAR_CLIENT);
+	vr_svr_distortion = Cvar_Get("vr_svr_distortion","2",CVAR_CLIENT);
 	vr_svr_debug = Cvar_Get("vr_svr_debug","0",0);
 	return 1;
 }
