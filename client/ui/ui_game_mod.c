@@ -190,7 +190,7 @@ void Game_Mod_MenuInit( void )
         "no", "yes", 0
     };
 
-    ui_moddirs_require_library = Cvar_Get("ui_moddirs_require_library", "1", CVAR_ARCHIVE|CVAR_ENGINE);
+    ui_moddirs_require_library = Cvar_Get("ui_moddirs_require_library", "1", CVAR_CLIENT);
     
     loadModNames();
     
