@@ -738,12 +738,13 @@ void* Sys_LoadGameLibraryInBasePaths(const char *dllname, qboolean setGameLibrar
     game_import_t import = SV_GetGameImport();
     const char *path = NULL;
     void	*ge = NULL;
-    qboolean missionPack;
     
     if (!dllname)
         return NULL;
     
     if (setGameLibrary) {
+        qboolean missionPack;
+
         if (!sv_legacy_libraries->value && !strncmp(dllname, "game", 4))
             return NULL;
         

@@ -971,6 +971,7 @@ SV_StartMod
 void SV_StartMod (char *mod)
 {
 	// killserver, start mod, unbind keys, exec configs, and start demos
+    Cbuf_AddText ("writeconfig vrconfig\n");
 	Cbuf_AddText ("killserver\n");
 	Cbuf_AddText (va("game %s\n", mod));
 	Cbuf_AddText ("unbindall\n");

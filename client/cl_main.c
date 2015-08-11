@@ -1651,7 +1651,7 @@ void CL_WriteConfig_f (void)
 	{
         if (Cmd_Argc() == 2)
 			strncpy (cfgName, Cmd_Argv(1), sizeof(cfgName));
-
+        CL_WriteGameConfiguration ("vrengine");
 		CL_WriteGameConfiguration (cfgName);
 		Com_Printf ("Wrote config file %s/%s.cfg.\n", FS_Gamedir(), cfgName);
 	}
