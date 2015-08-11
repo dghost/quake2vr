@@ -390,8 +390,7 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     {
         if (!Cvar_InfoValidate (value))
         {
-            if (!(var->flags & CVAR_SILENT))
-                Com_Printf("invalid info cvar value\n");
+            Com_Printf("invalid info cvar value\n");
             return var;
         }
     }
@@ -400,15 +399,13 @@ cvar_t *Cvar_Set_Internal (cvar_t *var, const char *value, qboolean force)
     {
         if (var->flags & CVAR_NOSET)
         {
-            if (!(var->flags & CVAR_SILENT))
-                Com_Printf ("%s is write protected.\n", var->name);
+            Com_Printf ("%s is write protected.\n", var->name);
             return var;
         }
         
         if ((var->flags & CVAR_CHEAT) && !cvar_allowCheats)
         {
-            if (!(var->flags & CVAR_SILENT))
-                Com_Printf ("%s is cheat protected.\n", var->name);
+            Com_Printf ("%s is cheat protected.\n", var->name);
             return var;
         }
         

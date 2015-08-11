@@ -1159,7 +1159,7 @@ void SV_Init (void)
 
 	sv_entfile = Cvar_Get ("sv_entfile", "1", CVAR_ARCHIVE); // whether to use .ent file
 
-    sv_legacy_libraries = Cvar_Get("sv_legacy_libraries", "0", CVAR_ARCHIVE|CVAR_NOSET|CVAR_SILENT); // disable loading legacy game libraries by default
+    sv_legacy_libraries = Cvar_Get("sv_legacy_libraries", "0", CVAR_ARCHIVE|CVAR_ENGINE); // disable loading legacy game libraries by default
     
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
     

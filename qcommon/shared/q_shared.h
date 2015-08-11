@@ -538,8 +538,7 @@ CVARS (console variables)
 #define	CVAR_LATCH		16	// save changes until server restart
 #define CVAR_CHEAT		32	// cannot be changed from default in
 							// multiplayer games
-#define CVAR_SILENT     64  // doesn't throw warnings
-#define CVAR_ENGINE     128 // used for engine cvars
+#define CVAR_ENGINE     64 // used for engine cvars
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s
