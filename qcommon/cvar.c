@@ -357,10 +357,10 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int32_t flags)
     Q_strlcpy_lower(buffer, var_name, sizeof(buffer));
     
     if (!cvar_head) {
-        cvar_head = Z_TagMalloc(sizeof(*cvar_head), TAG_SYSTEM);
+		cvar_head = (cvarblock_t *) Z_TagMalloc(sizeof(*cvar_head), TAG_SYSTEM);
         cvar_tail = cvar_head;
     } else if (cvar_tail->numAllocated == CVAR_BLOCK_MAX) {
-        cvar_tail->next = Z_TagMalloc(sizeof(*cvar_tail), TAG_SYSTEM);
+        cvar_tail->next = (cvarblock_t *) Z_TagMalloc(sizeof(*cvar_tail), TAG_SYSTEM);
         cvar_tail = cvar_tail->next;
     }
 	var = &cvar_tail->cvars[cvar_tail->numAllocated++];
@@ -647,8 +647,8 @@ void Cvar_FixCheatVars (qboolean allowCheats)
     for (cv = cvar_head; cv; cv = cv->next) {
         for (i = 0 ; i < cv->numAllocated; i++)
         {
-            var = &cv->cvars[i];
             const char *default_string;
+            var = &cv->cvars[i];
             if (!(var->flags & CVAR_CHEAT))
                 continue;
             default_string = Q_STGetString(&cvarValues,var->default_index);

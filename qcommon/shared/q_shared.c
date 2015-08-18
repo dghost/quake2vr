@@ -92,9 +92,9 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
 	}
 }
 
-#ifdef _WIN32
-#pragma optimize( "", on )
-#endif
+//#ifdef _WIN32
+//#pragma optimize( "", on )
+//#endif
 
 
 
@@ -1661,7 +1661,7 @@ int32_t Q_strncasecmp (const char *s1, const char *s2, int32_t n)
 int32_t Q_strcasecmp (const char *s1, const char *s2)
 {
     // do this to ensure termination
-    return Q_strncasecmp (s1, s2, 99999);
+    return strcasecmp (s1, s2);
 }
 
 size_t Q_strlcpy(char *dest, const char* src, size_t size)

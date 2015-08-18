@@ -250,6 +250,7 @@
     <ClCompile Include="client\ui\ui_backend.c" />
     <ClCompile Include="client\ui\ui_game.c" />
     <ClCompile Include="client\ui\ui_game_credits.c" />
+    <ClCompile Include="client\ui\ui_game_mod.c" />
     <ClCompile Include="client\ui\ui_game_saveload.c" />
     <ClCompile Include="client\ui\ui_main.c" />
     <ClCompile Include="client\ui\ui_mp_addressbook.c" />

@@ -602,6 +602,10 @@ void* Sys_LoadLibrariesInPath(const char *path, const char *dllnames[]) {
     return library;
 }
 
+#ifdef WIN32
+#define getcwd _getcwd
+#endif
+
 void* Sys_FindLibrary(const char *dllnames[])
 {
     char	name[MAX_OSPATH];
@@ -616,11 +620,7 @@ void* Sys_FindLibrary(const char *dllnames[])
 #endif
     
     // check the current debug directory first for development purposes
-#ifdef WIN32
-    _getcwd (cwd, sizeof(cwd));
-#else
     getcwd (cwd, sizeof(cwd));
-#endif
     
     Com_sprintf (name, sizeof(name), "%s/%s", cwd, debugdir);
     library = Sys_LoadLibrariesInPath(name, dllnames);
@@ -707,9 +707,9 @@ void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary) {
     const char *gamename = NULL;
     char	name[MAX_OSPATH];
     game_import_t import = SV_GetGameImport();
-    
-    qboolean missionPack = (!strcasecmp(fs_gamedirvar->string, "rogue")
-                            || !strcasecmp(fs_gamedirvar->string, "xatrix"));
+	void *ge = NULL;    
+    qboolean missionPack = (!Q_strcasecmp(fs_gamedirvar->string, "rogue")
+                            || !Q_strcasecmp(fs_gamedirvar->string, "xatrix"));
     
     if (!path)
         return NULL;
@@ -725,7 +725,7 @@ void* Sys_LoadGameLibrariesInPath(const char *path, qboolean setGameLibrary) {
             continue;
 
         Com_sprintf (name, sizeof(name), "%s/%s%s", path, gamename, LIBEXT);
-        void *ge = Sys_LoadGameAPI(name, &import, setGameLibrary);
+        ge = Sys_LoadGameAPI(name, &import, setGameLibrary);
         if (ge) {
             return ge;
         }
@@ -748,7 +748,7 @@ void* Sys_LoadGameLibraryInBasePaths(const char *dllname, qboolean setGameLibrar
         if (!sv_legacy_libraries->value && !strncmp(dllname, "game", 4))
             return NULL;
         
-        missionPack = (!strcasecmp(fs_gamedirvar->string, "rogue") || !strcasecmp(fs_gamedirvar->string, "xatrix"));
+        missionPack = (!Q_strcasecmp(fs_gamedirvar->string, "rogue") || !Q_strcasecmp(fs_gamedirvar->string, "xatrix"));
         
         if (missionPack && !strncmp(dllname, "vrgame", 6))
             return NULL;
@@ -775,24 +775,20 @@ void *Sys_GetGameAPI ()
     void	*ge = NULL;
     int i;
     
-   
-    
-	if (game_library)
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
-
-    
+       
 #ifndef _DEBUG
     const char *debugdir = "release";
 #else
     const char *debugdir = "debug";
 #endif
     
+    
+	if (game_library)
+		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+
+
     // check the current debug directory first for development purposes
-#ifdef WIN32
-    _getcwd (cwd, sizeof(cwd));
-#else
     getcwd (cwd, sizeof(cwd));
-#endif
     
     Com_sprintf (name, sizeof(name), "%s/%s", cwd, debugdir);
     ge = Sys_LoadGameLibrariesInPath(name, true);

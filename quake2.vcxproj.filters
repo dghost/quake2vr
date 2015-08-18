@@ -405,6 +405,9 @@
     <ClCompile Include="qcommon\sset.c">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="client\ui\ui_game_mod.c">
+      <Filter>Source Files\client\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\anorms.h">
