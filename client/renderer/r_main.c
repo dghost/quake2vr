@@ -276,7 +276,7 @@ void R_SetFrustum (void)
 	float	fov_y = r_newrefdef.fov_y;
 
 	// hack to keep objects from disappearing at the edges when projection matrix is offset
-	if (vr_enabled->value)
+	if (vrState.enabled)
 	{
 //		fov_y *= 1.30;
 		fov_x += 20;
@@ -535,7 +535,7 @@ void VR_DrawCrosshair()
 
 	float	scaledSize, alpha, pulsealpha;
 	
-	if (!vr_enabled->value || scr_hidehud)
+	if (!vrState.enabled || scr_hidehud)
 		return;
 	
 	SCR_DrawCrosshair();
@@ -1814,7 +1814,7 @@ void R_BeginFrame()
 	//
 	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
-		if (!vr_enabled->value || !vr_force_fullscreen->value)
+		if (!vrState.enabled || !vr_force_fullscreen->value)
 			GLimp_SetFullscreen((qboolean) vid_fullscreen->value);
 		vid_fullscreen->modified=false;
 	}
@@ -1858,7 +1858,7 @@ void R_BeginFrame()
 	R_AntialiasStartFrame();
 
 
-	if (vr_enabled->value)
+	if (vrState.enabled)
 	{
 		R_VR_StartFrame();
 	} else {
@@ -1906,8 +1906,7 @@ void R_EndFrame(void)
 {
 	int32_t		err;
 	fbo_t *frame = &viewFBO;
-	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && vid_srgb->value);
-	qboolean vr = (qboolean) (vr_enabled->value != 0);
+	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && vid_srgb->integer);
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
 
@@ -1925,7 +1924,7 @@ void R_EndFrame(void)
 	R_Clear();
 	glColor4f(1.0,1.0,1.0,1.0);
 
-	if (vr)
+	if (vrState.enabled)
 	{
 		frame = R_VR_GetFrameFBO();
 	} 
@@ -1941,12 +1940,12 @@ void R_EndFrame(void)
 	{
 		glDisable(GL_FRAMEBUFFER_SRGB);
 	}	
-	if (vr)
+	if (vrState.enabled)
 		R_VR_PostGammaPresent();
 
 	lastFrame = frame;
-
-	GLimp_EndFrame();
+	if (!vrState.enabled || vrState.swapToScreen)
+		GLimp_EndFrame();
 	
 	R_FrameFence();
 }

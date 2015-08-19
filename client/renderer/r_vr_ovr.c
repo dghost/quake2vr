@@ -194,7 +194,7 @@ void OVR_CalculateState(vr_param_t *state)
 	vr_param_t ovrState;
 	float ovrScale = vr_ovr_supersample->value;
 	int eye = 0;
-
+	
 	for (eye = 0; eye < 2; eye++) {
 		ovrDistortionMesh meshData;
 		ovr_vert_t *mesh = NULL;
@@ -273,7 +273,8 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrState.viewFovX = fovX;
 		ovrState.pixelScale = ovrScale * vid.width / (float) hmd->Resolution.w;
 	}
-
+	ovrState.enabled = true;
+	ovrState.swapToScreen = true;
 	*state = ovrState;
 }
 

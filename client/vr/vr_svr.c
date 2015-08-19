@@ -49,7 +49,7 @@ int32_t VR_SVR_Enable()
 		}
 		Com_Printf(" ok!\n");
 		Com_Printf("...found HMD of type: %s\n",svr_settings.deviceName);
-		Com_Printf("...detected IPD %.1fmm\n",svr_settings.ipd * 1000.0f);
+		Com_Printf("...detected IPD %.1fmm\n",svr_settings.ipd * 1000.0f * 2.0f);
 	}
 	return 1;
 }

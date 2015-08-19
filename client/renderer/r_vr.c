@@ -300,7 +300,7 @@ fbo_t* R_VR_GetHUDFBO()
 
 fbo_t* R_VR_GetFrameFBO()
 {
-	if (!vr_enabled->value)
+	if (!vrState.enabled)
 		return NULL;
 	return vrState.offscreen;	
 }
@@ -312,7 +312,7 @@ void R_VR_DrawHud()
 	vec_t mat[4][4], temp[4][4], counter[4][4], accum[4][4];
 	vec3_t rot, pos;
 
-	if (!vr_enabled->value)
+	if (!vrState.enabled)
 		return;
 
 	// force pumping of these values;
@@ -428,7 +428,7 @@ void R_VR_DrawHud()
 
 void R_VR_EndFrame()
 {
-	if (hmd && vr_enabled->value)
+	if (hmd && vrState.enabled)
 	{
 		GL_Disable(GL_DEPTH_TEST);
 
@@ -476,8 +476,9 @@ void R_VR_Enable()
 	leftStale = 1;
 	rightStale = 1;
 	hudStale = 1;
-
-
+	vrState.enabled = false;
+	vrState.swapToScreen = true;
+			
 	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
 		Com_Printf("VR: Initializing renderer:");
@@ -516,7 +517,6 @@ void R_VR_Enable()
 
 		R_CreateIVBO(&hudVBO, GL_STATIC_DRAW);
 		R_VR_GenerateHud();
-
 	}
 	else {
 		Com_Printf("VR: Cannot initialize renderer due to missing OpenGL extensions\n");
@@ -537,6 +537,9 @@ void R_VR_Disable()
 	R_BindFBO(&screenFBO);
 	
 	vrState.pixelScale = 1.0;
+	vrState.enabled = false;
+	vrState.swapToScreen = true;
+
 
 	if (hmd && hmd->disable)
 		hmd->disable();

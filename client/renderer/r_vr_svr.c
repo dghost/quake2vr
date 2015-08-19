@@ -135,9 +135,12 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 void SVR_GetState(vr_param_t *state)
 {
 	vr_param_t svrState;
-	float ipd = (svr_settings.ipd / 2.0);
+	float ipd = svr_settings.ipd;
 	int index = 0;
 
+
+	svrState.enabled = true;
+	svrState.swapToScreen = true;
 	svrState.aspect = svr_settings.aspect;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;

@@ -15,6 +15,8 @@ typedef struct {
 } vr_rectf_t;
 
 typedef struct {
+	qboolean enabled;
+	qboolean swapToScreen;
 	float viewFovY;
 	float viewFovX;
 	float pixelScale;

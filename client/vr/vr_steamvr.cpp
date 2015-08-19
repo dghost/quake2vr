@@ -59,7 +59,7 @@ int32_t SteamVR_GetSettings(svr_settings_t *settings)
 		settings->scaleX = (float) settings->targetWidth / (float) settings->width;
 		settings->scaleY = (float) settings->targetHeight / (float) settings->height;
 		mat = hmd->GetHeadFromEyePose(vr::Eye_Right);
-		settings->ipd = (float) SDL_fabs(mat.m[0][3]) * 2.0f;
+		settings->ipd = (float) SDL_fabs(mat.m[0][3]);
 		hmd->GetProjectionRaw(vr::Eye_Right,&left,&right,&top,&bottom);
 		centerRight = right - left;
 		centerRight /= 2.0;
