@@ -248,7 +248,7 @@ void Options_VR_OVR_MenuInit ( void )
 	s_options_vr_ovr_enable_box.itemnames			= enable_names;
 	s_options_vr_ovr_enable_box.generic.statusbar	= "enable or disable native oculus rift support";
 
-	if (Cvar_VariableInteger("vr_enabled") == HMD_RIFT)
+	if (Cvar_VariableInteger("vr_enabled") == HMD_OVR)
 	{
 		InitNames();
 
@@ -361,7 +361,7 @@ void Options_VR_OVR_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_enable_box );
 	
-	if (Cvar_VariableInteger("vr_enabled") == HMD_RIFT)
+	if (Cvar_VariableInteger("vr_enabled") == HMD_OVR)
 		Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_device_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_timewarp_box );
 	Menu_AddItem( &s_options_vr_ovr_menu, ( void * ) &s_options_vr_ovr_prediction_box );

@@ -253,7 +253,9 @@ void M_Menu_Main_f (void);
 		void M_Menu_Options_Interface_f (void);
 		void M_Menu_Options_VR_f (void);
 			void M_Menu_Options_VR_Advanced_f (void);
+#ifdef OCULUS_LEGACY
 			void M_Menu_Options_VR_OVR_f (void);
+#endif
 			void M_Menu_Options_VR_SVR_f (void);
 	void M_Menu_Quit_f (void);
 

@@ -1,5 +1,5 @@
-#include "include/r_vr_ovr.h"
-#include "../vr/include/vr_ovr.h"
+#include "include/r_vr_rift.h"
+#include "../vr/include/vr_rift.h"
 #include "include/r_local.h"
 #ifdef OCULUS_DYNAMIC
 #include "../vr/oculus_dynamic/oculus_dynamic.h"
@@ -10,38 +10,38 @@
 #include "../../backends/sdl2/sdl2quake.h"
 
 
-void OVR_FrameStart(int32_t changeBackBuffers);
-void OVR_Present(qboolean loading);
-int32_t OVR_Enable(void);
-void OVR_Disable(void);
-int32_t OVR_Init(void);
-void OVR_GetState(vr_param_t *state);
-void OVR_PostPresent(void);
+void Rift_FrameStart(int32_t changeBackBuffers);
+void Rift_Present(qboolean loading);
+int32_t Rift_Enable(void);
+void Rift_Disable(void);
+int32_t Rift_Init(void);
+void Rift_GetState(vr_param_t *state);
+void Rift_PostPresent(void);
 
-hmd_render_t vr_render_ovr = 
+hmd_render_t vr_render_rift = 
 {
-	HMD_OVR,
-	OVR_Init,
-	OVR_Enable,
-	OVR_Disable,
-	OVR_FrameStart,
-	OVR_GetState,
-	OVR_Present,
-	OVR_PostPresent
+	HMD_RIFT,
+	Rift_Init,
+	Rift_Enable,
+	Rift_Disable,
+	Rift_FrameStart,
+	Rift_GetState,
+	Rift_Present,
+	Rift_PostPresent
 };
+
+rift_render_export_t renderExport;
+
 
 extern ovrHmd hmd;
 extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrTrackingState trackingState;
 extern ovrFrameTiming frameTime;
-extern qboolean withinFrame;
-extern float cameraYaw;
-extern qboolean positionTracked;
-extern qboolean hasPositionLock;
+
 static vec4_t cameraFrustum[4];
 
-extern void VR_OVR_GetFOV(float *fovx, float *fovy);
-extern int32_t VR_OVR_RenderLatencyTest(vec4_t color);
+extern void VR_Rift_GetFOV(float *fovx, float *fovy);
+extern int32_t VR_Rift_RenderLatencyTest(vec4_t color);
 
 
 static vr_param_t currentState;
@@ -159,7 +159,7 @@ static r_ovr_shader_t ovr_distortion_shaders[2];
 static r_ovr_shader_t ovr_timewarp_shaders[2];
 
 // util function
-void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
+void VR_Rift_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 {
 	GLint texloc;
 	if (!object->program)
@@ -189,10 +189,10 @@ void VR_OVR_InitShader(r_ovr_shader_t *shader, r_shaderobject_t *object)
 }
 
 
-void OVR_CalculateState(vr_param_t *state)
+void Rift_CalculateState(vr_param_t *state)
 {
 	vr_param_t ovrState;
-	float ovrScale = vr_ovr_supersample->value;
+	float ovrScale = vr_rift_supersample->value;
 	int eye = 0;
 	
 	for (eye = 0; eye < 2; eye++) {
@@ -202,7 +202,7 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrDistortionVertex *ov = NULL;
 		unsigned int i = 0;
 		float vignette_factor;
-		if (vr_ovr_maxfov->value)
+		if (vr_rift_maxfov->value)
 		{
 			renderInfo[eye].eyeFov = hmd->MaxEyeFov[eye];
 		} else
@@ -224,7 +224,7 @@ void OVR_CalculateState(vr_param_t *state)
 			-eyeDesc[eye].HmdToEyeViewOffset.x,
 			eyeDesc[eye].HmdToEyeViewOffset.y,
 			eyeDesc[eye].HmdToEyeViewOffset.z);
-#if OVR_MAJOR_VERSION >= 5
+#if Rift_MAJOR_VERSION >= 5
 		ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
 #else
         ovrHmd_CreateDistortionMesh(hmd, eyeDesc[eye].Eye, eyeDesc[eye].Fov, ovrDistortionCap_Chromatic | ovrDistortionCap_SRGB | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
@@ -279,36 +279,36 @@ void OVR_CalculateState(vr_param_t *state)
 }
 
 
-void OVR_FrameStart(int32_t changeBackBuffers)
+void Rift_FrameStart(int32_t changeBackBuffers)
 {
-	if (vr_ovr_maxfov->modified)
+	if (vr_rift_maxfov->modified)
 	{
-		int newValue =  vr_ovr_maxfov->value ? 1 : 0;
-		if (newValue != (int)vr_ovr_maxfov->value)
-			Cvar_SetInteger("vr_ovr_maxfov",newValue);
+		int newValue =  vr_rift_maxfov->value ? 1 : 0;
+		if (newValue != (int)vr_rift_maxfov->value)
+			Cvar_SetInteger("vr_rift_maxfov",newValue);
 		changeBackBuffers = 1;
-		vr_ovr_maxfov->modified = (qboolean) false;
+		vr_rift_maxfov->modified = (qboolean) false;
 	}
 
-	if (vr_ovr_supersample->modified)
+	if (vr_rift_supersample->modified)
 	{
-		if (vr_ovr_supersample->value < 1.0)
-			Cvar_Set("vr_ovr_supersample", "1.0");
-		else if (vr_ovr_supersample->value > 2.0)
-			Cvar_Set("vr_ovr_supersample", "2.0");
+		if (vr_rift_supersample->value < 1.0)
+			Cvar_Set("vr_rift_supersample", "1.0");
+		else if (vr_rift_supersample->value > 2.0)
+			Cvar_Set("vr_rift_supersample", "2.0");
 		changeBackBuffers = 1;
-		vr_ovr_supersample->modified = false;
+		vr_rift_supersample->modified = false;
 	}
 	if (useChroma != (qboolean) !!vr_chromatic->value)
 	{
 		useChroma = (qboolean) !!vr_chromatic->value;
 	}
 
-	if (vr_ovr_lumoverdrive->modified)
+	if (vr_rift_lumoverdrive->modified)
 	{
 		changeBackBuffers = 1;
 		currentFrame = 0;
-		vr_ovr_lumoverdrive->modified = false;
+		vr_rift_lumoverdrive->modified = false;
 	}
 
 	if (changeBackBuffers)
@@ -317,15 +317,15 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 		float width, height;
 		float ovrScale;
 
-		OVR_CalculateState(&currentState);
+		Rift_CalculateState(&currentState);
 
 
 		width = glConfig.render_width / (float) hmd->Resolution.w;
 		height = glConfig.render_height / (float) hmd->Resolution.h;
 		ovrScale = (width + height) / 2.0;
-		ovrScale *= R_AntialiasGetScale() * vr_ovr_supersample->value;
-		if (vr_ovr_debug->value)
-			Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
+		ovrScale *= R_AntialiasGetScale() * vr_rift_supersample->value;
+		if (vr_rift_debug->value)
+			Com_Printf("VR_Rift: Set render target scale to %.2f\n",ovrScale);
 		for (i = 0; i < 2; i++)
 		{
 			ovrRecti viewport = {{0,0}, {0,0}};
@@ -336,8 +336,8 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 			if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
 			{
-				if (vr_ovr_debug->value)
-					Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
+				if (vr_rift_debug->value)
+					Com_Printf("VR_Rift: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
 				R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
 				R_ClearFBO(&renderInfo[i].eyeFBO);
 			}
@@ -346,7 +346,7 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 	}
 }
 
-void OVR_GetState(vr_param_t *state)
+void Rift_GetState(vr_param_t *state)
 {
 	*state = currentState;
 	state->offscreen = &offscreen[currentFrame];
@@ -354,15 +354,15 @@ void OVR_GetState(vr_param_t *state)
 
 void R_Clear (void);
 
-void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e);
-void OVR_Present(qboolean loading)
+void VR_Rift_QuatToEuler(ovrQuatf q, vec3_t e);
+void Rift_Present(qboolean loading)
 {
-    int fade = vr_ovr_distortion_fade->value != 0.0f;
+    int fade = vr_rift_distortion_fade->value != 0.0f;
 	float desaturate = 0.0;
     
-	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_ovr_trackingloss->value > 0) {
-		if (hasPositionLock) {
-			float yawDiff = (fabsf(cameraYaw) - 105.0f) * 0.04;
+	if (renderExport.positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_rift_trackingloss->value > 0) {
+		if (renderExport.hasPositionLock) {
+			float yawDiff = (fabsf(renderExport.cameraYaw) - 105.0f) * 0.04;
 			float xBound,yBound,zBound;
 			vec_t temp[4][4], fin[4][4];
 			int i = 0;
@@ -378,7 +378,7 @@ void OVR_Present(qboolean loading)
 			pos[1] = head.Position.y - camera.Position.y;
 			pos[2] = -(head.Position.z - camera.Position.z);
 
-			VR_OVR_QuatToEuler(camera.Orientation,euler);
+			VR_Rift_QuatToEuler(camera.Orientation,euler);
 			EulerToQuat(euler,quat);
 			QuatToRotation(quat,temp);
 			MatrixMultiply (cameraFrustum,temp,fin);
@@ -408,7 +408,7 @@ void OVR_Present(qboolean loading)
 		int i = 0;
 		r_ovr_shader_t *currentShader;
 
-		qboolean warp =(qboolean) (!loading && withinFrame && vr_ovr_timewarp->value);
+		qboolean warp = (qboolean) (!loading && renderExport.withinFrame && vr_rift_timewarp->value);
 		if (warp)
 		{
 			currentShader = &ovr_timewarp_shaders[useChroma];	
@@ -428,7 +428,7 @@ void OVR_Present(qboolean loading)
 
 		glUseProgram(currentShader->shader->program);
 
-		if (hmd->Type >= ovrHmd_DK2 && vr_ovr_lumoverdrive->value)
+		if (hmd->Type >= ovrHmd_DK2 && vr_rift_lumoverdrive->value)
 		{
 			int lastFrame = (currentFrame ? 0 : 1);
 			static float overdriveScaleRegularRise = 0.1f;
@@ -470,7 +470,7 @@ void OVR_Present(qboolean loading)
 			R_ReleaseIVBO();
 		}
 
-		if (vr_ovr_lumoverdrive->value)
+		if (vr_rift_lumoverdrive->value)
 		{
 			GL_MBind(1,0);
 			currentFrame = (currentFrame ? 0 : 1);
@@ -496,12 +496,12 @@ void OVR_Present(qboolean loading)
 
 }
 
-void OVR_PostPresent(void)
+void Rift_PostPresent(void)
 {
 	vec4_t debugColor = {1.0,1.0,1.0,1.0};
-	if (VR_OVR_RenderLatencyTest(debugColor))
+	if (VR_Rift_RenderLatencyTest(debugColor))
 	{
-		//Com_Printf("VR_OVR: Debug color ( %.2f, %.2f, %.2f)\n",debugColor[0],debugColor[1],debugColor[2]);
+		//Com_Printf("VR_Rift: Debug color ( %.2f, %.2f, %.2f)\n",debugColor[0],debugColor[1],debugColor[2]);
 		glColor4fv(debugColor);
 
 		if (hmd->Type < ovrHmd_DK2)
@@ -540,7 +540,7 @@ void OVR_PostPresent(void)
 }
 
 
-int32_t OVR_Enable(void)
+int32_t Rift_Enable(void)
 {
 	int i;
 	eyeScaleOffset_t camera;
@@ -575,17 +575,17 @@ int32_t OVR_Enable(void)
 
 	//VR_FrameStart(1);
 
-	VR_OVR_InitShader(&ovr_distortion_shaders[0],&ovr_shader_norm);
-	VR_OVR_InitShader(&ovr_distortion_shaders[1],&ovr_shader_chrm);
+	VR_Rift_InitShader(&ovr_distortion_shaders[0],&ovr_shader_norm);
+	VR_Rift_InitShader(&ovr_distortion_shaders[1],&ovr_shader_chrm);
 
-	VR_OVR_InitShader(&ovr_timewarp_shaders[0],&ovr_shader_warp);
-	VR_OVR_InitShader(&ovr_timewarp_shaders[1],&ovr_shader_chrm_warp);
-	//OVR_FrameStart(true);
+	VR_Rift_InitShader(&ovr_timewarp_shaders[0],&ovr_shader_warp);
+	VR_Rift_InitShader(&ovr_timewarp_shaders[1],&ovr_shader_chrm_warp);
+	//Rift_FrameStart(true);
 	Cvar_ForceSet("vr_hmdstring",(char *)hmd->ProductName);
 	return true;
 }
 
-void OVR_Disable(void)
+void Rift_Disable(void)
 {
 	int i;
 
@@ -605,7 +605,7 @@ void OVR_Disable(void)
 	}
 }
 
-int32_t OVR_Init(void)
+int32_t Rift_Init(void)
 {
 	int i;
 	for (i = 0; i < 2; i++)

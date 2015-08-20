@@ -20,6 +20,6 @@ extern cvar_t *vr_ovr_dk2_color_hack;
 extern cvar_t *vr_ovr_lowpersistence;
 extern cvar_t *vr_ovr_lumoverdrive;
 extern cvar_t *vr_ovr_distortion_fade;
-extern hmd_interface_t hmd_rift;
+extern hmd_interface_t hmd_ovr;
 
 #endif

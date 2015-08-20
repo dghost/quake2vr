@@ -189,11 +189,13 @@ static void AdvancedFunc ( void *unused )
 	M_Menu_Options_VR_Advanced_f();
 }
 
+#ifdef OCULUS_LEGACY
 static void OVRFunc ( void *unused )
 {
 	VRConfigAccept();
 	M_Menu_Options_VR_OVR_f();
 }
+#endif
 
 #ifndef NO_STEAM
 static void SVRFunc ( void *unused )
@@ -351,12 +353,14 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_advanced_action.generic.callback	= AdvancedFunc;
 	s_options_vr_advanced_action.generic.statusbar	= "advanced configuration options";
 
+#ifdef OCULUS_LEGACY
 	s_options_vr_ovr_action.generic.type		= MTYPE_ACTION;
 	s_options_vr_ovr_action.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_ovr_action.generic.y			= y+=MENU_LINE_SIZE;
 	s_options_vr_ovr_action.generic.name		= "oculus rift options";
 	s_options_vr_ovr_action.generic.callback	= OVRFunc;
 	s_options_vr_ovr_action.generic.statusbar	= "oculus rift configuration";
+#endif
 
 #ifndef NO_STEAM
 	s_options_vr_svr_action.generic.type		= MTYPE_ACTION;

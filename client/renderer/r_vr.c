@@ -1,6 +1,10 @@
 #include "include/r_local.h"
 #include "../vr/include/vr.h"
+#ifdef LEGACY_OCULUS
 #include "include/r_vr_ovr.h"
+#else
+#include "include/r_vr_rift.h"
+#endif
 #include "include/r_vr_svr.h"
 
 #define MAX_SEGMENTS 25
@@ -555,10 +559,18 @@ void R_VR_Init()
 {
 	int32_t i;
 	available_hmds[HMD_NONE] = vr_render_none;
+
 #ifndef NO_STEAM
 	available_hmds[HMD_STEAM] = vr_render_svr;
 #endif
-	available_hmds[HMD_RIFT] = vr_render_ovr;
+	
+#ifdef LEGACY_OCULUS
+	available_hmds[HMD_OVR] = vr_render_ovr;
+	available_hmds[HMD_RIFT] = vr_render_node;
+#else
+	available_hmds[HMD_OVR] = vr_render_none;
+	available_hmds[HMD_RIFT] = vr_render_rift;
+#endif
 
 	for (i = 0; i < NUM_HMD_TYPES; i++)
 	{
