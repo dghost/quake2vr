@@ -1,11 +1,8 @@
 #include "../client.h"
 #include "include/vr.h"
 #include "include/vr_svr.h"
-#ifdef OCULUS_LEGACY
 #include "include/vr_ovr.h"
-#else
 #include "include/vr_rift.h"
-#endif
 
 cvar_t *vr_enabled;
 cvar_t *vr_autoenable;
@@ -443,8 +440,11 @@ void VR_Startup(void)
 	Com_Printf("\n--------- VR Initialization ---------\n");
 
 	available_hmds[HMD_NONE] = hmd_none;
+
 #ifndef NO_STEAM
 	available_hmds[HMD_STEAM] = hmd_steam;
+#else
+	available_hmds[HMD_STEAM] = hmd_none;
 #endif
 
 #ifdef OCULUS_LEGACY

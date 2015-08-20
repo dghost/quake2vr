@@ -354,6 +354,7 @@ message ( STATUS "Building for ${ARCH}" )
 if (OVR_FOUND)
   message ( STATUS "Building with Oculus Rift support..." )
   include_directories (${OVR_INCLUDE_DIR} ${OVR_CAPI_INCLUDE_DIR})  
+  add_definitions(-DOCULUS_LEGACY)
   target_link_libraries(quake2vr ${OVR_LIBRARY})
 endif (OVR_FOUND)
 
