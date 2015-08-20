@@ -373,6 +373,7 @@ endif (STEAMWORKS_FOUND)
 target_compile_options(quake2vr PRIVATE -fvisibility=hidden)
 
 set_target_properties(quake2vr PROPERTIES XCODE_ATTRIBUTE_OTHER_CFLAGS[variant=Debug] "-D_DEBUG" )
+set_target_properties(quake2vr PROPERTIES XCODE_ATTRIBUTE_GCC_C_LANGUAGE_STANDARD "ansi" )
 
 add_subdirectory(game)
 add_subdirectory(game_mp)
