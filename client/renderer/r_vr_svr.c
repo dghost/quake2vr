@@ -88,8 +88,30 @@ void SVR_BuildDistortionTextures()
 	Z_Free(normalTexture);
 }
 
+fbo_t *SVR_GetScreenFBO(qboolean frameStart) {
+	return &offscreen;
+}
 
-void SVR_FrameStart(int32_t changeBackBuffers)
+void SVR_SetOffscreenSize(uint32_t width, uint32_t height) {
+	origTargetRect.x = 0;
+	origTargetRect.y = 0;
+	origTargetRect.width = width * svr_settings.scaleX;
+	origTargetRect.height = height * svr_settings.scaleY;
+
+	renderTargetRect = origTargetRect;
+
+	if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
+	{
+		R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);
+		R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &right);
+	}
+
+	Com_Printf("VR_SVR: Set render target size to %ux%u\n", renderTargetRect.width, renderTargetRect.height);
+	R_ResizeFBO(width, height, 1, GL_RGBA8, &offscreen);
+}
+
+
+void SVR_FrameStart(void)
 {
 
 
@@ -99,36 +121,14 @@ void SVR_FrameStart(int32_t changeBackBuffers)
 			Cvar_SetInteger("vr_svr_distortion", 3);
 		if (vr_svr_distortion->value <0)
 			Cvar_SetInteger("vr_svr_distortion", 0);
-		changeBackBuffers = 1;
-		SVR_BuildDistortionTextures();		
+		SVR_SetOffscreenSize(viddef.width, viddef.height);
+		SVR_BuildDistortionTextures();
 		vr_svr_distortion->modified = false;
 	}
 
 	if (chromatic != (qboolean) !!vr_chromatic->value)
 	{
 		chromatic = (qboolean) !!vr_chromatic->value;
-	}
-
-	if (changeBackBuffers)
-	{	
-		float scale = R_AntialiasGetScale();
-		origTargetRect.x = 0;
-		origTargetRect.y = 0;
-		origTargetRect.width = glConfig.render_width * svr_settings.scaleX;
-		origTargetRect.height = glConfig.render_height * svr_settings.scaleY;
-
-		renderTargetRect = origTargetRect;
-	
-		renderTargetRect.width *= scale;
-		renderTargetRect.height *= scale;
-
-		if (renderTargetRect.width != left.width || renderTargetRect.height != left.height)
-		{
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &left);
-			R_ResizeFBO(renderTargetRect.width, renderTargetRect.height, true, GL_RGBA8, &right);
-		}
-
-		Com_Printf("VR_SVR: Set render target size to %ux%u\n",renderTargetRect.width,renderTargetRect.height);
 	}
 }
 
@@ -137,7 +137,6 @@ void SVR_GetState(vr_param_t *state)
 	vr_param_t svrState;
 	float ipd = svr_settings.ipd;
 	int index = 0;
-
 
 	svrState.enabled = true;
 	svrState.swapToScreen = true;
@@ -159,7 +158,6 @@ void SVR_GetState(vr_param_t *state)
 	svrState.pixelScale = 3.0;
 	svrState.eyeFBO[0] = &left;
 	svrState.eyeFBO[1] = &right;
-	svrState.offscreen = &offscreen;
 	*state = svrState;
 }
 
@@ -223,11 +221,11 @@ int32_t SVR_Init(void)
 
 void SVR_Disable(void)
 {
-	if (left.valid)
+	if (left.status)
 		R_DelFBO(&left);
-	if (right.valid)
+	if (right.status)
 		R_DelFBO(&right);
-	if (offscreen.valid)
+	if (offscreen.status)
 		R_DelFBO(&offscreen);
 
 
@@ -249,11 +247,11 @@ int32_t SVR_Enable(void)
 	if (!glConfig.arb_texture_float)
 		return 0;
 
-	if (left.valid)
+	if (left.status)
 		R_DelFBO(&left);
-	if (right.valid)
+	if (right.status)
 		R_DelFBO(&right);
-	if (offscreen.valid)
+	if (offscreen.status)
 		R_DelFBO(&offscreen);
 
 	if (!leftDistortion[0])
@@ -283,7 +281,9 @@ hmd_render_t vr_render_svr =
 	SVR_FrameStart,
 	SVR_GetState,
 	SVR_Present,
-	NULL
+	NULL,
+	SVR_GetScreenFBO,
+	SVR_SetOffscreenSize
 };
 
 #endif //NO_STEAM

@@ -22,7 +22,6 @@ typedef struct {
 	float pixelScale;
 	float aspect;
 	fbo_t* eyeFBO[2];
-	fbo_t* offscreen;
 	eye_param_t renderParams[2];
 } vr_param_t;
 
@@ -33,10 +32,12 @@ typedef struct {
 	int32_t (*init)(void);
 	int32_t (*enable)(void);
 	void (*disable)(void);
-	void (*frameStart)(int32_t changeBackBuffers);
+	void (*frameStart)(void);
 	void (*getState)(vr_param_t *state);
 	void (*present)(qboolean loading);
 	void (*postPresent)(void);
+	fbo_t *(*getScreenFBO)(qboolean frameStart);
+	void (*setOffscreenSize)(uint32_t width, uint32_t height);
 } hmd_render_t;
 
 typedef struct {

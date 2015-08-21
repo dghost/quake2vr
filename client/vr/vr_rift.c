@@ -1,14 +1,8 @@
 #include "include/vr.h"
 #include "include/vr_rift.h"
-#ifdef OCULUS_DYNAMIC
-#include "oculus_dynamic/oculus_dynamic.h"
-#else
-#define OVR_ALIGNAS(x)
 #include "OVR_CAPI.h"
-#endif
 #include <SDL.h>
 
-void VR_Rift_GetHMDPos(int32_t *xpos, int32_t *ypos);
 void VR_Rift_GetHMDResolution(int32_t *width, int32_t *height);
 void VR_Rift_FrameStart();
 void VR_Rift_FrameEnd();
@@ -62,7 +56,7 @@ hmd_interface_t hmd_rift = {
 	VR_Rift_getOrientation,
 	VR_Rift_getPosition,
 	VR_Rift_SetPredictionTime,
-	VR_Rift_GetHMDPos,
+	NULL,
 	VR_Rift_GetHMDResolution
 };
 
@@ -73,16 +67,6 @@ void VR_Rift_GetFOV(float *fovx, float *fovy)
 {
 	*fovx = hmd->DefaultEyeFov[ovrEye_Left].LeftTan + hmd->DefaultEyeFov[ovrEye_Left].RightTan;
 	*fovy = hmd->DefaultEyeFov[ovrEye_Left].UpTan + hmd->DefaultEyeFov[ovrEye_Left].DownTan;
-}
-
-
-void VR_Rift_GetHMDPos(int32_t *xpos, int32_t *ypos)
-{
-	if (hmd)
-	{
-		*xpos = hmd->WindowsPos.x;
-		*ypos = hmd->WindowsPos.y;
-	}
 }
 
 void VR_Rift_GetHMDResolution(int32_t *width, int32_t *height)
@@ -143,7 +127,7 @@ int32_t VR_Rift_getOrientation(float euler[3])
 		return 0;
 
 	if (vr_rift_autoprediction->value > 0)
-		time = (frameTime.EyeScanoutSeconds[ovrEye_Left] + frameTime.EyeScanoutSeconds[ovrEye_Right]) / 2.0;
+		time = frameTime.DisplayMidpointSeconds;
 	else
 		time = ovr_GetTimeInSeconds() + prediction_time;
 	trackingState = ovrHmd_GetTrackingState(hmd, time);
@@ -220,24 +204,6 @@ ovrBool VR_Rift_InitSensor()
 	return sensorEnabled;
 }
 
-int32_t VR_Rift_RenderLatencyTest(vec4_t color) 
-{
-	uint8_t ovrLatencyColor[3] = {0, 0, 0};
-
-	qboolean use = (qboolean) false;
-	if (hmd->Type >= ovrHmd_DK2)
-		use = (qboolean) ovrHmd_GetLatencyTest2DrawColor(hmd,ovrLatencyColor);
-	else if (vr_rift_latencytest->value)
-		use = (qboolean) ovrHmd_ProcessLatencyTest(hmd,ovrLatencyColor);
-
-	color[0] = ovrLatencyColor[0] / 255.0f;
-	color[1] = ovrLatencyColor[1] / 255.0f;
-	color[2] = ovrLatencyColor[2] / 255.0f;
-	color[3] = 1.0f;
-	return use;
-}
-
-
 int32_t VR_Rift_SetPredictionTime(float time)
 {
 	prediction_time = time / 1000.0;
@@ -248,22 +214,6 @@ int32_t VR_Rift_SetPredictionTime(float time)
 
 void VR_Rift_FrameStart()
 {
-
-	if (hmd->Type < ovrHmd_DK2 && vr_rift_latencytest->value)
-	{
-		const char *results = ovrHmd_GetLatencyTestResult(hmd);
-		if (results && strncmp(results,"",1))
-		{
-			static float lastms = 0;
-			float ms;
-			if (sscanf(results,"RESULT=%f ",&ms) && ms != lastms)
-			{
-				Cvar_SetInteger("vr_prediction",(int) ms);
-				lastms = ms;
-			}
-		}
-	}
-
 	if (vr_rift_lowpersistence->modified)
 	{
 		uint32_t caps = 0;
@@ -277,22 +227,20 @@ void VR_Rift_FrameStart()
 		vr_rift_lowpersistence->modified = false;
 	}
 
-	if (!renderExport.withinFrame)
+	if (renderExport.withinFrame)
 	{
-		frameTime = ovrHmd_BeginFrameTiming(hmd,0);
+		frameTime = ovrHmd_GetFrameTiming(hmd, 0);
 	}
 	else
 	{
-		ovrHmd_EndFrameTiming(hmd);
 		ovrHmd_ResetFrameTiming(hmd,0);
-		frameTime = ovrHmd_BeginFrameTiming(hmd,0);
+		frameTime = ovrHmd_GetFrameTiming(hmd, 0);
 	}
 	renderExport.withinFrame = true;
 }
 
 void VR_Rift_FrameEnd()
 {
-	ovrHmd_EndFrameTiming(hmd);
 	renderExport.withinFrame = false;
 }
 
@@ -311,51 +259,25 @@ riftname_t *VR_Rift_GetNameList()
 
 int32_t VR_Rift_Enable()
 {
-	int32_t failure = 0;
 	qboolean isDebug = false;
 	uint32_t device = 0;
+	ovrResult result = 0;
+
 	if (!vr_rift_enable->value)
 		return 0;
 
 	if (!libovrInitialized)
 	{
-#ifdef OCULUS_DYNAMIC
-		const char* failed_function;
-		static const char *dllnames[] = {"libovr", "libovr_043", 0};
-		oculus_library_handle = Sys_FindLibrary(dllnames);
-		if (!oculus_library_handle) {
-			Com_Printf("VR_Rift: Fatal error: could not load Oculus library\n");
-			return 0;
-		}
+		result = ovr_Initialize(0);
 
-		ovr_dynamic_load_result res = oculus_dynamic_load_handle(oculus_library_handle, &failed_function);
-		if (res != OVR_DYNAMIC_RESULT_SUCCESS) {
-			if (res == OVR_DYNAMIC_RESULT_LIBOVR_COULD_NOT_LOAD_FUNCTION) {
-				Com_Printf("VR_Rift: Fatal error: function %s not found in oculus library\n", failed_function);
-			} else {
-				Com_Printf("VR_Rift: Fatal error: could not load Oculus library\n");
-			}
-			SDL_UnloadObject(oculus_library_handle);
-			oculus_library_handle = NULL;
-			return 0;
-		}
-#endif
-
-#if OVR_MAJOR_VERSION >= 5
-		libovrInitialized = ovr_Initialize(0);
-#else
-        libovrInitialized = ovr_Initialize();
-#endif
-		if (!libovrInitialized)
+		if (OVR_FAILURE(result))
 		{
 			Com_Printf("VR_Rift: Fatal error: could not initialize LibOVR!\n");
-#ifdef OCULUS_DYNAMIC
-			SDL_UnloadObject(oculus_library_handle);
-			oculus_library_handle = NULL;
-#endif
+			libovrInitialized = 0;
 			return 0;
 		} else {
 			Com_Printf("VR_Rift: %s initialized...\n",ovr_GetVersionString());
+			libovrInitialized = 1;
 		}
 	}
 
@@ -370,8 +292,9 @@ int32_t VR_Rift_Enable()
 		Com_Printf("VR_Rift: Found %i devices\n", numDevices);
 		for (i = 0 ; i < numDevices ; i++)
 		{
-			ovrHmd tempHmd = ovrHmd_Create(i);
-			if (tempHmd)
+			ovrHmd tempHmd = NULL;
+			result = ovrHmd_Create(i, &tempHmd);
+			if (OVR_SUCCESS(result))
 			{
 				Com_Printf("VR_Rift: Found device #%i '%s' s/n:%s\n",i,tempHmd->ProductName, tempHmd->SerialNumber);
 				sprintf(hmdnames[i].label,"%i: %s",i + 1, tempHmd->ProductName);
@@ -389,21 +312,21 @@ int32_t VR_Rift_Enable()
 	Com_Printf("VR_Rift: Initializing HMD: ");
 	
 	renderExport.withinFrame = false;
-	hmd = ovrHmd_Create(device);
+	result = ovrHmd_Create(device, &hmd);
 	
-	if (!hmd)
+	if (OVR_FAILURE(result))
 	{
 		Com_Printf("no HMD detected!\n");
-		failure = 1;
 	}
 	else {
 		Com_Printf("ok!\n");
 	}
 
 
-	if (failure && vr_rift_debug->value)
+	if (OVR_FAILURE(result) && vr_rift_debug->value)
 	{
 		ovrHmdType temp = ovrHmd_None;
+
 		switch((int) vr_rift_debug->value)
 		{
 			default:
@@ -417,29 +340,14 @@ int32_t VR_Rift_Enable()
 				break;
 
 		}
-		hmd = ovrHmd_CreateDebug(temp);
+		result = ovrHmd_CreateDebug(temp, &hmd);
 		isDebug = true;
 		Com_Printf("VR_Rift: Creating debug HMD...\n");
 	}
 
-	if (!hmd)
+	if (OVR_FAILURE(result))
 		return 0;
 
-	if (hmd->HmdCaps & ovrHmdCap_ExtendDesktop)
-	{
-		Com_Printf("...running in extended desktop mode\n");
-	} else if (!isDebug) {
-		Com_Printf("...running in Direct HMD mode\n");
-		Com_Printf("...Direct HMD mode is unsupported at this time\n");
-		VR_Rift_Disable();
-		VR_Rift_Shutdown();
-		return 0;
-	}
-
-	Com_Printf("...device positioned at (%i,%i)\n",hmd->WindowsPos.x,hmd->WindowsPos.y);
-
-	if (hmd->HmdCaps & ovrHmdCap_Available)
-		Com_Printf("...sensor is available\n");
 	if (hmd->HmdCaps & ovrHmdCap_LowPersistence)
 		Com_Printf("...supports low persistance\n");
 	if (hmd->HmdCaps & ovrHmdCap_DynamicPrediction)

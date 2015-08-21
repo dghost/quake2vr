@@ -189,20 +189,23 @@ void R_VR_StartFrame()
 	qboolean resolutionChanged = 0;
 	qboolean hudChanged = 0;
 	extern int32_t scr_draw_loading;
-
+	fbo_t *destination = NULL;
+	float scale = R_AntialiasGetScale();
+	float w = glConfig.render_width * scale;
+	float h = glConfig.render_height * scale;
 
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	R_AntialiasSetFBOSize(vrState.offscreen);
-	if (vrState.offscreen->width != screen.width || vrState.offscreen->height != screen.height)
+	if (w != screen.width || w != screen.height)
 	{
-		screen.height = vrState.offscreen->height;
-		screen.width = vrState.offscreen->width;
+		screen.height = w;
+		screen.width = w;
+		hmd->setOffscreenSize(screen.width, screen.height);
 		resolutionChanged = true;
 	}
 
-	hmd->frameStart(resolutionChanged);
+	hmd->frameStart();
 	hmd->getState(&vrState);
 
 	if (vr_hud_width->modified || vr_hud_height->modified)
@@ -225,7 +228,6 @@ void R_VR_StartFrame()
 		Com_Printf("VR: New HUD resolution %ix%i\n",width,height);
 		if (hud.width != width || hud.height != height)
 			R_ResizeFBO(width,height,1,GL_RGBA8,&hud);
-
 	}
 
 	if (vr_hud_segments->modified)
@@ -304,9 +306,9 @@ fbo_t* R_VR_GetHUDFBO()
 
 fbo_t* R_VR_GetFrameFBO()
 {
-	if (!vrState.enabled)
+	if (!hmd)
 		return NULL;
-	return vrState.offscreen;	
+	return hmd->getScreenFBO(false);	
 }
 
 
@@ -440,7 +442,6 @@ void R_VR_EndFrame()
 		R_VR_DrawHud();
 
 		// draw the HUD 
-		R_BindFBO(vrState.offscreen);
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
@@ -473,6 +474,7 @@ void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *ob
 // enables renderer support for the Rift
 void R_VR_Enable()
 {
+
 	qboolean success = false;
 	screen.width = 0;
 	screen.height = 0;
@@ -488,7 +490,7 @@ void R_VR_Enable()
 		Com_Printf("VR: Initializing renderer:");
 
 		// TODO: conditional this shit up
-		if (hud.valid)
+		if (hud.status)
 			R_DelFBO(&hud);
 
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
@@ -547,7 +549,7 @@ void R_VR_Disable()
 
 	if (hmd && hmd->disable)
 		hmd->disable();
-	if (hud.valid)
+	if (hud.status)
 		R_DelFBO(&hud);
 
 	R_DelShaderProgram(&vr_shader_distort_norm);

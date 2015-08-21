@@ -466,16 +466,23 @@ r_fbo.c
 ====================================================================
 */
 
+typedef enum {
+	FBO_VALID = 0x1,
+	FBO_GENERATED_TEXTURE = 0x2,
+	FBO_GENERATED_DEPTH = 0x4
+} fbo_status_t;
+
 typedef struct {
 	GLuint framebuffer;
 	GLuint texture;
 	GLuint depthbuffer;
 	int32_t width, height;
+	int32_t status;
 	GLenum format;
-	int32_t valid;
 } fbo_t;
 
 int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO);
+int32_t R_GenFBOFromTexture(GLuint tex, int32_t width, int32_t height, GLenum format, fbo_t *FBO);
 int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear,GLenum format, fbo_t *FBO);
 void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);
