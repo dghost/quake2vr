@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -30,7 +30,7 @@ fbo_t *lastFrame;
 GL_Enable
 =================
 */
-void GL_Enable (GLenum cap)
+void GL_Enable(GLenum cap)
 {
 	switch (cap)
 	{
@@ -68,12 +68,16 @@ void GL_Enable (GLenum cap)
 		if (glState.scissorTest)
 			return;
 		glState.scissorTest = true;
-        break;
-    case GL_FOG:
-        if (glState.fog)
-            return;
-        glState.fog = true;
-        break;
+		break;
+	case GL_FOG:
+		if (glState.fog)
+			return;
+		glState.fog = true;
+		break;
+	case GL_FRAMEBUFFER_SRGB:
+		if (glState.framebufferSRGB)
+			return;
+		glState.framebufferSRGB = true;
 	}
 	glEnable(cap);
 }
@@ -84,7 +88,7 @@ void GL_Enable (GLenum cap)
 GL_Disable
 =================
 */
-void GL_Disable (GLenum cap)
+void GL_Disable(GLenum cap)
 {
 	switch (cap)
 	{
@@ -122,35 +126,39 @@ void GL_Disable (GLenum cap)
 		if (!glState.scissorTest)
 			return;
 		glState.scissorTest = false;
-        break;
-    case GL_FOG:
-        if (!glState.fog)
-            return;
-        glState.fog = false;
-        break;
+		break;
+	case GL_FOG:
+		if (!glState.fog)
+			return;
+		glState.fog = false;
+		break;
+	case GL_FRAMEBUFFER_SRGB:
+		if (!glState.framebufferSRGB)
+			return;
+		glState.framebufferSRGB = false;
 	}
 	glDisable(cap);
 }
 
 
-void GL_ClearStencil (GLint value) {
-    if (value != glState.stencilClear) {
-        glState.stencilClear = value;
-        glClearStencil(value);
-    }
+void GL_ClearStencil(GLint value) {
+	if (value != glState.stencilClear) {
+		glState.stencilClear = value;
+		glClearStencil(value);
+	}
 }
 
 
-void GL_StencilFunc (GLenum func, GLint ref, GLuint mask) {
-    if (func != glState.stencilFunc || ref != glState.stencilFuncRef || mask != glState.stencilFuncMask) {
-        glState.stencilFunc = func;
-        glState.stencilFuncRef = ref;
-        glState.stencilFuncMask = mask;
-        glStencilFunc(func, ref, mask);
-    }
+void GL_StencilFunc(GLenum func, GLint ref, GLuint mask) {
+	if (func != glState.stencilFunc || ref != glState.stencilFuncRef || mask != glState.stencilFuncMask) {
+		glState.stencilFunc = func;
+		glState.stencilFuncRef = ref;
+		glState.stencilFuncMask = mask;
+		glStencilFunc(func, ref, mask);
+	}
 }
 
-qboolean GL_HasStencil (void)
+qboolean GL_HasStencil(void)
 {
 	return (glConfig.have_stencil && r_stencil->value);
 }
@@ -164,13 +172,13 @@ setting up envmap
 */
 #define GLSTATE_DISABLE_TEXGEN		if (glState.texgen) { glDisable(GL_TEXTURE_GEN_S); glDisable(GL_TEXTURE_GEN_T); glDisable(GL_TEXTURE_GEN_R); glState.texgen=false; }
 #define GLSTATE_ENABLE_TEXGEN		if (!glState.texgen) { glEnable(GL_TEXTURE_GEN_S); glEnable(GL_TEXTURE_GEN_T); glEnable(GL_TEXTURE_GEN_R); glState.texgen=true; }
-void GL_Envmap (qboolean enable)
+void GL_Envmap(qboolean enable)
 {
 
 	if (enable)
 	{
-		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE,GL_SPHERE_MAP);
-		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE,GL_SPHERE_MAP);
+		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 		GLSTATE_ENABLE_TEXGEN
 	}
 	else
@@ -185,7 +193,7 @@ void GL_Envmap (qboolean enable)
 GL_ShadeModel
 =================
 */
-void GL_ShadeModel (GLenum mode)
+void GL_ShadeModel(GLenum mode)
 {
 	if (glState.shadeModelMode == mode)
 		return;
@@ -199,13 +207,13 @@ void GL_ShadeModel (GLenum mode)
 GL_TexEnv
 =================
 */
-void GL_TexEnv (GLenum mode)
+void GL_TexEnv(GLenum mode)
 {
 	static int32_t lastmodes[2] = { -1, -1 };
 
-	if ( mode != lastmodes[glState.currenttmu] )
+	if (mode != lastmodes[glState.currenttmu])
 	{
-		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mode );
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mode);
 		lastmodes[glState.currenttmu] = mode;
 	}
 }
@@ -216,7 +224,7 @@ void GL_TexEnv (GLenum mode)
 GL_CullFace
 =================
 */
-void GL_CullFace (GLenum mode)
+void GL_CullFace(GLenum mode)
 {
 	if (glState.cullMode == mode)
 		return;
@@ -230,7 +238,7 @@ void GL_CullFace (GLenum mode)
 GL_PolygonOffset
 =================
 */
-void GL_PolygonOffset (GLfloat factor, GLfloat units)
+void GL_PolygonOffset(GLfloat factor, GLfloat units)
 {
 	if (glState.offsetFactor == factor && glState.offsetUnits == units)
 		return;
@@ -245,7 +253,7 @@ void GL_PolygonOffset (GLfloat factor, GLfloat units)
 GL_AlphaFunc
 =================
 */
-void GL_AlphaFunc (GLenum func, GLclampf ref)
+void GL_AlphaFunc(GLenum func, GLclampf ref)
 {
 	if (glState.alphaFunc == func && glState.alphaRef == ref)
 		return;
@@ -260,7 +268,7 @@ void GL_AlphaFunc (GLenum func, GLclampf ref)
 GL_BlendFunc
 =================
 */
-void GL_BlendFunc (GLenum src, GLenum dst)
+void GL_BlendFunc(GLenum src, GLenum dst)
 {
 	if (glState.blendSrc == src && glState.blendDst == dst)
 		return;
@@ -275,7 +283,7 @@ void GL_BlendFunc (GLenum src, GLenum dst)
 GL_DepthFunc
 =================
 */
-void GL_DepthFunc (GLenum func)
+void GL_DepthFunc(GLenum func)
 {
 	if (glState.depthFunc == func)
 		return;
@@ -289,7 +297,7 @@ void GL_DepthFunc (GLenum func)
 GL_DepthMask
 =================
 */
-void GL_DepthMask (GLboolean mask)
+void GL_DepthMask(GLboolean mask)
 {
 	if (glState.depthMask == mask)
 		return;
@@ -302,13 +310,13 @@ void GL_DepthMask (GLboolean mask)
 GL_DepthRange
 =================
 */
-void GL_DepthRange (GLfloat rMin, GLfloat rMax)
+void GL_DepthRange(GLfloat rMin, GLfloat rMax)
 {
 	if (glState.depthMin == rMin && glState.depthMax == rMax)
 		return;
 	glState.depthMin = rMin;
 	glState.depthMax = rMax;
-	glDepthRange (rMin, rMax);
+	glDepthRange(rMin, rMax);
 }
 
 
@@ -317,14 +325,14 @@ void GL_DepthRange (GLfloat rMin, GLfloat rMax)
 GL_LockArrays
 =============
 */
-void GL_LockArrays (int32_t numVerts)
+void GL_LockArrays(int32_t numVerts)
 {
 	if (!glConfig.extCompiledVertArray)
 		return;
 	if (glState.arraysLocked)
 		return;
 
-	glLockArraysEXT (0, numVerts);
+	glLockArraysEXT(0, numVerts);
 	glState.arraysLocked = true;
 }
 
@@ -334,14 +342,14 @@ void GL_LockArrays (int32_t numVerts)
 GL_UnlockArrays
 =============
 */
-void GL_UnlockArrays (void)
+void GL_UnlockArrays(void)
 {
 	if (!glConfig.extCompiledVertArray)
 		return;
 	if (!glState.arraysLocked)
 		return;
 
-	glUnlockArraysEXT ();
+	glUnlockArraysEXT();
 	glState.arraysLocked = false;
 }
 
@@ -350,7 +358,7 @@ void GL_UnlockArrays (void)
 GL_EnableTexture
 =================
 */
-void GL_EnableTexture (uint32_t tmu)
+void GL_EnableTexture(uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -367,7 +375,7 @@ void GL_EnableTexture (uint32_t tmu)
 GL_DisableTexture
 =================
 */
-void GL_DisableTexture (uint32_t tmu)
+void GL_DisableTexture(uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -384,7 +392,7 @@ GL_EnableMultitexture
 Only used for world drawing
 =================
 */
-void GL_EnableMultitexture (qboolean enable)
+void GL_EnableMultitexture(qboolean enable)
 {
 	if (enable)
 	{
@@ -405,7 +413,7 @@ void GL_EnableMultitexture (qboolean enable)
 GL_SelectTexture
 =================
 */
-void GL_SelectTexture (uint32_t tmu)
+void GL_SelectTexture(uint32_t tmu)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -415,8 +423,8 @@ void GL_SelectTexture (uint32_t tmu)
 
 	glState.currenttmu = tmu;
 
-	glActiveTexture(GL_TEXTURE0+tmu);
-	glClientActiveTexture(GL_TEXTURE0+tmu);
+	glActiveTexture(GL_TEXTURE0 + tmu);
+	glClientActiveTexture(GL_TEXTURE0 + tmu);
 }
 
 /*
@@ -424,7 +432,7 @@ void GL_SelectTexture (uint32_t tmu)
 GL_Bind
 =================
 */
-void GL_Bind (int32_t texnum)
+void GL_Bind(int32_t texnum)
 {
 	extern	image_t	*draw_chars;
 
@@ -434,7 +442,7 @@ void GL_Bind (int32_t texnum)
 		return;
 
 	glState.currenttextures[glState.currenttmu] = texnum;
-	glBindTexture (GL_TEXTURE_2D, texnum);
+	glBindTexture(GL_TEXTURE_2D, texnum);
 }
 
 /*
@@ -442,7 +450,7 @@ void GL_Bind (int32_t texnum)
 GL_MBind
 =================
 */
-void GL_MBind (uint32_t tmu, int32_t texnum)
+void GL_MBind(uint32_t tmu, int32_t texnum)
 {
 	if (tmu >= MAX_TEXTURE_UNITS || tmu >= glConfig.max_texunits)
 		return;
@@ -461,7 +469,7 @@ GL_BindFBO
 =================
 */
 
-void GL_BindFBO (fbo_t *fbo)
+void GL_BindFBO(fbo_t *fbo)
 {
 	if (!glConfig.ext_framebuffer_object)
 		return;
@@ -469,8 +477,18 @@ void GL_BindFBO (fbo_t *fbo)
 	if (!fbo || glState.currentFBO == fbo)
 		return;
 
+
+	if (glConfig.ext_framebuffer_srgb) {
+		if (fbo->status & FBO_SRGB) {
+			GL_Enable(GL_FRAMEBUFFER_SRGB);
+		}
+		else {
+			GL_Disable(GL_FRAMEBUFFER_SRGB);
+		}
+	}
+
 	glState.currentFBO = fbo;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,fbo->framebuffer);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->framebuffer);
 }
 
 
@@ -489,10 +507,12 @@ void GL_SetIdentity(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glLoadIdentity();
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadIdentityEXT(matrixMode);
-	} else {
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glLoadIdentity();
@@ -511,16 +531,18 @@ void GL_SetIdentityOrtho(GLenum matrixMode, float l, float r, float b, float t, 
 	if (glState.matrixMode == matrixMode)
 	{
 		glLoadIdentity();
-		glOrtho(l, r, b, t, n ,f);
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+		glOrtho(l, r, b, t, n, f);
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadIdentityEXT(matrixMode);
-		glMatrixOrthoEXT(matrixMode, l, r, b, t, n ,f);
-	} else {
+		glMatrixOrthoEXT(matrixMode, l, r, b, t, n, f);
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glLoadIdentity();
-		glOrtho(l, r, b, t, n ,f);
+		glOrtho(l, r, b, t, n, f);
 		GL_MatrixMode(currentMode);
 	}
 }
@@ -530,10 +552,12 @@ void GL_LoadMatrix(GLenum matrixMode, const float m[4][4])
 	if (glState.matrixMode == matrixMode)
 	{
 		glLoadMatrixf((GLfloat*) m);
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixLoadfEXT(matrixMode, (GLfloat*) m);
-	} else {
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glLoadMatrixf((GLfloat*) m);
@@ -546,10 +570,12 @@ void GL_MultiplyMatrix(GLenum matrixMode, const float m[4][4])
 	if (glState.matrixMode == matrixMode)
 	{
 		glMultMatrixf((GLfloat*) m);
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixMultfEXT(matrixMode, (GLfloat*) m);
-	} else {
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glMultMatrixf((GLfloat*) m);
@@ -562,10 +588,12 @@ void GL_PushMatrix(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glPushMatrix();
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixPushEXT(matrixMode);
-	} else {
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glPushMatrix();
@@ -578,10 +606,12 @@ void GL_PopMatrix(GLenum matrixMode)
 	if (glState.matrixMode == matrixMode)
 	{
 		glPopMatrix();
-	} else if (glConfig.ext_direct_state_access && r_directstate->value)
+	}
+	else if (glConfig.ext_direct_state_access && r_directstate->value)
 	{
 		glMatrixPopEXT(matrixMode);
-	} else {
+	}
+	else {
 		GLenum currentMode = glState.matrixMode;
 		GL_MatrixMode(matrixMode);
 		glPopMatrix();
@@ -591,20 +621,20 @@ void GL_PopMatrix(GLenum matrixMode)
 
 void GL_ClearColor(float r, float g, float b, float a)
 {
-	if (glState.clearColor[0] != r || glState.clearColor[1] != g ||  
-		glState.clearColor[2] != b || glState.clearColor[3] != a )
+	if (glState.clearColor[0] != r || glState.clearColor[1] != g ||
+		glState.clearColor[2] != b || glState.clearColor[3] != a)
 	{
-		Vector4Set(glState.clearColor,r,g,b,a);
-		glClearColor(r,g,b,a);
+		Vector4Set(glState.clearColor, r, g, b, a);
+		glClearColor(r, g, b, a);
 	}
 
 }
 void GL_SetDefaultClearColor(void)
 {
 	if (developer->value)
-		GL_ClearColor (1,0, 0.5, 0.5);
+		GL_ClearColor(1, 0, 0.5, 0.5);
 	else
-		GL_ClearColor (0.0,0.0,0.0,0.0);
+		GL_ClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
 /*
@@ -612,7 +642,7 @@ void GL_SetDefaultClearColor(void)
 GL_SetDefaultState
 =================
 */
-void GL_SetDefaultState (void)
+void GL_SetDefaultState(void)
 {
 	int32_t		i;
 	vec_t rot[4][4], temp[4][4];
@@ -642,14 +672,14 @@ void GL_SetDefaultState (void)
 	glState.depthMask = GL_TRUE;
 	glState.matrixMode = GL_MODELVIEW;
 
-    glState.stencilClear = 0; // OpenGL says 0 is default
-    glState.stencilFunc = GL_ALWAYS;
-    glState.stencilFuncRef = 0;
-    glState.stencilFuncMask = ~0; // default should be filled with all 1's
+	glState.stencilClear = 0; // OpenGL says 0 is default
+	glState.stencilFunc = GL_ALWAYS;
+	glState.stencilFuncRef = 0;
+	glState.stencilFuncMask = ~0; // default should be filled with all 1's
 
-    
+
 	RotationMatrix(-90, 1, 0, 0, rot);
-	RotationMatrix( 90, 0, 0, 1, temp);
+	RotationMatrix(90, 0, 0, 1, temp);
 	MatrixMultiply(temp, rot, glState.axisRotation);
 
 
@@ -666,8 +696,8 @@ void GL_SetDefaultState (void)
 	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
-    glDisable(GL_FOG);
-    
+	glDisable(GL_FOG);
+
 	glCullFace(glState.cullMode);
 	glShadeModel(glState.shadeModelMode);
 	glPolygonOffset(glState.offsetFactor, glState.offsetUnits);
@@ -679,18 +709,18 @@ void GL_SetDefaultState (void)
 	glMatrixMode(glState.matrixMode);
 
 	// force it to change the clear color
-	Vector4Set(glState.clearColor,-1,-1,-1,-1);
+	Vector4Set(glState.clearColor, -1, -1, -1, -1);
 	GL_SetDefaultClearColor();
 	glClearDepth(1.0);
-    
-    glClearStencil(glState.stencilClear);
-    glStencilFunc(glState.stencilFunc, glState.stencilFuncRef, glState.stencilFuncMask);
 
-	glColor4f (1,1,1,1);
+	glClearStencil(glState.stencilClear);
+	glStencilFunc(glState.stencilFunc, glState.stencilFuncRef, glState.stencilFuncMask);
+
+	glColor4f(1, 1, 1, 1);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	GL_TextureMode( r_texturemode->string );
+	GL_TextureMode(r_texturemode->string);
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
@@ -698,27 +728,29 @@ void GL_SetDefaultState (void)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glTexEnvf(GL_TEXTURE_FILTER_CONTROL,GL_TEXTURE_LOD_BIAS,r_lodbias->value);
+	glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, r_lodbias->value);
 
 	// Vertex arrays
-	glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState (GL_VERTEX_ARRAY);
-	glEnableClientState (GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
-	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
-	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
-	glColorPointer (4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
+	glVertexPointer(3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
+	glColorPointer(4, GL_FLOAT, sizeof(colorArray[0]), colorArray[0]);
 	// end vertex arrays
 
 	glState.activetmu[0] = true;
-	for (i=1; i<MAX_TEXTURE_UNITS; i++)
+	for (i = 1; i < MAX_TEXTURE_UNITS; i++)
 		glState.activetmu[i] = false;
 
-	GL_TexEnv (GL_REPLACE);
-	
+	GL_TexEnv(GL_REPLACE);
+
 	GL_UpdateSwapInterval();
 
-	memset(&screenFBO,0,sizeof(fbo_t));
+	memset(&screenFBO, 0, sizeof(fbo_t));
+	if (glConfig.srgb_framebuffer)
+		screenFBO.status |= FBO_SRGB;
 	screenFBO.width = glConfig.window_width;
 	screenFBO.height = glConfig.window_height;
 	R_BindFBO(&screenFBO);

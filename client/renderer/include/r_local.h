@@ -469,7 +469,8 @@ r_fbo.c
 typedef enum {
 	FBO_VALID = 0x1,
 	FBO_GENERATED_TEXTURE = 0x2,
-	FBO_GENERATED_DEPTH = 0x4
+	FBO_GENERATED_DEPTH = 0x4,
+	FBO_SRGB = 0x8
 } fbo_status_t;
 
 typedef struct {
@@ -872,7 +873,8 @@ typedef struct
 	qboolean		depthTest;
 	qboolean		scissorTest;
     qboolean        fog;
-    
+	qboolean		framebufferSRGB;
+
 	qboolean		texRectangle;
 	qboolean		in2d;
 	qboolean		arraysLocked;

@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <SDL_syswm.h>
 
-qboolean GLimp_InitGL (void);
+qboolean GLimp_InitGL(void);
 
 static SDL_GLContext glcontext;
 
@@ -53,18 +53,18 @@ extern cvar_t *vid_ref;
 extern cvar_t *vid_refresh;
 extern cvar_t *vid_srgb;
 
-static qboolean VerifyDriver( void )
+static qboolean VerifyDriver(void)
 {
 	char buffer[1024];
 
-	SDL_strlcpy( buffer, (const char *)glGetString( GL_RENDERER ), 1024 );
-	SDL_strlwr( buffer );
-	if ( SDL_strcmp( buffer, "gdi generic" ) == 0 )
+	SDL_strlcpy(buffer, (const char *) glGetString(GL_RENDERER), 1024);
+	SDL_strlwr(buffer);
+	if (SDL_strcmp(buffer, "gdi generic") == 0)
 		return false;
 	return true;
 }
 
-qboolean modType (char *name);
+qboolean modType(char *name);
 
 /*
 ** VID_CreateWindow
@@ -81,14 +81,14 @@ SDL_Surface* GLimp_LoadIcon(char *name)
 	int32_t size;
 	SDL_Surface *result = NULL;
 	void *buffer = NULL;
-	size = FS_LoadFile(name,&buffer);
+	size = FS_LoadFile(name, &buffer);
 	if (buffer)
 	{
 		SDL_RWops *rw;
-		rw = SDL_RWFromMem(buffer,size);
+		rw = SDL_RWFromMem(buffer, size);
 		if (rw)
 		{
-			result = SDL_LoadBMP_RW(rw,1);
+			result = SDL_LoadBMP_RW(rw, 1);
 		}
 		Z_Free(buffer);
 	}
@@ -102,8 +102,9 @@ void GLimp_SetFullscreen(qboolean enable)
 	{
 		// consider this for future, but in the mean time it has problems with the alt-key getting stuck when changing
 		// explicitly destroying the window and creating a new one doesn't have this problem
-		SDL_SetWindowFullscreen(mainWindow,(vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
-	} else {
+		SDL_SetWindowFullscreen(mainWindow, (vid_fullscreen->value ? SDL_WINDOW_FULLSCREEN : 0));
+	}
+	else {
 		cvar_t	*ref;
 		ref = Cvar_Get("vid_ref", "gl", 0);
 		ref->modified = true;
@@ -113,7 +114,7 @@ void GLimp_SetFullscreen(qboolean enable)
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
+rserr_t GLimp_SetMode(int32_t *pwidth, int32_t *pheight)
 {
 	int32_t width, height;
 	uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_BORDERLESS;
@@ -121,16 +122,16 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	SDL_Surface *icon = NULL;
 
 #ifdef __APPLE__
-    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-    
-	const char *win_fs[] = { "W", "FS", "FSW" };
+
+	const char *win_fs [] = { "W", "FS", "FSW" };
 	char *title = NULL;
 
 	int32_t xpos = Cvar_VariableInteger("vid_xpos");
 	int32_t ypos = Cvar_VariableInteger("vid_ypos");
-    int32_t fullscreen = (int32_t)vid_fullscreen->value;
-    int32_t fs_desktop = (int32_t)vid_desktop_fullscreen->value;
+	int32_t fullscreen = (int32_t) vid_fullscreen->value;
+	int32_t fs_desktop = (int32_t) vid_desktop_fullscreen->value;
 
 
 	{
@@ -140,41 +141,41 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 		for (i = 0; i < numDisplays; i++)
 		{
-			if (!SDL_GetDisplayBounds(i,&displayBounds))
-				VID_Printf(PRINT_ALL,"...found display '%s' (%i,%i) %ix%i\n",SDL_GetDisplayName(i),displayBounds.x,displayBounds.y,displayBounds.w,displayBounds.h);
+			if (!SDL_GetDisplayBounds(i, &displayBounds))
+				VID_Printf(PRINT_ALL, "...found display '%s' (%i,%i) %ix%i\n", SDL_GetDisplayName(i), displayBounds.x, displayBounds.y, displayBounds.w, displayBounds.h);
 		}
 	}
 
-	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
+	VID_Printf(PRINT_ALL, "Initializing OpenGL display\n");
 
 	if (vr_enabled->value)
 	{
-		VR_GetHMDPos(&xpos,&ypos);
+		VR_GetHMDPos(&xpos, &ypos);
 
 		if (vr_force_resolution->value)
 		{
 			int32_t w, h;
-			if (VR_GetHMDResolution(&w,&h))
+			if (VR_GetHMDResolution(&w, &h))
 			{
-				VID_Printf(PRINT_ALL, "...forcing HMD resolution of %ix%i\n",w,h);
-				Cvar_SetInteger("vid_width",w);
-				Cvar_SetInteger("vid_height",h);
+				VID_Printf(PRINT_ALL, "...forcing HMD resolution of %ix%i\n", w, h);
+				Cvar_SetInteger("vid_width", w);
+				Cvar_SetInteger("vid_height", h);
 			}
 		}
 
 		if (vr_force_fullscreen->value)
 			fullscreen = 1;
 	}
-	
+
 
 	// destroy the existing window
 	if (mainWindow)
 	{
-		GLimp_Shutdown ();
+		GLimp_Shutdown();
 	}
 
 	// do a CDS if needed
-	if ( fullscreen )
+	if (fullscreen)
 	{
 		SDL_Rect displayBounds;
 		int32_t numDisplays = SDL_GetNumVideoDisplays();
@@ -187,7 +188,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 		for (i = 0; i < numDisplays; i++)
 		{
-			if (!SDL_GetDisplayBounds(i,&displayBounds) &&
+			if (!SDL_GetDisplayBounds(i, &displayBounds) &&
 				(xpos >= displayBounds.x && xpos < displayBounds.x + displayBounds.w) &&
 				(ypos >= displayBounds.y && ypos < displayBounds.y + displayBounds.h))
 			{
@@ -199,14 +200,14 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 		if (fs_desktop)
 		{
-			SDL_GetCurrentDisplayMode(targetDisplay,&targetMode);
+			SDL_GetCurrentDisplayMode(targetDisplay, &targetMode);
 			/*
 			this may be a really terrible ideal, but allow rendering at higher resolution that the screen
 			if (Cvar_VariableInteger("vid_width") > targetMode.w || Cvar_VariableInteger("vid_height") > targetMode.h)
 			{
-				return rserr_invalid_fullscreen;
+			return rserr_invalid_fullscreen;
 			}
-			*/ 
+			*/
 			width = targetMode.w;
 			height = targetMode.h;
 			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -221,22 +222,23 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 			idealMode.h = height;
 			idealMode.refresh_rate = refresh;
 			idealMode.driverdata = 0;
-			if (!SDL_GetClosestDisplayMode(targetDisplay,&idealMode,&targetMode))
+			if (!SDL_GetClosestDisplayMode(targetDisplay, &idealMode, &targetMode))
 				return rserr_invalid_fullscreen;
 
-			if (width != targetMode.w || height != targetMode.h || (refresh && refresh != targetMode.refresh_rate ))
+			if (width != targetMode.w || height != targetMode.h || (refresh && refresh != targetMode.refresh_rate))
 			{
 				return rserr_invalid_fullscreen;
 			}
 
 			flags |= SDL_WINDOW_FULLSCREEN;
 		}
-	} else {
+	}
+	else {
 		width = Cvar_VariableInteger("vid_width");
 		height = Cvar_VariableInteger("vid_height");
 	}
 
-	VID_Printf (PRINT_ALL, "...creating window %dx%d %s at (%i,%i)\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0], xpos,ypos );
+	VID_Printf(PRINT_ALL, "...creating window %dx%d %s at (%i,%i)\n", width, height, win_fs[fullscreen ? (fs_desktop ? 2 : 1) : 0], xpos, ypos);
 
 	if (modType("xatrix")) { // q2mp1
 		icon = GLimp_LoadIcon(WINDOW_ICON_XATRIX);
@@ -252,10 +254,11 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		//wc.hIcon         = LoadIcon(glw_state.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	}
 
-	if ( r_bitdepth->value > 0 ) {
+	if (r_bitdepth->value > 0) {
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, r_bitdepth->value);
-		VID_Printf( PRINT_ALL, "...using r_bitdepth of %d\n", ( int32_t ) r_bitdepth->value );
-	} else {
+		VID_Printf(PRINT_ALL, "...using r_bitdepth of %d\n", (int32_t) r_bitdepth->value);
+	}
+	else {
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	}
 
@@ -269,7 +272,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	if (vid_srgb->value)
 	{
-		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,1);
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
 		mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 	}
 
@@ -277,12 +280,12 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 	{
 		// When using GLX, if an SRGB context is requested but not available,
 		// then SDL can't create a window. Try again without SRGB.
-		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,0);
+		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
 		mainWindow = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 		if (mainWindow && vid_srgb->value)
 		{
-			VID_Printf( PRINT_ALL, "Warning: SRGB enabled but not supported\n" );
-			Cvar_SetInteger("vid_srgb",0);
+			VID_Printf(PRINT_ALL, "Warning: SRGB enabled but not supported\n");
+			Cvar_SetInteger("vid_srgb", 0);
 		}
 	}
 
@@ -291,13 +294,14 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	if (icon)
 	{
-		SDL_SetWindowIcon(mainWindow,icon);
+		SDL_SetWindowIcon(mainWindow, icon);
 		SDL_FreeSurface(icon);
-	} else
+	}
+	else
 
 	if (fullscreen && !fs_desktop)
 	{
-		if ( SDL_SetWindowDisplayMode(mainWindow,&targetMode) < 0)
+		if (SDL_SetWindowDisplayMode(mainWindow, &targetMode) < 0)
 		{
 			SDL_DestroyWindow(mainWindow);
 			mainWindow = NULL;
@@ -309,53 +313,53 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 
 	if (!GLimp_InitGL())
 	{
-		VID_Printf( PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
+		VID_Printf(PRINT_ALL, "GLimp_SetMode() - GLimp_InitGL failed\n");
 		return rserr_unknown;
 	}
 
 
 
 	SDL_VERSION(&mainWindowInfo.version); // initialize info structure with SDL version info
-	SDL_GetWindowWMInfo(mainWindow,&mainWindowInfo);
+	SDL_GetWindowWMInfo(mainWindow, &mainWindowInfo);
 
 	SDL_ShowWindow(mainWindow);
 	SDL_RaiseWindow(mainWindow);
 
 #ifdef _WIN32
-	if(mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+	if (mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 		SetForegroundWindow(mainWindowInfo.info.win.window);
-	if(fullscreen)
-		SetWindowLong( mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST );
+	if (fullscreen)
+		SetWindowLong(mainWindowInfo.info.win.window, GWL_EXSTYLE, WS_EX_TOPMOST);
 #endif
 
 
 	{
 		int x, y, w, h;
 		SDL_DisplayMode mode;
-		if (!SDL_GetWindowDisplayMode(mainWindow,&mode))
+		if (!SDL_GetWindowDisplayMode(mainWindow, &mode))
 		{
-			VID_Printf(PRINT_ALL, "...display set to %ix%i\n",mode.w,mode.h);
+			VID_Printf(PRINT_ALL, "...display set to %ix%i\n", mode.w, mode.h);
 		}
 
-		SDL_GetWindowPosition(mainWindow,&x,&y);
-		SDL_GetWindowSize(mainWindow,&w,&h);
+		SDL_GetWindowPosition(mainWindow, &x, &y);
+		SDL_GetWindowSize(mainWindow, &w, &h);
 
 		if (fullscreen)
 		{
 			SDL_Rect rect;
 			int index;
 			index = SDL_GetWindowDisplayIndex(mainWindow);
-			SDL_GetDisplayBounds(index,&rect);
+			SDL_GetDisplayBounds(index, &rect);
 			x += rect.x;
 			y += rect.y;
 		}
 
-		VID_Printf(PRINT_ALL,"...window is %ix%i and at (%i,%i)\n",w,h,x,y);
+		VID_Printf(PRINT_ALL, "...window is %ix%i and at (%i,%i)\n", w, h, x, y);
 	}
 
-	SDL_SetWindowGrab(mainWindow,SDL_TRUE);
-	
-	Com_Printf("%s relative mouse mode...\n",RelativeMouse?"Available":"Not available");
+	SDL_SetWindowGrab(mainWindow, SDL_TRUE);
+
+	Com_Printf("%s relative mouse mode...\n", RelativeMouse ? "Available" : "Not available");
 
 	if (fs_desktop)
 	{
@@ -363,17 +367,18 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 		width = Cvar_VariableInteger("vid_width");
 		height = Cvar_VariableInteger("vid_height");
 
-		SDL_GL_GetDrawableSize(mainWindow,&screenWidth,&screenHeight);
-		VID_Printf(PRINT_ALL,"Got framebuffer size %ix%i...\n",screenWidth,screenHeight);
-		VID_Printf(PRINT_ALL,"Set render target size to %ix%i...\n",width,height);
-		VID_NewWindow (width,height);
+		SDL_GL_GetDrawableSize(mainWindow, &screenWidth, &screenHeight);
+		VID_Printf(PRINT_ALL, "Got framebuffer size %ix%i...\n", screenWidth, screenHeight);
+		VID_Printf(PRINT_ALL, "Set render target size to %ix%i...\n", width, height);
+		VID_NewWindow(width, height);
 		*pwidth = width;
 		*pheight = height;
 
-	} else {
-		SDL_GL_GetDrawableSize(mainWindow,&width,&height);
-		VID_Printf(PRINT_ALL,"Set window to size %ix%i...\n",width,height);
-		VID_NewWindow (width, height);
+	}
+	else {
+		SDL_GL_GetDrawableSize(mainWindow, &width, &height);
+		VID_Printf(PRINT_ALL, "Set window to size %ix%i...\n", width, height);
+		VID_NewWindow(width, height);
 		*pwidth = width;
 		*pheight = height;
 	}
@@ -390,7 +395,7 @@ rserr_t GLimp_SetMode ( int32_t *pwidth, int32_t *pheight )
 ** for the window.  The state structure is also nulled out.
 **
 */
-void GLimp_Shutdown( void )
+void GLimp_Shutdown(void)
 {
 	//end Knightmare
 	SDL_GL_DeleteContext(glcontext);
@@ -407,51 +412,62 @@ void GLimp_Shutdown( void )
 ** of OpenGL.  Under Win32 this means dealing with the pixelformats and
 ** doing the wgl interface stuff.
 */
-qboolean GLimp_Init( )
+qboolean GLimp_Init()
 {
 	return true;
 }
 
-qboolean GLimp_InitGL (void)
+qboolean GLimp_InitGL(void)
 {
 	SDL_DisplayMode currentMode;
 	int srgb = 0;
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
 	{
-		VID_Printf (PRINT_ALL, "GLimp_Init() - SDL_GL_CreateContext failed\n");
+		VID_Printf(PRINT_ALL, "GLimp_Init() - SDL_GL_CreateContext failed\n");
 
 		goto fail;
 	}
 
 	glewExperimental = GL_TRUE;
-	if ( glewInit() != GLEW_OK)
+	if (glewInit() != GLEW_OK)
 	{
-		VID_Printf( PRINT_ALL, "GLimp_Init() - glewInit failed\n");
+		VID_Printf(PRINT_ALL, "GLimp_Init() - glewInit failed\n");
 		goto fail;
 	}
 
-	if ( !VerifyDriver() )
+	if (!VerifyDriver())
 	{
-		VID_Printf( PRINT_ALL, "GLimp_Init() - no hardware acceleration detected.\nPlease install drivers provided by your video card/GPU vendor.\n" );
+		VID_Printf(PRINT_ALL, "GLimp_Init() - no hardware acceleration detected.\nPlease install drivers provided by your video card/GPU vendor.\n");
 		goto fail;
 	}
 
 
 	//Knightmare- 12/24/2001- stencil buffer
 	{
-		VID_Printf( PRINT_ALL, "... Using stencil buffer\n" );
+		VID_Printf(PRINT_ALL, "... Using stencil buffer\n");
 		glConfig.have_stencil = true; // Stencil shadows - MrG
 	}
 
-	SDL_GetWindowDisplayMode(mainWindow,&currentMode);
+	SDL_GetWindowDisplayMode(mainWindow, &currentMode);
 	glConfig.refresh_rate = (uint32_t) currentMode.refresh_rate;
-	SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE,&srgb);
-	glConfig.srgb_framebuffer = srgb ? 1 : 0;
-	if (!glConfig.srgb_framebuffer)
-		Cvar_SetInteger("vid_srgb",0);
 
-	SDL_GL_GetDrawableSize(mainWindow,&glConfig.window_width,&glConfig.window_height);
+	glConfig.srgb_framebuffer = 0;
+	screenFBO.status &= ~FBO_SRGB;
+	if (vid_srgb->integer) {
+		SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, &srgb);
+
+		glConfig.srgb_framebuffer = srgb ? 1 : 0;
+
+		if (glConfig.srgb_framebuffer) {
+
+			screenFBO.status |= FBO_SRGB;
+		}
+		else {
+			Cvar_SetInteger("vid_srgb", 0);
+		}
+	}
+	SDL_GL_GetDrawableSize(mainWindow, &glConfig.window_width, &glConfig.window_height);
 
 	return true;
 
@@ -464,9 +480,9 @@ fail:
 /*
 ** GLimp_BeginFrame
 */
-void GLimp_BeginFrame( )
+void GLimp_BeginFrame()
 {
-	if ( r_bitdepth->modified )
+	if (r_bitdepth->modified)
 	{
 		r_bitdepth->modified = false;
 	}
@@ -476,29 +492,29 @@ void GLimp_BeginFrame( )
 
 /*
 ** GLimp_EndFrame
-** 
+**
 ** Responsible for doing a swapbuffers and possibly for other stuff
 ** as yet to be determined.  Probably better not to make this a GLimp
 ** function and instead do a call to GLimp_SwapBuffers.
 */
-void GLimp_EndFrame (void)
+void GLimp_EndFrame(void)
 {
-	SDL_GL_SwapWindow( mainWindow);
+	SDL_GL_SwapWindow(mainWindow);
 }
 
 /*
 ** GLimp_AppActivate
 */
-void GLimp_AppActivate( qboolean active )
+void GLimp_AppActivate(qboolean active)
 {
-	if ( active )
+	if (active)
 	{
 		if (mainWindow)
 		{
 			SDL_ShowWindow(mainWindow);
 			SDL_RaiseWindow(mainWindow);
 #ifdef _WIN32
-			if((vid_fullscreen->value || (vr_enabled->value && vr_force_fullscreen->value)) && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
+			if ((vid_fullscreen->value || (vr_enabled->value && vr_force_fullscreen->value)) && mainWindowInfo.subsystem == SDL_SYSWM_WINDOWS)
 				SetForegroundWindow(mainWindowInfo.info.win.window);
 #endif
 		}

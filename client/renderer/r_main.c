@@ -1841,7 +1841,7 @@ void R_BeginFrame()
 		// normalize from 0 to 1
 		bright = (vid_brightness->value - BRIGHTNESS_MIN) / BRIGHTNESS_DIFF;
 		
-		if (glConfig.srgb_framebuffer && vid_srgb->value)
+		if (glConfig.srgb_framebuffer)
 		{
 			// compress gamma from 0.5 - 1.2
 			vid_gamma = bright * 0.6  + 0.5;
@@ -1865,7 +1865,6 @@ void R_BeginFrame()
 		R_AntialiasSetFBOSize(&viewFBO);
 		R_ClearFBO(&viewFBO);
 		R_StereoFrame(&viewFBO);
-
 	}
 	
 	//
@@ -1906,7 +1905,7 @@ void R_EndFrame(void)
 {
 	int32_t		err;
 	fbo_t *frame = &viewFBO;
-	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && vid_srgb->integer);
+
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
 
@@ -1917,8 +1916,8 @@ void R_EndFrame(void)
 	GL_SetIdentity(GL_MODELVIEW);
 	GL_Disable(GL_DEPTH_TEST);
 	GL_Disable(GL_ALPHA_TEST);
-	R_VR_EndFrame();
-	R_Stereo_EndFrame(frame);
+	R_VR_EndFrame(&viewFBO);
+	R_Stereo_EndFrame(&viewFBO);
 
 	R_BindFBO(&screenFBO);
 	R_Clear();
@@ -1928,18 +1927,9 @@ void R_EndFrame(void)
 	{
 		frame = R_VR_GetFrameFBO();
 	} 
-
-	if (srgb)
-	{
-		glEnable(GL_FRAMEBUFFER_SRGB);
-	}	
-
+	
 	R_BlitWithGamma(frame->texture,vid_gamma);
 
-	if (srgb)
-	{
-		glDisable(GL_FRAMEBUFFER_SRGB);
-	}	
 	if (vrState.enabled)
 		R_VR_PostGammaPresent();
 
