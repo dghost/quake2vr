@@ -1053,14 +1053,14 @@ void R_RenderFrame (refdef_t *fd)
 void R_Register (void)
 {
 	// added Psychospaz's console font size option
-	con_font = Cvar_Get ("con_font", "default", CVAR_ARCHIVE);
-	con_font_size = Cvar_Get ("con_font_size", "8", CVAR_ARCHIVE);
-	alt_text_color = Cvar_Get ("alt_text_color", "2", CVAR_ARCHIVE);
-	scr_netgraph_pos = Cvar_Get ("netgraph_pos", "0", CVAR_ARCHIVE);
+	con_font = Cvar_Get("con_font", "default", CVAR_CLIENT);
+	con_font_size = Cvar_Get("con_font_size", "8", CVAR_CLIENT);
+	alt_text_color = Cvar_Get("alt_text_color", "2", CVAR_CLIENT);
+	scr_netgraph_pos = Cvar_Get("netgraph_pos", "0", CVAR_CLIENT);
 
 	gl_driver = Cvar_Get( "gl_driver", "opengl32", CVAR_NOSET );
 
-	r_lefthand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
+	r_lefthand = Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_CLIENT);
 	r_norefresh = Cvar_Get ("r_norefresh", "0", CVAR_CHEAT);
 	r_fullbright = Cvar_Get ("r_fullbright", "0", CVAR_CHEAT);
 	r_drawentities = Cvar_Get ("r_drawentities", "1", 0);
@@ -1069,41 +1069,41 @@ void R_Register (void)
 	r_nocull = Cvar_Get ("r_nocull", "0", CVAR_CHEAT);
 	r_lerpmodels = Cvar_Get ("r_lerpmodels", "1", 0);
 	r_speeds = Cvar_Get ("r_speeds", "0", 0);
-	r_ignorehwgamma = Cvar_Get ("r_ignorehwgamma", "0", CVAR_ARCHIVE);	// hardware gamma
-	vid_refresh = Cvar_Get ("vid_refresh", "0", CVAR_ARCHIVE); // refresh rate control
+	r_ignorehwgamma = Cvar_Get("r_ignorehwgamma", "0", CVAR_CLIENT);	// hardware gamma
+	vid_refresh = Cvar_Get ("vid_refresh", "0", CVAR_CLIENT); // refresh rate control
 	Cvar_AssertRange(vid_refresh, 0, 150, true);
 
-	vid_width = Cvar_Get( "vid_width", "1280", CVAR_ARCHIVE );
-	vid_height = Cvar_Get( "vid_height", "800", CVAR_ARCHIVE );
+	vid_width = Cvar_Get("vid_width", "1280", CVAR_CLIENT);
+	vid_height = Cvar_Get("vid_height", "800", CVAR_CLIENT);
 
 	// lerped dlights on models
-	r_dlights_normal = Cvar_Get("r_dlights_normal", "1", CVAR_ARCHIVE);
-	r_model_shading = Cvar_Get( "r_model_shading", "3", CVAR_ARCHIVE );
-	r_model_dlights = Cvar_Get( "r_model_dlights", "8", CVAR_ARCHIVE );
+	r_dlights_normal = Cvar_Get("r_dlights_normal", "1", CVAR_CLIENT);
+	r_model_shading = Cvar_Get("r_model_shading", "3", CVAR_CLIENT);
+	r_model_dlights = Cvar_Get("r_model_dlights", "8", CVAR_CLIENT);
 
 	r_lightlevel = Cvar_Get ("r_lightlevel", "0", 0);
 	// added Vic's RGB brightening
-	r_rgbscale = Cvar_Get ("r_rgbscale", "1", CVAR_ARCHIVE);
+	r_rgbscale = Cvar_Get("r_rgbscale", "1", CVAR_CLIENT);
 
-	r_waterwave = Cvar_Get ("r_waterwave", "0", CVAR_ARCHIVE );
-	r_waterquality = Cvar_Get ("r_waterquality","2",CVAR_ARCHIVE );
-	r_glows = Cvar_Get ("r_glows", "1", CVAR_ARCHIVE );
-	r_saveshotsize = Cvar_Get ("r_saveshotsize", "1", CVAR_ARCHIVE );
+	r_waterwave = Cvar_Get("r_waterwave", "0", CVAR_CLIENT);
+	r_waterquality = Cvar_Get("r_waterquality", "2", CVAR_CLIENT);
+	r_glows = Cvar_Get("r_glows", "1", CVAR_CLIENT);
+	r_saveshotsize = Cvar_Get("r_saveshotsize", "1", CVAR_CLIENT);
 
 	// correct trasparent sorting
-	r_transrendersort = Cvar_Get ("r_transrendersort", "1", CVAR_ARCHIVE );
-	r_particle_lighting = Cvar_Get ("r_particle_lighting", "1.0", CVAR_ARCHIVE );
-	r_particledistance = Cvar_Get ("r_particledistance", "0", CVAR_ARCHIVE );
-	r_particle_overdraw = Cvar_Get ("r_particle_overdraw", "1", CVAR_ARCHIVE );
-	r_particle_min = Cvar_Get ("r_particle_min", "0", CVAR_ARCHIVE );
-	r_particle_max = Cvar_Get ("r_particle_max", "0", CVAR_ARCHIVE );
+	r_transrendersort = Cvar_Get("r_transrendersort", "1", CVAR_CLIENT);
+	r_particle_lighting = Cvar_Get("r_particle_lighting", "1.0", CVAR_CLIENT);
+	r_particledistance = Cvar_Get("r_particledistance", "0", CVAR_CLIENT);
+	r_particle_overdraw = Cvar_Get("r_particle_overdraw", "1", CVAR_CLIENT);
+	r_particle_min = Cvar_Get("r_particle_min", "0", CVAR_CLIENT);
+	r_particle_max = Cvar_Get("r_particle_max", "0", CVAR_CLIENT);
 
-	r_modulate = Cvar_Get ("r_modulate", "1", CVAR_ARCHIVE );
+	r_modulate = Cvar_Get("r_modulate", "1", CVAR_CLIENT);
 	r_bitdepth = Cvar_Get( "r_bitdepth", "0", 0 );
 	r_lightmap = Cvar_Get ("r_lightmap", "0", 0);
-	r_shadows = Cvar_Get ("r_shadows", "0", CVAR_ARCHIVE );
-	r_shadowalpha = Cvar_Get ("r_shadowalpha", "0.4", CVAR_ARCHIVE );
-	r_shadowrange  = Cvar_Get ("r_shadowrange", "768", CVAR_ARCHIVE );
+	r_shadows = Cvar_Get("r_shadows", "0", CVAR_CLIENT);
+	r_shadowalpha = Cvar_Get("r_shadowalpha", "0.4", CVAR_CLIENT);
+	r_shadowrange = Cvar_Get("r_shadowrange", "768", CVAR_CLIENT);
 	r_shadowvolumes = Cvar_Get ("r_shadowvolumes", "0", CVAR_CHEAT );
 	r_stencil = Cvar_Get ("r_stencil", "1", CVAR_ARCHIVE );
 
@@ -1113,55 +1113,55 @@ void R_Register (void)
 	r_skymip = Cvar_Get ("r_skymip", "0", 0);
 	r_showtris = Cvar_Get ("r_showtris", "0", CVAR_CHEAT);
 	r_showbbox = Cvar_Get ("r_showbbox", "0", CVAR_CHEAT); // show model bounding box
-	r_finish = Cvar_Get ("r_finish", "0", CVAR_ARCHIVE);
+	r_finish = Cvar_Get("r_finish", "0", CVAR_CLIENT);
 	r_cull = Cvar_Get ("r_cull", "1", 0);
 	r_polyblend = Cvar_Get ("r_polyblend", "1", 0);
 	r_flashblend = Cvar_Get ("r_flashblend", "0", 0);
 	r_playermip = Cvar_Get ("r_playermip", "0", 0);
 	// changed default texture mode to bilinear
-	r_texturemode = Cvar_Get( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
+	r_texturemode = Cvar_Get("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_CLIENT);
 
-	r_lodbias = Cvar_Get("r_lodbias","0",CVAR_ARCHIVE);
-	r_anisotropic = Cvar_Get( "r_anisotropic", "0", CVAR_ARCHIVE );
+	r_lodbias = Cvar_Get("r_lodbias", "0", CVAR_CLIENT);
+	r_anisotropic = Cvar_Get("r_anisotropic", "0", CVAR_CLIENT);
 	r_anisotropic_avail = Cvar_Get( "r_anisotropic_avail", "0", 0 );
 	r_lockpvs = Cvar_Get( "r_lockpvs", "0", 0 );
-	r_texturecompression = Cvar_Get("r_texturecompression","2", CVAR_ARCHIVE);
+	r_texturecompression = Cvar_Get("r_texturecompression", "2", CVAR_CLIENT);
 
 	//gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "0", CVAR_ARCHIVE );
 	//gl_ext_pointparameters = Cvar_Get( "gl_ext_pointparameters", "1", CVAR_ARCHIVE );
-	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "0", CVAR_ARCHIVE /*| CVAR_LATCH*/);
+	r_nonpoweroftwo_mipmaps = Cvar_Get("r_nonpoweroftwo_mipmaps", "0", CVAR_CLIENT /*| CVAR_LATCH*/);
 
 	// allow disabling of lightmaps on trans surfaces
-	r_trans_lighting = Cvar_Get( "r_trans_lighting", "1", CVAR_ARCHIVE );
+	r_trans_lighting = Cvar_Get("r_trans_lighting", "1", CVAR_CLIENT);
 
 	// allow disabling of lighting on warp surfaces
-	r_warp_lighting = Cvar_Get( "r_warp_lighting", "1", CVAR_ARCHIVE );
+	r_warp_lighting = Cvar_Get("r_warp_lighting", "1", CVAR_CLIENT);
 
 	// allow disabling of trans33+trans66 surface flag combining
-	r_solidalpha = Cvar_Get( "r_solidalpha", "1", CVAR_ARCHIVE );
+	r_solidalpha = Cvar_Get("r_solidalpha", "1", CVAR_CLIENT);
 	
 	// allow disabling of backwards alias model roll
-	r_entity_fliproll = Cvar_Get( "r_entity_fliproll", "1", CVAR_ARCHIVE );	
+	r_entity_fliproll = Cvar_Get("r_entity_fliproll", "1", CVAR_CLIENT);
 
 	// added Psychospaz's envmapping
-	r_glass_envmaps = Cvar_Get( "r_glass_envmaps", "1", CVAR_ARCHIVE );
-	r_trans_surf_sorting = Cvar_Get( "r_trans_surf_sorting", "0", CVAR_ARCHIVE );
-	r_shelltype = Cvar_Get( "r_shelltype", "1", CVAR_ARCHIVE );
+	r_glass_envmaps = Cvar_Get("r_glass_envmaps", "1", CVAR_CLIENT);
+	r_trans_surf_sorting = Cvar_Get("r_trans_surf_sorting", "0", CVAR_CLIENT);
+	r_shelltype = Cvar_Get("r_shelltype", "1", CVAR_CLIENT);
 
-	r_swapinterval = Cvar_Get( "r_swapinterval", "1", CVAR_ARCHIVE );
-	r_adaptivevsync = Cvar_Get( "r_adaptivevsync", "1", CVAR_ARCHIVE );
+	r_swapinterval = Cvar_Get("r_swapinterval", "1", CVAR_CLIENT);
+	r_adaptivevsync = Cvar_Get("r_adaptivevsync", "1", CVAR_CLIENT);
 
-	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_ARCHIVE); // variable sky range
-	r_saturation = Cvar_Get( "r_saturation", "1.0", CVAR_ARCHIVE );	//** DMP saturation setting (.89 good for nvidia)
-	r_lightcutoff = Cvar_Get( "r_lightcutoff", "0", CVAR_ARCHIVE );	//** DMP dynamic light cutoffnow variable
+	r_skydistance = Cvar_Get("r_skydistance", "10000", CVAR_CLIENT); // variable sky range
+	r_saturation = Cvar_Get("r_saturation", "1.0", CVAR_CLIENT);	//** DMP saturation setting (.89 good for nvidia)
+	r_lightcutoff = Cvar_Get("r_lightcutoff", "0", CVAR_CLIENT);	//** DMP dynamic light cutoffnow variable
 
-	r_drawnullmodel = Cvar_Get("r_drawnullmodel","0", CVAR_ARCHIVE );
-	r_fencesync = Cvar_Get("r_fencesync","0",CVAR_ARCHIVE );
-	r_lateframe_decay = Cvar_Get("r_lateframe_decay","10",CVAR_ARCHIVE);
-	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold","20",CVAR_ARCHIVE);
-	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio","0.35",CVAR_ARCHIVE);
-	r_directstate = Cvar_Get("r_directstate","1",CVAR_ARCHIVE);
-	r_driver_workarounds = Cvar_Get("r_driver_workarounds","1",CVAR_ARCHIVE);
+	r_drawnullmodel = Cvar_Get("r_drawnullmodel", "0", CVAR_CLIENT);
+	r_fencesync = Cvar_Get("r_fencesync", "0", CVAR_CLIENT);
+	r_lateframe_decay = Cvar_Get("r_lateframe_decay", "10", CVAR_CLIENT);
+	r_lateframe_threshold = Cvar_Get("r_lateframe_threshold", "20", CVAR_CLIENT);
+	r_lateframe_ratio = Cvar_Get("r_lateframe_ratio", "0.35", CVAR_CLIENT);
+	r_directstate = Cvar_Get("r_directstate", "1", CVAR_CLIENT);
+	r_driver_workarounds = Cvar_Get("r_driver_workarounds", "1", CVAR_CLIENT);
 
 	Cmd_AddCommand ("imagelist", R_ImageList_f);
 	Cmd_AddCommand ("screenshot", R_ScreenShot_f);
