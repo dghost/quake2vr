@@ -302,42 +302,36 @@ void R_BlitFlipped(GLuint texture)
 }
 
 
-#ifdef OCULUS_LEGACY
-extern cvar_t *vr_enabled, *vr_ovr_dk2_color_hack;
-float VR_OVR_GetGammaMin();
-#endif
+
+void R_SetupGamma(float gamma) {
+	glUseProgram(gammaAdjust.shader->program);
+	glUniform1f(gammaAdjust.gamma_uniform, gamma);
+	glUniform2f(gammaAdjust.scale_uniform, 1.0, 1.0);
+	glUniform3f(gammaAdjust.mincolor_uniform, 0.0, 0.0, 0.0);
+}
+
+void R_TeardownGamma() {
+	glUseProgram(0);
+}
+
 void R_BlitWithGamma(GLuint texture, float gamma)
 {
 	GL_MBind(0,texture);
-	glUseProgram(gammaAdjust.shader->program);
-	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
-	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);
-#ifdef OCULUS_LEGACY
-	if (((int32_t) vr_enabled->value) == HMD_OVR && vr_ovr_dk2_color_hack->value)
-	{
-		float value = VR_OVR_GetGammaMin();
-		glUniform3f(gammaAdjust.mincolor_uniform,value,value,value);
-	} else
-#endif
-		glUniform3f(gammaAdjust.mincolor_uniform,0.0,0.0,0.0);	
-
+	R_SetupGamma(gamma);
 	R_DrawQuad();
 	GL_MBind(0,0);
-	glUseProgram(0);
+	R_TeardownGamma();
 }
 
 void R_BlitWithGammaFlipped(GLuint texture, float gamma)
 {
 	GL_MBind(0,texture);
-	glUseProgram(gammaAdjust.shader->program);
-	glUniform1f(gammaAdjust.gamma_uniform,gamma);	
-	glUniform2f(gammaAdjust.scale_uniform,1.0,1.0);
-	glUniform3f(gammaAdjust.mincolor_uniform,0.0,0.0,0.0);	
+	R_SetupGamma(gamma);
 	R_SetupInvQuadState();
 	glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 	R_TeardownQuadState();
 	GL_MBind(0,0);
-	glUseProgram(0);
+	R_TeardownGamma();
 }
 
 

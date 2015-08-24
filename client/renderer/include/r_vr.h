@@ -15,8 +15,6 @@ typedef struct {
 } vr_rectf_t;
 
 typedef struct {
-	qboolean enabled;
-	qboolean swapToScreen;
 	float viewFovY;
 	float viewFovX;
 	float pixelScale;
@@ -27,17 +25,24 @@ typedef struct {
 
 extern vr_param_t vrState;
 
+typedef enum {
+	VR_ENABLED = 0x1,
+	VR_INDIRECT_DRAW = 0x2
+} vr_status_t;
+
+extern vr_status_t vrStatus;
+
 typedef struct {
 	hmd_t type;
 	int32_t (*init)(void);
 	int32_t (*enable)(void);
 	void (*disable)(void);
 	void (*frameStart)(void);
+	void(*setOffscreenSize)(uint32_t width, uint32_t height);
 	void (*getState)(vr_param_t *state);
-	void (*present)(qboolean loading);
-	void (*postPresent)(void);
-	fbo_t *(*getScreenFBO)(qboolean frameStart);
-	void (*setOffscreenSize)(uint32_t width, uint32_t height);
+	void (*compositeViews)(fbo_t *destination, qboolean loading);
+	void (*hmdDraw)(fbo_t *source);
+	void (*screenDraw)(fbo_t *destination);
 } hmd_render_t;
 
 typedef struct {
@@ -54,8 +59,8 @@ void R_VR_Shutdown();
 void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
-void R_VR_EndFrame();
-void R_VR_PostGammaPresent();
+void R_VR_EndFrame(fbo_t *destination);
+void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination);
 void R_VR_GetFOV(float *fovx, float *fovy);
 fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();

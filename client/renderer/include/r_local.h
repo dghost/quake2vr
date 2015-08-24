@@ -483,7 +483,6 @@ typedef struct {
 } fbo_t;
 
 int32_t R_GenFBO(int32_t width, int32_t height, int32_t bilinear, GLenum format, fbo_t *FBO);
-int32_t R_GenFBOFromTexture(GLuint tex, int32_t width, int32_t height, GLenum format, fbo_t *FBO);
 int32_t R_ResizeFBO(int32_t width, int32_t height, int32_t bilinear,GLenum format, fbo_t *FBO);
 void R_SetFBOFilter(int32_t bilinear, fbo_t *FBO);
 void R_DelFBO(fbo_t *FBO);

@@ -68,6 +68,7 @@ static r_shaderobject_t vr_shader_distort_chrm = {
 
 vr_distort_shader_t vr_distort_shaders[2];
 vr_param_t vrState;
+vr_status_t vrStatus;
 
 vec_t vr_hud_yaw = 0;
 
@@ -289,28 +290,14 @@ void R_VR_StartFrame()
 
 void R_VR_GetFOV(float *fovx, float *fovy)
 {
-	if (!hmd)
-		return;
-
 	*fovx = vrState.viewFovX * vr_autofov_scale->value;
 	*fovy = vrState.viewFovY * vr_autofov_scale->value;
 }
 
 fbo_t* R_VR_GetHUDFBO()
 {
-	if (!hmd)
-		return NULL;
-	
 	return &hud;
 }
-
-fbo_t* R_VR_GetFrameFBO()
-{
-	if (!hmd)
-		return NULL;
-	return hmd->getScreenFBO(false);	
-}
-
 
 void R_VR_DrawHud()
 {
@@ -318,7 +305,7 @@ void R_VR_DrawHud()
 	vec_t mat[4][4], temp[4][4], counter[4][4], accum[4][4];
 	vec3_t rot, pos;
 
-	if (!vrState.enabled)
+	if (!vrStatus)
 		return;
 
 	// force pumping of these values;
@@ -432,12 +419,10 @@ void R_VR_DrawHud()
 }
 
 
-void R_VR_EndFrame()
+void R_VR_EndFrame(fbo_t *destination)
 {
-	if (hmd && vrState.enabled)
+	if (vrStatus)
 	{
-		GL_Disable(GL_DEPTH_TEST);
-
 		//draw the HUD into specific views
 		R_VR_DrawHud();
 
@@ -445,15 +430,25 @@ void R_VR_EndFrame()
 		GL_SetIdentity(GL_PROJECTION);
 		GL_SetIdentity(GL_MODELVIEW);
 
+		R_BindFBO(destination);
+
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+
 		// tell the HMD renderer to draw composited scene
-		hmd->present((qboolean) (loadingScreen || (vr_aimmode->value == 0)));
+		hmd->compositeViews(destination, (qboolean) (loadingScreen || (vr_aimmode->value == 0)));
+		R_BindFBO(&screenFBO);
 	}
 }
 
-void R_VR_PostGammaPresent()
+void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination)
 {
-	if (hmd && hmd->postPresent)
-		hmd->postPresent();
+	//hmd->indirectDraw(source, destination);
+	//R_BindFBO(destination);
+	//R_Clear();
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	//R_BlitWithGamma(source->texture, vid_gamma);
+	hmd->hmdDraw(source);
+	hmd->screenDraw(destination);
 }
 
 // util function
@@ -482,8 +477,8 @@ void R_VR_Enable()
 	leftStale = 1;
 	rightStale = 1;
 	hudStale = 1;
-	vrState.enabled = false;
-	vrState.swapToScreen = true;
+	vrStatus = 0;
+
 			
 	if (glConfig.ext_framebuffer_object && glConfig.ext_packed_depth_stencil)
 	{
@@ -523,6 +518,9 @@ void R_VR_Enable()
 
 		R_CreateIVBO(&hudVBO, GL_STATIC_DRAW);
 		R_VR_GenerateHud();
+		vrStatus |= VR_ENABLED;
+		if (hmd->hmdDraw && hmd->screenDraw)
+			vrStatus |= VR_INDIRECT_DRAW;
 	}
 	else {
 		Com_Printf("VR: Cannot initialize renderer due to missing OpenGL extensions\n");
@@ -543,9 +541,7 @@ void R_VR_Disable()
 	R_BindFBO(&screenFBO);
 	
 	vrState.pixelScale = 1.0;
-	vrState.enabled = false;
-	vrState.swapToScreen = true;
-
+	vrStatus = 0;
 
 	if (hmd && hmd->disable)
 		hmd->disable();

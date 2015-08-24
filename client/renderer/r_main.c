@@ -276,7 +276,7 @@ void R_SetFrustum (void)
 	float	fov_y = r_newrefdef.fov_y;
 
 	// hack to keep objects from disappearing at the edges when projection matrix is offset
-	if (vrState.enabled)
+	if (vrStatus)
 	{
 //		fov_y *= 1.30;
 		fov_x += 20;
@@ -535,7 +535,7 @@ void VR_DrawCrosshair()
 
 	float	scaledSize, alpha, pulsealpha;
 	
-	if (!vrState.enabled || scr_hidehud)
+	if (!vrStatus || scr_hidehud)
 		return;
 	
 	SCR_DrawCrosshair();
@@ -1814,7 +1814,7 @@ void R_BeginFrame()
 	//
 	if ( vid_fullscreen->modified )
 	{	// FIXME: only restart if CDS is required
-		if (!vrState.enabled || !vr_force_fullscreen->value)
+		if (!vrStatus || !vr_force_fullscreen->value)
 			GLimp_SetFullscreen((qboolean) vid_fullscreen->value);
 		vid_fullscreen->modified=false;
 	}
@@ -1856,13 +1856,13 @@ void R_BeginFrame()
 	R_BindFBO(&screenFBO);
 
 	R_AntialiasStartFrame();
+	R_AntialiasSetFBOSize(&viewFBO);
 
 
-	if (vrState.enabled)
+	if (vrStatus)
 	{
 		R_VR_StartFrame();
 	} else {
-		R_AntialiasSetFBOSize(&viewFBO);
 		R_ClearFBO(&viewFBO);
 		R_StereoFrame(&viewFBO);
 	}
@@ -1916,26 +1916,23 @@ void R_EndFrame(void)
 	GL_SetIdentity(GL_MODELVIEW);
 	GL_Disable(GL_DEPTH_TEST);
 	GL_Disable(GL_ALPHA_TEST);
-	R_VR_EndFrame(&viewFBO);
-	R_Stereo_EndFrame(&viewFBO);
 
-	R_BindFBO(&screenFBO);
-	R_Clear();
-	glColor4f(1.0,1.0,1.0,1.0);
+	R_VR_EndFrame(frame);
+	R_Stereo_EndFrame(frame);
 
-	if (vrState.enabled)
-	{
-		frame = R_VR_GetFrameFBO();
-	} 
-	
-	R_BlitWithGamma(frame->texture,vid_gamma);
-
-	if (vrState.enabled)
-		R_VR_PostGammaPresent();
+	if (vrStatus & VR_INDIRECT_DRAW) {
+		R_VR_IndirectDraw(frame, &screenFBO);
+	}
+	else {
+		R_BindFBO(&screenFBO);
+		R_Clear();
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+		R_BlitWithGamma(frame->texture, vid_gamma);
+	}
 
 	lastFrame = frame;
-	if (!vrState.enabled || vrState.swapToScreen)
-		GLimp_EndFrame();
+
+	GLimp_EndFrame();
 	
 	R_FrameFence();
 }

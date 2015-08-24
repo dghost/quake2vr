@@ -8,7 +8,7 @@
 #include "../vr/include/vr_steamvr.h"
 
 //static fbo_t world;
-static fbo_t left, right, offscreen;
+static fbo_t left, right;
 
 static vr_rect_t renderTargetRect, origTargetRect;
 static vr_rect_t leftRenderRect, rightRenderRect;
@@ -88,10 +88,6 @@ void SVR_BuildDistortionTextures()
 	Z_Free(normalTexture);
 }
 
-fbo_t *SVR_GetScreenFBO(qboolean frameStart) {
-	return &offscreen;
-}
-
 void SVR_SetOffscreenSize(uint32_t width, uint32_t height) {
 	origTargetRect.x = 0;
 	origTargetRect.y = 0;
@@ -107,7 +103,6 @@ void SVR_SetOffscreenSize(uint32_t width, uint32_t height) {
 	}
 
 	Com_Printf("VR_SVR: Set render target size to %ux%u\n", renderTargetRect.width, renderTargetRect.height);
-	R_ResizeFBO(width, height, 1, GL_RGBA8, &offscreen);
 }
 
 
@@ -138,8 +133,6 @@ void SVR_GetState(vr_param_t *state)
 	float ipd = svr_settings.ipd;
 	int index = 0;
 
-	svrState.enabled = true;
-	svrState.swapToScreen = true;
 	svrState.aspect = svr_settings.aspect;
 	svrState.viewFovX = svr_settings.viewFovX;
 	svrState.viewFovY = svr_settings.viewFovY;
@@ -162,12 +155,8 @@ void SVR_GetState(vr_param_t *state)
 }
 
 void R_Clear (void);
-void SVR_Present(qboolean loading)
+void SVR_Present(fbo_t *destination, qboolean loading)
 {
-//	GL_SetIdentityOrtho(GL_PROJECTION, 0, svr_settings.width, svr_settings.height, 0, -1, 1);
-	GL_ClearColor(0.0, 0.0, 0.0, 0.0);
-	R_Clear();
-	GL_SetDefaultClearColor();		
 
 	if (!vr_svr_debug->value)
 	{
@@ -183,14 +172,14 @@ void SVR_Present(qboolean loading)
 		GL_EnableMultitexture(true);
 		GL_MBind(0,left.texture);
 		GL_MBind(1,leftDistortion[chromatic]);
-		glViewport(0,0,vid.width / 2.0, vid.height);
+		glViewport(0,0,destination->width / 2.0, destination->height);
 		
 		R_DrawQuad();
 		// draw right eye
 
 		GL_MBind(0,right.texture);
 		GL_MBind(1,rightDistortion[chromatic]);
-		glViewport(vid.width / 2.0,0,vid.width / 2.0, vid.height);
+		glViewport(destination->width / 2.0,0,destination->width / 2.0, destination->height);
 		
 		R_DrawQuad();
 
@@ -203,9 +192,9 @@ void SVR_Present(qboolean loading)
 	} else {
 		R_SetupBlit();
 
-		glViewport(0,0,vid.width / 2.0, vid.height);
+		glViewport(0,0,destination->width / 2.0, destination->height);
 		R_BlitTextureToScreen(left.texture);
-		glViewport(vid.width / 2.0,0,vid.width / 2.0, vid.height);
+		glViewport(destination->width / 2.0,0,destination->width / 2.0, destination->height);
 
 		R_BlitTextureToScreen(rightDistortion[chromatic]);
 		R_TeardownBlit();
@@ -225,9 +214,6 @@ void SVR_Disable(void)
 		R_DelFBO(&left);
 	if (right.status)
 		R_DelFBO(&right);
-	if (offscreen.status)
-		R_DelFBO(&offscreen);
-
 
 	if (leftDistortion)
 		glDeleteTextures(2,&leftDistortion[0]);
@@ -251,8 +237,6 @@ int32_t SVR_Enable(void)
 		R_DelFBO(&left);
 	if (right.status)
 		R_DelFBO(&right);
-	if (offscreen.status)
-		R_DelFBO(&offscreen);
 
 	if (!leftDistortion[0])
 		glGenTextures(2,&leftDistortion[0]);
@@ -279,11 +263,11 @@ hmd_render_t vr_render_svr =
 	SVR_Enable,
 	SVR_Disable,
 	SVR_FrameStart,
+	SVR_SetOffscreenSize,
 	SVR_GetState,
 	SVR_Present,
 	NULL,
-	SVR_GetScreenFBO,
-	SVR_SetOffscreenSize
+	NULL
 };
 
 #endif //NO_STEAM
