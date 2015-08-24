@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_misc.c - particle image loading, and screenshots
 
 #include "include/r_local.h"
+#include "include/r_vr.h"
 #include "SDL.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -251,7 +252,7 @@ void R_GrabScreen (void)
 R_ScreenShot_PNG
 ================== 
 */
-void R_ScreenShot_PNG (qboolean silent)
+void R_ScreenShot_PNG(qboolean silent)
 {
 	byte							*rgbdata;
 	FILE							*file;
@@ -262,61 +263,67 @@ void R_ScreenShot_PNG (qboolean silent)
 	qboolean srgb = (qboolean) (glConfig.srgb_framebuffer && Cvar_VariableInteger("vid_srgb"));
 
 	// Create the scrnshots directory if it doesn't exist
-	Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot", FS_Gamedir());
-	Sys_Mkdir (checkname);
+	Com_sprintf(checkname, sizeof(checkname), "%s/scrnshot", FS_Gamedir());
+	Sys_Mkdir(checkname);
 
 	// Knightmare- changed screenshot filenames, up to 1000 screenies
 	// Find a file name to save it to 
 	//strcpy(picname,"quake00.jpg");
 
 	// rewrite this shit
-	for (i=0; i<=999; i++) 
-	{ 
+	for (i = 0; i <= 999; i++)
+	{
 		//picname[5] = i/10 + '0'; 
 		//picname[6] = i%10 + '0'; 
 		int32_t one, ten, hundred;
 
 		hundred = i*0.01;
-		ten = (i - hundred*100)*0.1;
-		one = i - hundred*100 - ten*10;
+		ten = (i - hundred * 100)*0.1;
+		one = i - hundred * 100 - ten * 10;
 
-		Com_sprintf (picname, sizeof(picname), "q2vr_%i%i%i.png", hundred, ten, one);
-		Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot/%s", FS_Gamedir(), picname);
-		file = fopen (checkname, "rb");
+		Com_sprintf(picname, sizeof(picname), "q2vr_%i%i%i.png", hundred, ten, one);
+		Com_sprintf(checkname, sizeof(checkname), "%s/scrnshot/%s", FS_Gamedir(), picname);
+		file = fopen(checkname, "rb");
 		if (file)
-			fclose (file);
+			fclose(file);
 		else
 			break;	// file doesn't exist
-	} 
-	if (i==1000) 
+	}
+	if (i == 1000)
 	{
-		VID_Printf (PRINT_ALL, "R_ScreenShot_PNG: Couldn't create a file\n"); 
+		VID_Printf(PRINT_ALL, "R_ScreenShot_PNG: Couldn't create a file\n");
 		return;
 	}
 
 	// Open the file for Binary Output
 
 	// Allocate room for a copy of the framebuffer
-	rgbdata = (byte*)Z_TagMalloc(  glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
-	if(!rgbdata)
+	rgbdata = (byte*) Z_TagMalloc(glConfig.render_width * glConfig.render_height * 3, TAG_RENDERER);
+	if (!rgbdata)
 	{
 		return;
 	}
 	R_InitFBO(&captureFBO);
 	if (srgb)
 	{
-		glEnable(GL_FRAMEBUFFER_SRGB);
-		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_SRGB8,&captureFBO);
-	} else {
-		R_GenFBO(glConfig.render_width,glConfig.render_height,0,GL_RGB8,&captureFBO);
+		R_GenFBO(glConfig.render_width, glConfig.render_height, 0, GL_SRGB8, &captureFBO);
 	}
-	R_BindFBO(&captureFBO);
-	R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);
-	R_BindFBO(currentFBO);
-	if (srgb)
+	else {
+		R_GenFBO(glConfig.render_width, glConfig.render_height, 0, GL_RGB8, &captureFBO);
+	}
+	if (vrStatus & VR_INDIRECT_DRAW)
 	{
-		glDisable(GL_FRAMEBUFFER_SRGB);
+		R_VR_DrawToScreenShot(&captureFBO);
 	}
+	else {
+		R_BindFBO(&captureFBO);
+		R_Clear();
+		R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);
+	}
+
+
+	R_BindFBO(currentFBO);
+
 	GL_MBind(0,captureFBO.texture);
 	// Read the framebuffer into our storage
 	glGetTexImage(GL_TEXTURE_2D,0,GL_RGB,GL_UNSIGNED_BYTE,rgbdata);

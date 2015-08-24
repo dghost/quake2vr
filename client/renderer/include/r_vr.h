@@ -38,11 +38,11 @@ typedef struct {
 	int32_t (*enable)(void);
 	void (*disable)(void);
 	void (*frameStart)(void);
-	void(*setOffscreenSize)(uint32_t width, uint32_t height);
+	void (*setOffscreenSize)(uint32_t width, uint32_t height);
 	void (*getState)(vr_param_t *state);
 	void (*compositeViews)(fbo_t *destination, qboolean loading);
-	void (*hmdDraw)(fbo_t *source);
-	void (*screenDraw)(fbo_t *destination);
+	void (*indirectDraw)(fbo_t *source, fbo_t *destination);
+	void (*screenShotDraw)(fbo_t *destination);
 } hmd_render_t;
 
 typedef struct {
@@ -61,6 +61,8 @@ void R_VR_Disable();
 void R_VR_StartFrame();
 void R_VR_EndFrame(fbo_t *destination);
 void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination);
+void R_VR_DrawToScreenShot(fbo_t *destination);
+
 void R_VR_GetFOV(float *fovx, float *fovy);
 fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();

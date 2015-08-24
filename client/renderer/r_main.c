@@ -1904,7 +1904,6 @@ void R_BeginFrame()
 void R_EndFrame(void)
 {
 	int32_t		err;
-	fbo_t *frame = &viewFBO;
 
 	err = glGetError();
 	//	assert( err == GL_NO_ERROR );
@@ -1917,20 +1916,20 @@ void R_EndFrame(void)
 	GL_Disable(GL_DEPTH_TEST);
 	GL_Disable(GL_ALPHA_TEST);
 
-	R_VR_EndFrame(frame);
-	R_Stereo_EndFrame(frame);
+	R_VR_EndFrame(&viewFBO);
+	R_Stereo_EndFrame(&viewFBO);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 
 	if (vrStatus & VR_INDIRECT_DRAW) {
-		R_VR_IndirectDraw(frame, &screenFBO);
+		R_VR_IndirectDraw(&viewFBO, &screenFBO);
 	}
 	else {
 		R_BindFBO(&screenFBO);
 		R_Clear();
-		glColor4f(1.0, 1.0, 1.0, 1.0);
-		R_BlitWithGamma(frame->texture, vid_gamma);
+		R_BlitWithGamma(viewFBO.texture, vid_gamma);
 	}
 
-	lastFrame = frame;
+	lastFrame = &viewFBO;
 
 	GLimp_EndFrame();
 	

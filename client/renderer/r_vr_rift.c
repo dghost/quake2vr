@@ -17,8 +17,8 @@ int32_t Rift_Init(void);
 void Rift_GetState(vr_param_t *state);
 void Rift_PostPresent(void);
 void Rift_SetOffscreenSize(uint32_t width, uint32_t height);
-void Rift_DrawToHMD(fbo_t *source);
-void Rift_DrawToScreen(fbo_t *destination);
+void Rift_IndirectDraw(fbo_t *source, fbo_t *destination);
+void Rift_DrawForScreenshot(fbo_t *destination);
 
 hmd_render_t vr_render_rift =
 {
@@ -30,8 +30,9 @@ hmd_render_t vr_render_rift =
 	Rift_SetOffscreenSize,
 	Rift_GetState,
 	Rift_Present,
-	Rift_DrawToHMD,
-	Rift_DrawToScreen
+	Rift_IndirectDraw,
+	Rift_DrawForScreenshot,
+
 };
 
 rift_render_export_t renderExport;
@@ -167,7 +168,7 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 	ovrScale = (w + h) / 2.0;
 	if (vr_rift_debug->value)
-		Com_Printf("VR_Rift: Set render target scale to %.2f\n", ovrScale);
+		Com_Printf("VR_Rift: Set render target scale to %.2f`\n", ovrScale);
 
 	if (swapTextures)
 		ovrHmd_DestroySwapTextureSet(hmd, swapTextures);
@@ -297,7 +298,7 @@ void Rift_Present(fbo_t *destination, qboolean loading)
 	}
 }
 
-void Rift_DrawToHMD(fbo_t *source)
+void Rift_IndirectDraw(fbo_t *source, fbo_t *destination)
 {
 	ovrGLTextureData *tex = (ovrGLTextureData *) &swapTextures->Textures[currentFBO];
 	ovrLayerHeader* layers = &swapLayer.Header;
@@ -320,13 +321,17 @@ void Rift_DrawToHMD(fbo_t *source)
 
 	result = ovrHmd_SubmitFrame(hmd, 0, NULL, &layers, 1);
 	currentFBO = (currentFBO + 1) % swapTextures->TextureCount;
-}
 
-void Rift_DrawToScreen(fbo_t *destination)
-{
+
 	R_BindFBO(destination);
 	R_Clear();
 	R_BlitFlipped(mirrorTexture->OGL.TexId);
+}
+
+void Rift_DrawForScreenshot(fbo_t *destination) {
+	R_BindFBO(destination);
+	R_Clear();
+	R_BlitTextureToScreen(mirrorTexture->OGL.TexId);
 }
 
 int32_t Rift_Enable(void)
@@ -338,6 +343,7 @@ int32_t Rift_Enable(void)
 		return 0;
 
 
+	R_InitFBO(&swapFBO);
 	for (i = 0; i < 2; i++)
 	{
 		if (renderInfo[i].eyeFBO.status)
@@ -358,10 +364,15 @@ void Rift_Disable(void)
 {
 	int i;
 
-	if (swapTextures)
+	R_DelFBO(&swapFBO);
+	if (swapTextures) {
 		ovrHmd_DestroySwapTextureSet(hmd, swapTextures);
-	if (mirrorTexture)
+		swapTextures = NULL;
+	}
+	if (mirrorTexture) {
 		ovrHmd_DestroyMirrorTexture(hmd, mirrorTexture);
+		mirrorTexture = NULL;
+	}
 
 	for (i = 0; i < 2; i++)
 	{

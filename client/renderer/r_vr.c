@@ -442,13 +442,12 @@ void R_VR_EndFrame(fbo_t *destination)
 
 void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination)
 {
-	//hmd->indirectDraw(source, destination);
-	//R_BindFBO(destination);
-	//R_Clear();
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	//R_BlitWithGamma(source->texture, vid_gamma);
-	hmd->hmdDraw(source);
-	hmd->screenDraw(destination);
+	hmd->indirectDraw(source, destination);
+}
+
+void R_VR_DrawToScreenShot(fbo_t *destination)
+{
+	hmd->screenShotDraw(destination);
 }
 
 // util function
@@ -519,7 +518,7 @@ void R_VR_Enable()
 		R_CreateIVBO(&hudVBO, GL_STATIC_DRAW);
 		R_VR_GenerateHud();
 		vrStatus |= VR_ENABLED;
-		if (hmd->hmdDraw && hmd->screenDraw)
+		if (hmd->indirectDraw && hmd->screenShotDraw)
 			vrStatus |= VR_INDIRECT_DRAW;
 	}
 	else {
