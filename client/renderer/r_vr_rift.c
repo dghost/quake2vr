@@ -17,8 +17,6 @@ int32_t Rift_Init(void);
 void Rift_GetState(vr_param_t *state);
 void Rift_PostPresent(void);
 void Rift_SetOffscreenSize(uint32_t width, uint32_t height);
-void Rift_IndirectDraw(fbo_t *source, fbo_t *destination);
-void Rift_DrawForScreenshot(fbo_t *destination);
 
 hmd_render_t vr_render_rift =
 {
@@ -30,8 +28,8 @@ hmd_render_t vr_render_rift =
 	Rift_SetOffscreenSize,
 	Rift_GetState,
 	Rift_Present,
-	Rift_IndirectDraw,
-	Rift_DrawForScreenshot,
+	NULL,
+	NULL,
 
 };
 
@@ -51,10 +49,11 @@ extern int32_t VR_Rift_RenderLatencyTest(vec4_t color);
 
 static vr_param_t currentState;
 
-static fbo_t swapFBO;
-static uint32_t currentFBO = 0;
-static ovrSwapTextureSet *swapTextures = NULL;
+static ovrSwapTextureSet *eyeTextures[2];
 static ovrGLTexture *mirrorTexture = NULL;
+
+static uint32_t currentFBO = 0;
+
 ovrLayerEyeFov swapLayer;
 
 // this should probably be rearranged
@@ -170,39 +169,40 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	if (vr_rift_debug->value)
 		Com_Printf("VR_Rift: Set render target scale to %.2f`\n", ovrScale);
 
-	if (swapTextures)
-		ovrHmd_DestroySwapTextureSet(hmd, swapTextures);
+	currentFBO = 0;
+
 	if (mirrorTexture)
 		ovrHmd_DestroyMirrorTexture(hmd, mirrorTexture);
 
-	result = ovrHmd_CreateSwapTextureSetGL(hmd, GL_SRGB8, width, height, &swapTextures);
-	result = ovrHmd_CreateMirrorTextureGL(hmd, GL_SRGB8, width, height, &mirrorTexture);
-	currentFBO = 0;
-	Com_Printf("Num swap textures: %u\n", swapTextures->TextureCount);
+	result = ovrHmd_CreateMirrorTextureGL(hmd, GL_RGB8, width, height, &mirrorTexture);
 
-	R_DelFBO(&swapFBO);
-	tex.Texture = swapTextures->Textures[0];
 
-	R_GenFBOWithoutTexture(tex.OGL.Header.TextureSize.w, tex.OGL.Header.TextureSize.h, GL_SRGB8, &swapFBO);
-
-	swapLayer.Header.Flags = 0;
+	swapLayer.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
 	swapLayer.Header.Type = ovrLayerType_EyeFov;
 
 	for (i = 0; i < 2; i++)
 	{
 
-		ovrRecti viewport = { { i * swapFBO.width / 2.0, 0 }, { swapFBO.width / 2.0, swapFBO.height } };
 		renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
 
 		if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
 		{
+			ovrRecti viewport = { { 0, 0 }, { renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h } };
+			swapLayer.Viewport[i] = viewport;
+
+
 			if (vr_rift_debug->value)
 				Com_Printf("VR_Rift: Set buffer %i to size %i x %i\n", i, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
-			R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
-			R_ClearFBO(&renderInfo[i].eyeFBO);
+
+			R_DelFBO(&renderInfo[i].eyeFBO);
+			if (eyeTextures[i])
+				ovrHmd_DestroySwapTextureSet(hmd, eyeTextures[i]);
+
+			result = ovrHmd_CreateSwapTextureSetGL(hmd, GL_RGBA8, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
+			swapLayer.ColorTexture[i] = eyeTextures[i];
+
+			R_GenFBOWithoutTexture(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, GL_RGBA8, &renderInfo[i].eyeFBO);
 		}
-		swapLayer.Viewport[i] = viewport;
-		swapLayer.ColorTexture[i] = swapTextures;
 		swapLayer.Fov[i] = renderInfo[i].eyeFov;
 
 	}
@@ -211,9 +211,12 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 }
 
+void R_Clear();
 void Rift_FrameStart()
 {
 	qboolean changed = false;
+	int i;
+
 	if (vr_rift_maxfov->modified)
 	{
 		int newValue = vr_rift_maxfov->value ? 1 : 0;
@@ -229,11 +232,28 @@ void Rift_FrameStart()
 		float h = glConfig.render_height * scale;
 		Rift_SetOffscreenSize(w, h);
 	}
+
+	if (eyeTextures[0] != NULL) {
+		currentFBO = (currentFBO + 1) % eyeTextures[0]->TextureCount;
+
+		for (i = 0; i < 2; i++) {
+			ovrGLTextureData *tex = (ovrGLTextureData *) &eyeTextures[i]->Textures[currentFBO];
+			eyeTextures[i]->CurrentIndex = currentFBO;
+			currentState.eyeFBO[i]->texture = tex->TexId;
+			R_BindFBO(currentState.eyeFBO[i]);
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex->TexId, 0);
+			R_Clear();
+		}
+		R_BindFBO(&screenFBO);
+	}
+
+
 }
 
 void Rift_GetState(vr_param_t *state)
 {
 	*state = currentState;
+
 }
 
 void R_Clear(void);
@@ -288,51 +308,27 @@ void Rift_Present(fbo_t *destination, qboolean loading)
 	}
 
 	{
-		R_SetupBlit();
-		glViewport(0, 0, destination->width / 2.0, destination->height);
-		R_BlitTextureToScreen(renderInfo[0].eyeFBO.texture);
-		glViewport(destination->width / 2.0, 0, destination->width / 2.0, destination->height);
-		R_BlitTextureToScreen(renderInfo[1].eyeFBO.texture);
-		R_TeardownBlit();
+		int i;
 
+
+		ovrLayerHeader* layers = &swapLayer.Header;
+		ovrResult result;
+		swapLayer.RenderPose[0] = trackingState.HeadPose.ThePose;
+		swapLayer.RenderPose[1] = trackingState.HeadPose.ThePose;
+
+		for (i = 0; i < 2; i++) {
+			R_BindFBO(currentState.eyeFBO[i]);
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0);
+		}
+		R_BindFBO(destination);
+		R_Clear();
+
+		result = ovrHmd_SubmitFrame(hmd, 0, NULL, &layers, 1);
+
+		R_BlitFlipped(mirrorTexture->OGL.TexId);
 	}
 }
 
-void Rift_IndirectDraw(fbo_t *source, fbo_t *destination)
-{
-	ovrGLTextureData *tex = (ovrGLTextureData *) &swapTextures->Textures[currentFBO];
-	ovrLayerHeader* layers = &swapLayer.Header;
-	ovrResult result;
-	swapLayer.RenderPose[0] = trackingState.HeadPose.ThePose;
-	swapLayer.RenderPose[1] = trackingState.HeadPose.ThePose;
-
-	swapTextures->CurrentIndex = currentFBO;
-	R_BindFBO(&swapFBO);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, tex->TexId, 0);
-	R_Clear();
-	R_SetupBlit();
-	glViewport(0, 0, swapFBO.width / 2.0, swapFBO.height);
-	R_BlitWithGammaFlipped(renderInfo[0].eyeFBO.texture, vid_gamma);
-	glViewport(swapFBO.width / 2.0, 0, swapFBO.width / 2.0, swapFBO.height);
-	R_BlitWithGammaFlipped(renderInfo[0].eyeFBO.texture, vid_gamma);
-	R_TeardownBlit();
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0);
-
-
-	result = ovrHmd_SubmitFrame(hmd, 0, NULL, &layers, 1);
-	currentFBO = (currentFBO + 1) % swapTextures->TextureCount;
-
-
-	R_BindFBO(destination);
-	R_Clear();
-	R_BlitFlipped(mirrorTexture->OGL.TexId);
-}
-
-void Rift_DrawForScreenshot(fbo_t *destination) {
-	R_BindFBO(destination);
-	R_Clear();
-	R_BlitTextureToScreen(mirrorTexture->OGL.TexId);
-}
 
 int32_t Rift_Enable(void)
 {
@@ -343,7 +339,6 @@ int32_t Rift_Enable(void)
 		return 0;
 
 
-	R_InitFBO(&swapFBO);
 	for (i = 0; i < 2; i++)
 	{
 		if (renderInfo[i].eyeFBO.status)
@@ -364,11 +359,6 @@ void Rift_Disable(void)
 {
 	int i;
 
-	R_DelFBO(&swapFBO);
-	if (swapTextures) {
-		ovrHmd_DestroySwapTextureSet(hmd, swapTextures);
-		swapTextures = NULL;
-	}
 	if (mirrorTexture) {
 		ovrHmd_DestroyMirrorTexture(hmd, mirrorTexture);
 		mirrorTexture = NULL;
@@ -378,6 +368,9 @@ void Rift_Disable(void)
 	{
 		if (renderInfo[i].eyeFBO.status)
 			R_DelFBO(&renderInfo[i].eyeFBO);
+		if (eyeTextures[i])
+			ovrHmd_DestroySwapTextureSet(hmd, eyeTextures[i]);
+		eyeTextures[i] = NULL;
 	}
 }
 

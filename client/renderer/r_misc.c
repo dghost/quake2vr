@@ -252,6 +252,8 @@ void R_GrabScreen (void)
 R_ScreenShot_PNG
 ================== 
 */
+void R_Clear();
+
 void R_ScreenShot_PNG(qboolean silent)
 {
 	byte							*rgbdata;
