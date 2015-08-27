@@ -912,9 +912,6 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		GL_MBind(0,0);
-
-		R_ApplyPostProcess(destination);
-
 	}
 
 	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
@@ -1926,7 +1923,7 @@ void R_EndFrame(void)
 	else {
 		R_BindFBO(&screenFBO);
 		R_Clear();
-		R_BlitWithGamma(viewFBO.texture, vid_gamma);
+		R_BlitTextureToScreen(viewFBO.texture);
 	}
 
 	lastFrame = &viewFBO;

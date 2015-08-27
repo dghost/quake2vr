@@ -312,21 +312,6 @@ void R_VR_DrawHud()
 	VR_GetOrientation(rot);
 	VR_GetHeadOffset(pos);
 
-	// enable alpha testing so only pixels that have alpha info get written out
-	// prevents black pixels from being rendered into the view
-	GL_Enable(GL_ALPHA_TEST);
-	GL_AlphaFunc(GL_GREATER, 0.0f);
-
-	// if hud transparency is enabled, enable blending
-	if (vr_hud_transparency->value)
-	{
-		GL_Enable(GL_BLEND);
-		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-
-	// bind the texture
-	GL_MBind(0, hud.texture);
 
 	// disable this for the loading screens since they are not at 60fps
 	if ((vr_hud_bounce->value > 0) && !loadingScreen && ((int32_t) vr_aimmode->value > 0))
@@ -371,19 +356,36 @@ void R_VR_DrawHud()
 		MatrixMultiply(temp, tmat, counter);
 	}
 
-	// set proper mode
-	glDisableClientState (GL_COLOR_ARRAY);
 
-	// bind vertex buffer and set tex coord parameters
-	R_BindIVBO(&hudVBO,NULL,0);
-	glTexCoordPointer(2,GL_FLOAT,sizeof(vert_t),(void *)( sizeof(GL_FLOAT) * 3));
-	glVertexPointer(3,GL_FLOAT,sizeof(vert_t),NULL);
+
 
 	for (index = 0; index < 2; index++)
 	{
         vec_t fin[4][4];
 		// bind the eye FBO
-		R_BindFBO(vrState.eyeFBO[index]);
+		R_PostProcessPreHUD(vrState.eyeFBO[index]);
+
+		// enable alpha testing so only pixels that have alpha info get written out
+		// prevents black pixels from being rendered into the view
+		GL_Enable(GL_ALPHA_TEST);
+		GL_AlphaFunc(GL_GREATER, 0.0f);
+
+		// bind the texture
+		GL_MBind(0, hud.texture);
+
+		// if hud transparency is enabled, enable blending
+		if (vr_hud_transparency->value)
+		{
+			GL_Enable(GL_BLEND);
+			GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		// bind vertex buffer and set tex coord parameters
+		// set proper mode
+		glDisableClientState(GL_COLOR_ARRAY);
+		R_BindIVBO(&hudVBO, NULL, 0);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(vert_t), (void *) (sizeof(GL_FLOAT) * 3));
+		glVertexPointer(3, GL_FLOAT, sizeof(vert_t), NULL);
 
 		// set the perspective matrix for that eye
 		R_PerspectiveScale(vrState.renderParams[index].projection, 0.01, 251.0);
@@ -404,13 +406,18 @@ void R_VR_DrawHud()
 
 		// draw the hud for that eye
 		R_DrawIVBO(&hudVBO);
+		R_ReleaseIVBO();
+		GL_MBind(0, 0);
+
+		GL_Disable(GL_ALPHA_TEST);
+		GL_Disable(GL_BLEND);
+
+		R_PostProcessPostHUD(vrState.eyeFBO[index]);
+
 	}
 
-	// teardown 
-	R_ReleaseIVBO();
 
-	GL_MBind(0, 0);
-
+	
 	glEnableClientState (GL_COLOR_ARRAY);
 	glTexCoordPointer (2, GL_FLOAT, sizeof(texCoordArray[0][0]), texCoordArray[0][0]);
 	glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);

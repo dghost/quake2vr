@@ -2539,9 +2539,12 @@ void SCR_UpdateScreen (void)
 	if ((scr_draw_loading != 2) && (cl.cinematictime <= 0))
 	{
 		V_RenderViewIntoFBO(view);
-	} 
-	
-	SCR_Draw2DintoFBO(view);	
+	}
+
+	R_PostProcessPreHUD(view);
+	SCR_Draw2DintoFBO(glState.currentFBO);
+	R_PostProcessPostHUD(view);
+
 	R_EndFrame();
 }
 

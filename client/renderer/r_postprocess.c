@@ -32,6 +32,7 @@ cvar_t	*r_bloom_texscale;
 cvar_t  *r_bloom_minthreshold;
 cvar_t	*r_bloom_falloff;
 
+static fbo_t gammaFBO;
 static fbo_t pongFBO;
 static fbo_t pingFBO;
 static fbo_t fxaaFBO;
@@ -507,7 +508,6 @@ void R_BloomFBO(fbo_t *source)
 		GL_BlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 
 		R_DrawQuad();
-
 		GL_BlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		GL_Disable(GL_BLEND);
 
@@ -517,17 +517,18 @@ void R_BloomFBO(fbo_t *source)
 extern	cvar_t	*cl_paused;
 extern  float	v_blend[4];			// final blending color
 void R_PolyBlend ();
+qboolean fog_on = false;
 
-void R_ApplyPostProcess(fbo_t *source)
+void R_PostProcessPreHUD(fbo_t *source)
 {
-	fbo_t *currentFBO = glState.currentFBO;
-    qboolean fog_on = glState.fog;
+    fog_on = glState.fog;
     
     if (fog_on)
         GL_Disable(GL_FOG);
     
 	GL_ClearColor(0,0,0,0);
 	R_SetupQuadState();
+	GL_Disable(GL_ALPHA_TEST);
 	GL_Disable(GL_DEPTH_TEST);
 
 	if (source->width > pongFBO.width || source->height > pongFBO.height)
@@ -536,11 +537,19 @@ void R_ApplyPostProcess(fbo_t *source)
 		R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &pingFBO);
 	}
 
+	if (source->width != gammaFBO.width || source->height != gammaFBO.height)
+	{
+		R_ResizeFBO(source->width, source->height, TRUE, GL_RGBA8, &gammaFBO);
+	}
+
+	R_BindFBO(&gammaFBO);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	R_BlitTextureToScreen(source->texture);
 
 
 	if (r_bloom->value)
 	{
-		R_BloomFBO(source);
+		R_BloomFBO(&gammaFBO);
 	}
 
     if (blurSupported && r_blur->value && r_flashblur->value) {
@@ -548,12 +557,12 @@ void R_ApplyPostProcess(fbo_t *source)
         {
             float color[4] = {v_blend[0],v_blend[1],v_blend[2],v_blend[3]*0.5};
             float weight = (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER)) ? 1.0 : v_blend[3] * 0.5;
-            R_BlurFBO(weight,color,source);
+			R_BlurFBO(weight, color, &gammaFBO);
             
         } else if (cl_paused->value || (r_newrefdef.rdflags & RDF_UNDERWATER))
         {
             float color[4] = {0.0,0.0,0.0,0.0};
-            R_BlurFBO(1,color,source);
+			R_BlurFBO(1, color, &gammaFBO);
         }
     } else if (r_polyblend->value && v_blend[3] > 0.0) {
         R_TeardownQuadState();
@@ -563,16 +572,16 @@ void R_ApplyPostProcess(fbo_t *source)
     
 	if (fxaaSupported && (int) r_antialias->value >= ANTIALIAS_FXAA)
 	{
-		if (source->width != fxaaFBO.width || source->height != fxaaFBO.height)
+		if (gammaFBO.width != fxaaFBO.width || gammaFBO.height != fxaaFBO.height)
 		{
-			R_ResizeFBO(source->width ,source->height ,TRUE, GL_RGBA8, &fxaaFBO);
+			R_ResizeFBO(gammaFBO.width ,gammaFBO.height ,TRUE, GL_RGBA8, &fxaaFBO);
 		}
 
-		glViewport(0,0,source->width,source->height);
+		glViewport(0,0,gammaFBO.width,gammaFBO.height);
 
-		GL_MBind(0,source->texture);		
+		GL_MBind(0,gammaFBO.texture);		
 		glUseProgram(fxaa.shader->program);
-		glUniform2f(fxaa.res_uniform,source->width,source->height);
+		glUniform2f(fxaa.res_uniform,gammaFBO.width,gammaFBO.height);
 		glUniform2f(fxaa.scale_uniform,1.0,1.0);
 
 		GL_BindFBO(&fxaaFBO);
@@ -586,26 +595,33 @@ void R_ApplyPostProcess(fbo_t *source)
 		glUniform2f(passthrough.scale_uniform,1.0,1.0);
 		GL_MBind(0,fxaaFBO.texture);
         
-		GL_BindFBO(source);
+		GL_BindFBO(&gammaFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		R_DrawQuad();
-
 	} else {
 		R_DelFBO(&fxaaFBO);
 	}
-
-
-
-	GL_Enable(GL_DEPTH_TEST);
 	R_TeardownQuadState();
-	R_BindFBO(currentFBO);
-	GL_MBind(0,0);
 	glUseProgram(0);
-    if (fog_on)
-        GL_Enable(GL_FOG);
+	R_BindFBO(&gammaFBO);
 }
 
+
+void R_PostProcessPostHUD(fbo_t *source) {
+	GL_Disable(GL_ALPHA_TEST);
+	GL_Disable(GL_DEPTH_TEST);
+
+	R_BindFBO(source);
+	GL_ClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	R_BlitWithGamma(gammaFBO.texture, vid_gamma);
+
+	GL_MBind(0, 0);
+	glUseProgram(0);
+	if (fog_on)
+		GL_Enable(GL_FOG);
+}
 
 qboolean R_InitPostsprocessShaders()
 {
@@ -829,6 +845,7 @@ void R_PostProcessInit()
 	}
 	if (glConfig.ext_framebuffer_object && glConfig.arb_vertex_buffer_object)
 	{
+		R_InitFBO(&gammaFBO);
 		R_InitFBO(&pongFBO);
 		R_InitFBO(&pingFBO);
 		R_InitFBO(&fxaaFBO);
@@ -848,6 +865,7 @@ void R_PostProcessInit()
 
 void R_PostProcessShutdown()
 {
+	R_DelFBO(&gammaFBO);
 	R_DelFBO(&pongFBO);
 	R_DelFBO(&pingFBO);
 	R_DelFBO(&fxaaFBO);

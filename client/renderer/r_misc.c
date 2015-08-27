@@ -320,7 +320,7 @@ void R_ScreenShot_PNG(qboolean silent)
 	else {
 		R_BindFBO(&captureFBO);
 		R_Clear();
-		R_BlitWithGammaFlipped(lastFrame->texture, vid_gamma);
+		R_BlitFlipped(lastFrame->texture);
 	}
 
 

@@ -69,12 +69,15 @@ void R_Stereo_EndFrame(fbo_t *view)
 		R_BlitTextureToScreen(stereo_fbo[0].texture);
 		glViewport(w, 0, w, h);
 		R_BlitTextureToScreen(stereo_fbo[1].texture);
+		R_TeardownBlit();
 		// enable alpha testing so only pixels that have alpha info get written out
 		// prevents black pixels from being rendered into the view
+		R_PostProcessPreHUD(view);
 		GL_Enable(GL_ALPHA_TEST);
 		GL_AlphaFunc(GL_GREATER, 0.0f);
 		GL_Enable(GL_BLEND);
 		GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		R_SetupBlit();
 		glViewport(0, 0, w, h);
 		R_BlitTextureToScreen(stereo_hud.texture);
 		glViewport(w, 0, w, h);
@@ -82,6 +85,7 @@ void R_Stereo_EndFrame(fbo_t *view)
 		R_TeardownBlit();
 		GL_Disable(GL_BLEND);
 		GL_Disable(GL_ALPHA_TEST);
+		R_PostProcessPostHUD(view);
 	}
 }
 
