@@ -41,6 +41,8 @@ static qboolean blurSupported;
 static qboolean bloomSupported;
 static qboolean fxaaSupported;
 
+extern cvar_t *vr_rift_dk2_color_hack;
+
 /*
 =============
 Full screen quad stuff
@@ -302,13 +304,32 @@ void R_BlitFlipped(GLuint texture)
 
 }
 
-
+extern float VR_OVR_GetGammaMin();
+extern float VR_Rift_GetGammaMin();
 
 void R_SetupGamma(float gamma) {
 	glUseProgram(gammaAdjust.shader->program);
 	glUniform1f(gammaAdjust.gamma_uniform, gamma);
 	glUniform2f(gammaAdjust.scale_uniform, 1.0, 1.0);
-	glUniform3f(gammaAdjust.mincolor_uniform, 0.0, 0.0, 0.0);
+#ifdef OCULUS_LEGACY
+	if (((int32_t) vr_enabled->value) == HMD_OVR && vr_ovr_dk2_color_hack->value)
+	{
+		float value = VR_OVR_GetGammaMin();
+		glUniform3f(gammaAdjust.mincolor_uniform, value, value, value);
+	}
+	else
+#else
+	if (((int32_t) vr_enabled->value) == HMD_RIFT && vr_rift_dk2_color_hack->value)
+	{
+		float value = VR_Rift_GetGammaMin();
+		glUniform3f(gammaAdjust.mincolor_uniform, value, value, value);
+	}
+	else
+#endif
+	{	
+		glUniform3f(gammaAdjust.mincolor_uniform, 0.0, 0.0, 0.0);
+	}
+
 }
 
 void R_TeardownGamma() {

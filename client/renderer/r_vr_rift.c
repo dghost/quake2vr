@@ -37,6 +37,7 @@ rift_render_export_t renderExport;
 
 
 extern ovrHmd hmd;
+extern ovrHmdDesc hmdDesc;
 extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrTrackingState trackingState;
 extern ovrFrameTiming frameTime;
@@ -116,11 +117,11 @@ void Rift_CalculateState(vr_param_t *state)
 		unsigned int i = 0;
 		if (vr_rift_maxfov->value)
 		{
-			renderInfo[eye].eyeFov = hmd->MaxEyeFov[eye];
+			renderInfo[eye].eyeFov = hmdDesc.MaxEyeFov[eye];
 		}
 		else
 		{
-			renderInfo[eye].eyeFov = hmd->DefaultEyeFov[eye];
+			renderInfo[eye].eyeFov = hmdDesc.DefaultEyeFov[eye];
 		}
 
 		ovrState.eyeFBO[eye] = &renderInfo[eye].eyeFBO;
@@ -131,7 +132,7 @@ void Rift_CalculateState(vr_param_t *state)
 		ovrState.renderParams[eye].projection.y.offset = (renderInfo[eye].eyeFov.UpTan - renderInfo[eye].eyeFov.DownTan) * ovrState.renderParams[eye].projection.y.scale * 0.5f;
 
 		// set up rendering info
-		eyeDesc[eye] = ovrHmd_GetRenderDesc(hmd, (ovrEyeType) eye, renderInfo[eye].eyeFov);
+		eyeDesc[eye] = ovr_GetRenderDesc(hmd, (ovrEyeType) eye, renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
 			-eyeDesc[eye].HmdToEyeViewOffset.x,
@@ -148,7 +149,7 @@ void Rift_CalculateState(vr_param_t *state)
 		ovrState.aspect = combinedTanHalfFovHorizontal / combinedTanHalfFovVertical;
 		ovrState.viewFovY = fovY;
 		ovrState.viewFovX = fovX;
-		ovrState.pixelScale = vid.width / (float) hmd->Resolution.w;
+		ovrState.pixelScale = vid.width / (float) hmdDesc.Resolution.w;
 	}
 	*state = ovrState;
 }
@@ -162,8 +163,8 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 	Rift_CalculateState(&currentState);
 
-	w = width / (float) hmd->Resolution.w;
-	h = height / (float) hmd->Resolution.h;
+	w = width / (float) hmdDesc.Resolution.w;
+	h = height / (float) hmdDesc.Resolution.h;
 
 	ovrScale = (w + h) / 2.0;
 	if (vr_rift_debug->value)
@@ -172,9 +173,9 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	currentFBO = 0;
 
 	if (mirrorTexture)
-		ovrHmd_DestroyMirrorTexture(hmd, mirrorTexture);
+		ovr_DestroyMirrorTexture(hmd, mirrorTexture);
 
-	result = ovrHmd_CreateMirrorTextureGL(hmd, GL_SRGB8, width, height, &mirrorTexture);
+	result = ovr_CreateMirrorTextureGL(hmd, GL_SRGB8, width, height, &mirrorTexture);
 
 
 	swapLayer.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
@@ -183,7 +184,7 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	for (i = 0; i < 2; i++)
 	{
 
-		renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
+		renderInfo[i].renderTarget = ovr_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
 
 		if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
 		{
@@ -196,9 +197,9 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 			R_DelFBO(&renderInfo[i].eyeFBO);
 			if (eyeTextures[i])
-				ovrHmd_DestroySwapTextureSet(hmd, eyeTextures[i]);
+				ovr_DestroySwapTextureSet(hmd, eyeTextures[i]);
 
-			result = ovrHmd_CreateSwapTextureSetGL(hmd, GL_SRGB8_ALPHA8, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
+			result = ovr_CreateSwapTextureSetGL(hmd, GL_SRGB8_ALPHA8, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
 			swapLayer.ColorTexture[i] = eyeTextures[i];
 
 			R_GenFBOWithoutTexture(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, GL_SRGB8_ALPHA8, &renderInfo[i].eyeFBO);
@@ -324,7 +325,7 @@ void Rift_Present(fbo_t *destination, qboolean loading)
 		R_BindFBO(destination);
 		R_Clear();
 
-		result = ovrHmd_SubmitFrame(hmd, 0, NULL, &layers, 1);
+		result = ovr_SubmitFrame(hmd, 0, NULL, &layers, 1);
 
 		R_BlitFlipped(mirrorTexture->OGL.TexId);
 	}
@@ -347,12 +348,12 @@ int32_t Rift_Enable(void)
 	}
 
 	camera.x.offset = 0.0;
-	camera.x.scale = 1.0 / tanf(hmd->CameraFrustumHFovInRadians * 0.5);
+	camera.x.scale = 1.0 / tanf(hmdDesc.CameraFrustumHFovInRadians * 0.5);
 	camera.y.offset = 0.0;
-	camera.y.scale = 1.0 / tanf(hmd->CameraFrustumVFovInRadians * 0.5);
-	R_MakePerspectiveFromScale(camera, hmd->CameraFrustumNearZInMeters, hmd->CameraFrustumFarZInMeters, cameraFrustum);
+	camera.y.scale = 1.0 / tanf(hmdDesc.CameraFrustumVFovInRadians * 0.5);
+	R_MakePerspectiveFromScale(camera, hmdDesc.CameraFrustumNearZInMeters, hmdDesc.CameraFrustumFarZInMeters, cameraFrustum);
 
-	Cvar_ForceSet("vr_hmdstring", (char *) hmd->ProductName);
+	Cvar_ForceSet("vr_hmdstring", (char *) hmdDesc.ProductName);
 	return true;
 }
 
@@ -361,7 +362,7 @@ void Rift_Disable(void)
 	int i;
 
 	if (mirrorTexture) {
-		ovrHmd_DestroyMirrorTexture(hmd, mirrorTexture);
+		ovr_DestroyMirrorTexture(hmd, mirrorTexture);
 		mirrorTexture = NULL;
 	}
 
@@ -370,7 +371,7 @@ void Rift_Disable(void)
 		if (renderInfo[i].eyeFBO.status)
 			R_DelFBO(&renderInfo[i].eyeFBO);
 		if (eyeTextures[i])
-			ovrHmd_DestroySwapTextureSet(hmd, eyeTextures[i]);
+			ovr_DestroySwapTextureSet(hmd, eyeTextures[i]);
 		eyeTextures[i] = NULL;
 	}
 }
