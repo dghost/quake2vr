@@ -159,7 +159,6 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	float w, h;
 	float ovrScale;
 	ovrResult result;
-	ovrGLTexture tex;
 
 	Rift_CalculateState(&currentState);
 
@@ -262,7 +261,6 @@ void R_Clear(void);
 void VR_Rift_QuatToEuler(ovrQuatf q, vec3_t e);
 void Rift_Present(fbo_t *destination, qboolean loading)
 {
-	int fade = vr_rift_distortion_fade->value != 0.0f;
 	float desaturate = 0.0;
 
 	if (renderExport.positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_rift_trackingloss->value > 0) {

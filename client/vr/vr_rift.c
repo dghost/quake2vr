@@ -19,16 +19,9 @@ int32_t VR_Rift_getPosition(float pos[3]);
 
 cvar_t *vr_rift_debug;
 cvar_t *vr_rift_maxfov;
-cvar_t *vr_rift_device;
-cvar_t *vr_rift_supersample;
 cvar_t *vr_rift_enable;
 cvar_t *vr_rift_autoprediction;
-cvar_t *vr_rift_timewarp;
 cvar_t *vr_rift_dk2_color_hack;
-cvar_t *vr_rift_lowpersistence;
-cvar_t *vr_rift_lumoverdrive;
-cvar_t *vr_rift_distortion_fade;
-cvar_t *vr_rift_latencytest;
 cvar_t *vr_rift_trackingloss;
 
 ovrHmd hmd;
@@ -338,17 +331,10 @@ int32_t VR_Rift_Init()
 	*/
 
 	vr_rift_trackingloss = Cvar_Get("vr_rift_trackingloss", "1", CVAR_CLIENT);
-	vr_rift_timewarp = Cvar_Get("vr_rift_timewarp", "1", CVAR_CLIENT);
-	vr_rift_supersample = Cvar_Get("vr_rift_supersample", "1.0", CVAR_CLIENT);
 	vr_rift_maxfov = Cvar_Get("vr_rift_maxfov", "0", CVAR_CLIENT);
-	vr_rift_lumoverdrive = Cvar_Get("vr_rift_lumoverdrive", "1", CVAR_CLIENT);
-	vr_rift_lowpersistence = Cvar_Get("vr_rift_lowpersistence", "1", CVAR_CLIENT);
-	vr_rift_latencytest = Cvar_Get("vr_rift_latencytest", "0", CVAR_CLIENT);
 	vr_rift_enable = Cvar_Get("vr_rift_enable", "1", CVAR_CLIENT);
 	vr_rift_dk2_color_hack = Cvar_Get("vr_rift_dk2_color_hack", "1", CVAR_CLIENT);
-	vr_rift_device = Cvar_Get("vr_rift_device", "", CVAR_CLIENT);
 	vr_rift_debug = Cvar_Get("vr_rift_debug", "0", CVAR_CLIENT);
-	vr_rift_distortion_fade = Cvar_Get("vr_rift_distortion_fade", "0", CVAR_CLIENT);
 	vr_rift_autoprediction = Cvar_Get("vr_rift_autoprediction", "1", CVAR_CLIENT);
 
 	return 1;
