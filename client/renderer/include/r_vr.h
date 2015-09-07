@@ -64,6 +64,8 @@ void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination);
 void R_VR_DrawToScreenShot(fbo_t *destination);
 
 void R_VR_GetFOV(float *fovx, float *fovy);
+void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]);
+
 fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();
 

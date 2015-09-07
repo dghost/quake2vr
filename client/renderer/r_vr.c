@@ -288,6 +288,26 @@ void R_VR_StartFrame()
 
 }
 
+void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]) {
+	if (vr_autoipd->value)
+	{
+		int index;
+		for (index = 0; index < 2; index++) {
+			VectorScale(vrState.renderParams[index].viewOffset, PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eyePos[index]);
+		}
+	}
+	else {
+		int index;
+		for (index = 0; index < 2; index++) {
+			int eyeSign = (-1 + index * 2);
+			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			VectorSet(eyePos[index], eyeSign * viewOffset, 0, 0);
+		}
+	}
+
+}
+
+
 void R_VR_GetFOV(float *fovx, float *fovy)
 {
 	*fovx = vrState.viewFovX * vr_autofov_scale->value;
@@ -304,6 +324,7 @@ void R_VR_DrawHud()
 	int index = 0;
 	vec_t mat[4][4], temp[4][4], counter[4][4], accum[4][4];
 	vec3_t rot, pos;
+	vec3_t eyeOffsets[2];
 
 	if (!vrStatus)
 		return;
@@ -357,6 +378,7 @@ void R_VR_DrawHud()
 	}
 
 
+	R_VR_GetEyeInfo(eyeOffsets, NULL);
 
 
 	for (index = 0; index < 2; index++)
@@ -393,7 +415,7 @@ void R_VR_DrawHud()
 		// build the eye translation matrix
 		if (vr_autoipd->value)
 		{
-			TranslationMatrix(-vrState.renderParams[index].viewOffset[0], vrState.renderParams[index].viewOffset[1], vrState.renderParams[index].viewOffset[2], temp);
+			TranslationMatrix(-eyeOffsets[index][0], eyeOffsets[index][1], eyeOffsets[index][2], temp);
 		} else {
 			float viewOffset = (vr_ipd->value / 2000.0);
 			TranslationMatrix((-1 + index * 2) * -viewOffset, 0, 0, temp);

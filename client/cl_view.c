@@ -682,6 +682,8 @@ void VR_RenderStereo ()
 {
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
 	vec3_t view,viewOrig, offset;
+	vec3_t eyeOffsets[2];
+
 	int index;
 
 	if (cls.state != ca_active)
@@ -846,6 +848,9 @@ void VR_RenderStereo ()
 	}
 
 	VectorCopy(view,cl.refdef.vieworg);
+
+	R_VR_GetEyeInfo(eyeOffsets, NULL);
+
 	// left eye rendering
 	for (index = 0; index < NUM_EYES; index++)
 	{
@@ -868,13 +873,8 @@ void VR_RenderStereo ()
 		
 		if (cl.refdef.rdflags & RDF_UNDERWATER)
 			params.projection = R_ApplyWarpToProjection(params.projection);
-		if (vr_autoipd->value)
-		{
-			VectorScale(vrState.renderParams[index].viewOffset,PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, params.viewOffset);
-		} else {
-			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorSet(params.viewOffset,eyeSign * viewOffset ,0,0);
-		}
+
+		VectorCopy(eyeOffsets[index], params.viewOffset);
 
 		R_RenderViewIntoFBO( &cl.refdef, params,vrState.eyeFBO[index],NULL);	
 	}

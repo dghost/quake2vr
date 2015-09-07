@@ -41,6 +41,7 @@ extern ovrHmdDesc hmdDesc;
 extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrTrackingState trackingState;
 extern ovrFrameTiming frameTime;
+ovrVector3f      hmdToEyeViewOffset[2];
 
 static vec4_t cameraFrustum[4];
 
@@ -112,7 +113,6 @@ void Rift_CalculateState(vr_param_t *state)
 {
 	vr_param_t ovrState;
 	int eye = 0;
-
 	for (eye = 0; eye < 2; eye++) {
 		unsigned int i = 0;
 		if (vr_rift_maxfov->value)
@@ -151,6 +151,11 @@ void Rift_CalculateState(vr_param_t *state)
 		ovrState.viewFovX = fovX;
 		ovrState.pixelScale = vid.width / (float) hmdDesc.Resolution.w;
 	}
+
+	hmdToEyeViewOffset[0] = eyeDesc[0].HmdToEyeViewOffset;
+	hmdToEyeViewOffset[1] = eyeDesc[1].HmdToEyeViewOffset;
+
+
 	*state = ovrState;
 }
 
@@ -167,7 +172,7 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 	ovrScale = (w + h) / 2.0;
 	if (vr_rift_debug->value)
-		Com_Printf("VR_Rift: Set render target scale to %.2f`\n", ovrScale);
+		Com_Printf("VR_Rift: Set render target scale to %.2f\n", ovrScale);
 
 	currentFBO = 0;
 
@@ -252,8 +257,13 @@ void Rift_FrameStart()
 
 void Rift_GetState(vr_param_t *state)
 {
+	ovrPosef eyes[2];
+
 	*state = currentState;
 
+	ovr_CalcEyePoses(trackingState.HeadPose.ThePose, hmdToEyeViewOffset, eyes);
+
+//	Com_Printf("Left eye: %.2f %.2f %.2f\n", eyes[0].Position.x, eyes[0].Position.y, eyes[0].Position.z);
 }
 
 void R_Clear(void);
