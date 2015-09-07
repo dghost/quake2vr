@@ -1917,14 +1917,9 @@ void R_EndFrame(void)
 	R_Stereo_EndFrame(&viewFBO);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 
-	if (vrStatus & VR_INDIRECT_DRAW) {
-		R_VR_IndirectDraw(&viewFBO, &screenFBO);
-	}
-	else {
-		R_BindFBO(&screenFBO);
-		R_Clear();
-		R_BlitTextureToScreen(viewFBO.texture);
-	}
+	R_BindFBO(&screenFBO);
+	R_Clear();
+	R_BlitTextureToScreen(viewFBO.texture);
 
 	lastFrame = &viewFBO;
 

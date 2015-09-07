@@ -469,16 +469,6 @@ void R_VR_EndFrame(fbo_t *destination)
 	}
 }
 
-void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination)
-{
-	hmd->indirectDraw(source, destination);
-}
-
-void R_VR_DrawToScreenShot(fbo_t *destination)
-{
-	hmd->screenShotDraw(destination);
-}
-
 // util function
 void R_VR_InitDistortionShader(vr_distort_shader_t *shader, r_shaderobject_t *object)
 {
@@ -519,13 +509,17 @@ void R_VR_Enable()
 		hmd = &available_hmds[(int32_t) vr_enabled->value];
 
 		success = R_GenFBO(640,480,1,GL_RGBA8,&hud);
-		success = success && hmd->enable && hmd->enable();
+
+		success = success && hmd->enable;
+
+		if (success)
+			vrStatus = hmd->enable();
 
 		// shader init
 		R_VR_InitDistortionShader(&vr_distort_shaders[0], &vr_shader_distort_norm);
 		R_VR_InitDistortionShader(&vr_distort_shaders[1], &vr_shader_distort_chrm);
 
-		if (!success)
+		if (!vrStatus)
 		{
 			Com_Printf(" failed!\n");
 			Cmd_ExecuteString("vr_disable");
@@ -546,9 +540,6 @@ void R_VR_Enable()
 
 		R_CreateIVBO(&hudVBO, GL_STATIC_DRAW);
 		R_VR_GenerateHud();
-		vrStatus |= VR_ENABLED;
-		if (hmd->indirectDraw && hmd->screenShotDraw)
-			vrStatus |= VR_INDIRECT_DRAW;
 	}
 	else {
 		Com_Printf("VR: Cannot initialize renderer due to missing OpenGL extensions\n");

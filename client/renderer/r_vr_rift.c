@@ -28,9 +28,6 @@ hmd_render_t vr_render_rift =
 	Rift_SetOffscreenSize,
 	Rift_GetState,
 	Rift_Present,
-	NULL,
-	NULL,
-
 };
 
 rift_render_export_t renderExport;
@@ -362,7 +359,7 @@ int32_t Rift_Enable(void)
 	R_MakePerspectiveFromScale(camera, hmdDesc.CameraFrustumNearZInMeters, hmdDesc.CameraFrustumFarZInMeters, cameraFrustum);
 
 	Cvar_ForceSet("vr_hmdstring", (char *) hmdDesc.ProductName);
-	return true;
+	return VR_ENABLED | VR_DISABLE_VSYNC;
 }
 
 void Rift_Disable(void)

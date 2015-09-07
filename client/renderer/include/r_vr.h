@@ -27,7 +27,7 @@ extern vr_param_t vrState;
 
 typedef enum {
 	VR_ENABLED = 0x1,
-	VR_INDIRECT_DRAW = 0x2
+	VR_DISABLE_VSYNC = 0x2,
 } vr_status_t;
 
 extern vr_status_t vrStatus;
@@ -41,8 +41,6 @@ typedef struct {
 	void (*setOffscreenSize)(uint32_t width, uint32_t height);
 	void (*getState)(vr_param_t *state);
 	void (*compositeViews)(fbo_t *destination, qboolean loading);
-	void (*indirectDraw)(fbo_t *source, fbo_t *destination);
-	void (*screenShotDraw)(fbo_t *destination);
 } hmd_render_t;
 
 typedef struct {
@@ -60,8 +58,6 @@ void R_VR_Enable();
 void R_VR_Disable();
 void R_VR_StartFrame();
 void R_VR_EndFrame(fbo_t *destination);
-void R_VR_IndirectDraw(fbo_t *source, fbo_t *destination);
-void R_VR_DrawToScreenShot(fbo_t *destination);
 
 void R_VR_GetFOV(float *fovx, float *fovy);
 void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]);

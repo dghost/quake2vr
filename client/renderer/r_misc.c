@@ -313,15 +313,10 @@ void R_ScreenShot_PNG(qboolean silent)
 	else {
 		R_GenFBO(glConfig.render_width, glConfig.render_height, 0, GL_RGB8, &captureFBO);
 	}
-	if (vrStatus & VR_INDIRECT_DRAW)
-	{
-		R_VR_DrawToScreenShot(&captureFBO);
-	}
-	else {
-		R_BindFBO(&captureFBO);
-		R_Clear();
-		R_BlitFlipped(lastFrame->texture);
-	}
+
+	R_BindFBO(&captureFBO);
+	R_Clear();
+	R_BlitFlipped(lastFrame->texture);
 
 
 	R_BindFBO(currentFBO);
@@ -402,18 +397,17 @@ void GL_UpdateSwapInterval (void)
 	{
 		int32_t sync = 0;
 		int32_t tear = (r_adaptivevsync->value ? -1 : 1);
+
 		Cvar_SetInteger("r_swapinterval", abs((int)r_swapinterval->value));
 		r_swapinterval->modified = false;
-		
-		sync = r_swapinterval->value;
-		if (glConfig.ext_swap_control_tear)
-			sync *= tear;
-
+		if (!(vrStatus & VR_DISABLE_VSYNC)) {
+			sync = r_swapinterval->value;
+			if (glConfig.ext_swap_control_tear)
+				sync *= tear;
+		}
 		registering = registration_active;
 		if ( glConfig.ext_swap_control )
 			SDL_GL_SetSwapInterval( (registration_active) ? 0 : sync );
-
-		
 	}
 }
 
@@ -427,7 +421,7 @@ static struct {
 
 void R_FrameFence (void)
 {
-	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value && r_swapinterval->value)
+	if (glConfig.arb_sync && !glFence.fenced && r_fencesync->value && r_swapinterval->value && !(vrStatus & VR_DISABLE_VSYNC))
 	{
 		glFence.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
 //		glGetInteger64v(GL_MAX_SERVER_WAIT_TIMEOUT, &glFence.timeout);
@@ -451,7 +445,7 @@ void R_FrameFence (void)
 
 int32_t R_FrameSync (void)
 {
-	if (glConfig.arb_sync && glFence.fenced && r_fencesync->value)
+	if (glConfig.arb_sync && glFence.fenced)
 	{
 		GLenum result;
 		result = glClientWaitSync(glFence.sync, GL_SYNC_FLUSH_COMMANDS_BIT, glFence.timeout);

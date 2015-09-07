@@ -266,8 +266,6 @@ hmd_render_t vr_render_svr =
 	SVR_SetOffscreenSize,
 	SVR_GetState,
 	SVR_Present,
-	NULL,
-	NULL
 };
 
 #endif //NO_STEAM
