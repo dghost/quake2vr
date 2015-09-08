@@ -60,7 +60,7 @@ void R_VR_StartFrame();
 void R_VR_EndFrame(fbo_t *destination);
 
 void R_VR_GetFOV(float *fovx, float *fovy);
-void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]);
+void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec3_t eyePosOut[2], vec4_t eyeQuatOut[2]);
 
 fbo_t* R_VR_GetHUDFBO();
 fbo_t* R_VR_GetFrameFBO();

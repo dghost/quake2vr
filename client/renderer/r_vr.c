@@ -26,7 +26,7 @@ static hmd_render_t available_hmds[NUM_HMD_TYPES];
 
 static hmd_render_t *hmd;
 
-static int32_t leftStale, rightStale, hudStale;
+static int32_t stale;
 
 vr_rect_t screen;
 
@@ -282,18 +282,20 @@ void R_VR_StartFrame()
 	R_BindFBO(&screenFBO);
 	GL_SetDefaultClearColor();		
 
-	hudStale = 1;
+	stale = 1;
 
 	loadingScreen = (qboolean) (scr_draw_loading > 0 ? 1 : 0);
 
 }
 
-void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]) {
+void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2]) {
+
+
 	if (vr_autoipd->value)
 	{
 		int index;
 		for (index = 0; index < 2; index++) {
-			VectorScale(vrState.renderParams[index].viewOffset, PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eyePos[index]);
+			VectorScale(vrState.renderParams[index].viewOffset, PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eyeOffsetOut[index]);
 		}
 	}
 	else {
@@ -301,8 +303,64 @@ void R_VR_GetEyeInfo(vec3_t eyePos[2], vec4_t eyeQuat[2]) {
 		for (index = 0; index < 2; index++) {
 			int eyeSign = (-1 + index * 2);
 			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-			VectorSet(eyePos[index], eyeSign * viewOffset, 0, 0);
+			VectorSet(eyeOffsetOut[index], eyeSign * viewOffset, 0, 0);
 		}
+	}
+
+}
+
+void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec3_t eyePosOut[2], vec4_t eyeQuatOut[2]) {
+	vec3_t offset;
+
+	R_VR_CalcEyeOffsets(eyePosOut, eyeQuatOut);
+
+	// head and neck model stuff
+	if (VR_GetHeadOffset(offset))
+	{
+		vec3_t orient;
+		vec3_t out;
+		vec3_t flatView, forward, right, up;
+		float yaw;
+
+		VR_GetOrientation(orient);
+
+		yaw = viewAngles[YAW] - orient[YAW];
+
+		// clamp yaw to [-180,180]
+		yaw = yaw - floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
+
+		if (yaw > 180.0f)
+			yaw -= 360.0f;
+
+		VectorSet(flatView, 0, yaw, 0);
+		AngleVectors(flatView, forward, right, up);
+
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorNormalize(right);
+
+		// apply this using X forward, Y right, Z up
+		VectorScale(forward, offset[0], forward);
+		VectorScale(right, offset[1], right);
+		VectorScale(up, offset[2], up);
+		VectorAdd(forward, up, out);
+		VectorAdd(out, right, out);
+		VectorAdd(playerPos, out, headPosOut);
+	}
+	else if (vr_neckmodel->value)
+	{
+		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+		vec3_t forward, up, right, out;
+		AngleVectors(viewAngles, forward, right, up);
+
+		VectorNormalize(forward);
+		VectorNormalize(up);
+		VectorScale(forward, eyeDist, forward);
+		VectorScale(up, neckLength, up);
+		VectorAdd(forward, up, out);
+		out[2] -= neckLength;
+		VectorAdd(playerPos, out, headPosOut);
 	}
 
 }
@@ -377,9 +435,7 @@ void R_VR_DrawHud()
 		MatrixMultiply(temp, tmat, counter);
 	}
 
-
-	R_VR_GetEyeInfo(eyeOffsets, NULL);
-
+	R_VR_CalcEyeOffsets(eyeOffsets, NULL);
 
 	for (index = 0; index < 2; index++)
 	{
@@ -492,9 +548,8 @@ void R_VR_Enable()
 	screen.width = 0;
 	screen.height = 0;
 
-	leftStale = 1;
-	rightStale = 1;
-	hudStale = 1;
+	stale = 1;
+
 	vrStatus = 0;
 
 			

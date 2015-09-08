@@ -681,7 +681,7 @@ void R_Clear(void);
 void VR_RenderStereo ()
 {
 	extern int32_t entitycmpfnc( const entity_t *, const entity_t * );
-	vec3_t view,viewOrig, offset;
+	vec3_t view,viewOrig;
 	vec3_t eyeOffsets[2];
 
 	int index;
@@ -796,60 +796,10 @@ void VR_RenderStereo ()
 	R_RenderCommon(&cl.refdef);
 
 	VectorCopy(cl.refdef.vieworg, viewOrig);
-	VectorCopy(cl.refdef.vieworg, view);
 
-	// head and neck model stuff
-	if (VR_GetHeadOffset(offset))
-	{
-		vec3_t orient;
-		vec3_t out;
-		vec3_t flatView,forward,right,up;
-		float yaw;
-		
-		VR_GetOrientation(orient);
+	R_VR_GetEyeInfo(cl.refdef.vieworg, cl.refdef.viewangles, view, eyeOffsets, NULL);
 
-		yaw = cl.refdef.viewangles[YAW]- orient[YAW];
-
-		// clamp yaw to [-180,180]
-		yaw = yaw - floor((yaw + 180.0f) * (1.0f / 360.0f)) * 360.0f;
-
-		if (yaw > 180.0f)
-			yaw -= 360.0f;
-
-		VectorSet(flatView,0,yaw,0);
-		AngleVectors(flatView,forward,right,up);
-
-		VectorNormalize(forward);
-		VectorNormalize(up);
-		VectorNormalize(right);
-
-		// apply this using X forward, Y right, Z up
-		VectorScale(forward, offset[0] ,forward);
-		VectorScale(right,offset[1],right);
-		VectorScale(up,offset[2],up);
-		VectorAdd(forward,up,out);
-		VectorAdd(out,right,out);
-		VectorAdd(view,out,view);
-	}
-	else if (vr_neckmodel->value)
-	{
-		vec3_t forward, up, out;
-		float eyeDist = vr_neckmodel_forward->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		float neckLength = vr_neckmodel_up->value * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
-		VectorCopy(cl.v_forward,forward);
-		VectorCopy(cl.v_up,up);
-		VectorNormalize(forward);
-		VectorNormalize(up);
-		VectorScale(forward, eyeDist ,forward);
-		VectorScale(up,neckLength,up);
-		VectorAdd(forward,up,out);
-		out[2] -= neckLength;
-		VectorAdd(view,out,view); 
-	}
-
-	VectorCopy(view,cl.refdef.vieworg);
-
-	R_VR_GetEyeInfo(eyeOffsets, NULL);
+	VectorCopy(view, cl.refdef.vieworg);
 
 	// left eye rendering
 	for (index = 0; index < NUM_EYES; index++)
