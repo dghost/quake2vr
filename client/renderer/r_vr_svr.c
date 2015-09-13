@@ -157,6 +157,7 @@ void SVR_GetState(vr_param_t *state)
 void R_Clear (void);
 void SVR_Present(fbo_t *destination, qboolean loading)
 {
+    R_BindFBO(destination);
 
 	if (!vr_svr_debug->value)
 	{

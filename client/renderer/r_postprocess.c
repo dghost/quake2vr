@@ -42,6 +42,7 @@ static qboolean bloomSupported;
 static qboolean fxaaSupported;
 
 extern cvar_t *vr_rift_dk2_color_hack;
+extern cvar_t *vr_ovr_dk2_color_hack;
 
 /*
 =============
