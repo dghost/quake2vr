@@ -198,9 +198,9 @@ void R_VR_StartFrame()
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	if (w != screen.width || w != screen.height)
+	if (w != screen.width || h != screen.height)
 	{
-		screen.height = w;
+		screen.height = h;
 		screen.width = w;
 		hmd->setOffscreenSize(screen.width, screen.height);
 		resolutionChanged = true;
