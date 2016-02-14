@@ -50,13 +50,13 @@ Full screen quad stuff
 */
 
 typedef struct {
-	GLbyte x,y;
-	GLubyte	s,t;
+	GLshort x,y;
+	GLushort s,t;
 } quad_vert_t;
 
 static attribs_t postprocess_attribs[2] = {
-	{0, 2, GL_BYTE, GL_FALSE, sizeof(quad_vert_t), 0},
-	{1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(quad_vert_t), (GLvoid *) (sizeof(GLbyte) * 2)},
+	{0, 2, GL_SHORT, GL_FALSE, sizeof(quad_vert_t), 0},
+	{ 1, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(quad_vert_t), (GLvoid *) (sizeof(GLshort) * 2) },
 };
 
 static quad_vert_t quad_verts[4] = {
