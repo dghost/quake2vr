@@ -176,7 +176,7 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	if (mirrorTexture)
 		ovr_DestroyMirrorTexture(hmd, mirrorTexture);
 
-	result = ovr_CreateMirrorTextureGL(hmd, GL_SRGB8, width, height, &mirrorTexture);
+	result = ovr_CreateMirrorTextureGL(hmd, GL_RGBA, width, height, &mirrorTexture);
 
 
 	swapLayer.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
@@ -200,10 +200,10 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 			if (eyeTextures[i])
 				ovr_DestroySwapTextureSet(hmd, eyeTextures[i]);
 
-			result = ovr_CreateSwapTextureSetGL(hmd, GL_SRGB8_ALPHA8, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
+			result = ovr_CreateSwapTextureSetGL(hmd, GL_RGBA, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
 			swapLayer.ColorTexture[i] = eyeTextures[i];
 
-			R_GenFBOWithoutTexture(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, GL_SRGB8_ALPHA8, &renderInfo[i].eyeFBO);
+			R_GenFBOWithoutTexture(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, GL_RGBA, &renderInfo[i].eyeFBO);
 		}
 		swapLayer.Fov[i] = renderInfo[i].eyeFov;
 

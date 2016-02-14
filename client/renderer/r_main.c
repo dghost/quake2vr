@@ -908,10 +908,10 @@ void R_RenderViewIntoFBO (refdef_t *fd, eye_param_t parameters, fbo_t *destinati
 
 		//GL_Disable(GL_ALPHA_TEST);
 
-		GL_MBind(0,destination->texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		GL_MBind(0,0);
+		//GL_MBind(0,destination->texture);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 2);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//GL_MBind(0,0);
 	}
 
 	if ((r_newrefdef.rdflags & RDF_CAMERAEFFECT))
