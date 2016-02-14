@@ -10,13 +10,14 @@
 #include "../../backends/sdl2/sdl2quake.h"
 
 
-void OVR_FrameStart(int32_t changeBackBuffers);
-void OVR_Present(qboolean loading);
+void OVR_FrameStart();
+void OVR_Present(fbo_t *destination, qboolean loading);
 int32_t OVR_Enable(void);
 void OVR_Disable(void);
 int32_t OVR_Init(void);
 void OVR_GetState(vr_param_t *state);
 void OVR_PostPresent(void);
+void OVR_SetOffscreenSize(uint32_t width, uint32_t height);
 
 hmd_render_t vr_render_ovr = 
 {
@@ -25,9 +26,12 @@ hmd_render_t vr_render_ovr =
 	OVR_Enable,
 	OVR_Disable,
 	OVR_FrameStart,
+    OVR_SetOffscreenSize,
 	OVR_GetState,
 	OVR_Present,
-	OVR_PostPresent
+    NULL,
+    NULL
+
 };
 
 extern ovrHmd hmd;
@@ -58,10 +62,6 @@ typedef struct {
 static ovr_eye_info_t renderInfo[2];
 
 static qboolean useChroma;
-
-static fbo_t offscreen[2];
-static int currentFrame = 0;
-
 
 static r_attrib_t distAttribs[] = {
 	{"Position",0},
@@ -273,20 +273,17 @@ void OVR_CalculateState(vr_param_t *state)
 		ovrState.viewFovX = fovX;
 		ovrState.pixelScale = ovrScale * vid.width / (float) hmd->Resolution.w;
 	}
-	ovrState.enabled = true;
-	ovrState.swapToScreen = true;
 	*state = ovrState;
 }
 
 
-void OVR_FrameStart(int32_t changeBackBuffers)
+void OVR_FrameStart()
 {
 	if (vr_ovr_maxfov->modified)
 	{
 		int newValue =  vr_ovr_maxfov->value ? 1 : 0;
 		if (newValue != (int)vr_ovr_maxfov->value)
 			Cvar_SetInteger("vr_ovr_maxfov",newValue);
-		changeBackBuffers = 1;
 		vr_ovr_maxfov->modified = (qboolean) false;
 	}
 
@@ -296,7 +293,6 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 			Cvar_Set("vr_ovr_supersample", "1.0");
 		else if (vr_ovr_supersample->value > 2.0)
 			Cvar_Set("vr_ovr_supersample", "2.0");
-		changeBackBuffers = 1;
 		vr_ovr_supersample->modified = false;
 	}
 	if (useChroma != (qboolean) !!vr_chromatic->value)
@@ -306,60 +302,58 @@ void OVR_FrameStart(int32_t changeBackBuffers)
 
 	if (vr_ovr_lumoverdrive->modified)
 	{
-		changeBackBuffers = 1;
-		currentFrame = 0;
+//		currentFrame = 0;
 		vr_ovr_lumoverdrive->modified = false;
 	}
-
-	if (changeBackBuffers)
-	{
-		int i;
-		float width, height;
-		float ovrScale;
-
-		OVR_CalculateState(&currentState);
+}
 
 
-		width = glConfig.render_width / (float) hmd->Resolution.w;
-		height = glConfig.render_height / (float) hmd->Resolution.h;
-		ovrScale = (width + height) / 2.0;
-		ovrScale *= R_AntialiasGetScale() * vr_ovr_supersample->value;
-		if (vr_ovr_debug->value)
-			Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
-		for (i = 0; i < 2; i++)
-		{
-			ovrRecti viewport = {{0,0}, {0,0}};
-			renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
-			viewport.Size.w = renderInfo[i].renderTarget.w;
-			viewport.Size.h = renderInfo[i].renderTarget.h;
-			ovrHmd_GetRenderScaleAndOffset(renderInfo[i].eyeFov, renderInfo[i].renderTarget, viewport, (ovrVector2f*) renderInfo[i].UVScaleOffset);
-
-			if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
-			{
-				if (vr_ovr_debug->value)
-					Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
-				R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
-				R_ClearFBO(&renderInfo[i].eyeFBO);
-			}
-
-		}
-	}
+void OVR_SetOffscreenSize(uint32_t width, uint32_t height) {
+    int i;
+    float w, h;
+    float ovrScale;
+    
+    OVR_CalculateState(&currentState);
+    
+    
+    w = width / (float) hmd->Resolution.w;
+    h = height / (float) hmd->Resolution.h;
+    ovrScale = (w + h) / 2.0;
+    ovrScale *= R_AntialiasGetScale() * vr_ovr_supersample->value;
+    if (vr_ovr_debug->value)
+        Com_Printf("VR_OVR: Set render target scale to %.2f\n",ovrScale);
+    for (i = 0; i < 2; i++)
+    {
+        ovrRecti viewport = {{0,0}, {0,0}};
+        renderInfo[i].renderTarget = ovrHmd_GetFovTextureSize(hmd, (ovrEyeType) i, renderInfo[i].eyeFov, ovrScale);
+        viewport.Size.w = renderInfo[i].renderTarget.w;
+        viewport.Size.h = renderInfo[i].renderTarget.h;
+        ovrHmd_GetRenderScaleAndOffset(renderInfo[i].eyeFov, renderInfo[i].renderTarget, viewport, (ovrVector2f*) renderInfo[i].UVScaleOffset);
+        
+        if (renderInfo[i].renderTarget.w != renderInfo[i].eyeFBO.width || renderInfo[i].renderTarget.h != renderInfo[i].eyeFBO.height)
+        {
+            if (vr_ovr_debug->value)
+                Com_Printf("VR_OVR: Set buffer %i to size %i x %i\n",i,renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
+            R_ResizeFBO(renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, 1, GL_RGBA8, &renderInfo[i].eyeFBO);
+            R_ClearFBO(&renderInfo[i].eyeFBO);
+        }
+        
+    }
 }
 
 void OVR_GetState(vr_param_t *state)
 {
 	*state = currentState;
-	state->offscreen = &offscreen[currentFrame];
 }
 
 void R_Clear (void);
 
 void VR_OVR_QuatToEuler(ovrQuatf q, vec3_t e);
-void OVR_Present(qboolean loading)
+void OVR_Present(fbo_t *destination, qboolean loading)
 {
     int fade = vr_ovr_distortion_fade->value != 0.0f;
 	float desaturate = 0.0;
-    
+
 	if (positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_ovr_trackingloss->value > 0) {
 		if (hasPositionLock) {
 			float yawDiff = (fabsf(cameraYaw) - 105.0f) * 0.04;
@@ -401,6 +395,8 @@ void OVR_Present(qboolean loading)
 			desaturate = 1.0;
 		}
 	}
+    
+    R_BindFBO(destination);
 	GL_ClearColor(0.0, 0.0, 0.0, 1.0);
 	R_Clear();
 	GL_SetDefaultClearColor();	
@@ -428,17 +424,21 @@ void OVR_Present(qboolean loading)
 
 		glUseProgram(currentShader->shader->program);
 
-		if (hmd->Type >= ovrHmd_DK2 && vr_ovr_lumoverdrive->value)
-		{
-			int lastFrame = (currentFrame ? 0 : 1);
-			static float overdriveScaleRegularRise = 0.1f;
-			static float overdriveScaleRegularFall = 0.05f;	// falling issues are hardly visible
-
-			GL_MBind(1,offscreen[lastFrame].texture);
-			glUniform2f(currentShader->uniform.OverdriveScales,overdriveScaleRegularRise, overdriveScaleRegularFall);
-		} else {
-			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
-		}
+//		if (hmd->Type >= ovrHmd_DK2 && vr_ovr_lumoverdrive->value)
+//		{
+//			int lastFrame = (currentFrame + 1) & 0x1;
+//			static float overdriveScaleRegularRise = 0.1f;
+//			static float overdriveScaleRegularFall = 0.05f;	// falling issues are hardly visible
+//
+//			GL_MBind(1,offscreen[lastFrame].texture);
+//			glUniform2f(currentShader->uniform.OverdriveScales,overdriveScaleRegularRise, overdriveScaleRegularFall);
+//		} else {
+//			glUniform2f(currentShader->uniform.OverdriveScales,0,0);
+//		}
+//        
+        glUniform2f(currentShader->uniform.OverdriveScales,0,0);
+        
+        
 		glUniform2f(currentShader->uniform.InverseResolution,1.0/glState.currentFBO->width,1.0/glState.currentFBO->height);
 		glUniform1i(currentShader->uniform.VignetteFade,fade);
 
@@ -470,11 +470,10 @@ void OVR_Present(qboolean loading)
 			R_ReleaseIVBO();
 		}
 
-		if (vr_ovr_lumoverdrive->value)
-		{
-			GL_MBind(1,0);
-			currentFrame = (currentFrame ? 0 : 1);
-		}
+//		if (vr_ovr_lumoverdrive->value)
+//		{
+//			GL_MBind(1,0);
+//		}
 
 		GL_MBind(0,0);
 		glUseProgram(0);
@@ -493,6 +492,7 @@ void OVR_Present(qboolean loading)
 		//		glVertexPointer (3, GL_FLOAT, sizeof(vertexArray[0]), vertexArray[0]);
 
 	}
+    R_BindFBO(&screenFBO);
 
 }
 
@@ -557,10 +557,8 @@ int32_t OVR_Enable(void)
 
 	for (i = 0; i < 2; i++)
 	{
-		if (renderInfo[i].eyeFBO.valid)
+		if (renderInfo[i].eyeFBO.status)
 			R_DelFBO(&renderInfo[i].eyeFBO);
-		if (offscreen[i].valid)
-			R_DelFBO(&offscreen[i]);
 	}
 
 	camera.x.offset = 0.0;
@@ -597,10 +595,8 @@ void OVR_Disable(void)
 
 	for (i = 0; i < 2; i++)
 	{
-		if (renderInfo[i].eyeFBO.valid)
+		if (renderInfo[i].eyeFBO.status)
 			R_DelFBO(&renderInfo[i].eyeFBO);
-		if (offscreen[i].valid)
-			R_DelFBO(&offscreen[i]);
 		R_DelIVBO(&renderInfo[i].eye);
 	}
 }
@@ -611,7 +607,6 @@ int32_t OVR_Init(void)
 	for (i = 0; i < 2; i++)
 	{
 		R_InitFBO(&renderInfo[i].eyeFBO);
-		R_InitFBO(&offscreen[i]);
 		R_InitIVBO(&renderInfo[i].eye);
 
 	}

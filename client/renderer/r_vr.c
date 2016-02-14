@@ -1,6 +1,6 @@
 #include "include/r_local.h"
 #include "../vr/include/vr.h"
-#ifdef LEGACY_OCULUS
+#ifdef OCULUS_LEGACY
 #include "include/r_vr_ovr.h"
 #else
 #include "include/r_vr_rift.h"
@@ -198,9 +198,9 @@ void R_VR_StartFrame()
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	if (w != screen.width || w != screen.height)
+	if (w != screen.width || h != screen.height)
 	{
-		screen.height = w;
+		screen.height = h;
 		screen.width = w;
 		hmd->setOffscreenSize(screen.width, screen.height);
 		resolutionChanged = true;
@@ -636,9 +636,9 @@ void R_VR_Init()
 	available_hmds[HMD_STEAM] = vr_render_svr;
 #endif
 	
-#ifdef LEGACY_OCULUS
+#ifdef OCULUS_LEGACY
 	available_hmds[HMD_OVR] = vr_render_ovr;
-	available_hmds[HMD_RIFT] = vr_render_node;
+	available_hmds[HMD_RIFT] = vr_render_none;
 #else
 	available_hmds[HMD_OVR] = vr_render_none;
 	available_hmds[HMD_RIFT] = vr_render_rift;
