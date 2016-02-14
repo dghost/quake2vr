@@ -417,10 +417,18 @@ qboolean GLimp_Init()
 	return true;
 }
 
+void __stdcall GLimp_LogDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+	VID_Printf(PRINT_ALL, "debug call: %s\n", message);
+}
+
 qboolean GLimp_InitGL(void)
 {
 	SDL_DisplayMode currentMode;
 	int srgb = 0;
+	GLint debug;
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 	glcontext = SDL_GL_CreateContext(mainWindow);
 	if (!glcontext)
 	{
@@ -443,6 +451,11 @@ qboolean GLimp_InitGL(void)
 	}
 
 
+	glGetIntegerv(GL_CONTEXT_FLAGS, &debug);
+	if (debug & GL_CONTEXT_FLAG_DEBUG_BIT) {
+		VID_Printf(PRINT_ALL,"... Using OpenGL debug context\n");
+		glDebugMessageCallback(GLimp_LogDebugMessage, NULL);
+	}
 	//Knightmare- 12/24/2001- stencil buffer
 	{
 		VID_Printf(PRINT_ALL, "... Using stencil buffer\n");
