@@ -39,6 +39,7 @@ cvar_t		*vid_ypos;			// Y coordinate of window position
 cvar_t		*vid_fullscreen;
 cvar_t      *vid_desktop_fullscreen;
 cvar_t      *vid_srgb;
+cvar_t		*vid_debug;
 cvar_t      *vid_brightness;
 
 // Global variables used internally by this module
@@ -529,6 +530,7 @@ void VID_Init (void)
 	vid_fullscreen = Cvar_Get("vid_fullscreen", "1", CVAR_CLIENT);
     vid_desktop_fullscreen = Cvar_Get( "vid_desktop_fullscreen", "1", CVAR_CLIENT );
 	vid_srgb = Cvar_Get("vid_srgb", "1", CVAR_CLIENT);
+	vid_debug = Cvar_Get("vid_debug", "0", CVAR_CLIENT);
 	vid_brightness = Cvar_Get("vid_brightness", "0.6", CVAR_CLIENT);
     
 
