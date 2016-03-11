@@ -24,13 +24,13 @@ cvar_t *vr_rift_autoprediction;
 cvar_t *vr_rift_dk2_color_hack;
 cvar_t *vr_rift_trackingloss;
 
-ovrHmd hmd;
+ovrSession hmd;
 ovrHmdDesc hmdDesc;
 ovrGraphicsLuid graphicsLuid;
 ovrEyeRenderDesc eyeDesc[2];
 
 ovrTrackingState trackingState;
-ovrFrameTiming frameTime;
+double frameTime;
 static ovrBool sensorEnabled = 0;
 
 static ovrBool libovrInitialized = 0;
@@ -122,10 +122,10 @@ int32_t VR_Rift_getOrientation(float euler[3])
 		return 0;
 
 	if (vr_rift_autoprediction->value > 0)
-		time = frameTime.DisplayMidpointSeconds;
+		time = frameTime;
 	else
 		time = ovr_GetTimeInSeconds() + prediction_time;
-	trackingState = ovr_GetTrackingState(hmd, time);
+	trackingState = ovr_GetTrackingState(hmd, time, true);
 	if (trackingState.StatusFlags & ovrStatus_OrientationTracked)
 	{
 		vec3_t temp;
@@ -213,7 +213,7 @@ void VR_Rift_FrameStart()
 
 	if (!renderExport.withinFrame)
 	{
-		frameTime = ovr_GetFrameTiming(hmd, 0);
+		frameTime =ovr_GetPredictedDisplayTime(hmd, 0);
 	}
 	renderExport.withinFrame = true;
 }

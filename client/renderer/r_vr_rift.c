@@ -33,11 +33,11 @@ hmd_render_t vr_render_rift =
 rift_render_export_t renderExport;
 
 
-extern ovrHmd hmd;
+extern ovrSession hmd;
 extern ovrHmdDesc hmdDesc;
 extern ovrEyeRenderDesc eyeDesc[2];
 extern ovrTrackingState trackingState;
-extern ovrFrameTiming frameTime;
+extern double frameTime;
 ovrVector3f      hmdToEyeViewOffset[2];
 
 static vec4_t cameraFrustum[4];
@@ -197,8 +197,10 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 				Com_Printf("VR_Rift: Set buffer %i to size %i x %i\n", i, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h);
 
 			R_DelFBO(&renderInfo[i].eyeFBO);
-			if (eyeTextures[i])
+			if (eyeTextures[i]) {
 				ovr_DestroySwapTextureSet(hmd, eyeTextures[i]);
+				eyeTextures[i] = NULL;
+			}
 
 			result = ovr_CreateSwapTextureSetGL(hmd, GL_RGBA, renderInfo[i].renderTarget.w, renderInfo[i].renderTarget.h, &eyeTextures[i]);
 			swapLayer.ColorTexture[i] = eyeTextures[i];
@@ -269,7 +271,6 @@ void VR_Rift_QuatToEuler(ovrQuatf q, vec3_t e);
 void Rift_Present(fbo_t *destination, qboolean loading)
 {
 	float desaturate = 0.0;
-
 	if (renderExport.positionTracked && trackingState.StatusFlags & ovrStatus_PositionConnected && vr_rift_trackingloss->value > 0) {
 		if (renderExport.hasPositionLock) {
 			float yawDiff = (fabsf(renderExport.cameraYaw) - 105.0f) * 0.04;
