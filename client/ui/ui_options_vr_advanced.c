@@ -142,7 +142,12 @@ static void ResolutionFunc(void *unused)
 	height = 480;
 	width = 640;
 
-	if (temp > 0)
+	if (temp > 1)
+	{
+		width = 1024;
+		height = 768;
+	}
+	else if (temp > 0)
 	{
 		width = 800;
 		height = 600;
@@ -186,11 +191,14 @@ static void VRAdvSetMenuItemValues( void )
 		int height = Cvar_VariableInteger("vr_hud_height");
 		int width = Cvar_VariableInteger("vr_hud_width");
 		int value = 0;
-		if (height > 480 || width > 640) {
+		if (height > 600 || width > 800) {
+			value = 2;
+		}
+		else if (height > 480 || width > 640) {
 			value = 1;
 		}
 		
-		s_options_vr_advanced_hud_resolution_box.curvalue = ClampCvar(0,2,value);
+		s_options_vr_advanced_hud_resolution_box.curvalue = ClampCvar(0,3,value);
 
 	}
 	
@@ -255,6 +263,7 @@ void Options_VR_Advanced_MenuInit ( void )
 	{
 		"640x480",
 		"800x600",
+		"1024x768",
 		0
 	};
 

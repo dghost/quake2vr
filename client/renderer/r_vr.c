@@ -288,21 +288,21 @@ void R_VR_StartFrame()
 
 }
 
-void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2]) {
-
+void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2], qboolean playerScale) {
+	vec_t scale = playerScale ? PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M : 1;
 
 	if (vr_autoipd->value)
 	{
 		int index;
 		for (index = 0; index < 2; index++) {
-			VectorScale(vrState.renderParams[index].viewOffset, PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M, eyeOffsetOut[index]);
+			VectorScale(vrState.renderParams[index].viewOffset, scale, eyeOffsetOut[index]);
 		}
 	}
 	else {
 		int index;
 		for (index = 0; index < 2; index++) {
 			int eyeSign = (-1 + index * 2);
-			float viewOffset = (vr_ipd->value / 2000.0) * PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M;
+			float viewOffset = (vr_ipd->value / 2000.0) * scale;
 			VectorSet(eyeOffsetOut[index], eyeSign * viewOffset, 0, 0);
 		}
 	}
@@ -312,7 +312,7 @@ void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2]) {
 void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec3_t eyePosOut[2], vec4_t eyeQuatOut[2]) {
 	vec3_t offset;
 
-	R_VR_CalcEyeOffsets(eyePosOut, eyeQuatOut);
+	R_VR_CalcEyeOffsets(eyePosOut, eyeQuatOut, true);
 
 	// head and neck model stuff
 	if (VR_GetHeadOffset(offset))
@@ -435,7 +435,7 @@ void R_VR_DrawHud()
 		MatrixMultiply(temp, tmat, counter);
 	}
 
-	R_VR_CalcEyeOffsets(eyeOffsets, NULL);
+	R_VR_CalcEyeOffsets(eyeOffsets, NULL, false);
 
 	for (index = 0; index < 2; index++)
 	{

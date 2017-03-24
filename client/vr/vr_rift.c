@@ -117,9 +117,17 @@ void VR_Rift_QuatToEuler(ovrQuatf q, vec3_t e)
 int32_t VR_Rift_getOrientation(float euler[3])
 {
 	double time = 0.0;
+	ovrSessionStatus sessionStatus;
 
 	if (!hmd)
 		return 0;
+
+	ovr_GetSessionStatus(hmd, &sessionStatus);
+
+	if (sessionStatus.ShouldRecenter)
+	{
+		ovr_RecenterTrackingOrigin(hmd);
+	}
 
 	if (vr_rift_autoprediction->value > 0)
 		time = frameTime;
@@ -128,14 +136,14 @@ int32_t VR_Rift_getOrientation(float euler[3])
 	trackingState = ovr_GetTrackingState(hmd, time, true);
 	if (trackingState.StatusFlags & ovrStatus_OrientationTracked)
 	{
-		vec3_t temp;
+		//vec3_t temp;
 		VR_Rift_QuatToEuler(trackingState.HeadPose.ThePose.Orientation, euler);
-		if (trackingState.StatusFlags & ovrStatus_PositionTracked) {
+		/*if (trackingState.StatusFlags & ovrStatus_PositionTracked) {
 			VR_Rift_QuatToEuler(trackingState.LeveledCameraPose.Orientation, temp);
 			renderExport.cameraYaw = euler[YAW] - temp[YAW];
 			AngleClamp(&renderExport.cameraYaw);
 		}
-		else {
+		else*/ {
 			renderExport.cameraYaw = 0.0;
 		}
 		return 1;
@@ -164,7 +172,7 @@ int32_t VR_Rift_getPosition(float pos[3])
 			VectorScale(pos, (PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M), pos);
 		}
 
-		if (vr_rift_trackingloss->value > 0 && trackingState.StatusFlags & ovrStatus_PositionConnected)
+		if (vr_rift_trackingloss->value > 0 && trackingState.StatusFlags & ovrTracker_Connected)
 		{
 			if (tracked && !renderExport.hasPositionLock && vr_rift_debug->value)
 				SCR_CenterAlert("Position tracking enabled");
@@ -181,23 +189,12 @@ int32_t VR_Rift_getPosition(float pos[3])
 void VR_Rift_ResetHMDOrientation()
 {
 	if (hmd)
-		ovr_RecenterPose(hmd);
+		ovr_RecenterTrackingOrigin(hmd);
 }
 
 ovrBool VR_Rift_InitSensor()
 {
-	uint32_t sensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection;
-
-	if (sensorEnabled)
-	{
-		sensorEnabled = 0;
-	}
-
-	sensorCaps |= ovrTrackingCap_Position;
-
-	sensorEnabled = ovr_ConfigureTracking(hmd, sensorCaps, ovrTrackingCap_Orientation);
-
-	return sensorEnabled;
+	return hmdDesc.AvailableTrackingCaps & (ovrTrackingCap_Orientation | ovrTrackingCap_Position);
 }
 
 int32_t VR_Rift_SetPredictionTime(float time)
@@ -282,8 +279,6 @@ int32_t VR_Rift_Enable()
 
 		hmdDesc = ovr_GetHmdDesc(hmd);
 
-		ovr_SetEnabledCaps(hmd, hmdDesc.DefaultHmdCaps);
-
 		if (hmdDesc.AvailableHmdCaps & ovrTrackingCap_Position) {
 			renderExport.positionTracked = (qboolean) true;
 			Com_Printf("...supports position tracking\n");
@@ -331,9 +326,9 @@ int32_t VR_Rift_Init()
 	*/
 
 	vr_rift_trackingloss = Cvar_Get("vr_rift_trackingloss", "1", CVAR_CLIENT);
-	vr_rift_maxfov = Cvar_Get("vr_rift_maxfov", "0", CVAR_CLIENT);
+	vr_rift_maxfov = Cvar_Get("vr_rift_maxfov", "1", CVAR_CLIENT);
 	vr_rift_enable = Cvar_Get("vr_rift_enable", "1", CVAR_CLIENT);
-	vr_rift_dk2_color_hack = Cvar_Get("vr_rift_dk2_color_hack", "1", CVAR_CLIENT);
+	vr_rift_dk2_color_hack = Cvar_Get("vr_rift_dk2_color_hack", "0", CVAR_CLIENT);
 	vr_rift_debug = Cvar_Get("vr_rift_debug", "0", CVAR_CLIENT);
 	vr_rift_autoprediction = Cvar_Get("vr_rift_autoprediction", "1", CVAR_CLIENT);
 

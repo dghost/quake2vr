@@ -348,6 +348,11 @@ void VR_ResetOrientation( void )
 
 }
 
+void VR_Input()
+{
+
+}
+
 // this is a little overkill on the abstraction, but the point of it was to try to make it
 // possible to support other HMD's in the future without having to rewrite other portions of the engine.
 // -dghost 08/17/13
@@ -463,16 +468,16 @@ void VR_Startup(void)
 	vr_walkspeed = Cvar_Get("vr_walkspeed","1.0",CVAR_CLIENT);
 	vr_viewmove = Cvar_Get("vr_viewmove","0",CVAR_CLIENT);
 	vr_positiontracking = Cvar_Get("vr_positiontracking","1",CVAR_CLIENT);
-	vr_prediction = Cvar_Get("vr_prediction","30",CVAR_CLIENT);
+	vr_prediction = Cvar_Get("vr_prediction","0",CVAR_CLIENT);
 	vr_nosleep = Cvar_Get("vr_nosleep", "1", CVAR_CLIENT);
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_CLIENT);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_CLIENT);
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_CLIENT);
 	vr_ipd = Cvar_Get("vr_ipd","64", CVAR_CLIENT);
-	vr_hud_width = Cvar_Get("vr_hud_width","640",CVAR_CLIENT);
+	vr_hud_width = Cvar_Get("vr_hud_width","800",CVAR_CLIENT);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_CLIENT);
 	vr_hud_segments = Cvar_Get("vr_hud_segments","15",CVAR_CLIENT);
-	vr_hud_height = Cvar_Get("vr_hud_height","480",CVAR_CLIENT);
+	vr_hud_height = Cvar_Get("vr_hud_height","600",CVAR_CLIENT);
 	vr_hud_fov = Cvar_Get("vr_hud_fov","58",CVAR_CLIENT);
 	vr_hud_depth = Cvar_Get("vr_hud_depth","1.0",CVAR_CLIENT);
 	vr_hud_bounce_falloff = Cvar_Get("vr_hud_bounce_falloff","15",CVAR_CLIENT);

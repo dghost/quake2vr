@@ -494,6 +494,11 @@ IN_Commands
 */
 void IN_Commands (void)
 {
+	if (vr_enabled->value)
+	{
+		VR_Input();
+	}
+
 	switch((int32_t) in_controller->value)
 	{
 	case ControllerSDLController:

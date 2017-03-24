@@ -404,7 +404,9 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_autoipd_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ipd_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_advanced_action );
+#ifdef OCULUS_LEGACY
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_ovr_action );
+#endif
 
 #ifndef NO_STEAM
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_svr_action );

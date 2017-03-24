@@ -199,9 +199,14 @@ void SetCrosshairNames (void)
     {
         int32_t num, namelen;
         char *e;
+		char *xhair = Q_SSetGetString(&crosshairs, i);
         
+		if (xhair == NULL)
+		{
+			continue;
+		}
         
-        p = strstr(Q_SSetGetString(&crosshairs, i), "/"); p++;
+        p = strstr(xhair, "/"); p++;
         namelen = strlen(p);
         e = p + namelen - 4;
         

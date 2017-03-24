@@ -20,9 +20,7 @@ typedef enum {
 	HMD_NONE,
 	HMD_RIFT,
 	HMD_OVR,
-#ifndef NO_STEAM
 	HMD_STEAM,
-#endif
 	NUM_HMD_TYPES
 } hmd_t;
 
@@ -114,6 +112,7 @@ void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
 int32_t VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
+void VR_Input();
 int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos);
 int32_t VR_GetHMDResolution(int32_t *width, int32_t *height);
 

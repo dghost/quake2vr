@@ -235,6 +235,7 @@ extern	cvar_t	*r_ignorehwgamma; // Knightmare- hardware gamma
 extern	cvar_t	*vid_refresh; // Knightmare- refresh rate control
 extern  cvar_t  *vid_width;
 extern  cvar_t  *vid_height;
+extern  cvar_t  *vid_gamma2; // direct gamma changes
 
 extern	cvar_t	*r_waterwave;	// Knightmare- water waves
 extern  cvar_t  *r_waterquality; // dghost - new water options

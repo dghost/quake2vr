@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdint.h>
 #include <time.h>
 
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
 #include <stdbool.h>
 #endif
 
