@@ -124,13 +124,18 @@ void Rift_CalculateState(vr_param_t *state)
 
 		ovrState.eyeFBO[eye] = &renderInfo[eye].eyeFBO;
 
+		// set up rendering info
+		eyeDesc[eye] = ovr_GetRenderDesc(hmd, (ovrEyeType)eye, renderInfo[eye].eyeFov);
+		{
+			float vfov = atanf(renderInfo[eye].eyeFov.UpTan) + atanf(renderInfo[eye].eyeFov.DownTan);
+			renderInfo[eye].eyeFov.UpTan = renderInfo[eye].eyeFov.DownTan = tanf(vfov / 2);
+		}
+
+
 		ovrState.renderParams[eye].projection.x.scale = 2.0f / (renderInfo[eye].eyeFov.LeftTan + renderInfo[eye].eyeFov.RightTan);
 		ovrState.renderParams[eye].projection.x.offset = (renderInfo[eye].eyeFov.LeftTan - renderInfo[eye].eyeFov.RightTan) * ovrState.renderParams[eye].projection.x.scale * 0.5f;
 		ovrState.renderParams[eye].projection.y.scale = 2.0f / (renderInfo[eye].eyeFov.UpTan + renderInfo[eye].eyeFov.DownTan);
 		ovrState.renderParams[eye].projection.y.offset = (renderInfo[eye].eyeFov.UpTan - renderInfo[eye].eyeFov.DownTan) * ovrState.renderParams[eye].projection.y.scale * 0.5f;
-
-		// set up rendering info
-		eyeDesc[eye] = ovr_GetRenderDesc(hmd, (ovrEyeType) eye, renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
 			eyeDesc[eye].HmdToEyeOffset.x,
@@ -147,7 +152,7 @@ void Rift_CalculateState(vr_param_t *state)
 		ovrState.aspect = combinedTanHalfFovHorizontal / combinedTanHalfFovVertical;
 		ovrState.viewFovY = fovY;
 		ovrState.viewFovX = fovX;
-		ovrState.pixelScale = vid.width / (float) hmdDesc.Resolution.w;
+		ovrState.pixelScale = vr_supersampling->value;
 	}
 
 	HmdToEyeOffset[0] = eyeDesc[0].HmdToEyeOffset;
@@ -159,7 +164,7 @@ void Rift_CalculateState(vr_param_t *state)
 
 void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	int i;
-	float w, h;
+	//float w, h;
 	float ovrScale;
 	ovrResult result;
 	ovrMirrorTextureDesc mirrorDesc;
@@ -167,11 +172,11 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 
 	Rift_CalculateState(&currentState);
 
-	w = width / (float) hmdDesc.Resolution.w;
-	h = height / (float) hmdDesc.Resolution.h;
-
+	//w = width / (float) hmdDesc.Resolution.w;
+	//h = height / (float) hmdDesc.Resolution.h;
 	//ovrScale = (w + h) / 2.0;
-	ovrScale = 1;
+
+	ovrScale = vr_supersampling->value;
 	if (vr_rift_debug->value)
 		Com_Printf("VR_Rift: Set render target scale to %.2f\n", ovrScale);
 
@@ -348,6 +353,7 @@ void Rift_Present(fbo_t *destination, qboolean loading)
 		int i;
 
 		ovrLayerHeader* layers = &swapLayer.Header;
+		ovrViewScaleDesc scaleDesc;
 		ovrResult result;
 		swapLayer.RenderPose[0] = eyePoses[0];
 		swapLayer.RenderPose[1] = eyePoses[1];
@@ -364,7 +370,11 @@ void Rift_Present(fbo_t *destination, qboolean loading)
 			ovr_CommitTextureSwapChain(hmd, eyeTextures[i]);
 		}
 
-		result = ovr_SubmitFrame(hmd, 0, NULL, &layers, 1);
+		scaleDesc.HmdToEyeOffset[0] = eyeDesc[0].HmdToEyeOffset;
+		scaleDesc.HmdToEyeOffset[1] = eyeDesc[1].HmdToEyeOffset;
+		scaleDesc.HmdSpaceToWorldScaleInMeters = 1;
+
+		result = ovr_SubmitFrame(hmd, riftFrameIndex++, &scaleDesc, &layers, 1);
 
 		R_BlitFlipped(mirrorTextureTexId);
 	}

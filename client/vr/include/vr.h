@@ -19,8 +19,12 @@ typedef struct {
 typedef enum {
 	HMD_NONE,
 	HMD_RIFT,
+#ifdef OCULUS_LEGACY
 	HMD_OVR,
+#endif
+#ifndef NO_STEAM
 	HMD_STEAM,
+#endif
 	NUM_HMD_TYPES
 } hmd_t;
 
@@ -47,6 +51,14 @@ typedef struct {
 	void (*getHMDPos)(int32_t *xpos, int32_t *ypos);
 	// getHMDResolution can be NULL if not supported
 	void (*getHMDResolution)(int32_t *width, int32_t *height);
+	// getControllerOrientation can be NULL if not supported
+	int32_t(*getControllerOrientation)(float euler[3]);
+	// getControllerOffset can be NULL if controller position tracking is unsupported
+	int32_t(*getControllerOffset)(float offset[3]);
+	// getInputCommands can be NULL if not supported
+	void(*getInputCommands)();
+	// getControllerMoveInput can be NULL if not supported
+	void(*getControllerMoveInput)();
 } hmd_interface_t;
 
 
@@ -55,6 +67,7 @@ extern cvar_t *vr_autoenable;
 extern cvar_t *vr_autofov;
 extern cvar_t *vr_autofov_scale;
 extern cvar_t *vr_autoipd;
+extern cvar_t *vr_autocrouch;
 extern cvar_t *vr_ipd;
 extern cvar_t *vr_hud_fov;
 extern cvar_t *vr_hud_depth;
@@ -67,6 +80,8 @@ extern cvar_t *vr_aimlaser;
 extern cvar_t *vr_aimmode;
 extern cvar_t *vr_aimmode_deadzone_yaw;
 extern cvar_t *vr_aimmode_deadzone_pitch;
+extern cvar_t *vr_controllermode;
+extern cvar_t *vr_comfortturn;
 extern cvar_t *vr_viewmove;
 extern cvar_t *vr_hud_bounce;
 extern cvar_t *vr_hud_bounce_falloff;
@@ -76,9 +91,11 @@ extern cvar_t *vr_nosleep;
 extern cvar_t *vr_neckmodel;
 extern cvar_t *vr_neckmodel_up;
 extern cvar_t *vr_neckmodel_forward;
+extern cvar_t *vr_heightoffset;
 extern cvar_t *vr_walkspeed;
 extern cvar_t *vr_force_fullscreen;
 extern cvar_t *vr_force_resolution;
+extern cvar_t *vr_supersampling;
 
 typedef enum {
 	VR_AIMMODE_DISABLE,
@@ -94,11 +111,21 @@ typedef enum {
 } vr_aimmode_t;
 
 typedef enum {
+	VR_CONTROLLERMODE_DISABLE,
+	VR_CONTROLLERMODE_RIGHTHAND,
+	VR_CONTROLLERMODE_LEFTHAND,
+	NUM_VR_CONTROLLERMODE
+} vr_aimmode_t;
+
+typedef enum {
 	VR_HUD_BOUNCE_NONE,
 	VR_HUD_BOUNCE_SES,
 	VR_HUD_BOUNCE_LES,
 	NUM_HUD_BOUNCE_MODES
 } vr_bounce_mode_t;
+
+extern float vr_orientation_deltayaw;
+extern float vr_comfortturn_delta;
 
 void VR_Startup();
 void VR_Teardown();
@@ -106,13 +133,19 @@ int32_t VR_Enable();
 void VR_Disable();
 void VR_FrameStart();
 void VR_FrameEnd();
+int32_t VR_GetControllerOrientation(vec3_t angle);
+void VR_GetControllerOrientationDelta(vec3_t angle);
+int32_t VR_GetControllerOffset(vec3_t offset);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);
 void VR_GetOrientationEMAQuat(vec3_t quat);
 int32_t VR_GetHeadOffset(vec3_t offset);
 void VR_ResetOrientation();
-void VR_Input();
+void VR_ComfortTurn_Left();
+void VR_ComfortTurn_Right();
+void VR_InputCommands();
+void VR_IN_Move(usercmd_t *cmd);
 int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos);
 int32_t VR_GetHMDResolution(int32_t *width, int32_t *height);
 

@@ -103,8 +103,6 @@ cvar_t	*r_dlights_normal; // lerped dlights on models
 cvar_t	*r_model_shading;
 cvar_t	*r_model_dlights;
 
-cvar_t	*vid_gamma2; // direct gamma changes
-
 cvar_t	*r_lightlevel;	// FIXME: This is a HACK to get the client's light level
 
 cvar_t	*r_rgbscale; // Vic's RGB brightening
@@ -1071,7 +1069,6 @@ void R_Register (void)
 	r_ignorehwgamma = Cvar_Get("r_ignorehwgamma", "0", CVAR_CLIENT);	// hardware gamma
 	vid_refresh = Cvar_Get ("vid_refresh", "0", CVAR_CLIENT); // refresh rate control
 	Cvar_AssertRange(vid_refresh, 0, 150, true);
-	vid_gamma2 = Cvar_Get("vid_gamma2", "1", CVAR_CLIENT); // direct gamma changes
 
 	vid_width = Cvar_Get("vid_width", "1280", CVAR_CLIENT);
 	vid_height = Cvar_Get("vid_height", "800", CVAR_CLIENT);
@@ -1850,14 +1847,6 @@ void R_BeginFrame()
 			vid_gamma = bright * 1.3  + 1.0;
 		}
 
-	}
-
-	if (vid_gamma2->modified)
-	{
-		float gamma = max(0.1, min(3, vid_gamma2->value));
-		vid_gamma = gamma;
-
-		vid_gamma2->modified = false;
 	}
 
 	GLimp_BeginFrame(  );

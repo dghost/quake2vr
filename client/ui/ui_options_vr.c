@@ -38,6 +38,8 @@ INTERFACE MENU
 static menuframework_s	s_options_vr_menu;
 static menuseparator_s	s_options_vr_header;
 static menulist_s		s_options_vr_aimmode_box;
+static menulist_s		s_options_vr_controllermode_box;
+static menulist_s		s_options_vr_comfortturn_box;
 static menulist_s		s_options_vr_laser_box;
 static menufield_s		s_options_vr_aimmode_deadzone_pitch_field;
 static menufield_s		s_options_vr_aimmode_deadzone_yaw_field;
@@ -72,6 +74,30 @@ static void AimmodeFunc( void *unused )
 	Cvar_SetInteger( "vr_aimmode", s_options_vr_aimmode_box.curvalue);
 }
 
+static void ControllerModeFunc(void *unused)
+{
+	Cvar_SetInteger("vr_controllermode", s_options_vr_controllermode_box.curvalue);
+	if (hand->value != 2 && (s_options_vr_controllermode_box.curvalue == VR_CONTROLLERMODE_RIGHTHAND || s_options_vr_controllermode_box.curvalue == VR_CONTROLLERMODE_LEFTHAND))
+	{
+		hand->value = s_options_vr_aimmode_box.curvalue - 1;
+		Cvar_SetInteger("hand", hand->value);
+	}
+}
+
+static void ComfortTurnFunc(void *unused)
+{
+	float comfortTurn = 0;
+	if (s_options_vr_comfortturn_box.curvalue == 2)
+	{
+		comfortTurn = 45;
+	}
+	else if (s_options_vr_comfortturn_box.curvalue == 1)
+	{
+		comfortTurn = 22.5;
+	}
+	Cvar_SetValue("vr_comfortturn", comfortTurn);
+}
+
 static void ViewmodeFunc( void *unused )
 {
 	Cvar_SetInteger( "vr_viewmove", s_options_vr_viewmove_box.curvalue);
@@ -93,6 +119,13 @@ static void AutoIPDFunc ( void *unused )
 static void VRSetMenuItemValues( void )
 {
 	s_options_vr_aimmode_box.curvalue = ( Cvar_VariableValue("vr_aimmode") );
+	s_options_vr_controllermode_box.curvalue = (Cvar_VariableValue("vr_controllermode"));
+	{
+		float comfortTurn = Cvar_VariableValue("vr_comfortturn");
+		if (comfortTurn == 45) s_options_vr_comfortturn_box.curvalue = 2;
+		else if (comfortTurn == 22.5) s_options_vr_comfortturn_box.curvalue = 1;
+		else s_options_vr_comfortturn_box.curvalue = 0;
+	}
 	s_options_vr_viewmove_box.curvalue = ( Cvar_VariableValue("vr_viewmove") );
 	s_options_vr_autoipd_box.curvalue = ( Cvar_VariableValue("vr_autoipd") );
 	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
@@ -112,6 +145,8 @@ static void VRSetMenuItemValues( void )
 static void VRResetDefaultsFunc ( void *unused )
 {
 	Cvar_SetToDefault ("vr_aimmode");
+	Cvar_SetToDefault ("vr_controllermode");
+	Cvar_SetToDefault ("vr_comfortturn");
 	Cvar_SetToDefault ("vr_aimlaser");
 
 	Cvar_SetToDefault ("vr_viewmove");
@@ -228,6 +263,22 @@ void Options_VR_MenuInit ( void )
 		0
 	};
 
+	static const char *controllermode_names[] =
+	{
+		"disabled",
+		"right-hand aim",
+		"left-hand aim",
+		0
+	};
+
+	static const char *comfortturn_names[] =
+	{
+		"disabled",
+		"22.5 degrees",
+		"45 degrees",
+		0
+	};
+
 	static const char *auto_names[] =
 	{
 		"custom",
@@ -263,6 +314,22 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_laser_box.itemnames				= yesno_names;
 	s_options_vr_laser_box.generic.statusbar		= "replaces the cursor with an aiming laser";
 
+	s_options_vr_controllermode_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_vr_controllermode_box.generic.x = MENU_FONT_SIZE;
+	s_options_vr_controllermode_box.generic.y = y += MENU_LINE_SIZE;
+	s_options_vr_controllermode_box.generic.name = "vr controller support";
+	s_options_vr_controllermode_box.generic.callback = ControllerModeFunc;
+	s_options_vr_controllermode_box.itemnames = controllermode_names;
+	s_options_vr_controllermode_box.generic.statusbar = "aim with VR hand controllers. orientation only.";
+
+	s_options_vr_comfortturn_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_vr_comfortturn_box.generic.x = MENU_FONT_SIZE;
+	s_options_vr_comfortturn_box.generic.y = y += MENU_LINE_SIZE;
+	s_options_vr_comfortturn_box.generic.name = "comfort turning";
+	s_options_vr_comfortturn_box.generic.callback = ComfortTurnFunc;
+	s_options_vr_comfortturn_box.itemnames = comfortturn_names;
+	s_options_vr_comfortturn_box.generic.statusbar = "snap turning each time turn left/ right is pressed";
+
 	s_options_vr_viewmove_box.generic.type		= MTYPE_SPINCONTROL;
 	s_options_vr_viewmove_box.generic.x			= MENU_FONT_SIZE;
 	s_options_vr_viewmove_box.generic.y			= y+=MENU_LINE_SIZE;
@@ -279,8 +346,8 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_deadzone_pitch_field.generic.callback = DeadzoneFunc;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_aimmode_deadzone_pitch_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_aimmode_deadzone_pitch_field.length	= 5;
-	s_options_vr_aimmode_deadzone_pitch_field.visible_length = 5;
+	s_options_vr_aimmode_deadzone_pitch_field.length	= 6;
+	s_options_vr_aimmode_deadzone_pitch_field.visible_length = 6;
 	strcpy( s_options_vr_aimmode_deadzone_pitch_field.buffer, vr_aimmode_deadzone_pitch->string );
 	s_options_vr_aimmode_deadzone_pitch_field.cursor = strlen( vr_aimmode_deadzone_pitch->string );
 
@@ -291,8 +358,8 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_aimmode_deadzone_yaw_field.generic.callback = DeadzoneFunc;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_aimmode_deadzone_yaw_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_aimmode_deadzone_yaw_field.length	= 5;
-	s_options_vr_aimmode_deadzone_yaw_field.visible_length = 5;
+	s_options_vr_aimmode_deadzone_yaw_field.length	= 6;
+	s_options_vr_aimmode_deadzone_yaw_field.visible_length = 6;
 	strcpy( s_options_vr_aimmode_deadzone_yaw_field.buffer, vr_aimmode_deadzone_yaw->string );
 	s_options_vr_aimmode_deadzone_yaw_field.cursor = strlen( vr_aimmode_deadzone_yaw->string );
 
@@ -311,8 +378,8 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_hud_deadzone_yaw_field.generic.callback = DeadzoneFunc;
 	s_options_vr_hud_deadzone_yaw_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_hud_deadzone_yaw_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_hud_deadzone_yaw_field.length	= 5;
-	s_options_vr_hud_deadzone_yaw_field.visible_length = 5;
+	s_options_vr_hud_deadzone_yaw_field.length	= 6;
+	s_options_vr_hud_deadzone_yaw_field.visible_length = 6;
 	strcpy( s_options_vr_hud_deadzone_yaw_field.buffer, vr_hud_deadzone_yaw->string );
 	s_options_vr_hud_deadzone_yaw_field.cursor = strlen( vr_hud_deadzone_yaw->string );
 
@@ -340,8 +407,8 @@ void Options_VR_MenuInit ( void )
 	s_options_vr_ipd_field.generic.callback = IPDFunc;
 	s_options_vr_ipd_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_ipd_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_ipd_field.length	= 5;
-	s_options_vr_ipd_field.visible_length = 5;
+	s_options_vr_ipd_field.length	= 6;
+	s_options_vr_ipd_field.visible_length = 6;
 	strcpy( s_options_vr_ipd_field.buffer, vr_ipd->string );
 	s_options_vr_ipd_field.cursor = strlen( vr_ipd->string );
 
@@ -395,6 +462,8 @@ void Options_VR_MenuInit ( void )
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_header );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_laser_box );
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_controllermode_box);
+	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_comfortturn_box);
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_viewmove_box );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_pitch_field );
 	Menu_AddItem( &s_options_vr_menu, ( void * ) &s_options_vr_aimmode_deadzone_yaw_field );

@@ -198,12 +198,13 @@ void R_VR_StartFrame()
 	if (!hmd || !hmd->frameStart || !hmd->getState)
 		return;
 	
-	if (w != screen.width || h != screen.height)
+	if (w != screen.width || h != screen.height || vr_supersampling->modified)
 	{
 		screen.height = h;
 		screen.width = w;
 		hmd->setOffscreenSize(screen.width, screen.height);
 		resolutionChanged = true;
+		vr_supersampling->modified = false;
 	}
 
 	hmd->frameStart();
@@ -332,6 +333,7 @@ void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec
 		if (yaw > 180.0f)
 			yaw -= 360.0f;
 
+		VectorSet(out, 0, 0, 0);
 		VectorSet(flatView, 0, yaw, 0);
 		AngleVectors(flatView, forward, right, up);
 
@@ -342,7 +344,14 @@ void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec
 		// apply this using X forward, Y right, Z up
 		VectorScale(forward, offset[0], forward);
 		VectorScale(right, offset[1], right);
-		VectorScale(up, offset[2], up);
+		if (vr_heightoffset->value)
+		{
+			VectorScale(up, offset[2] + vr_heightoffset->value * (PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M), up);
+		}
+		else
+		{
+			VectorScale(up, offset[2], up);
+		}
 		VectorAdd(forward, up, out);
 		VectorAdd(out, right, out);
 		VectorAdd(playerPos, out, headPosOut);
@@ -357,12 +366,18 @@ void R_VR_GetEyeInfo(vec3_t playerPos, vec3_t viewAngles, vec3_t headPosOut, vec
 		VectorNormalize(forward);
 		VectorNormalize(up);
 		VectorScale(forward, eyeDist, forward);
-		VectorScale(up, neckLength, up);
+		if (vr_heightoffset->value)
+		{
+			VectorScale(up, neckLength + vr_heightoffset->value * (PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M), up);
+		}
+		else
+		{
+			VectorScale(up, neckLength, up);
+		}
 		VectorAdd(forward, up, out);
 		out[2] -= neckLength;
 		VectorAdd(playerPos, out, headPosOut);
 	}
-
 }
 
 
@@ -640,7 +655,7 @@ void R_VR_Init()
 	available_hmds[HMD_OVR] = vr_render_ovr;
 	available_hmds[HMD_RIFT] = vr_render_none;
 #else
-	available_hmds[HMD_OVR] = vr_render_none;
+	//available_hmds[HMD_OVR] = vr_render_none;
 	available_hmds[HMD_RIFT] = vr_render_rift;
 #endif
 

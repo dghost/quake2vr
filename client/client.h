@@ -722,6 +722,7 @@ extern 	kbutton_t 	in_speed;
 void CL_InitInput (void);
 void CL_SendCmd (void);
 void CL_SendMove (usercmd_t *cmd);
+void ThumbstickMove(usercmd_t *cmd, vec3_t leftPos, vec3_t rightPos, qboolean vr);
 
 void CL_ClearState (void);
 

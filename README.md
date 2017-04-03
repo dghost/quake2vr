@@ -1,15 +1,38 @@
-### Quake II VR
+### Quake II VR (LibOVR 1.12 fork, 2017/04/__)
 
 This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.
+This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incorporates work from [RiftQuake](https://github.com/phoboslab/Quakespasm-Rift/). This version was forked from the [libovr-0.8 branch of Quake II VR](https://github.com/q2vr/quake2vr/tree/libovr-0.8).
 
-This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incorporates work from [RiftQuake](https://github.com/phoboslab/Quakespasm-Rift/).
+Note: This version targets the Oculus SDK only, not Steam VR. Other headsets like the Vive may work with Revive but I haven't tested it.
 
 ####Features
+New in this version:
+- Oculus CV1 (consumer version) support with LibOVR 1.12
+- Partial Oculus Touch support. Touch can be used as a gamepad input. Additionally, if "VR Controller Support" is enabled in the game options (VR section) (enabled by default for right-hand aiming), the Touch controllers can be used to aim weapons (orientation only). Positional weapon tracking is not supported.
+- VR Comfort Turning (enabled by default, 22.5 degree increments). Can be disabled in game options, VR section. There are also two new console commands "comfortturn_left" and "comfortturn_right", so comfort turning can be used in conjunction with more aimmodes; bound to DPad Left and Right by default.
+- Experimental VR auto-crouch feature (disabled by default), which lets you crouch in real-life to trigger in-game crouch. May be buggy. To enable, type 'vr_autocrouch 1' at the console
+- VR Supersampling (Render Target Multiplier, Pixels per Display Pixel Override) can be set explicitly in game options (VR, Advanced).
+Other features:
 - Projected HUD/2D UI elements
 - Decoupled view and aiming
 - Full configuration of VR settings through menus
-- Native support for the Oculus Rift using libOVR 0.2.5
+- Native support for the Oculus Rift
 - Xbox 360 / Xinput compatible gamepad support
+- Regular / 2D mode if VR is disabled, or no Rift is detected
+- Multiplayer should work (deathmatch or CTF)
+
+####Suggested VR configurations (aim modes, etc.)
+There's a lot of VR configuration options. Depending on how you want to play the game, here are my suggestions:
+- Seated or Standing (one direction / 180 degrees) with Oculus Touch: AimMode = Decoupled View/Aiming; VR Controller Support = on. Comfort Turning on/off depending on user preference.
+- Seated or Standing (one direction / 180 degrees) with Gamepad: AimMode = Decoupled View/Aiming; VR Controller Support = disabled. Comfort Turning on (since the gamepad stick will change your aim direction not your look direction, keeping Comfort Turning on lets you change your view direction via snap turns by pressing gamepad DPad Left / Right)
+- Seated or Standing, 360 degrees, with Gamepad or Oculus Touch: AimMode = Decoupled View/Aiming; VR Controller Support = on. Comfort Turning on/off depending on user preference.
+- Seated or Standing, 360 degrees, with Gamepad: AimMode = Decoupled View/Aiming; VR Controller Support = disabled. Comfort Turning on/off depending on user preference.
+- Seated, with Mouse Aiming: AimMode = DeadZone w/ Aim Move, or DeadZone with View Move.
+
+####Known Issues
+- Oculus SDK support only
+- No positional weapon tracking w/ Oculus Touch, only orientation
+- Positional tracking only affects your head / camera position. Your body doesn't move, which also means that positional tracking that doesn't affect where your weapon fires from.
 
 ####Requirements
 - Full version of [Quake II](http://store.steampowered.com/app/2320/) or the demo version below
@@ -63,6 +86,8 @@ Aim modes that allow the mouse to adjust the view pitch are currently broken in 
 As this is based on KMQuake II, it supports any modification or add-on that is compatible with KMQuake II. The extra's package includes both high resolution model and world textures, and and I highly recommend turning on some of the advanced video options. That said, if you want a relatively pure experience the defaults settings will come pretty close to it.
 
 ####More Info
+- [Project Homepage - this fork](https://github.com/mscoder610/quake2vr)
+Links for original Quake 2 VR project:
 - [Project Homepage](https://github.com/q2vr/Quake2VR/)
 - [Latest Releases](https://github.com/q2vr/Quake2VR/releases)
 - [Release Notes](https://github.com/q2vr/Quake2VR/wiki/Changelog)
@@ -93,3 +118,4 @@ Thanks go out to:
 - Jim Waurzyniak for taking the time and effort to host a collection of high-resolution assets for Quake II.
 - [Jared Stafford](https://jspenguin.org) for getting Linux support up and running
 - [Daniel Wolf](https://github.com/Nephatrine) for various bugfixes and code cleanup.
+- [Luke Groeninger](https://github.com/dghost) for Quake II VR project

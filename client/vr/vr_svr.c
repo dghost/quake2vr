@@ -147,6 +147,10 @@ hmd_interface_t hmd_steam = {
 	VR_SVR_GetPosition,
 	VR_SVR_SetPredictionTime,
 	VR_SVR_GetHMDPos,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL
 };
 

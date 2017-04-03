@@ -595,6 +595,7 @@ void CL_PrepRefresh (void)
 
 	// dghost - reset HMD home position before starting new map
 	VR_ResetOrientation();
+	vr_orientation_deltayaw = 0;
 }
 
 /*

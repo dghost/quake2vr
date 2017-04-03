@@ -21,6 +21,9 @@ cvar_t *vr_aimlaser;
 cvar_t *vr_aimmode;
 cvar_t *vr_aimmode_deadzone_yaw;
 cvar_t *vr_aimmode_deadzone_pitch;
+cvar_t *vr_controllermode;
+cvar_t *vr_supersampling;
+cvar_t *vr_comfortturn;
 cvar_t *vr_viewmove;
 cvar_t *vr_walkspeed;
 cvar_t *vr_hud_bounce;
@@ -31,6 +34,8 @@ cvar_t *vr_nosleep;
 cvar_t *vr_neckmodel;
 cvar_t *vr_neckmodel_up;
 cvar_t *vr_neckmodel_forward;
+cvar_t *vr_heightoffset;
+cvar_t *vr_autocrouch;
 cvar_t *vr_hmdtype;
 cvar_t *vr_prediction;
 cvar_t *vr_hmdstring;
@@ -43,8 +48,11 @@ static vec3_t vr_orientation;
 static vec4_t vr_smoothSeries;
 static vec4_t vr_doubleSmoothSeries;
 static vec4_t vr_smoothOrientation;
+static vec3_t vr_controllerOrientation, vr_lastControllerOrientation;
 
-static qboolean stale;
+static qboolean stale, controllerstale;
+float vr_orientation_deltayaw;
+float vr_comfortturn_delta;
 
 static hmd_interface_t available_hmds[NUM_HMD_TYPES];
 
@@ -63,6 +71,11 @@ static hmd_interface_t hmd_none = {
 	NULL,
 	NULL,
 	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 const char *hmd_names[] = 
@@ -83,7 +96,6 @@ int32_t VR_GetSensorOrientation()
 {
 	vec3_t euler;
 	vec4_t currentPos;
-
 
 	float emaWeight = 2 / (vr_hud_bounce_falloff->value + 1);
 
@@ -124,6 +136,45 @@ int32_t VR_GetSensorOrientation()
 		QuatCopy(vr_smoothSeries,vr_smoothOrientation);
 	}
 	return 1;
+}
+
+int32_t VR_GetControllerOrientation(vec3_t angle)
+{
+	vec3_t euler;
+	int32_t result = 0;
+
+	if (!hmd || (int32_t)vr_controllermode->value == 0)
+		return 0;
+
+	if (controllerstale)
+	{
+		if (hmd->getControllerOrientation)
+		{
+			result = hmd->getControllerOrientation(euler);
+			if (result)
+			{
+				controllerstale = 0;
+
+				VectorCopy(vr_controllerOrientation, vr_lastControllerOrientation);
+				VectorCopy(euler, vr_controllerOrientation);
+			}
+			else
+			{
+				return 0;
+			}
+		}
+	}
+
+	VectorCopy(vr_controllerOrientation, angle);
+	return 1;
+}
+
+void VR_GetControllerOrientationDelta(vec3_t angle)
+{
+	if (!hmd)
+		return;
+
+	VectorSubtract(vr_controllerOrientation, vr_lastControllerOrientation, angle);
 }
 
 void VR_GetOrientation(vec3_t angle)
@@ -169,6 +220,18 @@ int32_t VR_GetHeadOffset(vec3_t offset)
 		stale = 0;
 
 	return (hmd->getHeadOffset && hmd->getHeadOffset(offset));
+}
+
+// returns controller offset (relative to head) using X forward, Y left, Z up
+int32_t VR_GetControllerOffset(vec3_t offset)
+{
+	if (!hmd || !vr_positiontracking->value)
+		return false;
+
+	if (stale && VR_GetSensorOrientation())
+		stale = 0;
+
+	return (hmd->getControllerOffset && hmd->getControllerOffset(offset));
 }
 
 int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos)
@@ -265,6 +328,23 @@ void VR_FrameStart()
 		vr_hud_deadzone_yaw->modified = false;
 	}
 
+	if (vr_controllermode->modified)
+	{
+		if (vr_controllermode->value < 0.0)
+			Cvar_SetInteger("vr_controllermode", 0);
+		else if (vr_controllermode->value >= NUM_VR_CONTROLLERMODE)
+			Cvar_SetInteger("vr_controllermode", NUM_VR_CONTROLLERMODE - 1);
+		else
+			Cvar_SetInteger("vr_controllermode", (int32_t)vr_controllermode->value);
+		vr_controllermode->modified = false;
+	}
+
+	if (hand->value != 2 && (int32_t)vr_controllermode->value != 0 && hand->value != (int32_t)vr_controllermode->value - 1)
+	{
+		hand->value = (int32_t)vr_controllermode->value - 1;
+		Cvar_SetInteger("hand", hand->value);
+	}
+
 	if (vr_aimlaser->modified)
 	{
 		Cvar_SetInteger("vr_aimlaser",!!vr_aimlaser->value);
@@ -323,7 +403,7 @@ void VR_FrameStart()
 
 // 	only flag as stale after a frame is rendered
 	stale = 1;
-
+	controllerstale = 1;
 }
 
 void VR_FrameEnd()
@@ -334,24 +414,87 @@ void VR_FrameEnd()
 
 void VR_ResetOrientation( void )
 {
+	int result;
+	vec3_t angle;
 	if (hmd && hmd->resetOrientation)
 	{
 		hmd->resetOrientation();
 		VR_GetSensorOrientation();
+		if (vr_aimmode->value == VR_AIMMODE_DECOUPLED)
+		{
+			vr_orientation_deltayaw += vr_lastOrientation[YAW] - vr_orientation[YAW];
+			VectorSet(cl.aimdelta, 0, 0, 0);
+			VectorSet(cl.bodyangles, 0, 0, 0);
+			VectorSet(cl.viewangles, 0, 0, 0);
+		}
+		else
+		{
+			vr_orientation_deltayaw = 0;
+			VectorAdd(cl.bodyangles, cl.viewangles, cl.bodyangles);
+			if (vr_comfortturn->value == 0)
+			{
+				VectorSet(cl.aimdelta, 0, 0, 0);
+			}
+			VectorSet(cl.viewangles, 0, 0, 0);
+		}
 		VectorCopy(vr_orientation, vr_lastOrientation);
+
+		result = VR_GetControllerOrientation(angle);
+		if (result)
+		{
+			VectorCopy(vr_controllerOrientation, vr_lastControllerOrientation);
+		}
+		else
+		{
+			VectorSet(vr_controllerOrientation, 0, 0, 0);
+			VectorSet(vr_lastControllerOrientation, 0, 0, 0);
+		}
 		QuatSet(vr_smoothSeries, 1, 0, 0, 0);
+		QuatSet(vr_doubleSmoothSeries, 1, 0, 0, 0);
 	} else {
 		QuatSet(vr_smoothSeries, 1, 0, 0, 0);
+		QuatSet(vr_doubleSmoothSeries, 1, 0, 0, 0);
 		VectorSet(vr_orientation, 0, 0, 0);
 		VectorSet(vr_lastOrientation, 0, 0, 0);
+		VectorSet(vr_controllerOrientation, 0, 0, 0);
+		VectorSet(vr_lastControllerOrientation, 0, 0, 0);
 	}
 
+	IN_CenterView();
 }
 
-void VR_Input()
+void VR_ComfortTurn_Left(void)
 {
-
+	if (vr_comfortturn->value)
+	{
+		vr_comfortturn_delta = vr_comfortturn->value;
+	}
 }
+
+void VR_ComfortTurn_Right(void)
+{
+	if (vr_comfortturn->value)
+	{
+		vr_comfortturn_delta = -vr_comfortturn->value;
+	}
+}
+
+void VR_InputCommands()
+{
+	if (hmd && hmd->getInputCommands)
+	{
+		hmd->getInputCommands();
+	}
+}
+
+void VR_IN_Move(usercmd_t *cmd)
+{
+	if (hmd && hmd->getControllerMoveInput)
+	{
+		hmd->getControllerMoveInput(cmd);
+	}
+}
+
 
 // this is a little overkill on the abstraction, but the point of it was to try to make it
 // possible to support other HMD's in the future without having to rewrite other portions of the engine.
@@ -391,6 +534,7 @@ int32_t VR_Enable()
 	Cvar_ForceSet("vr_enabled", hmd_type);
 
 	stale = 1;
+	controllerstale = 1;
 	return 1;
 }
 
@@ -449,14 +593,14 @@ void VR_Startup(void)
 #ifndef NO_STEAM
 	available_hmds[HMD_STEAM] = hmd_steam;
 #else
-	available_hmds[HMD_STEAM] = hmd_none;
+	//available_hmds[HMD_STEAM] = hmd_none;
 #endif
 
 #ifdef OCULUS_LEGACY
 	available_hmds[HMD_OVR] = hmd_ovr;
 	available_hmds[HMD_RIFT] = hmd_none;
 #else
-	available_hmds[HMD_OVR] = hmd_none;
+	//available_hmds[HMD_OVR] = hmd_none;
 	available_hmds[HMD_RIFT] = hmd_rift;
 #endif
 	for (i = 0; i < NUM_HMD_TYPES; i++)
@@ -473,6 +617,7 @@ void VR_Startup(void)
 	vr_neckmodel_up = Cvar_Get("vr_neckmodel_up","0.232",CVAR_CLIENT);
 	vr_neckmodel_forward = Cvar_Get("vr_neckmodel_forward","0.09",CVAR_CLIENT);
 	vr_neckmodel = Cvar_Get("vr_neckmodel","1",CVAR_CLIENT);
+	vr_heightoffset = Cvar_Get("vr_heightoffset", "0.19", CVAR_CLIENT);
 	vr_ipd = Cvar_Get("vr_ipd","64", CVAR_CLIENT);
 	vr_hud_width = Cvar_Get("vr_hud_width","800",CVAR_CLIENT);
 	vr_hud_transparency = Cvar_Get("vr_hud_transparency","1", CVAR_CLIENT);
@@ -487,6 +632,7 @@ void VR_Startup(void)
 	vr_hmdstring = Cvar_Get("vr_hmdstring","VR Disabled",CVAR_NOSET);
 	vr_force_resolution = Cvar_Get("vr_force_resolution","0",CVAR_CLIENT);
 	vr_force_fullscreen = Cvar_Get("vr_force_fullscreen","1",CVAR_CLIENT);
+	vr_supersampling = Cvar_Get("vr_supersampling", "1.0", CVAR_CLIENT);
 	vr_enabled = Cvar_Get("vr_enabled","0",CVAR_NOSET);
 	vr_aimlaser = Cvar_Get("vr_aimlaser","0", CVAR_CLIENT);
 	vr_chromatic = Cvar_Get("vr_chromatic","1",CVAR_CLIENT);
@@ -494,12 +640,20 @@ void VR_Startup(void)
 	vr_autofov_scale = Cvar_Get("vr_autofov_scale", "1.0", CVAR_CLIENT);
 	vr_autofov = Cvar_Get("vr_autofov", "1", CVAR_CLIENT);
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_CLIENT);
-	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","30",CVAR_CLIENT);
+	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","40",CVAR_CLIENT);
 	vr_aimmode_deadzone_pitch = Cvar_Get("vr_aimmode_deadzone_pitch","60",CVAR_CLIENT);
 	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_CLIENT);
+	vr_controllermode = Cvar_Get("vr_controllermode", "1", CVAR_CLIENT);
+	vr_comfortturn = Cvar_Get("vr_comfortturn", "22.5", CVAR_CLIENT);
+	vr_autocrouch = Cvar_Get("vr_autocrouch", "0", CVAR_CLIENT);
 	Cmd_AddCommand("vr_reset_home",VR_ResetOrientation);
+	Cmd_AddCommand("comfortturn_left", VR_ComfortTurn_Left);
+	Cmd_AddCommand("comfortturn_right", VR_ComfortTurn_Right);
 	Cmd_AddCommand("vr_disable",VR_Disable_f);
 	Cmd_AddCommand("vr_enable",VR_Enable_f);
+
+	vr_orientation_deltayaw = 0;
+	vr_comfortturn_delta = 0;
 
 	if (vr_autoenable->value)
 		VR_Enable();

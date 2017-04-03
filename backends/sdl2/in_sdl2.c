@@ -453,6 +453,11 @@ void IN_Move (usercmd_t *cmd)
 	if (!ActiveApp)
 		return;
 
+	if (vr_enabled->value)
+	{
+		VR_IN_Move(cmd);
+	}
+
 	IN_MouseMove (cmd);
 //	Sys_SendKeyEvents();
 
@@ -496,7 +501,7 @@ void IN_Commands (void)
 {
 	if (vr_enabled->value)
 	{
-		VR_Input();
+		VR_InputCommands();
 	}
 
 	switch((int32_t) in_controller->value)

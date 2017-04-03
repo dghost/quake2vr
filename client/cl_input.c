@@ -22,6 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "client.h"
 
 cvar_t	*cl_nodelta;
+static cvar_t  *autosensitivity;
+static cvar_t	*gamepad_stick_mode;
+static cvar_t	*gamepad_pitch_sensitivity;
+static cvar_t	*gamepad_yaw_sensitivity;
+
+static int32_t wasLeftComfortTurn[2];
+static int32_t wasRightComfortTurn[2];
 
 extern	uint32_t	sys_frame_time;
 uint32_t	frame_msec;
@@ -398,34 +405,97 @@ void CL_FinishMove (usercmd_t *cmd)
 void VR_Move (usercmd_t *cmd)
 {
 	vec3_t predAngles, predDelta, view;
-	vec3_t orientation, orientationDelta;
+	vec3_t orientation, orientationDelta, controllerOrientation, controllerOrientationDelta;
 	qboolean viewmove;
 	int32_t i;
-	int32_t mode = (int32_t) vr_aimmode->value;
+	int32_t mode = (int32_t)vr_aimmode->value;
+	int32_t useControllerOrientation;
+	float comfortYaw = 0;
 
 	if (mode == 6)
 		viewmove = true;
 	else if (mode == 7)
 		viewmove = false;
 	else
-		viewmove = (qboolean) vr_viewmove->value;
+		viewmove = (qboolean)vr_viewmove->value;
 
 	VR_GetOrientation(orientation);
 	VR_GetOrientationDelta(orientationDelta);
+	useControllerOrientation = VR_GetControllerOrientation(controllerOrientation);
+	VR_GetControllerOrientationDelta(controllerOrientationDelta);
 
-	// dghost - UGLY HACK
-	// todo: fix this shit
-	// 10/02/2013: In making this behave properly I have managed to make it even worse.
+	if (mode == VR_AIMMODE_HEAD_MYAW || (useControllerOrientation && !cl_paused->value && mode != VR_AIMMODE_DECOUPLED))
+	{
+		if (fabs(cl.in_delta[YAW]) == vr_comfortturn->value)
+		{
+			comfortYaw = cl.in_delta[YAW];
+			cl.in_delta[YAW] = 0;
+		}
+	}
 
+	if (vr_comfortturn_delta != 0)
+	{
+		comfortYaw = vr_comfortturn_delta;
+		vr_comfortturn_delta = 0;
+	}
+	
+	if (mode == VR_AIMMODE_DECOUPLED)
+	{
+		if (useControllerOrientation)
+		{
+			vr_orientation_deltayaw += cl.in_delta[YAW];
+			cl.in_delta[YAW] = 0;
+		}
+		else
+		{
+			vr_orientation_deltayaw += comfortYaw;
+		}
+		AngleClamp(&vr_orientation_deltayaw);
+
+		if (vr_orientation_deltayaw != 0)
+		{
+			orientation[YAW] += vr_orientation_deltayaw;
+			AngleClamp(&orientation[YAW]);
+			if (useControllerOrientation)
+			{
+				controllerOrientation[YAW] += vr_orientation_deltayaw;
+				AngleClamp(&controllerOrientation[YAW]);
+			}
+		}
+	}
+	
 	for (i = 0; i < 3; i++)
 	{
 		predDelta[i] =  SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[i]);
 	}
 
 	VectorAdd(cl.bodyangles, predDelta, predAngles);
-	VectorAdd(cl.bodyangles,cl.viewangles,view);
+	VectorAdd(cl.bodyangles, cl.viewangles, view);
 	view[YAW] += predDelta[YAW];
 
+	if (useControllerOrientation && !cl_paused->value)
+	{
+		switch (mode)
+		{
+		case VR_AIMMODE_DECOUPLED:
+		case VR_AIMMODE_MOUSE_MYAW:
+		case VR_AIMMODE_MOUSE_MYAW_MPITCH:
+		case VR_AIMMODE_TF2_MODE2:
+		case VR_AIMMODE_TF2_MODE3:
+		case VR_AIMMODE_TF2_MODE4:
+			cl.in_delta[PITCH] = 0; // Pitch is solely based on controller orientation
+			break;
+		}
+	}
+
+	if (useControllerOrientation && !cl_paused->value && mode != VR_AIMMODE_DECOUPLED)
+	{
+		for (i = 0; i < 2; i++) // Intentionally skipping weapon roll, it feels odd since it doesn't rotate in-place
+		{
+			cl.in_delta[i] += controllerOrientationDelta[i];
+		}
+	}
+	
 	switch (mode)
 	{
 	case VR_AIMMODE_DISABLE:
@@ -435,16 +505,15 @@ void VR_Move (usercmd_t *cmd)
 	case VR_AIMMODE_HEAD_MYAW_MPITCH:
 		VectorAdd(cl.in_delta, predAngles, predAngles);
 		view[PITCH] = predAngles[PITCH] += orientationDelta[PITCH];
-		predAngles[YAW] = view[YAW] = predAngles[YAW] + orientationDelta[YAW];
+		predAngles[YAW] = view[YAW] = predAngles[YAW] + orientationDelta[YAW] + comfortYaw;
 		view[ROLL] = orientation[ROLL];
 		break;
 	case VR_AIMMODE_MOUSE_MYAW_MPITCH:
 		VectorAdd(cl.in_delta,predAngles,predAngles);
 		view[ROLL] = orientation[ROLL];
 		view[PITCH] = predAngles[PITCH] + orientation[PITCH];
-		view[YAW]   = predAngles[YAW] + orientation[YAW];
+		view[YAW] = predAngles[YAW] + orientation[YAW] + comfortYaw;
 		break;
-
 	default:
 	case VR_AIMMODE_HEAD_MYAW:
 	case VR_AIMMODE_MOUSE_MYAW:
@@ -452,153 +521,187 @@ void VR_Move (usercmd_t *cmd)
 	case VR_AIMMODE_TF2_MODE3:
 	case VR_AIMMODE_TF2_MODE4:
 
+	{
+		float pitch;
+		qboolean relativeView, relativeAimPitch, restrictDirection;
+		float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
+		float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
+		relativeAimPitch = true;
+		restrictDirection = true;
+		switch (mode)
 		{
-			float pitch;
-			qboolean relativeView, relativeAimPitch,restrictDirection;
-			float deadzoneYaw = vr_aimmode_deadzone_yaw->value / 2.0f;
-			float deadzonePitch = vr_aimmode_deadzone_pitch->value / 2.0f;
-			relativeAimPitch = true;
-			restrictDirection = true;
-			switch (mode)
+		case VR_AIMMODE_HEAD_MYAW:
+			deadzoneYaw = 0;
+			deadzonePitch = 0;
+		case VR_AIMMODE_TF2_MODE2:
+			relativeView = false;
+			break;
+		case VR_AIMMODE_MOUSE_MYAW:
+			deadzoneYaw = 0;
+			deadzonePitch = 180;
+			restrictDirection = false;
+			relativeAimPitch = false;
+		default:
+		case VR_AIMMODE_TF2_MODE3:
+		case VR_AIMMODE_TF2_MODE4:
+			relativeView = true;
+			break;
+		}
+
+		if (relativeView)
+		{
+			float yawDelta = (view[YAW] + orientationDelta[YAW]) - (predAngles[YAW] + cl.aimdelta[YAW]);
+			float yawOffset = comfortYaw;
+
+			predAngles[YAW] += comfortYaw;
+			AngleClamp(&yawDelta);
+			view[PITCH] = orientation[PITCH];
+			view[ROLL] = orientation[ROLL];
+			if (cl.in_delta[YAW] < 0)
 			{
-			case VR_AIMMODE_HEAD_MYAW:
-				deadzoneYaw = 0;
-				deadzonePitch = 0;
-			case VR_AIMMODE_TF2_MODE2:
-				relativeView = false;
-				break;
-			case VR_AIMMODE_MOUSE_MYAW:
-				deadzoneYaw = 0;
-				deadzonePitch = 180;
-				restrictDirection = false;
-				relativeAimPitch = false;
-			default:
-			case VR_AIMMODE_TF2_MODE3:
-			case VR_AIMMODE_TF2_MODE4:
-				relativeView = true;
-				break;
+				if (yawDelta >= deadzoneYaw)
+				{
+					predAngles[YAW] += cl.in_delta[YAW];
+					yawOffset = cl.in_delta[YAW];
+				}
+				else {
+					cl.aimdelta[YAW] += cl.in_delta[YAW];
+				}
+
+
+			}
+			else if (cl.in_delta[YAW] > 0) {
+				if (yawDelta <= -deadzoneYaw)
+				{
+					predAngles[YAW] += cl.in_delta[YAW];
+					yawOffset = cl.in_delta[YAW];
+				}
+				else {
+					cl.aimdelta[YAW] += cl.in_delta[YAW];
+				}
+
+			}
+			else if (restrictDirection)
+			{
+				if (fabs(yawDelta) >= deadzoneYaw)
+				{
+					predAngles[YAW] += cl.in_delta[YAW];
+					yawOffset = cl.in_delta[YAW];
+				}
+				else {
+					cl.aimdelta[YAW] += cl.in_delta[YAW];
+				}
 			}
 
-			if (relativeView)
+
+			if (cl.aimdelta[YAW] > deadzoneYaw)
 			{
-				float yawDelta = (view[YAW] + orientationDelta[YAW]) - (predAngles[YAW] + cl.aimdelta[YAW]);
-				float yawOffset = 0;
-
-				AngleClamp(&yawDelta);
-				view[PITCH] = orientation[PITCH];
-				view[ROLL] = orientation[ROLL];
-				if (cl.in_delta[YAW] < 0)
-				{
-					if (yawDelta >= deadzoneYaw)
-					{
-						predAngles[YAW] += cl.in_delta[YAW];
-						yawOffset = cl.in_delta[YAW];
-					} else {
-						cl.aimdelta[YAW] += cl.in_delta[YAW];
-					}
+				float delta = cl.aimdelta[YAW] - deadzoneYaw;
+				predAngles[YAW] += delta;
+				cl.aimdelta[YAW] -= delta;
+			}
+			else if (cl.aimdelta[YAW] < -deadzoneYaw)
+			{
+				float delta = cl.aimdelta[YAW] + deadzoneYaw;
+				predAngles[YAW] += delta;
+				cl.aimdelta[YAW] -= delta;
+			}
 
 
-				} else if (cl.in_delta[YAW] > 0) {
-					if (yawDelta <= -deadzoneYaw)
-					{
-						predAngles[YAW] += cl.in_delta[YAW];
-						yawOffset = cl.in_delta[YAW];
-					} else {
-						cl.aimdelta[YAW] += cl.in_delta[YAW];
-					}
+			view[YAW] += yawOffset + orientationDelta[YAW];
 
-				} else if (restrictDirection)
-				{
-					if (fabs(yawDelta) >= deadzoneYaw)
-					{
-						predAngles[YAW] += cl.in_delta[YAW];
-						yawOffset = cl.in_delta[YAW];
-					} else {
-						cl.aimdelta[YAW] += cl.in_delta[YAW];
-					}
-				}
+		}
+		else {
+			float diffYaw;
+
+			predAngles[YAW] += cl.in_delta[YAW] + comfortYaw;
+			view[YAW] += orientationDelta[YAW] + comfortYaw;
+			view[PITCH] = orientation[PITCH];
+			view[ROLL] = orientation[ROLL];
 
 
-				if (cl.aimdelta[YAW] > deadzoneYaw)
-				{
-					float delta = cl.aimdelta[YAW] - deadzoneYaw;
-					//				yawOffset -= delta;
-					predAngles[YAW] += delta;
-					cl.aimdelta[YAW] -= delta;
-				} else if (cl.aimdelta[YAW] < -deadzoneYaw)
-				{
-					float delta = cl.aimdelta[YAW] + deadzoneYaw;
-					//				yawOffset -= delta;
-					predAngles[YAW] += delta;
-					cl.aimdelta[YAW] -= delta;
-				}
+			diffYaw = view[YAW] - predAngles[YAW];
 
-
-				view[YAW] += yawOffset + orientationDelta[YAW];
-
-			} else {
-				float diffYaw;
-
-				predAngles[YAW] += cl.in_delta[YAW];
-				view[YAW] += orientationDelta[YAW];
-				view[PITCH] = orientation[PITCH];
-				view[ROLL] = orientation[ROLL];
-
-
+			if (abs(diffYaw) > deadzoneYaw)
+			{
+				predAngles[YAW] += orientationDelta[YAW];
+				view[YAW] += cl.in_delta[YAW] + comfortYaw;
 				diffYaw = view[YAW] - predAngles[YAW];
 
-				if (fabsf(diffYaw) > deadzoneYaw)
+				if (abs(diffYaw) > deadzoneYaw)
 				{
-					predAngles[YAW] += orientationDelta[YAW];
-					view[YAW] += cl.in_delta[YAW];
-					diffYaw = view[YAW] - predAngles[YAW];
-
-					if (fabsf(diffYaw) > deadzoneYaw)
-					{
-						if (diffYaw > 0.0)
-							predAngles[YAW] = view[YAW] - deadzoneYaw;
-						else
-							predAngles[YAW] = view[YAW] + deadzoneYaw;
-					}
+					if (diffYaw > 0.0)
+						predAngles[YAW] = view[YAW] - deadzoneYaw;
+					else
+						predAngles[YAW] = view[YAW] + deadzoneYaw;
 				}
-
 			}
 
-			if (relativeAimPitch)
-			{
-				predAngles[PITCH] = view[PITCH];				
-				pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH] - orientationDelta[PITCH];
-
-			}
-			else 
-			{
-				predAngles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
-				pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH];
-			}
-			AngleClamp(&pitch);
-			if (fabs(pitch) <= deadzonePitch)
-				cl.aimdelta[PITCH] = pitch;
-			AngleClamp(&cl.aimdelta[PITCH]);
 		}
-		break;
+
+		if (relativeAimPitch)
+		{
+			predAngles[PITCH] = view[PITCH];
+			pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH] - orientationDelta[PITCH];
+
+		}
+		else
+		{
+			predAngles[PITCH] = -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+			pitch = cl.aimdelta[PITCH] + cl.in_delta[PITCH];
+		}
+		AngleClamp(&pitch);
+		if (fabs(pitch) <= deadzonePitch)
+			cl.aimdelta[PITCH] = pitch;
+		AngleClamp(&cl.aimdelta[PITCH]);
+	}
+	break;
 	case VR_AIMMODE_DECOUPLED:
-		VectorAdd(predAngles,cl.in_delta,predAngles);
+		VectorAdd(predAngles, cl.in_delta, predAngles);
 		VectorCopy(orientation, view);
 		view[YAW] += predDelta[YAW];
 		break;
 	}
 
+	if (mode == VR_AIMMODE_DECOUPLED && !useControllerOrientation)
+	{
+		predAngles[YAW] += comfortYaw;
+		AngleClamp(&predAngles[YAW]);
+	}
+	
 	if (cl.aimdelta[PITCH] + predDelta[PITCH]  > 89)
-		cl.aimdelta[PITCH] = 89 - predDelta[PITCH] ;
+		cl.aimdelta[PITCH] = 89 - predDelta[PITCH];
 	if (cl.aimdelta[PITCH] + predDelta[PITCH]  < -89)
-		cl.aimdelta[PITCH] = -89 - predDelta[PITCH] ;
+		cl.aimdelta[PITCH] = -89 - predDelta[PITCH];
 
 	VectorSubtract(predAngles, predDelta, cl.bodyangles);
-	VectorSubtract(view,cl.bodyangles,cl.viewangles);
+	VectorSubtract(view, cl.bodyangles, cl.viewangles);
 	cl.viewangles[YAW] -= predDelta[YAW];
 	VectorClamp(cl.viewangles);
 	VectorClamp(cl.bodyangles);
-	VectorAdd(cl.bodyangles,cl.aimdelta,cl.aimangles);
+	VectorAdd(cl.bodyangles, cl.aimdelta, cl.aimangles);
+
+	if (useControllerOrientation && !cl_paused->value)
+	{
+		switch (mode)
+		{
+		case VR_AIMMODE_DECOUPLED:
+			VectorCopy(controllerOrientation, cl.aimangles);
+			cl.aimangles[PITCH] += -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+			AngleClamp(&cl.aimangles[PITCH]);
+			cl.aimangles[ROLL] = 0; // Intentionally skipping weapon roll, it feels odd since it doesn't rotate in-place
+			break;
+		case VR_AIMMODE_MOUSE_MYAW:
+		case VR_AIMMODE_MOUSE_MYAW_MPITCH:
+		case VR_AIMMODE_TF2_MODE2:
+		case VR_AIMMODE_TF2_MODE3:
+		case VR_AIMMODE_TF2_MODE4:
+			cl.aimangles[PITCH] = controllerOrientation[PITCH];
+			cl.aimangles[PITCH] += -SHORT2ANGLE(cl.frame.playerstate.pmove.delta_angles[PITCH]);
+			AngleClamp(&cl.aimangles[PITCH]);
+			break;
+		}
+	}
 
 //	VectorClamp(cl.aimangles);
 	if (viewmove)
@@ -660,6 +763,90 @@ usercmd_t CL_CreateCmd (void)
 	return cmd;
 }
 
+void ThumbstickMove(usercmd_t *cmd, vec3_t leftPos, vec3_t rightPos, qboolean vr)
+{
+	vec_t *view, *move;
+	vec3_t unused;
+	float speed, aspeed;
+	qboolean comfortTurn = false;
+	int32_t index = vr ? 1 : 0;
+
+	float pitchInvert = (m_pitch->value < 0.0) ? -1 : 1;
+
+	if (cls.key_dest == key_menu)
+		return;
+
+	if (vr_enabled->value && vr_comfortturn->value)
+	{
+		switch ((int32_t)vr_aimmode->value)
+		{
+		case VR_AIMMODE_HEAD_MYAW:
+			comfortTurn = true;
+			break;
+		default:
+			if (VR_GetControllerOrientation(unused))
+			{
+				comfortTurn = true;
+			}
+		}
+	}
+
+	if ((in_speed.state & 1) ^ (int32_t)cl_run->value)
+		speed = 2;
+	else if (vr_enabled->value)
+		speed = vr_walkspeed->value;
+	else
+		speed = 1;
+
+	aspeed = cls.frametime;
+	if (autosensitivity->value)
+		aspeed *= (cl.refdef.fov_x / 90.0);
+
+	switch ((int32_t)gamepad_stick_mode->value)
+	{
+	case 1:
+		view = leftPos;
+		move = rightPos;
+		break;
+	case 0:
+	default:
+		view = rightPos;
+		move = leftPos;
+		break;
+	}
+
+	cmd->forwardmove += move[1] * move[2] * speed * cl_forwardspeed->value;
+	cmd->sidemove += move[0] * move[2] * speed *  cl_sidespeed->value;
+
+	cl.in_delta[PITCH] -= (view[1] * view[2] * pitchInvert * gamepad_pitch_sensitivity->value) * aspeed * cl_pitchspeed->value;
+
+	if (!comfortTurn)
+	{
+		cl.in_delta[YAW] -= (view[0] * view[2] * gamepad_yaw_sensitivity->value) * aspeed * cl_yawspeed->value;
+	}
+	else
+	{
+		float x = view[0] * view[2];
+		qboolean isTurning = fabs(x) > 0.2;
+		qboolean isTurningLeft = x < 0;
+		if (isTurning)
+		{
+			if (isTurningLeft && !wasLeftComfortTurn[index])
+			{
+				cl.in_delta[YAW] += vr_comfortturn->value;
+				wasLeftComfortTurn[index] = 1;
+			}
+			else if (!isTurningLeft && !wasRightComfortTurn[index])
+			{
+				cl.in_delta[YAW] -= vr_comfortturn->value;
+				wasRightComfortTurn[index] = 1;
+			}
+		}
+		wasLeftComfortTurn[index] = isTurning && isTurningLeft;
+		wasRightComfortTurn[index] = isTurning && !isTurningLeft;
+	}
+}
+
 
 void IN_CenterView (void)
 {
@@ -714,6 +901,14 @@ void CL_InitInput (void)
 	Cmd_AddCommand ("-klook", IN_KLookUp);
 
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
+	autosensitivity = Cvar_Get("autosensitivity", "1", CVAR_ARCHIVE);
+	gamepad_yaw_sensitivity = Cvar_Get("gamepad_yaw_sensitivity", "1.75", CVAR_ARCHIVE);
+	gamepad_pitch_sensitivity = Cvar_Get("gamepad_pitch_sensitivity", "1.75", CVAR_ARCHIVE);
+	gamepad_stick_mode = Cvar_Get("gamepad_stick_mode", "0", CVAR_ARCHIVE);
+
+	wasLeftComfortTurn[0] = wasLeftComfortTurn[1] = 0;
+	wasRightComfortTurn[0] = wasRightComfortTurn[1] = 0;
+
 }
 
 

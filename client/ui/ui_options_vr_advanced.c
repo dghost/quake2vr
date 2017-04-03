@@ -39,7 +39,7 @@ static menuframework_s	s_options_vr_advanced_menu;
 static menuseparator_s	s_options_vr_advanced_header;
 static menulist_s		s_options_vr_advanced_autoenable_box;
 static menulist_s		s_options_vr_advanced_force_fullscreen;
-static menulist_s		s_options_vr_advanced_force_native;
+static menufield_s		s_options_vr_advanced_supersampling;
 static menulist_s		s_options_vr_advanced_chroma_box;
 static menufield_s		s_options_vr_advanced_prediction_field;
 static menuslider_s		s_options_vr_advanced_hud_depth_slider;
@@ -91,7 +91,7 @@ static void NeckFunc( void *unused )
 static void NeckmodelFunc ( void *unused )
 {
 	float temp;
-	char string[6];
+	char string[10];
 
 	temp = ClampCvar(0,1,atof(s_options_vr_advanced_neckmodel_up_field.buffer));
 	strncpy(string, va("%.3f",temp), sizeof(string));
@@ -162,9 +162,14 @@ static void ForceFullscreenFunc(void *unused)
 	Cvar_SetInteger("vr_force_fullscreen",s_options_vr_advanced_force_fullscreen.curvalue);
 }
 
-static void ForceNativeFunc(void *unused)
+static void SupersamplingFunc(void *unused)
 {
-	Cvar_SetInteger("vr_force_resolution",s_options_vr_advanced_force_native.curvalue);
+	float temp;
+	char string[10];
+
+	temp = ClampCvar(0.4, 3, atof(s_options_vr_advanced_supersampling.buffer));
+	strncpy(string, va("%.2f", temp), sizeof(string));
+	Cvar_Set("vr_supersampling", string);
 }
 
 
@@ -203,8 +208,8 @@ static void VRAdvSetMenuItemValues( void )
 	}
 	
 	s_options_vr_advanced_force_fullscreen.curvalue = ClampCvar(0,1,Cvar_VariableInteger("vr_force_fullscreen"));
-	s_options_vr_advanced_force_native.curvalue = ClampCvar(0,1,Cvar_VariableInteger("vr_force_resolution"));
-
+	strcpy(s_options_vr_advanced_supersampling.buffer, vr_supersampling->string);
+	s_options_vr_advanced_supersampling.cursor = strlen(vr_supersampling->string);
 }
 
 static void VRAdvResetDefaultsFunc ( void *unused )
@@ -225,7 +230,7 @@ static void VRAdvResetDefaultsFunc ( void *unused )
 	Cvar_SetToDefault("vr_hud_width");
 	Cvar_SetToDefault("vr_hud_height");
 	Cvar_SetToDefault("vr_force_fullscreen");
-	Cvar_SetToDefault("vr_force_resolution");
+	Cvar_SetToDefault("vr_supersampling");
 	VRAdvSetMenuItemValues();
 }
 
@@ -294,13 +299,17 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_force_fullscreen.itemnames			= yesno_names;
 	s_options_vr_advanced_force_fullscreen.generic.statusbar	= "forces Quake II VR to run in fullscreen in VR mode";
 
-	s_options_vr_advanced_force_native.generic.type			= MTYPE_SPINCONTROL;
-	s_options_vr_advanced_force_native.generic.x			= MENU_FONT_SIZE;
-	s_options_vr_advanced_force_native.generic.y			= y+=MENU_LINE_SIZE;
-	s_options_vr_advanced_force_native.generic.name			= "force native resolution";
-	s_options_vr_advanced_force_native.generic.callback		= ForceNativeFunc;
-	s_options_vr_advanced_force_native.itemnames			= yesno_names;
-	s_options_vr_advanced_force_native.generic.statusbar	= "forces Quake II VR to run at the HMD native resolution in VR mode";
+	s_options_vr_advanced_supersampling.generic.type = MTYPE_FIELD;
+	s_options_vr_advanced_supersampling.generic.flags = QMF_LEFT_JUSTIFY;
+	s_options_vr_advanced_supersampling.generic.name = "supersampling";
+	s_options_vr_advanced_supersampling.generic.statusbar = "a.k.a. render target multiplier";
+	s_options_vr_advanced_supersampling.generic.callback = SupersamplingFunc;
+	s_options_vr_advanced_supersampling.generic.x = MENU_FONT_SIZE;
+	s_options_vr_advanced_supersampling.generic.y = y += 2 * MENU_LINE_SIZE;
+	s_options_vr_advanced_supersampling.length = 6;
+	s_options_vr_advanced_supersampling.visible_length = 6;
+	strcpy(s_options_vr_advanced_supersampling.buffer, vr_supersampling->string);
+	s_options_vr_advanced_supersampling.cursor = strlen(vr_supersampling->string);
 
 	s_options_vr_advanced_chroma_box.generic.type			= MTYPE_SPINCONTROL;
 	s_options_vr_advanced_chroma_box.generic.x			= MENU_FONT_SIZE;
@@ -396,8 +405,8 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_neckmodel_up_field.generic.callback = NeckmodelFunc;
 	s_options_vr_advanced_neckmodel_up_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_advanced_neckmodel_up_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_advanced_neckmodel_up_field.length	= 5;
-	s_options_vr_advanced_neckmodel_up_field.visible_length = 5;
+	s_options_vr_advanced_neckmodel_up_field.length	= 6;
+	s_options_vr_advanced_neckmodel_up_field.visible_length = 6;
 	strcpy( s_options_vr_advanced_neckmodel_up_field.buffer, vr_neckmodel_up->string );
 	s_options_vr_advanced_neckmodel_up_field.cursor = strlen( vr_neckmodel_up->string );
 	
@@ -408,8 +417,8 @@ void Options_VR_Advanced_MenuInit ( void )
 	s_options_vr_advanced_neckmodel_forward_field.generic.callback = NeckmodelFunc;
 	s_options_vr_advanced_neckmodel_forward_field.generic.x		= MENU_FONT_SIZE;
 	s_options_vr_advanced_neckmodel_forward_field.generic.y		= y+=2*MENU_LINE_SIZE;
-	s_options_vr_advanced_neckmodel_forward_field.length	= 5;
-	s_options_vr_advanced_neckmodel_forward_field.visible_length = 5;
+	s_options_vr_advanced_neckmodel_forward_field.length	= 6;
+	s_options_vr_advanced_neckmodel_forward_field.visible_length = 6;
 	strcpy( s_options_vr_advanced_neckmodel_forward_field.buffer, vr_neckmodel_forward->string );
 	s_options_vr_advanced_neckmodel_forward_field.cursor = strlen( vr_neckmodel_forward->string );
 
@@ -430,7 +439,7 @@ void Options_VR_Advanced_MenuInit ( void )
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autoenable_box );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_force_fullscreen );
-	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_force_native );
+	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_supersampling );
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_chroma_box );
 
 	Menu_AddItem( &s_options_vr_advanced_menu, ( void * ) &s_options_vr_advanced_autofov_box);

@@ -415,45 +415,8 @@ void IN_ControllerCommands (void)
 void IN_ControllerMove (usercmd_t *cmd)
 {
 	vec3_t leftPos,rightPos;
-	vec_t *view, *move;
-	float speed, aspeed;
-
-	float pitchInvert = (m_pitch->value < 0.0) ? -1 : 1;
-
-	if (cls.key_dest == key_menu) 
-		return;
-
-
-	if ( (in_speed.state & 1) ^ (int32_t)cl_run->value)
-		speed = 2;
-	else if (vr_enabled->value)
-		speed = vr_walkspeed->value;
-	else
-		speed = 1;
-
-	aspeed = cls.frametime;
-	if (autosensitivity->value)
-		aspeed *= (cl.refdef.fov_x/90.0);
-
-	switch((int32_t) gamepad_stick_mode->value)
-	{
-	case Gamepad_StickSwap:
-		view = leftPos;
-		move = rightPos;
-		break;
-	case Gamepad_StickDefault:
-	default:
-		view = rightPos;
-		move = leftPos;
-		break;
-	}
 	Gamepad_ParseThumbStick(oldAxisState[SDL_CONTROLLER_AXIS_RIGHTX],oldAxisState[SDL_CONTROLLER_AXIS_RIGHTY],RIGHT_THUMB_DEADZONE,rightPos);
 	Gamepad_ParseThumbStick(oldAxisState[SDL_CONTROLLER_AXIS_LEFTX],oldAxisState[SDL_CONTROLLER_AXIS_LEFTY],LEFT_THUMB_DEADZONE,leftPos);
 
-	cmd->forwardmove += move[1] * move[2] * speed * cl_forwardspeed->value;
-	cmd->sidemove += move[0] * move[2] * speed *  cl_sidespeed->value;
-
-	cl.in_delta[PITCH] -= (view[1] * view[2] * pitchInvert * gamepad_pitch_sensitivity->value) * aspeed * cl_pitchspeed->value;
-
-	cl.in_delta[YAW] -= (view[0] * view[2] * gamepad_yaw_sensitivity->value) * aspeed * cl_yawspeed->value;
+	ThumbstickMove(cmd, leftPos, rightPos, false);
 }
