@@ -53,8 +53,6 @@ typedef struct {
 	void (*getHMDResolution)(int32_t *width, int32_t *height);
 	// getControllerOrientation can be NULL if not supported
 	int32_t(*getControllerOrientation)(float euler[3]);
-	// getControllerOffset can be NULL if controller position tracking is unsupported
-	int32_t(*getControllerOffset)(float offset[3]);
 	// getInputCommands can be NULL if not supported
 	void(*getInputCommands)();
 	// getControllerMoveInput can be NULL if not supported
@@ -135,7 +133,6 @@ void VR_FrameStart();
 void VR_FrameEnd();
 int32_t VR_GetControllerOrientation(vec3_t angle);
 void VR_GetControllerOrientationDelta(vec3_t angle);
-int32_t VR_GetControllerOffset(vec3_t offset);
 void VR_GetOrientation(vec3_t angle);
 void VR_GetOrientationDelta(vec3_t angle);
 void VR_GetOrientationEMA(vec3_t angle);

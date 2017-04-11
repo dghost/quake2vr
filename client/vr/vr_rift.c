@@ -78,7 +78,6 @@ hmd_interface_t hmd_rift = {
 	NULL,
 	VR_Rift_GetHMDResolution,
 	VR_Rift_GetControllerOrientation,
-	VR_Rift_GetControllerPosition,
 	VR_Rift_GetInputCommands,
 	VR_Rift_GetControllerMoveInput
 };

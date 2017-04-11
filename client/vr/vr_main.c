@@ -74,7 +74,6 @@ static hmd_interface_t hmd_none = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	NULL
 };
 
@@ -220,18 +219,6 @@ int32_t VR_GetHeadOffset(vec3_t offset)
 		stale = 0;
 
 	return (hmd->getHeadOffset && hmd->getHeadOffset(offset));
-}
-
-// returns controller offset (relative to head) using X forward, Y left, Z up
-int32_t VR_GetControllerOffset(vec3_t offset)
-{
-	if (!hmd || !vr_positiontracking->value)
-		return false;
-
-	if (stale && VR_GetSensorOrientation())
-		stale = 0;
-
-	return (hmd->getControllerOffset && hmd->getControllerOffset(offset));
 }
 
 int32_t VR_GetHMDPos(int32_t *xpos, int32_t *ypos)

@@ -44,8 +44,6 @@ static ovrVector3f      HmdToEyeOffset[2];
 static vec4_t cameraFrustum[4];
 
 extern void VR_Rift_GetFOV(float *fovx, float *fovy);
-extern int32_t VR_Rift_RenderLatencyTest(vec4_t color);
-
 
 static vr_param_t currentState;
 static ovrPosef eyePoses[2];
@@ -124,18 +122,13 @@ void Rift_CalculateState(vr_param_t *state)
 
 		ovrState.eyeFBO[eye] = &renderInfo[eye].eyeFBO;
 
-		// set up rendering info
-		eyeDesc[eye] = ovr_GetRenderDesc(hmd, (ovrEyeType)eye, renderInfo[eye].eyeFov);
-		{
-			float vfov = atanf(renderInfo[eye].eyeFov.UpTan) + atanf(renderInfo[eye].eyeFov.DownTan);
-			renderInfo[eye].eyeFov.UpTan = renderInfo[eye].eyeFov.DownTan = tanf(vfov / 2);
-		}
-
-
 		ovrState.renderParams[eye].projection.x.scale = 2.0f / (renderInfo[eye].eyeFov.LeftTan + renderInfo[eye].eyeFov.RightTan);
 		ovrState.renderParams[eye].projection.x.offset = (renderInfo[eye].eyeFov.LeftTan - renderInfo[eye].eyeFov.RightTan) * ovrState.renderParams[eye].projection.x.scale * 0.5f;
 		ovrState.renderParams[eye].projection.y.scale = 2.0f / (renderInfo[eye].eyeFov.UpTan + renderInfo[eye].eyeFov.DownTan);
 		ovrState.renderParams[eye].projection.y.offset = (renderInfo[eye].eyeFov.UpTan - renderInfo[eye].eyeFov.DownTan) * ovrState.renderParams[eye].projection.y.scale * 0.5f;
+
+		// set up rendering info
+		eyeDesc[eye] = ovr_GetRenderDesc(hmd, (ovrEyeType)eye, renderInfo[eye].eyeFov);
 
 		VectorSet(ovrState.renderParams[eye].viewOffset,
 			eyeDesc[eye].HmdToEyeOffset.x,
@@ -171,10 +164,6 @@ void Rift_SetOffscreenSize(uint32_t width, uint32_t height) {
 	ovrTextureSwapChainDesc ovrTextureDesc;
 
 	Rift_CalculateState(&currentState);
-
-	//w = width / (float) hmdDesc.Resolution.w;
-	//h = height / (float) hmdDesc.Resolution.h;
-	//ovrScale = (w + h) / 2.0;
 
 	ovrScale = vr_supersampling->value;
 	if (vr_rift_debug->value)

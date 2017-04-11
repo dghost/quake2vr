@@ -150,7 +150,6 @@ hmd_interface_t hmd_steam = {
 	NULL,
 	NULL,
 	NULL,
-	NULL,
 	NULL
 };
 
