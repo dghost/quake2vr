@@ -289,8 +289,8 @@ void R_VR_StartFrame()
 
 }
 
-void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2], qboolean playerScale) {
-	vec_t scale = playerScale ? PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M : 1;
+void R_VR_CalcEyeOffsets(vec3_t eyeOffsetOut[2], vec4_t eyeRotationOut[2], qboolean scaleToWorldUnits) {
+	vec_t scale = scaleToWorldUnits ? PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M : 1;
 
 	if (vr_autoipd->value)
 	{
