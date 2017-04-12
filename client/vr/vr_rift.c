@@ -231,6 +231,7 @@ int32_t VR_Rift_getPosition(float pos[3])
 					isAutoCrouching = true;
 					if (cl.frame.playerstate.pmove.pm_flags & PMF_DUCKED)
 					{
+						pos[2] += 0.75; // Viewheight for player +22 -> -2 in PM_CheckDuck(). 24*pHeightMeters/pHeightUnits = 0.75m
 					}
 				}
 				else
@@ -610,8 +611,8 @@ int32_t VR_Rift_Init()
 	}
 	*/
 
-	vr_rift_trackingloss = Cvar_Get("vr_rift_trackingloss", "1", CVAR_CLIENT);
-	vr_rift_maxfov = Cvar_Get("vr_rift_maxfov", "1", CVAR_CLIENT);
+	vr_rift_trackingloss = Cvar_Get("vr_rift_trackingloss", "0", CVAR_CLIENT);
+	vr_rift_maxfov = Cvar_Get("vr_rift_maxfov", "0", CVAR_CLIENT);
 	vr_rift_enable = Cvar_Get("vr_rift_enable", "1", CVAR_CLIENT);
 	vr_rift_dk2_color_hack = Cvar_Get("vr_rift_dk2_color_hack", "0", CVAR_CLIENT);
 	vr_rift_debug = Cvar_Get("vr_rift_debug", "0", CVAR_CLIENT);
