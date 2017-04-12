@@ -29,7 +29,6 @@ void VR_Rift_ResetHMDOrientation();
 int32_t VR_Rift_SetPredictionTime(float time);
 int32_t VR_Rift_getPosition(float pos[3]);
 int32_t VR_Rift_GetControllerOrientation(float euler[3]);
-int32_t VR_Rift_GetControllerPosition(float offset[3]);
 void VR_Rift_GetInputCommands();
 void VR_Rift_GetControllerMoveInput(usercmd_t *cmd);
 
@@ -206,36 +205,6 @@ int32_t VR_Rift_GetControllerOrientation(float euler[3])
 	return 0;
 }
 
-int32_t VR_Rift_GetControllerPosition(float pos[3])
-{
-	double time = 0.0;
-	int32_t vrHand = 0;
-
-	if (!hmd)
-		return 0;
-
-	if (vr_controllermode->value)
-	{
-		vrHand = (int32_t)vr_controllermode->value;
-	}
-	if (vrHand == 0)
-	{
-		return 0;
-	}
-	vrHand = vrHand == 2 ? ovrHand_Left : ovrHand_Right;
-
-	if ((trackingState.HandStatusFlags[vrHand] & ovrStatus_PositionTracked) && (trackingState.StatusFlags & ovrStatus_PositionTracked))
-	{
-		ovrVector3f weapPos = trackingState.HandPoses[vrHand].ThePose.Position;
-		ovrVector3f headPos = trackingState.HeadPose.ThePose.Position;
-		VectorSet(pos, -(weapPos.z - headPos.z), weapPos.x - headPos.x, weapPos.y - headPos.y);
-		VectorScale(pos, (PLAYER_HEIGHT_UNITS / PLAYER_HEIGHT_M), pos);
-		return 1;
-	}
-
-	return 0;
-}
-
 void SCR_CenterAlert(char *str);
 int32_t VR_Rift_getPosition(float pos[3])
 {
@@ -262,7 +231,6 @@ int32_t VR_Rift_getPosition(float pos[3])
 					isAutoCrouching = true;
 					if (cl.frame.playerstate.pmove.pm_flags & PMF_DUCKED)
 					{
-						pos[2] += 0.75;
 					}
 				}
 				else
