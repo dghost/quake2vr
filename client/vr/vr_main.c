@@ -629,9 +629,9 @@ void VR_Startup(void)
 	vr_autoenable = Cvar_Get("vr_autoenable","1", CVAR_CLIENT);
 	vr_aimmode_deadzone_yaw = Cvar_Get("vr_aimmode_deadzone_yaw","40",CVAR_CLIENT);
 	vr_aimmode_deadzone_pitch = Cvar_Get("vr_aimmode_deadzone_pitch","60",CVAR_CLIENT);
-	vr_aimmode = Cvar_Get("vr_aimmode","6",CVAR_CLIENT);
+	vr_aimmode = Cvar_Get("vr_aimmode","8",CVAR_CLIENT);
 	vr_controllermode = Cvar_Get("vr_controllermode", "1", CVAR_CLIENT);
-	vr_comfortturn = Cvar_Get("vr_comfortturn", "22.5", CVAR_CLIENT);
+	vr_comfortturn = Cvar_Get("vr_comfortturn", "45", CVAR_CLIENT);
 	vr_autocrouch = Cvar_Get("vr_autocrouch", "0", CVAR_CLIENT);
 	Cmd_AddCommand("vr_reset_home",VR_ResetOrientation);
 	Cmd_AddCommand("comfortturn_left", VR_ComfortTurn_Left);
