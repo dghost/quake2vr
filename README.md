@@ -1,11 +1,12 @@
-### Quake II VR - v2.0.0.0 (alpha)
+### Quake II VR - v2.0.0 (alpha)
 2017/05/15
 
 [Luke Groeninger](https://github.com/dghost) - Quake II VR project  
 [Malcolm Smith](https://github.com/mscoder610) - This release (CV1 + partial Touch support + other updates)
 
 This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.
-This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incorporates work from [RiftQuake](https://github.com/phoboslab/Quakespasm-Rift/). This version was forked from the [libovr-0.8 branch of Quake II VR](https://github.com/q2vr/quake2vr/tree/libovr-0.8).
+This mod is based on [KMQuake II](http://www.markshan.com/knightmare/) and incorporates work from [RiftQuake](https://github.com/phoboslab/Quakespasm-Rift/).  
+This version was created from the [libovr-1.xx branch of Quake II VR](https://github.com/q2vr/quake2vr/tree/libovr-1.xx).
 
 Note: This version targets the Oculus SDK only, not Steam VR. It may work with the Vive in conjunction with Revive, but it hasn't been tested.
 
