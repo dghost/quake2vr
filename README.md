@@ -1,7 +1,7 @@
 ### Quake II VR - v2.0.0.0 (alpha)
 2017/05/15
 
-[Luke Groeninger](https://github.com/dghost) - Quake II VR project
+[Luke Groeninger](https://github.com/dghost) - Quake II VR project  
 [Malcolm Smith](https://github.com/mscoder610) - This release (CV1 + partial Touch support + other updates)
 
 This is a Quake II engine mod to add full support for Virtual Reality HMD's such as the Oculus Rift.
@@ -56,9 +56,11 @@ AimMode = DeadZone w/ Aim Move, or DeadZone with View Move.
 #### Downloads
 Note: A clean install is suggested, I haven't tested installing this package over an existing Quake 2 VR installation.
 
-- Playable Quake II demo package w/ VR support (54MB): 
-- Quake II VR Binaries package (35MB):
-- Quake II VR Binaries w/ HD Textures, Soundtrack + Multiplayer Mods (561MB):
+- Playable Quake II demo package w/ VR support (66MB): Quake2VR-2.0.0-shareware.zip  
+- Quake II VR Binaries package (34MB): Quake2VR-2.0.0-bin.zip  
+- Quake II VR Binaries w/ HD Textures, Soundtrack + Multiplayer Mods (561MB): Quake2VR-2.0.0-full.zip  
+All 3 packages are available here: [Link 1 (Mega)](https://mega.nz/#F!U8dRCYCA!msfdpEQfpj8Qec95gQ2sHA)  
+Also, the binaries-only package is available from the GitHub releases page: [Q2VR Releases on GitHub](https://github.com/q2vr/quake2vr/releases/)
 
 #### Instructions
 
@@ -94,7 +96,7 @@ As this is based on KMQuake II, it supports any modification or add-on that is c
 - [FAQs](https://github.com/q2vr/Quake2VR/wiki/FAQs)
 - [Bug Tracker](https://github.com/q2vr/Quake2VR/issues)
 
-####Acknowledgements
+#### Acknowledgements
 
 Quake II VR uses the following third-party libraries:
 
