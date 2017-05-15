@@ -860,7 +860,7 @@ void R_PostProcessInit()
 		r_bloom_radius = Cvar_Get("r_bloom_radius","15.0",CVAR_ARCHIVE);
 		r_bloom_minthreshold = Cvar_Get( "r_bloom_minthreshold", "0.15", CVAR_ARCHIVE );	// was 0.08
 		r_bloom_falloff = Cvar_Get("r_bloom_falloff","1.5",CVAR_ARCHIVE);
-		r_bloom = Cvar_Get( "r_bloom", "1", CVAR_ARCHIVE );	// BLOOMS
+		r_bloom = Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );	// BLOOMS
 		r_blur_texscale = Cvar_Get("r_blur_texscale","1.0",CVAR_ARCHIVE);
 		r_blur_radius = Cvar_Get("r_blur_radius","5.0",CVAR_ARCHIVE);
 		r_blur = Cvar_Get("r_blur", "1", CVAR_ARCHIVE );

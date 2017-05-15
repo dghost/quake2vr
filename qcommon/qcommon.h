@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "glob.h"
 
 #define	VERSION	"4.2" //was 3.21
-#define VR_VER "1.9.3-pre"
+#define VR_VER "2.0.0a"
 
 #define	BASEDIRNAME	"baseq2"
 

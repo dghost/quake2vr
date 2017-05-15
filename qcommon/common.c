@@ -1846,7 +1846,7 @@ void Qcommon_Init (int32_t argc, char **argv)
 	Cbuf_Execute ();
 
 	// Fix newgame alias if we only have a demo / shareware pak
-	if (!FS_FileExists("maps/base1.bsp") && FS_FileExists("maps/demo1.bsp"))
+	if ((!fs_gamedirvar->string[0] || !Q_strcasecmp(fs_gamedirvar->string, BASEDIRNAME)) && !FS_FileExists("maps/base1.bsp") && FS_FileExists("maps/demo1.bsp"))
 	{
 		Cmd_ExecuteString("alias   newgame \" killserver; maxclients 1; deathmatch 0; map demo1\"");
 	}

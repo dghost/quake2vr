@@ -1,16 +1,56 @@
-<h1>Quake II VR v1.9.3 Pre-release</h1>
+<h1>Quake II VR v2.0.0 Alpha</h1>
+<strong>Released May 15th, 2017</strong>
 
 <p>This is a Quake II engine mod to add native support for Virtual Reality HMD's such as the Oculus Rift.</p>
 
 <p>This mod is based on <a href="http://www.markshan.com/knightmare/">KMQuake II</a> and incorporates work from <a href="https://github.com/phoboslab/Quakespasm-Rift/">RiftQuake</a>.</p>
 
+<p><strong>Important Note:</strong> This version targets the Oculus SDK only, not Steam VR. It may work with the Vive in conjunction with Revive, but it hasn't been tested.</p>
+
+<h2>Features</h2>
+New in this version:
+<ul>
+<li>Oculus CV1 (consumer version) support with LibOVR 1.12</li>
+<li>Partial Oculus Touch support. Touch can be used as a gamepad input. Additionally, if "VR Controller Support" is enabled in the game options (VR section) (enabled by default for right-hand aiming), the Touch controllers can be used to aim weapons (orientation only). Positional weapon tracking is not supported.</li>
+<li>VR Comfort Turning (enabled by default, 22.5 degree increments). Can be disabled in game options, VR section. There are also two new console commands "comfortturn_left" and "comfortturn_right", so comfort turning can be used in conjunction with more aimmodes; bound to DPad Left and Right by default.</li>
+<li>Experimental VR auto-crouch feature (disabled by default), which lets you crouch in real-life to trigger in-game crouch. May be buggy. To enable, type 'vr_autocrouch 1' at the console</li>
+<li>VR Supersampling (Render Target Multiplier, Pixels per Display Pixel Override) can be set explicitly in game options (VR, Advanced).</li>
+</ul>
+Other features:
+<ul>
+<li>Projected HUD/2D UI elements</li>
+<li>Decoupled view and aiming</li>
+<li>Full configuration of VR settings through menus</li>
+<li>Native support for the Oculus Rift</li>
+<li>Xbox 360 / Xinput compatible gamepad support</li>
+<li>Regular / 2D mode if VR is disabled, or no Rift is detected</li>
+<li>Multiplayer should work (deathmatch or CTF)</li>
+</ul>
+
+<h2>Suggested VR configurations (aim modes, etc.)</h2>
+There's a lot of VR configuration options. Depending on how you want to play the game, here are my suggestions:
+<ul>
+<li>Seated or Standing (one direction / 180 degrees) with Oculus Touch:<br/> AimMode = Decoupled View/Aiming; VR Controller Support = on. Comfort Turning on/off depending on user preference.</li>
+<li>Seated or Standing (one direction / 180 degrees) with Gamepad:<br/> AimMode = Decoupled View/Aiming; VR Controller Support = disabled. Comfort Turning on (since the gamepad stick will change your aim direction not your look direction, keeping Comfort Turning on lets you change your view direction via snap turns by pressing gamepad DPad Left / Right)</li>
+<li>Seated or Standing, 360 degrees, with Gamepad or Oculus Touch:<br/> AimMode = Decoupled View/Aiming; VR Controller Support = on. Comfort Turning on/off depending on user preference.</li>
+<li>Seated or Standing, 360 degrees, with Gamepad:<br/> AimMode = Decoupled View/Aiming; VR Controller Support = disabled. Comfort Turning on/off depending on user preference.</li>
+<li>Seated, with Mouse Aiming:<br/> AimMode = DeadZone w/ Aim Move, or DeadZone with View Move.</li>
+</ul>
+
+<h2>Known Issues</h2>
+<ul>
+<li>Oculus SDK support only</li>
+<li>No positional weapon tracking w/ Oculus Touch, only orientation</li>
+<li>Positional tracking only affects your head / camera position. Your body doesn't move, which also means that positional tracking that doesn't affect where your weapon fires from.</li>
+</ul>
+
 <h2>Requirements</h2>
 
 <ul>
-<li>Full version of <a href="http://store.steampowered.com/app/2320/">Quake II</a></li>
-<li>Windows XP or higher</li>
-<li>Oculus Rift or any SteamVR supported HMD</li>
-<li>Pretty much any video card that supports DirectX 9 or higher</li>
+<li><a href="http://store.steampowered.com/app/2320/">Full version of Quake II</a>, or the demo version</li>
+<li>Oculus Rift (consumer version)</li>
+<li>Windows (tested with 8.1 and 10 - it may work with older versions too)</li>
+<li><a href="http://dgho.st/aXN5">32bit MSVC 2012 runtime</a></li>
 </ul>
 
 <h2>Instructions</h2>
@@ -50,6 +90,12 @@
 
 <h2>More Info</h2>
 
+Authors / Contributors for Q2VR:<br/>
+<ul>
+<li><a href="https://github.com/dghost">Luke Groeninger</a> - Quake II VR project</li>
+<li><a href="https://github.com/mscoder610">Malcolm Smith</a> - This release (CV1 + partial Touch support + other updates)</li>
+</ul>
+Project Links<br/>
 <ul>
 <li><a href="https://github.com/q2vr/Quake2VR/">Project Homepage</a></li>
 <li><a href="https://github.com/q2vr/Quake2VR/releases">Latest Releases</a></li>
