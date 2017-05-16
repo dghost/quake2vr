@@ -15,7 +15,7 @@ New in this version:
 
 - Oculus CV1 (consumer version) support with LibOVR 1.12
 - Partial Oculus Touch support. Touch can be used as a gamepad input. Additionally, if "VR Controller Support" is enabled in the game options (VR section) (enabled by default for right-hand aiming), the Touch controllers can be used to aim weapons (orientation only). Positional weapon tracking is not supported.
-- VR Comfort Turning (enabled by default, 22.5 degree increments). Can be disabled in game options, VR section. There are also two new console commands "comfortturn_left" and "comfortturn_right", so comfort turning can be used in conjunction with more aimmodes; bound to DPad Left and Right by default.
+- VR Comfort Turning (enabled by default, 45 degree increments). Can be disabled in game options, VR section. There are also two new console commands "comfortturn_left" and "comfortturn_right", so comfort turning can be used in conjunction with more aimmodes; bound to DPad Left and Right by default.
 - Experimental VR auto-crouch feature (disabled by default), which lets you crouch in real-life to trigger in-game crouch. May be buggy. To enable, type 'vr_autocrouch 1' at the console
 - VR Supersampling (Render Target Multiplier, Pixels per Display Pixel Override) can be set explicitly in game options (VR, Advanced).
 
