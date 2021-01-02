@@ -1,4 +1,4 @@
-**Note: This project is no longer active and has been archived. This repository is for reference only.*
+**Note: This project is no longer active and has been archived. This repository is for reference only.**
 
 ### Quake II VR
 
